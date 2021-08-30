@@ -3,15 +3,21 @@
   "config": {
     "step": {
       "user": {
-        "title": "Setup your account",
+        "title": "Octopus Energy",
+        "description": "Setup your basic account information.",
         "data": {
-          "API_KEY": "Api key. This is in your dev dashboard.",
-          "TARIFF": "Your tariff. This will determine the rates we retrieve.",
-          "TARIFF_CODE": "Your tariff code (e.g. E-1R-AGILE-18-02-21-C). This can be found in your dev dashboard.",
-          "ELEC_MPAN": "Electricity MPAN (optional)",
-          "ELEC_SN": "Electricity Serial Number (optional)",
-          "GAS_MPRN": "Gas MPRN (optional)",
-          "GAS_SN": "Gas Serial Number (optional)"
+          "Api key": "Api key. This is in your dev dashboard.",
+          "Tariff": "Your tariff. This will determine the rates we retrieve.",
+          "Tariff code": "Your tariff code (e.g. E-1R-AGILE-18-02-21-C).",
+          "Electricity MPAN": "Electricity MPAN (optional)",
+          "Electricity Serial Number": "Electricity Serial Number (optional)",
+          "Gas MPRN": "Gas MPRN (optional)",
+          "Gas Serial Number": "Gas Serial Number (optional)",
+          "Name": "The name of your runner",
+          "Hours": "The hours you need your device to run.",
+          "Type": "The type of runner you're after",
+          "Start time": "The minimum time to start the device",
+          "End time": "The maximum time to stop the device"
         }
       }
     },
