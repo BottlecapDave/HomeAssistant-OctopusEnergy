@@ -406,7 +406,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     for rate in self.coordinator.data:
       if rate["valid_from"] >= target_start and (target_end == None or rate["valid_to"] <= target_end):
         rates.append(rate)
-G
+
     return rates
     
   def calculate_continuous_times(self):
