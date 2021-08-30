@@ -1,0 +1,23 @@
+{
+  "title": "Octopus Energy",
+  "config": {
+    "step": {
+      "user": {
+        "title": "Setup your account",
+        "data": {
+          "API_KEY": "Api key. This is in your dev dashboard.",
+          "TARIFF": "Your tariff. This will determine the rates we retrieve.",
+          "TARIFF_CODE": "Your tariff code (e.g. E-1R-AGILE-18-02-21-C). This can be found in your dev dashboard.",
+          "ELEC_MPAN": "Electricity MPAN (optional)",
+          "ELEC_SN": "Electricity Serial Number (optional)",
+          "GAS_MPRN": "Gas MPRN (optional)",
+          "GAS_SN": "Gas Serial Number (optional)"
+        }
+      }
+    },
+    "error": {
+      "both_electric_not_supplied": "Both electric MPAN and Serial Number must be supplied or both should be empty",
+      "both_gas_not_supplied": "Both gas MPRN and Serial Number must be supplied or both should be empty"
+    }
+  }
+}
