@@ -8,6 +8,7 @@ from .const import (
   CONFIG_MAIN_API_KEY,
   CONFIG_MAIN_TARIFF,
   CONFIG_MAIN_TARIFF_CODE,
+  CONFIG_TARGET_NAME,
 
   DATA_CLIENT,
   DATA_COORDINATOR,
@@ -30,7 +31,7 @@ def setup_dependencies(hass, config):
   async def async_update_data():
     """Fetch data from API endpoint."""
     # Only get data every half hour or if we don't have any data
-    if (DATA_RATES not in hass.data[DOMAIN] or (utcnow().minute % 30) == 0):
+    if (DATA_RATES not in hass.data[DOMAIN] or (utcnow().minute % 30) == 0 or len(hass.data[DOMAIN][DATA_RATES]) == 0):
       _LOGGER.info('Updating rates...')
       hass.data[DOMAIN][DATA_RATES] = await client.async_get_rates('AGILE-18-02-21', config[CONFIG_MAIN_TARIFF_CODE])
     
@@ -54,9 +55,14 @@ async def async_setup_entry(hass, entry):
   if CONFIG_MAIN_API_KEY in entry.data:
     setup_dependencies(hass, entry.data)
 
-  # Forward our entry to setup our default sensors
-  hass.async_create_task(
-    hass.config_entries.async_forward_entry_setup(entry, "sensor")
-  )
+    # Forward our entry to setup our default sensors
+    hass.async_create_task(
+      hass.config_entries.async_forward_entry_setup(entry, "sensor")
+    )
+  elif CONFIG_TARGET_NAME in entry.data:
+    # Forward our entry to setup our target rate sensors
+    hass.async_create_task(
+      hass.config_entries.async_forward_entry_setup(entry, "binary_sensor")
+    )
 
   return True
