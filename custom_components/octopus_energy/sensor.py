@@ -1,7 +1,6 @@
 from datetime import timedelta
 import math
 import logging
-import async_timeout
 from datetime import datetime
 
 from homeassistant.exceptions import ConfigEntryAuthFailed
@@ -22,8 +21,6 @@ from .const import (
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
-  CONFIG_MAIN_TARIFF,
-  CONFIG_MAIN_TARIFF_CODE,
   CONFIG_MAIN_ELEC_MPAN,
   CONFIG_MAIN_ELEC_SN,
   CONFIG_MAIN_GAS_MPRN,
@@ -124,14 +121,17 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, SensorEntity):
     if (now.minute % 30) == 0 or self._state == 0:
       _LOGGER.info('Updating OctopusEnergyElectricityCurrentRate')
       
-      for period in self.coordinator.data:
-        if now < period["valid_to"]:
-          current_rate = period
-        else:
-          break
+      if self.coordinator.data != None:
+        for period in self.coordinator.data:
+          if now < period["valid_to"]:
+            current_rate = period
+          else:
+            break
 
-      self._attributes = current_rate
-      self._state = current_rate["value_inc_vat"]
+        self._attributes = current_rate
+        self._state = current_rate["value_inc_vat"]
+      else:
+        self._state = 0
 
     return self._state
 
@@ -181,14 +181,18 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
       _LOGGER.info('Updating OctopusEnergyElectricityPreviousRate')
       
       target = utcnow() - timedelta(minutes=30)
-      for period in self.coordinator.data:
-        if target < period["valid_to"]:
-          previous_rate = period
-        else:
-          break
       
-      self._attributes = previous_rate
-      self._state = previous_rate["value_inc_vat"]
+      if self.coordinator.data != None:
+        for period in self.coordinator.data:
+          if target < period["valid_to"]:
+            previous_rate = period
+          else:
+            break
+      
+        self._attributes = previous_rate
+        self._state = previous_rate["value_inc_vat"]
+      else:
+        self._state = 0
 
     return self._state
 
@@ -341,7 +345,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"sensor.octopus_energy_target_{self._config[CONFIG_TARGET_NAME]}"
+    return f"binary_sensor.octopus_energy_target_{self._config[CONFIG_TARGET_NAME]}"
     
   @property
   def name(self):
@@ -377,6 +381,21 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
       if all_rates_in_past:
         if (self._config[CONFIG_TARGET_TYPE] == "Continuous"):
           self._target_rates = self.calculate_continuous_times()
+        elif (self._config[CONFIG_TARGET_TYPE] == "Intermittent"):
+          self._target_rates = self.calculate_intermittent_times()
+        else:
+          _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")
+
+      attributes = self._config.copy()
+      self._target_rates.sort(key=self.get_valid_to)
+      attributes["Target times"] = self._target_rates
+
+      if (len(self._target_rates) > 0):
+        attributes["Next time"] = self._target_rates[0]["valid_from"]
+      else:
+        attributes["Next time"] = None
+
+      self._attributes = attributes
 
     for rate in self._target_rates:
       if now >= rate["valid_from"] and now <= rate["valid_to"]:
@@ -384,10 +403,14 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
 
     return False
 
+  def get_valid_to(self, rate):
+    return rate["valid_to"]
+
   def get_applicable_rates(self):
     now = utcnow()
 
     if CONFIG_TARGET_END_TIME in self._config:
+      # Get the target end for today. If this is in the past, then look at tomorrow
       target_end = as_utc(datetime.strptime(now.strftime(f"%Y-%m-%dT{self._config[CONFIG_TARGET_END_TIME]}:%SZ"), f"%Y-%m-%dT%H:%M:%SZ"))
       if (target_end < now):
         target_end = target_end + timedelta(days=1)
@@ -395,17 +418,24 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
       target_end = None
 
     if CONFIG_TARGET_START_TIME in self._config:
+      # Get the target start on the same day as our target end. If this is after our target end (which can occur if we're looking for
+      # a time over night), then go back a day
       target_start = as_utc(datetime.strptime(target_end.strftime(f"%Y-%m-%dT{self._config[CONFIG_TARGET_START_TIME]}:%SZ"), f"%Y-%m-%dT%H:%M:%SZ"))
       if (target_start > target_end):
         target_start = target_start - timedelta(days=1)
+
+      # If our start date has passed, reset it to now to avoid picking a slot in the past
+      if (target_start < now):
+        target_start = now
     else:
       target_start = now
 
     # Retrieve the rates that are applicable for our target rate
     rates = []
-    for rate in self.coordinator.data:
-      if rate["valid_from"] >= target_start and (target_end == None or rate["valid_to"] <= target_end):
-        rates.append(rate)
+    if self.coordinator.data != None:
+      for rate in self.coordinator.data:
+        if rate["valid_from"] >= target_start and (target_end == None or rate["valid_to"] <= target_end):
+          rates.append(rate)
 
     return rates
     
@@ -435,11 +465,17 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
         best_continuous_rates = continuous_rates
         best_continuous_rates_total = continuous_rates_total
 
-    attributes = self._config.copy()
-    attributes["Target Times"] = best_continuous_rates
-    self._attributes = attributes
-
     if best_continuous_rates is not None:
       return best_continuous_rates
     
     return []
+
+  def get_rate(self, rate):
+    return rate["value_inc_vat"]
+  
+  def calculate_intermittent_times(self):
+    rates = self.get_applicable_rates()
+    total_required_rates = math.ceil(float(self._config[CONFIG_TARGET_HOURS]) * 2)
+
+    rates.sort(key=self.get_rate)
+    return rates[:total_required_rates]
