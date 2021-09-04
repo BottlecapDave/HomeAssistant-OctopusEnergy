@@ -1,6 +1,8 @@
 # Home Assistant Octopus Energy
 
-Custom component to bring your Octopus Energy details into Home Assistant to help you towards a more energy efficient (and or cheaper) home.
+** WARNING: This component is currently a work in progress **
+
+Custom component built from the ground up to bring your Octopus Energy details into Home Assistant to help you towards a more energy efficient (and or cheaper) home.
 
 ## How to install
 
