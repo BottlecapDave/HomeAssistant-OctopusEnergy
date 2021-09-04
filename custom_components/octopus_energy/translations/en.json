@@ -4,15 +4,10 @@
     "step": {
       "user": {
         "title": "Octopus Energy",
-        "description": "Setup your basic account information.",
+        "description": "Setup your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
         "data": {
-          "Api key": "Api key. This is in your dev dashboard.",
-          "Tariff": "Your tariff. This will determine the rates we retrieve.",
-          "Tariff code": "Your tariff code (e.g. E-1R-AGILE-18-02-21-C).",
-          "Electricity MPAN": "Electricity MPAN (optional)",
-          "Electricity Serial Number": "Electricity Serial Number (optional)",
-          "Gas MPRN": "Gas MPRN (optional)",
-          "Gas Serial Number": "Gas Serial Number (optional)",
+          "Api key": "Api key",
+          "Account Id": "Your account Id (e.g. A-AAAA1111)",
           "Name": "The name of your runner",
           "Hours": "The hours you need your device to run.",
           "Type": "The type of runner you're after",
@@ -22,8 +17,7 @@
       }
     },
     "error": {
-      "both_electric_not_supplied": "Both electric MPAN and Serial Number must be supplied or both should be empty",
-      "both_gas_not_supplied": "Both gas MPRN and Serial Number must be supplied or both should be empty"
+      "account_not_found": "Account information was not found"
     }
   }
 }

@@ -17,10 +17,7 @@ from .const import (
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
-  CONFIG_MAIN_ELEC_MPAN,
-  CONFIG_MAIN_ELEC_SN,
-  CONFIG_MAIN_GAS_MPRN,
-  CONFIG_MAIN_GAS_SN,
+  CONFIG_MAIN_ACCOUNT_ID,
 
   DATA_COORDINATOR,
   DATA_CLIENT
@@ -45,13 +42,20 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
 
   await coordinator.async_config_entry_first_refresh()
 
-  entities = [OctopusEnergyElectricityCurrentRate(coordinator), OctopusEnergyElectricityPreviousRate(coordinator)]
+  entities = []
+  # entities = [OctopusEnergyElectricityCurrentRate(coordinator), OctopusEnergyElectricityPreviousRate(coordinator)]
 
-  if config[CONFIG_MAIN_ELEC_MPAN] != "" and config[CONFIG_MAIN_ELEC_SN] != "":
-    entities.append(OctopusEnergyLatestElectricityReading(client, config[CONFIG_MAIN_ELEC_MPAN], config[CONFIG_MAIN_ELEC_SN]))
+  account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
 
-  if config[CONFIG_MAIN_GAS_MPRN] != "" and config[CONFIG_MAIN_GAS_SN] != "":
-    entities.append(OctopusEnergyLatestGasReading(client, config[CONFIG_MAIN_GAS_MPRN], config[CONFIG_MAIN_GAS_SN]))
+  if len(account_info["electricity_meter_points"]) > 0:
+    for point in account_info["electricity_meter_points"]:
+      for meter in point["meters"]:
+        entities.append(OctopusEnergyLatestElectricityReading(client, point["mpan"], meter["serial_number"]))
+
+  if len(account_info["gas_meter_points"]) > 0:
+    for point in account_info["gas_meter_points"]:
+      for meter in point["meters"]:
+        entities.append(OctopusEnergyLatestGasReading(client, point["mprn"], meter["serial_number"]))
 
   async_add_entities(entities, True)
 
@@ -184,13 +188,18 @@ class OctopusEnergyLatestElectricityReading(SensorEntity):
     self._serial_number = serial_number
     self._client = client
 
+    self._attributes = {
+      "MPAN": mpan,
+      "Serial Number": serial_number
+    }
+
     self._state = 0
     self._last_reset = utcnow()
 
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return "octopus_energy_electricity_latest_consumption"
+    return f"octopus_energy_electricity_{self._serial_number}_latest_consumption"
     
   @property
   def name(self):
@@ -218,6 +227,11 @@ class OctopusEnergyLatestElectricityReading(SensorEntity):
     return "mdi:lightning-bolt"
 
   @property
+  def extra_state_attributes(self):
+    """Attributes of the sensor."""
+    return self._attributes
+
+  @property
   def state(self):
     """Native value of the sensor."""
     return self._state
@@ -231,7 +245,7 @@ class OctopusEnergyLatestElectricityReading(SensorEntity):
     """Retrieve the latest consumption"""
     # We only need to do this every half an hour
     now = utcnow()
-    if (now.minute % 30) == 0 or self._state == 0:
+    if (now.minute % 30) == 0:
       _LOGGER.info('Updating OctopusEnergyLatestElectricityReading')
 
       data = await self._client.async_latest_electricity_consumption(self._mpan, self._serial_number)
@@ -251,13 +265,18 @@ class OctopusEnergyLatestGasReading(SensorEntity):
     self._serial_number = serial_number
     self._client = client
 
+    self._attributes = {
+      "MPRN": mprn,
+      "Serial Number": serial_number
+    }
+
     self._state = 0
     self._last_reset = utcnow()
 
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return "octopus_energy_gas_latest_consumption"
+    return f"octopus_energy_gas_{self._serial_number}_latest_consumption"
     
   @property
   def name(self):
@@ -285,6 +304,11 @@ class OctopusEnergyLatestGasReading(SensorEntity):
     return "mdi:lightning-bolt"
 
   @property
+  def extra_state_attributes(self):
+    """Attributes of the sensor."""
+    return self._attributes
+
+  @property
   def state(self):
     """Native value of the sensor."""
     return self._state
@@ -298,7 +322,7 @@ class OctopusEnergyLatestGasReading(SensorEntity):
     """Retrieve the latest consumption"""
     # We only need to do this every half an hour
     now = utcnow()
-    if (now.minute % 30) == 0 or self._state == 0:
+    if (now.minute % 30) == 0:
       _LOGGER.info('Updating OctopusEnergyLatestGasReading')
 
       data = await self._client.async_latest_gas_consumption(self._mprn, self._serial_number)

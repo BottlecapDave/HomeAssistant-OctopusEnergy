@@ -1,12 +1,7 @@
 DOMAIN = "octopus_energy"
 
 CONFIG_MAIN_API_KEY = "Api key"
-CONFIG_MAIN_TARIFF = "Tariff"
-CONFIG_MAIN_TARIFF_CODE = "Tariff code"
-CONFIG_MAIN_ELEC_MPAN = "Electricity MPAN"
-CONFIG_MAIN_ELEC_SN = "Electricity Serial Number"
-CONFIG_MAIN_GAS_MPRN = "Gas MPRN"
-CONFIG_MAIN_GAS_SN = "Gas Serial Number"
+CONFIG_MAIN_ACCOUNT_ID = "Account Id"
 
 CONFIG_TARGET_NAME = "Name"
 CONFIG_TARGET_HOURS = "Hours"

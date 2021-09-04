@@ -6,8 +6,6 @@ from .const import (
   DOMAIN,
 
   CONFIG_MAIN_API_KEY,
-  CONFIG_MAIN_TARIFF,
-  CONFIG_MAIN_TARIFF_CODE,
   CONFIG_TARGET_NAME,
 
   DATA_CLIENT,
@@ -25,7 +23,7 @@ _LOGGER = logging.getLogger(__name__)
 
 def setup_dependencies(hass, config):
   """Setup the coordinator and api client which will be shared by various entities"""
-  client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], config[CONFIG_MAIN_TARIFF])
+  client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY])
   hass.data[DOMAIN][DATA_CLIENT] = client
 
   async def async_update_data():
@@ -33,7 +31,8 @@ def setup_dependencies(hass, config):
     # Only get data every half hour or if we don't have any data
     if (DATA_RATES not in hass.data[DOMAIN] or (utcnow().minute % 30) == 0 or len(hass.data[DOMAIN][DATA_RATES]) == 0):
       _LOGGER.info('Updating rates...')
-      hass.data[DOMAIN][DATA_RATES] = await client.async_get_rates('AGILE-18-02-21', config[CONFIG_MAIN_TARIFF_CODE])
+      # hass.data[DOMAIN][DATA_RATES] = await client.async_get_rates('AGILE-18-02-21', config[CONFIG_MAIN_TARIFF_CODE])
+      hass.data[DOMAIN][DATA_RATES] = []
     
     return hass.data[DOMAIN][DATA_RATES]
 

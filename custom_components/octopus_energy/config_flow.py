@@ -6,12 +6,7 @@ from .const import (
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
-  CONFIG_MAIN_TARIFF,
-  CONFIG_MAIN_TARIFF_CODE,
-  CONFIG_MAIN_ELEC_MPAN,
-  CONFIG_MAIN_ELEC_SN,
-  CONFIG_MAIN_GAS_MPRN,
-  CONFIG_MAIN_GAS_SN,
+  CONFIG_MAIN_ACCOUNT_ID,
   
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_HOURS,
@@ -21,19 +16,11 @@ from .const import (
 )
 
 import homeassistant.helpers.config_validation as cv
+from .api_client import OctopusEnergyApiClient
 
 ACCOUNT_DATA_SCHEMA = vol.Schema({
   vol.Required(CONFIG_MAIN_API_KEY): str,
-  vol.Required(CONFIG_MAIN_TARIFF, default="Agile"): vol.In({
-    "Agile": "Agile",
-    "Go": "Go",
-    "Other": "Other"
-  }),
-  vol.Required(CONFIG_MAIN_TARIFF_CODE): str,
-  vol.Optional(CONFIG_MAIN_ELEC_MPAN): str,
-  vol.Optional(CONFIG_MAIN_ELEC_SN): str,
-  vol.Optional(CONFIG_MAIN_GAS_MPRN): str,
-  vol.Optional(CONFIG_MAIN_GAS_SN): str,
+  vol.Required(CONFIG_MAIN_ACCOUNT_ID): str,
 })
 
 TARGET_DATA_SCHEMA = vol.Schema({
@@ -57,38 +44,24 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
   async def async_setup_initial_account(self, user_input):
     """Setup the initial account based on the provided user input"""
     errors = {}
-    config = {
-      CONFIG_MAIN_API_KEY: user_input[CONFIG_MAIN_API_KEY],
-      CONFIG_MAIN_TARIFF: user_input[CONFIG_MAIN_TARIFF],
-      CONFIG_MAIN_TARIFF_CODE: user_input[CONFIG_MAIN_TARIFF_CODE]
-    }
 
-    # Allow electricity to either be defined or not, but not partially
-    if (CONFIG_MAIN_ELEC_MPAN in user_input and CONFIG_MAIN_ELEC_SN not in user_input) or (CONFIG_MAIN_ELEC_MPAN not in user_input and CONFIG_MAIN_ELEC_SN in user_input):
-      errors[CONFIG_MAIN_ELEC_MPAN] = "both_electric_not_supplied"
-
-    if CONFIG_MAIN_ELEC_MPAN in user_input and CONFIG_MAIN_ELEC_SN in user_input:
-      config[CONFIG_MAIN_ELEC_MPAN] = user_input[CONFIG_MAIN_ELEC_MPAN]
-      config[CONFIG_MAIN_ELEC_SN] = user_input[CONFIG_MAIN_ELEC_SN]
-
-    # Allow gas to either be defined or not, but not partially
-    if (CONFIG_MAIN_GAS_MPRN in user_input and CONFIG_MAIN_GAS_SN not in user_input) or (CONFIG_MAIN_GAS_MPRN not in user_input and CONFIG_MAIN_GAS_SN in user_input):
-      errors[CONFIG_MAIN_GAS_MPRN] = "both_gas_not_supplied"
-      
-    if CONFIG_MAIN_GAS_MPRN in user_input and CONFIG_MAIN_GAS_SN in user_input:
-      config[CONFIG_MAIN_GAS_MPRN] = user_input[CONFIG_MAIN_GAS_MPRN]
-      config[CONFIG_MAIN_GAS_SN] = user_input[CONFIG_MAIN_GAS_SN]
-
-    if len(errors) < 1:
-      # Setup our basic sensors
-      return self.async_create_entry(
-        title="Octopus Energy", 
-        data=config
+    client = OctopusEnergyApiClient(user_input[CONFIG_MAIN_API_KEY])
+    account_info = await client.async_get_account(user_input[CONFIG_MAIN_ACCOUNT_ID])
+    if (account_info == None):
+      errors[CONFIG_MAIN_ACCOUNT_ID] = "account_not_found"
+      return self.async_show_form(
+        step_id="user", data_schema=ACCOUNT_DATA_SCHEMA, errors=errors
       )
 
-    # Reshow our form with raised logins
-    return self.async_show_form(
-      step_id="user", data_schema=ACCOUNT_DATA_SCHEMA, errors=errors
+    config = {
+      CONFIG_MAIN_API_KEY: user_input[CONFIG_MAIN_API_KEY],
+      CONFIG_MAIN_ACCOUNT_ID: user_input[CONFIG_MAIN_ACCOUNT_ID]
+    }
+
+    # Setup our basic sensors
+    return self.async_create_entry(
+      title="Octopus Energy", 
+      data=config
     )
 
   async def async_setup_target(self, user_input):

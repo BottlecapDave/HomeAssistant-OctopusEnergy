@@ -125,7 +125,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
 
     if CONFIG_TARGET_END_TIME in self._config:
       # Get the target end for today. If this is in the past, then look at tomorrow
-      target_end = as_utc(datetime.strptime(now.strftime(f"%Y-%m-%dT{self._config[CONFIG_TARGET_END_TIME]}:%SZ"), f"%Y-%m-%dT%H:%M:%SZ"))
+      target_end = as_utc(datetime.fromisoformat(now.strftime(f"%Y-%m-%dT{self._config[CONFIG_TARGET_END_TIME]}:%SZ")))
       if (target_end < now):
         target_end = target_end + timedelta(days=1)
     else:
@@ -134,7 +134,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     if CONFIG_TARGET_START_TIME in self._config:
       # Get the target start on the same day as our target end. If this is after our target end (which can occur if we're looking for
       # a time over night), then go back a day
-      target_start = as_utc(datetime.strptime(target_end.strftime(f"%Y-%m-%dT{self._config[CONFIG_TARGET_START_TIME]}:%SZ"), f"%Y-%m-%dT%H:%M:%SZ"))
+      target_start = as_utc(datetime.fromisoformat(target_end.strftime(f"%Y-%m-%dT{self._config[CONFIG_TARGET_START_TIME]}:%SZ")))
       if (target_start > target_end):
         target_start = target_start - timedelta(days=1)
 
