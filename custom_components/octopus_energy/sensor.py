@@ -1,10 +1,7 @@
 from datetime import timedelta
 import logging
-from datetime import datetime
 
-from homeassistant.exceptions import ConfigEntryAuthFailed
-from homeassistant.core import callback
-from homeassistant.util.dt import (utcnow, as_utc)
+from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
@@ -13,6 +10,7 @@ from homeassistant.components.sensor import (
     DEVICE_CLASS_ENERGY,
     SensorEntity,
 )
+from .utils import get_active_agreement
 from .const import (
   DOMAIN,
   
@@ -42,20 +40,23 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
 
   await coordinator.async_config_entry_first_refresh()
 
-  entities = []
-  # entities = [OctopusEnergyElectricityCurrentRate(coordinator), OctopusEnergyElectricityPreviousRate(coordinator)]
-
+  entities = [OctopusEnergyElectricityCurrentRate(coordinator), OctopusEnergyElectricityPreviousRate(coordinator)]
+  
   account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
 
   if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
-      for meter in point["meters"]:
-        entities.append(OctopusEnergyLatestElectricityReading(client, point["mpan"], meter["serial_number"]))
+      # We only care about points that have active agreements
+      if get_active_agreement(point["agreements"]) != None:
+        for meter in point["meters"]:
+          entities.append(OctopusEnergyLatestElectricityReading(client, point["mpan"], meter["serial_number"]))
 
   if len(account_info["gas_meter_points"]) > 0:
     for point in account_info["gas_meter_points"]:
-      for meter in point["meters"]:
-        entities.append(OctopusEnergyLatestGasReading(client, point["mprn"], meter["serial_number"]))
+      # We only care about points that have active agreements
+      if get_active_agreement(point["agreements"]) != None:
+        for meter in point["meters"]:
+          entities.append(OctopusEnergyLatestGasReading(client, point["mprn"], meter["serial_number"]))
 
   async_add_entities(entities, True)
 
@@ -98,19 +99,19 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, SensorEntity):
   @property
   def state(self):
     """The state of the sensor."""
-    # Find the current rate. 
-    # We only need to do this every half an hour
+    # Find the current rate. We only need to do this every half an hour
     now = utcnow()
     if (now.minute % 30) == 0 or self._state == 0:
       _LOGGER.info('Updating OctopusEnergyElectricityCurrentRate')
       
+      current_rate = None
       if self.coordinator.data != None:
         for period in self.coordinator.data:
-          if now < period["valid_to"]:
+          if now >= period["valid_from"] and now <= period["valid_to"]:
             current_rate = period
-          else:
             break
 
+      if current_rate != None:
         self._attributes = current_rate
         self._state = current_rate["value_inc_vat"]
       else:
@@ -157,21 +158,21 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
   @property
   def state(self):
     """The state of the sensor."""
-    # Find the current rate. 
-    # We only need to do this every half an hour
+    # Find the previous rate. We only need to do this every half an hour
     now = utcnow()
     if (now.minute % 30) == 0 or self._state == 0:
       _LOGGER.info('Updating OctopusEnergyElectricityPreviousRate')
       
       target = utcnow() - timedelta(minutes=30)
       
+      previous_rate = None
       if self.coordinator.data != None:
         for period in self.coordinator.data:
-          if target < period["valid_to"]:
+          if target >= period["valid_from"] and target <= period["valid_to"]:
             previous_rate = period
-          else:
             break
       
+      if previous_rate != None:
         self._attributes = previous_rate
         self._state = previous_rate["value_inc_vat"]
       else:
@@ -204,7 +205,7 @@ class OctopusEnergyLatestElectricityReading(SensorEntity):
   @property
   def name(self):
     """Name of the sensor."""
-    return "Octopus Energy Electricity Latest Consumption"
+    return f"Octopus Energy Electricity {self._serial_number} Latest Consumption"
 
   @property
   def device_class(self):
@@ -281,7 +282,7 @@ class OctopusEnergyLatestGasReading(SensorEntity):
   @property
   def name(self):
     """Name of the sensor."""
-    return "Octopus Energy Gas Latest Consumption"
+    return f"Octopus Energy Gas {self._serial_number} Latest Consumption"
 
   @property
   def device_class(self):

@@ -14,6 +14,17 @@
           "Start time": "The minimum time to start the device",
           "End time": "The maximum time to stop the device"
         }
+      },
+      "target_rate": {
+        "title": "Octopus Energy",
+        "description": "Setup a target rate period. Continuous target will find the cheapest continuous period for your target hours. While intermittent will find the cheapest periods with potential gaps, which when combined will meet your target hours.",
+        "data": {
+          "Name": "The name of your target",
+          "Hours": "The hours you require.",
+          "Type": "The type of target you're after",
+          "Start time": "The minimum time to start the device",
+          "End time": "The maximum time to stop the device"
+        }
       }
     },
     "error": {
