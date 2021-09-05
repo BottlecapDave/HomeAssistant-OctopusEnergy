@@ -27,6 +27,7 @@ You can use the consumption sensors as part of your [energy dashboard](https://w
 
 If you go through the [setup](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy) process after you've configured your account, you can set up target rate sensors. These sensors calculate the lowest continuous or intermittent points and turn on when these rates are active. These sensors can then be used in automations to turn on/off devices the save you money (and in theory be on when there's the most renewable energy).
 
-## Known Issues
+## Known Issues/Limitations
 
 - Latest consumption is at the mercy of how often Octopus Energy updates their records. This seems to be a day behind based on local testing
+- Only handles the first property associated with an account
