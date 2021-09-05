@@ -71,10 +71,7 @@ class OctopusEnergyApiClient:
     """Get the current rates"""
     async with aiohttp.ClientSession() as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
-      now = utcnow()
-      period_from = (now - timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%S")
-      period_to = now.strftime("%Y-%m-%dT%H:%M:%SZ")
-      async with client.get(f'{self._base_url}/v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption?period_from={period_from}&period_to={period_to}&page_size=1', auth=auth) as response:
+      async with client.get(f'{self._base_url}/v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption?page_size=1', auth=auth) as response:
         data = await response.json()
         if ("results" in data):
           data = data["results"]
@@ -91,11 +88,7 @@ class OctopusEnergyApiClient:
     """Get the current rates"""
     async with aiohttp.ClientSession() as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
-      now = utcnow()
-      period_from = (now - timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%S")
-      period_to = now.strftime(f"%Y-%m-%dT%H:%M:%SZ")
-
-      async with client.get(f'{self._base_url}/v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption?period_from={period_from}&period_to={period_to}&page_size=1', auth=auth) as response:
+      async with client.get(f'{self._base_url}/v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption?page_size=1', auth=auth) as response:
         data = await response.json()
         if ("results" in data):
           data = data["results"]

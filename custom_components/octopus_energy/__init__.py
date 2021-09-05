@@ -12,7 +12,9 @@ from .const import (
 
   DATA_CLIENT,
   DATA_COORDINATOR,
-  DATA_RATES
+  DATA_RATES,
+
+  REGEX_PRODUCT_NAME
 )
 
 from .api_client import OctopusEnergyApiClient
@@ -50,7 +52,7 @@ def setup_dependencies(hass, config):
         raise
 
       tariff_code = current_agreement["tariff_code"]
-      matches = re.search("^[A-Z]-[0-9A-Z]+-([A-Z0-9-]+)-[A-Z]$", tariff_code)
+      matches = re.search(REGEX_PRODUCT_NAME, tariff_code)
       if matches == None:
         raise
 

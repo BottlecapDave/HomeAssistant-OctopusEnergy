@@ -7,19 +7,14 @@
         "description": "Setup your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
         "data": {
           "Api key": "Api key",
-          "Account Id": "Your account Id (e.g. A-AAAA1111)",
-          "Name": "The name of your runner",
-          "Hours": "The hours you need your device to run.",
-          "Type": "The type of runner you're after",
-          "Start time": "The minimum time to start the device",
-          "End time": "The maximum time to stop the device"
+          "Account Id": "Your account Id (e.g. A-AAAA1111)"
         }
       },
       "target_rate": {
         "title": "Octopus Energy",
         "description": "Setup a target rate period. Continuous target will find the cheapest continuous period for your target hours. While intermittent will find the cheapest periods with potential gaps, which when combined will meet your target hours.",
         "data": {
-          "Name": "The name of your target",
+          "entity_id": "The name of your target",
           "Hours": "The hours you require.",
           "Type": "The type of target you're after",
           "Start time": "The minimum time to start the device",
@@ -28,7 +23,10 @@
       }
     },
     "error": {
-      "account_not_found": "Account information was not found"
+      "account_not_found": "Account information was not found",
+      "invalid_target_hours": "Target hours must be in half hour increments.",
+      "invalid_target_name": "Name must only include lower case alpha characters and underscore (e.g. my_target)",
+      "invalid_target_time": "Must be in the format HH:MM"
     }
   }
 }

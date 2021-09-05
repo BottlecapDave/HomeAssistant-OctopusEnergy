@@ -1,4 +1,5 @@
 from homeassistant.config_entries import ConfigFlow
+import re
 import voluptuous as vol
 import logging
 
@@ -12,7 +13,11 @@ from .const import (
   CONFIG_TARGET_HOURS,
   CONFIG_TARGET_TYPE,
   CONFIG_TARGET_START_TIME,
-  CONFIG_TARGET_END_TIME
+  CONFIG_TARGET_END_TIME,
+
+  REGEX_TIME,
+  REGEX_ENTITY_NAME,
+  REGEX_HOURS
 )
 
 import homeassistant.helpers.config_validation as cv
@@ -64,20 +69,38 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       data=config
     )
 
-  async def async_setup_target(self, user_input):
+  async def async_step_target_rate(self, user_input):
     """Setup a target based on the provided user input"""
     errors = {}
     config = {
       CONFIG_TARGET_NAME: user_input[CONFIG_TARGET_NAME],
-      CONFIG_TARGET_HOURS: user_input[CONFIG_TARGET_HOURS],
       CONFIG_TARGET_TYPE: user_input[CONFIG_TARGET_TYPE]
     }
 
+    # For some reason float type isn't working properly - reporting user input malformed
+    matches = re.search(REGEX_HOURS, user_input[CONFIG_TARGET_HOURS])
+    if matches == None:
+      errors[CONFIG_TARGET_START_TIME] = "invalid_target_hours"
+    else:
+      config[CONFIG_TARGET_HOURS] = float(user_input[CONFIG_TARGET_HOURS])
+      if config[CONFIG_TARGET_HOURS] % 0.5 != 0:
+        errors[CONFIG_TARGET_HOURS] = "invalid_target_hours"
+
     if CONFIG_TARGET_START_TIME in user_input:
       config[CONFIG_TARGET_START_TIME] = user_input[CONFIG_TARGET_START_TIME]
+      matches = re.search(REGEX_TIME, config[CONFIG_TARGET_START_TIME])
+      if matches == None:
+        errors[CONFIG_TARGET_START_TIME] = "invalid_target_time"
 
     if CONFIG_TARGET_END_TIME in user_input:
       config[CONFIG_TARGET_END_TIME] = user_input[CONFIG_TARGET_END_TIME]
+      matches = re.search(REGEX_TIME, config[CONFIG_TARGET_START_TIME])
+      if matches == None:
+        errors[CONFIG_TARGET_START_TIME] = "invalid_target_time"
+
+    matches = re.search(REGEX_ENTITY_NAME, config[CONFIG_TARGET_NAME])
+    if matches == None:
+      errors[CONFIG_TARGET_NAME] = "invalid_target_name"
 
     if len(errors) < 1:
       # Setup our targets sensor
@@ -88,7 +111,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
     # Reshow our form with raised logins
     return self.async_show_form(
-      step_id="user", data_schema=TARGET_DATA_SCHEMA, errors=errors
+      step_id="target_rate", data_schema=TARGET_DATA_SCHEMA, errors=errors
     )
 
   async def async_step_user(self, user_input):
@@ -107,11 +130,11 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
       # We are setting up a target
       if CONFIG_TARGET_NAME in user_input:
-        return await self.async_setup_target(user_input)
+        return await self.async_step_target_rate(user_input)
 
     if is_account_setup:
       return self.async_show_form(
-        step_id="user", data_schema=TARGET_DATA_SCHEMA
+        step_id="target_rate", data_schema=TARGET_DATA_SCHEMA
       )
 
     return self.async_show_form(

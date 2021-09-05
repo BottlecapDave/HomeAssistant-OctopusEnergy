@@ -20,7 +20,8 @@ from .const import (
   CONFIG_TARGET_START_TIME,
   CONFIG_TARGET_END_TIME,
 
-  DATA_COORDINATOR
+  DATA_COORDINATOR,
+  DATA_CLIENT
 )
 
 _LOGGER = logging.getLogger(__name__)
