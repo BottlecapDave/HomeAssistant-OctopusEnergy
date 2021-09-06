@@ -92,6 +92,11 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, SensorEntity):
     return "mdi:currency-usd"
 
   @property
+  def unit_of_measurement(self):
+    """Unit of measurement of the sensor."""
+    return "GBP/kWh"
+
+  @property
   def extra_state_attributes(self):
     """Attributes of the sensor."""
     return self._attributes
@@ -113,7 +118,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, SensorEntity):
 
       if current_rate != None:
         self._attributes = current_rate
-        self._state = current_rate["value_inc_vat"]
+        self._state = current_rate["value_inc_vat"] / 100
       else:
         self._state = 0
 
@@ -151,6 +156,11 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
     return "mdi:currency-usd"
 
   @property
+  def unit_of_measurement(self):
+    """Unit of measurement of the sensor."""
+    return "GBP/kWh"
+
+  @property
   def extra_state_attributes(self):
     """Attributes of the sensor."""
     return self._attributes
@@ -174,7 +184,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
       
       if previous_rate != None:
         self._attributes = previous_rate
-        self._state = previous_rate["value_inc_vat"]
+        self._state = previous_rate["value_inc_vat"] / 100
       else:
         self._state = 0
 
