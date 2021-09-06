@@ -8,6 +8,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.components.sensor import (
     DEVICE_CLASS_MONETARY,
     DEVICE_CLASS_ENERGY,
+    STATE_CLASS_TOTAL_INCREASING,
     SensorEntity,
 )
 from .utils import get_active_agreement
@@ -205,7 +206,6 @@ class OctopusEnergyLatestElectricityReading(SensorEntity):
     }
 
     self._state = 0
-    self._last_reset = utcnow()
 
   @property
   def unique_id(self):
@@ -225,7 +225,7 @@ class OctopusEnergyLatestElectricityReading(SensorEntity):
   @property
   def state_class(self):
     """The state class of sensor"""
-    return "measurement"
+    return STATE_CLASS_TOTAL_INCREASING
 
   @property
   def unit_of_measurement(self):
@@ -247,11 +247,6 @@ class OctopusEnergyLatestElectricityReading(SensorEntity):
     """Native value of the sensor."""
     return self._state
 
-  @property
-  def last_reset(self):
-    """Last reset of the sensor."""
-    return self._last_reset
-
   async def async_update(self):
     """Retrieve the latest consumption"""
     # We only need to do this every half an hour
@@ -262,10 +257,8 @@ class OctopusEnergyLatestElectricityReading(SensorEntity):
       data = await self._client.async_latest_electricity_consumption(self._mpan, self._serial_number)
       if data != None:
         self._state = data["consumption"]
-        self._last_reset = data["interval_end"]
       else:
         self._state = 0
-        self._last_reset = utcnow()
 
 class OctopusEnergyLatestGasReading(SensorEntity):
   """Sensor for displaying the current gas rate."""
@@ -282,7 +275,6 @@ class OctopusEnergyLatestGasReading(SensorEntity):
     }
 
     self._state = 0
-    self._last_reset = utcnow()
 
   @property
   def unique_id(self):
@@ -302,7 +294,7 @@ class OctopusEnergyLatestGasReading(SensorEntity):
   @property
   def state_class(self):
     """The state class of sensor"""
-    return "measurement"
+    return STATE_CLASS_TOTAL_INCREASING
 
   @property
   def unit_of_measurement(self):
@@ -324,11 +316,6 @@ class OctopusEnergyLatestGasReading(SensorEntity):
     """Native value of the sensor."""
     return self._state
 
-  @property
-  def last_reset(self):
-    """Last reset of the sensor."""
-    return self._last_reset
-
   async def async_update(self):
     """Retrieve the latest consumption"""
     # We only need to do this every half an hour
@@ -339,7 +326,5 @@ class OctopusEnergyLatestGasReading(SensorEntity):
       data = await self._client.async_latest_gas_consumption(self._mprn, self._serial_number)
       if data != None:
         self._state = data["consumption"]
-        self._last_reset = data["interval_end"]
       else:
         self._state = 0
-        self._last_reset = utcnow()
