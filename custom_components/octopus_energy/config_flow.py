@@ -77,10 +77,14 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       CONFIG_TARGET_TYPE: user_input[CONFIG_TARGET_TYPE]
     }
 
+    matches = re.search(REGEX_ENTITY_NAME, config[CONFIG_TARGET_NAME])
+    if matches == None:
+      errors[CONFIG_TARGET_NAME] = "invalid_target_name"
+
     # For some reason float type isn't working properly - reporting user input malformed
     matches = re.search(REGEX_HOURS, user_input[CONFIG_TARGET_HOURS])
     if matches == None:
-      errors[CONFIG_TARGET_START_TIME] = "invalid_target_hours"
+      errors[CONFIG_TARGET_HOURS] = "invalid_target_hours"
     else:
       config[CONFIG_TARGET_HOURS] = float(user_input[CONFIG_TARGET_HOURS])
       if config[CONFIG_TARGET_HOURS] % 0.5 != 0:
@@ -96,11 +100,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       config[CONFIG_TARGET_END_TIME] = user_input[CONFIG_TARGET_END_TIME]
       matches = re.search(REGEX_TIME, config[CONFIG_TARGET_START_TIME])
       if matches == None:
-        errors[CONFIG_TARGET_START_TIME] = "invalid_target_time"
-
-    matches = re.search(REGEX_ENTITY_NAME, config[CONFIG_TARGET_NAME])
-    if matches == None:
-      errors[CONFIG_TARGET_NAME] = "invalid_target_name"
+        errors[CONFIG_TARGET_END_TIME] = "invalid_target_time"
 
     if len(errors) < 1:
       # Setup our targets sensor
