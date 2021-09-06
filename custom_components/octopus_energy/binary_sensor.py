@@ -1,10 +1,9 @@
 from datetime import timedelta
 import math
 import logging
-from datetime import datetime
 
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.util.dt import (utcnow, as_utc)
+from homeassistant.util.dt import (utcnow, as_utc, parse_datetime)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
@@ -127,7 +126,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
 
     if CONFIG_TARGET_END_TIME in self._config:
       # Get the target end for today. If this is in the past, then look at tomorrow
-      target_end = as_utc(datetime.strptime(now.strftime(f"%Y-%m-%dT{self._config[CONFIG_TARGET_END_TIME]}:%SZ"), "%Y-%m-%dT%H:%M:%SZ"))
+      target_end = as_utc(parse_datetime(now.strftime(f"%Y-%m-%dT{self._config[CONFIG_TARGET_END_TIME]}:%SZ")))
       if (target_end < now):
         target_end = target_end + timedelta(days=1)
     else:
@@ -136,7 +135,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     if CONFIG_TARGET_START_TIME in self._config:
       # Get the target start on the same day as our target end. If this is after our target end (which can occur if we're looking for
       # a time over night), then go back a day
-      target_start = as_utc(datetime.strptime(target_end.strftime(f"%Y-%m-%dT{self._config[CONFIG_TARGET_START_TIME]}:%SZ"), "%Y-%m-%dT%H:%M:%SZ"))
+      target_start = as_utc(parse_datetime(target_end.strftime(f"%Y-%m-%dT{self._config[CONFIG_TARGET_START_TIME]}:%SZ")))
       if (target_start > target_end):
         target_start = target_start - timedelta(days=1)
 
