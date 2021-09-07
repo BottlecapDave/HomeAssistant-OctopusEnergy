@@ -1,5 +1,5 @@
 import aiohttp
-from datetime import (timedelta)
+from datetime import (datetime, timedelta)
 from homeassistant.util.dt import (utcnow, as_utc, parse_datetime)
 
 class OctopusEnergyApiClient:
@@ -69,38 +69,43 @@ class OctopusEnergyApiClient:
         
         return results
 
-  async def async_latest_electricity_consumption(self, mpan, serial_number):
-    """Get the current rates"""
+  def process_consumption(self, item):
+    return {
+      "consumption": float(item["consumption"]),
+      "interval_start": as_utc(parse_datetime(item["interval_start"])),
+      "interval_end": as_utc(parse_datetime(item["interval_end"]))
+    }
+
+  async def async_electricity_consumption(self, mpan, serial_number, period_from, period_to):
+    """Get the current electricity rates"""
     async with aiohttp.ClientSession() as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
-      async with client.get(f'{self._base_url}/v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption?page_size=1', auth=auth) as response:
+      async with client.get(f'{self._base_url}/v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}', auth=auth) as response:
         # Disable content type check as sometimes it can report text/html
         data = await response.json(content_type=None)
         if ("results" in data):
           data = data["results"]
         
-          if (len(data) > 0):
-            data[0]["consumption"] = float(data[0]["consumption"])
-            data[0]["interval_start"] = as_utc(parse_datetime(data[0]["interval_start"]))
-            data[0]["interval_end"] = as_utc(parse_datetime(data[0]["interval_end"]))
-            return data[0]
+          for item in data:
+            item = self.process_consumption(item)
+          
+          return data
         
         return None
 
-  async def async_latest_gas_consumption(self, mprn, serial_number):
-    """Get the current rates"""
+  async def async_gas_consumption(self, mprn, serial_number, period_from, period_to):
+    """Get the current gas rates"""
     async with aiohttp.ClientSession() as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
-      async with client.get(f'{self._base_url}/v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption?page_size=1', auth=auth) as response:
+      async with client.get(f'{self._base_url}/v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}', auth=auth) as response:
         # Disable content type check as sometimes it can report text/html
         data = await response.json(content_type=None)
         if ("results" in data):
           data = data["results"]
         
-          if (len(data) > 0):
-            data[0]["consumption"] = float(data[0]["consumption"])
-            data[0]["interval_start"] = as_utc(parse_datetime(data[0]["interval_start"]))
-            data[0]["interval_end"] = as_utc(parse_datetime(data[0]["interval_end"]))
-            return data[0]
+          for item in data:
+            item = self.process_consumption(item)
+          
+          return data
         
         return None

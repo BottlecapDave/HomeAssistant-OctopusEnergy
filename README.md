@@ -19,9 +19,11 @@ When you setup your account, you will get the following sensors:
 * Current Electricity Current Rate (Based on first active tariff)
 * Current Electricity Previous Rate (Based on first active tariff)
 * Latest Electricity Consumption (per electricity meter)
+* Previous Day's Accumulative Electricity Consumption (per electricity meter)
 * Latest Gas Consumption (per gas meter)
+* Previous Day's Accumulative Gas Consumption (per gas meter)
 
-You can use the consumption sensors as part of your [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/).
+Ideally, you'd be able to use the consumption sensors as part of your [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/). However, while they can be added, Octopus Energy doesn't provide live consumption data.
 
 ### Target Rates
 
@@ -29,5 +31,5 @@ If you go through the [setup](https://my.home-assistant.io/redirect/config_flow_
 
 ## Known Issues/Limitations
 
-- Latest consumption is at the mercy of how often Octopus Energy updates their records. This seems to be a day behind based on local testing
-- Only handles the first property associated with an account
+- Latest consumption is at the mercy of how often Octopus Energy updates their records. This seems to be a day behind based on local testing.
+- Only the first property associated with an account is exposed.

@@ -1,7 +1,7 @@
 from datetime import timedelta
 import logging
 
-from homeassistant.util.dt import (utcnow)
+from homeassistant.util.dt import (utcnow, as_utc, parse_datetime)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
@@ -51,6 +51,7 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
       if get_active_agreement(point["agreements"]) != None:
         for meter in point["meters"]:
           entities.append(OctopusEnergyLatestElectricityReading(client, point["mpan"], meter["serial_number"]))
+          entities.append(OctopusEnergyPreviousAccumulativeElectricityReading(client, point["mpan"], meter["serial_number"]))
 
   if len(account_info["gas_meter_points"]) > 0:
     for point in account_info["gas_meter_points"]:
@@ -58,6 +59,7 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
       if get_active_agreement(point["agreements"]) != None:
         for meter in point["meters"]:
           entities.append(OctopusEnergyLatestGasReading(client, point["mprn"], meter["serial_number"]))
+          entities.append(OctopusEnergyPreviousAccumulativeGasReading(client, point["mprn"], meter["serial_number"]))
 
   async_add_entities(entities, True)
 
@@ -254,9 +256,86 @@ class OctopusEnergyLatestElectricityReading(SensorEntity):
     if (now.minute % 30) == 0:
       _LOGGER.info('Updating OctopusEnergyLatestElectricityReading')
 
-      data = await self._client.async_latest_electricity_consumption(self._mpan, self._serial_number)
+      period_from = now - timedelta(hours=1)
+      period_to = now
+      data = await self._client.async_electricity_consumption(self._mpan, self._serial_number, period_from, period_to)
       if data != None:
-        self._state = data["consumption"]
+        self._state = data[:-1]["consumption"]
+      else:
+        self._state = 0
+
+class OctopusEnergyPreviousAccumulativeElectricityReading(SensorEntity):
+  """Sensor for displaying the previous days accumulative electricity reading."""
+
+  def __init__(self, client, mprn, serial_number):
+    """Init sensor."""
+    self._mprn = mprn
+    self._serial_number = serial_number
+    self._client = client
+
+    self._attributes = {
+      "MPRN": mprn,
+      "Serial Number": serial_number
+    }
+
+    self._state = 0
+
+  @property
+  def unique_id(self):
+    """The id of the sensor."""
+    return f"octopus_energy_electricity_{self._serial_number}_previous_accumulative_consumption"
+    
+  @property
+  def name(self):
+    """Name of the sensor."""
+    return f"Octopus Energy Electricity {self._serial_number} Previous Accumulative Consumption"
+
+  @property
+  def device_class(self):
+    """The type of sensor"""
+    return DEVICE_CLASS_ENERGY
+
+  @property
+  def state_class(self):
+    """The state class of sensor"""
+    return STATE_CLASS_TOTAL_INCREASING
+
+  @property
+  def unit_of_measurement(self):
+    """The unit of measurement of sensor"""
+    return "kWh"
+
+  @property
+  def icon(self):
+    """Icon of the sensor."""
+    return "mdi:lightning-bolt"
+
+  @property
+  def extra_state_attributes(self):
+    """Attributes of the sensor."""
+    return self._attributes
+
+  @property
+  def state(self):
+    """Native value of the sensor."""
+    return self._state
+
+  async def async_update(self):
+    """Retrieve the previous days accumulative consumption"""
+    # We only need to do this once a day
+    now = utcnow()
+    if (now.hour == 0 and now.minute == 0) or self._state == 0:
+      _LOGGER.info('Updating OctopusEnergyPreviousAccumulativeElectricityReading')
+
+      period_from = as_utc(parse_datetime((now - timedelta(days=1)).strftime("%Y-%m-%dT00:00:00Z")))
+      period_to = as_utc(parse_datetime(now.strftime("%Y-%m-%dT00:00:00Z"))) - timedelta(minutes=1)
+      data = await self._client.async_electricity_consumption(self._mprn, self._serial_number, period_from, period_to)
+      if data != None:
+        total = 0
+        for item in data:
+          total = total + item["consumption"]
+        
+        self._state = total
       else:
         self._state = 0
 
@@ -323,8 +402,85 @@ class OctopusEnergyLatestGasReading(SensorEntity):
     if (now.minute % 30) == 0:
       _LOGGER.info('Updating OctopusEnergyLatestGasReading')
 
-      data = await self._client.async_latest_gas_consumption(self._mprn, self._serial_number)
+      period_from = now - timedelta(hours=1)
+      period_to = now
+      data = await self._client.async_gas_consumption(self._mprn, self._serial_number, period_from, period_to)
       if data != None:
-        self._state = data["consumption"]
+        self._state = data[:-1]["consumption"]
+      else:
+        self._state = 0
+
+class OctopusEnergyPreviousAccumulativeGasReading(SensorEntity):
+  """Sensor for displaying the previous days accumulative gas reading."""
+
+  def __init__(self, client, mprn, serial_number):
+    """Init sensor."""
+    self._mprn = mprn
+    self._serial_number = serial_number
+    self._client = client
+
+    self._attributes = {
+      "MPRN": mprn,
+      "Serial Number": serial_number
+    }
+
+    self._state = 0
+
+  @property
+  def unique_id(self):
+    """The id of the sensor."""
+    return f"octopus_energy_gas_{self._serial_number}_previous_accumulative_consumption"
+    
+  @property
+  def name(self):
+    """Name of the sensor."""
+    return f"Octopus Energy Gas {self._serial_number} Previous Accumulative Consumption"
+
+  @property
+  def device_class(self):
+    """The type of sensor"""
+    return DEVICE_CLASS_ENERGY
+
+  @property
+  def state_class(self):
+    """The state class of sensor"""
+    return STATE_CLASS_TOTAL_INCREASING
+
+  @property
+  def unit_of_measurement(self):
+    """The unit of measurement of sensor"""
+    return "kWh"
+
+  @property
+  def icon(self):
+    """Icon of the sensor."""
+    return "mdi:lightning-bolt"
+
+  @property
+  def extra_state_attributes(self):
+    """Attributes of the sensor."""
+    return self._attributes
+
+  @property
+  def state(self):
+    """Native value of the sensor."""
+    return self._state
+
+  async def async_update(self):
+    """Retrieve the previous days accumulative consumption"""
+    # We only need to do this once a day
+    now = utcnow()
+    if (now.hour == 0 and now.minute == 0) or self._state == 0:
+      _LOGGER.info('Updating OctopusEnergyPreviousAccumulativeGasReading')
+
+      period_from = as_utc(parse_datetime((now - timedelta(days=1)).strftime("%Y-%m-%dT00:00:00Z")))
+      period_to = as_utc(parse_datetime(now.strftime("%Y-%m-%dT00:00:00Z"))) - timedelta(minutes=1)
+      data = await self._client.async_gas_consumption(self._mprn, self._serial_number, period_from, period_to)
+      if data != None:
+        total = 0
+        for item in data:
+          total = total + item["consumption"]
+        
+        self._state = total
       else:
         self._state = 0
