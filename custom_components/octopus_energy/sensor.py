@@ -259,8 +259,8 @@ class OctopusEnergyLatestElectricityReading(SensorEntity):
       period_from = now - timedelta(hours=1)
       period_to = now
       data = await self._client.async_electricity_consumption(self._mpan, self._serial_number, period_from, period_to)
-      if data != None:
-        self._state = data[:-1]["consumption"]
+      if data != None and len(data) > 0:
+        self._state = data[0]["consumption"]
       else:
         self._state = 0
 
@@ -405,8 +405,8 @@ class OctopusEnergyLatestGasReading(SensorEntity):
       period_from = now - timedelta(hours=1)
       period_to = now
       data = await self._client.async_gas_consumption(self._mprn, self._serial_number, period_from, period_to)
-      if data != None:
-        self._state = data[:-1]["consumption"]
+      if data != None and len(data) > 0:
+        self._state = data[0]["consumption"]
       else:
         self._state = 0
 
