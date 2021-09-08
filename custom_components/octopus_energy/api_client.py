@@ -12,7 +12,8 @@ class OctopusEnergyApiClient:
     """Get the user's account"""
     async with aiohttp.ClientSession() as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
-      async with client.get(f'{self._base_url}/v1/accounts/{account_id}', auth=auth) as response:
+      url = f'{self._base_url}/v1/accounts/{account_id}'
+      async with client.get(url, auth=auth) as response:
         # Disable content type check as sometimes it can report text/html
         data = await response.json(content_type=None)
         if ("properties" in data):
@@ -32,7 +33,8 @@ class OctopusEnergyApiClient:
       now = utcnow()
       period_from = as_utc(parse_datetime(now.strftime("%Y-%m-%dT00:00:00Z")))
       period_to = as_utc(parse_datetime((now + timedelta(days=2)).strftime("%Y-%m-%dT00:00:00Z")))
-      async with client.get(f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}', auth=auth) as response:
+      url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
+      async with client.get(url, auth=auth) as response:
         # Disable content type check as sometimes it can report text/html
         data = await response.json(content_type=None)
         results = []
@@ -80,16 +82,22 @@ class OctopusEnergyApiClient:
     """Get the current electricity rates"""
     async with aiohttp.ClientSession() as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
-      async with client.get(f'{self._base_url}/v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}', auth=auth) as response:
+      url = f'{self._base_url}/v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
+      async with client.get(url, auth=auth) as response:
         # Disable content type check as sometimes it can report text/html
         data = await response.json(content_type=None)
         if ("results" in data):
           data = data["results"]
-        
+          results = []
           for item in data:
             item = self.process_consumption(item)
+
+            # For some reason, the end point returns slightly more data than we requested, so we need to filter out
+            # the results
+            if as_utc(item["interval_start"]) >= period_from and as_utc(item["interval_end"]) <= period_to:
+              results.append(item)
           
-          return data
+          return results
         
         return None
 
@@ -97,15 +105,21 @@ class OctopusEnergyApiClient:
     """Get the current gas rates"""
     async with aiohttp.ClientSession() as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
-      async with client.get(f'{self._base_url}/v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}', auth=auth) as response:
+      url = f'{self._base_url}/v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
+      async with client.get(url, auth=auth) as response:
         # Disable content type check as sometimes it can report text/html
         data = await response.json(content_type=None)
         if ("results" in data):
           data = data["results"]
-        
+          results = []
           for item in data:
             item = self.process_consumption(item)
+
+            # For some reason, the end point returns slightly more data than we requested, so we need to filter out
+            # the results
+            if as_utc(item["interval_start"]) >= period_from and as_utc(item["interval_end"]) <= period_to:
+              results.append(item)
           
-          return data
+          return results
         
         return None

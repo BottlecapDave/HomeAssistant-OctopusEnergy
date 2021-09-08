@@ -1,7 +1,7 @@
 from datetime import timedelta
 import logging
 
-from homeassistant.util.dt import (utcnow, as_utc, parse_datetime)
+from homeassistant.util.dt import (utcnow, now, as_utc, parse_datetime)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
@@ -176,7 +176,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
     if (now.minute % 30) == 0 or self._state == 0:
       _LOGGER.info('Updating OctopusEnergyElectricityPreviousRate')
       
-      target = utcnow() - timedelta(minutes=30)
+      target = now - timedelta(minutes=30)
       
       previous_rate = None
       if self.coordinator.data != None:
@@ -252,12 +252,12 @@ class OctopusEnergyLatestElectricityReading(SensorEntity):
   async def async_update(self):
     """Retrieve the latest consumption"""
     # We only need to do this every half an hour
-    now = utcnow()
-    if (now.minute % 30) == 0:
+    current_datetime = now()
+    if (current_datetime.minute % 30) == 0:
       _LOGGER.info('Updating OctopusEnergyLatestElectricityReading')
 
-      period_from = now - timedelta(hours=1)
-      period_to = now
+      period_from = as_utc(current_datetime - timedelta(hours=1))
+      period_to = as_utc(current_datetime)
       data = await self._client.async_electricity_consumption(self._mpan, self._serial_number, period_from, period_to)
       if data != None and len(data) > 0:
         self._state = data[0]["consumption"]
@@ -323,12 +323,12 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(SensorEntity):
   async def async_update(self):
     """Retrieve the previous days accumulative consumption"""
     # We only need to do this once a day
-    now = utcnow()
-    if (now.hour == 0 and now.minute == 0) or self._state == 0:
+    current_datetime = now()
+    if (current_datetime.hour == 0 and current_datetime.minute == 0) or self._state == 0:
       _LOGGER.info('Updating OctopusEnergyPreviousAccumulativeElectricityReading')
 
-      period_from = as_utc(parse_datetime((now - timedelta(days=1)).strftime("%Y-%m-%dT00:00:00Z")))
-      period_to = as_utc(parse_datetime(now.strftime("%Y-%m-%dT00:00:00Z"))) - timedelta(minutes=1)
+      period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
+      period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
       data = await self._client.async_electricity_consumption(self._mprn, self._serial_number, period_from, period_to)
       if data != None:
         total = 0
@@ -398,12 +398,12 @@ class OctopusEnergyLatestGasReading(SensorEntity):
   async def async_update(self):
     """Retrieve the latest consumption"""
     # We only need to do this every half an hour
-    now = utcnow()
-    if (now.minute % 30) == 0:
+    current_datetime = now()
+    if (current_datetime.minute % 30) == 0:
       _LOGGER.info('Updating OctopusEnergyLatestGasReading')
 
-      period_from = now - timedelta(hours=1)
-      period_to = now
+      period_from = as_utc(current_datetime - timedelta(hours=1))
+      period_to = as_utc(current_datetime)
       data = await self._client.async_gas_consumption(self._mprn, self._serial_number, period_from, period_to)
       if data != None and len(data) > 0:
         self._state = data[0]["consumption"]
@@ -469,12 +469,12 @@ class OctopusEnergyPreviousAccumulativeGasReading(SensorEntity):
   async def async_update(self):
     """Retrieve the previous days accumulative consumption"""
     # We only need to do this once a day
-    now = utcnow()
-    if (now.hour == 0 and now.minute == 0) or self._state == 0:
+    current_datetime = now()
+    if (current_datetime.hour == 0 and current_datetime.minute == 0) or self._state == 0:
       _LOGGER.info('Updating OctopusEnergyPreviousAccumulativeGasReading')
 
-      period_from = as_utc(parse_datetime((now - timedelta(days=1)).strftime("%Y-%m-%dT00:00:00Z")))
-      period_to = as_utc(parse_datetime(now.strftime("%Y-%m-%dT00:00:00Z"))) - timedelta(minutes=1)
+      period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
+      period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
       data = await self._client.async_gas_consumption(self._mprn, self._serial_number, period_from, period_to)
       if data != None:
         total = 0
