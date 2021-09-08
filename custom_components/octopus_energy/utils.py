@@ -8,7 +8,7 @@ def get_active_agreement(agreements):
     valid_from = as_utc(parse_datetime(agreement["valid_from"]))
     
     valid_to = None
-    if "valid_to" in agreement:
+    if "valid_to" in agreement and agreement["valid_to"] != None:
       valid_to = as_utc(parse_datetime(agreement["valid_to"]))
     
     # Some agreements have no end date, which means they are still active with no end in sight
