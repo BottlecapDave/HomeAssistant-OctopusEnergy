@@ -29,7 +29,12 @@ Ideally, you'd be able to use the consumption sensors as part of your [energy da
 
 If you go through the [setup](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy) process after you've configured your account, you can set up target rate sensors. These sensors calculate the lowest continuous or intermittent points and turn on when these rates are active. These sensors can then be used in automations to turn on/off devices the save you money (and in theory be on when there's the most renewable energy).
 
+### Gas Meters
+
+When you sign into your account, if you have gas meters, we'll setup some sensors for you. However, the way these sensors report data isn't consistent between versions of the meters, and Octopus Energy doesn't expose what type of meter you have. Therefore, you have to toggle the checkbox when setting up your initial account within HA. If you've already setup your account, you can update this via the `Configure` option within the integrations configuration. This is a global setting, and therefore will apply to **all** gas meters.
+
 ## Known Issues/Limitations
 
 - Latest consumption is at the mercy of how often Octopus Energy updates their records. This seems to be a day behind based on local testing.
 - Only the first property associated with an account is exposed.
+- Gas meter SMETS1/SMETS2 setting has to be set globally and manually as Octopus Energy doesn't provide this information.

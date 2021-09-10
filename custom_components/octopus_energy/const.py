@@ -1,7 +1,10 @@
+import voluptuous as vol
+
 DOMAIN = "octopus_energy"
 
 CONFIG_MAIN_API_KEY = "Api key"
 CONFIG_MAIN_ACCOUNT_ID = "Account Id"
+CONFIG_SMETS1 = "SMETS1"
 
 CONFIG_TARGET_NAME = "Name"
 CONFIG_TARGET_HOURS = "Hours"
@@ -18,3 +21,20 @@ REGEX_HOURS = "^[0-9]+(\.[0-9]+)*$"
 REGEX_TIME = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
 REGEX_ENTITY_NAME = "^[a-z0-9_]+$"
 REGEX_PRODUCT_NAME = "^[A-Z]-[0-9A-Z]+-([A-Z0-9-]+)-[A-Z]$"
+
+DATA_SCHEMA_ACCOUNT = vol.Schema({
+  vol.Required(CONFIG_MAIN_API_KEY): str,
+  vol.Required(CONFIG_MAIN_ACCOUNT_ID): str,
+  vol.Optional(CONFIG_SMETS1): bool,
+})
+
+DATA_SCHEMA_TARGET = vol.Schema({
+  vol.Required(CONFIG_TARGET_NAME): str,
+  vol.Required(CONFIG_TARGET_HOURS): str,
+  vol.Required(CONFIG_TARGET_TYPE, default="Continuous"): vol.In({
+    "Continuous": "Continuous",
+    "Intermittent": "Intermittent"
+  }),
+  vol.Optional(CONFIG_TARGET_START_TIME): str,
+  vol.Optional(CONFIG_TARGET_END_TIME): str,
+})

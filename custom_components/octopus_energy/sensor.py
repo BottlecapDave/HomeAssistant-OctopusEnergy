@@ -8,15 +8,22 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.components.sensor import (
     DEVICE_CLASS_MONETARY,
     DEVICE_CLASS_ENERGY,
+    DEVICE_CLASS_GAS,
     STATE_CLASS_TOTAL_INCREASING,
     SensorEntity,
 )
-from .utils import get_active_agreement
+from homeassistant.const import (
+    ENERGY_KILO_WATT_HOUR,
+    VOLUME_CUBIC_METERS
+)
+from .utils import (get_active_agreement, convert_kwh_to_m3)
 from .const import (
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
   CONFIG_MAIN_ACCOUNT_ID,
+  
+  CONFIG_SMETS1,
 
   DATA_COORDINATOR,
   DATA_CLIENT
@@ -33,7 +40,14 @@ async def async_setup_entry(hass, entry, async_add_entities):
     await async_setup_default_sensors(hass, entry, async_add_entities)
 
 async def async_setup_default_sensors(hass, entry, async_add_entities):
-  config = entry.data
+  config = dict(entry.data)
+
+  if entry.options:
+    config.update(entry.options)
+
+  is_smets1 = False
+  if CONFIG_SMETS1 in config:
+    is_smets1 = config[CONFIG_SMETS1]
   
   client = hass.data[DOMAIN][DATA_CLIENT]
   
@@ -58,8 +72,8 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
       # We only care about points that have active agreements
       if get_active_agreement(point["agreements"]) != None:
         for meter in point["meters"]:
-          entities.append(OctopusEnergyLatestGasReading(client, point["mprn"], meter["serial_number"]))
-          entities.append(OctopusEnergyPreviousAccumulativeGasReading(client, point["mprn"], meter["serial_number"]))
+          entities.append(OctopusEnergyLatestGasReading(client, point["mprn"], meter["serial_number"], is_smets1))
+          entities.append(OctopusEnergyPreviousAccumulativeGasReading(client, point["mprn"], meter["serial_number"], is_smets1))
 
   async_add_entities(entities, True)
 
@@ -72,7 +86,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, SensorEntity):
     super().__init__(coordinator)
 
     self._attributes = {}
-    self._state = 0
+    self._state = None
 
   @property
   def unique_id(self):
@@ -109,7 +123,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, SensorEntity):
     """The state of the sensor."""
     # Find the current rate. We only need to do this every half an hour
     now = utcnow()
-    if (now.minute % 30) == 0 or self._state == 0:
+    if (now.minute % 30) == 0 or self._state == None:
       _LOGGER.info('Updating OctopusEnergyElectricityCurrentRate')
       
       current_rate = None
@@ -136,7 +150,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
     super().__init__(coordinator)
 
     self._attributes = {}
-    self._state = 0
+    self._state = None
 
   @property
   def unique_id(self):
@@ -173,7 +187,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
     """The state of the sensor."""
     # Find the previous rate. We only need to do this every half an hour
     now = utcnow()
-    if (now.minute % 30) == 0 or self._state == 0:
+    if (now.minute % 30) == 0 or self._state == None:
       _LOGGER.info('Updating OctopusEnergyElectricityPreviousRate')
       
       target = now - timedelta(minutes=30)
@@ -207,7 +221,7 @@ class OctopusEnergyLatestElectricityReading(SensorEntity):
       "Serial Number": serial_number
     }
 
-    self._state = 0
+    self._state = None
 
   @property
   def unique_id(self):
@@ -232,7 +246,7 @@ class OctopusEnergyLatestElectricityReading(SensorEntity):
   @property
   def unit_of_measurement(self):
     """The unit of measurement of sensor"""
-    return "kWh"
+    return ENERGY_KILO_WATT_HOUR
 
   @property
   def icon(self):
@@ -253,7 +267,7 @@ class OctopusEnergyLatestElectricityReading(SensorEntity):
     """Retrieve the latest consumption"""
     # We only need to do this every half an hour
     current_datetime = now()
-    if (current_datetime.minute % 30) == 0:
+    if (current_datetime.minute % 30) == 0 or self._state == None:
       _LOGGER.info('Updating OctopusEnergyLatestElectricityReading')
 
       period_from = as_utc(current_datetime - timedelta(hours=1))
@@ -278,7 +292,8 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(SensorEntity):
       "Serial Number": serial_number
     }
 
-    self._state = 0
+    self._state = None
+    self._data = []
 
   @property
   def unique_id(self):
@@ -303,7 +318,7 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(SensorEntity):
   @property
   def unit_of_measurement(self):
     """The unit of measurement of sensor"""
-    return "kWh"
+    return ENERGY_KILO_WATT_HOUR
 
   @property
   def icon(self):
@@ -322,9 +337,11 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(SensorEntity):
 
   async def async_update(self):
     """Retrieve the previous days accumulative consumption"""
-    # We only need to do this once a day
     current_datetime = now()
-    if (current_datetime.hour == 0 and current_datetime.minute == 0) or self._state == 0:
+
+    # We only need to do this once a day, unless we don't have enough data for the day therefore we want to retrieve it
+    # every hour until we have enough data for the day
+    if (current_datetime.hour == 0 and current_datetime.minute == 0) or self._state == None or (current_datetime.minute % 60 == 0 and len(self._data) != 48):
       _LOGGER.info('Updating OctopusEnergyPreviousAccumulativeElectricityReading')
 
       period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
@@ -336,24 +353,28 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(SensorEntity):
           total = total + item["consumption"]
         
         self._state = total
+        self._data = data
       else:
         self._state = 0
+        self._data = []
 
 class OctopusEnergyLatestGasReading(SensorEntity):
   """Sensor for displaying the current gas rate."""
 
-  def __init__(self, client, mprn, serial_number):
+  def __init__(self, client, mprn, serial_number, is_smets1_meter):
     """Init sensor."""
     self._mprn = mprn
     self._serial_number = serial_number
+    self._is_smets1_meter = is_smets1_meter
     self._client = client
 
     self._attributes = {
       "MPRN": mprn,
-      "Serial Number": serial_number
+      "Serial Number": serial_number,
+      "Is SMETS1 Meter": is_smets1_meter
     }
 
-    self._state = 0
+    self._state = None
 
   @property
   def unique_id(self):
@@ -368,7 +389,7 @@ class OctopusEnergyLatestGasReading(SensorEntity):
   @property
   def device_class(self):
     """The type of sensor"""
-    return DEVICE_CLASS_ENERGY
+    return DEVICE_CLASS_GAS
 
   @property
   def state_class(self):
@@ -378,12 +399,12 @@ class OctopusEnergyLatestGasReading(SensorEntity):
   @property
   def unit_of_measurement(self):
     """The unit of measurement of sensor"""
-    return "kWh"
+    return VOLUME_CUBIC_METERS
 
   @property
   def icon(self):
     """Icon of the sensor."""
-    return "mdi:lightning-bolt"
+    return "mdi:fire"
 
   @property
   def extra_state_attributes(self):
@@ -399,7 +420,7 @@ class OctopusEnergyLatestGasReading(SensorEntity):
     """Retrieve the latest consumption"""
     # We only need to do this every half an hour
     current_datetime = now()
-    if (current_datetime.minute % 30) == 0:
+    if (current_datetime.minute % 30) == 0 or self._state == None:
       _LOGGER.info('Updating OctopusEnergyLatestGasReading')
 
       period_from = as_utc(current_datetime - timedelta(hours=1))
@@ -410,21 +431,27 @@ class OctopusEnergyLatestGasReading(SensorEntity):
       else:
         self._state = 0
 
+      if self._is_smets1_meter:
+        self._state = convert_kwh_to_m3(self._state)
+
 class OctopusEnergyPreviousAccumulativeGasReading(SensorEntity):
   """Sensor for displaying the previous days accumulative gas reading."""
 
-  def __init__(self, client, mprn, serial_number):
+  def __init__(self, client, mprn, serial_number, is_smets1_meter):
     """Init sensor."""
     self._mprn = mprn
     self._serial_number = serial_number
+    self._is_smets1_meter = is_smets1_meter
     self._client = client
 
     self._attributes = {
       "MPRN": mprn,
-      "Serial Number": serial_number
+      "Serial Number": serial_number,
+      "Is SMETS1 Meter": is_smets1_meter
     }
 
-    self._state = 0
+    self._state = None
+    self._data = []
 
   @property
   def unique_id(self):
@@ -439,7 +466,7 @@ class OctopusEnergyPreviousAccumulativeGasReading(SensorEntity):
   @property
   def device_class(self):
     """The type of sensor"""
-    return DEVICE_CLASS_ENERGY
+    return DEVICE_CLASS_GAS
 
   @property
   def state_class(self):
@@ -449,12 +476,12 @@ class OctopusEnergyPreviousAccumulativeGasReading(SensorEntity):
   @property
   def unit_of_measurement(self):
     """The unit of measurement of sensor"""
-    return "kWh"
+    return VOLUME_CUBIC_METERS
 
   @property
   def icon(self):
     """Icon of the sensor."""
-    return "mdi:lightning-bolt"
+    return "mdi:fire"
 
   @property
   def extra_state_attributes(self):
@@ -468,9 +495,11 @@ class OctopusEnergyPreviousAccumulativeGasReading(SensorEntity):
 
   async def async_update(self):
     """Retrieve the previous days accumulative consumption"""
-    # We only need to do this once a day
     current_datetime = now()
-    if (current_datetime.hour == 0 and current_datetime.minute == 0) or self._state == 0:
+    
+    # We only need to do this once a day, unless we don't have enough data for the day therefore we want to retrieve it
+    # every hour until we have enough data for the day
+    if (current_datetime.hour == 0 and current_datetime.minute == 0) or self._state == None or (current_datetime.minute % 60 == 0 and len(self._data) != 48):
       _LOGGER.info('Updating OctopusEnergyPreviousAccumulativeGasReading')
 
       period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
@@ -482,5 +511,10 @@ class OctopusEnergyPreviousAccumulativeGasReading(SensorEntity):
           total = total + item["consumption"]
         
         self._state = total
+        self._data = data
       else:
         self._state = 0
+        self._data = []
+
+      if self._is_smets1_meter:
+        self._state = convert_kwh_to_m3(self._state)

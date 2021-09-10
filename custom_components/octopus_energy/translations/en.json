@@ -7,7 +7,8 @@
         "description": "Setup your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
         "data": {
           "Api key": "Api key",
-          "Account Id": "Your account Id (e.g. A-AAAA1111)"
+          "Account Id": "Your account Id (e.g. A-AAAA1111)",
+          "SMETS1": "Is SMETS1 Gas Meter"
         }
       },
       "target_rate": {
@@ -27,6 +28,25 @@
       "invalid_target_hours": "Target hours must be in half hour increments.",
       "invalid_target_name": "Name must only include lower case alpha characters and underscore (e.g. my_target)",
       "invalid_target_time": "Must be in the format HH:MM"
+    },
+    "abort": {
+      "not_supported": "Configuration for target rates is not supported at the moment."
+    }
+  },
+  "options": {
+    "step": {
+      "user": {
+        "title": "Update Account Info",
+        "description": "Update your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
+        "data": {
+          "SMETS1": "Is SMETS1 Gas Meter"
+        }
+      }
+    },
+    "error": {
+    },
+    "abort": {
+      "not_supported": "Configuration for target rates is not supported at the moment."
     }
   }
 }
