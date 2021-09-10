@@ -21,4 +21,4 @@ def get_active_agreement(agreements):
 def convert_kwh_to_m3(value):
   m3_value = value * 3.6 # kWh Conversion factor
   m3_value = m3_value / 40 # Calorific value
-  return m3_value / 1.02264 # Volume correction factor
+  return round(m3_value / 1.02264, 3) # Volume correction factor
