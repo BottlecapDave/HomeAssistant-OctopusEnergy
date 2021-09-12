@@ -3,7 +3,7 @@ import math
 import logging
 
 from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.util.dt import (utcnow, as_utc, parse_datetime)
+from homeassistant.util.dt import (utcnow, now, as_utc, parse_datetime)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
@@ -80,17 +80,17 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
   def is_on(self):
     """The state of the sensor."""
 
-    # Find the current rate. 
-    # We only need to do this every half an hour
-    now = utcnow()
-    if (now.minute % 30) == 0 or len(self._target_rates) == 0:
+    # Find the current rate. Rates change a maximum of once every 30 minutes.
+    current_date = utcnow()
+    if (current_date.minute % 30) == 0 or len(self._target_rates) == 0:
       _LOGGER.info(f'Updating OctopusEnergyTargetRate {self._config[CONFIG_TARGET_NAME]}')
 
       # If all of our target times have passed, it's time to recalculate the next set
       all_rates_in_past = True
       for rate in self._target_rates:
-        if rate["valid_to"] > now:
+        if rate["valid_to"] > current_date:
           all_rates_in_past = False
+          break
       
       if all_rates_in_past:
         if (self._config[CONFIG_TARGET_TYPE] == "Continuous"):
@@ -112,7 +112,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
       self._attributes = attributes
 
     for rate in self._target_rates:
-      if now >= rate["valid_from"] and now <= rate["valid_to"]:
+      if current_date >= rate["valid_from"] and current_date <= rate["valid_to"]:
         return True
 
     return False
@@ -121,12 +121,12 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     return rate["valid_to"]
 
   def get_applicable_rates(self):
-    now = utcnow()
+    current_date = now()
 
     if CONFIG_TARGET_END_TIME in self._config:
       # Get the target end for today. If this is in the past, then look at tomorrow
-      target_end = as_utc(parse_datetime(now.strftime(f"%Y-%m-%dT{self._config[CONFIG_TARGET_END_TIME]}:%SZ")))
-      if (target_end < now):
+      target_end = parse_datetime(current_date.strftime(f"%Y-%m-%dT{self._config[CONFIG_TARGET_END_TIME]}:00%z"))
+      if (target_end < current_date):
         target_end = target_end + timedelta(days=1)
     else:
       target_end = None
@@ -134,15 +134,20 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     if CONFIG_TARGET_START_TIME in self._config:
       # Get the target start on the same day as our target end. If this is after our target end (which can occur if we're looking for
       # a time over night), then go back a day
-      target_start = as_utc(parse_datetime(target_end.strftime(f"%Y-%m-%dT{self._config[CONFIG_TARGET_START_TIME]}:%SZ")))
+      target_start = parse_datetime(target_end.strftime(f"%Y-%m-%dT{self._config[CONFIG_TARGET_START_TIME]}:00%z"))
       if (target_start > target_end):
         target_start = target_start - timedelta(days=1)
 
-      # If our start date has passed, reset it to now to avoid picking a slot in the past
-      if (target_start < now):
-        target_start = now
+      # If our start date has passed, reset it to current_date to avoid picking a slot in the past
+      if (target_start < current_date):
+        target_start = current_date
     else:
-      target_start = now
+      target_start = current_date
+
+    # Convert our target start/end timestamps to UTC as this is what our rates are in
+    target_start = as_utc(target_start)
+    if target_end is not None:
+      target_end = as_utc(target_end)
 
     # Retrieve the rates that are applicable for our target rate
     rates = []

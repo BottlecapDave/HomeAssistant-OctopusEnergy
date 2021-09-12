@@ -45,12 +45,12 @@ class OctopusEnergyApiClient:
             value_exc_vat = float(item["value_exc_vat"])
             value_inc_vat = float(item["value_inc_vat"])
 
-            current_date = as_utc(parse_datetime(item["valid_from"]))
+            valid_from = as_utc(parse_datetime(item["valid_from"]))
 
             # If we're on a fixed rate, then our current time could be in the past so we should go from
             # our target period from date otherwise we could be adjusting times quite far in the past
-            if current_date < period_from:
-              current_date = period_from
+            if valid_from < period_from:
+              valid_from = period_from
 
             # Some rates don't have end dates, so we should treat this as our period to target
             if "valid_to" in item and item["valid_to"] != None:
@@ -58,16 +58,16 @@ class OctopusEnergyApiClient:
             else:
               target_date = period_to
             
-            while current_date < target_date:
-              valid_to = current_date + timedelta(minutes=30)
+            while valid_from < target_date:
+              valid_to = valid_from + timedelta(minutes=30)
               results.append({
                 "value_exc_vat": value_exc_vat,
                 "value_inc_vat": value_inc_vat,
-                "valid_from": current_date,
+                "valid_from": valid_from,
                 "valid_to": valid_to
               })
 
-              current_date = valid_to
+              valid_from = valid_to
         
         return results
 
