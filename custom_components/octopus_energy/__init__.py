@@ -65,21 +65,23 @@ def setup_dependencies(hass, config):
         # FIX: Ideally we'd only get the tariffs once at the start, but it's not working
         account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
 
+        all_agreements = []
         current_agreement = None
         if len(account_info["electricity_meter_points"]) > 0:
           # We're only interested in the tariff of the first electricity point
           for point in account_info["electricity_meter_points"]:
+            all_agreements.append(point["agreements"])
             current_agreement = get_active_agreement(point["agreements"])
             if current_agreement != None:
               break
 
         if current_agreement == None:
-          raise
+          raise Exception(f'Unable to find active agreement: {all_agreements}')
 
         tariff_code = current_agreement["tariff_code"]
         matches = re.search(REGEX_PRODUCT_NAME, tariff_code)
         if matches == None:
-          raise
+          raise Exception(f'Unable to extract product code from tariff code: {tariff_code}')
 
         product_code = matches[1]
 
