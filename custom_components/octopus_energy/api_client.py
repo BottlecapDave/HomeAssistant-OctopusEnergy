@@ -1,6 +1,9 @@
+import logging
 import aiohttp
-from datetime import (datetime, timedelta)
+from datetime import (timedelta)
 from homeassistant.util.dt import (utcnow, as_utc, parse_datetime)
+
+_LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyApiClient:
 
@@ -26,6 +29,46 @@ class OctopusEnergyApiClient:
         
         return None
 
+  def process_rates(self, data, period_from, period_to):
+    starting_period_from = period_from
+    results = []
+    if ("results" in data):
+      # We need to normalise our data into 30 minute increments so that all of our rates across all tariffs are the same and it's 
+      # easier to calculate our target rate sensors
+      for item in data["results"]:
+        value_exc_vat = float(item["value_exc_vat"])
+        value_inc_vat = float(item["value_inc_vat"])
+
+        if "valid_from" in item and item["valid_from"] != None:
+          valid_from = as_utc(parse_datetime(item["valid_from"]))
+        else:
+          target_date = starting_period_from
+
+        # If we're on a fixed rate, then our current time could be in the past so we should go from
+        # our target period from date otherwise we could be adjusting times quite far in the past
+        if valid_from < period_from:
+          valid_from = period_from
+
+        # Some rates don't have end dates, so we should treat this as our period to target
+        if "valid_to" in item and item["valid_to"] != None:
+          target_date = as_utc(parse_datetime(item["valid_to"]))
+        else:
+          target_date = period_to
+        
+        while valid_from < target_date:
+          valid_to = valid_from + timedelta(minutes=30)
+          results.append({
+            "value_exc_vat": value_exc_vat,
+            "value_inc_vat": value_inc_vat,
+            "valid_from": valid_from,
+            "valid_to": valid_to
+          })
+
+          valid_from = valid_to
+          starting_period_from = valid_to
+      
+    return results
+
   async def async_get_rates(self, product_code, tariff_code):
     """Get the current rates"""
     async with aiohttp.ClientSession() as client:
@@ -36,39 +79,14 @@ class OctopusEnergyApiClient:
       url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         # Disable content type check as sometimes it can report text/html
-        data = await response.json(content_type=None)
         results = []
-        if ("results" in data):
-          # We need to normalise our data into 30 minute increments so that all of our rates across all tariffs are the same and it's 
-          # easier to calculate our target rate sensors
-          for item in data["results"]:
-            value_exc_vat = float(item["value_exc_vat"])
-            value_inc_vat = float(item["value_inc_vat"])
+        try:
+          data = await response.json(content_type=None)
+          results = self.process_rates(data, period_from, period_to)
+        except:
+          _LOGGER.error(f'Failed to extract rates: {url}')
+          raise
 
-            valid_from = as_utc(parse_datetime(item["valid_from"]))
-
-            # If we're on a fixed rate, then our current time could be in the past so we should go from
-            # our target period from date otherwise we could be adjusting times quite far in the past
-            if valid_from < period_from:
-              valid_from = period_from
-
-            # Some rates don't have end dates, so we should treat this as our period to target
-            if "valid_to" in item and item["valid_to"] != None:
-              target_date = as_utc(parse_datetime(item["valid_to"]))
-            else:
-              target_date = period_to
-            
-            while valid_from < target_date:
-              valid_to = valid_from + timedelta(minutes=30)
-              results.append({
-                "value_exc_vat": value_exc_vat,
-                "value_inc_vat": value_inc_vat,
-                "valid_from": valid_from,
-                "valid_to": valid_to
-              })
-
-              valid_from = valid_to
-        
         return results
 
   def process_consumption(self, item):
