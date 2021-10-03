@@ -42,7 +42,7 @@ class OctopusEnergyApiClient:
         if "valid_from" in item and item["valid_from"] != None:
           valid_from = as_utc(parse_datetime(item["valid_from"]))
         else:
-          target_date = starting_period_from
+          valid_from = starting_period_from
 
         # If we're on a fixed rate, then our current time could be in the past so we should go from
         # our target period from date otherwise we could be adjusting times quite far in the past
