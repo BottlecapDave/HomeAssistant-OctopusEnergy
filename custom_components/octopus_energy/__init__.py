@@ -16,7 +16,7 @@ from .const import (
   DATA_COORDINATOR,
   DATA_RATES,
 
-  REGEX_PRODUCT_NAME
+  REGEX_TARIFF_PARTS
 )
 
 from .api_client import OctopusEnergyApiClient
@@ -79,14 +79,20 @@ def setup_dependencies(hass, config):
           raise Exception(f'Unable to find active agreement: {all_agreements}')
 
         tariff_code = current_agreement["tariff_code"]
-        matches = re.search(REGEX_PRODUCT_NAME, tariff_code)
+        matches = re.search(REGEX_TARIFF_PARTS, tariff_code)
         if matches == None:
           raise Exception(f'Unable to extract product code from tariff code: {tariff_code}')
 
-        product_code = matches[1]
+        # According to https://www.guylipman.com/octopus/api_guide.html#s1b, this part should indicate if we're dealing
+        # with standard rates or day/night rates
+        rate = matches[1]
+        product_code = matches[2]
 
         _LOGGER.info('Updating rates...')
-        hass.data[DOMAIN][DATA_RATES] = await client.async_get_rates(product_code, tariff_code)
+        if (rate.startswith("1")):
+          hass.data[DOMAIN][DATA_RATES] = await client.async_get_standard_rates_for_next_two_days(product_code, tariff_code)
+        else:
+          hass.data[DOMAIN][DATA_RATES] = await client.async_get_day_night_rates_for_next_two_days(product_code, tariff_code)
       
       return hass.data[DOMAIN][DATA_RATES]
 
