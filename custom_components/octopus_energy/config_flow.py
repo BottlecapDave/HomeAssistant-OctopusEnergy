@@ -140,10 +140,15 @@ class OptionsFlowHandler(OptionsFlow):
       config = dict(self._entry.data)
       if self._entry.options is not None:
         config.update(self._entry.options)
+
+      isSmets1 = False
+      if CONFIG_SMETS1 in config:
+        isSmets1 = config[CONFIG_SMETS1]
       
       return self.async_show_form(
         step_id="user", data_schema=vol.Schema({
-          vol.Optional(CONFIG_SMETS1, default=config[CONFIG_SMETS1]): bool,
+          vol.Required(CONFIG_MAIN_API_KEY, default=config[CONFIG_MAIN_API_KEY]): str,
+          vol.Required(CONFIG_SMETS1, default=isSmets1): bool,
         })
       )
 
@@ -151,7 +156,6 @@ class OptionsFlowHandler(OptionsFlow):
 
   async def async_step_user(self, user_input):
     """Manage the options for the custom component."""
-    errors = {}
 
     if user_input is not None:
       config = dict(self._entry.data)

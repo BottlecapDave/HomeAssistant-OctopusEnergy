@@ -39,6 +39,7 @@
         "title": "Update Account Info",
         "description": "Update your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
         "data": {
+          "Api key": "Api key",
           "SMETS1": "Is SMETS1 Gas Meter"
         }
       }
