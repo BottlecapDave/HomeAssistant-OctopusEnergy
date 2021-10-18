@@ -20,7 +20,7 @@ DATA_RATES = "RATES"
 REGEX_HOURS = "^[0-9]+(\.[0-9]+)*$"
 REGEX_TIME = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
 REGEX_ENTITY_NAME = "^[a-z0-9_]+$"
-REGEX_TARIFF_PARTS = "^[A-Z]-([0-9A-Z]+)-([A-Z0-9-]+)-[A-Z]$"
+REGEX_TARIFF_PARTS = "^([A-Z])-([0-9A-Z]+)-([A-Z0-9-]+)-([A-Z])$"
 
 DATA_SCHEMA_ACCOUNT = vol.Schema({
   vol.Required(CONFIG_MAIN_API_KEY): str,

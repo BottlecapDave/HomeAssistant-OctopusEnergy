@@ -1,5 +1,4 @@
 import logging
-import re
 from datetime import timedelta
 from homeassistant.util.dt import utcnow
 import asyncio
@@ -14,9 +13,7 @@ from .const import (
 
   DATA_CLIENT,
   DATA_COORDINATOR,
-  DATA_RATES,
-
-  REGEX_TARIFF_PARTS
+  DATA_RATES
 )
 
 from .api_client import OctopusEnergyApiClient
@@ -25,7 +22,10 @@ from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
 )
 
-from .utils import get_active_agreement
+from .utils import (
+  get_tariff_parts,
+  async_get_active_tariff_code
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -50,6 +50,22 @@ async def async_setup_entry(hass, entry):
 
   return True
 
+async def async_get_current_agreement_tariff_code(client, config):
+  account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
+
+  all_agreements = []
+  active_tariff_code = None
+  if len(account_info["electricity_meter_points"]) > 0:
+    # We're purposefully only supporting the tariff of the first electricity point
+    all_agreements.extend(account_info["electricity_meter_points"][0]["agreements"])
+    active_tariff_code = await async_get_active_tariff_code(all_agreements, client)
+
+  # If we can't find an agreement
+  if active_tariff_code == None:
+    raise Exception(f'Unable to find active agreement: {all_agreements}')
+
+  return active_tariff_code
+
 def setup_dependencies(hass, config):
   """Setup the coordinator and api client which will be shared by various entities"""
 
@@ -62,37 +78,16 @@ def setup_dependencies(hass, config):
       # Only get data every half hour or if we don't have any data
       if (DATA_RATES not in hass.data[DOMAIN] or (utcnow().minute % 30) == 0 or len(hass.data[DOMAIN][DATA_RATES]) == 0):
 
-        # FIX: Ideally we'd only get the tariffs once at the start, but it's not working
-        account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
-
-        all_agreements = []
-        current_agreement = None
-        if len(account_info["electricity_meter_points"]) > 0:
-          # We're only interested in the tariff of the first electricity point
-          for point in account_info["electricity_meter_points"]:
-            all_agreements.append(point["agreements"])
-            current_agreement = get_active_agreement(point["agreements"])
-            if current_agreement != None:
-              break
-
-        if current_agreement == None:
-          raise Exception(f'Unable to find active agreement: {all_agreements}')
-
-        tariff_code = current_agreement["tariff_code"]
-        matches = re.search(REGEX_TARIFF_PARTS, tariff_code)
-        if matches == None:
-          raise Exception(f'Unable to extract product code from tariff code: {tariff_code}')
-
-        # According to https://www.guylipman.com/octopus/api_guide.html#s1b, this part should indicate if we're dealing
-        # with standard rates or day/night rates
-        rate = matches[1]
-        product_code = matches[2]
+        tariff_code = await async_get_current_agreement_tariff_code(client, config)
+        _LOGGER.info(f'tariff_code: {tariff_code}')
+        
+        tariff_parts = get_tariff_parts(tariff_code)
 
         _LOGGER.info('Updating rates...')
-        if (rate.startswith("1")):
-          hass.data[DOMAIN][DATA_RATES] = await client.async_get_standard_rates_for_next_two_days(product_code, tariff_code)
+        if (tariff_parts["rate"].startswith("1")):
+          hass.data[DOMAIN][DATA_RATES] = await client.async_get_standard_rates_for_next_two_days(tariff_parts["product_code"], tariff_code)
         else:
-          hass.data[DOMAIN][DATA_RATES] = await client.async_get_day_night_rates_for_next_two_days(product_code, tariff_code)
+          hass.data[DOMAIN][DATA_RATES] = await client.async_get_day_night_rates_for_next_two_days(tariff_parts["product_code"], tariff_code)
       
       return hass.data[DOMAIN][DATA_RATES]
 
