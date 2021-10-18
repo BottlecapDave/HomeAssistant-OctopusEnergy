@@ -14,20 +14,36 @@ Setup is done entirely via the [UI](https://my.home-assistant.io/redirect/config
 
 ### Your account
 
-When you setup your account, you will get the following sensors:
+When you setup your account, you will get a few sensors. 
 
-* Current Electricity Current Rate (Based on first active tariff)
-* Current Electricity Previous Rate (Based on first active tariff)
-* Latest Electricity Consumption (per electricity meter)
-* Previous Day's Accumulative Electricity Consumption (per electricity meter)
-* Latest Gas Consumption (per gas meter)
-* Previous Day's Accumulative Gas Consumption (per gas meter)
+You'll get the following sensors if you have an electricity meter with an active agreement:
 
-Ideally, you'd be able to use the consumption sensors as part of your [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/). However, while they can be added, Octopus Energy doesn't provide live consumption data.
+| Name | Purpose |
+|------|---------|
+| `sensor.octopus_energy_electricity_current_rate` | The rate of the current 30 minute period that energy consumption is charged at (including VAT). |
+| `sensor.octopus_energy_electricity_previous_rate` | The rate of the previous 30 minute period that energy consumption was charged at (including VAT). |
+
+You'll get the following sensors for each electricity meter with an active agreement:
+
+| Name | Purpose |
+|------|---------|
+| `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_latest_consumption` | The latest consumption reported by the meter. It looks like Octopus is about a day behind with their data, therefore this is often zero and will probably be removed in the future. |
+| `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_previous_accumulative_consumption` | The total consumption reported by the meter for the previous day. |
+
+You'll get the following sensors for each gas meter with an active agreement:
+
+| Name | Purpose |
+|------|---------|
+| `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_latest_consumption` | The latest consumption reported by the meter. It looks like Octopus is about a day behind with their data, therefore this is often zero and will probably be removed in the future. |
+| `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_previous_accumulative_consumption` | The total consumption reported by the meter for the previous day. |
+
+While you can add these sensors to [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/), because Octopus doesn't provide live consumption data, it will be off by a day.
 
 ### Target Rates
 
-If you go through the [setup](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy) process after you've configured your account, you can set up target rate sensors. These sensors calculate the lowest continuous or intermittent points and turn on when these rates are active. These sensors can then be used in automations to turn on/off devices the save you money (and in theory be on when there's the most renewable energy).
+If you go through the [setup](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy) process after you've configured your account, you can set up target rate sensors. These sensors calculate the lowest continuous or intermittent prices and turn on when these periods are active. These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money.
+
+Each sensor will be in the form `binary_sensor.octopus_energy_target_{{TARGET_RATE_NAME}}`.
 
 ### Gas Meters
 
