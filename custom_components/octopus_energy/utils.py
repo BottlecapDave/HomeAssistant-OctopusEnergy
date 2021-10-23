@@ -30,6 +30,7 @@ async def async_get_active_tariff_code(agreements, client):
 
   latest_agreement = None
   latest_valid_from = None
+  fixed_indicators = ["12M", "24M"]
 
   # Find our latest agreement
   for agreement in agreements:
@@ -53,7 +54,7 @@ async def async_get_active_tariff_code(agreements, client):
       
     # If our latest agreement was a fixed rate and is in the past, then we must have moved into a variable rate
     # (according to Octopus support), therefore we need to find the latest variable rate that
-    if latest_valid_to < now and "FIX" in tariff_parts["product_code"]:
+    if latest_valid_to < now and any(x in tariff_parts["product_code"] for x in fixed_indicators):
       products = await client.async_get_products(True)
 
       variable_product = None
