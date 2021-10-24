@@ -141,14 +141,14 @@ class OptionsFlowHandler(OptionsFlow):
       if self._entry.options is not None:
         config.update(self._entry.options)
 
-      isSmets1 = False
+      is_smets1 = False
       if CONFIG_SMETS1 in config:
-        isSmets1 = config[CONFIG_SMETS1]
+        is_smets1 = config[CONFIG_SMETS1]
       
       return self.async_show_form(
         step_id="user", data_schema=vol.Schema({
           vol.Required(CONFIG_MAIN_API_KEY, default=config[CONFIG_MAIN_API_KEY]): str,
-          vol.Required(CONFIG_SMETS1, default=isSmets1): bool,
+          vol.Required(CONFIG_SMETS1, default=is_smets1): bool,
         })
       )
 

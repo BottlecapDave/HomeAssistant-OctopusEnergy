@@ -16,7 +16,7 @@ from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR,
     VOLUME_CUBIC_METERS
 )
-from .utils import (get_active_agreement, convert_kwh_to_m3)
+from .utils import (async_get_active_tariff_code, convert_kwh_to_m3)
 from .const import (
   DOMAIN,
   
@@ -62,7 +62,7 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
   if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
-      if get_active_agreement(point["agreements"]) != None:
+      if async_get_active_tariff_code(point["agreements"], client) != None:
         for meter in point["meters"]:
           entities.append(OctopusEnergyLatestElectricityReading(client, point["mpan"], meter["serial_number"]))
           entities.append(OctopusEnergyPreviousAccumulativeElectricityReading(client, point["mpan"], meter["serial_number"]))
@@ -70,7 +70,7 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
   if len(account_info["gas_meter_points"]) > 0:
     for point in account_info["gas_meter_points"]:
       # We only care about points that have active agreements
-      if get_active_agreement(point["agreements"]) != None:
+      if async_get_active_tariff_code(point["agreements"], client) != None:
         for meter in point["meters"]:
           entities.append(OctopusEnergyLatestGasReading(client, point["mprn"], meter["serial_number"], is_smets1))
           entities.append(OctopusEnergyPreviousAccumulativeGasReading(client, point["mprn"], meter["serial_number"], is_smets1))

@@ -29,7 +29,7 @@ class OctopusEnergyApiClient:
         
         return None
 
-  def __process_rates(self, data, period_from, period_to):
+  def __process_rates(self, data, period_from, period_to, tariff_code):
     """Process the collection of rates to ensure they're in 30 minute periods"""
     starting_period_from = period_from
     results = []
@@ -62,7 +62,8 @@ class OctopusEnergyApiClient:
             "value_exc_vat": value_exc_vat,
             "value_inc_vat": value_inc_vat,
             "valid_from": valid_from,
-            "valid_to": valid_to
+            "valid_to": valid_to,
+            "tariff_code": tariff_code
           })
 
           valid_from = valid_to
@@ -83,7 +84,7 @@ class OctopusEnergyApiClient:
         try:
           # Disable content type check as sometimes it can report text/html
           data = await response.json(content_type=None)
-          results = self.__process_rates(data, period_from, period_to)
+          results = self.__process_rates(data, period_from, period_to, tariff_code)
         except:
           _LOGGER.error(f'Failed to extract standard rates: {url}')
           raise
@@ -124,7 +125,7 @@ class OctopusEnergyApiClient:
 
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our day period 
           # (7am to 12am UK time https://octopus.energy/help-and-faqs/categories/tariffs/eco-seven/)
-          day_rates = self.__process_rates(data, period_from, period_to)
+          day_rates = self.__process_rates(data, period_from, period_to, tariff_code)
           for rate in day_rates:
             if (self.__is_between_local_times(rate, "07:00:00", "23:59:59")) == True:
               results.append(rate)
@@ -140,7 +141,7 @@ class OctopusEnergyApiClient:
 
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our night period 
           # (12am to 7am UK time https://octopus.energy/help-and-faqs/categories/tariffs/eco-seven/)
-          night_rates = self.__process_rates(data, period_from, period_to)
+          night_rates = self.__process_rates(data, period_from, period_to, tariff_code)
           for rate in night_rates:
             if (self.__is_between_local_times(rate, "00:00:00", "07:00:00")) == True:
               results.append(rate)
@@ -206,3 +207,16 @@ class OctopusEnergyApiClient:
           return results
         
         return None
+
+  async def async_get_products(self, is_variable):
+    """Get all products"""
+    async with aiohttp.ClientSession() as client:
+      auth = aiohttp.BasicAuth(self._api_key, '')
+      url = f'{self._base_url}/v1/products?is_variable={is_variable}'
+      async with client.get(url, auth=auth) as response:
+        # Disable content type check as sometimes it can report text/html
+        data = await response.json(content_type=None)
+        if ("results" in data):
+          return data["results"]
+
+    return []
