@@ -1,0 +1,36 @@
+{
+  "name": "octopusenergy",
+  "version": "1.0.0",
+  "description": "Home Assistant integration for interacting with Octopus Energy",
+  "main": "index.js",
+  "scripts": {
+    "commit": "cz",
+    "release": "semantic-release"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues"
+  },
+  "homepage": "https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy#readme",
+  "devDependencies": {
+    "commitizen": "^4.2.4",
+    "cz-customizable": "^6.3.0",
+    "semantic-release": "^18.0.0",
+    "husky": "^4.3.8"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-customizable"
+    }
+  },
+  "husky": {
+    "hooks": {
+      "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true"
+    }
+  }
+}
