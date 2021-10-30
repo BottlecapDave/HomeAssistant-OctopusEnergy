@@ -19,6 +19,7 @@
   "homepage": "https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy#readme",
   "devDependencies": {
     "@semantic-release/changelog": "^6.0.1",
+    "@semantic-release/exec": "^6.0.2",
     "@semantic-release/git": "^10.0.1",
     "commitizen": "^4.2.4",
     "conventional-changelog-eslint": "^3.0.9",

@@ -15,6 +15,11 @@
         "assets": ["package.json", "CHANGELOG.md"],
         "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
+    ],
+    [
+      "@semantic-release/exec", {
+        "prepareCmd" : "node _build/update-manifest ${nextRelease.version}"
+      }
     ]
   ]
 }
