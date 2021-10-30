@@ -12,7 +12,7 @@
     "@semantic-release/github",
     [
       "@semantic-release/exec", {
-        "prepareCmd" : "node _build/update-manifest ${nextRelease.version}"
+        "prepareCmd" : "node .build/update-manifest ${nextRelease.version}"
       }
     ],
     [
