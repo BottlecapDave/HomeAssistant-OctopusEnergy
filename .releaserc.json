@@ -1,28 +1,8 @@
 {
   "branches": ["main"],
   "plugins": [
-    [
-      "@semantic-release/commit-analyzer",
-      {
-        "preset": "eslint",
-        "releaseRules": [
-          { "tag": "Breaking", "release": "major" },
-          { "type": "feat", "release": "major" },
-          { "type": "fix", "release": "patch" }
-        ]
-      }
-    ],
-    [
-      "@semantic-release/release-notes-generator",
-      {
-        "preset": "eslint",
-        "releaseRules": [
-          { "tag": "Breaking", "release": "major" },
-          { "type": "feat", "release": "major" },
-          { "type": "fix", "release": "patch" }
-        ]
-      }
-    ],
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
     [
       "@semantic-release/changelog",
       {
