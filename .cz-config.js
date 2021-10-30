@@ -27,6 +27,7 @@ module.exports = {
     { value: 'build', name: 'build: Changes to the build system' },
     { value: 'ci', name: 'ci: Changes to the ci system' },
     { value: 'revert', name: 'revert: Revert to a commit' },
+    { value: 'release', name: 'release: a release of the project' },
     { value: 'WIP', name: 'WIP: Work in progress' },
   ],
 
