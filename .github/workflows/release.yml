@@ -23,6 +23,7 @@ jobs:
       - name: Merge main into develop
         uses: devmasx/merge-branch@master
         with:
+          label_name: 'merged main into develop'
           type: now
           target_branch: develop
           github_token: ${{ secrets.GITHUB_TOKEN }}
