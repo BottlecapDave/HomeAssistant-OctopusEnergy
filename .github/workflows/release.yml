@@ -12,8 +12,8 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - name: Setup Node
-        uses: nodenv/actions-setup-nodenv@main
+      - name: asdf_install
+        uses: asdf-vm/actions/install@v1
       - name: Install dependencies
         run: npm ci
       - name: Release
