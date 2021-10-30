@@ -24,11 +24,8 @@ module.exports = {
       name: 'perf: A code change that improves performance',
     },
     { value: 'test', name: 'test: Adding missing tests' },
-    {
-      value: 'chore',
-      name:
-        'chore: Changes to the build process or auxiliary tools\nand libraries such as documentation generation',
-    },
+    { value: 'build', name: 'build: Changes to the build system' },
+    { value: 'ci', name: 'ci: Changes to the ci system' },
     { value: 'revert', name: 'revert: Revert to a commit' },
     { value: 'WIP', name: 'WIP: Work in progress' },
   ],
