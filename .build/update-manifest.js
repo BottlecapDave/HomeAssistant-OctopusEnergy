@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const fileName = path.join(__dirname, '../custom_components/first_bus/manifest.json');
+const fileName = path.join(__dirname, '../custom_components/octopus_energy/manifest.json');
 const file = require(fileName);
 
 file.version = process.argv[2];
