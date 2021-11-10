@@ -1,3 +1,16 @@
+# [2.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v1.2.0...v2.0.0) (2021-11-10)
+
+
+### Bug Fixes
+
+* **api-client:** fixed get_account to find the first property that hasn't been moved out of ([970a7a5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/970a7a58bdb00504b2c922d6e0a4632e71d9a17f))
+
+
+### BREAKING CHANGES
+
+* **api-client:** This change could cause the sensors associated with your meters to change, as they may have been
+associated with a property you had moved out of
+
 # [1.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v1.1.0...v1.2.0) (2021-10-30)
 
 
