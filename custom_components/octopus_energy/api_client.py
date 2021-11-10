@@ -21,7 +21,11 @@ class OctopusEnergyApiClient:
         data = await response.json(content_type=None)
         if ("properties" in data):
           # We're only supporting one property at the moment and we don't want to expose addresses
-          prop = data["properties"][0]
+          properties = data["properties"]
+          prop = next(current_prop for current_prop in properties if current_prop["moved_out_at"] == None)
+          if (prop == None):
+            raise Exception("Failed to find occupied property")
+
           return {
             "electricity_meter_points": prop["electricity_meter_points"],
             "gas_meter_points": prop["gas_meter_points"]
