@@ -8,9 +8,20 @@ Custom component built from the ground up to bring your Octopus Energy details i
 
 To install, place the contents of `custom_components` into the `<config directory>/custom_components` folder of your Home Assistant installation.
 
+Alternatively you can install as a [HACS custom repository](https://hacs.xyz/docs/faq/custom_repositories) using the URL: https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy and Category 'Integration'.
+
+![image (1)](https://user-images.githubusercontent.com/79175134/143213247-64219170-fd42-4a1e-8d91-facb671ad4d0.png)
+
+You then need to go to the normal Configuration Integration page and '+ Add Integration' to find Octopus Energy: 
+![image (2)](https://user-images.githubusercontent.com/79175134/143213476-d9041136-ea45-41ab-9b2b-c4f23c236948.png)
+
+From there you should be able to configure:
+
+![image (3)](https://user-images.githubusercontent.com/79175134/143213555-1d404aa0-fa3e-4335-a49f-633f735b7fc6.png)
+
 ## How to setup
 
-Setup is done entirely via the [UI](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
+Setup is done entirely via the configuration flow [User Interface (UI)](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
 
 ### Your account
 
