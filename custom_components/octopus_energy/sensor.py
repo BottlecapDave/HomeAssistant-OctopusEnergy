@@ -64,7 +64,6 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
       # We only care about points that have active agreements
       if async_get_active_tariff_code(point["agreements"], client) != None:
         for meter in point["meters"]:
-          entities.append(OctopusEnergyLatestElectricityReading(client, point["mpan"], meter["serial_number"]))
           entities.append(OctopusEnergyPreviousAccumulativeElectricityReading(client, point["mpan"], meter["serial_number"]))
 
   if len(account_info["gas_meter_points"]) > 0:
@@ -72,7 +71,6 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
       # We only care about points that have active agreements
       if async_get_active_tariff_code(point["agreements"], client) != None:
         for meter in point["meters"]:
-          entities.append(OctopusEnergyLatestGasReading(client, point["mprn"], meter["serial_number"], is_smets1))
           entities.append(OctopusEnergyPreviousAccumulativeGasReading(client, point["mprn"], meter["serial_number"], is_smets1))
 
   async_add_entities(entities, True)
