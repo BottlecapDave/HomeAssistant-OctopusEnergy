@@ -3,6 +3,10 @@ import aiohttp
 from datetime import (timedelta)
 from homeassistant.util.dt import (utcnow, as_utc, now, as_local, parse_datetime)
 
+from .utils import (
+  get_tariff_parts
+)
+
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyApiClient:
@@ -75,14 +79,11 @@ class OctopusEnergyApiClient:
       
     return results
 
-  async def async_get_standard_rates_for_next_two_days(self, product_code, tariff_code):
+  async def async_get_standard_rates(self, product_code, tariff_code, period_from, period_to):
     """Get the current standard rates"""
     results = []
     async with aiohttp.ClientSession() as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
-      utc_now = utcnow()
-      period_from = as_utc(parse_datetime(utc_now.strftime("%Y-%m-%dT00:00:00Z")))
-      period_to = as_utc(parse_datetime((utc_now + timedelta(days=2)).strftime("%Y-%m-%dT00:00:00Z")))
       url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         try:
@@ -113,14 +114,11 @@ class OctopusEnergyApiClient:
 
     return rate_local_valid_from >= from_date_time and rate_local_valid_from < to_date_time
 
-  async def async_get_day_night_rates_for_next_two_days(self, product_code, tariff_code):
+  async def async_get_day_night_rates(self, product_code, tariff_code, period_from, period_to):
     """Get the current day and night rates"""
     results = []
     async with aiohttp.ClientSession() as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
-      utc_now = utcnow()
-      period_from = as_utc(parse_datetime(utc_now.strftime("%Y-%m-%dT00:00:00Z")))
-      period_to = as_utc(parse_datetime((utc_now + timedelta(days=2)).strftime("%Y-%m-%dT00:00:00Z")))
       url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/day-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         try:
@@ -158,6 +156,16 @@ class OctopusEnergyApiClient:
     _LOGGER.error(results)
 
     return results
+
+  async def async_get_rates(self, tariff_code, period_from, period_to):
+    """Get the current rates"""
+
+    tariff_parts = get_tariff_parts(tariff_code)
+
+    if (tariff_parts["rate"].startswith("1")):
+      return await self.async_get_standard_rates(tariff_parts["product_code"], tariff_code, period_from, period_to)
+    else:
+      return await self.async_get_day_night_rates(tariff_parts["product_code"], tariff_code, period_from, period_to)
 
   def __process_consumption(self, item):
     return {

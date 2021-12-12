@@ -3,7 +3,8 @@ import logging
 
 from homeassistant.util.dt import (utcnow, now, as_utc, parse_datetime)
 from homeassistant.helpers.update_coordinator import (
-  CoordinatorEntity
+  CoordinatorEntity,
+  DataUpdateCoordinator
 )
 from homeassistant.components.sensor import (
     DEVICE_CLASS_MONETARY,
@@ -16,6 +17,9 @@ from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR,
     VOLUME_CUBIC_METERS
 )
+
+from typing import Generic, TypeVar
+
 from .utils import (async_get_active_tariff_code, convert_kwh_to_m3)
 from .const import (
   DOMAIN,
@@ -26,12 +30,59 @@ from .const import (
   CONFIG_SMETS1,
 
   DATA_COORDINATOR,
-  DATA_CLIENT
+  DATA_CLIENT,
+  DATA_TARIFF_CODE
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(minutes=1)
+
+def create_reading_coordinator(hass, client, is_electricity, identifier, serial_number):
+  """Create reading coordinator"""
+
+  async def async_update_data():
+    """Fetch data from API endpoint."""
+
+    previous_consumption_key = f'{identifier}_{serial_number}_previous_consumption'
+    if previous_consumption_key in hass.data[DOMAIN]:
+      previous_data = hass.data[DOMAIN][previous_consumption_key]
+    else:
+      previous_data = None
+
+    current_datetime = now()
+    if (previous_data == None or current_datetime.minute % 30 == 0):
+      _LOGGER.info('Updating consumption')
+
+      period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
+      period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
+      if (is_electricity == True):
+        data = await client.async_electricity_consumption(identifier, serial_number, period_from, period_to)
+      else:
+        data = await client.async_gas_consumption(identifier, serial_number, period_from, period_to)
+      
+      if data != None:
+        hass.data[DOMAIN][previous_consumption_key] = data 
+        return data
+      
+    if previous_data != None:
+      return previous_data
+    else:
+      return []
+
+  coordinator = DataUpdateCoordinator(
+    hass,
+    _LOGGER,
+    name="rates",
+    update_method=async_update_data,
+    # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
+    # data every 30 minutes
+    update_interval=timedelta(minutes=1),
+  )
+
+  hass.data[DOMAIN][f'{identifier}_{serial_number}_consumption_coordinator'] = coordinator
+
+  return coordinator
 
 async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
@@ -51,11 +102,13 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
   
   client = hass.data[DOMAIN][DATA_CLIENT]
   
-  coordinator = hass.data[DOMAIN][DATA_COORDINATOR]
+  rate_coordinator = hass.data[DOMAIN][DATA_COORDINATOR]
+  
+  tariff_code = hass.data[DOMAIN][DATA_TARIFF_CODE]
 
-  await coordinator.async_config_entry_first_refresh()
+  await rate_coordinator.async_config_entry_first_refresh()
 
-  entities = [OctopusEnergyElectricityCurrentRate(coordinator), OctopusEnergyElectricityPreviousRate(coordinator)]
+  entities = [OctopusEnergyElectricityCurrentRate(rate_coordinator), OctopusEnergyElectricityPreviousRate(rate_coordinator)]
   
   account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
 
@@ -64,7 +117,9 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
       # We only care about points that have active agreements
       if async_get_active_tariff_code(point["agreements"], client) != None:
         for meter in point["meters"]:
-          entities.append(OctopusEnergyPreviousAccumulativeElectricityReading(client, point["mpan"], meter["serial_number"]))
+          coordinator = create_reading_coordinator(hass, client, True, point["mpan"], meter["serial_number"])
+          entities.append(OctopusEnergyPreviousAccumulativeElectricityReading(coordinator, client, point["mpan"], meter["serial_number"]))
+          entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(coordinator, client, tariff_code, point["mpan"], meter["serial_number"]))
 
   if len(account_info["gas_meter_points"]) > 0:
     for point in account_info["gas_meter_points"]:
@@ -205,11 +260,13 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
 
     return self._state
 
-class OctopusEnergyPreviousAccumulativeElectricityReading(SensorEntity):
+class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, SensorEntity):
   """Sensor for displaying the previous days accumulative electricity reading."""
 
-  def __init__(self, client, mprn, serial_number):
+  def __init__(self, coordinator, client, mprn, serial_number):
     """Init sensor."""
+    super().__init__(coordinator)
+
     self._mprn = mprn
     self._serial_number = serial_number
     self._client = client
@@ -220,7 +277,7 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(SensorEntity):
     }
 
     self._state = None
-    self._data = []
+    self._latest_date = None
 
   @property
   def unique_id(self):
@@ -259,32 +316,110 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(SensorEntity):
 
   @property
   def state(self):
-    """Native value of the sensor."""
+    """Retrieve the previous days accumulative consumption"""
+    if (self.coordinator.data != None and len(self.coordinator.data) == 48):
+
+      if (self._latest_date != self.coordinator.data[-1]["interval_end"]):
+        total = 0
+        for consumption in self.coordinator.data:
+          total = total + consumption["consumption"]
+        
+        self._state = total
+        self._latest_date = self.coordinator.data[-1]["interval_end"]
+    
+    return self._state
+
+class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, SensorEntity):
+  """Sensor for displaying the previous days accumulative electricity cost."""
+
+  def __init__(self, coordinator, client, tariff_code, mprn, serial_number):
+    """Init sensor."""
+    super().__init__(coordinator)
+
+    self._mprn = mprn
+    self._serial_number = serial_number
+    self._client = client
+    self._tariff_code = tariff_code
+
+    self._attributes = {
+      "MPRN": mprn,
+      "Serial Number": serial_number
+    }
+
+    self._state = 0
+    self._latest_date = None
+
+  @property
+  def unique_id(self):
+    """The id of the sensor."""
+    return f"octopus_energy_electricity_{self._serial_number}_previous_accumulative_cost"
+    
+  @property
+  def name(self):
+    """Name of the sensor."""
+    return f"Octopus Energy Electricity {self._serial_number} Previous Accumulative Cost"
+
+  @property
+  def device_class(self):
+    """The type of sensor"""
+    return DEVICE_CLASS_MONETARY
+
+  @property
+  def state_class(self):
+    """The state class of sensor"""
+    return STATE_CLASS_TOTAL_INCREASING
+
+  @property
+  def unit_of_measurement(self):
+    """The unit of measurement of sensor"""
+    return "GBP"
+
+  @property
+  def icon(self):
+    """Icon of the sensor."""
+    return "mdi:currency-usd"
+
+  @property
+  def extra_state_attributes(self):
+    """Attributes of the sensor."""
+    return self._attributes
+
+  @property
+  def should_poll(self):
+    return True
+
+  @property
+  def state(self):
+    """Retrieve the previously calculated state"""
     return self._state
 
   async def async_update(self):
-    """Retrieve the previous days accumulative consumption"""
-    current_datetime = now()
+    if (self.coordinator.data != None and len(self.coordinator.data) == 48):
 
-    # We only need to do this once a day, unless we don't have enough data for the day therefore we want to retrieve it
-    # every hour until we have enough data for the day
-    if (current_datetime.hour == 0 and current_datetime.minute == 0) or self._state == None or (current_datetime.minute % 60 == 0 and len(self._data) != 48):
-      _LOGGER.info('Updating OctopusEnergyPreviousAccumulativeElectricityReading')
+      # Only calculate our consumption if our data has changed
+      if (self._latest_date != self.coordinator.data[-1]["interval_end"]):
 
-      period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
-      period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
-      data = await self._client.async_electricity_consumption(self._mprn, self._serial_number, period_from, period_to)
-      if data != None:
-        total = 0
-        for item in data:
-          total = total + item["consumption"]
+        current_datetime = now()
+        period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
+        period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
+
+        rates = await self._client.async_get_rates(self._tariff_code, period_from, period_to)
+
+        total_cost_in_pence = 0
+        for consumption in self.coordinator.data:
+          value = consumption["consumption"]
+          consumption_from = consumption["interval_start"]
+          consumption_to = consumption["interval_end"]
+
+          rate = next(rate for rate in rates if rate["valid_from"] == consumption_from and rate["valid_to"] == consumption_to)
+          if rate == None:
+            raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to}")
+
+          total_cost_in_pence = total_cost_in_pence + (rate["value_inc_vat"] * value)
         
-        self._state = total
-        self._data = data
-      else:
-        self._state = 0
-        self._data = []
-
+        self._state = total_cost_in_pence / 100
+        self._latest_date = self.coordinator.data[-1]["interval_end"]
+      
 class OctopusEnergyPreviousAccumulativeGasReading(SensorEntity):
   """Sensor for displaying the previous days accumulative gas reading."""
 
@@ -346,6 +481,7 @@ class OctopusEnergyPreviousAccumulativeGasReading(SensorEntity):
 
   async def async_update(self):
     """Retrieve the previous days accumulative consumption"""
+    
     current_datetime = now()
     
     # We only need to do this once a day, unless we don't have enough data for the day therefore we want to retrieve it
