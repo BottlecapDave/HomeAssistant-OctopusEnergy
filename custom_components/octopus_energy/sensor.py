@@ -51,8 +51,8 @@ def create_reading_coordinator(hass, client, is_electricity, identifier, serial_
       previous_data = None
 
     current_datetime = now()
-    if (previous_data == None or current_datetime.minute % 30 == 0):
-      _LOGGER.info('Updating consumption')
+    if (previous_data == None or (previous_data[-1]["interval_end"] < utcnow() and current_datetime.minute % 30 == 0)):
+      _LOGGER.debug('Updating electricity consumption...')
 
       period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
       period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
@@ -61,7 +61,7 @@ def create_reading_coordinator(hass, client, is_electricity, identifier, serial_
       else:
         data = await client.async_gas_consumption(identifier, serial_number, period_from, period_to)
       
-      if data != None:
+      if data != None and len(data) == 48:
         hass.data[DOMAIN][previous_consumption_key] = data 
         return data
       
@@ -320,6 +320,8 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Sen
     if (self.coordinator.data != None and len(self.coordinator.data) == 48):
 
       if (self._latest_date != self.coordinator.data[-1]["interval_end"]):
+        _LOGGER.info(f"Calculating previous electricity consumption for '{self._mprn}/{self._serial_number}'...")
+
         total = 0
         for consumption in self.coordinator.data:
           total = total + consumption["consumption"]
@@ -398,6 +400,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Sensor
 
       # Only calculate our consumption if our data has changed
       if (self._latest_date != self.coordinator.data[-1]["interval_end"]):
+        _LOGGER.debug(f"Calculating previous electricity cost for '{self._mprn}/{self._serial_number}'...")
 
         current_datetime = now()
         period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
@@ -417,7 +420,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Sensor
 
           total_cost_in_pence = total_cost_in_pence + (rate["value_inc_vat"] * value)
         
-        self._state = total_cost_in_pence / 100
+        self._state = round(total_cost_in_pence / 100, 2)
         self._latest_date = self.coordinator.data[-1]["interval_end"]
       
 class OctopusEnergyPreviousAccumulativeGasReading(SensorEntity):
@@ -487,7 +490,7 @@ class OctopusEnergyPreviousAccumulativeGasReading(SensorEntity):
     # We only need to do this once a day, unless we don't have enough data for the day therefore we want to retrieve it
     # every hour until we have enough data for the day
     if (current_datetime.hour == 0 and current_datetime.minute == 0) or self._state == None or (current_datetime.minute % 60 == 0 and len(self._data) != 48):
-      _LOGGER.info('Updating OctopusEnergyPreviousAccumulativeGasReading')
+      _LOGGER.debug('Updating OctopusEnergyPreviousAccumulativeGasReading')
 
       period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
       period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
