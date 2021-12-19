@@ -10,7 +10,7 @@ To install, place the contents of `custom_components` into the `<config director
 
 ## How to setup
 
-Setup is done entirely via the [UI](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
+Setup is done entirely via the [integration UI](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
 
 ### Your account
 
