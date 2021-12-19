@@ -407,7 +407,10 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Sensor
         period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
 
         rates = await self._client.async_get_rates(self._tariff_code, period_from, period_to)
+        standard_charge_result = await self._client.async_get_electricity_standing_charges(self._tariff_code, period_from, period_to)
+        standard_charge = standard_charge_result["value_inc_vat"]
 
+        charges = []
         total_cost_in_pence = 0
         for consumption in self.coordinator.data:
           value = consumption["consumption"]
@@ -418,10 +421,28 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Sensor
           if rate == None:
             raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to}")
 
-          total_cost_in_pence = total_cost_in_pence + (rate["value_inc_vat"] * value)
+          cost = (rate["value_inc_vat"] * value)
+          total_cost_in_pence = total_cost_in_pence + cost
+
+          charges.append({
+            "From": rate["valid_from"],
+            "To": rate["valid_to"],
+            "Rate": f'{rate["value_inc_vat"]}p',
+            "Consumption": f'{value} kWh',
+            "Cost": f'£{round(cost / 100, 2)}'
+          })
         
-        self._state = round(total_cost_in_pence / 100, 2)
+        total_cost = round(total_cost_in_pence / 100, 2)
+        self._state = round((total_cost_in_pence + standard_charge) / 100, 2)
         self._latest_date = self.coordinator.data[-1]["interval_end"]
+
+        self._attributes = {
+          "MPRN": self._mprn,
+          "Serial Number": self._serial_number,
+          "Standard Charge": f'{standard_charge}p',
+          "Total Cost Without Standard Charge": f'£{total_cost}',
+          "Charges": charges
+        }
       
 class OctopusEnergyPreviousAccumulativeGasReading(SensorEntity):
   """Sensor for displaying the previous days accumulative gas reading."""

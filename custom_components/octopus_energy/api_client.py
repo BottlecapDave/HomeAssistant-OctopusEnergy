@@ -37,48 +37,6 @@ class OctopusEnergyApiClient:
         
         return None
 
-  def __process_rates(self, data, period_from, period_to, tariff_code):
-    """Process the collection of rates to ensure they're in 30 minute periods"""
-    starting_period_from = period_from
-    results = []
-    if ("results" in data):
-      # We need to normalise our data into 30 minute increments so that all of our rates across all tariffs are the same and it's 
-      # easier to calculate our target rate sensors
-      for item in data["results"]:
-        value_exc_vat = float(item["value_exc_vat"])
-        value_inc_vat = float(item["value_inc_vat"])
-
-        if "valid_from" in item and item["valid_from"] != None:
-          valid_from = as_utc(parse_datetime(item["valid_from"]))
-
-          # If we're on a fixed rate, then our current time could be in the past so we should go from
-          # our target period from date otherwise we could be adjusting times quite far in the past
-          if (valid_from < starting_period_from):
-            valid_from = starting_period_from
-        else:
-          valid_from = starting_period_from
-
-        # Some rates don't have end dates, so we should treat this as our period to target
-        if "valid_to" in item and item["valid_to"] != None:
-          target_date = as_utc(parse_datetime(item["valid_to"]))
-        else:
-          target_date = period_to
-        
-        while valid_from < target_date:
-          valid_to = valid_from + timedelta(minutes=30)
-          results.append({
-            "value_exc_vat": value_exc_vat,
-            "value_inc_vat": value_inc_vat,
-            "valid_from": valid_from,
-            "valid_to": valid_to,
-            "tariff_code": tariff_code
-          })
-
-          valid_from = valid_to
-          starting_period_from = valid_to
-      
-    return results
-
   async def async_get_standard_rates(self, product_code, tariff_code, period_from, period_to):
     """Get the current standard rates"""
     results = []
@@ -95,24 +53,6 @@ class OctopusEnergyApiClient:
           raise
 
     return results
-
-  def __get_valid_from(self, rate):
-    return rate["valid_from"]
-
-  def __is_between_local_times(self, rate, target_from_time, target_to_time):
-    """Determines if a current rate is between two times"""
-    local_now = now()
-
-    rate_local_valid_from = as_local(rate["valid_from"])
-    rate_local_valid_to = as_local(rate["valid_to"])
-
-    # We need to convert our times into local time to account for BST to ensure that our rate is valid between the target times.
-    from_date_time = as_local(parse_datetime(rate_local_valid_from.strftime(f"%Y-%m-%dT{target_from_time}{local_now.strftime('%z')}")))
-    to_date_time = as_local(parse_datetime(rate_local_valid_from.strftime(f"%Y-%m-%dT{target_to_time}{local_now.strftime('%z')}")))
-
-    _LOGGER.error('is_valid: %s; from_date_time: %s; to_date_time: %s; rate_local_valid_from: %s; rate_local_valid_to: %s', rate_local_valid_from >= from_date_time and rate_local_valid_from < to_date_time, from_date_time, to_date_time, rate_local_valid_from, rate_local_valid_to)
-
-    return rate_local_valid_from >= from_date_time and rate_local_valid_from < to_date_time
 
   async def async_get_day_night_rates(self, product_code, tariff_code, period_from, period_to):
     """Get the current day and night rates"""
@@ -161,18 +101,12 @@ class OctopusEnergyApiClient:
     """Get the current rates"""
 
     tariff_parts = get_tariff_parts(tariff_code)
+    product_code = tariff_parts["product_code"]
 
     if (tariff_parts["rate"].startswith("1")):
-      return await self.async_get_standard_rates(tariff_parts["product_code"], tariff_code, period_from, period_to)
+      return await self.async_get_standard_rates(product_code, tariff_code, period_from, period_to)
     else:
-      return await self.async_get_day_night_rates(tariff_parts["product_code"], tariff_code, period_from, period_to)
-
-  def __process_consumption(self, item):
-    return {
-      "consumption": float(item["consumption"]),
-      "interval_start": as_utc(parse_datetime(item["interval_start"])),
-      "interval_end": as_utc(parse_datetime(item["interval_end"]))
-    }
+      return await self.async_get_day_night_rates(product_code, tariff_code, period_from, period_to)
 
   async def async_electricity_consumption(self, mpan, serial_number, period_from, period_to):
     """Get the current electricity rates"""
@@ -232,3 +166,118 @@ class OctopusEnergyApiClient:
           return data["results"]
 
     return []
+
+  async def async_get_electricity_standing_charges(self, tariff_code, period_from, period_to):
+    """Get the electricity standing charges"""
+    tariff_parts = get_tariff_parts(tariff_code)
+    product_code = tariff_parts["product_code"]
+    
+    result = None
+    async with aiohttp.ClientSession() as client:
+      auth = aiohttp.BasicAuth(self._api_key, '')
+      url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standing-charges?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
+      async with client.get(url, auth=auth) as response:
+        try:
+          # Disable content type check as sometimes it can report text/html
+          data = await response.json(content_type=None)
+          if ("results" in data and len(data["results"]) > 0):
+            result = {
+              "value_exc_vat": float(data["results"][0]["value_exc_vat"]),
+              "value_inc_vat": float(data["results"][0]["value_inc_vat"])
+            }
+        except:
+          _LOGGER.error(f'Failed to extract electricity standing charges: {url}')
+          raise
+
+    return result
+
+  async def async_get_gas_standing_charges(self, tariff_code, period_from, period_to):
+    """Get the gas standing charges"""
+    tariff_parts = get_tariff_parts(tariff_code)
+    product_code = tariff_parts["product_code"]
+
+    result = None
+    async with aiohttp.ClientSession() as client:
+      auth = aiohttp.BasicAuth(self._api_key, '')
+      url = f'{self._base_url}/v1/products/{product_code}/gas-tariffs/{tariff_code}/standing-charges?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
+      async with client.get(url, auth=auth) as response:
+        try:
+          # Disable content type check as sometimes it can report text/html
+          data = await response.json(content_type=None)
+          if ("results" in data and len(data["results"]) > 0):
+            result = {
+              "value_exc_vat": float(data["results"][0]["value_exc_vat"]),
+              "value_inc_vat": float(data["results"][0]["value_inc_vat"])
+            }
+        except:
+          _LOGGER.error(f'Failed to extract gas standing charges: {url}')
+          raise
+
+    return result
+
+  def __get_valid_from(self, rate):
+    return rate["valid_from"]
+
+  def __is_between_local_times(self, rate, target_from_time, target_to_time):
+    """Determines if a current rate is between two times"""
+    local_now = now()
+
+    rate_local_valid_from = as_local(rate["valid_from"])
+    rate_local_valid_to = as_local(rate["valid_to"])
+
+    # We need to convert our times into local time to account for BST to ensure that our rate is valid between the target times.
+    from_date_time = as_local(parse_datetime(rate_local_valid_from.strftime(f"%Y-%m-%dT{target_from_time}{local_now.strftime('%z')}")))
+    to_date_time = as_local(parse_datetime(rate_local_valid_from.strftime(f"%Y-%m-%dT{target_to_time}{local_now.strftime('%z')}")))
+
+    _LOGGER.error('is_valid: %s; from_date_time: %s; to_date_time: %s; rate_local_valid_from: %s; rate_local_valid_to: %s', rate_local_valid_from >= from_date_time and rate_local_valid_from < to_date_time, from_date_time, to_date_time, rate_local_valid_from, rate_local_valid_to)
+
+    return rate_local_valid_from >= from_date_time and rate_local_valid_from < to_date_time
+
+  def __process_consumption(self, item):
+    return {
+      "consumption": float(item["consumption"]),
+      "interval_start": as_utc(parse_datetime(item["interval_start"])),
+      "interval_end": as_utc(parse_datetime(item["interval_end"]))
+    }
+
+  def __process_rates(self, data, period_from, period_to, tariff_code):
+    """Process the collection of rates to ensure they're in 30 minute periods"""
+    starting_period_from = period_from
+    results = []
+    if ("results" in data):
+      # We need to normalise our data into 30 minute increments so that all of our rates across all tariffs are the same and it's 
+      # easier to calculate our target rate sensors
+      for item in data["results"]:
+        value_exc_vat = float(item["value_exc_vat"])
+        value_inc_vat = float(item["value_inc_vat"])
+
+        if "valid_from" in item and item["valid_from"] != None:
+          valid_from = as_utc(parse_datetime(item["valid_from"]))
+
+          # If we're on a fixed rate, then our current time could be in the past so we should go from
+          # our target period from date otherwise we could be adjusting times quite far in the past
+          if (valid_from < starting_period_from):
+            valid_from = starting_period_from
+        else:
+          valid_from = starting_period_from
+
+        # Some rates don't have end dates, so we should treat this as our period to target
+        if "valid_to" in item and item["valid_to"] != None:
+          target_date = as_utc(parse_datetime(item["valid_to"]))
+        else:
+          target_date = period_to
+        
+        while valid_from < target_date:
+          valid_to = valid_from + timedelta(minutes=30)
+          results.append({
+            "value_exc_vat": value_exc_vat,
+            "value_inc_vat": value_inc_vat,
+            "valid_from": valid_from,
+            "valid_to": valid_to,
+            "tariff_code": tariff_code
+          })
+
+          valid_from = valid_to
+          starting_period_from = valid_to
+      
+    return results
