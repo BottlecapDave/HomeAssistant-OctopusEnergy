@@ -109,7 +109,7 @@ class OctopusEnergyApiClient:
       return await self.async_get_day_night_rates(product_code, tariff_code, period_from, period_to)
 
   async def async_electricity_consumption(self, mpan, serial_number, period_from, period_to):
-    """Get the current electricity rates"""
+    """Get the current electricity consumption"""
     async with aiohttp.ClientSession() as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
       url = f'{self._base_url}/v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
@@ -130,6 +130,26 @@ class OctopusEnergyApiClient:
           return results
         
         return None
+
+  async def async_gas_rates(self, tariff_code, period_from, period_to):
+    """Get the gas rates"""
+    tariff_parts = get_tariff_parts(tariff_code)
+    product_code = tariff_parts["product_code"]
+
+    results = []
+    async with aiohttp.ClientSession() as client:
+      auth = aiohttp.BasicAuth(self._api_key, '')
+      url = f'{self._base_url}/v1/products/{product_code}/gas-tariffs/{tariff_code}/standard-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
+      async with client.get(url, auth=auth) as response:
+        try:
+          # Disable content type check as sometimes it can report text/html
+          data = await response.json(content_type=None)
+          results = self.__process_rates(data, period_from, period_to, tariff_code)
+        except:
+          _LOGGER.error(f'Failed to extract standard gas rates: {url}')
+          raise
+
+    return results
 
   async def async_gas_consumption(self, mprn, serial_number, period_from, period_to):
     """Get the current gas rates"""
