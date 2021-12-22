@@ -1,6 +1,6 @@
 import logging
 from datetime import timedelta
-from homeassistant.util.dt import utcnow
+from homeassistant.util.dt import (utcnow, as_utc, parse_datetime)
 import asyncio
 
 from .const import (
@@ -13,7 +13,8 @@ from .const import (
 
   DATA_CLIENT,
   DATA_COORDINATOR,
-  DATA_RATES
+  DATA_RATES,
+  DATA_TARIFF_CODE
 )
 
 from .api_client import OctopusEnergyApiClient
@@ -23,7 +24,6 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from .utils import (
-  get_tariff_parts,
   async_get_active_tariff_code
 )
 
@@ -79,15 +79,14 @@ def setup_dependencies(hass, config):
       if (DATA_RATES not in hass.data[DOMAIN] or (utcnow().minute % 30) == 0 or len(hass.data[DOMAIN][DATA_RATES]) == 0):
 
         tariff_code = await async_get_current_agreement_tariff_code(client, config)
+        hass.data[DOMAIN][DATA_TARIFF_CODE] = tariff_code
         _LOGGER.info(f'tariff_code: {tariff_code}')
-        
-        tariff_parts = get_tariff_parts(tariff_code)
 
-        _LOGGER.info('Updating rates...')
-        if (tariff_parts["rate"].startswith("1")):
-          hass.data[DOMAIN][DATA_RATES] = await client.async_get_standard_rates_for_next_two_days(tariff_parts["product_code"], tariff_code)
-        else:
-          hass.data[DOMAIN][DATA_RATES] = await client.async_get_day_night_rates_for_next_two_days(tariff_parts["product_code"], tariff_code)
+        utc_now = utcnow()
+        period_from = as_utc(parse_datetime(utc_now.strftime("%Y-%m-%dT00:00:00Z")))
+        period_to = as_utc(parse_datetime((utc_now + timedelta(days=2)).strftime("%Y-%m-%dT00:00:00Z")))
+
+        hass.data[DOMAIN][DATA_RATES] = await client.async_get_rates(tariff_code, period_from, period_to)
       
       return hass.data[DOMAIN][DATA_RATES]
 

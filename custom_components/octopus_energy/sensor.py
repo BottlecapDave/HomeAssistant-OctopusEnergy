@@ -3,7 +3,8 @@ import logging
 
 from homeassistant.util.dt import (utcnow, now, as_utc, parse_datetime)
 from homeassistant.helpers.update_coordinator import (
-  CoordinatorEntity
+  CoordinatorEntity,
+  DataUpdateCoordinator
 )
 from homeassistant.components.sensor import (
     DEVICE_CLASS_MONETARY,
@@ -16,6 +17,9 @@ from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR,
     VOLUME_CUBIC_METERS
 )
+
+from typing import Generic, TypeVar
+
 from .utils import (async_get_active_tariff_code, convert_kwh_to_m3)
 from .const import (
   DOMAIN,
@@ -26,12 +30,59 @@ from .const import (
   CONFIG_SMETS1,
 
   DATA_COORDINATOR,
-  DATA_CLIENT
+  DATA_CLIENT,
+  DATA_TARIFF_CODE
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(minutes=1)
+
+def create_reading_coordinator(hass, client, is_electricity, identifier, serial_number):
+  """Create reading coordinator"""
+
+  async def async_update_data():
+    """Fetch data from API endpoint."""
+
+    previous_consumption_key = f'{identifier}_{serial_number}_previous_consumption'
+    if previous_consumption_key in hass.data[DOMAIN]:
+      previous_data = hass.data[DOMAIN][previous_consumption_key]
+    else:
+      previous_data = None
+
+    current_datetime = now()
+    if (previous_data == None or (previous_data[-1]["interval_end"] < utcnow() and current_datetime.minute % 30 == 0)):
+      _LOGGER.debug('Updating electricity consumption...')
+
+      period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
+      period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
+      if (is_electricity == True):
+        data = await client.async_electricity_consumption(identifier, serial_number, period_from, period_to)
+      else:
+        data = await client.async_gas_consumption(identifier, serial_number, period_from, period_to)
+      
+      if data != None and len(data) == 48:
+        hass.data[DOMAIN][previous_consumption_key] = data 
+        return data
+      
+    if previous_data != None:
+      return previous_data
+    else:
+      return []
+
+  coordinator = DataUpdateCoordinator(
+    hass,
+    _LOGGER,
+    name="rates",
+    update_method=async_update_data,
+    # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
+    # data every 30 minutes
+    update_interval=timedelta(minutes=1),
+  )
+
+  hass.data[DOMAIN][f'{identifier}_{serial_number}_consumption_coordinator'] = coordinator
+
+  return coordinator
 
 async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
@@ -51,29 +102,33 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
   
   client = hass.data[DOMAIN][DATA_CLIENT]
   
-  coordinator = hass.data[DOMAIN][DATA_COORDINATOR]
+  rate_coordinator = hass.data[DOMAIN][DATA_COORDINATOR]
+  
+  tariff_code = hass.data[DOMAIN][DATA_TARIFF_CODE]
 
-  await coordinator.async_config_entry_first_refresh()
+  await rate_coordinator.async_config_entry_first_refresh()
 
-  entities = [OctopusEnergyElectricityCurrentRate(coordinator), OctopusEnergyElectricityPreviousRate(coordinator)]
+  entities = [OctopusEnergyElectricityCurrentRate(rate_coordinator), OctopusEnergyElectricityPreviousRate(rate_coordinator)]
   
   account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
 
   if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
-      if async_get_active_tariff_code(point["agreements"], client) != None:
+      if (await async_get_active_tariff_code(point["agreements"], client)) != None:
         for meter in point["meters"]:
-          entities.append(OctopusEnergyLatestElectricityReading(client, point["mpan"], meter["serial_number"]))
-          entities.append(OctopusEnergyPreviousAccumulativeElectricityReading(client, point["mpan"], meter["serial_number"]))
+          coordinator = create_reading_coordinator(hass, client, True, point["mpan"], meter["serial_number"])
+          entities.append(OctopusEnergyPreviousAccumulativeElectricityReading(coordinator, point["mpan"], meter["serial_number"]))
+          entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(coordinator, client, tariff_code, point["mpan"], meter["serial_number"]))
 
   if len(account_info["gas_meter_points"]) > 0:
     for point in account_info["gas_meter_points"]:
       # We only care about points that have active agreements
-      if async_get_active_tariff_code(point["agreements"], client) != None:
+      if (await async_get_active_tariff_code(point["agreements"], client)) != None:
         for meter in point["meters"]:
-          entities.append(OctopusEnergyLatestGasReading(client, point["mprn"], meter["serial_number"], is_smets1))
-          entities.append(OctopusEnergyPreviousAccumulativeGasReading(client, point["mprn"], meter["serial_number"], is_smets1))
+          coordinator = create_reading_coordinator(hass, client, False, point["mprn"], meter["serial_number"])
+          entities.append(OctopusEnergyPreviousAccumulativeGasReading(coordinator, point["mprn"], meter["serial_number"], is_smets1))
+          entities.append(OctopusEnergyPreviousAccumulativeGasCost(coordinator, client, tariff_code, point["mprn"], meter["serial_number"], is_smets1))
 
   async_add_entities(entities, True)
 
@@ -207,93 +262,23 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
 
     return self._state
 
-class OctopusEnergyLatestElectricityReading(SensorEntity):
-  """Sensor for displaying the current electricity rate."""
+class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, SensorEntity):
+  """Sensor for displaying the previous days accumulative electricity reading."""
 
-  def __init__(self, client, mpan, serial_number):
+  def __init__(self, coordinator, mpan, serial_number):
     """Init sensor."""
+    super().__init__(coordinator)
+
     self._mpan = mpan
     self._serial_number = serial_number
-    self._client = client
 
     self._attributes = {
       "MPAN": mpan,
       "Serial Number": serial_number
     }
 
-    self._state = None
-
-  @property
-  def unique_id(self):
-    """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_latest_consumption"
-    
-  @property
-  def name(self):
-    """Name of the sensor."""
-    return f"Octopus Energy Electricity {self._serial_number} Latest Consumption"
-
-  @property
-  def device_class(self):
-    """The type of sensor"""
-    return DEVICE_CLASS_ENERGY
-
-  @property
-  def state_class(self):
-    """The state class of sensor"""
-    return STATE_CLASS_TOTAL_INCREASING
-
-  @property
-  def unit_of_measurement(self):
-    """The unit of measurement of sensor"""
-    return ENERGY_KILO_WATT_HOUR
-
-  @property
-  def icon(self):
-    """Icon of the sensor."""
-    return "mdi:lightning-bolt"
-
-  @property
-  def extra_state_attributes(self):
-    """Attributes of the sensor."""
-    return self._attributes
-
-  @property
-  def state(self):
-    """Native value of the sensor."""
-    return self._state
-
-  async def async_update(self):
-    """Retrieve the latest consumption"""
-    # We only need to do this every half an hour
-    current_datetime = now()
-    if (current_datetime.minute % 30) == 0 or self._state == None:
-      _LOGGER.info('Updating OctopusEnergyLatestElectricityReading')
-
-      period_from = as_utc(current_datetime - timedelta(hours=1))
-      period_to = as_utc(current_datetime)
-      data = await self._client.async_electricity_consumption(self._mpan, self._serial_number, period_from, period_to)
-      if data != None and len(data) > 0:
-        self._state = data[0]["consumption"]
-      else:
-        self._state = 0
-
-class OctopusEnergyPreviousAccumulativeElectricityReading(SensorEntity):
-  """Sensor for displaying the previous days accumulative electricity reading."""
-
-  def __init__(self, client, mprn, serial_number):
-    """Init sensor."""
-    self._mprn = mprn
-    self._serial_number = serial_number
-    self._client = client
-
-    self._attributes = {
-      "MPRN": mprn,
-      "Serial Number": serial_number
-    }
-
-    self._state = None
-    self._data = []
+    self._state = 0
+    self._latest_date = None
 
   @property
   def unique_id(self):
@@ -332,64 +317,55 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(SensorEntity):
 
   @property
   def state(self):
-    """Native value of the sensor."""
-    return self._state
-
-  async def async_update(self):
     """Retrieve the previous days accumulative consumption"""
-    current_datetime = now()
+    if (self.coordinator.data != None and len(self.coordinator.data) == 48):
 
-    # We only need to do this once a day, unless we don't have enough data for the day therefore we want to retrieve it
-    # every hour until we have enough data for the day
-    if (current_datetime.hour == 0 and current_datetime.minute == 0) or self._state == None or (current_datetime.minute % 60 == 0 and len(self._data) != 48):
-      _LOGGER.info('Updating OctopusEnergyPreviousAccumulativeElectricityReading')
+      if (self._latest_date != self.coordinator.data[-1]["interval_end"]):
+        _LOGGER.info(f"Calculating previous electricity consumption for '{self._mpan}/{self._serial_number}'...")
 
-      period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
-      period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
-      data = await self._client.async_electricity_consumption(self._mprn, self._serial_number, period_from, period_to)
-      if data != None:
         total = 0
-        for item in data:
-          total = total + item["consumption"]
+        for consumption in self.coordinator.data:
+          total = total + consumption["consumption"]
         
         self._state = total
-        self._data = data
-      else:
-        self._state = 0
-        self._data = []
+        self._latest_date = self.coordinator.data[-1]["interval_end"]
+    
+    return self._state
 
-class OctopusEnergyLatestGasReading(SensorEntity):
-  """Sensor for displaying the current gas rate."""
+class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, SensorEntity):
+  """Sensor for displaying the previous days accumulative electricity cost."""
 
-  def __init__(self, client, mprn, serial_number, is_smets1_meter):
+  def __init__(self, coordinator, client, tariff_code, mpan, serial_number):
     """Init sensor."""
-    self._mprn = mprn
+    super().__init__(coordinator)
+
+    self._mpan = mpan
     self._serial_number = serial_number
-    self._is_smets1_meter = is_smets1_meter
     self._client = client
+    self._tariff_code = tariff_code
 
     self._attributes = {
-      "MPRN": mprn,
-      "Serial Number": serial_number,
-      "Is SMETS1 Meter": is_smets1_meter
+      "MPAN": mpan,
+      "Serial Number": serial_number
     }
 
-    self._state = None
+    self._state = 0
+    self._latest_date = None
 
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_gas_{self._serial_number}_latest_consumption"
+    return f"octopus_energy_electricity_{self._serial_number}_previous_accumulative_cost"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Gas {self._serial_number} Latest Consumption"
+    return f"Octopus Energy Electricity {self._serial_number} Previous Accumulative Cost"
 
   @property
   def device_class(self):
     """The type of sensor"""
-    return DEVICE_CLASS_GAS
+    return DEVICE_CLASS_MONETARY
 
   @property
   def state_class(self):
@@ -399,12 +375,12 @@ class OctopusEnergyLatestGasReading(SensorEntity):
   @property
   def unit_of_measurement(self):
     """The unit of measurement of sensor"""
-    return VOLUME_CUBIC_METERS
+    return "GBP"
 
   @property
   def icon(self):
     """Icon of the sensor."""
-    return "mdi:fire"
+    return "mdi:currency-usd"
 
   @property
   def extra_state_attributes(self):
@@ -412,37 +388,73 @@ class OctopusEnergyLatestGasReading(SensorEntity):
     return self._attributes
 
   @property
+  def should_poll(self):
+    return True
+
+  @property
   def state(self):
-    """Native value of the sensor."""
+    """Retrieve the previously calculated state"""
     return self._state
 
   async def async_update(self):
-    """Retrieve the latest consumption"""
-    # We only need to do this every half an hour
-    current_datetime = now()
-    if (current_datetime.minute % 30) == 0 or self._state == None:
-      _LOGGER.info('Updating OctopusEnergyLatestGasReading')
+    if (self.coordinator.data != None and len(self.coordinator.data) == 48):
 
-      period_from = as_utc(current_datetime - timedelta(hours=1))
-      period_to = as_utc(current_datetime)
-      data = await self._client.async_gas_consumption(self._mprn, self._serial_number, period_from, period_to)
-      if data != None and len(data) > 0:
-        self._state = data[0]["consumption"]
-      else:
-        self._state = 0
+      # Only calculate our consumption if our data has changed
+      if (self._latest_date != self.coordinator.data[-1]["interval_end"]):
+        _LOGGER.debug(f"Calculating previous electricity cost for '{self._mpan}/{self._serial_number}'...")
 
-      if self._is_smets1_meter:
-        self._state = convert_kwh_to_m3(self._state)
+        current_datetime = now()
+        period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
+        period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
 
-class OctopusEnergyPreviousAccumulativeGasReading(SensorEntity):
+        rates = await self._client.async_get_rates(self._tariff_code, period_from, period_to)
+        standard_charge_result = await self._client.async_get_electricity_standing_charges(self._tariff_code, period_from, period_to)
+        standard_charge = standard_charge_result["value_inc_vat"]
+
+        charges = []
+        total_cost_in_pence = 0
+        for consumption in self.coordinator.data:
+          value = consumption["consumption"]
+          consumption_from = consumption["interval_start"]
+          consumption_to = consumption["interval_end"]
+
+          rate = next(rate for rate in rates if rate["valid_from"] == consumption_from and rate["valid_to"] == consumption_to)
+          if rate == None:
+            raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to}")
+
+          cost = (rate["value_inc_vat"] * value)
+          total_cost_in_pence = total_cost_in_pence + cost
+
+          charges.append({
+            "From": rate["valid_from"],
+            "To": rate["valid_to"],
+            "Rate": f'{rate["value_inc_vat"]}p',
+            "Consumption": f'{value} kWh',
+            "Cost": f'£{round(cost / 100, 2)}'
+          })
+        
+        total_cost = round(total_cost_in_pence / 100, 2)
+        self._state = round((total_cost_in_pence + standard_charge) / 100, 2)
+        self._latest_date = self.coordinator.data[-1]["interval_end"]
+
+        self._attributes = {
+          "MPAN": self._mpan,
+          "Serial Number": self._serial_number,
+          "Standard Charge": f'{standard_charge}p',
+          "Total Cost Without Standard Charge": f'£{total_cost}',
+          "Charges": charges
+        }
+      
+class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, SensorEntity):
   """Sensor for displaying the previous days accumulative gas reading."""
 
-  def __init__(self, client, mprn, serial_number, is_smets1_meter):
+  def __init__(self, coordinator, mprn, serial_number, is_smets1_meter):
     """Init sensor."""
+    super().__init__(coordinator)
+
     self._mprn = mprn
     self._serial_number = serial_number
     self._is_smets1_meter = is_smets1_meter
-    self._client = client
 
     self._attributes = {
       "MPRN": mprn,
@@ -450,8 +462,8 @@ class OctopusEnergyPreviousAccumulativeGasReading(SensorEntity):
       "Is SMETS1 Meter": is_smets1_meter
     }
 
-    self._state = None
-    self._data = []
+    self._state = 0
+    self._latest_date = None
 
   @property
   def unique_id(self):
@@ -490,31 +502,139 @@ class OctopusEnergyPreviousAccumulativeGasReading(SensorEntity):
 
   @property
   def state(self):
-    """Native value of the sensor."""
+    """Retrieve the previous days accumulative consumption"""
+    if (self.coordinator.data != None and len(self.coordinator.data) == 48):
+
+      if (self._latest_date != self.coordinator.data[-1]["interval_end"]):
+        _LOGGER.info(f"Calculating previous gas consumption for '{self._mprn}/{self._serial_number}'...")
+
+        total = 0
+        for consumption in self.coordinator.data:
+          total = total + consumption["consumption"]
+        
+        self._state = total
+        self._latest_date = self.coordinator.data[-1]["interval_end"]
+        
+        if self._is_smets1_meter:
+          self._state = convert_kwh_to_m3(self._state)
+    
+    return self._state
+
+class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, SensorEntity):
+  """Sensor for displaying the previous days accumulative gas cost."""
+
+  def __init__(self, coordinator, client, tariff_code, mprn, serial_number, is_smets1_meter):
+    """Init sensor."""
+    super().__init__(coordinator)
+
+    self._mprn = mprn
+    self._serial_number = serial_number
+    self._client = client
+    self._tariff_code = tariff_code
+    self._is_smets1_meter = is_smets1_meter
+
+    self._attributes = {
+      "MPRN": mprn,
+      "Serial Number": serial_number
+    }
+
+    self._state = 0
+    self._latest_date = None
+
+  @property
+  def unique_id(self):
+    """The id of the sensor."""
+    return f"octopus_energy_gas_{self._serial_number}_previous_accumulative_cost"
+    
+  @property
+  def name(self):
+    """Name of the sensor."""
+    return f"Octopus Energy Gas {self._serial_number} Previous Accumulative Cost"
+
+  @property
+  def device_class(self):
+    """The type of sensor"""
+    return DEVICE_CLASS_MONETARY
+
+  @property
+  def state_class(self):
+    """The state class of sensor"""
+    return STATE_CLASS_TOTAL_INCREASING
+
+  @property
+  def unit_of_measurement(self):
+    """The unit of measurement of sensor"""
+    return "GBP"
+
+  @property
+  def icon(self):
+    """Icon of the sensor."""
+    return "mdi:currency-usd"
+
+  @property
+  def extra_state_attributes(self):
+    """Attributes of the sensor."""
+    return self._attributes
+
+  @property
+  def should_poll(self):
+    return True
+
+  @property
+  def state(self):
+    """Retrieve the previously calculated state"""
     return self._state
 
   async def async_update(self):
-    """Retrieve the previous days accumulative consumption"""
-    current_datetime = now()
-    
-    # We only need to do this once a day, unless we don't have enough data for the day therefore we want to retrieve it
-    # every hour until we have enough data for the day
-    if (current_datetime.hour == 0 and current_datetime.minute == 0) or self._state == None or (current_datetime.minute % 60 == 0 and len(self._data) != 48):
-      _LOGGER.info('Updating OctopusEnergyPreviousAccumulativeGasReading')
+    if (self.coordinator.data != None and len(self.coordinator.data) == 48):
 
-      period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
-      period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
-      data = await self._client.async_gas_consumption(self._mprn, self._serial_number, period_from, period_to)
-      if data != None:
-        total = 0
-        for item in data:
-          total = total + item["consumption"]
+      # Only calculate our consumption if our data has changed
+      if (self._latest_date != self.coordinator.data[-1]["interval_end"]):
+        _LOGGER.debug(f"Calculating previous gas cost for '{self._mprn}/{self._serial_number}'...")
+
+        current_datetime = now()
+        period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
+        period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
+
+        rates = await self._client.async_gas_rates(self._tariff_code, period_from, period_to)
+        standard_charge_result = await self._client.async_get_gas_standing_charges(self._tariff_code, period_from, period_to)
+        standard_charge = standard_charge_result["value_inc_vat"]
+
+        charges = []
+        total_cost_in_pence = 0
+        for consumption in self.coordinator.data:
+          value = consumption["consumption"]
+
+          if self._is_smets1_meter:
+            value = convert_kwh_to_m3(value)
+
+          consumption_from = consumption["interval_start"]
+          consumption_to = consumption["interval_end"]
+
+          rate = next(rate for rate in rates if rate["valid_from"] == consumption_from and rate["valid_to"] == consumption_to)
+          if rate == None:
+            raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to}")
+
+          cost = (rate["value_inc_vat"] * value)
+          total_cost_in_pence = total_cost_in_pence + cost
+
+          charges.append({
+            "From": rate["valid_from"],
+            "To": rate["valid_to"],
+            "Rate": f'{rate["value_inc_vat"]}p',
+            "Consumption": f'{value} kWh',
+            "Cost": f'£{round(cost / 100, 2)}'
+          })
         
-        self._state = total
-        self._data = data
-      else:
-        self._state = 0
-        self._data = []
+        total_cost = round(total_cost_in_pence / 100, 2)
+        self._state = round((total_cost_in_pence + standard_charge) / 100, 2)
+        self._latest_date = self.coordinator.data[-1]["interval_end"]
 
-      if self._is_smets1_meter:
-        self._state = convert_kwh_to_m3(self._state)
+        self._attributes = {
+          "MPRN": self._mprn,
+          "Serial Number": self._serial_number,
+          "Standard Charge": f'{standard_charge}p',
+          "Total Cost Without Standard Charge": f'£{total_cost}',
+          "Charges": charges
+        }
+ 

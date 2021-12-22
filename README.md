@@ -10,7 +10,7 @@ To install, place the contents of `custom_components` into the `<config director
 
 ## How to setup
 
-Setup is done entirely via the [UI](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
+Setup is done entirely via the [integration UI](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
 
 ### Your account
 
@@ -23,15 +23,17 @@ You'll get the following sensors if you have an electricity meter with an active
 
 You'll get the following sensors for each electricity meter with an active agreement:
 
-* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_latest_consumption` - The latest consumption reported by the meter. It looks like Octopus is about a day behind with their data, therefore this is often zero and will probably be removed in the future.
 * `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_previous_accumulative_consumption` - The total consumption reported by the meter for the previous day.
+* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_previous_accumulative_cost` - The total cost for the previous day, including the standing charge.
 
 You'll get the following sensors for each gas meter with an active agreement:
 
-* `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_latest_consumption` - The latest consumption reported by the meter. It looks like Octopus is about a day behind with their data, therefore this is often zero and will probably be removed in the future.
 * `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_previous_accumulative_consumption` - The total consumption reported by the meter for the previous day.
+* `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_previous_accumulative_cost` - The total cost for the previous day, including the standing charge.
 
 While you can add these sensors to [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/), because Octopus doesn't provide live consumption data, it will be off by a day.
+
+Please note, that it's not possible to include current consumption sensors. This is due to Octopus Energy only providing data up to the previous day.
 
 ### Target Rates
 
@@ -45,6 +47,6 @@ When you sign into your account, if you have gas meters, we'll setup some sensor
 
 ## Known Issues/Limitations
 
-- Latest consumption is at the mercy of how often Octopus Energy updates their records. This seems to be a day behind based on local testing.
-- Only the first property associated with an account is exposed.
+- Octopus Energy only provide data up to the previous day, so it's not possible to expose current consumption. If you would like this to change, then you'll need to email Octopus Energy.
+- Only the first property associated with an account that hasn't been moved out of is exposed.
 - Gas meter SMETS1/SMETS2 setting has to be set globally and manually as Octopus Energy doesn't provide this information.
