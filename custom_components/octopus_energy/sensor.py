@@ -103,10 +103,10 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
   client = hass.data[DOMAIN][DATA_CLIENT]
   
   rate_coordinator = hass.data[DOMAIN][DATA_COORDINATOR]
-  
-  tariff_code = hass.data[DOMAIN][DATA_TARIFF_CODE]
 
   await rate_coordinator.async_config_entry_first_refresh()
+  
+  tariff_code = hass.data[DOMAIN][DATA_TARIFF_CODE]
 
   entities = [OctopusEnergyElectricityCurrentRate(rate_coordinator), OctopusEnergyElectricityPreviousRate(rate_coordinator)]
   
