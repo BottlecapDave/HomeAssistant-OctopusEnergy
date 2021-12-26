@@ -1,4 +1,5 @@
 import logging
+import json
 import aiohttp
 from datetime import (timedelta)
 from homeassistant.util.dt import (utcnow, as_utc, now, as_local, parse_datetime)
@@ -21,8 +22,7 @@ class OctopusEnergyApiClient:
       auth = aiohttp.BasicAuth(self._api_key, '')
       url = f'{self._base_url}/v1/accounts/{account_id}'
       async with client.get(url, auth=auth) as response:
-        # Disable content type check as sometimes it can report text/html
-        data = await response.json(content_type=None)
+        data = await self.__async_read_response(response, url)
         if ("properties" in data):
           # We're only supporting one property at the moment and we don't want to expose addresses
           properties = data["properties"]
@@ -45,8 +45,7 @@ class OctopusEnergyApiClient:
       url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         try:
-          # Disable content type check as sometimes it can report text/html
-          data = await response.json(content_type=None)
+          data = await self.__async_read_response(response, url)
           results = self.__process_rates(data, period_from, period_to, tariff_code)
         except:
           _LOGGER.error(f'Failed to extract standard rates: {url}')
@@ -62,8 +61,7 @@ class OctopusEnergyApiClient:
       url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/day-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         try:
-          # Disable content type check as sometimes it can report text/html
-          data = await response.json(content_type=None)
+          data = await self.__async_read_response(response, url)
 
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our day period 
           # (7am to 12am UK time https://octopus.energy/help-and-faqs/categories/tariffs/eco-seven/)
@@ -78,8 +76,7 @@ class OctopusEnergyApiClient:
       url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/night-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         try:
-          # Disable content type check as sometimes it can report text/html
-          data = await response.json(content_type=None)
+          data = await self.__async_read_response(response, url)
 
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our night period 
           # (12am to 7am UK time https://octopus.energy/help-and-faqs/categories/tariffs/eco-seven/)
@@ -114,8 +111,9 @@ class OctopusEnergyApiClient:
       auth = aiohttp.BasicAuth(self._api_key, '')
       url = f'{self._base_url}/v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
-        # Disable content type check as sometimes it can report text/html
-        data = await response.json(content_type=None)
+        
+        data = await self.__async_read_response(response, url)
+
         if ("results" in data):
           data = data["results"]
           results = []
@@ -142,8 +140,7 @@ class OctopusEnergyApiClient:
       url = f'{self._base_url}/v1/products/{product_code}/gas-tariffs/{tariff_code}/standard-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         try:
-          # Disable content type check as sometimes it can report text/html
-          data = await response.json(content_type=None)
+          data = await self.__async_read_response(response, url)
           results = self.__process_rates(data, period_from, period_to, tariff_code)
         except:
           _LOGGER.error(f'Failed to extract standard gas rates: {url}')
@@ -157,8 +154,7 @@ class OctopusEnergyApiClient:
       auth = aiohttp.BasicAuth(self._api_key, '')
       url = f'{self._base_url}/v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
-        # Disable content type check as sometimes it can report text/html
-        data = await response.json(content_type=None)
+        data = await self.__async_read_response(response, url)
         if ("results" in data):
           data = data["results"]
           results = []
@@ -180,8 +176,7 @@ class OctopusEnergyApiClient:
       auth = aiohttp.BasicAuth(self._api_key, '')
       url = f'{self._base_url}/v1/products?is_variable={is_variable}'
       async with client.get(url, auth=auth) as response:
-        # Disable content type check as sometimes it can report text/html
-        data = await response.json(content_type=None)
+        data = await self.__async_read_response(response, url)
         if ("results" in data):
           return data["results"]
 
@@ -198,8 +193,7 @@ class OctopusEnergyApiClient:
       url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standing-charges?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         try:
-          # Disable content type check as sometimes it can report text/html
-          data = await response.json(content_type=None)
+          data = await self.__async_read_response(response, url)
           if ("results" in data and len(data["results"]) > 0):
             result = {
               "value_exc_vat": float(data["results"][0]["value_exc_vat"]),
@@ -222,8 +216,7 @@ class OctopusEnergyApiClient:
       url = f'{self._base_url}/v1/products/{product_code}/gas-tariffs/{tariff_code}/standing-charges?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         try:
-          # Disable content type check as sometimes it can report text/html
-          data = await response.json(content_type=None)
+          data = await self.__async_read_response(response, url)
           if ("results" in data and len(data["results"]) > 0):
             result = {
               "value_exc_vat": float(data["results"][0]["value_exc_vat"]),
@@ -301,3 +294,11 @@ class OctopusEnergyApiClient:
           starting_period_from = valid_to
       
     return results
+
+  async def __async_read_response(self, response, url):
+    """Reads the response, logging any json errors"""
+    text = await response.text()
+    try:
+      return json.loads(text)
+    except:
+      raise Exception(f'Failed to extract response json: {url}; {text}')
