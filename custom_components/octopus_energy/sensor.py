@@ -418,9 +418,10 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Sensor
           consumption_from = consumption["interval_start"]
           consumption_to = consumption["interval_end"]
 
-          rate = next(rate for rate in rates if rate["valid_from"] == consumption_from and rate["valid_to"] == consumption_to)
-          if rate == None:
-            raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to}")
+          try:
+            rate = next(r for r in rates if r["valid_from"] == consumption_from and r["valid_to"] == consumption_to)
+          except StopIteration:
+            raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to} for tariff {self._tariff_code}")
 
           cost = (rate["value_inc_vat"] * value)
           total_cost_in_pence = total_cost_in_pence + cost
@@ -611,9 +612,10 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, SensorEntity):
           consumption_from = consumption["interval_start"]
           consumption_to = consumption["interval_end"]
 
-          rate = next(rate for rate in rates if rate["valid_from"] == consumption_from and rate["valid_to"] == consumption_to)
-          if rate == None:
-            raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to}")
+          try:
+            rate = next(r for r in rates if r["valid_from"] == consumption_from and r["valid_to"] == consumption_to)
+          except StopIteration:
+            raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to} for tariff {self._tariff_code}")
 
           cost = (rate["value_inc_vat"] * value)
           total_cost_in_pence = total_cost_in_pence + cost
