@@ -20,7 +20,7 @@ from homeassistant.const import (
 
 from typing import Generic, TypeVar
 
-from .utils import (async_get_active_tariff_code, convert_kwh_to_m3)
+from .utils import (get_active_tariff_code, convert_kwh_to_m3)
 from .const import (
   DOMAIN,
   
@@ -52,13 +52,13 @@ def create_reading_coordinator(hass, client, is_electricity, identifier, serial_
 
     current_datetime = now()
     if (previous_data == None or (previous_data[-1]["interval_end"] < utcnow() and current_datetime.minute % 30 == 0)):
-      _LOGGER.debug('Updating electricity consumption...')
-
       period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
       period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
       if (is_electricity == True):
+        _LOGGER.debug('Updating electricity consumption...')
         data = await client.async_electricity_consumption(identifier, serial_number, period_from, period_to)
       else:
+        _LOGGER.debug('Updating gas consumption...')
         data = await client.async_gas_consumption(identifier, serial_number, period_from, period_to)
       
       if data != None and len(data) == 48:
@@ -115,7 +115,7 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
   if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
-      if (await async_get_active_tariff_code(point["agreements"], client)) != None:
+      if get_active_tariff_code(point["agreements"]) != None:
         for meter in point["meters"]:
           coordinator = create_reading_coordinator(hass, client, True, point["mpan"], meter["serial_number"])
           entities.append(OctopusEnergyPreviousAccumulativeElectricityReading(coordinator, point["mpan"], meter["serial_number"]))
@@ -124,7 +124,7 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
   if len(account_info["gas_meter_points"]) > 0:
     for point in account_info["gas_meter_points"]:
       # We only care about points that have active agreements
-      if (await async_get_active_tariff_code(point["agreements"], client)) != None:
+      if get_active_tariff_code(point["agreements"]) != None:
         for meter in point["meters"]:
           coordinator = create_reading_coordinator(hass, client, False, point["mprn"], meter["serial_number"])
           entities.append(OctopusEnergyPreviousAccumulativeGasReading(coordinator, point["mprn"], meter["serial_number"], is_smets1))

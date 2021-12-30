@@ -24,7 +24,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from .utils import (
-  async_get_active_tariff_code
+  get_active_tariff_code
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -54,17 +54,14 @@ async def async_get_current_agreement_tariff_code(client, config):
   account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
 
   all_agreements = []
-  active_tariff_code = None
   if len(account_info["electricity_meter_points"]) > 0:
-    # We're purposefully only supporting the tariff of the first electricity point
-    all_agreements.extend(account_info["electricity_meter_points"][0]["agreements"])
-    active_tariff_code = await async_get_active_tariff_code(all_agreements, client)
-
-  # If we can't find an agreement
-  if active_tariff_code == None:
-    raise Exception(f'Unable to find active agreement: {all_agreements}')
-
-  return active_tariff_code
+    for point in account_info["electricity_meter_points"]:
+      all_agreements.extend(point["agreements"])
+      active_tariff_code = get_active_tariff_code(point["agreements"])
+      if active_tariff_code != None:
+        return active_tariff_code
+  
+  raise Exception(f'Unable to find active agreement: {all_agreements}')
 
 def setup_dependencies(hass, config):
   """Setup the coordinator and api client which will be shared by various entities"""

@@ -25,7 +25,7 @@ def get_tariff_parts(tariff_code):
     "region": region
   }
 
-async def async_get_active_tariff_code(agreements, client):
+def get_active_tariff_code(agreements):
   now = utcnow()
 
   latest_agreement = None
