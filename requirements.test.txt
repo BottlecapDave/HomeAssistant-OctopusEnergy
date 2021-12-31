@@ -1,3 +1,4 @@
 pytest
 pytest-socket
+anyio
 homeassistant>=2021.12.01
