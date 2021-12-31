@@ -2,7 +2,7 @@ import logging
 import json
 import aiohttp
 from datetime import (timedelta)
-from homeassistant.util.dt import (utcnow, as_utc, now, as_local, parse_datetime)
+from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime)
 
 from .utils import (
   get_tariff_parts
