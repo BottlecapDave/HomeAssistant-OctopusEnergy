@@ -258,9 +258,12 @@ class OctopusEnergyApiClient:
     starting_period_from = period_from
     results = []
     if ("results" in data):
+      items = data["results"]
+      items.sort(key=self.__get_valid_from)
+
       # We need to normalise our data into 30 minute increments so that all of our rates across all tariffs are the same and it's 
       # easier to calculate our target rate sensors
-      for item in data["results"]:
+      for item in items:
         value_exc_vat = float(item["value_exc_vat"])
         value_inc_vat = float(item["value_inc_vat"])
 
@@ -277,6 +280,10 @@ class OctopusEnergyApiClient:
         # Some rates don't have end dates, so we should treat this as our period to target
         if "valid_to" in item and item["valid_to"] != None:
           target_date = as_utc(parse_datetime(item["valid_to"]))
+
+          # Cap our target date to our end period
+          if (target_date > period_to):
+            target_date = period_to
         else:
           target_date = period_to
         
