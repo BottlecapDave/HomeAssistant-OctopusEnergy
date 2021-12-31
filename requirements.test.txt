@@ -1,3 +1,3 @@
 pytest
-pytest-pysocket
+pytest-socket
 homeassistant>=2021.12.01
