@@ -1,4 +1,4 @@
 pytest
 pytest-socket
-anyio
+pytest-asyncio
 homeassistant>=2021.12.01
