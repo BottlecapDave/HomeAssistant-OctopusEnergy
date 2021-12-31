@@ -22,5 +22,5 @@ jobs:
       - name: Tests suite
         run: |
           python -m pytest tests
-        with:
+        env:
           API_TOKEN: ${{ secrets.OCTOPUS_ENERGY_API_TOKEN }}
