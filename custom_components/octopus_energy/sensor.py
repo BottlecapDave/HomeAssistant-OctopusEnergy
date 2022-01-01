@@ -61,7 +61,7 @@ def create_reading_coordinator(hass, client, is_electricity, identifier, serial_
         _LOGGER.debug('Updating gas consumption...')
         data = await client.async_get_gas_consumption(identifier, serial_number, period_from, period_to)
       
-      if data != None and len(data) == 48:
+      if data != None and len(data) > 0:
         hass.data[DOMAIN][previous_consumption_key] = data 
         return data
       
