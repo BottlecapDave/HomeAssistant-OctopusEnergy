@@ -182,7 +182,7 @@ class OctopusEnergyApiClient:
 
     return []
 
-  async def async_get_electricity_standing_charges(self, tariff_code, period_from, period_to):
+  async def async_get_electricity_standing_charge(self, tariff_code, period_from, period_to):
     """Get the electricity standing charges"""
     tariff_parts = get_tariff_parts(tariff_code)
     product_code = tariff_parts["product_code"]
@@ -205,7 +205,7 @@ class OctopusEnergyApiClient:
 
     return result
 
-  async def async_get_gas_standing_charges(self, tariff_code, period_from, period_to):
+  async def async_get_gas_standing_charge(self, tariff_code, period_from, period_to):
     """Get the gas standing charges"""
     tariff_parts = get_tariff_parts(tariff_code)
     product_code = tariff_parts["product_code"]

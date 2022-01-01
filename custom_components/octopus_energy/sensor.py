@@ -318,7 +318,7 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Sen
   @property
   def state(self):
     """Retrieve the previous days accumulative consumption"""
-    if (self.coordinator.data != None and len(self.coordinator.data) == 48):
+    if (self.coordinator.data != None and len(self.coordinator.data) > 0):
 
       if (self._latest_date != self.coordinator.data[-1]["interval_end"]):
         _LOGGER.info(f"Calculating previous electricity consumption for '{self._mpan}/{self._serial_number}'...")
@@ -397,7 +397,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Sensor
     return self._state
 
   async def async_update(self):
-    if (self.coordinator.data != None and len(self.coordinator.data) == 48):
+    if (self.coordinator.data != None and len(self.coordinator.data) > 0):
 
       # Only calculate our consumption if our data has changed
       if (self._latest_date != self.coordinator.data[-1]["interval_end"]):
@@ -408,43 +408,45 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Sensor
         period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
 
         rates = await self._client.async_get_electricity_rates(self._tariff_code, period_from, period_to)
-        standard_charge_result = await self._client.async_get_electricity_standing_charges(self._tariff_code, period_from, period_to)
-        standard_charge = standard_charge_result["value_inc_vat"]
+        standard_charge_result = await self._client.async_get_electricity_standing_charge(self._tariff_code, period_from, period_to)
 
-        charges = []
-        total_cost_in_pence = 0
-        for consumption in self.coordinator.data:
-          value = consumption["consumption"]
-          consumption_from = consumption["interval_start"]
-          consumption_to = consumption["interval_end"]
+        if (rates != None and len(rates) > 0 and standard_charge_result != None):
+          standard_charge = standard_charge_result["value_inc_vat"]
 
-          try:
-            rate = next(r for r in rates if r["valid_from"] == consumption_from and r["valid_to"] == consumption_to)
-          except StopIteration:
-            raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to} for tariff {self._tariff_code}")
+          charges = []
+          total_cost_in_pence = 0
+          for consumption in self.coordinator.data:
+            value = consumption["consumption"]
+            consumption_from = consumption["interval_start"]
+            consumption_to = consumption["interval_end"]
 
-          cost = (rate["value_inc_vat"] * value)
-          total_cost_in_pence = total_cost_in_pence + cost
+            try:
+              rate = next(r for r in rates if r["valid_from"] == consumption_from and r["valid_to"] == consumption_to)
+            except StopIteration:
+              raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to} for tariff {self._tariff_code}")
 
-          charges.append({
-            "From": rate["valid_from"],
-            "To": rate["valid_to"],
-            "Rate": f'{rate["value_inc_vat"]}p',
-            "Consumption": f'{value} kWh',
-            "Cost": f'£{round(cost / 100, 2)}'
-          })
-        
-        total_cost = round(total_cost_in_pence / 100, 2)
-        self._state = round((total_cost_in_pence + standard_charge) / 100, 2)
-        self._latest_date = self.coordinator.data[-1]["interval_end"]
+            cost = (rate["value_inc_vat"] * value)
+            total_cost_in_pence = total_cost_in_pence + cost
 
-        self._attributes = {
-          "MPAN": self._mpan,
-          "Serial Number": self._serial_number,
-          "Standard Charge": f'{standard_charge}p',
-          "Total Cost Without Standard Charge": f'£{total_cost}',
-          "Charges": charges
-        }
+            charges.append({
+              "From": rate["valid_from"],
+              "To": rate["valid_to"],
+              "Rate": f'{rate["value_inc_vat"]}p',
+              "Consumption": f'{value} kWh',
+              "Cost": f'£{round(cost / 100, 2)}'
+            })
+          
+          total_cost = round(total_cost_in_pence / 100, 2)
+          self._state = round((total_cost_in_pence + standard_charge) / 100, 2)
+          self._latest_date = self.coordinator.data[-1]["interval_end"]
+
+          self._attributes = {
+            "MPAN": self._mpan,
+            "Serial Number": self._serial_number,
+            "Standard Charge": f'{standard_charge}p',
+            "Total Cost Without Standard Charge": f'£{total_cost}',
+            "Charges": charges
+          }
       
 class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, SensorEntity):
   """Sensor for displaying the previous days accumulative gas reading."""
@@ -504,7 +506,7 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, SensorEntit
   @property
   def state(self):
     """Retrieve the previous days accumulative consumption"""
-    if (self.coordinator.data != None and len(self.coordinator.data) == 48):
+    if (self.coordinator.data != None and len(self.coordinator.data) > 0):
 
       if (self._latest_date != self.coordinator.data[-1]["interval_end"]):
         _LOGGER.info(f"Calculating previous gas consumption for '{self._mprn}/{self._serial_number}'...")
@@ -587,7 +589,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, SensorEntity):
     return self._state
 
   async def async_update(self):
-    if (self.coordinator.data != None and len(self.coordinator.data) == 48):
+    if (self.coordinator.data != None and len(self.coordinator.data) > 0):
 
       # Only calculate our consumption if our data has changed
       if (self._latest_date != self.coordinator.data[-1]["interval_end"]):
@@ -598,45 +600,47 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, SensorEntity):
         period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
 
         rates = await self._client.async_get_gas_rates(self._tariff_code, period_from, period_to)
-        standard_charge_result = await self._client.async_get_gas_standing_charges(self._tariff_code, period_from, period_to)
-        standard_charge = standard_charge_result["value_inc_vat"]
+        standard_charge_result = await self._client.async_get_gas_standing_charge(self._tariff_code, period_from, period_to)
 
-        charges = []
-        total_cost_in_pence = 0
-        for consumption in self.coordinator.data:
-          value = consumption["consumption"]
+        if (rates != None and len(rates) > 0 and standard_charge_result != None):
+          standard_charge = standard_charge_result["value_inc_vat"]
 
-          if self._is_smets1_meter:
-            value = convert_kwh_to_m3(value)
+          charges = []
+          total_cost_in_pence = 0
+          for consumption in self.coordinator.data:
+            value = consumption["consumption"]
 
-          consumption_from = consumption["interval_start"]
-          consumption_to = consumption["interval_end"]
+            if self._is_smets1_meter:
+              value = convert_kwh_to_m3(value)
 
-          try:
-            rate = next(r for r in rates if r["valid_from"] == consumption_from and r["valid_to"] == consumption_to)
-          except StopIteration:
-            raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to} for tariff {self._tariff_code}")
+            consumption_from = consumption["interval_start"]
+            consumption_to = consumption["interval_end"]
 
-          cost = (rate["value_inc_vat"] * value)
-          total_cost_in_pence = total_cost_in_pence + cost
+            try:
+              rate = next(r for r in rates if r["valid_from"] == consumption_from and r["valid_to"] == consumption_to)
+            except StopIteration:
+              raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to} for tariff {self._tariff_code}")
 
-          charges.append({
-            "From": rate["valid_from"],
-            "To": rate["valid_to"],
-            "Rate": f'{rate["value_inc_vat"]}p',
-            "Consumption": f'{value} kWh',
-            "Cost": f'£{round(cost / 100, 2)}'
-          })
-        
-        total_cost = round(total_cost_in_pence / 100, 2)
-        self._state = round((total_cost_in_pence + standard_charge) / 100, 2)
-        self._latest_date = self.coordinator.data[-1]["interval_end"]
+            cost = (rate["value_inc_vat"] * value)
+            total_cost_in_pence = total_cost_in_pence + cost
 
-        self._attributes = {
-          "MPRN": self._mprn,
-          "Serial Number": self._serial_number,
-          "Standard Charge": f'{standard_charge}p',
-          "Total Cost Without Standard Charge": f'£{total_cost}',
-          "Charges": charges
-        }
+            charges.append({
+              "From": rate["valid_from"],
+              "To": rate["valid_to"],
+              "Rate": f'{rate["value_inc_vat"]}p',
+              "Consumption": f'{value} kWh',
+              "Cost": f'£{round(cost / 100, 2)}'
+            })
+          
+          total_cost = round(total_cost_in_pence / 100, 2)
+          self._state = round((total_cost_in_pence + standard_charge) / 100, 2)
+          self._latest_date = self.coordinator.data[-1]["interval_end"]
+
+          self._attributes = {
+            "MPRN": self._mprn,
+            "Serial Number": self._serial_number,
+            "Standard Charge": f'{standard_charge}p',
+            "Total Cost Without Standard Charge": f'£{total_cost}',
+            "Charges": charges
+          }
  
