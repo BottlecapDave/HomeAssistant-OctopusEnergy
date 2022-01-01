@@ -23,4 +23,4 @@ jobs:
         run: |
           python -m pytest tests
         env:
-          API_TOKEN: ${{ secrets.OCTOPUS_ENERGY_API_TOKEN }}
+          API_KEY: ${{ secrets.OCTOPUS_ENERGY_API_TOKEN }}
