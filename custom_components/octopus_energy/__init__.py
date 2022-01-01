@@ -83,7 +83,7 @@ def setup_dependencies(hass, config):
         period_from = as_utc(parse_datetime(utc_now.strftime("%Y-%m-%dT00:00:00Z")))
         period_to = as_utc(parse_datetime((utc_now + timedelta(days=2)).strftime("%Y-%m-%dT00:00:00Z")))
 
-        hass.data[DOMAIN][DATA_RATES] = await client.async_get_rates(tariff_code, period_from, period_to)
+        hass.data[DOMAIN][DATA_RATES] = await client.async_get_electricity_rates(tariff_code, period_from, period_to)
       
       return hass.data[DOMAIN][DATA_RATES]
 

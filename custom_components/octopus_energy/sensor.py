@@ -56,10 +56,10 @@ def create_reading_coordinator(hass, client, is_electricity, identifier, serial_
       period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
       if (is_electricity == True):
         _LOGGER.debug('Updating electricity consumption...')
-        data = await client.async_electricity_consumption(identifier, serial_number, period_from, period_to)
+        data = await client.async_get_electricity_consumption(identifier, serial_number, period_from, period_to)
       else:
         _LOGGER.debug('Updating gas consumption...')
-        data = await client.async_gas_consumption(identifier, serial_number, period_from, period_to)
+        data = await client.async_get_gas_consumption(identifier, serial_number, period_from, period_to)
       
       if data != None and len(data) == 48:
         hass.data[DOMAIN][previous_consumption_key] = data 
@@ -407,7 +407,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Sensor
         period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
         period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
 
-        rates = await self._client.async_get_rates(self._tariff_code, period_from, period_to)
+        rates = await self._client.async_get_electricity_rates(self._tariff_code, period_from, period_to)
         standard_charge_result = await self._client.async_get_electricity_standing_charges(self._tariff_code, period_from, period_to)
         standard_charge = standard_charge_result["value_inc_vat"]
 
@@ -597,7 +597,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, SensorEntity):
         period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
         period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
 
-        rates = await self._client.async_gas_rates(self._tariff_code, period_from, period_to)
+        rates = await self._client.async_get_gas_rates(self._tariff_code, period_from, period_to)
         standard_charge_result = await self._client.async_get_gas_standing_charges(self._tariff_code, period_from, period_to)
         standard_charge = standard_charge_result["value_inc_vat"]
 

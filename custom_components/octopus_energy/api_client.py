@@ -37,7 +37,7 @@ class OctopusEnergyApiClient:
         
         return None
 
-  async def async_get_standard_rates(self, product_code, tariff_code, period_from, period_to):
+  async def async_get_electricity_standard_rates(self, product_code, tariff_code, period_from, period_to):
     """Get the current standard rates"""
     results = []
     async with aiohttp.ClientSession() as client:
@@ -46,14 +46,14 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         try:
           data = await self.__async_read_response(response, url, { "results": [] })
-          results = self.__process_rates(data, period_from, period_to, tariff_code)
+          results = self.__process_electricity_rates(data, period_from, period_to, tariff_code)
         except:
           _LOGGER.error(f'Failed to extract standard rates: {url}')
           raise
 
     return results
 
-  async def async_get_day_night_rates(self, product_code, tariff_code, period_from, period_to):
+  async def async_get_electricity_day_night_rates(self, product_code, tariff_code, period_from, period_to):
     """Get the current day and night rates"""
     results = []
     async with aiohttp.ClientSession() as client:
@@ -65,7 +65,7 @@ class OctopusEnergyApiClient:
 
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our day period 
           # (7am to 12am UK time https://octopus.energy/help-and-faqs/categories/tariffs/eco-seven/)
-          day_rates = self.__process_rates(data, period_from, period_to, tariff_code)
+          day_rates = self.__process_electricity_rates(data, period_from, period_to, tariff_code)
           for rate in day_rates:
             if (self.__is_between_local_times(rate, "07:00:00", "23:59:59")) == True:
               results.append(rate)
@@ -80,7 +80,7 @@ class OctopusEnergyApiClient:
 
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our night period 
           # (12am to 7am UK time https://octopus.energy/help-and-faqs/categories/tariffs/eco-seven/)
-          night_rates = self.__process_rates(data, period_from, period_to, tariff_code)
+          night_rates = self.__process_electricity_rates(data, period_from, period_to, tariff_code)
           for rate in night_rates:
             if (self.__is_between_local_times(rate, "00:00:00", "07:00:00")) == True:
               results.append(rate)
@@ -94,18 +94,18 @@ class OctopusEnergyApiClient:
 
     return results
 
-  async def async_get_rates(self, tariff_code, period_from, period_to):
+  async def async_get_electricity_rates(self, tariff_code, period_from, period_to):
     """Get the current rates"""
 
     tariff_parts = get_tariff_parts(tariff_code)
     product_code = tariff_parts["product_code"]
 
     if (tariff_parts["rate"].startswith("1")):
-      return await self.async_get_standard_rates(product_code, tariff_code, period_from, period_to)
+      return await self.async_get_electricity_standard_rates(product_code, tariff_code, period_from, period_to)
     else:
-      return await self.async_get_day_night_rates(product_code, tariff_code, period_from, period_to)
+      return await self.async_get_electricity_day_night_rates(product_code, tariff_code, period_from, period_to)
 
-  async def async_electricity_consumption(self, mpan, serial_number, period_from, period_to):
+  async def async_get_electricity_consumption(self, mpan, serial_number, period_from, period_to):
     """Get the current electricity consumption"""
     async with aiohttp.ClientSession() as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
@@ -129,7 +129,7 @@ class OctopusEnergyApiClient:
         
         return None
 
-  async def async_gas_rates(self, tariff_code, period_from, period_to):
+  async def async_get_gas_rates(self, tariff_code, period_from, period_to):
     """Get the gas rates"""
     tariff_parts = get_tariff_parts(tariff_code)
     product_code = tariff_parts["product_code"]
@@ -141,14 +141,14 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         try:
           data = await self.__async_read_response(response, url, { "results": [] })
-          results = self.__process_rates(data, period_from, period_to, tariff_code)
+          results = self.__process_electricity_rates(data, period_from, period_to, tariff_code)
         except:
           _LOGGER.error(f'Failed to extract standard gas rates: {url}')
           raise
 
     return results
 
-  async def async_gas_consumption(self, mprn, serial_number, period_from, period_to):
+  async def async_get_gas_consumption(self, mprn, serial_number, period_from, period_to):
     """Get the current gas rates"""
     async with aiohttp.ClientSession() as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
@@ -253,7 +253,7 @@ class OctopusEnergyApiClient:
       "interval_end": as_utc(parse_datetime(item["interval_end"]))
     }
 
-  def __process_rates(self, data, period_from, period_to, tariff_code):
+  def __process_electricity_rates(self, data, period_from, period_to, tariff_code):
     """Process the collection of rates to ensure they're in 30 minute periods"""
     starting_period_from = period_from
     results = []

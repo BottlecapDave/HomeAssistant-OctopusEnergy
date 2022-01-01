@@ -11,7 +11,7 @@ async def async_assert_electricity_data(tariff):
     period_to = datetime.strptime("2021-12-03T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
     # Act
-    data = await client.async_get_rates(tariff, period_from, period_to)
+    data = await client.async_get_electricity_rates(tariff, period_from, period_to)
 
     # Assert
     assert len(data) == 96
