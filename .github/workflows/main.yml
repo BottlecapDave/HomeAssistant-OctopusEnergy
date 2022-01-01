@@ -1,0 +1,54 @@
+name: Tests
+on:
+  schedule:
+    - cron:  '0 1 * * *'
+  push:
+    branches:
+      - develop
+      - main
+  pull_request:
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: asdf_install
+        uses: asdf-vm/actions/install@v1
+      - name: Install Python modules
+        run: |
+          pip install -r requirements.test.txt
+      - name: Tests suite
+        run: |
+          python -m pytest tests
+        env:
+          API_TOKEN: ${{ secrets.OCTOPUS_ENERGY_API_TOKEN }}
+  release:
+    name: Release
+    if: github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: asdf_install
+        uses: asdf-vm/actions/install@v1
+      - name: Install dependencies
+        run: npm ci
+      - name: Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run release
+      - name: Merge main into develop
+        uses: devmasx/merge-branch@master
+        with:
+          type: now
+          message: "chore: Merged main into develop"
+          from_branch: main
+          target_branch: develop
+          github_token: ${{ secrets.GITHUB_TOKEN }}
