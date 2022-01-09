@@ -12,9 +12,9 @@ from .const import (
   CONFIG_TARGET_NAME,
 
   DATA_CLIENT,
-  DATA_COORDINATOR,
+  DATA_ELECTRICITY_RATES_COORDINATOR,
   DATA_RATES,
-  DATA_TARIFF_CODE
+  DATA_ELECTRICITY_TARIFF_CODE
 )
 
 from .api_client import OctopusEnergyApiClient
@@ -50,7 +50,7 @@ async def async_setup_entry(hass, entry):
 
   return True
 
-async def async_get_current_agreement_tariff_code(client, config):
+async def async_get_current_electricity_agreement_tariff_code(client, config):
   account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
 
   all_agreements = []
@@ -70,13 +70,13 @@ def setup_dependencies(hass, config):
     client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY])
     hass.data[DOMAIN][DATA_CLIENT] = client
 
-    async def async_update_data():
+    async def async_update_electricity_rates_data():
       """Fetch data from API endpoint."""
       # Only get data every half hour or if we don't have any data
       if (DATA_RATES not in hass.data[DOMAIN] or (utcnow().minute % 30) == 0 or len(hass.data[DOMAIN][DATA_RATES]) == 0):
 
-        tariff_code = await async_get_current_agreement_tariff_code(client, config)
-        hass.data[DOMAIN][DATA_TARIFF_CODE] = tariff_code
+        tariff_code = await async_get_current_electricity_agreement_tariff_code(client, config)
+        hass.data[DOMAIN][DATA_ELECTRICITY_TARIFF_CODE] = tariff_code
         _LOGGER.info(f'tariff_code: {tariff_code}')
 
         utc_now = utcnow()
@@ -87,11 +87,11 @@ def setup_dependencies(hass, config):
       
       return hass.data[DOMAIN][DATA_RATES]
 
-    hass.data[DOMAIN][DATA_COORDINATOR] = DataUpdateCoordinator(
+    hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR] = DataUpdateCoordinator(
       hass,
       _LOGGER,
       name="rates",
-      update_method=async_update_data,
+      update_method=async_update_electricity_rates_data,
       # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
       # data every 30 minutes
       update_interval=timedelta(minutes=1),
