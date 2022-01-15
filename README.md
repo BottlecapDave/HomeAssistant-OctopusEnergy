@@ -26,6 +26,10 @@ You'll get the following sensors for each electricity meter with an active agree
 * `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_previous_accumulative_consumption` - The total consumption reported by the meter for the previous day.
 * `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_previous_accumulative_cost` - The total cost for the previous day, including the standing charge.
 
+You'll get the following sensors if you have a gas meter with an active agreement:
+
+* `sensor.octopus_energy_gas_current_rate` - The rate of the current day that gas consumption is charged at (including VAT).
+
 You'll get the following sensors for each gas meter with an active agreement:
 
 * `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_previous_accumulative_consumption` - The total consumption reported by the meter for the previous day.
