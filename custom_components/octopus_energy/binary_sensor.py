@@ -19,7 +19,7 @@ from .const import (
   CONFIG_TARGET_START_TIME,
   CONFIG_TARGET_END_TIME,
 
-  DATA_COORDINATOR
+  DATA_ELECTRICITY_RATES_COORDINATOR
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
 
   if CONFIG_TARGET_NAME in entry.data:
-    if DOMAIN not in hass.data or DATA_COORDINATOR not in hass.data[DOMAIN]:
+    if DOMAIN not in hass.data or DATA_ELECTRICITY_RATES_COORDINATOR not in hass.data[DOMAIN]:
       raise ConfigEntryNotReady
     
     await async_setup_target_sensors(hass, entry, async_add_entities)
@@ -40,7 +40,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 async def async_setup_target_sensors(hass, entry, async_add_entities):
   config = entry.data
   
-  coordinator = hass.data[DOMAIN][DATA_COORDINATOR]
+  coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR]
 
   async_add_entities([OctopusEnergyTargetRate(coordinator, config)], True)
 

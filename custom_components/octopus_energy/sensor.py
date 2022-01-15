@@ -29,9 +29,8 @@ from .const import (
   
   CONFIG_SMETS1,
 
-  DATA_COORDINATOR,
-  DATA_CLIENT,
-  DATA_TARIFF_CODE
+  DATA_ELECTRICITY_RATES_COORDINATOR,
+  DATA_CLIENT
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -102,33 +101,46 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
   
   client = hass.data[DOMAIN][DATA_CLIENT]
   
-  rate_coordinator = hass.data[DOMAIN][DATA_COORDINATOR]
+  rate_coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR]
 
   await rate_coordinator.async_config_entry_first_refresh()
-  
-  tariff_code = hass.data[DOMAIN][DATA_TARIFF_CODE]
 
-  entities = [OctopusEnergyElectricityCurrentRate(rate_coordinator), OctopusEnergyElectricityPreviousRate(rate_coordinator)]
+  entities = []
   
   account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
 
   if len(account_info["electricity_meter_points"]) > 0:
+    has_electricity_sensors = False
+
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
-      if get_active_tariff_code(point["agreements"]) != None:
+      electricity_tariff_code = get_active_tariff_code(point["agreements"])
+      if electricity_tariff_code != None:
+        has_electricity_sensors = True
         for meter in point["meters"]:
           coordinator = create_reading_coordinator(hass, client, True, point["mpan"], meter["serial_number"])
           entities.append(OctopusEnergyPreviousAccumulativeElectricityReading(coordinator, point["mpan"], meter["serial_number"]))
-          entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(coordinator, client, tariff_code, point["mpan"], meter["serial_number"]))
+          entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(coordinator, client, electricity_tariff_code, point["mpan"], meter["serial_number"]))
+
+    if has_electricity_sensors == True:
+      entities.append(OctopusEnergyElectricityCurrentRate(rate_coordinator))
+      entities.append(OctopusEnergyElectricityPreviousRate(rate_coordinator))
 
   if len(account_info["gas_meter_points"]) > 0:
+    has_gas_sensors = False
+
     for point in account_info["gas_meter_points"]:
       # We only care about points that have active agreements
-      if get_active_tariff_code(point["agreements"]) != None:
+      gas_tariff_code = get_active_tariff_code(point["agreements"])
+      if gas_tariff_code != None:
+        has_gas_sensors = True
         for meter in point["meters"]:
           coordinator = create_reading_coordinator(hass, client, False, point["mprn"], meter["serial_number"])
           entities.append(OctopusEnergyPreviousAccumulativeGasReading(coordinator, point["mprn"], meter["serial_number"], is_smets1))
-          entities.append(OctopusEnergyPreviousAccumulativeGasCost(coordinator, client, tariff_code, point["mprn"], meter["serial_number"], is_smets1))
+          entities.append(OctopusEnergyPreviousAccumulativeGasCost(coordinator, client, gas_tariff_code, point["mprn"], meter["serial_number"], is_smets1))
+    
+    if has_gas_sensors == True:
+      entities.append(OctopusEnergyGasCurrentRate(client, gas_tariff_code))
 
   async_add_entities(entities, True)
 
@@ -193,6 +205,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, SensorEntity):
         self._state = current_rate["value_inc_vat"] / 100
       else:
         self._state = 0
+        self._attributes = {}
 
     return self._state
 
@@ -259,6 +272,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
         self._state = previous_rate["value_inc_vat"] / 100
       else:
         self._state = 0
+        self._attributes = {}
 
     return self._state
 
@@ -447,7 +461,88 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Sensor
             "Total Cost Without Standard Charge": f'£{total_cost}',
             "Charges": charges
           }
+
+class OctopusEnergyGasCurrentRate(SensorEntity):
+  """Sensor for displaying the current rate."""
+
+  def __init__(self, client, tariff_code):
+    """Init sensor."""
+
+    self._client = client
+    self._tariff_code = tariff_code
+
+    self._attributes = {}
+    self._state = None
+    self._latest_date = None
+
+  @property
+  def unique_id(self):
+    """The id of the sensor."""
+    return "octopus_energy_gas_current_rate"
+    
+  @property
+  def name(self):
+    """Name of the sensor."""
+    return "Octopus Energy Gas Current Rate"
+
+  @property
+  def device_class(self):
+    """The type of sensor"""
+    return DEVICE_CLASS_MONETARY
+
+  @property
+  def icon(self):
+    """Icon of the sensor."""
+    return "mdi:currency-usd"
+
+  @property
+  def unit_of_measurement(self):
+    """Unit of measurement of the sensor."""
+    return "GBP/kWh"
+
+  @property
+  def extra_state_attributes(self):
+    """Attributes of the sensor."""
+    return self._attributes
+
+  @property
+  def state(self):
+    """Retrieve the latest gas price"""
+    return self._state
+
+  async def async_update(self):
+    """Get the current price."""
+    # Find the current rate. We only need to do this every half an hour
+
+    utc_now = utcnow()
+    if (self._latest_date == None or (self._latest_date + timedelta(days=1)) < utc_now):
+      _LOGGER.info('Updating OctopusEnergyGasCurrentRate')
+
+      period_from = as_utc(parse_datetime(utc_now.strftime("%Y-%m-%dT00:00:00Z")))
+      period_to = as_utc(parse_datetime((utc_now + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00Z")))
+
+      rates = await self._client.async_get_gas_rates(self._tariff_code, period_from, period_to)
       
+      current_rate = None
+      if rates != None:
+        for period in rates:
+          if utc_now >= period["valid_from"] and utc_now <= period["valid_to"]:
+            current_rate = period
+            break
+
+      if current_rate != None:
+        self._state = current_rate["value_inc_vat"] / 100
+
+        # Adjust our period, as our gas only changes on a daily basis
+        current_rate["valid_from"] = period_from
+        current_rate["valid_to"] = period_to
+        self._attributes = current_rate
+      else:
+        self._state = 0
+        self._attributes = {}
+
+      self._latest_date = period_from
+
 class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, SensorEntity):
   """Sensor for displaying the previous days accumulative gas reading."""
 
