@@ -110,21 +110,16 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
   account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
 
   if len(account_info["electricity_meter_points"]) > 0:
-    has_electricity_sensors = False
-
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
       electricity_tariff_code = get_active_tariff_code(point["agreements"])
       if electricity_tariff_code != None:
-        has_electricity_sensors = True
         for meter in point["meters"]:
           coordinator = create_reading_coordinator(hass, client, True, point["mpan"], meter["serial_number"])
           entities.append(OctopusEnergyPreviousAccumulativeElectricityReading(coordinator, point["mpan"], meter["serial_number"]))
           entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(coordinator, client, electricity_tariff_code, point["mpan"], meter["serial_number"]))
-
-    if has_electricity_sensors == True:
-      entities.append(OctopusEnergyElectricityCurrentRate(rate_coordinator))
-      entities.append(OctopusEnergyElectricityPreviousRate(rate_coordinator))
+          entities.append(OctopusEnergyElectricityCurrentRate(rate_coordinator, point["mpan"], meter["serial_number"]))
+          entities.append(OctopusEnergyElectricityPreviousRate(rate_coordinator, point["mpan"], meter["serial_number"]))
 
   if len(account_info["gas_meter_points"]) > 0:
     has_gas_sensors = False
@@ -147,10 +142,13 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
 class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, SensorEntity):
   """Sensor for displaying the current rate."""
 
-  def __init__(self, coordinator):
+  def __init__(self, coordinator, mpan, serial_number):
     """Init sensor."""
     # Pass coordinator to base class
     super().__init__(coordinator)
+
+    self._mpan = mpan
+    self._serial_number = serial_number
 
     self._attributes = {}
     self._state = None
@@ -158,12 +156,12 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, SensorEntity):
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return "octopus_energy_electricity_current_rate"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_current_rate"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return "Octopus Energy Electricity Current Rate"
+    return f"Octopus Energy Electricity {self._serial_number} {self._mpan} Current Rate"
 
   @property
   def device_class(self):
@@ -191,14 +189,16 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, SensorEntity):
     # Find the current rate. We only need to do this every half an hour
     now = utcnow()
     if (now.minute % 30) == 0 or self._state == None:
-      _LOGGER.info('Updating OctopusEnergyElectricityCurrentRate')
+      _LOGGER.info("Updating OctopusEnergyElectricityCurrentRate for '{self._mpan}/{self._serial_number}'")
       
       current_rate = None
       if self.coordinator.data != None:
-        for period in self.coordinator.data:
-          if now >= period["valid_from"] and now <= period["valid_to"]:
-            current_rate = period
-            break
+        rate = self.coordinator.data[self._mpan]
+        if rate != None:
+          for period in rate:
+            if now >= period["valid_from"] and now <= period["valid_to"]:
+              current_rate = period
+              break
 
       if current_rate != None:
         self._attributes = current_rate
@@ -212,10 +212,13 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, SensorEntity):
 class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
   """Sensor for displaying the previous rate."""
 
-  def __init__(self, coordinator):
+  def __init__(self, coordinator, mpan, serial_number):
     """Init sensor."""
     # Pass coordinator to base class
     super().__init__(coordinator)
+
+    self._mpan = mpan
+    self._serial_number = serial_number
 
     self._attributes = {}
     self._state = None
@@ -223,12 +226,12 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return "octopus_energy_electricity_previous_rate"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_previous_rate"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return "Octopus Energy Electricity Previous Rate"
+    return f"Octopus Energy Electricity {self._serial_number} {self._mpan} Previous Rate"
 
   @property
   def device_class(self):
@@ -256,16 +259,18 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
     # Find the previous rate. We only need to do this every half an hour
     now = utcnow()
     if (now.minute % 30) == 0 or self._state == None:
-      _LOGGER.info('Updating OctopusEnergyElectricityPreviousRate')
+      _LOGGER.info("Updating OctopusEnergyElectricityPreviousRate for '{self._mpan}/{self._serial_number}'")
       
       target = now - timedelta(minutes=30)
       
       previous_rate = None
       if self.coordinator.data != None:
-        for period in self.coordinator.data:
-          if target >= period["valid_from"] and target <= period["valid_to"]:
-            previous_rate = period
-            break
+        rate = self.coordinator.data[self._mpan]
+        if rate != None:
+          for period in rate:
+            if target >= period["valid_from"] and target <= period["valid_to"]:
+              previous_rate = period
+              break
       
       if previous_rate != None:
         self._attributes = previous_rate
@@ -297,12 +302,12 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Sen
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_previous_accumulative_consumption"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_previous_accumulative_consumption"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Electricity {self._serial_number} Previous Accumulative Consumption"
+    return f"Octopus Energy Electricity {self._serial_number} {self._mpan} Previous Accumulative Consumption"
 
   @property
   def device_class(self):
@@ -369,12 +374,12 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Sensor
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_previous_accumulative_cost"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_previous_accumulative_cost"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Electricity {self._serial_number} Previous Accumulative Cost"
+    return f"Octopus Energy Electricity {self._serial_number} {self._mpan} Previous Accumulative Cost"
 
   @property
   def device_class(self):
