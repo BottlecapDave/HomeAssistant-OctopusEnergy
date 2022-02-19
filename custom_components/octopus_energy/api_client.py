@@ -13,6 +13,9 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyApiClient:
 
   def __init__(self, api_key):
+    if (api_key == None):
+      raise Exception('API KEY is not set')
+
     self._api_key = api_key
     self._base_url = 'https://api.octopus.energy'
 

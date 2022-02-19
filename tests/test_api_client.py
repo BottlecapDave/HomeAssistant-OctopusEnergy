@@ -6,7 +6,11 @@ from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 async def async_assert_electricity_data(tariff):
     # Arrange
-    client = OctopusEnergyApiClient(os.environ["API_KEY"])
+    api_key = os.environ["API_KEY"]
+    if (api_key == None):
+        raise Exception("API_KEY must be set")
+
+    client = OctopusEnergyApiClient(api_key)
     period_from = datetime.strptime("2021-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     period_to = datetime.strptime("2021-12-03T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
@@ -16,6 +20,7 @@ async def async_assert_electricity_data(tariff):
     # Assert
     assert len(data) == 96
 
+    # Make sure our data is returned in 30 minute increments
     expected_valid_from = period_from
     for item in data:
         expected_valid_to = expected_valid_from + timedelta(minutes=30)
