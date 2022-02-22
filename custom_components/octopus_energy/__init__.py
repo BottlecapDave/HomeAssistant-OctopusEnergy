@@ -13,8 +13,7 @@ from .const import (
 
   DATA_CLIENT,
   DATA_ELECTRICITY_RATES_COORDINATOR,
-  DATA_RATES,
-  DATA_ELECTRICITY_TARIFF_CODE
+  DATA_RATES
 )
 
 from .api_client import OctopusEnergyApiClient
@@ -50,18 +49,17 @@ async def async_setup_entry(hass, entry):
 
   return True
 
-async def async_get_current_electricity_agreement_tariff_code(client, config):
+async def async_get_current_electricity_agreement_tariff_codes(client, config):
   account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
 
-  all_agreements = []
+  tariff_codes = {}
   if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
-      all_agreements.extend(point["agreements"])
       active_tariff_code = get_active_tariff_code(point["agreements"])
       if active_tariff_code != None:
-        return active_tariff_code
+        tariff_codes[point["mpan"]] = active_tariff_code
   
-  raise Exception(f'Unable to find active agreement: {all_agreements}')
+  return tariff_codes
 
 def setup_dependencies(hass, config):
   """Setup the coordinator and api client which will be shared by various entities"""
@@ -75,15 +73,17 @@ def setup_dependencies(hass, config):
       # Only get data every half hour or if we don't have any data
       if (DATA_RATES not in hass.data[DOMAIN] or (utcnow().minute % 30) == 0 or len(hass.data[DOMAIN][DATA_RATES]) == 0):
 
-        tariff_code = await async_get_current_electricity_agreement_tariff_code(client, config)
-        hass.data[DOMAIN][DATA_ELECTRICITY_TARIFF_CODE] = tariff_code
-        _LOGGER.info(f'tariff_code: {tariff_code}')
+        tariff_codes = await async_get_current_electricity_agreement_tariff_codes(client, config)
+        _LOGGER.info(f'tariff_codes: {tariff_codes}')
 
         utc_now = utcnow()
         period_from = as_utc(parse_datetime(utc_now.strftime("%Y-%m-%dT00:00:00Z")))
         period_to = as_utc(parse_datetime((utc_now + timedelta(days=2)).strftime("%Y-%m-%dT00:00:00Z")))
 
-        hass.data[DOMAIN][DATA_RATES] = await client.async_get_electricity_rates(tariff_code, period_from, period_to)
+        rates = {}
+        for (meter_point, tariff_code) in tariff_codes.items():
+          rates[meter_point] = await client.async_get_electricity_rates(tariff_code, period_from, period_to)  
+        hass.data[DOMAIN][DATA_RATES] = rates
       
       return hass.data[DOMAIN][DATA_RATES]
 

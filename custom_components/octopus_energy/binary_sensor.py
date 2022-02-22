@@ -18,6 +18,7 @@ from .const import (
   CONFIG_TARGET_TYPE,
   CONFIG_TARGET_START_TIME,
   CONFIG_TARGET_END_TIME,
+  CONFIG_TARGET_MPAN,
 
   DATA_ELECTRICITY_RATES_COORDINATOR
 )
@@ -152,9 +153,15 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     # Retrieve the rates that are applicable for our target rate
     rates = []
     if self.coordinator.data != None:
-      for rate in self.coordinator.data:
-        if rate["valid_from"] >= target_start and (target_end == None or rate["valid_to"] <= target_end):
-          rates.append(rate)
+      ratesData = self.coordinator.data
+      if len(ratesData) == 1:
+        rateData = next(iter(ratesData.values()))
+      else: 
+        rateData = ratesData.get(self._config[CONFIG_TARGET_MPAN])
+      if rateData != None:
+        for rate in rateData:
+          if rate["valid_from"] >= target_start and (target_end == None or rate["valid_to"] <= target_end):
+            rates.append(rate)
 
     return rates
     
