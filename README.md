@@ -6,7 +6,7 @@ Custom component built from the ground up to bring your Octopus Energy details i
 
 ## How to install
 
-You should take the latest [release](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases), and not clone the repo.
+You should take the latest published [release](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases). The current state of `develop` will be in flux and therefore possibly subject to change.
 
 To install, place the contents of `custom_components` into the `<config directory>/custom_components` folder of your Home Assistant installation.
 

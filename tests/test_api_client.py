@@ -2,15 +2,14 @@ from datetime import datetime, timedelta
 import os
 import pytest
 
+from tests import get_test_context
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 async def async_assert_electricity_data(tariff):
     # Arrange
-    api_key = os.environ["API_KEY"]
-    if (api_key == None):
-        raise Exception("API_KEY must be set")
+    context = get_test_context()
 
-    client = OctopusEnergyApiClient(api_key)
+    client = OctopusEnergyApiClient(context["api_key"])
     period_from = datetime.strptime("2021-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     period_to = datetime.strptime("2021-12-03T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 

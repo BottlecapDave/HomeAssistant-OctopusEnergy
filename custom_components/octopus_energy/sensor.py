@@ -18,9 +18,14 @@ from homeassistant.const import (
     VOLUME_CUBIC_METERS
 )
 
+from sensor_utils import (
+  calculate_gas_cost,
+  convert_kwh_to_m3
+)
+
 from typing import Generic, TypeVar
 
-from .utils import (get_active_tariff_code, convert_kwh_to_m3)
+from .utils import (get_active_tariff_code)
 from .const import (
   DOMAIN,
   
@@ -689,58 +694,32 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, SensorEntity):
     return self._state
 
   async def async_update(self):
-    if (self.coordinator.data != None and len(self.coordinator.data) > 0):
+    current_datetime = now()
+    period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
+    period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
 
-      # Only calculate our consumption if our data has changed
-      if (self._latest_date != self.coordinator.data[-1]["interval_end"]):
-        _LOGGER.debug(f"Calculating previous gas cost for '{self._mprn}/{self._serial_number}'...")
+    consumption_cost = await calculate_gas_cost(
+      self._client,
+      self.coordinator.data,
+      self._latest_date,
+      period_from,
+      period_to,
+      {
+        "tariff_code": self._tariff_code,
+        "is_smets1_meter": self._is_smets1_meter
+      }
+    )
 
-        current_datetime = now()
-        period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
-        period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
+    if (consumption_cost != None):
+      self._latest_date = consumption_cost["last_calculated_timestamp"]
+      self._state = consumption_cost["total_cost_plus_standing_charge"]
 
-        rates = await self._client.async_get_gas_rates(self._tariff_code, period_from, period_to)
-        standard_charge_result = await self._client.async_get_gas_standing_charge(self._tariff_code, period_from, period_to)
-
-        if (rates != None and len(rates) > 0 and standard_charge_result != None):
-          standard_charge = standard_charge_result["value_inc_vat"]
-
-          charges = []
-          total_cost_in_pence = 0
-          for consumption in self.coordinator.data:
-            value = consumption["consumption"]
-
-            if self._is_smets1_meter:
-              value = convert_kwh_to_m3(value)
-
-            consumption_from = consumption["interval_start"]
-            consumption_to = consumption["interval_end"]
-
-            try:
-              rate = next(r for r in rates if r["valid_from"] == consumption_from and r["valid_to"] == consumption_to)
-            except StopIteration:
-              raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to} for tariff {self._tariff_code}")
-
-            cost = (rate["value_inc_vat"] * value)
-            total_cost_in_pence = total_cost_in_pence + cost
-
-            charges.append({
-              "From": rate["valid_from"],
-              "To": rate["valid_to"],
-              "Rate": f'{rate["value_inc_vat"]}p',
-              "Consumption": f'{value} kWh',
-              "Cost": f'£{round(cost / 100, 2)}'
-            })
-          
-          total_cost = round(total_cost_in_pence / 100, 2)
-          self._state = round((total_cost_in_pence + standard_charge) / 100, 2)
-          self._latest_date = self.coordinator.data[-1]["interval_end"]
-
-          self._attributes = {
-            "MPRN": self._mprn,
-            "Serial Number": self._serial_number,
-            "Standard Charge": f'{standard_charge}p',
-            "Total Cost Without Standard Charge": f'£{total_cost}',
-            "Charges": charges
-          }
- 
+      self._attributes = {
+        "mprn": self._mprn,
+        "serial_number": self._serial_number,
+        "standing_charge": f'{consumption_cost["standing_charge"]}p',
+        "total_without_standing_charge": f'£{consumption_cost["total_cost"]}',
+        "total": f'£{consumption_cost["total_cost_plus_standing_charge"]}',
+        "last_calculated_timestamp": consumption_cost["last_calculated_timestamp"],
+        "charges": consumption_cost["charges"]
+      }
