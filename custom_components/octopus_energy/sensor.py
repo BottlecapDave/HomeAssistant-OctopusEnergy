@@ -18,7 +18,7 @@ from homeassistant.const import (
     VOLUME_CUBIC_METERS
 )
 
-from sensor_utils import (
+from .sensor_utils import (
   calculate_gas_cost,
   convert_kwh_to_m3
 )
