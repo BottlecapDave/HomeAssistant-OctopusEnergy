@@ -1,4 +1,7 @@
 # Adapted from https://www.theenergyshop.com/guides/how-to-convert-gas-units-to-kwh
+from multiprocessing.dummy import current_process
+
+
 def convert_kwh_to_m3(value):
   m3_value = value * 3.6 # kWh Conversion factor
   m3_value = m3_value / 40 # Calorific value
@@ -8,9 +11,41 @@ def convert_kwh_to_m3(value):
 def convert_m3_to_kwh(value):
   kwh_value = value * 1.02264 # Volume correction factor
   kwh_value = kwh_value * 40.0 # Calorific value
-  return round(kwh_value / 3.6) # kWh Conversion factor
+  return round(kwh_value / 3.6, 3) # kWh Conversion factor
 
-async def calculate_gas_cost(client, consumption_data, last_calculated_timestamp, period_from, period_to, sensor):
+def calculate_gas_consumption(consumption_data, last_calculated_timestamp, is_smets1_meter):
+  if (consumption_data != None and len(consumption_data) > 0):
+
+    if (last_calculated_timestamp < consumption_data[-1]["interval_end"]):
+      total = 0
+
+      consumption_parts = []
+      for consumption in consumption_data:
+        total = total + consumption["consumption"]
+
+        current_consumption = consumption["consumption"]
+        if is_smets1_meter:
+          current_consumption = convert_kwh_to_m3(current_consumption)
+
+        consumption_parts.append({
+          "from": consumption["interval_start"],
+          "to": consumption["interval_end"],
+          "consumption": current_consumption,
+        })
+      
+      last_calculated_timestamp = consumption_data[-1]["interval_end"]
+      
+      if is_smets1_meter:
+        total = convert_kwh_to_m3(total)
+
+      return {
+        "total": total,
+        "last_calculated_timestamp": last_calculated_timestamp,
+        "consumptions": consumption_parts
+      }
+      
+
+async def async_calculate_gas_cost(client, consumption_data, last_calculated_timestamp, period_from, period_to, sensor):
   if (consumption_data != None and len(consumption_data) > 0):
 
     # Only calculate our consumption if our data has changed
@@ -26,6 +61,8 @@ async def calculate_gas_cost(client, consumption_data, last_calculated_timestamp
         for consumption in consumption_data:
           value = consumption["consumption"]
 
+          # According to https://developer.octopus.energy/docs/api/#consumption, SMETS2 sensors are reported in m3,
+          # so we need to convert to kWh before we calculate the cost
           if sensor["is_smets1_meter"] == False:
             value = convert_m3_to_kwh(value)
 
@@ -41,11 +78,11 @@ async def calculate_gas_cost(client, consumption_data, last_calculated_timestamp
           total_cost_in_pence = total_cost_in_pence + cost
 
           charges.append({
-            "From": rate["valid_from"],
-            "To": rate["valid_to"],
-            "Rate": f'{rate["value_inc_vat"]}p',
-            "Consumption": f'{value} kWh',
-            "Cost": f'£{round(cost / 100, 2)}'
+            "from": rate["valid_from"],
+            "to": rate["valid_to"],
+            "rate": f'{rate["value_inc_vat"]}p',
+            "consumption": f'{value} kWh',
+            "cost": f'£{round(cost / 100, 2)}'
           })
         
         total_cost = round(total_cost_in_pence / 100, 2)

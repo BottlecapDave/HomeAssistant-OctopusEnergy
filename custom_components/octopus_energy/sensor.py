@@ -19,7 +19,8 @@ from homeassistant.const import (
 )
 
 from .sensor_utils import (
-  calculate_gas_cost,
+  calculate_gas_consumption,
+  async_calculate_gas_cost,
   convert_kwh_to_m3
 )
 
@@ -611,20 +612,23 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, SensorEntit
   @property
   def state(self):
     """Retrieve the previous days accumulative consumption"""
-    if (self.coordinator.data != None and len(self.coordinator.data) > 0):
+    consumption = calculate_gas_consumption(
+      self.coordinator.data,
+      self._latest_date,
+      self._is_smets1_meter
+    )
 
-      if (self._latest_date != self.coordinator.data[-1]["interval_end"]):
-        _LOGGER.info(f"Calculating previous gas consumption for '{self._mprn}/{self._serial_number}'...")
+    if (consumption != None):
+      self._state = consumption["total"]
+      self._latest_date = consumption["last_calculated_timestamp"]
 
-        total = 0
-        for consumption in self.coordinator.data:
-          total = total + consumption["consumption"]
-        
-        self._state = total
-        self._latest_date = self.coordinator.data[-1]["interval_end"]
-        
-        if self._is_smets1_meter:
-          self._state = convert_kwh_to_m3(self._state)
+      self._attributes = {
+        "mprn": self._mprn,
+        "serial_number": self._serial_number,
+        "total": consumption["total"],
+        "last_calculated_timestamp": consumption["last_calculated_timestamp"],
+        "charges": consumption["consumptions"]
+      }
     
     return self._state
 
@@ -698,7 +702,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, SensorEntity):
     period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
     period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
 
-    consumption_cost = await calculate_gas_cost(
+    consumption_cost = await async_calculate_gas_cost(
       self._client,
       self.coordinator.data,
       self._latest_date,

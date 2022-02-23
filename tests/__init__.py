@@ -1,4 +1,5 @@
 import os
+from datetime import timedelta
 
 def get_test_context():
   api_key = os.environ["API_KEY"]
@@ -18,3 +19,20 @@ def get_test_context():
     "gas_mprn": gas_mprn,
     "gas_serial_number": gas_serial_number
   }
+
+def create_consumption_data(period_from, period_to):
+  consumption = []
+  current_valid_from = period_from
+  current_valid_to = None
+  while current_valid_to == None or current_valid_to < period_to:
+    current_valid_to = current_valid_from + timedelta(minutes=30)
+
+    consumption.append({
+      "interval_start": current_valid_from,
+      "interval_end": current_valid_to,
+      "consumption": 1
+    })
+
+    current_valid_from = current_valid_to
+
+  return consumption
