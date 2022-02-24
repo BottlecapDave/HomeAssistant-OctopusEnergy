@@ -437,14 +437,14 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Sensor
 
     if (consumption_cost != None):
       self._latest_date = consumption_cost["last_calculated_timestamp"]
-      self._state = consumption_cost["total_cost_plus_standing_charge"]
+      self._state = consumption_cost["total"]
 
       self._attributes = {
         "mpan": self._mpan,
         "serial_number": self._serial_number,
         "standing_charge": f'{consumption_cost["standing_charge"]}p',
-        "total_without_standing_charge": f'£{consumption_cost["total_cost"]}',
-        "total": f'£{consumption_cost["total_cost_plus_standing_charge"]}',
+        "total_without_standing_charge": f'£{consumption_cost["total_without_standing_charge"]}',
+        "total": f'£{consumption_cost["total"]}',
         "last_calculated_timestamp": consumption_cost["last_calculated_timestamp"],
         "charges": consumption_cost["charges"]
       }
@@ -692,14 +692,14 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, SensorEntity):
 
     if (consumption_cost != None):
       self._latest_date = consumption_cost["last_calculated_timestamp"]
-      self._state = consumption_cost["total_cost_plus_standing_charge"]
+      self._state = consumption_cost["total"]
 
       self._attributes = {
         "mprn": self._mprn,
         "serial_number": self._serial_number,
         "standing_charge": f'{consumption_cost["standing_charge"]}p',
-        "total_without_standing_charge": f'£{consumption_cost["total_cost"]}',
-        "total": f'£{consumption_cost["total_cost_plus_standing_charge"]}',
+        "total_without_standing_charge": f'£{consumption_cost["total_without_standing_charge"]}',
+        "total": f'£{consumption_cost["total"]}',
         "last_calculated_timestamp": consumption_cost["last_calculated_timestamp"],
         "charges": consumption_cost["charges"]
       }
