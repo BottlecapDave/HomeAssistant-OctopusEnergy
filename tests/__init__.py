@@ -20,7 +20,7 @@ def get_test_context():
     "gas_serial_number": gas_serial_number
   }
 
-def create_consumption_data(period_from, period_to):
+def create_consumption_data(period_from, period_to, reverse = False):
   consumption = []
   current_valid_from = period_from
   current_valid_to = None
@@ -34,5 +34,11 @@ def create_consumption_data(period_from, period_to):
     })
 
     current_valid_from = current_valid_to
+
+  if reverse == True:
+    def get_interval_start(item):
+      return item["interval_start"]
+
+    consumption.sort(key=get_interval_start, reverse=True)
 
   return consumption

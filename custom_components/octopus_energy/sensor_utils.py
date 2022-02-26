@@ -1,9 +1,46 @@
+def __get_interval_end(item):
+    return item["interval_end"]
+
+def sort_consumption(consumption_data):
+  sorted = consumption_data.copy()
+  sorted.sort(key=__get_interval_end)
+  return sorted
+
+def calculate_electricity_consumption(consumption_data, last_calculated_timestamp):
+  if (consumption_data != None and len(consumption_data) > 0):
+
+    sorted_consumption_data = sort_consumption(consumption_data)
+
+    if (last_calculated_timestamp == None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
+      total = 0
+
+      consumption_parts = []
+      for consumption in sorted_consumption_data:
+        total = total + consumption["consumption"]
+
+        current_consumption = consumption["consumption"]
+
+        consumption_parts.append({
+          "from": consumption["interval_start"],
+          "to": consumption["interval_end"],
+          "consumption": current_consumption,
+        })
+      
+      last_calculated_timestamp = sorted_consumption_data[-1]["interval_end"]
+
+      return {
+        "total": total,
+        "last_calculated_timestamp": last_calculated_timestamp,
+        "consumptions": consumption_parts
+      }
 
 async def async_calculate_electricity_cost(client, consumption_data, last_calculated_timestamp, period_from, period_to, tariff_code):
   if (consumption_data != None and len(consumption_data) > 0):
 
+    sorted_consumption_data = sort_consumption(consumption_data)
+
     # Only calculate our consumption if our data has changed
-    if (last_calculated_timestamp == None or last_calculated_timestamp < consumption_data[-1]["interval_end"]):
+    if (last_calculated_timestamp == None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
       rates = await client.async_get_electricity_rates(tariff_code, period_from, period_to)
       standard_charge_result = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
 
@@ -12,7 +49,7 @@ async def async_calculate_electricity_cost(client, consumption_data, last_calcul
 
         charges = []
         total_cost_in_pence = 0
-        for consumption in consumption_data:
+        for consumption in sorted_consumption_data:
           value = consumption["consumption"]
           consumption_from = consumption["interval_start"]
           consumption_to = consumption["interval_end"]
@@ -35,7 +72,8 @@ async def async_calculate_electricity_cost(client, consumption_data, last_calcul
         
         total_cost = round(total_cost_in_pence / 100, 2)
         total_cost_plus_standing_charge = round((total_cost_in_pence + standard_charge) / 100, 2)
-        last_calculated_timestamp = consumption_data[-1]["interval_end"]
+
+        last_calculated_timestamp = sorted_consumption_data[-1]["interval_end"]
 
         return {
           "standing_charge": standard_charge,
@@ -60,11 +98,13 @@ def convert_m3_to_kwh(value):
 def calculate_gas_consumption(consumption_data, last_calculated_timestamp, is_smets1_meter):
   if (consumption_data != None and len(consumption_data) > 0):
 
-    if (last_calculated_timestamp == None or last_calculated_timestamp < consumption_data[-1]["interval_end"]):
+    sorted_consumption_data = sort_consumption(consumption_data)
+
+    if (last_calculated_timestamp == None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
       total = 0
 
       consumption_parts = []
-      for consumption in consumption_data:
+      for consumption in sorted_consumption_data:
         total = total + consumption["consumption"]
 
         current_consumption = consumption["consumption"]
@@ -77,7 +117,7 @@ def calculate_gas_consumption(consumption_data, last_calculated_timestamp, is_sm
           "consumption": current_consumption,
         })
       
-      last_calculated_timestamp = consumption_data[-1]["interval_end"]
+      last_calculated_timestamp = sorted_consumption_data[-1]["interval_end"]
       
       if is_smets1_meter:
         total = convert_kwh_to_m3(total)
@@ -91,8 +131,10 @@ def calculate_gas_consumption(consumption_data, last_calculated_timestamp, is_sm
 async def async_calculate_gas_cost(client, consumption_data, last_calculated_timestamp, period_from, period_to, sensor):
   if (consumption_data != None and len(consumption_data) > 0):
 
+    sorted_consumption_data = sort_consumption(consumption_data)
+
     # Only calculate our consumption if our data has changed
-    if (last_calculated_timestamp == None or last_calculated_timestamp < consumption_data[-1]["interval_end"]):
+    if (last_calculated_timestamp == None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
       rates = await client.async_get_gas_rates(sensor["tariff_code"], period_from, period_to)
       standard_charge_result = await client.async_get_gas_standing_charge(sensor["tariff_code"], period_from, period_to)
 
@@ -101,7 +143,7 @@ async def async_calculate_gas_cost(client, consumption_data, last_calculated_tim
 
         charges = []
         total_cost_in_pence = 0
-        for consumption in consumption_data:
+        for consumption in sorted_consumption_data:
           value = consumption["consumption"]
 
           # According to https://developer.octopus.energy/docs/api/#consumption, SMETS2 sensors are reported in m3,
@@ -130,7 +172,7 @@ async def async_calculate_gas_cost(client, consumption_data, last_calculated_tim
         
         total_cost = round(total_cost_in_pence / 100, 2)
         total_cost_plus_standing_charge = round((total_cost_in_pence + standard_charge) / 100, 2)
-        last_calculated_timestamp = consumption_data[-1]["interval_end"]
+        last_calculated_timestamp = sorted_consumption_data[-1]["interval_end"]
 
         return {
           "standing_charge": standard_charge,

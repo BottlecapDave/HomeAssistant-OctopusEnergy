@@ -19,6 +19,7 @@ from homeassistant.const import (
 )
 
 from .sensor_utils import (
+  calculate_electricity_consumption,
   async_calculate_electricity_cost,
   calculate_gas_consumption,
   async_calculate_gas_cost
@@ -298,8 +299,8 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Sen
     self._serial_number = serial_number
 
     self._attributes = {
-      "MPAN": mpan,
-      "Serial Number": serial_number
+      "mpan": mpan,
+      "serial_number": serial_number
     }
 
     self._state = 0
@@ -343,17 +344,23 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Sen
   @property
   def state(self):
     """Retrieve the previous days accumulative consumption"""
-    if (self.coordinator.data != None and len(self.coordinator.data) > 0):
+    consumption = calculate_electricity_consumption(
+      self.coordinator.data,
+      self._latest_date
+    )
 
-      if (self._latest_date != self.coordinator.data[-1]["interval_end"]):
-        _LOGGER.info(f"Calculating previous electricity consumption for '{self._mpan}/{self._serial_number}'...")
+    if (consumption != None):
+      _LOGGER.info(f"Calculated previous electricity consumption for '{self._mpan}/{self._serial_number}'...")
+      self._state = consumption["total"]
+      self._latest_date = consumption["last_calculated_timestamp"]
 
-        total = 0
-        for consumption in self.coordinator.data:
-          total = total + consumption["consumption"]
-        
-        self._state = total
-        self._latest_date = self.coordinator.data[-1]["interval_end"]
+      self._attributes = {
+        "mpan": self._mpan,
+        "serial_number": self._serial_number,
+        "total": consumption["total"],
+        "last_calculated_timestamp": consumption["last_calculated_timestamp"],
+        "charges": consumption["consumptions"]
+      }
     
     return self._state
 
@@ -370,8 +377,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Sensor
     self._tariff_code = tariff_code
 
     self._attributes = {
-      "MPAN": mpan,
-      "Serial Number": serial_number
+      "mpan": mpan,
+      "serial_number": serial_number
     }
 
     self._state = 0
@@ -436,6 +443,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Sensor
     )
 
     if (consumption_cost != None):
+      _LOGGER.info(f"Calculated previous electricity consumption cost for '{self._mpan}/{self._serial_number}'...")
       self._latest_date = consumption_cost["last_calculated_timestamp"]
       self._state = consumption_cost["total"]
 
@@ -542,9 +550,9 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, SensorEntit
     self._is_smets1_meter = is_smets1_meter
 
     self._attributes = {
-      "MPRN": mprn,
-      "Serial Number": serial_number,
-      "Is SMETS1 Meter": is_smets1_meter
+      "mpan": mprn,
+      "serial_number": serial_number,
+      "is_smets1_meter": is_smets1_meter
     }
 
     self._state = 0
@@ -595,12 +603,14 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, SensorEntit
     )
 
     if (consumption != None):
+      _LOGGER.info(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
       self._state = consumption["total"]
       self._latest_date = consumption["last_calculated_timestamp"]
 
       self._attributes = {
         "mprn": self._mprn,
         "serial_number": self._serial_number,
+        "is_smets1_meter": self._is_smets1_meter,
         "total": consumption["total"],
         "last_calculated_timestamp": consumption["last_calculated_timestamp"],
         "charges": consumption["consumptions"]
@@ -622,8 +632,9 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, SensorEntity):
     self._is_smets1_meter = is_smets1_meter
 
     self._attributes = {
-      "MPRN": mprn,
-      "Serial Number": serial_number
+      "mpan": mprn,
+      "serial_number": serial_number,
+      "is_smets1_meter": is_smets1_meter
     }
 
     self._state = 0
@@ -691,12 +702,14 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, SensorEntity):
     )
 
     if (consumption_cost != None):
+      _LOGGER.info(f"Calculated previous gas consumption cost for '{self._mprn}/{self._serial_number}'...")
       self._latest_date = consumption_cost["last_calculated_timestamp"]
       self._state = consumption_cost["total"]
 
       self._attributes = {
         "mprn": self._mprn,
         "serial_number": self._serial_number,
+        "is_smets1_meter": self._is_smets1_meter,
         "standing_charge": f'{consumption_cost["standing_charge"]}p',
         "total_without_standing_charge": f'£{consumption_cost["total_without_standing_charge"]}',
         "total": f'£{consumption_cost["total"]}',
