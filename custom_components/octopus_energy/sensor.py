@@ -19,6 +19,7 @@ from homeassistant.const import (
 )
 
 from .sensor_utils import (
+  async_get_consumption_data,
   calculate_electricity_consumption,
   async_calculate_electricity_cost,
   calculate_gas_consumption,
@@ -50,31 +51,18 @@ def create_reading_coordinator(hass, client, is_electricity, identifier, serial_
   async def async_update_data():
     """Fetch data from API endpoint."""
 
-    previous_consumption_key = f'{identifier}_{serial_number}_previous_consumption'
-    if previous_consumption_key in hass.data[DOMAIN]:
-      previous_data = hass.data[DOMAIN][previous_consumption_key]
-    else:
-      previous_data = None
-
-    current_datetime = now()
-    if (previous_data == None or (previous_data[-1]["interval_end"] < utcnow() and current_datetime.minute % 30 == 0)):
-      period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
-      period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
-      if (is_electricity == True):
-        _LOGGER.debug('Updating electricity consumption...')
-        data = await client.async_get_electricity_consumption(identifier, serial_number, period_from, period_to)
-      else:
-        _LOGGER.debug('Updating gas consumption...')
-        data = await client.async_get_gas_consumption(identifier, serial_number, period_from, period_to)
-      
-      if data != None and len(data) > 0:
-        hass.data[DOMAIN][previous_consumption_key] = data 
-        return data
-      
-    if previous_data != None:
-      return previous_data
-    else:
-      return []
+    period_from = as_utc((now() - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
+    period_to = as_utc(now().replace(hour=0, minute=0, second=0, microsecond=0))
+    return await async_get_consumption_data(
+      hass.data[DOMAIN],
+      client,
+      utcnow(),
+      period_from,
+      period_to,
+      identifier,
+      serial_number,
+      is_electricity
+    )
 
   coordinator = DataUpdateCoordinator(
     hass,

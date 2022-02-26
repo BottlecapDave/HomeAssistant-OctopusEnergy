@@ -1,3 +1,5 @@
+from .api_client import OctopusEnergyApiClient
+
 def __get_interval_end(item):
     return item["interval_end"]
 
@@ -5,6 +7,40 @@ def sort_consumption(consumption_data):
   sorted = consumption_data.copy()
   sorted.sort(key=__get_interval_end)
   return sorted
+
+async def async_get_consumption_data(
+  store,
+  client: OctopusEnergyApiClient,
+  current_utc_timestamp,
+  period_from,
+  period_to,
+  sensor_identifier,
+  sensor_serial_number,
+  is_electricity: bool
+):
+  previous_consumption_key = f'{sensor_identifier}_{sensor_serial_number}_previous_consumption'
+  if previous_consumption_key in store:
+    previous_data = store[previous_consumption_key]
+  else:
+    previous_data = None
+
+  if (previous_data == None or 
+      ((len(previous_data) < 1 or previous_data[-1]["interval_end"] < period_to) and 
+       current_utc_timestamp.minute % 30 == 0)
+      ):
+    if (is_electricity == True):
+      data = await client.async_get_electricity_consumption(sensor_identifier, sensor_serial_number, period_from, period_to)
+    else:
+      data = await client.async_get_gas_consumption(sensor_identifier, sensor_serial_number, period_from, period_to)
+    
+    if data != None and len(data) > 0:
+      store[previous_consumption_key] = sort_consumption(data)
+      return data
+    
+  if previous_data != None:
+    return previous_data
+  else:
+    return []
 
 def calculate_electricity_consumption(consumption_data, last_calculated_timestamp):
   if (consumption_data != None and len(consumption_data) > 0):
@@ -34,7 +70,7 @@ def calculate_electricity_consumption(consumption_data, last_calculated_timestam
         "consumptions": consumption_parts
       }
 
-async def async_calculate_electricity_cost(client, consumption_data, last_calculated_timestamp, period_from, period_to, tariff_code):
+async def async_calculate_electricity_cost(client: OctopusEnergyApiClient, consumption_data, last_calculated_timestamp, period_from, period_to, tariff_code):
   if (consumption_data != None and len(consumption_data) > 0):
 
     sorted_consumption_data = sort_consumption(consumption_data)
@@ -128,7 +164,7 @@ def calculate_gas_consumption(consumption_data, last_calculated_timestamp, is_sm
         "consumptions": consumption_parts
       }
       
-async def async_calculate_gas_cost(client, consumption_data, last_calculated_timestamp, period_from, period_to, sensor):
+async def async_calculate_gas_cost(client: OctopusEnergyApiClient, consumption_data, last_calculated_timestamp, period_from, period_to, sensor):
   if (consumption_data != None and len(consumption_data) > 0):
 
     sorted_consumption_data = sort_consumption(consumption_data)

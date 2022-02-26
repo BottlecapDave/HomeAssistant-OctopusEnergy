@@ -14,10 +14,20 @@ def get_test_context():
   if (gas_serial_number == None):
       raise Exception("GAS_SN must be set")
 
+  electricity_mpan= os.environ["ELECTRICITY_MPAN"]
+  if (electricity_mpan == None):
+      raise Exception("ELECTRICITY_MPAN must be set")
+
+  electricity_serial_number = os.environ["ELECTRICITY_SN"]
+  if (electricity_serial_number == None):
+      raise Exception("ELECTRICITY_SN must be set")
+
   return {
     "api_key": api_key,
     "gas_mprn": gas_mprn,
-    "gas_serial_number": gas_serial_number
+    "gas_serial_number": gas_serial_number,
+    "electricity_mpan": electricity_mpan,
+    "electricity_serial_number": electricity_serial_number
   }
 
 def create_consumption_data(period_from, period_to, reverse = False):
