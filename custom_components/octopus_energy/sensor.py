@@ -450,6 +450,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Sensor
       self._attributes = {
         "mpan": self._mpan,
         "serial_number": self._serial_number,
+        "tariff_code": self._tariff_code,
         "standing_charge": f'{consumption_cost["standing_charge"]}p',
         "total_without_standing_charge": f'£{consumption_cost["total_without_standing_charge"]}',
         "total": f'£{consumption_cost["total"]}',
@@ -709,6 +710,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, SensorEntity):
       self._attributes = {
         "mprn": self._mprn,
         "serial_number": self._serial_number,
+        "tariff_code": self._tariff_code,
         "is_smets1_meter": self._is_smets1_meter,
         "standing_charge": f'{consumption_cost["standing_charge"]}p',
         "total_without_standing_charge": f'£{consumption_cost["total_without_standing_charge"]}',
