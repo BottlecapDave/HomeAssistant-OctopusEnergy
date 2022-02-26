@@ -28,6 +28,8 @@ jobs:
           API_KEY: ${{ secrets.OCTOPUS_ENERGY_API_TOKEN }}
           GAS_MPRN: ${{ secrets.OCTOPUS_ENERGY_GAS_MPRN }}
           GAS_SN: ${{ secrets.OCTOPUS_ENERGY_GAS_SN }}
+          ELECTRICITY_MPRN: ${{ secrets.OCTOPUS_ENERGY_ELECTRICITY_MPAN }}
+          ELECTRICITY_SN: ${{ secrets.OCTOPUS_ENERGY_ELECTRICITY_SN }}
   release:
     name: Release
     if: github.ref == 'refs/heads/main'
