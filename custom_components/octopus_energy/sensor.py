@@ -70,8 +70,11 @@ def create_reading_coordinator(hass, client, is_electricity, identifier, serial_
       is_electricity
     )
 
-    hass.data[DOMAIN][previous_consumption_key] = data
-    return data
+    if data != None and len(data) > 0:
+      hass.data[DOMAIN][previous_consumption_key] = data
+      return data
+
+    return []
 
   coordinator = DataUpdateCoordinator(
     hass,
