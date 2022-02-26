@@ -145,8 +145,8 @@ async def test_when_calculate_electricity_consumption_uses_real_data_then_calcul
   sensor_serial_number = context["electricity_serial_number"]
   is_electricity = True
   consumption_data = await async_get_consumption_data(
-    {},
     client,
+    [],
     current_utc_timestamp,
     period_from,
     period_to,

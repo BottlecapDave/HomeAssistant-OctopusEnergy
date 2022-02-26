@@ -245,8 +245,8 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
   sensor_serial_number = context["gas_serial_number"]
   is_electricity = False
   consumption_data = await async_get_consumption_data(
-    {},
     client,
+    [],
     current_utc_timestamp,
     period_from,
     period_to,
