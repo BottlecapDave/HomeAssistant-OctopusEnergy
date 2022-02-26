@@ -51,11 +51,17 @@ def create_reading_coordinator(hass, client, is_electricity, identifier, serial_
   async def async_update_data():
     """Fetch data from API endpoint."""
 
+    previous_consumption_key = f'{identifier}_{serial_number}_previous_consumption'
+    previous_data = None
+    if previous_consumption_key in hass.data[DOMAIN]:
+      previous_data = hass.data[DOMAIN][previous_consumption_key]
+
     period_from = as_utc((now() - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
     period_to = as_utc(now().replace(hour=0, minute=0, second=0, microsecond=0))
-    return await async_get_consumption_data(
-      hass.data[DOMAIN],
+
+    data = await async_get_consumption_data(
       client,
+      previous_data,
       utcnow(),
       period_from,
       period_to,
@@ -63,6 +69,9 @@ def create_reading_coordinator(hass, client, is_electricity, identifier, serial_
       serial_number,
       is_electricity
     )
+
+    hass.data[DOMAIN][previous_consumption_key] = data
+    return data
 
   coordinator = DataUpdateCoordinator(
     hass,

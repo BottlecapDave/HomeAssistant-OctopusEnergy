@@ -9,8 +9,8 @@ def sort_consumption(consumption_data):
   return sorted
 
 async def async_get_consumption_data(
-  store,
   client: OctopusEnergyApiClient,
+  previous_data,
   current_utc_timestamp,
   period_from,
   period_to,
@@ -18,12 +18,6 @@ async def async_get_consumption_data(
   sensor_serial_number,
   is_electricity: bool
 ):
-  previous_consumption_key = f'{sensor_identifier}_{sensor_serial_number}_previous_consumption'
-  if previous_consumption_key in store:
-    previous_data = store[previous_consumption_key]
-  else:
-    previous_data = None
-
   if (previous_data == None or 
       ((len(previous_data) < 1 or previous_data[-1]["interval_end"] < period_to) and 
        current_utc_timestamp.minute % 30 == 0)
@@ -34,7 +28,7 @@ async def async_get_consumption_data(
       data = await client.async_get_gas_consumption(sensor_identifier, sensor_serial_number, period_from, period_to)
     
     if data != None and len(data) > 0:
-      store[previous_consumption_key] = sort_consumption(data)
+      data = sort_consumption(data)
       return data
     
   if previous_data != None:

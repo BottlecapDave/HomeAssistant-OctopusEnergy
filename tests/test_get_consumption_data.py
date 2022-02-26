@@ -19,7 +19,7 @@ async def test_when_now_is_not_at_30_minute_mark_and_previous_data_is_available_
   
   period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  expected_result = []
+  previous_data = []
 
   for minute in range(0, 59):
     if (minute == 0 or minute == 30):
@@ -28,14 +28,10 @@ async def test_when_now_is_not_at_30_minute_mark_and_previous_data_is_available_
     minuteStr = f'{minute}'.zfill(2)
     current_utc_timestamp = datetime.strptime(f'2022-02-12T00:{minuteStr}:00Z', "%Y-%m-%dT%H:%M:%S%z")
 
-    store = {
-      f'{sensor_identifier}_{sensor_serial_number}_previous_consumption': expected_result
-    }
-
     # Act
     result = await async_get_consumption_data(
-      store,
       client,
+      previous_data,
       current_utc_timestamp,
       period_from,
       period_to,
@@ -64,19 +60,15 @@ async def test_when_now_is_at_30_minute_mark_and_previous_data_is_in_requested_p
 
   period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  expected_result = create_consumption_data(period_from, period_to)
+  previous_data = create_consumption_data(period_from, period_to)
     
   minutesStr = f'{minutes}'.zfill(2)
   current_utc_timestamp = datetime.strptime(f'2022-02-12T00:{minutesStr}:00Z', "%Y-%m-%dT%H:%M:%S%z")
 
-  store = {
-    f'{sensor_identifier}_{sensor_serial_number}_previous_consumption': expected_result
-  }
-
   # Act
   result = await async_get_consumption_data(
-    store,
     client,
+    previous_data,
     current_utc_timestamp,
     period_from,
     period_to,
@@ -87,7 +79,7 @@ async def test_when_now_is_at_30_minute_mark_and_previous_data_is_in_requested_p
 
   # Assert
   assert result != None
-  assert len(result) == len(expected_result)
+  assert len(result) == len(previous_data)
 
   # Make sure our data is returned in 30 minute increments
   expected_valid_from = period_from
@@ -132,14 +124,10 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_then_requested_data_
   minutesStr = f'{minutes}'.zfill(2)
   current_utc_timestamp = datetime.strptime(f'2022-02-12T00:{minutesStr}:00Z', "%Y-%m-%dT%H:%M:%S%z")
 
-  store = {
-    f'{sensor_identifier}_{sensor_serial_number}_previous_consumption': previous_data
-  }
-
   # Act
   result = await async_get_consumption_data(
-    store,
     client,
+    previous_data,
     current_utc_timestamp,
     period_from,
     period_to,
@@ -193,14 +181,10 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
   minutesStr = f'{minutes}'.zfill(2)
   current_utc_timestamp = datetime.strptime(f'2022-02-12T00:{minutesStr}:00Z', "%Y-%m-%dT%H:%M:%S%z")
 
-  store = {
-    f'{sensor_identifier}_{sensor_serial_number}_previous_consumption': previous_data
-  }
-
   # Act
   result = await async_get_consumption_data(
-    store,
     client,
+    previous_data,
     current_utc_timestamp,
     period_from,
     period_to,
@@ -257,14 +241,10 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_and_returned_data_is
     minutesStr = f'{minutes}'.zfill(2)
     current_utc_timestamp = datetime.strptime(f'2022-02-12T00:{minutesStr}:00Z', "%Y-%m-%dT%H:%M:%S%z")
 
-    store = {
-      f'{sensor_identifier}_{sensor_serial_number}_previous_consumption': previous_data
-    }
-
     # Act
     result = await async_get_consumption_data(
-      store,
       client,
+      previous_data,
       current_utc_timestamp,
       period_from,
       period_to,
@@ -326,8 +306,8 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_and_returned
 
     # Act
     result = await async_get_consumption_data(
-      store,
       client,
+      previous_data,
       current_utc_timestamp,
       period_from,
       period_to,
