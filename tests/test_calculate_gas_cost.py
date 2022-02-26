@@ -229,7 +229,7 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
   (True),
   (False)
 ])
-async def test_when_gas_consumption_using_real_data_then_calculation_returned(is_smets1_meter):
+async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned(is_smets1_meter):
   # Arrange
   context = get_test_context()
   client = OctopusEnergyApiClient(context["api_key"])
