@@ -33,6 +33,7 @@ jobs:
           GAS_SN: ${{ secrets.OCTOPUS_ENERGY_GAS_SN }}
           ELECTRICITY_MPAN: ${{ secrets.OCTOPUS_ENERGY_ELECTRICITY_MPAN }}
           ELECTRICITY_SN: ${{ secrets.OCTOPUS_ENERGY_ELECTRICITY_SN }}
+          ACCOUNT_ID: ${{ secrets.OCTOPUS_ENERGY_ACCOUNT_ID }}
   release:
     name: Release
     if: github.ref == 'refs/heads/main'
