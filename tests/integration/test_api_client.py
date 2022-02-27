@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import os
 import pytest
 
-from tests import get_test_context
+from integration import get_test_context
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 async def async_assert_electricity_data(tariff):
