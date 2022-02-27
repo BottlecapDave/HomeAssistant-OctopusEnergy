@@ -21,9 +21,12 @@ jobs:
       - name: Install Python modules
         run: |
           pip install -r requirements.test.txt
-      - name: Tests suite
+      - name: Unit tests suite
         run: |
-          python -m pytest tests
+          python -m pytest tests/unit
+      - name: Integration tests suite
+        run: |
+          python -m pytest tests/integration
         env:
           API_KEY: ${{ secrets.OCTOPUS_ENERGY_API_TOKEN }}
           GAS_MPRN: ${{ secrets.OCTOPUS_ENERGY_GAS_MPRN }}
