@@ -123,10 +123,10 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
       if electricity_tariff_code != None:
         for meter in point["meters"]:
           coordinator = create_reading_coordinator(hass, client, True, point["mpan"], meter["serial_number"])
-          entities.append(OctopusEnergyPreviousAccumulativeElectricityReading(coordinator, point["mpan"], meter["serial_number"]))
-          entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(coordinator, client, electricity_tariff_code, point["mpan"], meter["serial_number"]))
-          entities.append(OctopusEnergyElectricityCurrentRate(rate_coordinator, point["mpan"], meter["serial_number"]))
-          entities.append(OctopusEnergyElectricityPreviousRate(rate_coordinator, point["mpan"], meter["serial_number"]))
+          entities.append(OctopusEnergyPreviousAccumulativeElectricityReading(coordinator, point["mpan"], meter["serial_number"], point["is_export"]))
+          entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(coordinator, client, electricity_tariff_code, point["mpan"], meter["serial_number"], point["is_export"]))
+          entities.append(OctopusEnergyElectricityCurrentRate(rate_coordinator, point["mpan"], meter["serial_number"], point["is_export"]))
+          entities.append(OctopusEnergyElectricityPreviousRate(rate_coordinator, point["mpan"], meter["serial_number"], point["is_export"]))
 
   if len(account_info["gas_meter_points"]) > 0:
     for point in account_info["gas_meter_points"]:
@@ -144,15 +144,19 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
 class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, SensorEntity):
   """Sensor for displaying the current rate."""
 
-  def __init__(self, coordinator, mpan, serial_number):
+  def __init__(self, coordinator, mpan, serial_number, is_export):
     """Init sensor."""
     # Pass coordinator to base class
     super().__init__(coordinator)
 
     self._mpan = mpan
     self._serial_number = serial_number
+    self._is_export = is_export
 
-    self._attributes = {}
+    self._attributes = {
+      "is_export": self._is_export
+    }
+
     self._state = None
 
   @property
@@ -203,7 +207,11 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, SensorEntity):
               break
 
       if current_rate != None:
-        self._attributes = current_rate
+        self._attributes = {
+          "rate": current_rate,
+          "is_export": self._is_export
+        }
+        
         self._state = current_rate["value_inc_vat"] / 100
       else:
         self._state = 0
@@ -214,15 +222,19 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, SensorEntity):
 class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
   """Sensor for displaying the previous rate."""
 
-  def __init__(self, coordinator, mpan, serial_number):
+  def __init__(self, coordinator, mpan, serial_number, is_export):
     """Init sensor."""
     # Pass coordinator to base class
     super().__init__(coordinator)
 
     self._mpan = mpan
     self._serial_number = serial_number
+    self._is_export = is_export
 
-    self._attributes = {}
+    self._attributes = {
+      "is_export": self._is_export
+    }
+
     self._state = None
 
   @property
@@ -275,7 +287,11 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
               break
 
       if previous_rate != None:
-        self._attributes = previous_rate
+        self._attributes = {
+          "rate": previous_rate,
+          "is_export": self._is_export
+        }
+
         self._state = previous_rate["value_inc_vat"] / 100
       else:
         self._state = 0
@@ -286,16 +302,18 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
 class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, SensorEntity):
   """Sensor for displaying the previous days accumulative electricity reading."""
 
-  def __init__(self, coordinator, mpan, serial_number):
+  def __init__(self, coordinator, mpan, serial_number, is_export):
     """Init sensor."""
     super().__init__(coordinator)
 
     self._mpan = mpan
     self._serial_number = serial_number
+    self._is_export = is_export
 
     self._attributes = {
       "mpan": mpan,
-      "serial_number": serial_number
+      "serial_number": serial_number,
+      "is_export": self._is_export
     }
 
     self._state = 0
@@ -352,6 +370,7 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Sen
       self._attributes = {
         "mpan": self._mpan,
         "serial_number": self._serial_number,
+        "is_export": self._is_export,
         "total": consumption["total"],
         "last_calculated_timestamp": consumption["last_calculated_timestamp"],
         "charges": consumption["consumptions"]
@@ -362,18 +381,20 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Sen
 class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, SensorEntity):
   """Sensor for displaying the previous days accumulative electricity cost."""
 
-  def __init__(self, coordinator, client, tariff_code, mpan, serial_number):
+  def __init__(self, coordinator, client, tariff_code, mpan, serial_number, is_export):
     """Init sensor."""
     super().__init__(coordinator)
 
     self._mpan = mpan
     self._serial_number = serial_number
+    self._is_export = is_export
     self._client = client
     self._tariff_code = tariff_code
 
     self._attributes = {
       "mpan": mpan,
-      "serial_number": serial_number
+      "serial_number": serial_number,
+      "is_export": self._is_export
     }
 
     self._state = 0
@@ -445,6 +466,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Sensor
       self._attributes = {
         "mpan": self._mpan,
         "serial_number": self._serial_number,
+        "is_export": self._is_export,
         "tariff_code": self._tariff_code,
         "standing_charge": f'{consumption_cost["standing_charge"]}p',
         "total_without_standing_charge": f'£{consumption_cost["total_without_standing_charge"]}',
