@@ -32,26 +32,26 @@ async def async_assert_electricity_data(tariff):
         expected_valid_from = expected_valid_to
 
 @pytest.mark.asyncio
-async def test_when_get_rates_is_called_with_fixed_tariff_then_data_is_returned_in_thirty_minute_increments():
+async def test_when_get_electricity_rates_is_called_with_fixed_tariff_then_data_is_returned_in_thirty_minute_increments():
     tariff = "E-1R-SUPER-GREEN-24M-21-07-30-A"
     await async_assert_electricity_data(tariff)
 
 @pytest.mark.asyncio
-async def test_when_get_rates_is_called_with_go_tariff_then_data_is_returned_in_thirty_minute_increments():
+async def test_when_get_electricity_rates_is_called_with_go_tariff_then_data_is_returned_in_thirty_minute_increments():
     tariff = "E-1R-GO-18-06-12-A"
     await async_assert_electricity_data(tariff)
 
 @pytest.mark.asyncio
-async def test_when_get_rates_is_called_with_variable_tariff_then_data_is_returned_in_thirty_minute_increments():
+async def test_when_get_electricity_rates_is_called_with_variable_tariff_then_data_is_returned_in_thirty_minute_increments():
     tariff = "E-1R-VAR-21-09-29-A"
     await async_assert_electricity_data(tariff)
 
 @pytest.mark.asyncio
-async def test_when_get_rates_is_called_with_agile_tariff_then_data_is_returned_in_thirty_minute_increments():
+async def test_when_get_electricity_rates_is_called_with_agile_tariff_then_data_is_returned_in_thirty_minute_increments():
     tariff = "E-1R-AGILE-18-02-21-A"
     await async_assert_electricity_data(tariff)
 
 @pytest.mark.asyncio
-async def test_when_get_rates_is_called_with_duel_rate_tariff_then_data_is_returned_in_thirty_minute_increments():
+async def test_when_get_electricity_rates_is_called_with_duel_rate_tariff_then_data_is_returned_in_thirty_minute_increments():
     tariff = "E-2R-SUPER-GREEN-24M-21-07-30-A"
     await async_assert_electricity_data(tariff)

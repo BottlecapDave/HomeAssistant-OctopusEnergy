@@ -6,6 +6,10 @@ def get_test_context():
   if (api_key == None):
       raise Exception("API_KEY must be set")
 
+  account_id = os.environ["ACCOUNT_ID"]
+  if (account_id == None):
+      raise Exception("ACCOUNT_ID must be set")
+
   gas_mprn = os.environ["GAS_MPRN"]
   if (gas_mprn == None):
       raise Exception("GAS_MPRN must be set")
@@ -24,6 +28,7 @@ def get_test_context():
 
   return {
     "api_key": api_key,
+    "account_id": account_id,
     "gas_mprn": gas_mprn,
     "gas_serial_number": gas_serial_number,
     "electricity_mpan": electricity_mpan,
