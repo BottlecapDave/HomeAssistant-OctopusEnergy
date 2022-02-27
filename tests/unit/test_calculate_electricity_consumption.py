@@ -2,8 +2,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from unit import (create_consumption_data)
-from custom_components.octopus_energy.sensor_utils import async_get_consumption_data, calculate_electricity_consumption
-from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
+from custom_components.octopus_energy.sensor_utils import calculate_electricity_consumption
 
 @pytest.mark.asyncio
 async def test_when_electricity_consumption_is_none_then_no_calculation_is_returned():
