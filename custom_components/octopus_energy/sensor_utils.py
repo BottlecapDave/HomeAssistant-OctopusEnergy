@@ -178,7 +178,7 @@ async def async_calculate_gas_cost(client: OctopusEnergyApiClient, consumption_d
 
           # According to https://developer.octopus.energy/docs/api/#consumption, SMETS2 sensors are reported in m3,
           # so we need to convert to kWh before we calculate the cost
-          if sensor["is_smets1_meter"] == False:
+          if sensor["is_smets1_meter"] != True:
             value = convert_m3_to_kwh(value)
 
           consumption_from = consumption["interval_start"]

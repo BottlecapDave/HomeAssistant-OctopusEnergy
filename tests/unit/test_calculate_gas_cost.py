@@ -164,8 +164,9 @@ async def test_when_gas_consumption_available_then_calculation_returned(is_smets
       assert consumption_cost["total"] == round(((48 * expected_rate_price) + expected_standing_charge["value_inc_vat"]) / 100, 2)
     else:
       # Total is reported in pounds and pence, but rate prices are in pence, so we need to calculate our expected value
-      assert consumption_cost["total_without_standing_charge"] == 272.71
-      assert consumption_cost["total"] == 272.73
+      expected_total_values = 11.363
+      assert consumption_cost["total_without_standing_charge"] == round((expected_total_values * 48 * expected_rate_price) / 100, 2)
+      assert consumption_cost["total"] == round(((expected_total_values * 48 * expected_rate_price) + expected_standing_charge["value_inc_vat"]) / 100, 2)
 
     # Make sure our data is returned in 30 minute increments
     expected_valid_from = period_from
