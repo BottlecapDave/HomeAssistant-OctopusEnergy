@@ -12,13 +12,13 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   client = OctopusEnergyApiClient(context["api_key"])
 
   client = OctopusEnergyApiClient(context["api_key"])
-  period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
   latest_date = None
   
   # Retrieve real consumption data so we can make sure our calculation works with the result
-  current_utc_timestamp = datetime.strptime(f'2022-02-12T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
+  current_utc_timestamp = datetime.strptime(f'2022-03-02T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
   sensor_identifier = context["electricity_mpan"]
   sensor_serial_number = context["electricity_serial_number"]
   is_electricity = True
@@ -54,8 +54,8 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   # Assert
   assert consumption_cost != None
   assert consumption_cost["standing_charge"] == standard_charge_result["value_inc_vat"]
-  assert consumption_cost["total_without_standing_charge"] == 1.61
-  assert consumption_cost["total"] == 1.85
+  assert consumption_cost["total_without_standing_charge"] == 1.63
+  assert consumption_cost["total"] == 1.87
   assert consumption_cost["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
 
   assert len(consumption_cost["charges"]) == 48

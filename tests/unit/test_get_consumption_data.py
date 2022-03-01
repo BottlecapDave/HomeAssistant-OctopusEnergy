@@ -16,8 +16,8 @@ async def test_when_now_is_not_at_30_minute_mark_and_previous_data_is_available_
   sensor_serial_number = "123456"
   is_electricity = False
   
-  period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   previous_data = []
 
   for minute in range(0, 59):
@@ -56,8 +56,8 @@ async def test_when_now_is_at_30_minute_mark_and_previous_data_is_in_requested_p
   sensor_serial_number = "123456"
   is_electricity = False
 
-  period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   previous_data = create_consumption_data(period_from, period_to)
     
   minutesStr = f'{minutes}'.zfill(2)
@@ -102,8 +102,8 @@ async def test_when_now_is_at_30_minute_mark_and_previous_data_is_in_requested_p
 ])
 async def test_when_now_is_at_30_minute_mark_and_gas_sensor_then_requested_data_returned(minutes, previous_data_available):
   # Arrange
-  period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   async def async_mocked_get_gas_consumption(*args, **kwargs):
     return create_consumption_data(period_from, period_to)
@@ -120,7 +120,7 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_then_requested_data_
       # Make our previous data for the previous period
       previous_data = create_consumption_data(
         datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-        datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+        datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
       )
     
     minutesStr = f'{minutes}'.zfill(2)
@@ -163,8 +163,8 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_then_requested_data_
 ])
 async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_requested_data_returned(minutes, previous_data_available):
   # Arrange
-  period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   async def async_mocked_get_electricity_consumption(*args, **kwargs):
     return create_consumption_data(period_from, period_to)
@@ -176,14 +176,14 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
     sensor_serial_number = "123456"
     is_electricity = True
 
-    period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-    period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     previous_data = None
     if previous_data_available == True:
       # Make our previous data for the previous period
       previous_data = create_consumption_data(
         datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-        datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+        datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
       )
     
     minutesStr = f'{minutes}'.zfill(2)
@@ -234,11 +234,11 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_and_returned_data_is
     sensor_serial_number = "123456"
     is_electricity = False
 
-    period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-    period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
     previous_period_from = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-    previous_period_to = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    previous_period_to = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     previous_data = create_consumption_data(
       previous_period_from,
       previous_period_to
@@ -294,11 +294,11 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_and_returned
     sensor_serial_number = "123456"
     is_electricity = True
 
-    period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-    period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
     previous_period_from = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-    previous_period_to = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    previous_period_to = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     previous_data = create_consumption_data(
       previous_period_from,
       previous_period_to

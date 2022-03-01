@@ -15,13 +15,13 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
   context = get_test_context()
   client = OctopusEnergyApiClient(context["api_key"])
 
-  period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
   latest_date = None
   
   # Retrieve real consumption data so we can make sure our calculation works with the result
-  current_utc_timestamp = datetime.strptime(f'2022-02-12T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
+  current_utc_timestamp = datetime.strptime(f'2022-03-02T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
   sensor_identifier = context["gas_mprn"]
   sensor_serial_number = context["gas_serial_number"]
   is_electricity = False
@@ -64,11 +64,11 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
   
   # Check that for SMETS2 meters, we convert the data from m3 to kwh
   if is_smets1_meter:
-    assert consumption_cost["total_without_standing_charge"] == 3.02
-    assert consumption_cost["total"] == 3.28
+    assert consumption_cost["total_without_standing_charge"] == 0.25
+    assert consumption_cost["total"] == 0.52
   else:
-    assert consumption_cost["total_without_standing_charge"] == 34.27
-    assert consumption_cost["total"] == 34.53
+    assert consumption_cost["total_without_standing_charge"] == 2.88
+    assert consumption_cost["total"] == 3.14
 
   assert len(consumption_cost["charges"]) == 48
 

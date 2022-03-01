@@ -10,8 +10,8 @@ from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 async def test_when_electricity_consumption_is_none_then_no_calculation_is_returned():
   # Arrange
   client = OctopusEnergyApiClient("NOT_REAL")
-  period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   latest_date = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
 
@@ -32,8 +32,8 @@ async def test_when_electricity_consumption_is_none_then_no_calculation_is_retur
 async def test_when_electricity_consumption_is_empty_then_no_calculation_is_returned():
   # Arrange
   client = OctopusEnergyApiClient("NOT_REAL")
-  period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   latest_date = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
 
@@ -54,9 +54,9 @@ async def test_when_electricity_consumption_is_empty_then_no_calculation_is_retu
 async def test_when_electricity_consumption_is_before_latest_date_then_no_calculation_is_returned():
   # Arrange
   client = OctopusEnergyApiClient("NOT_REAL")
-  period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  latest_date = datetime.strptime("2022-02-12T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  latest_date = datetime.strptime("2022-03-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
 
   consumption_data = create_consumption_data(period_from, period_to)
@@ -81,8 +81,8 @@ async def test_when_electricity_consumption_is_before_latest_date_then_no_calcul
 async def test_when_electricity_consumption_available_then_calculation_returned(latest_date):
   # Arrange
   
-  period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   # Rate price is in pence
   expected_rate_price = 50
@@ -143,8 +143,8 @@ async def test_when_electricity_consumption_available_then_calculation_returned(
 @pytest.mark.asyncio
 async def test_when_electricity_consumption_starting_at_latest_date_then_calculation_returned():
   # Arrange
-  period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   # Rate price is in pence
   expected_rate_price = 50

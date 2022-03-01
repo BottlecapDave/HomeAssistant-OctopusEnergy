@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import date, datetime, timedelta
 import pytest
 
 from integration import (get_test_context)
@@ -11,12 +11,12 @@ async def test_when_calculate_electricity_consumption_uses_real_data_then_calcul
   context = get_test_context()
   client = OctopusEnergyApiClient(context["api_key"])
 
-  period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   latest_date = None
   
   # Retrieve real consumption data so we can make sure our calculation works with the result
-  current_utc_timestamp = datetime.strptime(f'2022-02-12T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
+  current_utc_timestamp = datetime.strptime(f'2022-03-02T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
   sensor_identifier = context["electricity_mpan"]
   sensor_serial_number = context["electricity_serial_number"]
   is_electricity = True
@@ -39,7 +39,7 @@ async def test_when_calculate_electricity_consumption_uses_real_data_then_calcul
 
   # Assert
   assert consumption != None
-  assert round(consumption["total"], 2) == 8.04
+  assert round(consumption["total"], 2) == 8.11
   assert consumption["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
 
   assert len(consumption["consumptions"]) == 48

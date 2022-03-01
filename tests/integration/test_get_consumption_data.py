@@ -22,14 +22,14 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
   sensor_serial_number = context["electricity_serial_number"]
   is_electricity = True
 
-  period_from = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   previous_data = None
   if previous_data_available == True:
     # Make our previous data for the previous period
     previous_data = create_consumption_data(
       datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+      datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
   
   minutesStr = f'{minutes}'.zfill(2)
