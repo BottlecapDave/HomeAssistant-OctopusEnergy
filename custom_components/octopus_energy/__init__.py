@@ -13,7 +13,8 @@ from .const import (
 
   DATA_CLIENT,
   DATA_ELECTRICITY_RATES_COORDINATOR,
-  DATA_RATES
+  DATA_RATES,
+  DATA_ACCOUNT_ID
 )
 
 from .api_client import OctopusEnergyApiClient
@@ -67,6 +68,7 @@ def setup_dependencies(hass, config):
   if DATA_CLIENT not in hass.data[DOMAIN]:
     client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY])
     hass.data[DOMAIN][DATA_CLIENT] = client
+    hass.data[DOMAIN][DATA_ACCOUNT_ID] = config[CONFIG_MAIN_ACCOUNT_ID]
 
     async def async_update_electricity_rates_data():
       """Fetch data from API endpoint."""
