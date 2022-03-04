@@ -585,12 +585,12 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, SensorEntit
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_gas_{self._serial_number}_{self._mprn}previous_accumulative_consumption"
+    return f"octopus_energy_gas_{self._serial_number}_{self._mprn}_previous_accumulative_consumption"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Gas {self._serial_number} {self._mprn}Previous Accumulative Consumption"
+    return f"Octopus Energy Gas {self._serial_number} {self._mprn} Previous Accumulative Consumption"
 
   @property
   def device_class(self):
