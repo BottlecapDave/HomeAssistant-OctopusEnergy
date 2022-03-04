@@ -47,10 +47,12 @@ async def test_when_calculate_gas_consumption_uses_real_data_then_calculation_re
   assert consumption["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
   
   # Check that for SMETS1 meters, we convert the data from kwh to m3
-  if is_smets1_meter:
-    assert consumption["total"] == 0.495
+  if is_smets1_meter == True:
+    assert consumption["total_m3"] == 0.498
+    assert consumption["total_kwh"] == 5.62
   else:
-    assert consumption["total"] == 5.62
+    assert consumption["total_kwh"] == 63.86
+    assert consumption["total_m3"] == 5.62
 
   assert len(consumption["consumptions"]) == len(consumption_data)
 

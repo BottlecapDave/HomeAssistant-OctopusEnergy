@@ -131,29 +131,37 @@ def calculate_gas_consumption(consumption_data, last_calculated_timestamp, is_sm
     sorted_consumption_data = sort_consumption(consumption_data)
 
     if (last_calculated_timestamp == None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
-      total = 0
+      total_m3 = 0
+      total_kwh = 0
 
       consumption_parts = []
       for consumption in sorted_consumption_data:
-        total = total + consumption["consumption"]
+        current_consumption_m3 = 0
+        current_consumption_kwh = 0
 
         current_consumption = consumption["consumption"]
         if is_smets1_meter:
-          current_consumption = convert_kwh_to_m3(current_consumption)
+          current_consumption_m3 = convert_kwh_to_m3(current_consumption)
+          current_consumption_kwh = current_consumption
+        else:
+          current_consumption_m3 = current_consumption
+          current_consumption_kwh = convert_m3_to_kwh(current_consumption)
+
+        total_m3 = total_m3 + current_consumption_m3
+        total_kwh = total_kwh + current_consumption_kwh
 
         consumption_parts.append({
           "from": consumption["interval_start"],
           "to": consumption["interval_end"],
-          "consumption": current_consumption,
+          "consumption_m3": current_consumption_m3,
+          "consumption_kwh": current_consumption_kwh,
         })
       
       last_calculated_timestamp = sorted_consumption_data[-1]["interval_end"]
-      
-      if is_smets1_meter:
-        total = convert_kwh_to_m3(total)
 
       return {
-        "total": total,
+        "total_m3": round(total_m3, 3),
+        "total_kwh": round(total_kwh, 3),
         "last_calculated_timestamp": last_calculated_timestamp,
         "consumptions": consumption_parts
       }

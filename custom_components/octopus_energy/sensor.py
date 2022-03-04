@@ -628,14 +628,15 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, SensorEntit
 
     if (consumption != None):
       _LOGGER.info(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
-      self._state = consumption["total"]
+      self._state = consumption["total_m3"]
       self._latest_date = consumption["last_calculated_timestamp"]
 
       self._attributes = {
         "mprn": self._mprn,
         "serial_number": self._serial_number,
         "is_smets1_meter": self._is_smets1_meter,
-        "total": consumption["total"],
+        "total_kwh": consumption["total_kwh"],
+        "total_m3": consumption["total_m3"],
         "last_calculated_timestamp": consumption["last_calculated_timestamp"],
         "charges": consumption["consumptions"]
       }

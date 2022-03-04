@@ -86,10 +86,12 @@ async def test_when_gas_consumption_available_then_calculation_returned(is_smets
   assert consumption["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
   
   # Check that for SMETS1 meters, we convert the data from kwh to m3
-  if is_smets1_meter:
-    assert consumption["total"] == 4.224
+  if is_smets1_meter == True:
+    assert consumption["total_m3"] == round(48 * 0.088, 3)
+    assert consumption["total_kwh"] == 48 * 1
   else:
-    assert consumption["total"] == 48
+    assert consumption["total_kwh"] == round(48 * 11.363, 3)
+    assert consumption["total_m3"] == 48 * 1
 
   assert len(consumption["consumptions"]) == len(consumption_data)
 
@@ -103,14 +105,29 @@ async def test_when_gas_consumption_available_then_calculation_returned(is_smets
     assert "to" in item
     assert item["to"] == expected_valid_to
 
+    assert "consumption_m3" in item
+    if is_smets1_meter == True:
+      assert item["consumption_m3"] == 0.088
+    else:
+      assert item["consumption_m3"] == 1
+
+    assert "consumption_kwh" in item
+    if is_smets1_meter == True:
+      assert item["consumption_kwh"] == 1
+    else:
+      assert item["consumption_kwh"] == 11.363
+
     expected_valid_from = expected_valid_to
 
 @pytest.mark.asyncio
-async def test_when_gas_consumption_starting_at_latest_date_then_calculation_returned():
+@pytest.mark.parametrize("is_smets1_meter",[
+  (True),
+  (False),
+])
+async def test_when_gas_consumption_starting_at_latest_date_then_calculation_returned(is_smets1_meter):
   # Arrange
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  is_smets1_meter = True
   latest_date = None
 
   consumption_data = create_consumption_data(period_from, period_to, True)
@@ -131,10 +148,12 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
   assert consumption["last_calculated_timestamp"] == consumption_data[0]["interval_end"]
   
   # Check that for SMETS1 meters, we convert the data from kwh to m3
-  if is_smets1_meter:
-    assert consumption["total"] == 4.224
+  if is_smets1_meter == True:
+    assert consumption["total_m3"] == round(48 * 0.088, 3)
+    assert consumption["total_kwh"] == 48 * 1
   else:
-    assert consumption["total"] == 48
+    assert consumption["total_kwh"] == round(48 * 11.363, 3)
+    assert consumption["total_m3"] == 48 * 1
 
   assert len(consumption["consumptions"]) == len(consumption_data)
 
@@ -147,5 +166,17 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
     assert item["from"] == expected_valid_from
     assert "to" in item
     assert item["to"] == expected_valid_to
+
+    assert "consumption_m3" in item
+    if is_smets1_meter == True:
+      assert item["consumption_m3"] == 0.088
+    else:
+      assert item["consumption_m3"] == 1
+
+    assert "consumption_kwh" in item
+    if is_smets1_meter == True:
+      assert item["consumption_kwh"] == 1
+    else:
+      assert item["consumption_kwh"] == 11.363
 
     expected_valid_from = expected_valid_to
