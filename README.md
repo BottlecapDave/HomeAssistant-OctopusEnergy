@@ -6,6 +6,8 @@ Custom component built from the ground up to bring your Octopus Energy details i
 
 ## How to install
 
+You should take the latest published [release](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases). The current state of `develop` will be in flux and therefore possibly subject to change.
+
 To install, place the contents of `custom_components` into the `<config directory>/custom_components` folder of your Home Assistant installation.
 
 ## How to setup
@@ -16,15 +18,16 @@ Setup is done entirely via the [integration UI](https://my.home-assistant.io/red
 
 When you setup your account, you will get a few sensors. 
 
-You'll get the following sensors if you have an electricity meter with an active agreement:
-
-* `sensor.octopus_energy_electricity_current_rate` - The rate of the current 30 minute period that energy consumption is charged at (including VAT).
-* `sensor.octopus_energy_electricity_previous_rate` - The rate of the previous 30 minute period that energy consumption was charged at (including VAT).
-
 You'll get the following sensors for each electricity meter with an active agreement:
 
-* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_previous_accumulative_consumption` - The total consumption reported by the meter for the previous day.
-* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_previous_accumulative_cost` - The total cost for the previous day, including the standing charge.
+* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MRAN_NUMBER}}_current_rate` - The rate of the current 30 minute period that energy consumption is charged at (including VAT).
+* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MRAN_NUMBER}}_previous_rate` - The rate of the previous 30 minute period that energy consumption was charged at (including VAT).
+* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MRAN_NUMBER}}_previous_accumulative_consumption` - The total consumption reported by the meter for the previous day.
+* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MRAN_NUMBER}}_previous_accumulative_cost` - The total cost for the previous day, including the standing charge.
+
+You'll get the following sensors if you have a gas meter with an active agreement:
+
+* `sensor.octopus_energy_gas_current_rate` - The rate of the current day that gas consumption is charged at (including VAT).
 
 You'll get the following sensors for each gas meter with an active agreement:
 

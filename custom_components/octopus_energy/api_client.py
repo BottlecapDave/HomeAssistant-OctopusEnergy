@@ -13,6 +13,9 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyApiClient:
 
   def __init__(self, api_key):
+    if (api_key == None):
+      raise Exception('API KEY is not set')
+
     self._api_key = api_key
     self._base_url = 'https://api.octopus.energy'
 
@@ -125,6 +128,7 @@ class OctopusEnergyApiClient:
             if as_utc(item["interval_start"]) >= period_from and as_utc(item["interval_end"]) <= period_to:
               results.append(item)
           
+          results.sort(key=self.__get_interval_end)
           return results
         
         return None
@@ -166,6 +170,7 @@ class OctopusEnergyApiClient:
             if as_utc(item["interval_start"]) >= period_from and as_utc(item["interval_end"]) <= period_to:
               results.append(item)
           
+          results.sort(key=self.__get_interval_end)
           return results
         
         return None
@@ -230,6 +235,9 @@ class OctopusEnergyApiClient:
 
   def __get_valid_from(self, rate):
     return rate["valid_from"]
+
+  def __get_interval_end(self, item):
+    return item["interval_end"]
 
   def __is_between_local_times(self, rate, target_from_time, target_to_time):
     """Determines if a current rate is between two times"""

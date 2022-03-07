@@ -16,11 +16,14 @@ from .const import (
   CONFIG_TARGET_HOURS,
   CONFIG_TARGET_START_TIME,
   CONFIG_TARGET_END_TIME,
+  CONFIG_TARGET_TYPE,
+  CONFIG_TARGET_MPAN,
 
   CONFIG_SMETS1,
 
   DATA_SCHEMA_ACCOUNT,
-  DATA_SCHEMA_TARGET,
+  DATA_CLIENT,
+  DATA_ACCOUNT_ID,
 
   REGEX_TIME,
   REGEX_ENTITY_NAME,
@@ -28,6 +31,8 @@ from .const import (
 )
 
 from .api_client import OctopusEnergyApiClient
+
+from .utils import get_active_tariff_code
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -53,6 +58,32 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       title="Octopus Energy", 
       data=user_input
     )
+
+  async def async_setup_target_rate_schema(self):
+    # test
+    client = self.hass.data[DOMAIN][DATA_CLIENT]
+    account_info = await client.async_get_account(self.hass.data[DOMAIN][DATA_ACCOUNT_ID])
+
+    meters = []
+    if len(account_info["electricity_meter_points"]) > 0:
+      for point in account_info["electricity_meter_points"]:
+        active_tariff_code = get_active_tariff_code(point["agreements"])
+        if active_tariff_code != None:
+          meters.append(point["mpan"])
+
+    return vol.Schema({
+      vol.Required(CONFIG_TARGET_NAME): str,
+      vol.Required(CONFIG_TARGET_HOURS): str,
+      vol.Required(CONFIG_TARGET_TYPE, default="Continuous"): vol.In({
+        "Continuous": "Continuous",
+        "Intermittent": "Intermittent"
+      }),
+      vol.Required(CONFIG_TARGET_MPAN): vol.In(
+        meters
+      ),
+      vol.Optional(CONFIG_TARGET_START_TIME): str,
+      vol.Optional(CONFIG_TARGET_END_TIME): str,
+    })
 
   async def async_step_target_rate(self, user_input):
     """Setup a target based on the provided user input"""
@@ -91,8 +122,9 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       )
 
     # Reshow our form with raised logins
+    data_Schema = await self.async_setup_target_rate_schema()
     return self.async_show_form(
-      step_id="target_rate", data_schema=DATA_SCHEMA_TARGET, errors=errors
+      step_id="target_rate", data_schema=data_Schema, errors=errors
     )
 
   async def async_step_user(self, user_input):
@@ -114,8 +146,9 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
         return await self.async_step_target_rate(user_input)
 
     if is_account_setup:
+      data_Schema = await self.async_setup_target_rate_schema()
       return self.async_show_form(
-        step_id="target_rate", data_schema=DATA_SCHEMA_TARGET
+        step_id="target_rate", data_schema=data_Schema
       )
 
     return self.async_show_form(

@@ -51,9 +51,3 @@ def get_active_tariff_code(agreements):
       return latest_agreement["tariff_code"]
   
   return None
-
-# Adapted from https://www.theenergyshop.com/guides/how-to-convert-gas-units-to-kwh
-def convert_kwh_to_m3(value):
-  m3_value = value * 3.6 # kWh Conversion factor
-  m3_value = m3_value / 40 # Calorific value
-  return round(m3_value / 1.02264, 3) # Volume correction factor
