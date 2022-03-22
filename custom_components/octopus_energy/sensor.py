@@ -129,7 +129,9 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
           entities.append(OctopusEnergyElectricityCurrentRate(rate_coordinator, point["mpan"], meter["serial_number"], point["is_export"]))
           entities.append(OctopusEnergyElectricityPreviousRate(rate_coordinator, point["mpan"], meter["serial_number"], point["is_export"]))
       else:
-        _LOGGER.info(f'Skipping electricity meter due to no active agreement; mpan: {point["mpan"]}; serial number: {meter["serial_number"]}')
+        for meter in point["meters"]:
+          _LOGGER.info(f'Skipping electricity meter due to no active agreement; mpan: {point["mpan"]}; serial number: {meter["serial_number"]}')
+        _LOGGER.info(f'agreements: {point["agreements"]}')
   else:
     _LOGGER.info('No electricity meters available')
 
@@ -145,7 +147,9 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
           entities.append(OctopusEnergyPreviousAccumulativeGasCost(coordinator, client, gas_tariff_code, point["mprn"], meter["serial_number"], is_smets1))
           entities.append(OctopusEnergyGasCurrentRate(client, gas_tariff_code, point["mprn"], meter["serial_number"]))
       else:
-        _LOGGER.info(f'Skipping gas meter due to no active agreement; mpan: {point["mprn"]}; serial number: {meter["serial_number"]}')
+        for meter in point["meters"]:
+          _LOGGER.info(f'Skipping gas meter due to no active agreement; mpan: {point["mpan"]}; serial number: {meter["serial_number"]}')
+        _LOGGER.info(f'agreements: {point["agreements"]}')
   else:
     _LOGGER.info('No gas meters available')
 
