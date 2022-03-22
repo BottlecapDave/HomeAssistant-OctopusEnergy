@@ -141,14 +141,14 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
       gas_tariff_code = get_active_tariff_code(point["agreements"])
       if gas_tariff_code != None:
         for meter in point["meters"]:
-          _LOGGER.info(f'Adding gas meter; mpan: {point["mprn"]}; serial number: {meter["serial_number"]}')
+          _LOGGER.info(f'Adding gas meter; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
           coordinator = create_reading_coordinator(hass, client, False, point["mprn"], meter["serial_number"])
           entities.append(OctopusEnergyPreviousAccumulativeGasReading(coordinator, point["mprn"], meter["serial_number"], is_smets1))
           entities.append(OctopusEnergyPreviousAccumulativeGasCost(coordinator, client, gas_tariff_code, point["mprn"], meter["serial_number"], is_smets1))
           entities.append(OctopusEnergyGasCurrentRate(client, gas_tariff_code, point["mprn"], meter["serial_number"]))
       else:
         for meter in point["meters"]:
-          _LOGGER.info(f'Skipping gas meter due to no active agreement; mpan: {point["mpan"]}; serial number: {meter["serial_number"]}')
+          _LOGGER.info(f'Skipping gas meter due to no active agreement; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
         _LOGGER.info(f'agreements: {point["agreements"]}')
   else:
     _LOGGER.info('No gas meters available')
