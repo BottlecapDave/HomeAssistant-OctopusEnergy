@@ -20,19 +20,19 @@ When you setup your account, you will get a few sensors.
 
 You'll get the following sensors for each electricity meter with an active agreement:
 
-* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MRAN_NUMBER}}_current_rate` - The rate of the current 30 minute period that energy consumption is charged at (including VAT).
-* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MRAN_NUMBER}}_previous_rate` - The rate of the previous 30 minute period that energy consumption was charged at (including VAT).
-* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MRAN_NUMBER}}_previous_accumulative_consumption` - The total consumption reported by the meter for the previous day.
-* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MRAN_NUMBER}}_previous_accumulative_cost` - The total cost for the previous day, including the standing charge.
+* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_rate` - The rate of the current 30 minute period that energy consumption is charged at (including VAT).
+* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_rate` - The rate of the previous 30 minute period that energy consumption was charged at (including VAT).
+* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption` - The total consumption reported by the meter for the previous day.
+* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost` - The total cost for the previous day, including the standing charge.
 
 You'll get the following sensors if you have a gas meter with an active agreement:
 
-* `sensor.octopus_energy_gas_current_rate` - The rate of the current day that gas consumption is charged at (including VAT).
+* `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_rate` - The rate of the current day that gas consumption is charged at (including VAT).
 
 You'll get the following sensors for each gas meter with an active agreement:
 
-* `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_previous_accumulative_consumption` - The total consumption reported by the meter for the previous day.
-* `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_previous_accumulative_cost` - The total cost for the previous day, including the standing charge.
+* `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption` - The total consumption reported by the meter for the previous day.
+* `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost` - The total cost for the previous day, including the standing charge.
 
 While you can add these sensors to [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/), because Octopus doesn't provide live consumption data, it will be off by a day.
 
@@ -48,8 +48,32 @@ Each sensor will be in the form `binary_sensor.octopus_energy_target_{{TARGET_RA
 
 When you sign into your account, if you have gas meters, we'll setup some sensors for you. However, the way these sensors report data isn't consistent between versions of the meters, and Octopus Energy doesn't expose what type of meter you have. Therefore, you have to toggle the checkbox when setting up your initial account within HA. If you've already setup your account, you can update this via the `Configure` option within the integrations configuration. This is a global setting, and therefore will apply to **all** gas meters.
 
-## Known Issues/Limitations
+## FAQ
 
-- Octopus Energy only provide data up to the previous day, so it's not possible to expose current consumption. If you would like this to change, then you'll need to email Octopus Energy.
-- Only the first property associated with an account that hasn't been moved out of is exposed.
-- Gas meter SMETS1/SMETS2 setting has to be set globally and manually as Octopus Energy doesn't provide this information.
+### I have sensors that are missing
+
+The integration only looks at the first property associated with your account that doesn't have a moved out date attached to it. If you are still missing sensors,  the first thing to do is increase the log levels for the component. This can be done by setting the following values in your `configuration.yaml` file.
+
+```yaml
+logger:
+  logs:
+    custom_components.octopus_energy: info
+```
+
+If you don't have access to this file, then you should be able to set the log levels using the [available services](https://www.home-assistant.io/integrations/logger/).
+
+Once done, you'll need to reload the integration and then check the "Full Home Assistant Log" from the `logs page`. You should then see entries associated with this component stating either sensors were added, skipped or no sensors were available at all. 
+
+The identifiers of the sensors should then be checked against your Octopus Energy dashboard to verify the correct sensors are being picked up. If this is producing unexpected results, then you should raise an issue.
+
+### Can I get live sensor data?
+
+Unfortunately, Octopus Energy only provide data up to the previous day, so it's not possible to expose current consumption. If you would like this to change, then you'll need to email Octopus Energy.
+
+### Can I add the sensors to the Energy dashboard?
+
+While you can add the sensors to the dashboard, they will be associated with the wrong day. This is because the Energy dashboard uses the timestamp of when the sensor updates to determine which day the data should belong to. There is currently no official way of adding historic data to the dashboard, however there are indications this may be coming.
+
+### My gas sensor consumption readings don't look quite right
+
+This may be due to the integration being configured against the wrong kind of gas sensor. The gas meter SMETS1/SMETS2 setting has to be set globally and manually as Octopus Energy doesn't provide this information with their API. When this is set, we then know how to interpret the provided data.
