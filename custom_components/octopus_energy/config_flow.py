@@ -2,6 +2,8 @@ import re
 import voluptuous as vol
 import logging
 
+
+from homeassistant.util.dt import (utcnow)
 from homeassistant.config_entries import (ConfigFlow, OptionsFlow)
 from homeassistant.core import callback
 import homeassistant.helpers.config_validation as cv
@@ -65,9 +67,10 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     account_info = await client.async_get_account(self.hass.data[DOMAIN][DATA_ACCOUNT_ID])
 
     meters = []
+    now = utcnow()
     if len(account_info["electricity_meter_points"]) > 0:
       for point in account_info["electricity_meter_points"]:
-        active_tariff_code = get_active_tariff_code(point["agreements"])
+        active_tariff_code = get_active_tariff_code(now, point["agreements"])
         if active_tariff_code != None:
           meters.append(point["mpan"])
 

@@ -25,8 +25,7 @@ def get_tariff_parts(tariff_code):
     "region": region
   }
 
-def get_active_tariff_code(agreements):
-  now = utcnow()
+def get_active_tariff_code(utcnow, agreements):
 
   latest_agreement = None
   latest_valid_from = None
@@ -35,19 +34,17 @@ def get_active_tariff_code(agreements):
   for agreement in agreements:
     valid_from = as_utc(parse_datetime(agreement["valid_from"]))
 
-    if latest_valid_from == None or valid_from > latest_valid_from:
-      latest_agreement = agreement
-      latest_valid_from = valid_from
+    if utcnow >= valid_from and (latest_valid_from == None or valid_from > latest_valid_from):
+
+      latest_valid_to = None
+      if "valid_to" in agreement and agreement["valid_to"] != None:
+        latest_valid_to = as_utc(parse_datetime(agreement["valid_to"]))
+
+      if latest_valid_to == None or latest_valid_to >= utcnow:
+        latest_agreement = agreement
+        latest_valid_from = valid_from
 
   if latest_agreement != None:
-    now = utcnow()
-
-    latest_valid_to = None
-    if "valid_to" in latest_agreement and latest_agreement["valid_to"] != None:
-      latest_valid_to = as_utc(parse_datetime(latest_agreement["valid_to"]))
-
-    # If there is no end for our latest agreement, then it is our most active
-    if latest_valid_to == None or latest_valid_to >= now:
-      return latest_agreement["tariff_code"]
+    return latest_agreement["tariff_code"]
   
   return None

@@ -116,10 +116,12 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
   
   account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
 
+  now = utcnow()
+
   if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
-      electricity_tariff_code = get_active_tariff_code(point["agreements"])
+      electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
       if electricity_tariff_code != None:
         for meter in point["meters"]:
           _LOGGER.info(f'Adding electricity meter; mpan: {point["mpan"]}; serial number: {meter["serial_number"]}')
@@ -138,7 +140,7 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
   if len(account_info["gas_meter_points"]) > 0:
     for point in account_info["gas_meter_points"]:
       # We only care about points that have active agreements
-      gas_tariff_code = get_active_tariff_code(point["agreements"])
+      gas_tariff_code = get_active_tariff_code(now, point["agreements"])
       if gas_tariff_code != None:
         for meter in point["meters"]:
           _LOGGER.info(f'Adding gas meter; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')

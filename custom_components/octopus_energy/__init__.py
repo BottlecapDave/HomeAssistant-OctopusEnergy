@@ -54,9 +54,10 @@ async def async_get_current_electricity_agreement_tariff_codes(client, config):
   account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
 
   tariff_codes = {}
+  now = utcnow()
   if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
-      active_tariff_code = get_active_tariff_code(point["agreements"])
+      active_tariff_code = get_active_tariff_code(now, point["agreements"])
       if active_tariff_code != None:
         tariff_codes[point["mpan"]] = active_tariff_code
   

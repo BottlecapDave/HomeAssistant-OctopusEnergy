@@ -5,7 +5,9 @@
   "main": "index.js",
   "scripts": {
     "commit": "cz",
-    "release": "semantic-release"
+    "release": "semantic-release",
+    "test-unit": "python -m pytest tests/unit",
+    "test-integration": "python -m pytest tests/integration"
   },
   "repository": {
     "type": "git",
