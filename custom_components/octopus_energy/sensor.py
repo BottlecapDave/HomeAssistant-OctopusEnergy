@@ -193,7 +193,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, SensorEntity):
   @property
   def icon(self):
     """Icon of the sensor."""
-    return "mdi:currency-usd"
+    return "mdi:currency-gbp"
 
   @property
   def unit_of_measurement(self):
@@ -271,7 +271,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, SensorEntity):
   @property
   def icon(self):
     """Icon of the sensor."""
-    return "mdi:currency-usd"
+    return "mdi:currency-gbp"
 
   @property
   def unit_of_measurement(self):
@@ -444,7 +444,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Sensor
   @property
   def icon(self):
     """Icon of the sensor."""
-    return "mdi:currency-usd"
+    return "mdi:currency-gbp"
 
   @property
   def extra_state_attributes(self):
@@ -528,7 +528,7 @@ class OctopusEnergyGasCurrentRate(SensorEntity):
   @property
   def icon(self):
     """Icon of the sensor."""
-    return "mdi:currency-usd"
+    return "mdi:currency-gbp"
 
   @property
   def unit_of_measurement(self):
@@ -709,7 +709,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, SensorEntity):
   @property
   def icon(self):
     """Icon of the sensor."""
-    return "mdi:currency-usd"
+    return "mdi:currency-gbp"
 
   @property
   def extra_state_attributes(self):
