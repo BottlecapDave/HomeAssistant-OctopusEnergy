@@ -1,4 +1,4 @@
-from homeassistant.util.dt import (utcnow, as_utc, parse_datetime)
+from homeassistant.util.dt import (as_utc, parse_datetime)
 
 import re
 
@@ -26,7 +26,6 @@ def get_tariff_parts(tariff_code):
   }
 
 def get_active_tariff_code(utcnow, agreements):
-
   latest_agreement = None
   latest_valid_from = None
 
