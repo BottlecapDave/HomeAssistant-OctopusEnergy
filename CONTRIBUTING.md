@@ -21,8 +21,18 @@ pip install -r requirements.test.txt
 
 ## Tests
 
-Included are a few unit tests, located in `./tests`. To run them
+### Unit Tests
+
+Unit tests are written utilising `pytest`. To run them
 
 ```bash
-API_KEY=<<OCTOPUS_API_KEY>> python -m pytest tests
+python -m pytest tests/unit
+```
+
+### Integration Tests
+
+Integration tests are written utilising `pytest`. To run them
+
+```bash
+API_KEY=<<OCTOPUS_API_KEY>> python -m pytest tests/integration
 ```

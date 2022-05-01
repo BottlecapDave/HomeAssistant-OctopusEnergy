@@ -108,6 +108,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
             all_rates = next(iter(all_rates.values()))
           else: 
             all_rates = all_rates.get(self._config[CONFIG_TARGET_MPAN])
+        else:
+          all_rates = []
 
         if CONFIG_TARGET_START_TIME in self._config:
           start_time = self._config[CONFIG_TARGET_START_TIME]
