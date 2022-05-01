@@ -38,6 +38,36 @@ from .utils import get_active_tariff_code
 
 _LOGGER = logging.getLogger(__name__)
 
+def validate_target_rate_sensor(data):
+  errors = {}
+
+  matches = re.search(REGEX_ENTITY_NAME, data[CONFIG_TARGET_NAME])
+  if matches == None:
+    errors[CONFIG_TARGET_NAME] = "invalid_target_name"
+
+  # For some reason float type isn't working properly - reporting user input malformed
+  matches = re.search(REGEX_HOURS, data[CONFIG_TARGET_HOURS])
+  if matches == None:
+    errors[CONFIG_TARGET_HOURS] = "invalid_target_hours"
+  else:
+    data[CONFIG_TARGET_HOURS] = float(data[CONFIG_TARGET_HOURS])
+    if data[CONFIG_TARGET_HOURS] % 0.5 != 0:
+      errors[CONFIG_TARGET_HOURS] = "invalid_target_hours"
+
+  if CONFIG_TARGET_START_TIME in data:
+    data[CONFIG_TARGET_START_TIME] = data[CONFIG_TARGET_START_TIME]
+    matches = re.search(REGEX_TIME, data[CONFIG_TARGET_START_TIME])
+    if matches == None:
+      errors[CONFIG_TARGET_START_TIME] = "invalid_target_time"
+
+  if CONFIG_TARGET_END_TIME in data:
+    data[CONFIG_TARGET_END_TIME] = data[CONFIG_TARGET_END_TIME]
+    matches = re.search(REGEX_TIME, data[CONFIG_TARGET_START_TIME])
+    if matches == None:
+      errors[CONFIG_TARGET_END_TIME] = "invalid_target_time"
+
+  return errors
+
 class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN): 
   """Config flow."""
 
@@ -62,7 +92,6 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     )
 
   async def async_setup_target_rate_schema(self):
-    # test
     client = self.hass.data[DOMAIN][DATA_CLIENT]
     account_info = await client.async_get_account(self.hass.data[DOMAIN][DATA_ACCOUNT_ID])
 
@@ -90,32 +119,8 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
   async def async_step_target_rate(self, user_input):
     """Setup a target based on the provided user input"""
-    errors = {}
-
-    matches = re.search(REGEX_ENTITY_NAME, user_input[CONFIG_TARGET_NAME])
-    if matches == None:
-      errors[CONFIG_TARGET_NAME] = "invalid_target_name"
-
-    # For some reason float type isn't working properly - reporting user input malformed
-    matches = re.search(REGEX_HOURS, user_input[CONFIG_TARGET_HOURS])
-    if matches == None:
-      errors[CONFIG_TARGET_HOURS] = "invalid_target_hours"
-    else:
-      user_input[CONFIG_TARGET_HOURS] = float(user_input[CONFIG_TARGET_HOURS])
-      if user_input[CONFIG_TARGET_HOURS] % 0.5 != 0:
-        errors[CONFIG_TARGET_HOURS] = "invalid_target_hours"
-
-    if CONFIG_TARGET_START_TIME in user_input:
-      user_input[CONFIG_TARGET_START_TIME] = user_input[CONFIG_TARGET_START_TIME]
-      matches = re.search(REGEX_TIME, user_input[CONFIG_TARGET_START_TIME])
-      if matches == None:
-        errors[CONFIG_TARGET_START_TIME] = "invalid_target_time"
-
-    if CONFIG_TARGET_END_TIME in user_input:
-      user_input[CONFIG_TARGET_END_TIME] = user_input[CONFIG_TARGET_END_TIME]
-      matches = re.search(REGEX_TIME, user_input[CONFIG_TARGET_START_TIME])
-      if matches == None:
-        errors[CONFIG_TARGET_END_TIME] = "invalid_target_time"
+    
+    errors = validate_target_rate_sensor(user_input)
 
     if len(errors) < 1:
       # Setup our targets sensor
@@ -169,6 +174,34 @@ class OptionsFlowHandler(OptionsFlow):
   def __init__(self, entry) -> None:
     self._entry = entry
 
+  async def __async_setup_target_rate_schema(self, config, errors):
+    client = self.hass.data[DOMAIN][DATA_CLIENT]
+    account_info = await client.async_get_account(self.hass.data[DOMAIN][DATA_ACCOUNT_ID])
+
+    meters = []
+    now = utcnow()
+    if len(account_info["electricity_meter_points"]) > 0:
+      for point in account_info["electricity_meter_points"]:
+        active_tariff_code = get_active_tariff_code(now, point["agreements"])
+        if active_tariff_code != None:
+          meters.append(point["mpan"])
+
+    if (CONFIG_TARGET_MPAN not in config):
+      config[CONFIG_TARGET_MPAN] = meters[0]
+    
+    return self.async_show_form(
+      step_id="target_rate",
+      data_schema=vol.Schema({
+        vol.Required(CONFIG_TARGET_HOURS, default=f'{config[CONFIG_TARGET_HOURS]}'): str,
+        vol.Required(CONFIG_TARGET_MPAN, default=config[CONFIG_TARGET_MPAN]): vol.In(
+          meters
+        ),
+        vol.Optional(CONFIG_TARGET_START_TIME, default=config[CONFIG_TARGET_START_TIME]): str,
+        vol.Optional(CONFIG_TARGET_END_TIME, default=config[CONFIG_TARGET_END_TIME]): str,
+      }),
+      errors=errors
+    )
+
   async def async_step_init(self, user_input):
     """Manage the options for the custom component."""
 
@@ -187,6 +220,12 @@ class OptionsFlowHandler(OptionsFlow):
           vol.Required(CONFIG_SMETS1, default=is_smets1): bool,
         })
       )
+    elif CONFIG_TARGET_TYPE in self._entry.data:
+      config = dict(self._entry.data)
+      if self._entry.options is not None:
+        config.update(self._entry.options)
+      
+      return await self.__async_setup_target_rate_schema(config, {})
 
     return self.async_abort(reason="not_supported")
 
@@ -196,6 +235,22 @@ class OptionsFlowHandler(OptionsFlow):
     if user_input is not None:
       config = dict(self._entry.data)
       config.update(user_input)
+      return self.async_create_entry(title="", data=config)
+
+    return self.async_abort(reason="not_supported")
+
+  async def async_step_target_rate(self, user_input):
+    """Manage the options for the custom component."""
+
+    if user_input is not None:
+      config = dict(self._entry.data)
+      config.update(user_input)
+
+      errors = validate_target_rate_sensor(config)
+
+      if (len(errors) > 0):
+        return await self.__async_setup_target_rate_schema(config, errors)
+
       return self.async_create_entry(title="", data=config)
 
     return self.async_abort(reason="not_supported")

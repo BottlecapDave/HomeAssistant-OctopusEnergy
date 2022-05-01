@@ -45,7 +45,10 @@ async def async_setup_entry(hass, entry, async_add_entities):
   return True
 
 async def async_setup_target_sensors(hass, entry, async_add_entities):
-  config = entry.data
+  config = dict(entry.data)
+
+  if entry.options:
+    config.update(entry.options)
   
   coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR]
 

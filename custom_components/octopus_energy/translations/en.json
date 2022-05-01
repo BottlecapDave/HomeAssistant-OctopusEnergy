@@ -43,6 +43,16 @@
           "Api key": "Api key",
           "SMETS1": "Is SMETS1 Gas Meter"
         }
+      },
+      "target_rate": {
+        "title": "Update Target Rate",
+        "description": "Update the settings for your target rate sensor, which can be used to help you save energy and money.",
+        "data": {
+          "Hours": "The hours you require.",
+          "MPAN": "The MPAN number of the meter to apply the target to",
+          "Start time": "The minimum time to start the device",
+          "End time": "The maximum time to stop the device"
+        }
       }
     },
     "error": {
