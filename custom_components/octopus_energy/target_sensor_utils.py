@@ -1,8 +1,9 @@
 from datetime import timedelta
 import math
 from homeassistant.util.dt import (as_utc, parse_datetime)
+from .utils import (apply_offset)
 
-def __get_applicable_rates(current_date, target_start_time, target_end_time, rates):
+def __get_applicable_rates(current_date, target_start_time, target_end_time, rates, target_start_offset):
   if target_end_time != None:
     # Get the target end for today. If this is in the past, then look at tomorrow
     target_end = parse_datetime(current_date.strftime(f"%Y-%m-%dT{target_end_time}:00%z"))
@@ -28,6 +29,10 @@ def __get_applicable_rates(current_date, target_start_time, target_end_time, rat
   if (target_start < current_date):
     target_start = current_date
 
+  # Apply our offset so we make sure our target turns on within the specified timeframe
+  if (target_start_offset != None):
+    target_start = apply_offset(target_start, target_start_offset, True)
+
   # Convert our target start/end timestamps to UTC as this is what our rates are in
   target_start = as_utc(target_start)
   if target_end is not None:
@@ -48,8 +53,8 @@ def __get_rate(rate):
 def __get_valid_to(rate):
   return rate["valid_to"]
 
-def calculate_continuous_times(current_date, target_start_time, target_end_time, target_hours, rates):
-  applicable_rates = __get_applicable_rates(current_date, target_start_time, target_end_time, rates)
+def calculate_continuous_times(current_date, target_start_time, target_end_time, target_hours, rates, target_start_offset = None):
+  applicable_rates = __get_applicable_rates(current_date, target_start_time, target_end_time, rates, target_start_offset)
   applicable_rates_count = len(applicable_rates)
   total_required_rates = math.ceil(target_hours * 2)
 
@@ -81,8 +86,8 @@ def calculate_continuous_times(current_date, target_start_time, target_end_time,
   
   return []
 
-def calculate_intermittent_times(current_date, target_start_time, target_end_time, target_hours, rates):
-  applicable_rates = __get_applicable_rates(current_date, target_start_time, target_end_time, rates)
+def calculate_intermittent_times(current_date, target_start_time, target_end_time, target_hours, rates, target_start_offset = None):
+  applicable_rates = __get_applicable_rates(current_date, target_start_time, target_end_time, rates, target_start_offset)
   total_required_rates = math.ceil(target_hours * 2)
 
   applicable_rates.sort(key=__get_rate)
@@ -95,7 +100,7 @@ def calculate_intermittent_times(current_date, target_start_time, target_end_tim
   applicable_rates.sort(key=__get_valid_to)
   return applicable_rates
 
-def is_target_rate_active(current_date, applicable_rates):
+def is_target_rate_active(current_date, applicable_rates, offset = None):
   is_active = False
   next_time = None
   total_applicable_rates = len(applicable_rates)
@@ -105,7 +110,14 @@ def is_target_rate_active(current_date, applicable_rates):
       next_time = applicable_rates[0]["valid_from"]
 
     for index, rate in enumerate(applicable_rates):
-      if current_date >= rate["valid_from"] and current_date <= rate["valid_to"]:
+      if (offset != None):
+        valid_from = apply_offset(rate["valid_from"], offset)
+        valid_to = apply_offset(rate["valid_to"], offset)
+      else:
+        valid_from = rate["valid_from"]
+        valid_to = rate["valid_to"]
+
+      if current_date >= valid_from and current_date <= valid_to:
         is_active = True
 
         next_index = index + 1

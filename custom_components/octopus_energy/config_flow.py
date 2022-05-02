@@ -20,6 +20,7 @@ from .const import (
   CONFIG_TARGET_END_TIME,
   CONFIG_TARGET_TYPE,
   CONFIG_TARGET_MPAN,
+  CONFIG_TARGET_OFFSET,
 
   CONFIG_SMETS1,
 
@@ -29,7 +30,8 @@ from .const import (
 
   REGEX_TIME,
   REGEX_ENTITY_NAME,
-  REGEX_HOURS
+  REGEX_HOURS,
+  REGEX_OFFSET_PARTS,
 )
 
 from .api_client import OctopusEnergyApiClient
@@ -55,16 +57,19 @@ def validate_target_rate_sensor(data):
       errors[CONFIG_TARGET_HOURS] = "invalid_target_hours"
 
   if CONFIG_TARGET_START_TIME in data:
-    data[CONFIG_TARGET_START_TIME] = data[CONFIG_TARGET_START_TIME]
     matches = re.search(REGEX_TIME, data[CONFIG_TARGET_START_TIME])
     if matches == None:
       errors[CONFIG_TARGET_START_TIME] = "invalid_target_time"
 
   if CONFIG_TARGET_END_TIME in data:
-    data[CONFIG_TARGET_END_TIME] = data[CONFIG_TARGET_END_TIME]
-    matches = re.search(REGEX_TIME, data[CONFIG_TARGET_START_TIME])
+    matches = re.search(REGEX_TIME, data[CONFIG_TARGET_END_TIME])
     if matches == None:
       errors[CONFIG_TARGET_END_TIME] = "invalid_target_time"
+
+  if CONFIG_TARGET_OFFSET in data:
+    matches = re.search(REGEX_OFFSET_PARTS, data[CONFIG_TARGET_OFFSET])
+    if matches == None:
+      errors[CONFIG_TARGET_OFFSET] = "invalid_offset"
 
   return errors
 
@@ -115,6 +120,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       ),
       vol.Optional(CONFIG_TARGET_START_TIME): str,
       vol.Optional(CONFIG_TARGET_END_TIME): str,
+      vol.Optional(CONFIG_TARGET_OFFSET): str,
     })
 
   async def async_step_target_rate(self, user_input):
@@ -188,6 +194,10 @@ class OptionsFlowHandler(OptionsFlow):
 
     if (CONFIG_TARGET_MPAN not in config):
       config[CONFIG_TARGET_MPAN] = meters[0]
+
+    offset = None
+    if (CONFIG_TARGET_OFFSET in config):
+      offset = config[CONFIG_TARGET_OFFSET]
     
     return self.async_show_form(
       step_id="target_rate",
@@ -198,6 +208,7 @@ class OptionsFlowHandler(OptionsFlow):
         ),
         vol.Optional(CONFIG_TARGET_START_TIME, default=config[CONFIG_TARGET_START_TIME]): str,
         vol.Optional(CONFIG_TARGET_END_TIME, default=config[CONFIG_TARGET_END_TIME]): str,
+        vol.Optional(CONFIG_TARGET_OFFSET, default=offset): str,
       }),
       errors=errors
     )

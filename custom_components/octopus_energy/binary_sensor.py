@@ -1,6 +1,7 @@
 from datetime import timedelta
 import math
 import logging
+from custom_components.octopus_energy.utils import apply_offset
 
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.util.dt import (utcnow, now, as_utc, parse_datetime)
@@ -11,6 +12,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
 from .const import (
+  CONFIG_TARGET_OFFSET,
   DOMAIN,
 
   CONFIG_TARGET_NAME,
@@ -90,6 +92,11 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
   def is_on(self):
     """The state of the sensor."""
 
+    if CONFIG_TARGET_OFFSET in self._config:
+      offset = self._config[CONFIG_TARGET_OFFSET]
+    else:
+      offset = None
+
     # Find the current rate. Rates change a maximum of once every 30 minutes.
     current_date = utcnow()
     if (current_date.minute % 30) == 0 or len(self._target_rates) == 0:
@@ -126,7 +133,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
             start_time,
             end_time,
             float(self._config[CONFIG_TARGET_HOURS]),
-            all_rates
+            all_rates,
+            offset
           )
         elif (self._config[CONFIG_TARGET_TYPE] == "Intermittent"):
           self._target_rates = calculate_intermittent_times(
@@ -134,14 +142,19 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
             start_time,
             end_time,
             float(self._config[CONFIG_TARGET_HOURS]),
-            all_rates
+            all_rates,
+            offset
           )
         else:
           _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")
 
         self._attributes["target_times"] = self._target_rates
 
-    active_result = is_target_rate_active(current_date, self._target_rates)
-    self._attributes["next_time"] = active_result["next_time"]
+    active_result = is_target_rate_active(current_date, self._target_rates, offset)
+
+    if offset != None and active_result["next_time"] != None:
+      self._attributes["next_time"] = apply_offset(active_result["next_time"], offset)
+    else:
+      self._attributes["next_time"] = active_result["next_time"]
 
     return active_result["is_active"]

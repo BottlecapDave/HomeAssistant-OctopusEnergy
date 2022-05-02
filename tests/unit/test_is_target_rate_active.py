@@ -89,3 +89,70 @@ async def test_when_called_after_rates_then_not_active_returned():
   assert result != None
   assert result["is_active"] == False
   assert result["next_time"] == None
+
+@pytest.mark.asyncio
+async def test_when_offset_set_and_current_date_in_non_offset_rate_then_not_active():
+  # Arrange
+  period_from = datetime.strptime("2022-02-09T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  expected_rates = [0.1, 0.2]
+  offset = "-01:00:00"
+
+  rates = create_rate_data(
+    period_from,
+    period_to,
+    expected_rates
+  )
+
+  rates = rates[0:2]
+
+  # Attempt where the current date should be within a rate
+  current_date = period_from + timedelta(minutes=15)
+
+  result = is_target_rate_active(
+    current_date,
+    rates,
+    offset
+  )
+
+  assert result != None
+  assert result["is_active"] == False
+  assert result["next_time"] == None
+
+@pytest.mark.asyncio
+async def test_when_offset_set_and_current_date_in_offset_rate_then_active():
+  # Arrange
+  period_from = datetime.strptime("2022-02-09T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  expected_rates = [0.1, 0.2]
+  offset = "-01:00:00"
+
+  rates = create_rate_data(
+    period_from,
+    period_to,
+    expected_rates
+  )
+
+  rates = rates[0:2]
+
+  # Attempt where the current date should be within a rate
+  current_date = period_from + timedelta(minutes=15)
+
+  result = is_target_rate_active(
+    current_date,
+    rates,
+    offset
+  )
+
+  # Attempt where the current date should be within a rate with the offset applied
+  current_date = period_from - timedelta(minutes=45)
+
+  result = is_target_rate_active(
+    current_date,
+    rates,
+    offset
+  )
+
+  assert result != None
+  assert result["is_active"] == True
+  assert result["next_time"] == datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
