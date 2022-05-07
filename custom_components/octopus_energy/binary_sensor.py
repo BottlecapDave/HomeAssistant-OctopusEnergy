@@ -1,6 +1,7 @@
 from datetime import timedelta
 import math
 import logging
+from custom_components.octopus_energy.utils import apply_offset
 
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.util.dt import (utcnow, now, as_utc, parse_datetime)
@@ -11,6 +12,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
 from .const import (
+  CONFIG_TARGET_OFFSET,
   DOMAIN,
 
   CONFIG_TARGET_NAME,
@@ -21,6 +23,12 @@ from .const import (
   CONFIG_TARGET_MPAN,
 
   DATA_ELECTRICITY_RATES_COORDINATOR
+)
+
+from .target_sensor_utils import (
+  calculate_continuous_times,
+  calculate_intermittent_times,
+  is_target_rate_active
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -39,7 +47,10 @@ async def async_setup_entry(hass, entry, async_add_entities):
   return True
 
 async def async_setup_target_sensors(hass, entry, async_add_entities):
-  config = entry.data
+  config = dict(entry.data)
+
+  if entry.options:
+    config.update(entry.options)
   
   coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR]
 
@@ -54,7 +65,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     super().__init__(coordinator)
 
     self._config = config
-    self._attributes = config
+    self._attributes = self._config.copy()
     self._target_rates = []
 
   @property
@@ -81,6 +92,11 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
   def is_on(self):
     """The state of the sensor."""
 
+    if CONFIG_TARGET_OFFSET in self._config:
+      offset = self._config[CONFIG_TARGET_OFFSET]
+    else:
+      offset = None
+
     # Find the current rate. Rates change a maximum of once every 30 minutes.
     current_date = utcnow()
     if (current_date.minute % 30) == 0 or len(self._target_rates) == 0:
@@ -94,114 +110,51 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
           break
       
       if all_rates_in_past:
+        # Retrieve our rates. For backwards compatibility, if there is only one rate or CONFIG_TARGET_MPAN
+        # is not set, then pick the first set
+        if self.coordinator.data != None:
+          all_rates = self.coordinator.data
+          if len(all_rates) == 1 or CONFIG_TARGET_MPAN not in self._config:
+            all_rates = next(iter(all_rates.values()))
+          else: 
+            all_rates = all_rates.get(self._config[CONFIG_TARGET_MPAN])
+        else:
+          all_rates = []
+
+        if CONFIG_TARGET_START_TIME in self._config:
+          start_time = self._config[CONFIG_TARGET_START_TIME]
+
+        if CONFIG_TARGET_END_TIME in self._config:
+          end_time = self._config[CONFIG_TARGET_END_TIME]
+
         if (self._config[CONFIG_TARGET_TYPE] == "Continuous"):
-          self._target_rates = self.calculate_continuous_times()
+          self._target_rates = calculate_continuous_times(
+            now(),
+            start_time,
+            end_time,
+            float(self._config[CONFIG_TARGET_HOURS]),
+            all_rates,
+            offset
+          )
         elif (self._config[CONFIG_TARGET_TYPE] == "Intermittent"):
-          self._target_rates = self.calculate_intermittent_times()
+          self._target_rates = calculate_intermittent_times(
+            now(),
+            start_time,
+            end_time,
+            float(self._config[CONFIG_TARGET_HOURS]),
+            all_rates,
+            offset
+          )
         else:
           _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")
 
-      attributes = self._config.copy()
-      self._target_rates.sort(key=self.get_valid_to)
-      attributes["Target times"] = self._target_rates
+        self._attributes["target_times"] = self._target_rates
 
-      if (len(self._target_rates) > 0):
-        attributes["Next time"] = self._target_rates[0]["valid_from"]
-      else:
-        attributes["Next time"] = None
+    active_result = is_target_rate_active(current_date, self._target_rates, offset)
 
-      self._attributes = attributes
-
-    for rate in self._target_rates:
-      if current_date >= rate["valid_from"] and current_date <= rate["valid_to"]:
-        return True
-
-    return False
-
-  def get_valid_to(self, rate):
-    return rate["valid_to"]
-
-  def get_applicable_rates(self):
-    current_date = now()
-
-    if CONFIG_TARGET_END_TIME in self._config:
-      # Get the target end for today. If this is in the past, then look at tomorrow
-      target_end = parse_datetime(current_date.strftime(f"%Y-%m-%dT{self._config[CONFIG_TARGET_END_TIME]}:00%z"))
-      if (target_end < current_date):
-        target_end = target_end + timedelta(days=1)
+    if offset != None and active_result["next_time"] != None:
+      self._attributes["next_time"] = apply_offset(active_result["next_time"], offset)
     else:
-      target_end = None
+      self._attributes["next_time"] = active_result["next_time"]
 
-    if CONFIG_TARGET_START_TIME in self._config:
-      # Get the target start on the same day as our target end. If this is after our target end (which can occur if we're looking for
-      # a time over night), then go back a day
-      target_start = parse_datetime(target_end.strftime(f"%Y-%m-%dT{self._config[CONFIG_TARGET_START_TIME]}:00%z"))
-      if (target_start > target_end):
-        target_start = target_start - timedelta(days=1)
-
-      # If our start date has passed, reset it to current_date to avoid picking a slot in the past
-      if (target_start < current_date):
-        target_start = current_date
-    else:
-      target_start = current_date
-
-    # Convert our target start/end timestamps to UTC as this is what our rates are in
-    target_start = as_utc(target_start)
-    if target_end is not None:
-      target_end = as_utc(target_end)
-
-    # Retrieve the rates that are applicable for our target rate
-    rates = []
-    if self.coordinator.data != None:
-      ratesData = self.coordinator.data
-      if len(ratesData) == 1:
-        rateData = next(iter(ratesData.values()))
-      else: 
-        rateData = ratesData.get(self._config[CONFIG_TARGET_MPAN])
-      if rateData != None:
-        for rate in rateData:
-          if rate["valid_from"] >= target_start and (target_end == None or rate["valid_to"] <= target_end):
-            rates.append(rate)
-
-    return rates
-    
-  def calculate_continuous_times(self):
-    rates = self.get_applicable_rates()
-    rates_count = len(rates)
-    total_required_rates = math.ceil(float(self._config[CONFIG_TARGET_HOURS]) * 2)
-
-    best_continuous_rates = None
-    best_continuous_rates_total = None
-
-    # Loop through our rates and try and find the block of time that meets our desired
-    # hours and has the lowest combined rates
-    for index, rate in enumerate(rates):
-      continuous_rates = [rate]
-      continuous_rates_total = rate["value_inc_vat"]
-      
-      for offset in range(1, total_required_rates):
-        if (index + offset) < rates_count:
-          offset_rate = rates[(index + offset)]
-          continuous_rates.append(offset_rate)
-          continuous_rates_total += offset_rate["value_inc_vat"]
-        else:
-          break
-      
-      if ((best_continuous_rates == None or continuous_rates_total < best_continuous_rates_total) and len(continuous_rates) == total_required_rates):
-        best_continuous_rates = continuous_rates
-        best_continuous_rates_total = continuous_rates_total
-
-    if best_continuous_rates is not None:
-      return best_continuous_rates
-    
-    return []
-
-  def get_rate(self, rate):
-    return rate["value_inc_vat"]
-  
-  def calculate_intermittent_times(self):
-    rates = self.get_applicable_rates()
-    total_required_rates = math.ceil(float(self._config[CONFIG_TARGET_HOURS]) * 2)
-
-    rates.sort(key=self.get_rate)
-    return rates[:total_required_rates]
+    return active_result["is_active"]

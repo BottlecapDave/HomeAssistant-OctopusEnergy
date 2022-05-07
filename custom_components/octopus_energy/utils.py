@@ -1,9 +1,11 @@
-from homeassistant.util.dt import (utcnow, as_utc, parse_datetime)
+from datetime import timedelta
+from homeassistant.util.dt import (as_utc, parse_datetime)
 
 import re
 
 from .const import (
-  REGEX_TARIFF_PARTS
+  REGEX_TARIFF_PARTS,
+  REGEX_OFFSET_PARTS,
 )
 
 def get_tariff_parts(tariff_code):
@@ -26,7 +28,6 @@ def get_tariff_parts(tariff_code):
   }
 
 def get_active_tariff_code(utcnow, agreements):
-
   latest_agreement = None
   latest_valid_from = None
 
@@ -48,3 +49,19 @@ def get_active_tariff_code(utcnow, agreements):
     return latest_agreement["tariff_code"]
   
   return None
+
+def apply_offset(date_time, offset, inverse = False):
+  matches = re.search(REGEX_OFFSET_PARTS, offset)
+  if matches == None:
+    raise Exception(f'Unable to extract offset: {offset}')
+
+  symbol = matches[1]
+  hours = float(matches[2])
+  minutes = float(matches[3])
+  seconds = float(matches[4])
+
+  if ((symbol == "-" and inverse == False) or (symbol != "-" and inverse == True)):
+    return date_time - timedelta(hours=hours, minutes=minutes, seconds=seconds)
+  
+  return date_time + timedelta(hours=hours, minutes=minutes, seconds=seconds)
+    
