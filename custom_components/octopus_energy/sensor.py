@@ -638,8 +638,7 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, SensorEntit
     """Retrieve the previous days accumulative consumption"""
     consumption = calculate_gas_consumption(
       self.coordinator.data,
-      self._latest_date,
-      self._is_smets1_meter
+      self._latest_date
     )
 
     if (consumption != None):

@@ -156,17 +156,10 @@ async def test_when_gas_consumption_available_then_calculation_returned(is_smets
     
     assert consumption_cost["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
     
-    # Check that for SMETS2 meters, we convert the data from m3 to kwh
-    if is_smets1_meter:
-      
-      # Total is reported in pounds and pence, but rate prices are in pence, so we need to calculate our expected value
-      assert consumption_cost["total_without_standing_charge"] == round((48 * expected_rate_price) / 100, 2)
-      assert consumption_cost["total"] == round(((48 * expected_rate_price) + expected_standing_charge["value_inc_vat"]) / 100, 2)
-    else:
-      # Total is reported in pounds and pence, but rate prices are in pence, so we need to calculate our expected value
-      expected_total_values = 11.363
-      assert consumption_cost["total_without_standing_charge"] == round((expected_total_values * 48 * expected_rate_price) / 100, 2)
-      assert consumption_cost["total"] == round(((expected_total_values * 48 * expected_rate_price) + expected_standing_charge["value_inc_vat"]) / 100, 2)
+    # Total is reported in pounds and pence, but rate prices are in pence, so we need to calculate our expected value
+    expected_total_values = 11.363
+    assert consumption_cost["total_without_standing_charge"] == round((expected_total_values * 48 * expected_rate_price) / 100, 2)
+    assert consumption_cost["total"] == round(((expected_total_values * 48 * expected_rate_price) + expected_standing_charge["value_inc_vat"]) / 100, 2)
 
     # Make sure our data is returned in 30 minute increments
     expected_valid_from = period_from
@@ -241,8 +234,9 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
     assert consumption_cost["standing_charge"] == expected_standing_charge["value_inc_vat"]
 
     # Total is reported in pounds and pence, but rate prices are in pence, so we need to calculate our expected value
-    assert consumption_cost["total_without_standing_charge"] == round((48 * expected_rate_price) / 100, 2)
-    assert consumption_cost["total"] == round(((48 * expected_rate_price) + expected_standing_charge["value_inc_vat"]) / 100, 2)
+    expected_total_values = 11.363
+    assert consumption_cost["total_without_standing_charge"] == round((expected_total_values * 48 * expected_rate_price) / 100, 2)
+    assert consumption_cost["total"] == round(((expected_total_values * 48 * expected_rate_price) + expected_standing_charge["value_inc_vat"]) / 100, 2)
 
     # Make sure our data is returned in 30 minute increments
     expected_valid_from = period_from
