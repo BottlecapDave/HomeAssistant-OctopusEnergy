@@ -114,18 +114,12 @@ async def async_calculate_electricity_cost(client: OctopusEnergyApiClient, consu
         }
 
 # Adapted from https://www.theenergyshop.com/guides/how-to-convert-gas-units-to-kwh
-def convert_kwh_to_m3(value):
-  m3_value = value * 3.6 # kWh Conversion factor
-  m3_value = m3_value / 40 # Calorific value
-  return round(m3_value / 1.02264, 3) # Volume correction factor
-
-# Adapted from https://www.theenergyshop.com/guides/how-to-convert-gas-units-to-kwh
 def convert_m3_to_kwh(value):
   kwh_value = value * 1.02264 # Volume correction factor
   kwh_value = kwh_value * 40.0 # Calorific value
   return round(kwh_value / 3.6, 3) # kWh Conversion factor
 
-def calculate_gas_consumption(consumption_data, last_calculated_timestamp, is_smets1_meter):
+def calculate_gas_consumption(consumption_data, last_calculated_timestamp):
   if (consumption_data != None and len(consumption_data) > 0):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
@@ -140,12 +134,11 @@ def calculate_gas_consumption(consumption_data, last_calculated_timestamp, is_sm
         current_consumption_kwh = 0
 
         current_consumption = consumption["consumption"]
-        if is_smets1_meter:
-          current_consumption_m3 = convert_kwh_to_m3(current_consumption)
-          current_consumption_kwh = current_consumption
-        else:
-          current_consumption_m3 = current_consumption
-          current_consumption_kwh = convert_m3_to_kwh(current_consumption)
+        
+        # Despite what the documentation (https://developer.octopus.energy/docs/api/#consumption) states, after a few emails with 
+        # Octopus Energy and personal experience, gas data is always reported in m3
+        current_consumption_m3 = current_consumption
+        current_consumption_kwh = convert_m3_to_kwh(current_consumption)
 
         total_m3 = total_m3 + current_consumption_m3
         total_kwh = total_kwh + current_consumption_kwh
@@ -184,10 +177,9 @@ async def async_calculate_gas_cost(client: OctopusEnergyApiClient, consumption_d
         for consumption in sorted_consumption_data:
           value = consumption["consumption"]
 
-          # According to https://developer.octopus.energy/docs/api/#consumption, SMETS2 sensors are reported in m3,
-          # so we need to convert to kWh before we calculate the cost
-          if sensor["is_smets1_meter"] != True:
-            value = convert_m3_to_kwh(value)
+          # Despite what the documentation (https://developer.octopus.energy/docs/api/#consumption) states, after a few emails with 
+          # Octopus Energy and personal experience, gas data is always reported in m3. So we need to convert to kWh before we calculate the cost
+          value = convert_m3_to_kwh(value)
 
           consumption_from = consumption["interval_start"]
           consumption_to = consumption["interval_end"]

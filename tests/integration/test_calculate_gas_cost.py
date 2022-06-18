@@ -62,13 +62,8 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
   assert consumption_cost["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
   assert consumption_cost["standing_charge"] == standard_charge_result["value_inc_vat"]
   
-  # Check that for SMETS2 meters, we convert the data from m3 to kwh
-  if is_smets1_meter:
-    assert consumption_cost["total_without_standing_charge"] == 0.25
-    assert consumption_cost["total"] == 0.52
-  else:
-    assert consumption_cost["total_without_standing_charge"] == 2.88
-    assert consumption_cost["total"] == 3.14
+  assert consumption_cost["total_without_standing_charge"] == 2.88
+  assert consumption_cost["total"] == 3.14
 
   assert len(consumption_cost["charges"]) == 48
 

@@ -44,6 +44,14 @@ If you go through the [setup](https://my.home-assistant.io/redirect/config_flow_
 
 Each sensor will be in the form `binary_sensor.octopus_energy_target_{{TARGET_RATE_NAME}}`.
 
+#### Minimum and Maximum times
+
+If you're wanting your devices to come on during a certain period, you can set the minimum and maximum times in your target rate sensor. These are specified in 24 hour clock format and will attempt to find the lowest intensity forecasts during these times.
+
+#### Offset
+
+You may want your target rate sensors to turn on a period of time before optimum discovered period. For instance, you may be turning on a robot vacuum cleaner and want it to charge during the optimum period. For this, you'd use the `offset` field, which can be both positive and negative and go up to a maximum of 24 hours.
+
 ### Gas Meters
 
 When you sign into your account, if you have gas meters, we'll setup some sensors for you. However, the way these sensors report data isn't consistent between versions of the meters, and Octopus Energy doesn't expose what type of meter you have. Therefore, you have to toggle the checkbox when setting up your initial account within HA. If you've already setup your account, you can update this via the `Configure` option within the integrations configuration. This is a global setting, and therefore will apply to **all** gas meters.
