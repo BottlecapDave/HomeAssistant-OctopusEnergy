@@ -10,6 +10,10 @@ You should take the latest published [release](https://github.com/BottlecapDave/
 
 To install, place the contents of `custom_components` into the `<config directory>/custom_components` folder of your Home Assistant installation.
 
+### HACS
+
+While the integration isn't available in the HACS store yet, you can install it as a [custom repository](https://hacs.xyz/docs/faq/custom_repositories), providing the url `https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy`.
+
 ## How to setup
 
 Setup is done entirely via the [integration UI](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
@@ -65,7 +69,7 @@ The integration only looks at the first property associated with your account th
 ```yaml
 logger:
   logs:
-    custom_components.octopus_energy: info
+    custom_components.octopus_energy: debug
 ```
 
 If you don't have access to this file, then you should be able to set the log levels using the [available services](https://www.home-assistant.io/integrations/logger/).
