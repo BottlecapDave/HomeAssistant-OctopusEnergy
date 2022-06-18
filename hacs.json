@@ -1,10 +1,6 @@
 {
   "name": "Octopus Energy",
   "content_in_root": false,
-  "domains": [
-    "binary_sensor",
-    "sensor"
-  ],
   "country": [
     "gb"
   ]
