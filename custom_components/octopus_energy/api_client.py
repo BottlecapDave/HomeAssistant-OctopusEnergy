@@ -93,7 +93,7 @@ class OctopusEnergyApiClient:
 
     # Because we retrieve our day and night periods separately over a 2 day period, we need to sort our rates 
     results.sort(key=self.__get_valid_from)
-    _LOGGER.error(results)
+    _LOGGER.debug(results)
 
     return results
 
@@ -250,7 +250,7 @@ class OctopusEnergyApiClient:
     from_date_time = as_local(parse_datetime(rate_local_valid_from.strftime(f"%Y-%m-%dT{target_from_time}{local_now.strftime('%z')}")))
     to_date_time = as_local(parse_datetime(rate_local_valid_from.strftime(f"%Y-%m-%dT{target_to_time}{local_now.strftime('%z')}")))
 
-    _LOGGER.error('is_valid: %s; from_date_time: %s; to_date_time: %s; rate_local_valid_from: %s; rate_local_valid_to: %s', rate_local_valid_from >= from_date_time and rate_local_valid_from < to_date_time, from_date_time, to_date_time, rate_local_valid_from, rate_local_valid_to)
+    _LOGGER.debug('is_valid: %s; from_date_time: %s; to_date_time: %s; rate_local_valid_from: %s; rate_local_valid_to: %s', rate_local_valid_from >= from_date_time and rate_local_valid_from < to_date_time, from_date_time, to_date_time, rate_local_valid_from, rate_local_valid_to)
 
     return rate_local_valid_from >= from_date_time and rate_local_valid_from < to_date_time
 
