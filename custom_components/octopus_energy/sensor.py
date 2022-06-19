@@ -223,9 +223,15 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, SensorEntity):
               break
 
       if current_rate != None:
+        ratesAttributes = list(map(lambda x: {
+          "from": x["valid_from"],
+          "to":   x["valid_to"],
+          "rate": x["value_inc_vat"]
+        }, rate))
         self._attributes = {
           "rate": current_rate,
-          "is_export": self._is_export
+          "is_export": self._is_export,
+          "rates": ratesAttributes
         }
         
         self._state = current_rate["value_inc_vat"] / 100
