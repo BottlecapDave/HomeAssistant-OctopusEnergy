@@ -12,7 +12,7 @@ To install, place the contents of `custom_components` into the `<config director
 
 ### HACS
 
-While the integration isn't available in the HACS store yet, you can install it as a [custom repository](https://hacs.xyz/docs/faq/custom_repositories), providing the url `https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy`.
+While the integration isn't available in the HACS store yet, you can install it as a [custom repository](https://hacs.xyz/docs/faq/custom_repositories), providing the url `https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy` and category of `integration`.
 
 ## How to setup
 
