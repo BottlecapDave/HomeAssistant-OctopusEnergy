@@ -1,8 +1,4 @@
 {
   "name": "Octopus Energy",
-  "content_in_root": false,
-  "country": [
-    "gb"
-  ],
   "render_readme": true
 }
