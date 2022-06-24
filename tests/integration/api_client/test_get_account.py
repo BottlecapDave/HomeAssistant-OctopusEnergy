@@ -27,6 +27,12 @@ async def test_when_get_account_is_called_then_electricity_and_gas_points_return
     assert len(meter_point["meters"]) == 1
     meter = meter_point["meters"][0]
     assert meter["serial_number"] == context["electricity_serial_number"]
+
+    assert "agreements" in meter_point
+    assert len(meter_point["agreements"]) == 1
+    assert "tariff_code" in meter_point["agreements"][0]
+    assert "valid_from" in meter_point["agreements"][0]
+    assert "valid_to" in meter_point["agreements"][0]
     
     assert "gas_meter_points" in account
     assert len(account["gas_meter_points"]) == 1
@@ -36,3 +42,9 @@ async def test_when_get_account_is_called_then_electricity_and_gas_points_return
     assert len(meter_point["meters"]) == 1
     meter = meter_point["meters"][0]
     assert meter["serial_number"] == context["gas_serial_number"]
+
+    assert "agreements" in meter_point
+    assert len(meter_point["agreements"]) == 1
+    assert "tariff_code" in meter_point["agreements"][0]
+    assert "valid_from" in meter_point["agreements"][0]
+    assert "valid_to" in meter_point["agreements"][0]
