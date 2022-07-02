@@ -10,6 +10,64 @@ from .utils import (
 
 _LOGGER = logging.getLogger(__name__)
 
+api_token_query = '''mutation {{
+	obtainKrakenToken(input: {{ APIKey: "{api_key}" }}) {{
+		token
+	}}
+}}'''
+
+account_query = '''query {{
+  account(accountNumber: "{account_id}") {{
+    electricityAgreements(active: true) {{
+			meterPoint {{
+				mpan
+				meters(includeInactive: false) {{
+					serialNumber
+          smartExportElectricityMeter {{
+						deviceId
+					}}
+				}}
+				agreements {{
+					validFrom
+					validTo
+					tariff {{
+						...on StandardTariff {{
+							tariffCode
+						}}
+						...on DayNightTariff {{
+							tariffCode
+						}}
+						...on ThreeRateTariff {{
+							tariffCode
+						}}
+						...on HalfHourlyTariff {{
+							tariffCode
+						}}
+            ...on PrepayTariff {{
+							tariffCode
+						}}
+					}}
+				}}
+			}}
+    }}
+    gasAgreements(active: true) {{
+			meterPoint {{
+				mprn
+				meters(includeInactive: false) {{
+					serialNumber
+				}}
+				agreements {{
+					validFrom
+					validTo
+					tariff {{
+						tariffCode
+					}}
+				}}
+			}}
+    }}
+  }}
+}}'''
+
 class OctopusEnergyApiClient:
 
   def __init__(self, api_key):
@@ -22,23 +80,51 @@ class OctopusEnergyApiClient:
   async def async_get_account(self, account_id):
     """Get the user's account"""
     async with aiohttp.ClientSession() as client:
-      auth = aiohttp.BasicAuth(self._api_key, '')
-      url = f'{self._base_url}/v1/accounts/{account_id}'
-      async with client.get(url, auth=auth) as response:
-        data = await self.__async_read_response(response, url, None)
-        if (data != None and "properties" in data):
-          # We're only supporting one property at the moment and we don't want to expose addresses
-          properties = data["properties"]
-          prop = next(current_prop for current_prop in properties if current_prop["moved_out_at"] == None)
-          if (prop == None):
-            raise Exception("Failed to find occupied property")
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": api_token_query.format(api_key=self._api_key) }
+      async with client.post(url, json=payload) as token_response:
+        token_response_body = await self.__async_read_response(token_response, url, None)
+        if (token_response_body != None and "data" in token_response_body):
+          token = token_response_body["data"]["obtainKrakenToken"]["token"]
 
-          return {
-            "electricity_meter_points": prop["electricity_meter_points"],
-            "gas_meter_points": prop["gas_meter_points"]
-          }
+          # Get account response
+          payload = { "query": account_query.format(account_id=account_id) }
+          headers = { "Authorization": f"JWT {token}" }
+          async with client.post(url, json=payload, headers=headers) as account_response:
+            account_response_body = await self.__async_read_response(account_response, url, None)
+            if (account_response_body != None and "data" in account_response_body):
+              return {
+                "electricity_meter_points": list(map(lambda mp: {
+                  "mpan": mp["meterPoint"]["mpan"],
+                  "meters": list(map(lambda m: {
+                    "serial_number": m["serialNumber"],
+                    "is_export": m["smartExportElectricityMeter"] != None,
+                  }, mp["meterPoint"]["meters"])),
+                  "agreements": list(map(lambda a: {
+                    "valid_from": a["validFrom"],
+                    "valid_to": a["validTo"],
+                    "tariff_code": a["tariff"]["tariffCode"],
+                  }, mp["meterPoint"]["agreements"]))
+                }, account_response_body["data"]["account"]["electricityAgreements"])),
+                "gas_meter_points": list(map(lambda mp: {
+                  "mprn": mp["meterPoint"]["mprn"],
+                  "meters": list(map(lambda m: {
+                    "serial_number": m["serialNumber"],
+                  }, mp["meterPoint"]["meters"])),
+                  "agreements": list(map(lambda a: {
+                    "valid_from": a["validFrom"],
+                    "valid_to": a["validTo"],
+                    "tariff_code": a["tariff"]["tariffCode"],
+                  }, mp["meterPoint"]["agreements"]))
+                }, account_response_body["data"]["account"]["gasAgreements"])),
+              }
+            else:
+              _LOGGER.error("Failed to retrieve account")
         
-        return None
+        else:
+          _LOGGER.error("Failed to retrieve auth token")
+    
+    return None
 
   async def async_get_electricity_standard_rates(self, product_code, tariff_code, period_from, period_to):
     """Get the current standard rates"""
