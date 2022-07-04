@@ -3,7 +3,6 @@
   "config": {
     "step": {
       "user": {
-        "title": "Octopus Energy",
         "description": "Setup your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
         "data": {
           "Api key": "Api key",
@@ -12,7 +11,6 @@
         }
       },
       "target_rate": {
-        "title": "Octopus Energy",
         "description": "Setup a target rate period. Continuous target will find the cheapest continuous period for your target hours. While intermittent will find the cheapest periods with potential gaps, which when combined will meet your target hours.",
         "data": {
           "entity_id": "The name of your target",

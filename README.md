@@ -6,9 +6,13 @@ Custom component built from the ground up to bring your Octopus Energy details i
 
 ## How to install
 
-You should take the latest published [release](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases). The current state of `develop` will be in flux and therefore possibly subject to change.
+You should take the latest [published release](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases). The current state of `develop` will be in flux and therefore possibly subject to change.
 
-To install, place the contents of `custom_components` into the `<config directory>/custom_components` folder of your Home Assistant installation.
+To install, place the contents of `custom_components` into the `<config directory>/custom_components` folder of your Home Assistant installation. Once installed, don't forget to restart your home assistant instance for the integration to be picked up.
+
+### HACS
+
+While the integration isn't available in the HACS store yet, you can install it as a [custom repository](https://hacs.xyz/docs/faq/custom_repositories), providing the url `https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy` and category of `integration`. Once installed, don't forget to restart your home assistant instance for the integration to be picked up.
 
 ## How to setup
 
@@ -40,17 +44,17 @@ Please note, that it's not possible to include current consumption sensors. This
 
 ### Target Rates
 
-If you go through the [setup](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy) process after you've configured your account, you can set up target rate sensors. These sensors calculate the lowest continuous or intermittent prices and turn on when these periods are active. These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money.
+If you go through the [setup](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy) process after you've configured your account, you can set up target rate sensors. These sensors calculate the lowest continuous or intermittent rates and turn on when these periods are active. These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money.
 
 Each sensor will be in the form `binary_sensor.octopus_energy_target_{{TARGET_RATE_NAME}}`.
 
 #### Minimum and Maximum times
 
-If you're wanting your devices to come on during a certain period, you can set the minimum and maximum times in your target rate sensor. These are specified in 24 hour clock format and will attempt to find the lowest intensity forecasts during these times.
+If you're wanting your devices to come on during a certain period, for example while you're at work, you can set the minimum and/or maximum times for your target rate sensor. These are specified in 24 hour clock format and will attempt to find the optimum discovered period during these times.
 
 #### Offset
 
-You may want your target rate sensors to turn on a period of time before optimum discovered period. For instance, you may be turning on a robot vacuum cleaner and want it to charge during the optimum period. For this, you'd use the `offset` field, which can be both positive and negative and go up to a maximum of 24 hours.
+You may want your target rate sensors to turn on a period of time before the optimum discovered period. For example, you may be turning on a robot vacuum cleaner for a 30 minute clean and want it to charge during the optimum period. For this, you'd use the `offset` field and set it to `-00:30:00`, which can be both positive and negative and go up to a maximum of 24 hours.
 
 ### Gas Meters
 
@@ -65,7 +69,7 @@ The integration only looks at the first property associated with your account th
 ```yaml
 logger:
   logs:
-    custom_components.octopus_energy: info
+    custom_components.octopus_energy: debug
 ```
 
 If you don't have access to this file, then you should be able to set the log levels using the [available services](https://www.home-assistant.io/integrations/logger/).
