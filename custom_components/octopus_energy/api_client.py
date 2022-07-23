@@ -92,6 +92,9 @@ class OctopusEnergyApiClient:
           headers = { "Authorization": f"JWT {token}" }
           async with client.post(url, json=payload, headers=headers) as account_response:
             account_response_body = await self.__async_read_response(account_response, url, None)
+
+            _LOGGER.debug(account_response_body)
+
             if (account_response_body != None and "data" in account_response_body):
               return {
                 "electricity_meter_points": list(map(lambda mp: {
