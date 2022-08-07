@@ -21,6 +21,7 @@ from .const import (
   CONFIG_TARGET_START_TIME,
   CONFIG_TARGET_END_TIME,
   CONFIG_TARGET_MPAN,
+  CONFIG_TARGET_ROLLING_TARGET,
 
   DATA_ELECTRICITY_RATES_COORDINATOR
 )
@@ -127,23 +128,31 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
         if CONFIG_TARGET_END_TIME in self._config:
           end_time = self._config[CONFIG_TARGET_END_TIME]
 
+        is_rolling_target = True
+        if CONFIG_TARGET_ROLLING_TARGET in self._config:
+          is_rolling_target = self._config[CONFIG_TARGET_ROLLING_TARGET]     
+
+        target_hours = float(self._config[CONFIG_TARGET_HOURS])
+
         if (self._config[CONFIG_TARGET_TYPE] == "Continuous"):
           self._target_rates = calculate_continuous_times(
             now(),
             start_time,
             end_time,
-            float(self._config[CONFIG_TARGET_HOURS]),
+            target_hours,
             all_rates,
-            offset
+            offset,
+            is_rolling_target
           )
         elif (self._config[CONFIG_TARGET_TYPE] == "Intermittent"):
           self._target_rates = calculate_intermittent_times(
             now(),
             start_time,
             end_time,
-            float(self._config[CONFIG_TARGET_HOURS]),
+            target_hours,
             all_rates,
-            offset
+            offset,
+            is_rolling_target
           )
         else:
           _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")
