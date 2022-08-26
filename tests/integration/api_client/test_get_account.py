@@ -27,6 +27,7 @@ async def test_when_get_account_is_called_then_electricity_and_gas_points_return
     assert len(meter_point["meters"]) == 1
     meter = meter_point["meters"][0]
     assert meter["is_export"] == False
+    assert meter["is_smart_meter"] == True
     assert meter["serial_number"] == context["electricity_serial_number"]
 
     assert "agreements" in meter_point
