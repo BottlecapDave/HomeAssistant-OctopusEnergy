@@ -2,7 +2,7 @@
 
 ** WARNING: This component is currently a work in progress **
 
-Custom component built from the ground up to bring your Octopus Energy details into Home Assistant to help you towards a more energy efficient (and or cheaper) home.
+Custom component built from the ground up to bring your Octopus Energy details into Home Assistant to help you towards a more energy efficient (and or cheaper) home. This integration is in no way affiliated with Octopus Energy.
 
 ## How to install
 
@@ -12,7 +12,9 @@ To install, place the contents of `custom_components` into the `<config director
 
 ### HACS
 
-While the integration isn't available in the HACS store yet, you can install it as a [custom repository](https://hacs.xyz/docs/faq/custom_repositories), providing the url `https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy` and category of `integration`. Once installed, don't forget to restart your home assistant instance for the integration to be picked up.
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
+
+This integration can be installed directly via HACS.
 
 ## How to setup
 
