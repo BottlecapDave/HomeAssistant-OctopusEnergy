@@ -34,7 +34,7 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   )
 
   # Make sure we have rates and standing charges available
-  rates = await client.async_get_electricity_rates(tariff_code, period_from, period_to)
+  rates = await client.async_get_electricity_rates(tariff_code, False, period_from, period_to)
   assert rates != None
   assert len(rates) > 0
 
@@ -48,7 +48,8 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
     latest_date,
     period_from,
     period_to,
-    tariff_code
+    tariff_code,
+    False
   )
 
   # Assert

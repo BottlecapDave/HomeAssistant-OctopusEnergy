@@ -46,7 +46,9 @@ jobs:
   release:
     name: Release
     if: github.ref == 'refs/heads/main'
-    needs: test
+    needs: 
+    - validate
+    - test
     runs-on: ubuntu-latest
     steps:
       - name: Checkout

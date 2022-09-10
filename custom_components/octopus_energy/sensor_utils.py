@@ -64,14 +64,14 @@ def calculate_electricity_consumption(consumption_data, last_calculated_timestam
         "consumptions": consumption_parts
       }
 
-async def async_calculate_electricity_cost(client: OctopusEnergyApiClient, consumption_data, last_calculated_timestamp, period_from, period_to, tariff_code):
+async def async_calculate_electricity_cost(client: OctopusEnergyApiClient, consumption_data, last_calculated_timestamp, period_from, period_to, tariff_code, is_smart_meter):
   if (consumption_data != None and len(consumption_data) > 0):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
 
     # Only calculate our consumption if our data has changed
     if (last_calculated_timestamp == None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
-      rates = await client.async_get_electricity_rates(tariff_code, period_from, period_to)
+      rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
       standard_charge_result = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
 
       if (rates != None and len(rates) > 0 and standard_charge_result != None):
