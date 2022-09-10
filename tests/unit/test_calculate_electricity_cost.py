@@ -22,7 +22,8 @@ async def test_when_electricity_consumption_is_none_then_no_calculation_is_retur
     latest_date,
     period_from,
     period_to,
-    tariff_code
+    tariff_code,
+    False
   )
 
   # Assert
@@ -44,7 +45,8 @@ async def test_when_electricity_consumption_is_empty_then_no_calculation_is_retu
     latest_date,
     period_from,
     period_to,
-    tariff_code
+    tariff_code,
+    False
   )
 
   # Assert
@@ -70,7 +72,8 @@ async def test_when_electricity_consumption_is_before_latest_date_then_no_calcul
     latest_date,
     period_from,
     period_to,
-    tariff_code
+    tariff_code,
+    False
   )
 
   # Assert
@@ -115,7 +118,8 @@ async def test_when_electricity_consumption_available_then_calculation_returned(
       latest_date,
       period_from,
       period_to,
-      tariff_code
+      tariff_code,
+      False
     )
 
     # Assert
@@ -186,7 +190,8 @@ async def test_when_electricity_consumption_starting_at_latest_date_then_calcula
       latest_date,
       period_from,
       period_to,
-      tariff_code
+      tariff_code,
+      False
     )
 
     # Assert
