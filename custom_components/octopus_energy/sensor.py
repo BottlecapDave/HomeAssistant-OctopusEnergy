@@ -7,11 +7,9 @@ from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
 )
 from homeassistant.components.sensor import (
-    DEVICE_CLASS_MONETARY,
-    DEVICE_CLASS_ENERGY,
-    DEVICE_CLASS_GAS,
-    STATE_CLASS_TOTAL_INCREASING,
+    SensorDeviceClass,
     SensorEntity,
+    SensorStateClass
 )
 from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR,
@@ -206,7 +204,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
   @property
   def device_class(self):
     """The type of sensor"""
-    return DEVICE_CLASS_MONETARY
+    return SensorDeviceClass.MONETARY
 
   @property
   def icon(self):
@@ -284,7 +282,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
   @property
   def device_class(self):
     """The type of sensor"""
-    return DEVICE_CLASS_MONETARY
+    return SensorDeviceClass.MONETARY
 
   @property
   def icon(self):
@@ -358,12 +356,12 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Oct
   @property
   def device_class(self):
     """The type of sensor"""
-    return DEVICE_CLASS_ENERGY
+    return SensorDeviceClass.ENERGY
 
   @property
   def state_class(self):
     """The state class of sensor"""
-    return STATE_CLASS_TOTAL_INCREASING
+    return SensorStateClass.TOTAL_INCREASING
 
   @property
   def unit_of_measurement(self):
@@ -432,12 +430,12 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
   @property
   def device_class(self):
     """The type of sensor"""
-    return DEVICE_CLASS_MONETARY
+    return SensorDeviceClass.MONETARY
 
   @property
   def state_class(self):
     """The state class of sensor"""
-    return STATE_CLASS_TOTAL_INCREASING
+    return SensorStateClass.TOTAL_INCREASING
 
   @property
   def unit_of_measurement(self):
@@ -545,7 +543,7 @@ class OctopusEnergyGasCurrentRate(OctopusEnergyGasSensor):
   @property
   def device_class(self):
     """The type of sensor"""
-    return DEVICE_CLASS_MONETARY
+    return SensorDeviceClass.MONETARY
 
   @property
   def icon(self):
@@ -624,12 +622,12 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
   @property
   def device_class(self):
     """The type of sensor"""
-    return DEVICE_CLASS_GAS
+    return SensorDeviceClass.GAS
 
   @property
   def state_class(self):
     """The state class of sensor"""
-    return STATE_CLASS_TOTAL_INCREASING
+    return SensorStateClass.TOTAL_INCREASING
 
   @property
   def unit_of_measurement(self):
@@ -698,12 +696,12 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
   @property
   def device_class(self):
     """The type of sensor"""
-    return DEVICE_CLASS_MONETARY
+    return SensorDeviceClass.MONETARY
 
   @property
   def state_class(self):
     """The state class of sensor"""
-    return STATE_CLASS_TOTAL_INCREASING
+    return SensorStateClass.TOTAL_INCREASING
 
   @property
   def unit_of_measurement(self):
