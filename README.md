@@ -1,8 +1,6 @@
 # Home Assistant Octopus Energy
 
-** WARNING: This component is currently a work in progress **
-
-Custom component built from the ground up to bring your Octopus Energy details into Home Assistant to help you towards a more energy efficient (and or cheaper) home.
+Custom component built from the ground up to bring your Octopus Energy details into Home Assistant to help you towards a more energy efficient (and or cheaper) home. This integration is built against the API provided by Octopus Energy UK and has not been tested for any other divisions. This integration is in no way affiliated with Octopus Energy.
 
 ## How to install
 
@@ -12,7 +10,9 @@ To install, place the contents of `custom_components` into the `<config director
 
 ### HACS
 
-While the integration isn't available in the HACS store yet, you can install it as a [custom repository](https://hacs.xyz/docs/faq/custom_repositories), providing the url `https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy` and category of `integration`. Once installed, don't forget to restart your home assistant instance for the integration to be picked up.
+[![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
+
+This integration can be installed directly via HACS.
 
 ## How to setup
 
@@ -55,6 +55,14 @@ If you're wanting your devices to come on during a certain period, for example w
 #### Offset
 
 You may want your target rate sensors to turn on a period of time before the optimum discovered period. For example, you may be turning on a robot vacuum cleaner for a 30 minute clean and want it to charge during the optimum period. For this, you'd use the `offset` field and set it to `-00:30:00`, which can be both positive and negative and go up to a maximum of 24 hours.
+
+#### Rolling Target
+
+Depending on how you're going to use the sensor, you might want the best period to be found throughout the day so it's always applicable. For example, you might be using the sensor to turn on a washing machine which you might want to come on at the best time regardless of when you use the washing machine.
+
+However, you might only want the target time to occur once a day so once the best time for that day has passed it won't turn on again. For example, you might be using the sensor to turn on something that isn't time critical and could wait till the next day like a charger.
+
+This feature is toggled on/off by the `Limit to once a day` checkbox.
 
 ### Gas Meters
 

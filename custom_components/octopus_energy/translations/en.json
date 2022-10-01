@@ -19,7 +19,8 @@
           "MPAN": "The MPAN number of the meter to apply the target to",
           "Start time": "The minimum time to start the device",
           "End time": "The maximum time to stop the device",
-          "offset": "The offset to apply to the scheduled block to be considered active"
+          "offset": "The offset to apply to the scheduled block to be considered active",
+          "rolling_target": "Limit to once a day"
         }
       }
     },
@@ -52,7 +53,8 @@
           "MPAN": "The MPAN number of the meter to apply the target to",
           "Start time": "The minimum time to start the device",
           "End time": "The maximum time to stop the device",
-          "offset": "The offset to apply to the scheduled block to be considered active"
+          "offset": "The offset to apply to the scheduled block to be considered active",
+          "rolling_target": "Limit to once a day"
         }
       }
     },

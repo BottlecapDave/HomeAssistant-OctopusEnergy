@@ -58,8 +58,14 @@ async def async_get_current_electricity_agreement_tariff_codes(client, config):
   if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
       active_tariff_code = get_active_tariff_code(now, point["agreements"])
-      if active_tariff_code != None:
-        tariff_codes[point["mpan"]] = active_tariff_code
+      # The type of meter (ie smart vs dumb) can change the tariff behaviour, so we
+      # have to enumerate the different meters being used for each tariff as well.
+      for meter in point["meters"]:
+        is_smart_meter = meter["is_smart_meter"]
+        if active_tariff_code != None:
+          key = (point["mpan"], is_smart_meter)
+          if key not in tariff_codes:
+            tariff_codes[(point["mpan"], is_smart_meter)] = active_tariff_code
   
   return tariff_codes
 
@@ -84,8 +90,8 @@ def setup_dependencies(hass, config):
         period_to = as_utc(parse_datetime((utc_now + timedelta(days=2)).strftime("%Y-%m-%dT00:00:00Z")))
 
         rates = {}
-        for (meter_point, tariff_code) in tariff_codes.items():
-          rates[meter_point] = await client.async_get_electricity_rates(tariff_code, period_from, period_to)  
+        for ((meter_point, is_smart_meter), tariff_code) in tariff_codes.items():
+          rates[(meter_point, is_smart_meter)] = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)  
         hass.data[DOMAIN][DATA_RATES] = rates
       
       return hass.data[DOMAIN][DATA_RATES]

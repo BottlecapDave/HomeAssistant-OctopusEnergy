@@ -21,6 +21,7 @@ from .const import (
   CONFIG_TARGET_TYPE,
   CONFIG_TARGET_MPAN,
   CONFIG_TARGET_OFFSET,
+  CONFIG_TARGET_ROLLING_TARGET,
 
   CONFIG_SMETS1,
 
@@ -121,6 +122,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Optional(CONFIG_TARGET_START_TIME): str,
       vol.Optional(CONFIG_TARGET_END_TIME): str,
       vol.Optional(CONFIG_TARGET_OFFSET): str,
+      vol.Optional(CONFIG_TARGET_ROLLING_TARGET): bool,
     })
 
   async def async_step_target_rate(self, user_input):
@@ -198,6 +200,10 @@ class OptionsFlowHandler(OptionsFlow):
     offset = None
     if (CONFIG_TARGET_OFFSET in config):
       offset = config[CONFIG_TARGET_OFFSET]
+
+    is_rolling_target = True
+    if (CONFIG_TARGET_ROLLING_TARGET in config):
+      is_rolling_target = config[CONFIG_TARGET_ROLLING_TARGET]
     
     return self.async_show_form(
       step_id="target_rate",
@@ -209,6 +215,7 @@ class OptionsFlowHandler(OptionsFlow):
         vol.Optional(CONFIG_TARGET_START_TIME, default=config[CONFIG_TARGET_START_TIME]): str,
         vol.Optional(CONFIG_TARGET_END_TIME, default=config[CONFIG_TARGET_END_TIME]): str,
         vol.Optional(CONFIG_TARGET_OFFSET, default=offset): str,
+        vol.Optional(CONFIG_TARGET_ROLLING_TARGET, default=is_rolling_target): bool,
       }),
       errors=errors
     )

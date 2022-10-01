@@ -26,6 +26,9 @@ account_query = '''query {{
           smartExportElectricityMeter {{
 						deviceId
 					}}
+          smartImportElectricityMeter {{
+						deviceId
+					}}
 				}}
 				agreements {{
 					validFrom
@@ -102,6 +105,7 @@ class OctopusEnergyApiClient:
                   "meters": list(map(lambda m: {
                     "serial_number": m["serialNumber"],
                     "is_export": m["smartExportElectricityMeter"] != None,
+                    "is_smart_meter": m["smartImportElectricityMeter"] != None or m["smartExportElectricityMeter"] != None,
                   }, mp["meterPoint"]["meters"])),
                   "agreements": list(map(lambda a: {
                     "valid_from": a["validFrom"],
@@ -145,7 +149,7 @@ class OctopusEnergyApiClient:
 
     return results
 
-  async def async_get_electricity_day_night_rates(self, product_code, tariff_code, period_from, period_to):
+  async def async_get_electricity_day_night_rates(self, product_code, tariff_code, is_smart_meter, period_from, period_to):
     """Get the current day and night rates"""
     results = []
     async with aiohttp.ClientSession() as client:
@@ -156,10 +160,9 @@ class OctopusEnergyApiClient:
           data = await self.__async_read_response(response, url, { "results": [] })
 
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our day period 
-          # (7am to 12am UK time https://octopus.energy/help-and-faqs/categories/tariffs/eco-seven/)
           day_rates = self.__process_electricity_rates(data, period_from, period_to, tariff_code)
           for rate in day_rates:
-            if (self.__is_between_local_times(rate, "07:00:00", "23:59:59")) == True:
+            if (self.__is_night_rate(rate, is_smart_meter)) == False:
               results.append(rate)
         except:
           _LOGGER.error(f'Failed to extract day rates: {url}')
@@ -171,10 +174,9 @@ class OctopusEnergyApiClient:
           data = await self.__async_read_response(response, url, { "results": [] })
 
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our night period 
-          # (12am to 7am UK time https://octopus.energy/help-and-faqs/categories/tariffs/eco-seven/)
           night_rates = self.__process_electricity_rates(data, period_from, period_to, tariff_code)
           for rate in night_rates:
-            if (self.__is_between_local_times(rate, "00:00:00", "07:00:00")) == True:
+            if (self.__is_night_rate(rate, is_smart_meter)) == True:
               results.append(rate)
         except:
           _LOGGER.error(f'Failed to extract night rates: {url}')
@@ -186,7 +188,7 @@ class OctopusEnergyApiClient:
 
     return results
 
-  async def async_get_electricity_rates(self, tariff_code, period_from, period_to):
+  async def async_get_electricity_rates(self, tariff_code, is_smart_meter, period_from, period_to):
     """Get the current rates"""
 
     tariff_parts = get_tariff_parts(tariff_code)
@@ -195,7 +197,7 @@ class OctopusEnergyApiClient:
     if (tariff_parts["rate"].startswith("1")):
       return await self.async_get_electricity_standard_rates(product_code, tariff_code, period_from, period_to)
     else:
-      return await self.async_get_electricity_day_night_rates(product_code, tariff_code, period_from, period_to)
+      return await self.async_get_electricity_day_night_rates(product_code, tariff_code, is_smart_meter, period_from, period_to)
 
   async def async_get_electricity_consumption(self, mpan, serial_number, period_from, period_to):
     """Get the current electricity consumption"""
@@ -328,16 +330,32 @@ class OctopusEnergyApiClient:
   def __get_interval_end(self, item):
     return item["interval_end"]
 
-  def __is_between_local_times(self, rate, target_from_time, target_to_time):
-    """Determines if a current rate is between two times"""
-    local_now = now()
+  def __is_night_rate(self, rate, is_smart_meter):
+    # Normally the economy seven night rate is between 12am and 7am UK time
+    # https://octopus.energy/help-and-faqs/articles/what-is-an-economy-7-meter-and-tariff/
+    # However, if a smart meter is being used then the times are between 12:30am and 7:30am UTC time
+    # https://octopus.energy/help-and-faqs/articles/what-happens-to-my-economy-seven-e7-tariff-when-i-have-a-smart-meter-installed/
+    if is_smart_meter:
+        is_night_rate = self.__is_between_times(rate, "00:30:00", "07:30:00", True)
+    else:
+        is_night_rate = self.__is_between_times(rate, "00:00:00", "07:00:00", False)
+    return is_night_rate
 
+  def __is_between_times(self, rate, target_from_time, target_to_time, use_utc):
+    """Determines if a current rate is between two times"""
     rate_local_valid_from = as_local(rate["valid_from"])
     rate_local_valid_to = as_local(rate["valid_to"])
 
-    # We need to convert our times into local time to account for BST to ensure that our rate is valid between the target times.
-    from_date_time = as_local(parse_datetime(rate_local_valid_from.strftime(f"%Y-%m-%dT{target_from_time}{local_now.strftime('%z')}")))
-    to_date_time = as_local(parse_datetime(rate_local_valid_from.strftime(f"%Y-%m-%dT{target_to_time}{local_now.strftime('%z')}")))
+    if use_utc:
+        rate_utc_valid_from = as_utc(rate["valid_from"])
+        # We need to convert our times into local time to account for BST to ensure that our rate is valid between the target times.
+        from_date_time = as_local(parse_datetime(rate_utc_valid_from.strftime(f"%Y-%m-%dT{target_from_time}Z")))
+        to_date_time = as_local(parse_datetime(rate_utc_valid_from.strftime(f"%Y-%m-%dT{target_to_time}Z")))
+    else:
+        local_now = now()
+        # We need to convert our times into local time to account for BST to ensure that our rate is valid between the target times.
+        from_date_time = as_local(parse_datetime(rate_local_valid_from.strftime(f"%Y-%m-%dT{target_from_time}{local_now.strftime('%z')}")))
+        to_date_time = as_local(parse_datetime(rate_local_valid_from.strftime(f"%Y-%m-%dT{target_to_time}{local_now.strftime('%z')}")))
 
     _LOGGER.debug('is_valid: %s; from_date_time: %s; to_date_time: %s; rate_local_valid_from: %s; rate_local_valid_to: %s', rate_local_valid_from >= from_date_time and rate_local_valid_from < to_date_time, from_date_time, to_date_time, rate_local_valid_from, rate_local_valid_to)
 
