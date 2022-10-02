@@ -20,7 +20,7 @@
           "Start time": "The minimum time to start the device",
           "End time": "The maximum time to stop the device",
           "offset": "The offset to apply to the scheduled block to be considered active",
-          "rolling_target": "Limit to once a day"
+          "rolling_target": "Re-evaluate multiple times a day"
         }
       }
     },
@@ -54,7 +54,7 @@
           "Start time": "The minimum time to start the device",
           "End time": "The maximum time to stop the device",
           "offset": "The offset to apply to the scheduled block to be considered active",
-          "rolling_target": "Limit to once a day"
+          "rolling_target": "Re-evaluate multiple times a day"
         }
       }
     },
