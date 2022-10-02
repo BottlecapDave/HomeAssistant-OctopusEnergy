@@ -201,6 +201,7 @@ class OptionsFlowHandler(OptionsFlow):
     if (CONFIG_TARGET_OFFSET in config):
       offset = config[CONFIG_TARGET_OFFSET]
 
+    # True by default for backwards compatibility
     is_rolling_target = True
     if (CONFIG_TARGET_ROLLING_TARGET in config):
       is_rolling_target = config[CONFIG_TARGET_ROLLING_TARGET]

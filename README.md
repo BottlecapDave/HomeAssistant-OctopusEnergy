@@ -60,9 +60,9 @@ You may want your target rate sensors to turn on a period of time before the opt
 
 Depending on how you're going to use the sensor, you might want the best period to be found throughout the day so it's always applicable. For example, you might be using the sensor to turn on a washing machine which you might want to come on at the best time regardless of when you use the washing machine.
 
-However, you might only want the target time to occur once a day so once the best time for that day has passed it won't turn on again. For example, you might be using the sensor to turn on something that isn't time critical and could wait till the next day like a charger.
+However, you might also only want the target time to occur once a day so once the best time for that day has passed it won't turn on again. For example, you might be using the sensor to turn on something that isn't time critical and could wait till the next day like a charger.
 
-This feature is toggled on/off by the `Limit to once a day` checkbox.
+This feature is toggled on by the `Re-evaluate multiple times a day` checkbox.
 
 ### Gas Meters
 

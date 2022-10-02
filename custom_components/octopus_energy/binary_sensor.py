@@ -130,6 +130,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
         if CONFIG_TARGET_END_TIME in self._config:
           end_time = self._config[CONFIG_TARGET_END_TIME]
 
+        # True by default for backwards compatibility
         is_rolling_target = True
         if CONFIG_TARGET_ROLLING_TARGET in self._config:
           is_rolling_target = self._config[CONFIG_TARGET_ROLLING_TARGET]     
