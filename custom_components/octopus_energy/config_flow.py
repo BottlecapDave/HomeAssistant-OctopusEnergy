@@ -122,7 +122,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Optional(CONFIG_TARGET_START_TIME): str,
       vol.Optional(CONFIG_TARGET_END_TIME): str,
       vol.Optional(CONFIG_TARGET_OFFSET): str,
-      vol.Optional(CONFIG_TARGET_ROLLING_TARGET): bool,
+      vol.Optional(CONFIG_TARGET_ROLLING_TARGET, default=False): bool,
     })
 
   async def async_step_target_rate(self, user_input):
@@ -197,22 +197,22 @@ class OptionsFlowHandler(OptionsFlow):
     if (CONFIG_TARGET_MPAN not in config):
       config[CONFIG_TARGET_MPAN] = meters[0]
 
-    offset = None
+    start_time_key = vol.Optional(CONFIG_TARGET_START_TIME)
+    if (CONFIG_TARGET_START_TIME in config):
+      start_time_key = vol.Optional(CONFIG_TARGET_START_TIME, default=config[CONFIG_TARGET_START_TIME])
+
+    end_time_key = vol.Optional(CONFIG_TARGET_END_TIME)
+    if (CONFIG_TARGET_END_TIME in config):
+      end_time_key = vol.Optional(CONFIG_TARGET_END_TIME, default=config[CONFIG_TARGET_END_TIME])
+
+    offset_key = vol.Optional(CONFIG_TARGET_OFFSET)
     if (CONFIG_TARGET_OFFSET in config):
-      offset = config[CONFIG_TARGET_OFFSET]
+      offset_key = vol.Optional(CONFIG_TARGET_OFFSET, default=config[CONFIG_TARGET_OFFSET])
 
     # True by default for backwards compatibility
     is_rolling_target = True
     if (CONFIG_TARGET_ROLLING_TARGET in config):
       is_rolling_target = config[CONFIG_TARGET_ROLLING_TARGET]
-
-    start_time = None
-    if (CONFIG_TARGET_START_TIME in config):
-      start_time = config[CONFIG_TARGET_START_TIME]
-
-    end_time = None
-    if (CONFIG_TARGET_END_TIME in config):
-      end_time = config[CONFIG_TARGET_END_TIME]
     
     return self.async_show_form(
       step_id="target_rate",
@@ -221,9 +221,9 @@ class OptionsFlowHandler(OptionsFlow):
         vol.Required(CONFIG_TARGET_MPAN, default=config[CONFIG_TARGET_MPAN]): vol.In(
           meters
         ),
-        vol.Optional(CONFIG_TARGET_START_TIME, default=start_time): str,
-        vol.Optional(CONFIG_TARGET_END_TIME, default=end_time): str,
-        vol.Optional(CONFIG_TARGET_OFFSET, default=offset): str,
+        start_time_key: str,
+        end_time_key: str,
+        offset_key: str,
         vol.Optional(CONFIG_TARGET_ROLLING_TARGET, default=is_rolling_target): bool,
       }),
       errors=errors
