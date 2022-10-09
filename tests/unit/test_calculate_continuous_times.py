@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from unit import (create_rate_data)
+from custom_components.octopus_energy.utils import rates_to_thirty_minute_increments
 from custom_components.octopus_energy.target_sensor_utils import calculate_continuous_times
 
 @pytest.mark.asyncio
@@ -141,3 +142,53 @@ async def test_when_offset_set_then_next_continuous_times_returned_have_offset_a
   assert result[1]["valid_from"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[1]["valid_to"] == expected_first_valid_from + timedelta(hours=1)
   assert result[1]["value_inc_vat"] == 0.1
+
+# Added for https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/68
+@pytest.mark.asyncio
+async def test_when_go_rates_supplied_once_a_day_set_and_cheapest_period_past_then_no_period_returned():
+  # Arrange
+  rates = rates_to_thirty_minute_increments(
+    [
+      {
+        "value_exc_vat": 38.217,
+        "value_inc_vat": 40.12785,
+        "valid_from": "2022-10-08T04:30:00Z",
+        "valid_to": "2022-10-09T00:30:00Z"
+      },
+      {
+        "value_exc_vat": 7.142,
+        "value_inc_vat": 7.4991,
+        "valid_from": "2022-10-09T00:30:00Z",
+        "valid_to": "2022-10-09T04:30:00Z"
+      },
+      {
+        "value_exc_vat": 38.217,
+        "value_inc_vat": 40.12785,
+        "valid_from": "2022-10-09T04:30:00Z",
+        "valid_to": "2022-10-10T00:30:00Z"
+      }
+    ],
+    datetime.strptime("2022-10-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2022-10-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    "test-tariff"
+  )
+
+  current_date = datetime.strptime("2022-10-09T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  
+  # Restrict our time block
+  target_hours = 4
+
+  # Act
+  result = calculate_continuous_times(
+    current_date,
+    None,
+    None,
+    target_hours,
+    rates,
+    None,
+    False
+  )
+
+  # Assert
+  assert result != None
+  assert len(result) == 0
