@@ -5,7 +5,9 @@ from datetime import (timedelta)
 from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime)
 
 from .utils import (
-  get_tariff_parts
+  get_tariff_parts,
+  get_valid_from,
+  rates_to_thirty_minute_increments
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -142,7 +144,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         try:
           data = await self.__async_read_response(response, url, { "results": [] })
-          results = self.__process_electricity_rates(data, period_from, period_to, tariff_code)
+          results = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code)
         except:
           _LOGGER.error(f'Failed to extract standard rates: {url}')
           raise
@@ -160,7 +162,7 @@ class OctopusEnergyApiClient:
           data = await self.__async_read_response(response, url, { "results": [] })
 
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our day period 
-          day_rates = self.__process_electricity_rates(data, period_from, period_to, tariff_code)
+          day_rates = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code)
           for rate in day_rates:
             if (self.__is_night_rate(rate, is_smart_meter)) == False:
               results.append(rate)
@@ -174,7 +176,7 @@ class OctopusEnergyApiClient:
           data = await self.__async_read_response(response, url, { "results": [] })
 
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our night period 
-          night_rates = self.__process_electricity_rates(data, period_from, period_to, tariff_code)
+          night_rates = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code)
           for rate in night_rates:
             if (self.__is_night_rate(rate, is_smart_meter)) == True:
               results.append(rate)
@@ -183,7 +185,7 @@ class OctopusEnergyApiClient:
           raise
 
     # Because we retrieve our day and night periods separately over a 2 day period, we need to sort our rates 
-    results.sort(key=self.__get_valid_from)
+    results.sort(key=get_valid_from)
     _LOGGER.debug(results)
 
     return results
@@ -236,7 +238,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         try:
           data = await self.__async_read_response(response, url, { "results": [] })
-          results = self.__process_electricity_rates(data, period_from, period_to, tariff_code)
+          results = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code)
         except:
           _LOGGER.error(f'Failed to extract standard gas rates: {url}')
           raise
@@ -324,9 +326,6 @@ class OctopusEnergyApiClient:
 
     return result
 
-  def __get_valid_from(self, rate):
-    return rate["valid_from"]
-
   def __get_interval_end(self, item):
     return item["interval_end"]
 
@@ -367,55 +366,6 @@ class OctopusEnergyApiClient:
       "interval_start": as_utc(parse_datetime(item["interval_start"])),
       "interval_end": as_utc(parse_datetime(item["interval_end"]))
     }
-
-  def __process_electricity_rates(self, data, period_from, period_to, tariff_code):
-    """Process the collection of rates to ensure they're in 30 minute periods"""
-    starting_period_from = period_from
-    results = []
-    if ("results" in data):
-      items = data["results"]
-      items.sort(key=self.__get_valid_from)
-
-      # We need to normalise our data into 30 minute increments so that all of our rates across all tariffs are the same and it's 
-      # easier to calculate our target rate sensors
-      for item in items:
-        value_exc_vat = float(item["value_exc_vat"])
-        value_inc_vat = float(item["value_inc_vat"])
-
-        if "valid_from" in item and item["valid_from"] != None:
-          valid_from = as_utc(parse_datetime(item["valid_from"]))
-
-          # If we're on a fixed rate, then our current time could be in the past so we should go from
-          # our target period from date otherwise we could be adjusting times quite far in the past
-          if (valid_from < starting_period_from):
-            valid_from = starting_period_from
-        else:
-          valid_from = starting_period_from
-
-        # Some rates don't have end dates, so we should treat this as our period to target
-        if "valid_to" in item and item["valid_to"] != None:
-          target_date = as_utc(parse_datetime(item["valid_to"]))
-
-          # Cap our target date to our end period
-          if (target_date > period_to):
-            target_date = period_to
-        else:
-          target_date = period_to
-        
-        while valid_from < target_date:
-          valid_to = valid_from + timedelta(minutes=30)
-          results.append({
-            "value_exc_vat": value_exc_vat,
-            "value_inc_vat": value_inc_vat,
-            "valid_from": valid_from,
-            "valid_to": valid_to,
-            "tariff_code": tariff_code
-          })
-
-          valid_from = valid_to
-          starting_period_from = valid_to
-      
-    return results
 
   async def __async_read_response(self, response, url, default_value):
     """Reads the response, logging any json errors"""
