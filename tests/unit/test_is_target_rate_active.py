@@ -4,6 +4,7 @@ import pytest
 
 from unit import (create_rate_data)
 from custom_components.octopus_energy.target_sensor_utils import is_target_rate_active
+from custom_components.octopus_energy.utils import rates_to_thirty_minute_increments
 
 @pytest.mark.asyncio
 async def test_when_called_before_rates_then_not_active_returned():
@@ -156,3 +157,27 @@ async def test_when_offset_set_and_current_date_in_offset_rate_then_active():
   assert result != None
   assert result["is_active"] == True
   assert result["next_time"] == datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+
+@pytest.mark.asyncio
+async def test_when_current_date_is_equal_to_last_end_date_then_not_active():
+  # Arrange
+  period_from = datetime.strptime("2022-10-09T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-10-09T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  expected_rates = [0.1]
+  rates = create_rate_data(
+    period_from,
+    period_to,
+    expected_rates
+  )
+
+  current_date = datetime.strptime("2022-10-09T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+
+  result = is_target_rate_active(
+    current_date,
+    rates,
+    None
+  )
+
+  assert result != None
+  assert result["is_active"] == False
+  assert result["next_time"] == None

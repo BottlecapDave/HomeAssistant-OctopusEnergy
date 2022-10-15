@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 import math
 from homeassistant.util.dt import (as_utc, parse_datetime)
 from .utils import (apply_offset)
@@ -102,7 +102,7 @@ def calculate_intermittent_times(current_date, target_start_time, target_end_tim
   applicable_rates.sort(key=__get_valid_to)
   return applicable_rates
 
-def is_target_rate_active(current_date, applicable_rates, offset = None):
+def is_target_rate_active(current_date: datetime, applicable_rates, offset: str = None):
   is_active = False
   next_time = None
   total_applicable_rates = len(applicable_rates)
@@ -119,7 +119,7 @@ def is_target_rate_active(current_date, applicable_rates, offset = None):
         valid_from = rate["valid_from"]
         valid_to = rate["valid_to"]
 
-      if current_date >= valid_from and current_date <= valid_to:
+      if current_date >= valid_from and current_date < valid_to:
         is_active = True
 
         next_index = index + 1

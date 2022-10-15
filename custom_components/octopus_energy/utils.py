@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import date, datetime, timedelta
 from homeassistant.util.dt import (as_utc, parse_datetime)
 
 import re
@@ -27,7 +27,7 @@ def get_tariff_parts(tariff_code):
     "region": region
   }
 
-def get_active_tariff_code(utcnow, agreements):
+def get_active_tariff_code(utcnow: datetime, agreements):
   latest_agreement = None
   latest_valid_from = None
 
@@ -50,7 +50,7 @@ def get_active_tariff_code(utcnow, agreements):
   
   return None
 
-def apply_offset(date_time, offset, inverse = False):
+def apply_offset(date_time: datetime, offset: str, inverse = False):
   matches = re.search(REGEX_OFFSET_PARTS, offset)
   if matches == None:
     raise Exception(f'Unable to extract offset: {offset}')
@@ -68,7 +68,7 @@ def apply_offset(date_time, offset, inverse = False):
 def get_valid_from(rate):
   return rate["valid_from"]
     
-def rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code):
+def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: datetime, tariff_code: str):
   """Process the collection of rates to ensure they're in 30 minute periods"""
   starting_period_from = period_from
   results = []
