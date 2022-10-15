@@ -30,6 +30,7 @@ async def test_go_rates():
       "valid_to": "2022-10-10T00:30:00Z"
     }
   ]
+  
   result = rates_to_thirty_minute_increments(
     {
       "results": rates
