@@ -1,6 +1,6 @@
 import logging
 from datetime import timedelta
-from homeassistant.util.dt import (utcnow, as_utc, parse_datetime)
+from homeassistant.util.dt import (now, as_utc)
 import asyncio
 
 from .const import (
@@ -54,10 +54,10 @@ async def async_get_current_electricity_agreement_tariff_codes(client, config):
   account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
 
   tariff_codes = {}
-  now = utcnow()
+  current = now()
   if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
-      active_tariff_code = get_active_tariff_code(now, point["agreements"])
+      active_tariff_code = get_active_tariff_code(current, point["agreements"])
       # The type of meter (ie smart vs dumb) can change the tariff behaviour, so we
       # have to enumerate the different meters being used for each tariff as well.
       for meter in point["meters"]:
@@ -80,14 +80,14 @@ def setup_dependencies(hass, config):
     async def async_update_electricity_rates_data():
       """Fetch data from API endpoint."""
       # Only get data every half hour or if we don't have any data
-      if (DATA_RATES not in hass.data[DOMAIN] or (utcnow().minute % 30) == 0 or len(hass.data[DOMAIN][DATA_RATES]) == 0):
+      current = now()
+      if (DATA_RATES not in hass.data[DOMAIN] or (current.minute % 30) == 0 or len(hass.data[DOMAIN][DATA_RATES]) == 0):
 
         tariff_codes = await async_get_current_electricity_agreement_tariff_codes(client, config)
         _LOGGER.info(f'tariff_codes: {tariff_codes}')
 
-        utc_now = utcnow()
-        period_from = as_utc(parse_datetime(utc_now.strftime("%Y-%m-%dT00:00:00Z")))
-        period_to = as_utc(parse_datetime((utc_now + timedelta(days=2)).strftime("%Y-%m-%dT00:00:00Z")))
+        period_from = as_utc(current.replace(hour=0, minute=0, second=0, microsecond=0))
+        period_to = as_utc((current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0))
 
         rates = {}
         for ((meter_point, is_smart_meter), tariff_code) in tariff_codes.items():
