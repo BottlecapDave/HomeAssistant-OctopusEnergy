@@ -253,7 +253,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
         
         self._state = current_rate["value_inc_vat"] / 100
       else:
-        self._state = 0
+        self._state = None
         self._attributes = {}
 
     return self._state
@@ -327,7 +327,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
 
         self._state = previous_rate["value_inc_vat"] / 100
       else:
-        self._state = 0
+        self._state = None
         self._attributes = {}
 
     return self._state
@@ -593,7 +593,7 @@ class OctopusEnergyGasCurrentRate(OctopusEnergyGasSensor):
         current_rate["valid_to"] = period_to
         self._attributes = current_rate
       else:
-        self._state = 0
+        self._state = None
         self._attributes = {}
 
       self._latest_date = period_from
