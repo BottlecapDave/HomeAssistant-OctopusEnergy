@@ -33,6 +33,9 @@ def get_active_tariff_code(utcnow: datetime, agreements):
 
   # Find our latest agreement
   for agreement in agreements:
+    if agreement["tariff_code"] == None:
+      continue
+
     valid_from = as_utc(parse_datetime(agreement["valid_from"]))
 
     if utcnow >= valid_from and (latest_valid_from == None or valid_from > latest_valid_from):
