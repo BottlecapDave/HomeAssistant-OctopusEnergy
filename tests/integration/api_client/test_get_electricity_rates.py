@@ -97,3 +97,17 @@ async def test_when_get_electricity_rates_is_called_with_duel_rate_tariff_smart_
             assert item["value_inc_vat"] == cheapest_rate
         else:
             assert item["value_inc_vat"] != cheapest_rate
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("tariff",[("E-2R-NOT-A-TARIFF-A"), ("E-1R-NOT-A-TARIFF-A")])
+async def test_when_get_electricity_rates_is_called_for_non_existent_tariff_then_none_is_returned(tariff):
+    # Arrange
+    context = get_test_context()
+
+    client = OctopusEnergyApiClient(context["api_key"])
+
+    # Act
+    data = await client.async_get_electricity_rates(tariff, True, period_from, period_to)
+
+    # Assert
+    assert data == None

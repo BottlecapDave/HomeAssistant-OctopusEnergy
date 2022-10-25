@@ -91,7 +91,13 @@ def setup_dependencies(hass, config):
 
         rates = {}
         for ((meter_point, is_smart_meter), tariff_code) in tariff_codes.items():
-          rates[(meter_point, is_smart_meter)] = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)  
+          key = (meter_point, is_smart_meter)
+          new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
+          if new_rates != None:
+            rates[key] = new_rates
+          elif (DATA_RATES in hass.data[DOMAIN] and key in hass.data[DOMAIN][DATA_RATES]):
+            rates[key] = hass.data[DOMAIN][DATA_RATES][key]
+        
         hass.data[DOMAIN][DATA_RATES] = rates
       
       return hass.data[DOMAIN][DATA_RATES]
