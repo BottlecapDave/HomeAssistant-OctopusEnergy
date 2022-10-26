@@ -122,6 +122,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
         else:
           all_rates = []
 
+        _LOGGER.debug(f'{len(all_rates)} rate periods found for meter {self._config[CONFIG_TARGET_MPAN]}')
+
         start_time = None
         if CONFIG_TARGET_START_TIME in self._config:
           start_time = self._config[CONFIG_TARGET_START_TIME]
