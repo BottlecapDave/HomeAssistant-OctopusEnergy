@@ -101,7 +101,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     # Find the current rate. Rates change a maximum of once every 30 minutes.
     current_date = utcnow()
     if (current_date.minute % 30) == 0 or len(self._target_rates) == 0:
-      _LOGGER.info(f'Updating OctopusEnergyTargetRate {self._config[CONFIG_TARGET_NAME]}')
+      _LOGGER.debug(f'Updating OctopusEnergyTargetRate {self._config[CONFIG_TARGET_NAME]}')
 
       # If all of our target times have passed, it's time to recalculate the next set
       all_rates_in_past = True
@@ -117,12 +117,12 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
           all_rates = self.coordinator.data
           if len(all_rates) == 1 or CONFIG_TARGET_MPAN not in self._config:
             all_rates = next(iter(all_rates.values()))
-          else: 
+          else:
             all_rates = all_rates.get(self._config[CONFIG_TARGET_MPAN])
         else:
           all_rates = []
 
-        _LOGGER.debug(f'{len(all_rates)} rate periods found for meter {self._config[CONFIG_TARGET_MPAN]}')
+        _LOGGER.debug(f'{len(all_rates) if all_rates != None else None} rate periods found for meter {self._config[CONFIG_TARGET_MPAN]}')
 
         start_time = None
         if CONFIG_TARGET_START_TIME in self._config:
