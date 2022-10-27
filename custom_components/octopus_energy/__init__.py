@@ -84,7 +84,7 @@ def setup_dependencies(hass, config):
       if (DATA_RATES not in hass.data[DOMAIN] or (current.minute % 30) == 0 or len(hass.data[DOMAIN][DATA_RATES]) == 0):
 
         tariff_codes = await async_get_current_electricity_agreement_tariff_codes(client, config)
-        _LOGGER.info(f'tariff_codes: {tariff_codes}')
+        _LOGGER.debug(f'tariff_codes: {tariff_codes}')
 
         period_from = as_utc(current.replace(hour=0, minute=0, second=0, microsecond=0))
         period_to = as_utc((current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0))
@@ -96,6 +96,7 @@ def setup_dependencies(hass, config):
           if new_rates != None:
             rates[key] = new_rates
           elif (DATA_RATES in hass.data[DOMAIN] and key in hass.data[DOMAIN][DATA_RATES]):
+            _LOGGER.debug(f"Failed to retrieve new rates for {tariff_code}, so using cached rates")
             rates[key] = hass.data[DOMAIN][DATA_RATES][key]
         
         hass.data[DOMAIN][DATA_RATES] = rates

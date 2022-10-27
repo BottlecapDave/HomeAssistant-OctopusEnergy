@@ -227,7 +227,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
     # Find the current rate. We only need to do this every half an hour
     now = utcnow()
     if (now.minute % 30) == 0 or self._state == None:
-      _LOGGER.info(f"Updating OctopusEnergyElectricityCurrentRate for '{self._mpan}/{self._serial_number}'")
+      _LOGGER.debug(f"Updating OctopusEnergyElectricityCurrentRate for '{self._mpan}/{self._serial_number}'")
 
       current_rate = None
       if self.coordinator.data != None:
@@ -305,7 +305,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
     # Find the previous rate. We only need to do this every half an hour
     now = utcnow()
     if (now.minute % 30) == 0 or self._state == None:
-      _LOGGER.info(f"Updating OctopusEnergyElectricityPreviousRate for '{self._mpan}/{self._serial_number}'")
+      _LOGGER.debug(f"Updating OctopusEnergyElectricityPreviousRate for '{self._mpan}/{self._serial_number}'")
 
       target = now - timedelta(minutes=30)
 
@@ -387,7 +387,7 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Oct
     )
 
     if (consumption != None and len(consumption["consumptions"]) > 2):
-      _LOGGER.info(f"Calculated previous electricity consumption for '{self._mpan}/{self._serial_number}'...")
+      _LOGGER.debug(f"Calculated previous electricity consumption for '{self._mpan}/{self._serial_number}'...")
       self._state = consumption["total"]
       self._latest_date = consumption["last_calculated_timestamp"]
 
@@ -477,7 +477,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     )
 
     if (consumption_cost != None and len(consumption_cost["charges"]) > 2):
-      _LOGGER.info(f"Calculated previous electricity consumption cost for '{self._mpan}/{self._serial_number}'...")
+      _LOGGER.debug(f"Calculated previous electricity consumption cost for '{self._mpan}/{self._serial_number}'...")
       self._latest_date = consumption_cost["last_calculated_timestamp"]
       self._state = consumption_cost["total"]
 
@@ -571,7 +571,7 @@ class OctopusEnergyGasCurrentRate(OctopusEnergyGasSensor):
 
     utc_now = utcnow()
     if (self._latest_date == None or (self._latest_date + timedelta(days=1)) < utc_now):
-      _LOGGER.info('Updating OctopusEnergyGasCurrentRate')
+      _LOGGER.debug('Updating OctopusEnergyGasCurrentRate')
 
       period_from = as_utc(parse_datetime(utc_now.strftime("%Y-%m-%dT00:00:00Z")))
       period_to = as_utc(parse_datetime((utc_now + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00Z")))
@@ -653,7 +653,7 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
     )
 
     if (consumption != None and len(consumption["consumptions"]) > 2):
-      _LOGGER.info(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
+      _LOGGER.debug(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
       self._state = consumption["total_m3"]
       self._latest_date = consumption["last_calculated_timestamp"]
 
@@ -745,7 +745,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
     )
 
     if (consumption_cost != None and len(consumption_cost["charges"]) > 2):
-      _LOGGER.info(f"Calculated previous gas consumption cost for '{self._mprn}/{self._serial_number}'...")
+      _LOGGER.debug(f"Calculated previous gas consumption cost for '{self._mprn}/{self._serial_number}'...")
       self._latest_date = consumption_cost["last_calculated_timestamp"]
       self._state = consumption_cost["total"]
 
