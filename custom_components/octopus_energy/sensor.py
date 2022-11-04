@@ -232,7 +232,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
 
       current_rate = None
       if self.coordinator.data != None:
-        rate = self.coordinator.data[(self._mpan, self._is_smart_meter)]
+        rate = self.coordinator.data[self._mpan]
         if rate != None:
           for period in rate:
             if now >= period["valid_from"] and now <= period["valid_to"]:
@@ -323,7 +323,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
 
       previous_rate = None
       if self.coordinator.data != None:
-        rate = self.coordinator.data[(self._mpan, self._is_smart_meter)]
+        rate = self.coordinator.data[self._mpan]
         if rate != None:
           for period in rate:
             if target >= period["valid_from"] and target <= period["valid_to"]:
