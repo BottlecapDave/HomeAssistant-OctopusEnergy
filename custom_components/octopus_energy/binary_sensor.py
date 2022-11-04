@@ -111,18 +111,21 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
           break
       
       if all_rates_in_past:
-        # Retrieve our rates. For backwards compatibility, if there is only one rate or CONFIG_TARGET_MPAN
-        # is not set, then pick the first set
         if self.coordinator.data != None:
           all_rates = self.coordinator.data
-          if len(all_rates) == 1 or CONFIG_TARGET_MPAN not in self._config:
+          
+          # Retrieve our rates. For backwards compatibility, if CONFIG_TARGET_MPAN is not set, then pick the first set
+          if CONFIG_TARGET_MPAN not in self._config:
+            _LOGGER.debug(f"'CONFIG_TARGET_MPAN' not set.'{len(all_rates)}' rates available. Retrieving the first rate.")
             all_rates = next(iter(all_rates.values()))
           else:
+            _LOGGER.debug(f"Retrieving rates for '{self._config[CONFIG_TARGET_MPAN]}'")
             all_rates = all_rates.get(self._config[CONFIG_TARGET_MPAN])
         else:
+          _LOGGER.debug(f"Rate data missing. Setting to empty string")
           all_rates = []
 
-        _LOGGER.debug(f'{len(all_rates) if all_rates != None else None} rate periods found for meter {self._config[CONFIG_TARGET_MPAN]}')
+        _LOGGER.debug(f'{len(all_rates) if all_rates != None else None} rate periods found')
 
         start_time = None
         if CONFIG_TARGET_START_TIME in self._config:
