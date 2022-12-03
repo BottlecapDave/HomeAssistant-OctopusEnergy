@@ -1,7 +1,12 @@
 import logging
 from datetime import timedelta
-from homeassistant.util.dt import (now, as_utc)
 import asyncio
+
+from homeassistant.util.dt import (now, as_utc)
+from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers.update_coordinator import (
+  DataUpdateCoordinator
+)
 
 from .const import (
   DOMAIN,
@@ -14,14 +19,11 @@ from .const import (
   DATA_CLIENT,
   DATA_ELECTRICITY_RATES_COORDINATOR,
   DATA_RATES,
-  DATA_ACCOUNT_ID
+  DATA_ACCOUNT_ID,
+  DATA_ACCOUNT
 )
 
 from .api_client import OctopusEnergyApiClient
-
-from homeassistant.helpers.update_coordinator import (
-  DataUpdateCoordinator
-)
 
 from .utils import (
   get_active_tariff_code
@@ -34,7 +36,7 @@ async def async_setup_entry(hass, entry):
   hass.data.setdefault(DOMAIN, {})
 
   if CONFIG_MAIN_API_KEY in entry.data:
-    setup_dependencies(hass, entry.data)
+    await async_setup_dependencies(hass, entry.data)
 
     # Forward our entry to setup our default sensors
     hass.async_create_task(
@@ -45,6 +47,9 @@ async def async_setup_entry(hass, entry):
       hass.config_entries.async_forward_entry_setup(entry, "binary_sensor")
     )
   elif CONFIG_TARGET_NAME in entry.data:
+    if DOMAIN not in hass.data or DATA_ELECTRICITY_RATES_COORDINATOR not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN]:
+      raise ConfigEntryNotReady
+
     # Forward our entry to setup our target rate sensors
     hass.async_create_task(
       hass.config_entries.async_forward_entry_setup(entry, "binary_sensor")
@@ -73,7 +78,7 @@ async def async_get_current_electricity_agreement_tariff_codes(client, config):
   
   return tariff_codes
 
-def setup_dependencies(hass, config):
+async def async_setup_dependencies(hass, config):
   """Setup the coordinator and api client which will be shared by various entities"""
 
   if DATA_CLIENT not in hass.data[DOMAIN]:
@@ -116,6 +121,10 @@ def setup_dependencies(hass, config):
       # data every 30 minutes
       update_interval=timedelta(minutes=1),
     )
+
+    account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
+
+    hass.data[DOMAIN][DATA_ACCOUNT] = account_info
 
 async def options_update_listener(hass, entry):
   """Handle options update."""

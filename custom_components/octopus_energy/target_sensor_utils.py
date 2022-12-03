@@ -60,7 +60,7 @@ def __get_rate(rate):
 def __get_valid_to(rate):
   return rate["valid_to"]
 
-def calculate_continuous_times(current_date, target_start_time, target_end_time, target_hours, rates, target_start_offset = None, is_rolling_target = True):
+def calculate_continuous_times(current_date, target_start_time, target_end_time, target_hours, rates, target_start_offset = None, is_rolling_target = True, search_for_highest_rate = False):
   applicable_rates = __get_applicable_rates(current_date, target_start_time, target_end_time, rates, target_start_offset, is_rolling_target)
   applicable_rates_count = len(applicable_rates)
   total_required_rates = math.ceil(target_hours * 2)
@@ -84,7 +84,7 @@ def calculate_continuous_times(current_date, target_start_time, target_end_time,
       else:
         break
     
-    if ((best_continuous_rates == None or continuous_rates_total < best_continuous_rates_total) and len(continuous_rates) == total_required_rates):
+    if ((best_continuous_rates == None or (search_for_highest_rate == False and continuous_rates_total < best_continuous_rates_total) or (search_for_highest_rate and continuous_rates_total > best_continuous_rates_total)) and len(continuous_rates) == total_required_rates):
       best_continuous_rates = continuous_rates
       best_continuous_rates_total = continuous_rates_total
     else:
@@ -97,11 +97,11 @@ def calculate_continuous_times(current_date, target_start_time, target_end_time,
   
   return []
 
-def calculate_intermittent_times(current_date, target_start_time, target_end_time, target_hours, rates, target_start_offset = None, is_rolling_target = True):
+def calculate_intermittent_times(current_date, target_start_time, target_end_time, target_hours, rates, target_start_offset = None, is_rolling_target = True, search_for_highest_rate = False):
   applicable_rates = __get_applicable_rates(current_date, target_start_time, target_end_time, rates, target_start_offset, is_rolling_target)
   total_required_rates = math.ceil(target_hours * 2)
 
-  applicable_rates.sort(key=__get_rate)
+  applicable_rates.sort(key=__get_rate, reverse=search_for_highest_rate)
   applicable_rates = applicable_rates[:total_required_rates]
   
   _LOGGER.debug(f'{len(applicable_rates)} applicable rates found')

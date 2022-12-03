@@ -1,10 +1,8 @@
 from datetime import timedelta
-import math
 import logging
 from custom_components.octopus_energy.utils import apply_offset
 
-from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.util.dt import (utcnow, now, as_utc, parse_datetime)
+from homeassistant.util.dt import (utcnow, now)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
@@ -28,7 +26,8 @@ from .const import (
   CONFIG_TARGET_ROLLING_TARGET,
 
   DATA_ELECTRICITY_RATES_COORDINATOR,
-  DATA_CLIENT
+  DATA_CLIENT,
+  DATA_ACCOUNT
 )
 
 from .target_sensor_utils import (
@@ -47,9 +46,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
   if CONFIG_MAIN_API_KEY in entry.data:
     await async_setup_season_sensors(hass, entry, async_add_entities)
   elif CONFIG_TARGET_NAME in entry.data:
-    if DOMAIN not in hass.data or DATA_ELECTRICITY_RATES_COORDINATOR not in hass.data[DOMAIN]:
-      raise ConfigEntryNotReady
-    
     await async_setup_target_sensors(hass, entry, async_add_entities)
 
   return True
@@ -73,18 +69,31 @@ async def async_setup_target_sensors(hass, entry, async_add_entities):
   
   coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR]
 
-  async_add_entities([OctopusEnergyTargetRate(coordinator, config)], True)
+  account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+
+  mpan = config[CONFIG_TARGET_MPAN]
+
+  is_export = False
+  for point in account_info["electricity_meter_points"]:
+    if point["mpan"] == mpan:
+      for meter in point["meters"]:
+        is_export = meter["is_export"]
+
+  entities = [OctopusEnergyTargetRate(coordinator, config, is_export)]
+  async_add_entities(entities, True)
 
 class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
   """Sensor for calculating when a target should be turned on or off."""
 
-  def __init__(self, coordinator, config):
+  def __init__(self, coordinator, config, is_export):
     """Init sensor."""
     # Pass coordinator to base class
     super().__init__(coordinator)
 
     self._config = config
+    self._is_export = is_export
     self._attributes = self._config.copy()
+    self._attributes["is_target_export"] = is_export
     self._target_rates = []
 
   @property
@@ -95,7 +104,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Target {self._config[CONFIG_TARGET_NAME]}"
+    return f"Octopus Energy Target Export {self._config[CONFIG_TARGET_NAME]}"
 
   @property
   def icon(self):
@@ -168,7 +177,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
             target_hours,
             all_rates,
             offset,
-            is_rolling_target
+            is_rolling_target,
+            self._is_export
           )
         elif (self._config[CONFIG_TARGET_TYPE] == "Intermittent"):
           self._target_rates = calculate_intermittent_times(
@@ -178,7 +188,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
             target_hours,
             all_rates,
             offset,
-            is_rolling_target
+            is_rolling_target,
+            self._is_export
           )
         else:
           _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")

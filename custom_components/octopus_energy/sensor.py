@@ -25,8 +25,6 @@ from .sensor_utils import (
   async_calculate_gas_cost
 )
 
-from typing import Generic, TypeVar
-
 from .utils import (get_active_tariff_code)
 from .const import (
   DOMAIN,
@@ -37,7 +35,8 @@ from .const import (
   CONFIG_SMETS1,
 
   DATA_ELECTRICITY_RATES_COORDINATOR,
-  DATA_CLIENT
+  DATA_CLIENT,
+  DATA_ACCOUNT
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -113,7 +112,7 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
 
   entities = []
   
-  account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
+  account_info = hass.data[DOMAIN][DATA_ACCOUNT]
 
   now = utcnow()
 
