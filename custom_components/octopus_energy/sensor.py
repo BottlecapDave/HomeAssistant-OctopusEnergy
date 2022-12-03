@@ -93,7 +93,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
 
   if CONFIG_MAIN_API_KEY in entry.data:
-    return async_setup_default_sensors(hass, entry, async_add_entities)
+    await async_setup_default_sensors(hass, entry, async_add_entities)
 
 async def async_setup_default_sensors(hass, entry, async_add_entities):
   config = dict(entry.data)
