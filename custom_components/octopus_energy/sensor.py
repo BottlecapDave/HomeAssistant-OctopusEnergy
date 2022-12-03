@@ -93,7 +93,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
 
   if CONFIG_MAIN_API_KEY in entry.data:
-    await async_setup_default_sensors(hass, entry, async_add_entities)
+    return async_setup_default_sensors(hass, entry, async_add_entities)
 
 async def async_setup_default_sensors(hass, entry, async_add_entities):
   config = dict(entry.data)
@@ -264,7 +264,10 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
     # If not None, we got an initial value.
     await super().async_added_to_hass()
     state = await self.async_get_last_state()
-    self._state = state.state
+    
+    if state is not None:
+      self._state = state.state
+
     if (self._state is None):
       self._state = 0
     
@@ -349,7 +352,10 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
     # If not None, we got an initial value.
     await super().async_added_to_hass()
     state = await self.async_get_last_state()
-    self._state = state.state
+    
+    if state is not None:
+      self._state = state.state
+
     if (self._state is None):
       self._state = 0
     
@@ -431,7 +437,10 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Oct
     # If not None, we got an initial value.
     await super().async_added_to_hass()
     state = await self.async_get_last_state()
-    self._state = state.state
+    
+    if state is not None:
+      self._state = state.state
+
     if (self._state is None):
       self._state = 0
     
@@ -533,7 +542,10 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     # If not None, we got an initial value.
     await super().async_added_to_hass()
     state = await self.async_get_last_state()
-    self._state = state.state
+    
+    if state is not None:
+      self._state = state.state
+
     if (self._state is None):
       self._state = 0
     
@@ -648,7 +660,10 @@ class OctopusEnergyGasCurrentRate(OctopusEnergyGasSensor):
     # If not None, we got an initial value.
     await super().async_added_to_hass()
     state = await self.async_get_last_state()
-    self._state = state.state
+    
+    if state is not None:
+      self._state = state.state
+
     if (self._state is None):
       self._state = 0
     
@@ -730,7 +745,10 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
     # If not None, we got an initial value.
     await super().async_added_to_hass()
     state = await self.async_get_last_state()
-    self._state = state.state
+    
+    if state is not None:
+      self._state = state.state
+
     if (self._state is None):
       self._state = 0
     
@@ -833,7 +851,10 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
     # If not None, we got an initial value.
     await super().async_added_to_hass()
     state = await self.async_get_last_state()
-    self._state = state.state
+    
+    if state is not None:
+      self._state = state.state
+
     if (self._state is None):
       self._state = 0
     

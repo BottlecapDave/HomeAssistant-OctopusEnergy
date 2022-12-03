@@ -40,6 +40,10 @@ async def async_setup_entry(hass, entry):
     hass.async_create_task(
       hass.config_entries.async_forward_entry_setup(entry, "sensor")
     )
+
+    hass.async_create_task(
+      hass.config_entries.async_forward_entry_setup(entry, "binary_sensor")
+    )
   elif CONFIG_TARGET_NAME in entry.data:
     # Forward our entry to setup our target rate sensors
     hass.async_create_task(
