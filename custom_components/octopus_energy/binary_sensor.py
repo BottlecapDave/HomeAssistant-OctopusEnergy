@@ -1,20 +1,20 @@
 from datetime import timedelta
-import math
 import logging
 from custom_components.octopus_energy.utils import apply_offset
 
-from homeassistant.exceptions import ConfigEntryNotReady
-from homeassistant.util.dt import (utcnow, now, as_utc, parse_datetime)
+from homeassistant.util.dt import (utcnow, now)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
 from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
+from homeassistant.helpers.restore_state import RestoreEntity
 from .const import (
   CONFIG_TARGET_OFFSET,
   DOMAIN,
 
+  CONFIG_MAIN_API_KEY,
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_HOURS,
   CONFIG_TARGET_TYPE,
@@ -23,13 +23,20 @@ from .const import (
   CONFIG_TARGET_MPAN,
   CONFIG_TARGET_ROLLING_TARGET,
 
-  DATA_ELECTRICITY_RATES_COORDINATOR
+  DATA_ELECTRICITY_RATES_COORDINATOR,
+  DATA_SAVING_SESSIONS_COORDINATOR,
+  DATA_ACCOUNT
 )
 
 from .target_sensor_utils import (
   calculate_continuous_times,
   calculate_intermittent_times,
   is_target_rate_active
+)
+
+from .sensor_utils import (
+  is_saving_sessions_event_active,
+  get_next_saving_sessions_event
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -39,13 +46,25 @@ SCAN_INTERVAL = timedelta(minutes=1)
 async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
 
-  if CONFIG_TARGET_NAME in entry.data:
-    if DOMAIN not in hass.data or DATA_ELECTRICITY_RATES_COORDINATOR not in hass.data[DOMAIN]:
-      raise ConfigEntryNotReady
-    
+  if CONFIG_MAIN_API_KEY in entry.data:
+    await async_setup_season_sensors(hass, entry, async_add_entities)
+  elif CONFIG_TARGET_NAME in entry.data:
     await async_setup_target_sensors(hass, entry, async_add_entities)
 
   return True
+
+async def async_setup_season_sensors(hass, entry, async_add_entities):
+  _LOGGER.debug('Setting up Season Saving entity')
+  config = dict(entry.data)
+
+  if entry.options:
+    config.update(entry.options)
+
+  saving_session_coordinator = hass.data[DOMAIN][DATA_SAVING_SESSIONS_COORDINATOR]
+
+  await saving_session_coordinator.async_config_entry_first_refresh()
+
+  async_add_entities([OctopusEnergySavingSessions(saving_session_coordinator)], True)
 
 async def async_setup_target_sensors(hass, entry, async_add_entities):
   config = dict(entry.data)
@@ -55,18 +74,31 @@ async def async_setup_target_sensors(hass, entry, async_add_entities):
   
   coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR]
 
-  async_add_entities([OctopusEnergyTargetRate(coordinator, config)], True)
+  account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+
+  mpan = config[CONFIG_TARGET_MPAN]
+
+  is_export = False
+  for point in account_info["electricity_meter_points"]:
+    if point["mpan"] == mpan:
+      for meter in point["meters"]:
+        is_export = meter["is_export"]
+
+  entities = [OctopusEnergyTargetRate(coordinator, config, is_export)]
+  async_add_entities(entities, True)
 
 class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
   """Sensor for calculating when a target should be turned on or off."""
 
-  def __init__(self, coordinator, config):
+  def __init__(self, coordinator, config, is_export):
     """Init sensor."""
     # Pass coordinator to base class
     super().__init__(coordinator)
 
     self._config = config
+    self._is_export = is_export
     self._attributes = self._config.copy()
+    self._attributes["is_target_export"] = is_export
     self._target_rates = []
 
   @property
@@ -77,7 +109,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Target {self._config[CONFIG_TARGET_NAME]}"
+    return f"Octopus Energy Target Export {self._config[CONFIG_TARGET_NAME]}"
 
   @property
   def icon(self):
@@ -111,18 +143,21 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
           break
       
       if all_rates_in_past:
-        # Retrieve our rates. For backwards compatibility, if there is only one rate or CONFIG_TARGET_MPAN
-        # is not set, then pick the first set
         if self.coordinator.data != None:
           all_rates = self.coordinator.data
-          if len(all_rates) == 1 or CONFIG_TARGET_MPAN not in self._config:
+          
+          # Retrieve our rates. For backwards compatibility, if CONFIG_TARGET_MPAN is not set, then pick the first set
+          if CONFIG_TARGET_MPAN not in self._config:
+            _LOGGER.debug(f"'CONFIG_TARGET_MPAN' not set.'{len(all_rates)}' rates available. Retrieving the first rate.")
             all_rates = next(iter(all_rates.values()))
           else:
+            _LOGGER.debug(f"Retrieving rates for '{self._config[CONFIG_TARGET_MPAN]}'")
             all_rates = all_rates.get(self._config[CONFIG_TARGET_MPAN])
         else:
+          _LOGGER.debug(f"Rate data missing. Setting to empty array")
           all_rates = []
 
-        _LOGGER.debug(f'{len(all_rates) if all_rates != None else None} rate periods found for meter {self._config[CONFIG_TARGET_MPAN]}')
+        _LOGGER.debug(f'{len(all_rates) if all_rates != None else None} rate periods found')
 
         start_time = None
         if CONFIG_TARGET_START_TIME in self._config:
@@ -147,7 +182,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
             target_hours,
             all_rates,
             offset,
-            is_rolling_target
+            is_rolling_target,
+            self._is_export
           )
         elif (self._config[CONFIG_TARGET_TYPE] == "Intermittent"):
           self._target_rates = calculate_intermittent_times(
@@ -157,7 +193,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
             target_hours,
             all_rates,
             offset,
-            is_rolling_target
+            is_rolling_target,
+            self._is_export
           )
         else:
           _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")
@@ -172,3 +209,72 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
       self._attributes["next_time"] = active_result["next_time"]
 
     return active_result["is_active"]
+
+class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
+  """Sensor for determining if a saving session is active."""
+
+  def __init__(self, coordinator):
+    """Init sensor."""
+
+    super().__init__(coordinator)
+  
+    self._state = None
+    self._events = []
+    self._attributes = {
+      "joined_events": [],
+      "next_joined_event_start": None
+    }
+
+  @property
+  def unique_id(self):
+    """The id of the sensor."""
+    return f"octopus_energy_saving_sessions"
+    
+  @property
+  def name(self):
+    """Name of the sensor."""
+    return f"Octopus Energy Saving Session"
+
+  @property
+  def icon(self):
+    """Icon of the sensor."""
+    return "mdi:leaf"
+
+  @property
+  def extra_state_attributes(self):
+    """Attributes of the sensor."""
+    return self._attributes
+
+  @property
+  def is_on(self):
+    """The state of the sensor."""
+    saving_session = self.coordinator.data
+    if (saving_session is not None and "events" in saving_session):
+      self._events = saving_session["events"]
+    else:
+      self._events = []
+    
+    self._attributes = {
+      "joined_events": self._events,
+      "next_joined_event_start": None
+    }
+
+    current_date = now()
+    self._state = is_saving_sessions_event_active(current_date, self._events)
+    self._attributes["next_joined_event_start"] = get_next_saving_sessions_event(current_date, self._events)
+
+    return self._state
+
+  async def async_added_to_hass(self):
+    """Call when entity about to be added to hass."""
+    # If not None, we got an initial value.
+    await super().async_added_to_hass()
+    state = await self.async_get_last_state()
+
+    if state is not None:
+      self._state = state.state
+    
+    if (self._state is None):
+      self._state = False
+    
+    _LOGGER.debug(f'Restored state: {self._state}')

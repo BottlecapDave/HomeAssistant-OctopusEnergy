@@ -15,6 +15,7 @@ from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR,
     VOLUME_CUBIC_METERS
 )
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from .sensor_utils import (
   async_get_consumption_data,
@@ -24,19 +25,18 @@ from .sensor_utils import (
   async_calculate_gas_cost
 )
 
-from typing import Generic, TypeVar
-
 from .utils import (get_active_tariff_code)
 from .const import (
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
-  CONFIG_MAIN_ACCOUNT_ID,
   
   CONFIG_SMETS1,
 
   DATA_ELECTRICITY_RATES_COORDINATOR,
-  DATA_CLIENT
+  DATA_SAVING_SESSIONS_COORDINATOR,
+  DATA_CLIENT,
+  DATA_ACCOUNT
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -110,9 +110,13 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
 
   await rate_coordinator.async_config_entry_first_refresh()
 
-  entities = []
+  saving_session_coordinator = hass.data[DOMAIN][DATA_SAVING_SESSIONS_COORDINATOR]
+
+  await saving_session_coordinator.async_config_entry_first_refresh()
+
+  entities = [OctopusEnergySavingSessionPoints(saving_session_coordinator)]
   
-  account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
+  account_info = hass.data[DOMAIN][DATA_ACCOUNT]
 
   now = utcnow()
 
@@ -155,7 +159,7 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
 
   async_add_entities(entities, True)
 
-class OctopusEnergyElectricitySensor(SensorEntity):
+class OctopusEnergyElectricitySensor(SensorEntity, RestoreEntity):
   def __init__(self, mpan, serial_number, is_export, is_smart_meter):
     """Init sensor"""
     self._mpan = mpan
@@ -231,7 +235,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
 
       current_rate = None
       if self.coordinator.data != None:
-        rate = self.coordinator.data[(self._mpan, self._is_smart_meter)]
+        rate = self.coordinator.data[self._mpan]
         if rate != None:
           for period in rate:
             if now >= period["valid_from"] and now <= period["valid_to"]:
@@ -257,6 +261,20 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
         self._attributes = {}
 
     return self._state
+
+  async def async_added_to_hass(self):
+    """Call when entity about to be added to hass."""
+    # If not None, we got an initial value.
+    await super().async_added_to_hass()
+    state = await self.async_get_last_state()
+    
+    if state is not None:
+      self._state = state.state
+
+    if (self._state is None):
+      self._state = 0
+    
+    _LOGGER.debug(f'Restored state: {self._state}')
 
 class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElectricitySensor):
   """Sensor for displaying the previous rate."""
@@ -311,7 +329,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
 
       previous_rate = None
       if self.coordinator.data != None:
-        rate = self.coordinator.data[(self._mpan, self._is_smart_meter)]
+        rate = self.coordinator.data[self._mpan]
         if rate != None:
           for period in rate:
             if target >= period["valid_from"] and target <= period["valid_to"]:
@@ -332,6 +350,20 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
 
     return self._state
 
+  async def async_added_to_hass(self):
+    """Call when entity about to be added to hass."""
+    # If not None, we got an initial value.
+    await super().async_added_to_hass()
+    state = await self.async_get_last_state()
+    
+    if state is not None:
+      self._state = state.state
+
+    if (self._state is None):
+      self._state = 0
+    
+    _LOGGER.debug(f'Restored state: {self._state}')
+
 class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, OctopusEnergyElectricitySensor):
   """Sensor for displaying the previous days accumulative electricity reading."""
 
@@ -340,7 +372,7 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Oct
     super().__init__(coordinator)
     OctopusEnergyElectricitySensor.__init__(self, mpan, serial_number, is_export, is_smart_meter)
 
-    self._state = 0
+    self._state = None
     self._latest_date = None
 
   @property
@@ -403,6 +435,20 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Oct
     
     return self._state
 
+  async def async_added_to_hass(self):
+    """Call when entity about to be added to hass."""
+    # If not None, we got an initial value.
+    await super().async_added_to_hass()
+    state = await self.async_get_last_state()
+    
+    if state is not None:
+      self._state = state.state
+
+    if (self._state is None):
+      self._state = 0
+    
+    _LOGGER.debug(f'Restored state: {self._state}')
+
 class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, OctopusEnergyElectricitySensor):
   """Sensor for displaying the previous days accumulative electricity cost."""
 
@@ -414,7 +460,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     self._client = client
     self._tariff_code = tariff_code
 
-    self._state = 0
+    self._state = None
     self._latest_date = None
 
   @property
@@ -494,7 +540,21 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
         "charges": consumption_cost["charges"]
       }
 
-class OctopusEnergyGasSensor(SensorEntity):
+  async def async_added_to_hass(self):
+    """Call when entity about to be added to hass."""
+    # If not None, we got an initial value.
+    await super().async_added_to_hass()
+    state = await self.async_get_last_state()
+    
+    if state is not None:
+      self._state = state.state
+
+    if (self._state is None):
+      self._state = 0
+    
+    _LOGGER.debug(f'Restored state: {self._state}')
+
+class OctopusEnergyGasSensor(SensorEntity, RestoreEntity):
   def __init__(self, mprn, serial_number, is_smets1_meter):
     """Init sensor"""
     self._mprn = mprn
@@ -598,6 +658,20 @@ class OctopusEnergyGasCurrentRate(OctopusEnergyGasSensor):
 
       self._latest_date = period_from
 
+  async def async_added_to_hass(self):
+    """Call when entity about to be added to hass."""
+    # If not None, we got an initial value.
+    await super().async_added_to_hass()
+    state = await self.async_get_last_state()
+    
+    if state is not None:
+      self._state = state.state
+
+    if (self._state is None):
+      self._state = 0
+    
+    _LOGGER.debug(f'Restored state: {self._state}')
+
 class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEnergyGasSensor):
   """Sensor for displaying the previous days accumulative gas reading."""
 
@@ -606,7 +680,7 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
     super().__init__(coordinator)
     OctopusEnergyGasSensor.__init__(self, mprn, serial_number, is_smets1_meter)
 
-    self._state = 0
+    self._state = None
     self._latest_date = None
 
   @property
@@ -669,6 +743,20 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
     
     return self._state
 
+  async def async_added_to_hass(self):
+    """Call when entity about to be added to hass."""
+    # If not None, we got an initial value.
+    await super().async_added_to_hass()
+    state = await self.async_get_last_state()
+    
+    if state is not None:
+      self._state = state.state
+
+    if (self._state is None):
+      self._state = 0
+    
+    _LOGGER.debug(f'Restored state: {self._state}')
+
 class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyGasSensor):
   """Sensor for displaying the previous days accumulative gas cost."""
 
@@ -680,7 +768,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
     self._client = client
     self._tariff_code = tariff_code
 
-    self._state = 0
+    self._state = None
     self._latest_date = None
 
   @property
@@ -760,3 +848,78 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
         "last_calculated_timestamp": consumption_cost["last_calculated_timestamp"],
         "charges": consumption_cost["charges"]
       }
+
+  async def async_added_to_hass(self):
+    """Call when entity about to be added to hass."""
+    # If not None, we got an initial value.
+    await super().async_added_to_hass()
+    state = await self.async_get_last_state()
+    
+    if state is not None:
+      self._state = state.state
+
+    if (self._state is None):
+      self._state = 0
+    
+    _LOGGER.debug(f'Restored state: {self._state}')
+
+class OctopusEnergySavingSessionPoints(CoordinatorEntity, SensorEntity, RestoreEntity):
+  """Sensor for determining saving session points"""
+
+  def __init__(self, coordinator):
+    """Init sensor."""
+
+    super().__init__(coordinator)
+  
+    self._state = None
+    self._attributes = {}
+
+  @property
+  def unique_id(self):
+    """The id of the sensor."""
+    return f"octopus_energy_saving_session_points"
+    
+  @property
+  def name(self):
+    """Name of the sensor."""
+    return f"Octopus Energy Saving Session Points"
+
+  @property
+  def icon(self):
+    """Icon of the sensor."""
+    return "mdi:leaf"
+
+  @property
+  def extra_state_attributes(self):
+    """Attributes of the sensor."""
+    return self._attributes
+
+  @property
+  def state_class(self):
+    """The state class of sensor"""
+    return SensorStateClass.TOTAL_INCREASING
+
+  @property
+  def state(self):
+    """Retrieve the previously calculated state"""
+    saving_session = self.coordinator.data
+    if (saving_session is not None and "points" in saving_session):
+      self._state = saving_session["points"]
+    else:
+      self._state = 0
+
+    return self._state
+
+  async def async_added_to_hass(self):
+    """Call when entity about to be added to hass."""
+    # If not None, we got an initial value.
+    await super().async_added_to_hass()
+    state = await self.async_get_last_state()
+
+    if state is not None:
+      self._state = state.state
+    
+    if (self._state is None):
+      self._state = 0
+    
+    _LOGGER.debug(f'Restored state: {self._state}')
