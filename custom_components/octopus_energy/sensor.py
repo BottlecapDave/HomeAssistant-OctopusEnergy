@@ -30,11 +30,11 @@ from .const import (
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
-  CONFIG_MAIN_ACCOUNT_ID,
   
   CONFIG_SMETS1,
 
   DATA_ELECTRICITY_RATES_COORDINATOR,
+  DATA_SEASON_SAVINGS_COORDINATOR,
   DATA_CLIENT,
   DATA_ACCOUNT
 )
@@ -110,7 +110,11 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
 
   await rate_coordinator.async_config_entry_first_refresh()
 
-  entities = []
+  season_savings_coordinator = hass.data[DOMAIN][DATA_SEASON_SAVINGS_COORDINATOR]
+
+  await season_savings_coordinator.async_config_entry_first_refresh()
+
+  entities = [OctopusEnergySeasonSavingPoints(season_savings_coordinator)]
   
   account_info = hass.data[DOMAIN][DATA_ACCOUNT]
 
@@ -854,6 +858,67 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
     if state is not None:
       self._state = state.state
 
+    if (self._state is None):
+      self._state = 0
+    
+    _LOGGER.debug(f'Restored state: {self._state}')
+
+class OctopusEnergySeasonSavingPoints(CoordinatorEntity, SensorEntity, RestoreEntity):
+  """Sensor for determining season savings points"""
+
+  def __init__(self, coordinator):
+    """Init sensor."""
+
+    super().__init__(coordinator)
+  
+    self._state = None
+    self._attributes = {}
+
+  @property
+  def unique_id(self):
+    """The id of the sensor."""
+    return f"octopus_energy_season_savings_points"
+    
+  @property
+  def name(self):
+    """Name of the sensor."""
+    return f"Octopus Energy Season Savings Points"
+
+  @property
+  def icon(self):
+    """Icon of the sensor."""
+    return "mdi:leaf"
+
+  @property
+  def extra_state_attributes(self):
+    """Attributes of the sensor."""
+    return self._attributes
+
+  @property
+  def state_class(self):
+    """The state class of sensor"""
+    return SensorStateClass.TOTAL_INCREASING
+
+  @property
+  def state(self):
+    """Retrieve the previously calculated state"""
+    season_savings = self.coordinator.data
+    if (season_savings is not None and "points" in season_savings):
+      self._state = season_savings["points"]
+    else:
+      self._state = 0
+
+    return self._state
+
+  async def async_added_to_hass(self):
+    """Call when entity about to be added to hass."""
+    # If not None, we got an initial value.
+    await super().async_added_to_hass()
+    state = await self.async_get_last_state()
+
+    if state is not None:
+      self._state = state.state
+    
     if (self._state is None):
       self._state = 0
     

@@ -20,7 +20,9 @@ from .const import (
   DATA_ELECTRICITY_RATES_COORDINATOR,
   DATA_RATES,
   DATA_ACCOUNT_ID,
-  DATA_ACCOUNT
+  DATA_ACCOUNT,
+  DATA_SEASON_SAVINGS,
+  DATA_SEASON_SAVINGS_COORDINATOR
 )
 
 from .api_client import OctopusEnergyApiClient
@@ -86,45 +88,72 @@ async def async_setup_dependencies(hass, config):
     hass.data[DOMAIN][DATA_CLIENT] = client
     hass.data[DOMAIN][DATA_ACCOUNT_ID] = config[CONFIG_MAIN_ACCOUNT_ID]
 
-    async def async_update_electricity_rates_data():
-      """Fetch data from API endpoint."""
-      # Only get data every half hour or if we don't have any data
-      current = now()
-      if (DATA_RATES not in hass.data[DOMAIN] or (current.minute % 30) == 0 or len(hass.data[DOMAIN][DATA_RATES]) == 0):
+    setup_rates_coordinator(hass, client, config)
 
-        tariff_codes = await async_get_current_electricity_agreement_tariff_codes(client, config)
-        _LOGGER.debug(f'tariff_codes: {tariff_codes}')
-
-        period_from = as_utc(current.replace(hour=0, minute=0, second=0, microsecond=0))
-        period_to = as_utc((current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0))
-
-        rates = {}
-        for ((meter_point, is_smart_meter), tariff_code) in tariff_codes.items():
-          key = meter_point
-          new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
-          if new_rates != None:
-            rates[key] = new_rates
-          elif (DATA_RATES in hass.data[DOMAIN] and key in hass.data[DOMAIN][DATA_RATES]):
-            _LOGGER.debug(f"Failed to retrieve new rates for {tariff_code}, so using cached rates")
-            rates[key] = hass.data[DOMAIN][DATA_RATES][key]
-        
-        hass.data[DOMAIN][DATA_RATES] = rates
-      
-      return hass.data[DOMAIN][DATA_RATES]
-
-    hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR] = DataUpdateCoordinator(
-      hass,
-      _LOGGER,
-      name="rates",
-      update_method=async_update_electricity_rates_data,
-      # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
-      # data every 30 minutes
-      update_interval=timedelta(minutes=1),
-    )
-
+    setup_season_savings_coordinators(hass, client, config)
+ 
     account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
 
     hass.data[DOMAIN][DATA_ACCOUNT] = account_info
+
+def setup_rates_coordinator(hass, client, config):
+  async def async_update_electricity_rates_data():
+    """Fetch data from API endpoint."""
+    # Only get data every half hour or if we don't have any data
+    current = now()
+    if (DATA_RATES not in hass.data[DOMAIN] or (current.minute % 30) == 0 or len(hass.data[DOMAIN][DATA_RATES]) == 0):
+
+      tariff_codes = await async_get_current_electricity_agreement_tariff_codes(client, config)
+      _LOGGER.debug(f'tariff_codes: {tariff_codes}')
+
+      period_from = as_utc(current.replace(hour=0, minute=0, second=0, microsecond=0))
+      period_to = as_utc((current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0))
+
+      rates = {}
+      for ((meter_point, is_smart_meter), tariff_code) in tariff_codes.items():
+        key = meter_point
+        new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
+        if new_rates != None:
+          rates[key] = new_rates
+        elif (DATA_RATES in hass.data[DOMAIN] and key in hass.data[DOMAIN][DATA_RATES]):
+          _LOGGER.debug(f"Failed to retrieve new rates for {tariff_code}, so using cached rates")
+          rates[key] = hass.data[DOMAIN][DATA_RATES][key]
+      
+      hass.data[DOMAIN][DATA_RATES] = rates
+    
+    return hass.data[DOMAIN][DATA_RATES]
+
+  hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR] = DataUpdateCoordinator(
+    hass,
+    _LOGGER,
+    name="rates",
+    update_method=async_update_electricity_rates_data,
+    # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
+    # data every 30 minutes
+    update_interval=timedelta(minutes=1),
+  )
+
+def setup_season_savings_coordinators(hass, client, config):
+  async def async_update_season_savings():
+    """Fetch data from API endpoint."""
+    # Only get data every half hour or if we don't have any data
+    current = now()
+    if DATA_SEASON_SAVINGS not in hass.data[DOMAIN] or current.minute % 30 == 0:
+      savings = await client.async_get_season_savings(hass.data[DOMAIN][DATA_ACCOUNT_ID])
+      
+      hass.data[DOMAIN][DATA_SEASON_SAVINGS] = savings
+    
+    return hass.data[DOMAIN][DATA_SEASON_SAVINGS]
+
+  hass.data[DOMAIN][DATA_SEASON_SAVINGS_COORDINATOR] = DataUpdateCoordinator(
+    hass,
+    _LOGGER,
+    name="season_savings",
+    update_method=async_update_season_savings,
+    # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
+    # data every 30 minutes
+    update_interval=timedelta(minutes=1),
+  )
 
 async def options_update_listener(hass, entry):
   """Handle options update."""

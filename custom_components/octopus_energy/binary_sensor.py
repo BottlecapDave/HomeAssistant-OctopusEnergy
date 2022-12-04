@@ -14,8 +14,6 @@ from .const import (
   CONFIG_TARGET_OFFSET,
   DOMAIN,
 
-  CONFIG_MAIN_ACCOUNT_ID,
-
   CONFIG_MAIN_API_KEY,
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_HOURS,
@@ -26,7 +24,7 @@ from .const import (
   CONFIG_TARGET_ROLLING_TARGET,
 
   DATA_ELECTRICITY_RATES_COORDINATOR,
-  DATA_CLIENT,
+  DATA_SEASON_SAVINGS_COORDINATOR,
   DATA_ACCOUNT
 )
 
@@ -34,6 +32,11 @@ from .target_sensor_utils import (
   calculate_continuous_times,
   calculate_intermittent_times,
   is_target_rate_active
+)
+
+from .sensor_utils import (
+  is_season_saving_event_active,
+  get_next_season_savings_event
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -57,9 +60,11 @@ async def async_setup_season_sensors(hass, entry, async_add_entities):
   if entry.options:
     config.update(entry.options)
 
-  account_id = config[CONFIG_MAIN_ACCOUNT_ID]
-  client = hass.data[DOMAIN][DATA_CLIENT]
-  async_add_entities([OctopusEnergySeasonSaving(client, account_id)], True)
+  season_savings_coordinator = hass.data[DOMAIN][DATA_SEASON_SAVINGS_COORDINATOR]
+
+  await season_savings_coordinator.async_config_entry_first_refresh()
+
+  async_add_entities([OctopusEnergySeasonSaving(season_savings_coordinator)], True)
 
 async def async_setup_target_sensors(hass, entry, async_add_entities):
   config = dict(entry.data)
@@ -205,15 +210,15 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
 
     return active_result["is_active"]
 
-class OctopusEnergySeasonSaving(BinarySensorEntity, RestoreEntity):
+class OctopusEnergySeasonSaving(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
   """Sensor for determining if a season saving is active."""
 
-  def __init__(self, client, account_id):
+  def __init__(self, coordinator):
     """Init sensor."""
+
+    super().__init__(coordinator)
   
     self._state = None
-    self._client = client
-    self._account_id = account_id
     self._events = []
     self._attributes = {
       "joined_events": [],
@@ -243,30 +248,22 @@ class OctopusEnergySeasonSaving(BinarySensorEntity, RestoreEntity):
   @property
   def is_on(self):
     """The state of the sensor."""
-
-    return self._state
-
-  async def async_update(self):
-    current_date = utcnow()
-    if (current_date.minute % 30) == 0 or len(self._events) == 0:
-      events = await self._client.async_get_season_savings(self._account_id)
-
-      self._events = events
-      self._attributes = {
-        "joined_events": events
-      }
-
-    self._attributes["next_joined_event_start"] = None
+    season_savings = self.coordinator.data
+    if (season_savings is not None and "events" in season_savings):
+      self._events = season_savings["events"]
+    else:
+      self._events = []
+    
+    self._attributes = {
+      "joined_events": self._events,
+      "next_joined_event_start": None
+    }
 
     current_date = now()
-    for event in self._events:
-      if (event["start"] <= current_date and event["end"] >= current_date):
-        self._state = True
+    self._state = is_season_saving_event_active(current_date, self._events)
+    self._attributes["next_joined_event_start"] = get_next_season_savings_event(current_date, self._events)
 
-      if event["start"] > current_date and (self._attributes["next_joined_event_start"] == None or event["start"] < self._attributes["next_joined_event_start"]):
-        self._attributes["next_joined_event_start"] = event["start"]
-
-    self._state = False
+    return self._state
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

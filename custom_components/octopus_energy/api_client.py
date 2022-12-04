@@ -84,6 +84,11 @@ season_savings_query = '''query {{
 			}}
 		}}
 	}}
+  octoPoints {{
+		account(accountNumber: "{account_id}") {{
+			currentPointsInWallet
+    }}
+  }}
 }}'''
 
 class OctopusEnergyApiClient:
@@ -174,10 +179,13 @@ class OctopusEnergyApiClient:
         response_body = await self.__async_read_response(account_response, url)
 
         if (response_body != None and "data" in response_body):
-          return list(map(lambda ev: {
-            "start": as_utc(parse_datetime(ev["startAt"])),
-            "end": as_utc(parse_datetime(ev["endAt"]))
-          }, response_body["data"]["savingSessions"]["account"]["joinedEvents"]))
+          return {
+            "points": int(response_body["data"]["octoPoints"]["account"]["currentPointsInWallet"]),
+            "events": list(map(lambda ev: {
+              "start": as_utc(parse_datetime(ev["startAt"])),
+              "end": as_utc(parse_datetime(ev["endAt"]))
+            }, response_body["data"]["savingSessions"]["account"]["joinedEvents"]))
+          }
         else:
           _LOGGER.error("Failed to retrieve account")
     
