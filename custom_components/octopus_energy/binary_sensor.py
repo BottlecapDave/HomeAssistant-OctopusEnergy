@@ -24,7 +24,7 @@ from .const import (
   CONFIG_TARGET_ROLLING_TARGET,
 
   DATA_ELECTRICITY_RATES_COORDINATOR,
-  DATA_SEASON_SAVINGS_COORDINATOR,
+  DATA_SAVING_SESSIONS_COORDINATOR,
   DATA_ACCOUNT
 )
 
@@ -35,8 +35,8 @@ from .target_sensor_utils import (
 )
 
 from .sensor_utils import (
-  is_season_saving_event_active,
-  get_next_season_savings_event
+  is_saving_sessions_event_active,
+  get_next_saving_sessions_event
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -60,11 +60,11 @@ async def async_setup_season_sensors(hass, entry, async_add_entities):
   if entry.options:
     config.update(entry.options)
 
-  season_savings_coordinator = hass.data[DOMAIN][DATA_SEASON_SAVINGS_COORDINATOR]
+  saving_session_coordinator = hass.data[DOMAIN][DATA_SAVING_SESSIONS_COORDINATOR]
 
-  await season_savings_coordinator.async_config_entry_first_refresh()
+  await saving_session_coordinator.async_config_entry_first_refresh()
 
-  async_add_entities([OctopusEnergySeasonSaving(season_savings_coordinator)], True)
+  async_add_entities([OctopusEnergySavingSessions(saving_session_coordinator)], True)
 
 async def async_setup_target_sensors(hass, entry, async_add_entities):
   config = dict(entry.data)
@@ -210,8 +210,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
 
     return active_result["is_active"]
 
-class OctopusEnergySeasonSaving(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
-  """Sensor for determining if a season saving is active."""
+class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
+  """Sensor for determining if a saving session is active."""
 
   def __init__(self, coordinator):
     """Init sensor."""
@@ -228,12 +228,12 @@ class OctopusEnergySeasonSaving(CoordinatorEntity, BinarySensorEntity, RestoreEn
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_season_savings"
+    return f"octopus_energy_saving_sessions"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Season Savings"
+    return f"Octopus Energy Saving Session"
 
   @property
   def icon(self):
@@ -248,9 +248,9 @@ class OctopusEnergySeasonSaving(CoordinatorEntity, BinarySensorEntity, RestoreEn
   @property
   def is_on(self):
     """The state of the sensor."""
-    season_savings = self.coordinator.data
-    if (season_savings is not None and "events" in season_savings):
-      self._events = season_savings["events"]
+    saving_session = self.coordinator.data
+    if (saving_session is not None and "events" in saving_session):
+      self._events = saving_session["events"]
     else:
       self._events = []
     
@@ -260,8 +260,8 @@ class OctopusEnergySeasonSaving(CoordinatorEntity, BinarySensorEntity, RestoreEn
     }
 
     current_date = now()
-    self._state = is_season_saving_event_active(current_date, self._events)
-    self._attributes["next_joined_event_start"] = get_next_season_savings_event(current_date, self._events)
+    self._state = is_saving_sessions_event_active(current_date, self._events)
+    self._attributes["next_joined_event_start"] = get_next_saving_sessions_event(current_date, self._events)
 
     return self._state
 

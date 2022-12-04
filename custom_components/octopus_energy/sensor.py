@@ -34,7 +34,7 @@ from .const import (
   CONFIG_SMETS1,
 
   DATA_ELECTRICITY_RATES_COORDINATOR,
-  DATA_SEASON_SAVINGS_COORDINATOR,
+  DATA_SAVING_SESSIONS_COORDINATOR,
   DATA_CLIENT,
   DATA_ACCOUNT
 )
@@ -110,11 +110,11 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
 
   await rate_coordinator.async_config_entry_first_refresh()
 
-  season_savings_coordinator = hass.data[DOMAIN][DATA_SEASON_SAVINGS_COORDINATOR]
+  saving_session_coordinator = hass.data[DOMAIN][DATA_SAVING_SESSIONS_COORDINATOR]
 
-  await season_savings_coordinator.async_config_entry_first_refresh()
+  await saving_session_coordinator.async_config_entry_first_refresh()
 
-  entities = [OctopusEnergySeasonSavingPoints(season_savings_coordinator)]
+  entities = [OctopusEnergySavingSessionPoints(saving_session_coordinator)]
   
   account_info = hass.data[DOMAIN][DATA_ACCOUNT]
 
@@ -863,8 +863,8 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
     
     _LOGGER.debug(f'Restored state: {self._state}')
 
-class OctopusEnergySeasonSavingPoints(CoordinatorEntity, SensorEntity, RestoreEntity):
-  """Sensor for determining season savings points"""
+class OctopusEnergySavingSessionPoints(CoordinatorEntity, SensorEntity, RestoreEntity):
+  """Sensor for determining saving session points"""
 
   def __init__(self, coordinator):
     """Init sensor."""
@@ -877,12 +877,12 @@ class OctopusEnergySeasonSavingPoints(CoordinatorEntity, SensorEntity, RestoreEn
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_season_savings_points"
+    return f"octopus_energy_saving_session_points"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Season Savings Points"
+    return f"Octopus Energy Saving Session Points"
 
   @property
   def icon(self):
@@ -902,9 +902,9 @@ class OctopusEnergySeasonSavingPoints(CoordinatorEntity, SensorEntity, RestoreEn
   @property
   def state(self):
     """Retrieve the previously calculated state"""
-    season_savings = self.coordinator.data
-    if (season_savings is not None and "points" in season_savings):
-      self._state = season_savings["points"]
+    saving_session = self.coordinator.data
+    if (saving_session is not None and "points" in saving_session):
+      self._state = saving_session["points"]
     else:
       self._state = 0
 

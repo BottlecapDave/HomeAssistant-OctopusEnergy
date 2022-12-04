@@ -212,14 +212,14 @@ async def async_calculate_gas_cost(client: OctopusEnergyApiClient, consumption_d
           "charges": charges
         }
 
-def is_season_saving_event_active(current_date, events):
+def is_saving_sessions_event_active(current_date, events):
   for event in events:
     if (event["start"] <= current_date and event["end"] >= current_date):
       return True
   
   return False
 
-def get_next_season_savings_event(current_date, events):
+def get_next_saving_sessions_event(current_date, events):
   next_event = None
   for event in events:
     if event["start"] > current_date and (next_event == None or event["start"] < next_event):

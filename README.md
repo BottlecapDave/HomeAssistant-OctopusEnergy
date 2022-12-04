@@ -1,5 +1,22 @@
 # Home Assistant Octopus Energy
 
+- [Home Assistant Octopus Energy](#home-assistant-octopus-energy)
+  - [How to install](#how-to-install)
+    - [HACS](#hacs)
+  - [How to setup](#how-to-setup)
+    - [Your account](#your-account)
+      - [Saving Sessions](#saving-sessions)
+    - [Target Rates](#target-rates)
+      - [Minimum and Maximum times](#minimum-and-maximum-times)
+      - [Offset](#offset)
+      - [Rolling Target](#rolling-target)
+    - [Gas Meters](#gas-meters)
+  - [FAQ](#faq)
+    - [I have sensors that are missing](#i-have-sensors-that-are-missing)
+    - [Can I get live sensor data?](#can-i-get-live-sensor-data)
+    - [Can I add the sensors to the Energy dashboard?](#can-i-add-the-sensors-to-the-energy-dashboard)
+    - [My gas sensor consumption readings don't look quite right](#my-gas-sensor-consumption-readings-dont-look-quite-right)
+
 Custom component built from the ground up to bring your Octopus Energy details into Home Assistant to help you towards a more energy efficient (and or cheaper) home. This integration is built against the API provided by Octopus Energy UK and has not been tested for any other divisions. This integration is in no way affiliated with Octopus Energy.
 
 ## How to install
@@ -41,6 +58,14 @@ You'll get the following sensors for each gas meter with an active agreement:
 While you can add these sensors to [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/), because Octopus doesn't provide live consumption data, it will be off by a day.
 
 Please note, that it's not possible to include current consumption sensors. This is due to Octopus Energy only providing data up to the previous day.
+
+#### Saving Sessions
+
+To support Octopus Energy's [saving sessions](https://octopus.energy/saving-sessions/), the following entities are available
+
+* `octopus_energy_saving_session_points` - Supplies the points earned through the saving sessions
+* `octopus_energy_saving_sessions` - Binary sensor to indicate if a saving session that the account has joined is active. Also supplies the list of joined events including future events.
+
 
 ### Target Rates
 

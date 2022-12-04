@@ -6,7 +6,7 @@ from integration import get_test_context
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 @pytest.mark.asyncio
-async def test_when_get_season_savings_is_called_then_events_are_returned():
+async def test_when_get_saving_sessions_is_called_then_events_are_returned():
     # Arrange
     context = get_test_context()
 
@@ -14,7 +14,7 @@ async def test_when_get_season_savings_is_called_then_events_are_returned():
     account_id = context["account_id"]
 
     # Act
-    savings = await client.async_get_season_savings(account_id)
+    savings = await client.async_get_saving_sessions(account_id)
 
     # Assert
     assert savings != None

@@ -1,7 +1,7 @@
 from datetime import datetime
 import pytest
 
-from custom_components.octopus_energy.sensor_utils import get_next_season_savings_event
+from custom_components.octopus_energy.sensor_utils import get_next_saving_sessions_event
 
 @pytest.mark.asyncio
 async def test_when_future_events_present_then_next_event_returned():
@@ -22,7 +22,7 @@ async def test_when_future_events_present_then_next_event_returned():
 
   current_date = datetime.strptime("2022-12-04T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
-  result = get_next_season_savings_event(
+  result = get_next_saving_sessions_event(
     current_date,
     events,
   )
@@ -48,7 +48,7 @@ async def test_when_no_future_events_present_then_none_returned():
 
   current_date = datetime.strptime("2022-12-08T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
-  result = get_next_season_savings_event(
+  result = get_next_saving_sessions_event(
     current_date,
     events,
   )

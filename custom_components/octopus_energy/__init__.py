@@ -21,8 +21,8 @@ from .const import (
   DATA_RATES,
   DATA_ACCOUNT_ID,
   DATA_ACCOUNT,
-  DATA_SEASON_SAVINGS,
-  DATA_SEASON_SAVINGS_COORDINATOR
+  DATA_SAVING_SESSIONS,
+  DATA_SAVING_SESSIONS_COORDINATOR
 )
 
 from .api_client import OctopusEnergyApiClient
@@ -90,7 +90,7 @@ async def async_setup_dependencies(hass, config):
 
     setup_rates_coordinator(hass, client, config)
 
-    setup_season_savings_coordinators(hass, client, config)
+    setup_saving_sessions_coordinators(hass, client)
  
     account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
 
@@ -133,23 +133,23 @@ def setup_rates_coordinator(hass, client, config):
     update_interval=timedelta(minutes=1),
   )
 
-def setup_season_savings_coordinators(hass, client, config):
-  async def async_update_season_savings():
+def setup_saving_sessions_coordinators(hass, client: OctopusEnergyApiClient):
+  async def async_update_saving_sessions():
     """Fetch data from API endpoint."""
     # Only get data every half hour or if we don't have any data
     current = now()
-    if DATA_SEASON_SAVINGS not in hass.data[DOMAIN] or current.minute % 30 == 0:
-      savings = await client.async_get_season_savings(hass.data[DOMAIN][DATA_ACCOUNT_ID])
+    if DATA_SAVING_SESSIONS not in hass.data[DOMAIN] or current.minute % 30 == 0:
+      savings = await client.async_get_saving_sessions(hass.data[DOMAIN][DATA_ACCOUNT_ID])
       
-      hass.data[DOMAIN][DATA_SEASON_SAVINGS] = savings
+      hass.data[DOMAIN][DATA_SAVING_SESSIONS] = savings
     
-    return hass.data[DOMAIN][DATA_SEASON_SAVINGS]
+    return hass.data[DOMAIN][DATA_SAVING_SESSIONS]
 
-  hass.data[DOMAIN][DATA_SEASON_SAVINGS_COORDINATOR] = DataUpdateCoordinator(
+  hass.data[DOMAIN][DATA_SAVING_SESSIONS_COORDINATOR] = DataUpdateCoordinator(
     hass,
     _LOGGER,
-    name="season_savings",
-    update_method=async_update_season_savings,
+    name="saving_sessions",
+    update_method=async_update_saving_sessions,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes
     update_interval=timedelta(minutes=1),

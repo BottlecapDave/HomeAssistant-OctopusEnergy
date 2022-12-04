@@ -73,7 +73,7 @@ account_query = '''query {{
   }}
 }}'''
 
-season_savings_query = '''query {{
+saving_session_query = '''query {{
 	savingSessions {{
 		account(accountNumber: "{account_id}") {{
 			hasJoinedCampaign
@@ -166,14 +166,14 @@ class OctopusEnergyApiClient:
     
     return None
 
-  async def async_get_season_savings(self, account_id):
+  async def async_get_saving_sessions(self, account_id):
     """Get the user's seasons savings"""
     await self.async_refresh_token()
 
     async with aiohttp.ClientSession() as client:
       url = f'{self._base_url}/v1/graphql/'
       # Get account response
-      payload = { "query": season_savings_query.format(account_id=account_id) }
+      payload = { "query": saving_session_query.format(account_id=account_id) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as account_response:
         response_body = await self.__async_read_response(account_response, url)

@@ -1,7 +1,7 @@
 from datetime import datetime
 import pytest
 
-from custom_components.octopus_energy.sensor_utils import is_season_saving_event_active
+from custom_components.octopus_energy.sensor_utils import is_saving_sessions_event_active
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("current_date",[
@@ -16,7 +16,7 @@ async def test_when_active_event_present_then_true_is_returned(current_date):
     }
   ]
 
-  result = is_season_saving_event_active(
+  result = is_saving_sessions_event_active(
     current_date,
     events,
   )
@@ -36,7 +36,7 @@ async def test_when_no_active_event_present_then_false_is_returned(current_date)
     }
   ]
 
-  result = is_season_saving_event_active(
+  result = is_saving_sessions_event_active(
     current_date,
     events,
   )
