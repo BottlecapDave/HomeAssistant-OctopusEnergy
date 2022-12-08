@@ -640,6 +640,8 @@ class OctopusEnergyGasCurrentRate(OctopusEnergyGasSensor):
       
       current_rate = None
       if rates != None:
+        self._latest_date = period_from
+        
         for period in rates:
           if utc_now >= period["valid_from"] and utc_now <= period["valid_to"]:
             current_rate = period
@@ -655,8 +657,6 @@ class OctopusEnergyGasCurrentRate(OctopusEnergyGasSensor):
       else:
         self._state = None
         self._attributes = {}
-
-      self._latest_date = period_from
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
