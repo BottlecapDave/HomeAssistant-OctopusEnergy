@@ -393,7 +393,7 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Oct
   @property
   def state_class(self):
     """The state class of sensor"""
-    return SensorStateClass.TOTAL_INCREASING
+    return SensorStateClass.TOTAL
 
   @property
   def unit_of_measurement(self):
@@ -481,7 +481,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
   @property
   def state_class(self):
     """The state class of sensor"""
-    return SensorStateClass.TOTAL_INCREASING
+    return SensorStateClass.TOTAL
 
   @property
   def unit_of_measurement(self):
@@ -701,7 +701,7 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
   @property
   def state_class(self):
     """The state class of sensor"""
-    return SensorStateClass.TOTAL_INCREASING
+    return SensorStateClass.TOTAL
 
   @property
   def unit_of_measurement(self):
@@ -789,7 +789,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
   @property
   def state_class(self):
     """The state class of sensor"""
-    return SensorStateClass.TOTAL_INCREASING
+    return SensorStateClass.TOTAL
 
   @property
   def unit_of_measurement(self):
