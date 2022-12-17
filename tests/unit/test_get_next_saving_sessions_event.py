@@ -27,7 +27,9 @@ async def test_when_future_events_present_then_next_event_returned():
     events,
   )
 
-  assert result == events[1]["start"]
+  assert result["start"] == events[1]["start"]
+  assert result["end"] == events[1]["end"]
+  assert result["duration_in_minutes"] == 60
 
 @pytest.mark.asyncio
 async def test_when_no_future_events_present_then_none_returned():
