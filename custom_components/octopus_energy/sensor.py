@@ -30,8 +30,6 @@ from .const import (
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
-  
-  CONFIG_SMETS1,
 
   DATA_ELECTRICITY_RATES_COORDINATOR,
   DATA_SAVING_SESSIONS_COORDINATOR,
@@ -99,10 +97,6 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
 
   if entry.options:
     config.update(entry.options)
-
-  is_smets1 = False
-  if CONFIG_SMETS1 in config:
-    is_smets1 = config[CONFIG_SMETS1]
   
   client = hass.data[DOMAIN][DATA_CLIENT]
   
@@ -148,10 +142,10 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
         for meter in point["meters"]:
           _LOGGER.info(f'Adding gas meter; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
           coordinator = create_reading_coordinator(hass, client, False, point["mprn"], meter["serial_number"])
-          entities.append(OctopusEnergyPreviousAccumulativeGasReading(coordinator, point["mprn"], meter["serial_number"], is_smets1))
-          entities.append(OctopusEnergyPreviousAccumulativeGasCost(coordinator, client, gas_tariff_code, point["mprn"], meter["serial_number"], is_smets1))
-          entities.append(OctopusEnergyGasCurrentRate(client, gas_tariff_code, point["mprn"], meter["serial_number"], is_smets1))
-          entities.append(OctopusEnergyGasCurrentStandingCharge(client, gas_tariff_code, point["mprn"], meter["serial_number"], is_smets1))
+          entities.append(OctopusEnergyPreviousAccumulativeGasReading(coordinator, point["mprn"], meter["serial_number"]))
+          entities.append(OctopusEnergyPreviousAccumulativeGasCost(coordinator, client, gas_tariff_code, point["mprn"], meter["serial_number"]))
+          entities.append(OctopusEnergyGasCurrentRate(client, gas_tariff_code, point["mprn"], meter["serial_number"]))
+          entities.append(OctopusEnergyGasCurrentStandingCharge(client, gas_tariff_code, point["mprn"], meter["serial_number"]))
       else:
         for meter in point["meters"]:
           _LOGGER.info(f'Skipping gas meter due to no active agreement; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
@@ -643,16 +637,14 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     _LOGGER.debug(f'Restored state: {self._state}')
 
 class OctopusEnergyGasSensor(SensorEntity, RestoreEntity):
-  def __init__(self, mprn, serial_number, is_smets1_meter):
+  def __init__(self, mprn, serial_number):
     """Init sensor"""
     self._mprn = mprn
     self._serial_number = serial_number
-    self._is_smets1_meter = is_smets1_meter
 
     self._attributes = {
       "mprn": self._mprn,
-      "serial_number": self._serial_number,
-      "is_smets1_meter": is_smets1_meter
+      "serial_number": self._serial_number
     }
 
   @property
@@ -668,9 +660,9 @@ class OctopusEnergyGasSensor(SensorEntity, RestoreEntity):
 class OctopusEnergyGasCurrentRate(OctopusEnergyGasSensor):
   """Sensor for displaying the current rate."""
 
-  def __init__(self, client, tariff_code, mprn, serial_number, is_smets1_meter):
+  def __init__(self, client, tariff_code, mprn, serial_number):
     """Init sensor."""
-    OctopusEnergyGasSensor.__init__(self, mprn, serial_number, is_smets1_meter)
+    OctopusEnergyGasSensor.__init__(self, mprn, serial_number)
 
     self._client = client
     self._tariff_code = tariff_code
@@ -762,9 +754,9 @@ class OctopusEnergyGasCurrentRate(OctopusEnergyGasSensor):
 class OctopusEnergyGasCurrentStandingCharge(OctopusEnergyGasSensor):
   """Sensor for displaying the current standing charge."""
 
-  def __init__(self, client, tariff_code, mprn, serial_number, is_smets1_meter):
+  def __init__(self, client, tariff_code, mprn, serial_number):
     """Init sensor."""
-    OctopusEnergyGasSensor.__init__(self, mprn, serial_number, is_smets1_meter)
+    OctopusEnergyGasSensor.__init__(self, mprn, serial_number)
 
     self._client = client
     self._tariff_code = tariff_code
@@ -846,10 +838,10 @@ class OctopusEnergyGasCurrentStandingCharge(OctopusEnergyGasSensor):
 class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEnergyGasSensor):
   """Sensor for displaying the previous days accumulative gas reading."""
 
-  def __init__(self, coordinator, mprn, serial_number, is_smets1_meter):
+  def __init__(self, coordinator, mprn, serial_number):
     """Init sensor."""
     super().__init__(coordinator)
-    OctopusEnergyGasSensor.__init__(self, mprn, serial_number, is_smets1_meter)
+    OctopusEnergyGasSensor.__init__(self, mprn, serial_number)
 
     self._state = None
     self._latest_date = None
@@ -905,7 +897,6 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
       self._attributes = {
         "mprn": self._mprn,
         "serial_number": self._serial_number,
-        "is_smets1_meter": self._is_smets1_meter,
         "total_kwh": consumption["total_kwh"],
         "total_m3": consumption["total_m3"],
         "last_calculated_timestamp": consumption["last_calculated_timestamp"],
@@ -931,10 +922,10 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
 class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyGasSensor):
   """Sensor for displaying the previous days accumulative gas cost."""
 
-  def __init__(self, coordinator, client, tariff_code, mprn, serial_number, is_smets1_meter):
+  def __init__(self, coordinator, client, tariff_code, mprn, serial_number):
     """Init sensor."""
     super().__init__(coordinator)
-    OctopusEnergyGasSensor.__init__(self, mprn, serial_number, is_smets1_meter)
+    OctopusEnergyGasSensor.__init__(self, mprn, serial_number)
 
     self._client = client
     self._tariff_code = tariff_code
@@ -999,7 +990,6 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
       period_to,
       {
         "tariff_code": self._tariff_code,
-        "is_smets1_meter": self._is_smets1_meter
       }
     )
 
@@ -1012,7 +1002,6 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
         "mprn": self._mprn,
         "serial_number": self._serial_number,
         "tariff_code": self._tariff_code,
-        "is_smets1_meter": self._is_smets1_meter,
         "standing_charge": f'{consumption_cost["standing_charge"]}p',
         "total_without_standing_charge": f'£{consumption_cost["total_without_standing_charge"]}',
         "total": f'£{consumption_cost["total"]}',

@@ -15,7 +15,7 @@
     - [I have sensors that are missing](#i-have-sensors-that-are-missing)
     - [Can I get live sensor data?](#can-i-get-live-sensor-data)
     - [Can I add the sensors to the Energy dashboard?](#can-i-add-the-sensors-to-the-energy-dashboard)
-    - [My gas sensor consumption readings don't look quite right](#my-gas-sensor-consumption-readings-dont-look-quite-right)
+    - [Why is my gas sensor reporting m3 when Octopus Energy reports it as kWh?](#why-is-my-gas-sensor-reporting-m3-when-octopus-energy-reports-it-as-kwh)
 
 Custom component built from the ground up to bring your Octopus Energy details into Home Assistant to help you towards a more energy efficient (and or cheaper) home. This integration is built against the API provided by Octopus Energy UK and has not been tested for any other divisions. This integration is in no way affiliated with Octopus Energy.
 
@@ -119,6 +119,6 @@ Unfortunately, Octopus Energy only provide data up to the previous day, so it's 
 
 While you can add the sensors to the dashboard, they will be associated with the wrong day. This is because the Energy dashboard uses the timestamp of when the sensor updates to determine which day the data should belong to. There is currently no official way of adding historic data to the dashboard, however there are indications this may be coming.
 
-### My gas sensor consumption readings don't look quite right
+### Why is my gas sensor reporting m3 when Octopus Energy reports it as kWh?
 
-This may be due to the integration being configured against the wrong kind of gas sensor. The gas meter SMETS1/SMETS2 setting has to be set globally and manually as Octopus Energy doesn't provide this information with their API. When this is set, we then know how to interpret the provided data.
+The sensor was setup when Home Assistant only supported gas sensors in m3 format. While this has been changed since, the reporting of the sensor can't be changed because this would be a breaking change for existing users.

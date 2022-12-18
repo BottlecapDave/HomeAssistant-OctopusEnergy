@@ -6,8 +6,7 @@
         "description": "Setup your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
         "data": {
           "Api key": "Api key",
-          "Account Id": "Your account Id (e.g. A-AAAA1111)",
-          "SMETS1": "Is SMETS1 Gas Meter"
+          "Account Id": "Your account Id (e.g. A-AAAA1111)"
         }
       },
       "target_rate": {
@@ -41,8 +40,7 @@
         "title": "Update Account Info",
         "description": "Update your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
         "data": {
-          "Api key": "Api key",
-          "SMETS1": "Is SMETS1 Gas Meter"
+          "Api key": "Api key"
         }
       },
       "target_rate": {

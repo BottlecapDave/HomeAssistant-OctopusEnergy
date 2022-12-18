@@ -14,7 +14,6 @@ async def test_when_gas_consumption_is_none_then_no_calculation_is_returned():
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   latest_date = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  is_smets1_meter = True
   tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
 
   # Act
@@ -25,8 +24,7 @@ async def test_when_gas_consumption_is_none_then_no_calculation_is_returned():
     period_from,
     period_to,
     {
-      "tariff_code": tariff_code,
-      "is_smets1_meter": is_smets1_meter
+      "tariff_code": tariff_code
     }
   )
 
@@ -40,7 +38,6 @@ async def test_when_gas_consumption_is_empty_then_no_calculation_is_returned():
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   latest_date = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  is_smets1_meter = True
   tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
 
   # Act
@@ -51,8 +48,7 @@ async def test_when_gas_consumption_is_empty_then_no_calculation_is_returned():
     period_from,
     period_to,
     {
-      "tariff_code": tariff_code,
-      "is_smets1_meter": is_smets1_meter
+      "tariff_code": tariff_code
     }
   )
 
@@ -66,7 +62,6 @@ async def test_when_gas_consumption_is_before_latest_date_then_no_calculation_is
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   latest_date = datetime.strptime("2022-03-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  is_smets1_meter = True
   tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
 
   consumption_data = create_consumption_data(period_from, period_to)
@@ -81,8 +76,7 @@ async def test_when_gas_consumption_is_before_latest_date_then_no_calculation_is
     period_from,
     period_to,
     {
-      "tariff_code": tariff_code,
-      "is_smets1_meter": is_smets1_meter
+      "tariff_code": tariff_code
     }
   )
 
@@ -90,13 +84,11 @@ async def test_when_gas_consumption_is_before_latest_date_then_no_calculation_is
   assert consumption_cost == None
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("is_smets1_meter,latest_date",[
-  (True, datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")), 
-  (True, None), 
-  (False, datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")), 
-  (False, None)
+@pytest.mark.parametrize("latest_date",[
+  (datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")), 
+  (None)
 ])
-async def test_when_gas_consumption_available_then_calculation_returned(is_smets1_meter, latest_date):
+async def test_when_gas_consumption_available_then_calculation_returned(latest_date):
   # Arrange
   
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -143,8 +135,7 @@ async def test_when_gas_consumption_available_then_calculation_returned(is_smets
       period_from,
       period_to,
       {
-        "tariff_code": tariff_code,
-        "is_smets1_meter": is_smets1_meter
+        "tariff_code": tariff_code
       }
     )
 
@@ -197,7 +188,6 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
     client = OctopusEnergyApiClient("NOT_REAL")
     tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
     latest_date = None
-    is_smets1_meter = True
     
     consumption_data = create_consumption_data(period_from, period_to, True)
     assert consumption_data != None
@@ -221,8 +211,7 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
       period_from,
       period_to,
       {
-        "tariff_code": tariff_code,
-        "is_smets1_meter": is_smets1_meter
+        "tariff_code": tariff_code
       }
     )
 

@@ -6,11 +6,7 @@ from custom_components.octopus_energy.sensor_utils import async_calculate_gas_co
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("is_smets1_meter",[
-  (True),
-  (False)
-])
-async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned(is_smets1_meter):
+async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned():
   # Arrange
   context = get_test_context()
   client = OctopusEnergyApiClient(context["api_key"])
@@ -52,8 +48,7 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
     period_from,
     period_to,
     {
-      "tariff_code": tariff_code,
-      "is_smets1_meter": is_smets1_meter
+      "tariff_code": tariff_code
     }
   )
 
