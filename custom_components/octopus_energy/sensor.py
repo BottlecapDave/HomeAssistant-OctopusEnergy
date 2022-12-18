@@ -142,8 +142,8 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
         for meter in point["meters"]:
           _LOGGER.info(f'Adding gas meter; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
           coordinator = create_reading_coordinator(hass, client, False, point["mprn"], meter["serial_number"])
-          entities.append(OctopusEnergyPreviousAccumulativeGasReading(coordinator, point["mprn"], meter["serial_number"]))
-          entities.append(OctopusEnergyPreviousAccumulativeGasCost(coordinator, client, gas_tariff_code, point["mprn"], meter["serial_number"]))
+          entities.append(OctopusEnergyPreviousAccumulativeGasReading(coordinator, point["mprn"], meter["serial_number"], meter["consumption_units"]))
+          entities.append(OctopusEnergyPreviousAccumulativeGasCost(coordinator, client, gas_tariff_code, point["mprn"], meter["serial_number"], meter["consumption_units"]))
           entities.append(OctopusEnergyGasCurrentRate(client, gas_tariff_code, point["mprn"], meter["serial_number"]))
           entities.append(OctopusEnergyGasCurrentStandingCharge(client, gas_tariff_code, point["mprn"], meter["serial_number"]))
       else:
@@ -444,7 +444,6 @@ class OctopusEnergyElectricityCurrentStandingCharge(OctopusEnergyElectricitySens
       self._state = 0
     
     _LOGGER.debug(f'Restored state: {self._state}')
-
 
 class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, OctopusEnergyElectricitySensor):
   """Sensor for displaying the previous days accumulative electricity reading."""
@@ -838,11 +837,12 @@ class OctopusEnergyGasCurrentStandingCharge(OctopusEnergyGasSensor):
 class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEnergyGasSensor):
   """Sensor for displaying the previous days accumulative gas reading."""
 
-  def __init__(self, coordinator, mprn, serial_number):
+  def __init__(self, coordinator, mprn, serial_number, native_consumption_units):
     """Init sensor."""
     super().__init__(coordinator)
     OctopusEnergyGasSensor.__init__(self, mprn, serial_number)
 
+    self._native_consumption_units = native_consumption_units
     self._state = None
     self._latest_date = None
 
@@ -886,7 +886,8 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
     """Retrieve the previous days accumulative consumption"""
     consumption = calculate_gas_consumption(
       self.coordinator.data,
-      self._latest_date
+      self._latest_date,
+      self._native_consumption_units
     )
 
     if (consumption != None and len(consumption["consumptions"]) > 2):
@@ -922,13 +923,14 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
 class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyGasSensor):
   """Sensor for displaying the previous days accumulative gas cost."""
 
-  def __init__(self, coordinator, client, tariff_code, mprn, serial_number):
+  def __init__(self, coordinator, client, tariff_code, mprn, serial_number, native_consumption_units):
     """Init sensor."""
     super().__init__(coordinator)
     OctopusEnergyGasSensor.__init__(self, mprn, serial_number)
 
     self._client = client
     self._tariff_code = tariff_code
+    self._native_consumption_units = native_consumption_units
 
     self._state = None
     self._latest_date = None
@@ -990,7 +992,8 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
       period_to,
       {
         "tariff_code": self._tariff_code,
-      }
+      },
+      self._native_consumption_units
     )
 
     if (consumption_cost != None and len(consumption_cost["charges"]) > 2):

@@ -6,7 +6,11 @@ from custom_components.octopus_energy.sensor_utils import async_get_consumption_
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 @pytest.mark.asyncio
-async def test_when_calculate_gas_consumption_uses_real_data_then_calculation_returned():
+@pytest.mark.parametrize("consumption_units",[
+  ("m³"), 
+  ("kWh")
+])
+async def test_when_calculate_gas_consumption_uses_real_data_then_calculation_returned(consumption_units):
   # Arrange
   context = get_test_context()
   client = OctopusEnergyApiClient(context["api_key"])
@@ -34,15 +38,20 @@ async def test_when_calculate_gas_consumption_uses_real_data_then_calculation_re
   # Act
   consumption = calculate_gas_consumption(
     consumption_data,
-    latest_date
+    latest_date,
+    consumption_units
   )
 
   # Assert
   assert consumption != None
   assert consumption["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
-  
-  assert consumption["total_kwh"] == 63.86
-  assert consumption["total_m3"] == 5.62
+
+  if consumption_units == "m³":
+    assert consumption["total_kwh"] == 63.86
+    assert consumption["total_m3"] == 5.62
+  else:
+    assert consumption["total_kwh"] == 5.62
+    assert consumption["total_m3"] == 0.498
 
   assert len(consumption["consumptions"]) == len(consumption_data)
 

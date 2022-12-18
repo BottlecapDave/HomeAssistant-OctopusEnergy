@@ -25,7 +25,8 @@ async def test_when_gas_consumption_is_none_then_no_calculation_is_returned():
     period_to,
     {
       "tariff_code": tariff_code
-    }
+    },
+    "m³"
   )
 
   # Assert
@@ -49,7 +50,8 @@ async def test_when_gas_consumption_is_empty_then_no_calculation_is_returned():
     period_to,
     {
       "tariff_code": tariff_code
-    }
+    },
+    "m³"
   )
 
   # Assert
@@ -77,18 +79,21 @@ async def test_when_gas_consumption_is_before_latest_date_then_no_calculation_is
     period_to,
     {
       "tariff_code": tariff_code
-    }
+    },
+    "m³"
   )
 
   # Assert
   assert consumption_cost == None
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("latest_date",[
-  (datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")), 
-  (None)
+@pytest.mark.parametrize("latest_date,consumption_units",[
+  (datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "m³"), 
+  (None, "m³"),
+  (datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "kWh"), 
+  (None, "kWh")
 ])
-async def test_when_gas_consumption_available_then_calculation_returned(latest_date):
+async def test_when_gas_consumption_available_then_calculation_returned(latest_date, consumption_units):
   # Arrange
   
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -136,7 +141,8 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
       period_to,
       {
         "tariff_code": tariff_code
-      }
+      },
+      consumption_units
     )
 
     # Assert
@@ -148,7 +154,11 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
     assert consumption_cost["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
     
     # Total is reported in pounds and pence, but rate prices are in pence, so we need to calculate our expected value
-    expected_total_values = 11.363
+    if consumption_units == "m³":
+      expected_total_values = 11.363
+    else:
+      expected_total_values = 1
+
     assert consumption_cost["total_without_standing_charge"] == round((expected_total_values * 48 * expected_rate_price) / 100, 2)
     assert consumption_cost["total"] == round(((expected_total_values * 48 * expected_rate_price) + expected_standing_charge["value_inc_vat"]) / 100, 2)
 
@@ -165,7 +175,11 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
       expected_valid_from = expected_valid_to
 
 @pytest.mark.asyncio
-async def test_when_gas_consumption_starting_at_latest_date_then_calculation_returned():
+@pytest.mark.parametrize("consumption_units",[
+  ("m³"), 
+  ("kWh")
+])
+async def test_when_gas_consumption_starting_at_latest_date_then_calculation_returned(consumption_units):
   # Arrange
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -212,7 +226,8 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
       period_to,
       {
         "tariff_code": tariff_code
-      }
+      },
+      consumption_units
     )
 
     # Assert
@@ -223,7 +238,11 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
     assert consumption_cost["standing_charge"] == expected_standing_charge["value_inc_vat"]
 
     # Total is reported in pounds and pence, but rate prices are in pence, so we need to calculate our expected value
-    expected_total_values = 11.363
+    if consumption_units == "m³":
+      expected_total_values = 11.363
+    else:
+      expected_total_values = 1
+
     assert consumption_cost["total_without_standing_charge"] == round((expected_total_values * 48 * expected_rate_price) / 100, 2)
     assert consumption_cost["total"] == round(((expected_total_values * 48 * expected_rate_price) + expected_standing_charge["value_inc_vat"]) / 100, 2)
 

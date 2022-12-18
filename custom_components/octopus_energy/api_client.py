@@ -60,6 +60,7 @@ account_query = '''query {{
 				mprn
 				meters(includeInactive: false) {{
 					serialNumber
+          consumptionUnits
 				}}
 				agreements {{
 					validFrom
@@ -153,6 +154,7 @@ class OctopusEnergyApiClient:
               "mprn": mp["meterPoint"]["mprn"],
               "meters": list(map(lambda m: {
                 "serial_number": m["serialNumber"],
+                "consumption_units": m["consumptionUnits"],
               }, mp["meterPoint"]["meters"])),
               "agreements": list(map(lambda a: {
                 "valid_from": a["validFrom"],
