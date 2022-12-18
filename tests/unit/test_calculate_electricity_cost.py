@@ -30,18 +30,22 @@ async def test_when_electricity_consumption_is_none_then_no_calculation_is_retur
   assert consumption_cost == None
 
 @pytest.mark.asyncio
-async def test_when_electricity_consumption_is_empty_then_no_calculation_is_returned():
+async def test_when_electricity_consumption_is_less_than_three_records_then_no_calculation_is_returned():
   # Arrange
   client = OctopusEnergyApiClient("NOT_REAL")
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   latest_date = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
+  consumption_data = create_consumption_data(
+    datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), 
+    datetime.strptime("2022-02-28T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  )
 
   # Act
   consumption_cost = await async_calculate_electricity_cost(
     client,
-    [],
+    consumption_data,
     latest_date,
     period_from,
     period_to,

@@ -499,7 +499,7 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Oct
       self._latest_date
     )
 
-    if (consumption != None and len(consumption["consumptions"]) > 2):
+    if (consumption != None):
       _LOGGER.debug(f"Calculated previous electricity consumption for '{self._mpan}/{self._serial_number}'...")
       self._state = consumption["total"]
       self._latest_date = consumption["last_calculated_timestamp"]
@@ -603,7 +603,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
       self._is_smart_meter
     )
 
-    if (consumption_cost != None and len(consumption_cost["charges"]) > 2):
+    if (consumption_cost != None):
       _LOGGER.debug(f"Calculated previous electricity consumption cost for '{self._mpan}/{self._serial_number}'...")
       self._latest_date = consumption_cost["last_calculated_timestamp"]
       self._state = consumption_cost["total"]
@@ -890,7 +890,7 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
       self._native_consumption_units
     )
 
-    if (consumption != None and len(consumption["consumptions"]) > 2):
+    if (consumption != None):
       _LOGGER.debug(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
       self._state = consumption["total_m3"]
       self._latest_date = consumption["last_calculated_timestamp"]
@@ -996,7 +996,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
       self._native_consumption_units
     )
 
-    if (consumption_cost != None and len(consumption_cost["charges"]) > 2):
+    if (consumption_cost != None):
       _LOGGER.debug(f"Calculated previous gas consumption cost for '{self._mprn}/{self._serial_number}'...")
       self._latest_date = consumption_cost["last_calculated_timestamp"]
       self._state = consumption_cost["total"]

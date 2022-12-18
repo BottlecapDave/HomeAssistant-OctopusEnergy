@@ -1,5 +1,7 @@
 from .api_client import OctopusEnergyApiClient
 
+minimum_consumption_records = 2
+
 def __get_interval_end(item):
     return item["interval_end"]
 
@@ -37,7 +39,7 @@ async def async_get_consumption_data(
     return []
 
 def calculate_electricity_consumption(consumption_data, last_calculated_timestamp):
-  if (consumption_data != None and len(consumption_data) > 0):
+  if (consumption_data != None and len(consumption_data) > minimum_consumption_records):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
 
@@ -65,7 +67,7 @@ def calculate_electricity_consumption(consumption_data, last_calculated_timestam
       }
 
 async def async_calculate_electricity_cost(client: OctopusEnergyApiClient, consumption_data, last_calculated_timestamp, period_from, period_to, tariff_code, is_smart_meter):
-  if (consumption_data != None and len(consumption_data) > 0):
+  if (consumption_data != None and len(consumption_data) > minimum_consumption_records):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
 
@@ -126,7 +128,7 @@ def convert_kwh_to_m3(value):
   return round(m3_value / 1.02264, 3) # Volume correction factor
 
 def calculate_gas_consumption(consumption_data, last_calculated_timestamp, consumption_units):
-  if (consumption_data != None and len(consumption_data) > 0):
+  if (consumption_data != None and len(consumption_data) > minimum_consumption_records):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
 
@@ -168,7 +170,7 @@ def calculate_gas_consumption(consumption_data, last_calculated_timestamp, consu
       }
       
 async def async_calculate_gas_cost(client: OctopusEnergyApiClient, consumption_data, last_calculated_timestamp, period_from, period_to, sensor, consumption_units):
-  if (consumption_data != None and len(consumption_data) > 0):
+  if (consumption_data != None and len(consumption_data) > minimum_consumption_records):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
 
