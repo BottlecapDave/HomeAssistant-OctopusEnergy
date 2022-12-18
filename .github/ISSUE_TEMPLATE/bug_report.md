@@ -33,4 +33,4 @@ Was this from a fresh install or after an upgrade?
 
 **Home Assistant Logs**
 
-Are there any related logs available in Home Assistant? It is suggested you set your [log level](https://www.home-assistant.io/integrations/logger/) to `debug` and then check the "Full Home Assistant Log" from the `logs page`.
+Are there any related logs available in Home Assistant? Please follow the instructions as outlined in the [readme](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy#increase-home-assistant-logs).
