@@ -492,6 +492,11 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Oct
     return self._attributes
 
   @property
+  def last_reset(self):
+    """Return the time when the sensor was last reset, if any."""
+    return self._latest_date
+
+  @property
   def state(self):
     """Retrieve the previous days accumulative consumption"""
     consumption = calculate_electricity_consumption(
@@ -582,6 +587,11 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
   @property
   def should_poll(self):
     return True
+
+  @property
+  def last_reset(self):
+    """Return the time when the sensor was last reset, if any."""
+    return self._latest_date
 
   @property
   def state(self):
@@ -882,6 +892,11 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
     return self._attributes
 
   @property
+  def last_reset(self):
+    """Return the time when the sensor was last reset, if any."""
+    return self._latest_date
+
+  @property
   def state(self):
     """Retrieve the previous days accumulative consumption"""
     consumption = calculate_gas_consumption(
@@ -973,6 +988,11 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
   @property
   def should_poll(self):
     return True
+
+  @property
+  def last_reset(self):
+    """Return the time when the sensor was last reset, if any."""
+    return self._latest_date
 
   @property
   def state(self):
