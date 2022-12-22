@@ -423,7 +423,7 @@ class OctopusEnergyElectricityCurrentStandingCharge(OctopusEnergyElectricitySens
       
       if standard_charge_result != None:
         self._latest_date = period_from
-        self._state = round(standard_charge_result["value_inc_vat"] / 100, 4)
+        self._state = standard_charge_result["value_inc_vat"] / 100
 
         # Adjust our period, as our gas only changes on a daily basis
         self._attributes["valid_from"] = period_from
@@ -823,7 +823,7 @@ class OctopusEnergyGasCurrentStandingCharge(OctopusEnergyGasSensor):
       
       if standard_charge_result != None:
         self._latest_date = period_from
-        self._state = round(standard_charge_result["value_inc_vat"] / 100, 4)
+        self._state = standard_charge_result["value_inc_vat"] / 100
 
         # Adjust our period, as our gas only changes on a daily basis
         self._attributes["valid_from"] = period_from
