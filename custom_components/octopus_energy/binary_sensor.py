@@ -256,12 +256,18 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
     
     self._attributes = {
       "joined_events": self._events,
-      "next_joined_event_start": None
+      "next_joined_event_start": None,
+      "next_joined_event_end": None,
+      "next_joined_event_duration_in_minutes": None
     }
 
     current_date = now()
     self._state = is_saving_sessions_event_active(current_date, self._events)
-    self._attributes["next_joined_event_start"] = get_next_saving_sessions_event(current_date, self._events)
+    next_event = get_next_saving_sessions_event(current_date, self._events)
+    if (next_event is not None):
+      self._attributes["next_joined_event_start"] = next_event["start"]
+      self._attributes["next_joined_event_end"] = next_event["end"]
+      self._attributes["next_joined_event_duration_in_minutes"] = next_event["duration_in_minutes"]
 
     return self._state
 

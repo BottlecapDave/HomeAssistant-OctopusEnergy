@@ -11,11 +11,12 @@
       - [Offset](#offset)
       - [Rolling Target](#rolling-target)
     - [Gas Meters](#gas-meters)
+  - [Increase Home Assistant logs](#increase-home-assistant-logs)
   - [FAQ](#faq)
-    - [I have sensors that are missing](#i-have-sensors-that-are-missing)
-    - [Can I get live sensor data?](#can-i-get-live-sensor-data)
+    - [Can I get live sensor data? Do you support the new Octopus Home Mini?](#can-i-get-live-sensor-data-do-you-support-the-new-octopus-home-mini)
     - [Can I add the sensors to the Energy dashboard?](#can-i-add-the-sensors-to-the-energy-dashboard)
-    - [My gas sensor consumption readings don't look quite right](#my-gas-sensor-consumption-readings-dont-look-quite-right)
+    - [Why is my gas sensor reporting m3 when Octopus Energy reports it as kWh?](#why-is-my-gas-sensor-reporting-m3-when-octopus-energy-reports-it-as-kwh)
+    - [I have sensors that are missing](#i-have-sensors-that-are-missing)
 
 Custom component built from the ground up to bring your Octopus Energy details into Home Assistant to help you towards a more energy efficient (and or cheaper) home. This integration is built against the API provided by Octopus Energy UK and has not been tested for any other divisions. This integration is in no way affiliated with Octopus Energy.
 
@@ -93,11 +94,9 @@ This feature is toggled on by the `Re-evaluate multiple times a day` checkbox.
 
 When you sign into your account, if you have gas meters, we'll setup some sensors for you. However, the way these sensors report data isn't consistent between versions of the meters, and Octopus Energy doesn't expose what type of meter you have. Therefore, you have to toggle the checkbox when setting up your initial account within HA. If you've already setup your account, you can update this via the `Configure` option within the integrations configuration. This is a global setting, and therefore will apply to **all** gas meters.
 
-## FAQ
+## Increase Home Assistant logs
 
-### I have sensors that are missing
-
-The integration only looks at the first property associated with your account that doesn't have a moved out date attached to it. If you are still missing sensors,  the first thing to do is increase the log levels for the component. This can be done by setting the following values in your `configuration.yaml` file.
+If you are having issues, it would be helpful to include Home Assistant logs as part of any raised issues. This can be done by setting the following values in your `configuration.yaml` file.
 
 ```yaml
 logger:
@@ -107,18 +106,28 @@ logger:
 
 If you don't have access to this file, then you should be able to set the log levels using the [available services](https://www.home-assistant.io/integrations/logger/).
 
-Once done, you'll need to reload the integration and then check the "Full Home Assistant Log" from the `logs page`. You should then see entries associated with this component stating either sensors were added, skipped or no sensors were available at all. 
+Once done, you'll need to reload the integration and then check the "Full Home Assistant Log" from the `logs page`. You should then see entries associated with this component. These entries should be provided with any raised issues. Please remove an sensitive information before posting.
 
-The identifiers of the sensors should then be checked against your Octopus Energy dashboard to verify the correct sensors are being picked up. If this is producing unexpected results, then you should raise an issue.
+## FAQ
 
-### Can I get live sensor data?
+### Can I get live sensor data? Do you support the new Octopus Home Mini?
 
-Unfortunately, Octopus Energy only provide data up to the previous day, so it's not possible to expose current consumption. If you would like this to change, then you'll need to email Octopus Energy.
+Unfortunately, Octopus Energy only provide data up to the previous day, so it's not possible to expose current consumption. They also haven't provided any public APIs for accessing the data provided by [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/).
+
+If you would like this to change, then you'll need to email Octopus Energy and raise your interests.
 
 ### Can I add the sensors to the Energy dashboard?
 
 While you can add the sensors to the dashboard, they will be associated with the wrong day. This is because the Energy dashboard uses the timestamp of when the sensor updates to determine which day the data should belong to. There is currently no official way of adding historic data to the dashboard, however there are indications this may be coming.
 
-### My gas sensor consumption readings don't look quite right
+### Why is my gas sensor reporting m3 when Octopus Energy reports it as kWh?
 
-This may be due to the integration being configured against the wrong kind of gas sensor. The gas meter SMETS1/SMETS2 setting has to be set globally and manually as Octopus Energy doesn't provide this information with their API. When this is set, we then know how to interpret the provided data.
+The sensor was setup when Home Assistant only supported gas sensors in m3 format. While this has been changed since, the reporting of the sensor can't be changed because this would be a breaking change for existing users.
+
+### I have sensors that are missing
+
+The integration only looks at the first property associated with your account that doesn't have a moved out date attached to it. If you are still missing sensors, follow the instructions to increase the logs (see above).
+
+You should then see entries associated with this component stating either sensors were added, skipped or no sensors were available at all.
+
+The identifiers of the sensors should then be checked against your Octopus Energy dashboard to verify the correct sensors are being picked up. If this is producing unexpected results, then you should raise an issue.

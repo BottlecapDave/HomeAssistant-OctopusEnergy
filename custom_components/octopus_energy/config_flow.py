@@ -23,8 +23,6 @@ from .const import (
   CONFIG_TARGET_OFFSET,
   CONFIG_TARGET_ROLLING_TARGET,
 
-  CONFIG_SMETS1,
-
   DATA_SCHEMA_ACCOUNT,
   DATA_CLIENT,
   DATA_ACCOUNT_ID,
@@ -236,15 +234,10 @@ class OptionsFlowHandler(OptionsFlow):
       config = dict(self._entry.data)
       if self._entry.options is not None:
         config.update(self._entry.options)
-
-      is_smets1 = False
-      if CONFIG_SMETS1 in config:
-        is_smets1 = config[CONFIG_SMETS1]
       
       return self.async_show_form(
         step_id="user", data_schema=vol.Schema({
           vol.Required(CONFIG_MAIN_API_KEY, default=config[CONFIG_MAIN_API_KEY]): str,
-          vol.Required(CONFIG_SMETS1, default=is_smets1): bool,
         })
       )
     elif CONFIG_TARGET_TYPE in self._entry.data:

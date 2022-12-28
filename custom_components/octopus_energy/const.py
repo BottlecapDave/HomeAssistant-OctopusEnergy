@@ -4,7 +4,6 @@ DOMAIN = "octopus_energy"
 
 CONFIG_MAIN_API_KEY = "Api key"
 CONFIG_MAIN_ACCOUNT_ID = "Account Id"
-CONFIG_SMETS1 = "SMETS1"
 
 CONFIG_TARGET_NAME = "Name"
 CONFIG_TARGET_HOURS = "Hours"
@@ -34,5 +33,4 @@ REGEX_OFFSET_PARTS = "^(-)?([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
 DATA_SCHEMA_ACCOUNT = vol.Schema({
   vol.Required(CONFIG_MAIN_API_KEY): str,
   vol.Required(CONFIG_MAIN_ACCOUNT_ID): str,
-  vol.Optional(CONFIG_SMETS1): bool,
 })
