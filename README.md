@@ -12,16 +12,6 @@
       - [Rolling Target](#rolling-target)
       - [Examples](#examples)
         - [Continuous](#continuous)
-- [Continuous Nothing](#continuous-nothing)
-- [Continuous from/to](#continuous-fromto)
-- [Continuous from/to with offset](#continuous-fromto-with-offset)
-- [Continuous from/to and rolling target](#continuous-fromto-and-rolling-target)
-- [Continuous from/to and offset](#continuous-fromto-and-offset)
-- [intermediate Nothing](#intermediate-nothing)
-- [intermediate from/to](#intermediate-fromto)
-- [intermediate from/to with offset](#intermediate-fromto-with-offset)
-- [intermediate from/to and rolling target](#intermediate-fromto-and-rolling-target)
-- [intermediate from/to and offset](#intermediate-fromto-and-offset)
     - [Gas Meters](#gas-meters)
   - [Increase Home Assistant logs](#increase-home-assistant-logs)
   - [FAQ](#faq)
@@ -160,18 +150,6 @@ If we set our from/to times to look over two days, `06:00` to `20:00`, we then l
 | `2023-01-02T02:00` | `2023-01-02T23:30`-`2023-01-03T01:30` | `false`                            | Our lowest period is in the past, so we must look to the next day |
 | `2023-01-02T02:00` | `2023-01-02T02:00`-`2023-01-02T03:00` | `true`                             | The rate of 5 is in the past, so we must look for the next lowest combined rate |
 | `2023-01-01T05:30` | `2023-01-02T23:30`-`2023-01-03T01:30` | `true`                             | There is no longer enough time available within our restricted time, so we must look to the next day. |
-
-# Continuous Nothing
-# Continuous from/to
-# Continuous from/to with offset
-# Continuous from/to and rolling target
-# Continuous from/to and offset
-
-# intermediate Nothing
-# intermediate from/to
-# intermediate from/to with offset
-# intermediate from/to and rolling target
-# intermediate from/to and offset
 
 ### Gas Meters
 
