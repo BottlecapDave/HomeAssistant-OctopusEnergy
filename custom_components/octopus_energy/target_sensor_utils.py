@@ -22,7 +22,10 @@ def __get_applicable_rates(current_date, target_start_time, target_end_time, rat
 
   if (target_start >= target_end):
     _LOGGER.debug(f'{target_start} is after {target_end}, so setting target end to tomorrow')
-    target_end = target_end + timedelta(days=1)
+    if target_start > current_date:
+      target_start = target_start - timedelta(days=1)
+    else:
+      target_end = target_end + timedelta(days=1)
 
   # If our start date has passed, reset it to current_date to avoid picking a slot in the past
   if (is_rolling_target == True and target_start < current_date and current_date < target_end):
@@ -33,6 +36,7 @@ def __get_applicable_rates(current_date, target_start_time, target_end_time, rat
   if (target_start_offset is not None):
     _LOGGER.debug(f'Offsetting time period')
     target_start = apply_offset(target_start, target_start_offset, True)
+    target_end = apply_offset(target_end, target_start_offset, True)
 
   # If our start and end are both in the past, then look to the next day
   if (target_start < current_date and target_end < current_date):

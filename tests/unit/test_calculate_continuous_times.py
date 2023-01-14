@@ -133,6 +133,193 @@ async def test_when_continuous_times_present_and_highest_price_required_then_nex
   assert result[1]["value_inc_vat"] == 0.3
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("current_date,target_start_time,target_end_time,expected_first_valid_from,is_rolling_target",[
+  (datetime.strptime("2023-01-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), None, None, datetime.strptime("2023-01-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), False),
+  (datetime.strptime("2023-01-01T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), None, None, datetime.strptime("2023-01-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), False),
+  (datetime.strptime("2023-01-01T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), None, None, datetime.strptime("2023-01-01T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), True),
+  (datetime.strptime("2023-01-01T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), None, None, None, True),
+
+  (datetime.strptime("2023-01-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "05:00", "19:00", datetime.strptime("2023-01-01T05:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), False),
+  (datetime.strptime("2023-01-01T06:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), "05:00", "19:00", datetime.strptime("2023-01-01T05:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), False),
+  (datetime.strptime("2023-01-01T06:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), "05:00", "19:00", datetime.strptime("2023-01-01T06:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), True),
+  (datetime.strptime("2023-01-01T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "05:00", "19:00", datetime.strptime("2023-01-01T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), True),
+  (datetime.strptime("2023-01-01T18:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), "05:00", "19:00", None, True),
+
+  (datetime.strptime("2023-01-01T20:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "20:00", "06:00", datetime.strptime("2023-01-01T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), False),
+  (datetime.strptime("2023-01-02T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "20:00", "06:00", datetime.strptime("2023-01-01T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), False),
+  (datetime.strptime("2023-01-02T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "20:00", "06:00", datetime.strptime("2023-01-02T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), True),
+  (datetime.strptime("2023-01-02T05:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), "20:00", "06:00", None, True),
+])
+async def test_readme_examples(current_date, target_start_time, target_end_time, expected_first_valid_from, is_rolling_target):
+  # Arrange
+  tariff_code = "test-tariff"
+  rates = rates_to_thirty_minute_increments(
+    {
+      "results": [
+        {
+          "value_exc_vat": 6,
+          "value_inc_vat": 6,
+          "valid_from": "2023-01-01T00:00:00Z",
+          "valid_to": "2023-01-01T00:30:00Z"
+        },
+        {
+          "value_exc_vat": 12,
+          "value_inc_vat": 12,
+          "valid_from": "2023-01-01T00:30:00Z",
+          "valid_to": "2023-01-01T05:00:00Z"
+        },
+        {
+          "value_exc_vat": 7,
+          "value_inc_vat": 7,
+          "valid_from": "2023-01-01T05:00:00Z",
+          "valid_to": "2023-01-01T05:30:00Z"
+        },
+        {
+          "value_exc_vat": 20,
+          "value_inc_vat": 20,
+          "valid_from": "2023-01-01T05:30:00Z",
+          "valid_to": "2023-01-01T18:00:00Z"
+        },
+        {
+          "value_exc_vat": 34,
+          "value_inc_vat": 34,
+          "valid_from": "2023-01-01T18:00:00Z",
+          "valid_to": "2023-01-01T23:30:00Z"
+        },
+        {
+          "value_exc_vat": 5,
+          "value_inc_vat": 5,
+          "valid_from": "2023-01-01T23:30:00Z",
+          "valid_to": "2023-01-02T00:30:00Z"
+        },
+        {
+          "value_exc_vat": 12,
+          "value_inc_vat": 12,
+          "valid_from": "2023-01-02T00:30:00Z",
+          "valid_to": "2023-01-02T05:00:00Z"
+        },
+        {
+          "value_exc_vat": 7,
+          "value_inc_vat": 7,
+          "valid_from": "2023-01-02T05:00:00Z",
+          "valid_to": "2023-01-02T05:30:00Z"
+        },
+        {
+          "value_exc_vat": 20,
+          "value_inc_vat": 20,
+          "valid_from": "2023-01-02T05:30:00Z",
+          "valid_to": "2023-01-02T18:00:00Z"
+        },
+        {
+          "value_exc_vat": 34,
+          "value_inc_vat": 34,
+          "valid_from": "2023-01-02T18:00:00Z",
+          "valid_to": "2023-01-02T23:30:00Z"
+        },
+        {
+          "value_exc_vat": 6,
+          "value_inc_vat": 6,
+          "valid_from": "2023-01-02T23:30:00Z",
+          "valid_to": "2023-01-03T00:00:00Z"
+        },
+      ]
+    },
+    datetime.strptime("2023-01-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2023-01-03T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    tariff_code
+  )
+  
+  # Restrict our time block
+  target_hours = 1
+
+  # Act
+  result = calculate_continuous_times(
+    current_date,
+    target_start_time,
+    target_end_time,
+    target_hours,
+    rates,
+    None,
+    is_rolling_target
+  )
+
+  # Assert
+  assert result != None
+
+  if (expected_first_valid_from is None):
+    assert len(result) == 0
+  else:
+    assert len(result) == 2
+    assert result[0]["valid_from"] == expected_first_valid_from
+    assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
+    assert result[1]["valid_from"] == expected_first_valid_from + timedelta(minutes=30)
+    assert result[1]["valid_to"] == expected_first_valid_from + timedelta(minutes=60)
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("current_date,target_start_time,target_end_time,expected_first_valid_from,is_rolling_target",[
+  (datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "10:00", "18:00", datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), True),
+  (datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "10:00", "18:00", datetime.strptime("2022-02-09T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), True),
+  (datetime.strptime("2022-02-09T19:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "10:00", "18:00", datetime.strptime("2022-02-10T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), True),
+  (datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "10:00", "18:00", datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), False),
+  (datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "10:00", "18:00", datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), False),
+  (datetime.strptime("2022-02-09T19:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "10:00", "18:00", datetime.strptime("2022-02-10T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), False),
+  # # No start set
+  (datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), None, "18:00", datetime.strptime("2022-02-09T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), True),
+  (datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), None, "18:00", datetime.strptime("2022-02-09T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), True),
+  (datetime.strptime("2022-02-09T19:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), None, "18:00", datetime.strptime("2022-02-10T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), True),
+  (datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), None, "18:00", datetime.strptime("2022-02-09T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), False),
+  (datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), None, "18:00", datetime.strptime("2022-02-09T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), False),
+  (datetime.strptime("2022-02-09T19:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), None, "18:00", datetime.strptime("2022-02-10T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), False),
+  # No end set
+  (datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "10:00", None, datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), True),
+  (datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "10:00", None, datetime.strptime("2022-02-09T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), True),
+  (datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "10:00", None, datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), False),
+  (datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "10:00", None, datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), False),
+  # No start or end set
+  (datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), None, None, datetime.strptime("2022-02-09T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), True),
+  (datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), None, None, datetime.strptime("2022-02-09T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), True),
+  (datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), None, None, datetime.strptime("2022-02-09T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), False),
+  (datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), None, None, datetime.strptime("2022-02-09T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), False),
+])
+async def test_when_continuous_times_present_and_highest_price_required_then_next_continuous_times_returned(current_date, target_start_time, target_end_time, expected_first_valid_from, is_rolling_target):
+  # Arrange
+  period_from = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-02-11T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  expected_rates = [0.1, 0.2, 0.3]
+
+  rates = create_rate_data(
+    period_from,
+    period_to,
+    expected_rates
+  )
+  
+  # Restrict our time block
+  target_hours = 1
+
+  # Act
+  result = calculate_continuous_times(
+    current_date,
+    target_start_time,
+    target_end_time,
+    target_hours,
+    rates,
+    None,
+    is_rolling_target,
+    True
+  )
+
+  # Assert
+  assert result != None
+  assert len(result) == 2
+  assert result[0]["valid_from"] == expected_first_valid_from
+  assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
+  assert result[0]["value_inc_vat"] == 0.2
+
+  assert result[1]["valid_from"] == expected_first_valid_from + timedelta(minutes=30)
+  assert result[1]["valid_to"] == expected_first_valid_from + timedelta(hours=1)
+  assert result[1]["value_inc_vat"] == 0.3
+
+@pytest.mark.asyncio
 async def test_when_current_time_has_not_enough_time_left_then_no_continuous_times_returned():
   # Arrange
   period_from = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
