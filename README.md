@@ -7,9 +7,21 @@
     - [Your account](#your-account)
       - [Saving Sessions](#saving-sessions)
     - [Target Rates](#target-rates)
-      - [Minimum and Maximum times](#minimum-and-maximum-times)
+      - [From and To times](#from-and-to-times)
       - [Offset](#offset)
       - [Rolling Target](#rolling-target)
+      - [Examples](#examples)
+        - [Continuous](#continuous)
+- [Continuous Nothing](#continuous-nothing)
+- [Continuous from/to](#continuous-fromto)
+- [Continuous from/to with offset](#continuous-fromto-with-offset)
+- [Continuous from/to and rolling target](#continuous-fromto-and-rolling-target)
+- [Continuous from/to and offset](#continuous-fromto-and-offset)
+- [intermediate Nothing](#intermediate-nothing)
+- [intermediate from/to](#intermediate-fromto)
+- [intermediate from/to with offset](#intermediate-fromto-with-offset)
+- [intermediate from/to and rolling target](#intermediate-fromto-and-rolling-target)
+- [intermediate from/to and offset](#intermediate-fromto-and-offset)
     - [Gas Meters](#gas-meters)
   - [Increase Home Assistant logs](#increase-home-assistant-logs)
   - [FAQ](#faq)
@@ -71,13 +83,19 @@ To support Octopus Energy's [saving sessions](https://octopus.energy/saving-sess
 
 ### Target Rates
 
-If you go through the [setup](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy) process after you've configured your account, you can set up target rate sensors. These sensors calculate the lowest continuous or intermittent rates and turn on when these periods are active. These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money.
+If you go through the [setup](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy) process after you've configured your account, you can set up target rate sensors. These sensors calculate the lowest continuous or intermittent rates **within a 24 hour period** and turn on when these periods are active. These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money.
 
 Each sensor will be in the form `binary_sensor.octopus_energy_target_{{TARGET_RATE_NAME}}`.
 
-#### Minimum and Maximum times
+#### From and To times
 
 If you're wanting your devices to come on during a certain period, for example while you're at work, you can set the minimum and/or maximum times for your target rate sensor. These are specified in 24 hour clock format and will attempt to find the optimum discovered period during these times.
+
+If not specified, these default from `00:00:00` to `23:59:59`. However you can use this feature to change this evaluation period. 
+
+If for example you want to look at prices overnight you could set your from time to something like `20:00` and your `to` time to something like `05:00`. If you're wanting to "shift" the evaluation period to be in line with something (e.g. agile pricing), you could set your `from` and `to` to something like `16:00`.
+
+See the examples below for how this might work.
 
 #### Offset
 
@@ -90,6 +108,70 @@ Depending on how you're going to use the sensor, you might want the best period 
 However, you might also only want the target time to occur once a day so once the best time for that day has passed it won't turn on again. For example, you might be using the sensor to turn on something that isn't time critical and could wait till the next day like a charger.
 
 This feature is toggled on by the `Re-evaluate multiple times a day` checkbox.
+
+#### Examples
+
+Lets look at a few examples. Lets say we have the the following (unrealistic) set of rates
+
+| start | end | value |
+| ----- | --- | ----- |
+| `2023-01-01T00:00` | `2023-01-01T00:30` | 6 |
+| `2023-01-01T00:30` | `2023-01-01T05:00` | 12 |
+| `2023-01-01T05:00` | `2023-01-01T05:30` | 7 |
+| `2023-01-01T05:30` | `2023-01-01T18:00` | 20 |
+| `2023-01-01T18:00` | `2023-01-01T23:30` | 34 |
+| `2023-01-01T23:30` | `2023-01-02T00:30` | 5 |
+| `2023-01-02T00:30` | `2023-01-02T05:00` | 12 |
+| `2023-01-02T05:00` | `2023-01-02T05:30` | 7 |
+| `2023-01-02T05:30` | `2023-01-02T18:00` | 20 |
+| `2023-01-02T18:00` | `2023-01-02T23:00` | 34 |
+| `2023-01-02T23:30` | `2023-01-03T00:00` | 6 |
+
+##### Continuous
+
+If we look at a continuous sensor that we want on for 1 hour.
+
+If we set no from/to times, then our 24 hour period being looked at ranges from `00:00:00` to `23:59:59`.
+
+The following table shows what this would be like.
+
+| current date/time  | period                                | `Re-evaluate multiple times a day` | reasoning |
+| ------------------ | ------------------------------------- | ---------------------------------- | --------- |
+| `2023-01-01T00:00` | `2023-01-01T00:00`-`2023-01-01T01:00` | `false`                            | while 5 is our lowest rate within the current 24 hour period, it doesn't cover our whole 1 hour and is next to a high 34 rate. A rate of 6 is the next available rate with a low following rate. |
+| `2023-01-01T01:00` | `2023-01-02T00:00`-`2023-01-02T01:00` | `false`                            | Our lowest period is in the past, so we must look to the next day |
+| `2023-01-01T01:00` | `2023-01-01T04:30`-`2023-01-01T05:30` | `true`                             | The rate of 6 is in the past, so 7 is our next lowest rate. 12 is smaller rate than 20 so we start in the rate period before to fill our desired hour. |
+| `2023-01-01T23:30` | `2023-01-02T00:00`-`2023-01-02T01:00` | `true`                             | There is no longer enough time available in the current 24 hour period, so we must look to the next day. |
+
+If we set our from/to times for `05:00` to `19:00`, we then limit the period that we look at. The following table shows what this would be like.
+
+| current date/time  | period                                | `Re-evaluate multiple times a day` | reasoning |
+| ------------------ | ------------------------------------- | ---------------------------------- | --------- |
+| `2023-01-01T00:00` | `2023-01-01T05:00`-`2023-01-01T06:00` | `false`                            | The rate of 12 is no longer available as it's outside of our `from` time. |
+| `2023-01-01T06:30` | `2023-01-02T05:00`-`2023-01-02T06:00` | `false`                            | Our lowest period is in the past, so we must look to the next day |
+| `2023-01-01T06:30` | `2023-01-01T06:30`-`2023-01-01T07:30` | `true`                             | The rate of 7 is in the past, so we must look for the next lowest combined rate |
+| `2023-01-01T18:00` | `2023-01-01T18:00`-`2023-01-01T19:00` | `true`                             | The rate of 20 is in the past, so we must look for the next lowest combined rate which is 34 |
+| `2023-01-01T18:30` | `2023-01-02T05:00`-`2023-01-02T06:00` | `true`                            | There is no longer enough time available within our restricted time, so we must look to the next day. |
+
+If we set our from/to times to look over two days, `06:00` to `20:00`, we then limit the period that we look at. The following table shows what this would be like.
+
+| current date/time  | period                                | `Re-evaluate multiple times a day` | reasoning |
+| ------------------ | ------------------------------------- | ---------------------------------- | --------- |
+| `2023-01-01T20:00` | `2023-01-01T23:30`-`2023-01-02T01:30` | `false`                            | Our lowest rate of 5 now falls between our overnight time period so is available |
+| `2023-01-02T02:00` | `2023-01-02T23:30`-`2023-01-03T01:30` | `false`                            | Our lowest period is in the past, so we must look to the next day |
+| `2023-01-02T02:00` | `2023-01-02T02:00`-`2023-01-02T03:00` | `true`                             | The rate of 5 is in the past, so we must look for the next lowest combined rate |
+| `2023-01-01T05:30` | `2023-01-02T23:30`-`2023-01-03T01:30` | `true`                             | There is no longer enough time available within our restricted time, so we must look to the next day. |
+
+# Continuous Nothing
+# Continuous from/to
+# Continuous from/to with offset
+# Continuous from/to and rolling target
+# Continuous from/to and offset
+
+# intermediate Nothing
+# intermediate from/to
+# intermediate from/to with offset
+# intermediate from/to and rolling target
+# intermediate from/to and offset
 
 ### Gas Meters
 
