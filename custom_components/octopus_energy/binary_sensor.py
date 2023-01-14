@@ -109,7 +109,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Target Export {self._config[CONFIG_TARGET_NAME]}"
+    return f"Octopus Energy Target {self._config[CONFIG_TARGET_NAME]}"
 
   @property
   def icon(self):
