@@ -143,6 +143,7 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
           _LOGGER.info(f'Adding gas meter; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
           coordinator = create_reading_coordinator(hass, client, False, point["mprn"], meter["serial_number"])
           entities.append(OctopusEnergyPreviousAccumulativeGasReading(coordinator, point["mprn"], meter["serial_number"], meter["consumption_units"]))
+          entities.append(OctopusEnergyPreviousAccumulativeGasReadingKwh(coordinator, point["mprn"], meter["serial_number"], meter["consumption_units"]))
           entities.append(OctopusEnergyPreviousAccumulativeGasCost(coordinator, client, gas_tariff_code, point["mprn"], meter["serial_number"], meter["consumption_units"]))
           entities.append(OctopusEnergyGasCurrentRate(client, gas_tariff_code, point["mprn"], meter["serial_number"]))
           entities.append(OctopusEnergyGasCurrentStandingCharge(client, gas_tariff_code, point["mprn"], meter["serial_number"]))
@@ -844,6 +845,7 @@ class OctopusEnergyGasCurrentStandingCharge(OctopusEnergyGasSensor):
       self._state = 0
     
     _LOGGER.debug(f'Restored state: {self._state}')
+
 class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEnergyGasSensor):
   """Sensor for displaying the previous days accumulative gas reading."""
 
@@ -913,8 +915,99 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
       self._attributes = {
         "mprn": self._mprn,
         "serial_number": self._serial_number,
+        "is_estimated": self._native_consumption_units != "m³",
         "total_kwh": consumption["total_kwh"],
         "total_m3": consumption["total_m3"],
+        "last_calculated_timestamp": consumption["last_calculated_timestamp"],
+        "charges": consumption["consumptions"]
+      }
+    
+    return self._state
+
+  async def async_added_to_hass(self):
+    """Call when entity about to be added to hass."""
+    # If not None, we got an initial value.
+    await super().async_added_to_hass()
+    state = await self.async_get_last_state()
+    
+    if state is not None:
+      self._state = state.state
+
+    if (self._state is None):
+      self._state = 0
+    
+    _LOGGER.debug(f'Restored state: {self._state}')
+
+class OctopusEnergyPreviousAccumulativeGasReadingKwh(CoordinatorEntity, OctopusEnergyGasSensor):
+  """Sensor for displaying the previous days accumulative gas reading in kwh."""
+
+  def __init__(self, coordinator, mprn, serial_number, native_consumption_units):
+    """Init sensor."""
+    super().__init__(coordinator)
+    OctopusEnergyGasSensor.__init__(self, mprn, serial_number)
+
+    self._native_consumption_units = native_consumption_units
+    self._state = None
+    self._latest_date = None
+
+  @property
+  def unique_id(self):
+    """The id of the sensor."""
+    return f"octopus_energy_gas_{self._serial_number}_{self._mprn}_previous_accumulative_consumption_kwh"
+    
+  @property
+  def name(self):
+    """Name of the sensor."""
+    return f"Octopus Energy Gas {self._serial_number} {self._mprn} Previous Accumulative Consumption (kWh)"
+
+  @property
+  def device_class(self):
+    """The type of sensor"""
+    return SensorDeviceClass.GAS
+
+  @property
+  def state_class(self):
+    """The state class of sensor"""
+    return SensorStateClass.TOTAL
+
+  @property
+  def unit_of_measurement(self):
+    """The unit of measurement of sensor"""
+    return ENERGY_KILO_WATT_HOUR
+
+  @property
+  def icon(self):
+    """Icon of the sensor."""
+    return "mdi:fire"
+
+  @property
+  def extra_state_attributes(self):
+    """Attributes of the sensor."""
+    return self._attributes
+
+  @property
+  def last_reset(self):
+    """Return the time when the sensor was last reset, if any."""
+    return self._latest_date
+
+  @property
+  def state(self):
+    """Retrieve the previous days accumulative consumption"""
+    consumption = calculate_gas_consumption(
+      self.coordinator.data,
+      self._latest_date,
+      self._native_consumption_units
+    )
+
+    if (consumption != None):
+      _LOGGER.debug(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
+      self._state = consumption["total_kwh"]
+      self._latest_date = consumption["last_calculated_timestamp"]
+
+      self._attributes = {
+        "mprn": self._mprn,
+        "serial_number": self._serial_number,
+        "is_estimated": self._native_consumption_units == "m³",
         "last_calculated_timestamp": consumption["last_calculated_timestamp"],
         "charges": consumption["consumptions"]
       }

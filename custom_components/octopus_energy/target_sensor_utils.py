@@ -7,41 +7,41 @@ import logging
 _LOGGER = logging.getLogger(__name__)
 
 def __get_applicable_rates(current_date, target_start_time, target_end_time, rates, target_start_offset, is_rolling_target):
-  if target_end_time != None:
-    # Get the target end for today. If this is in the past, then look at tomorrow
+  if (target_start_time is not None):
+    target_start = parse_datetime(current_date.strftime(f"%Y-%m-%dT{target_start_time}:00%z"))
+  else:
+    target_start = parse_datetime(current_date.strftime(f"%Y-%m-%dT00:00:00%z"))
+
+  if (target_end_time is not None):
     target_end = parse_datetime(current_date.strftime(f"%Y-%m-%dT{target_end_time}:00%z"))
-    if (is_rolling_target == True and target_end < current_date):
-      target_end = target_end + timedelta(days=1)
   else:
     target_end = parse_datetime(current_date.strftime(f"%Y-%m-%dT00:00:00%z")) + timedelta(days=1)
 
-  if target_start_time != None:
-    # Get the target start on the same day as our target end. If this is after our target end (which can occur if we're looking for
-    # a time over night), then go back a day
-    target_start = parse_datetime(target_end.strftime(f"%Y-%m-%dT{target_start_time}:00%z"))
-    if (target_start > target_end):
-      target_start = target_start - timedelta(days=1)
+  target_start = as_utc(target_start)
+  target_end = as_utc(target_end)
 
-  elif target_end_time != None:
-    # If we have an end time set, then we should start from the same day as our end time
-    target_start = parse_datetime(target_end.strftime(f"%Y-%m-%dT00:00:00%z"))
-  elif is_rolling_target == False:
-    target_start = parse_datetime(current_date.strftime(f"%Y-%m-%dT00:00:00%z"))
-  else:
-    target_start = current_date
+  if (target_start >= target_end):
+    _LOGGER.debug(f'{target_start} is after {target_end}, so setting target end to tomorrow')
+    if target_start > current_date:
+      target_start = target_start - timedelta(days=1)
+    else:
+      target_end = target_end + timedelta(days=1)
 
   # If our start date has passed, reset it to current_date to avoid picking a slot in the past
-  if (is_rolling_target == True and target_start < current_date):
+  if (is_rolling_target == True and target_start < current_date and current_date < target_end):
+    _LOGGER.debug(f'Rolling target and {target_start} is in the past. Setting start to {current_date}')
     target_start = current_date
 
   # Apply our offset so we make sure our target turns on within the specified timeframe
-  if (target_start_offset != None):
+  if (target_start_offset is not None):
+    _LOGGER.debug(f'Offsetting time period')
     target_start = apply_offset(target_start, target_start_offset, True)
+    target_end = apply_offset(target_end, target_start_offset, True)
 
-  # Convert our target start/end timestamps to UTC as this is what our rates are in
-  target_start = as_utc(target_start)
-  if target_end is not None:
-    target_end = as_utc(target_end)
+  # If our start and end are both in the past, then look to the next day
+  if (target_start < current_date and target_end < current_date):
+    target_start = target_start + timedelta(days=1)
+    target_end = target_end + timedelta(days=1)
 
   _LOGGER.debug(f'Finding rates between {target_start} and {target_end}')
 
