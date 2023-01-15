@@ -2,6 +2,10 @@ from datetime import timedelta
 import logging
 from custom_components.octopus_energy.utils import apply_offset
 
+import re
+import voluptuous as vol
+
+from homeassistant.core import callback
 from homeassistant.util.dt import (utcnow, now)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
@@ -10,6 +14,7 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
 from homeassistant.helpers.restore_state import RestoreEntity
+from homeassistant.helpers import config_validation as cv, entity_platform, service
 from .const import (
   CONFIG_TARGET_OFFSET,
   DOMAIN,
@@ -22,6 +27,10 @@ from .const import (
   CONFIG_TARGET_END_TIME,
   CONFIG_TARGET_MPAN,
   CONFIG_TARGET_ROLLING_TARGET,
+  
+  REGEX_HOURS,
+  REGEX_TIME,
+  REGEX_OFFSET_PARTS,
 
   DATA_ELECTRICITY_RATES_COORDINATOR,
   DATA_SAVING_SESSIONS_COORDINATOR,
@@ -50,6 +59,26 @@ async def async_setup_entry(hass, entry, async_add_entities):
     await async_setup_season_sensors(hass, entry, async_add_entities)
   elif CONFIG_TARGET_NAME in entry.data:
     await async_setup_target_sensors(hass, entry, async_add_entities)
+
+  platform = entity_platform.async_get_current_platform()
+  platform.async_register_entity_service(
+    "update_target_config",
+    vol.All(
+      vol.Schema(
+        {
+          vol.Required("target_hours"): str,
+          vol.Optional("target_start_time"): str,
+          vol.Optional("target_end_time"): str,
+          vol.Optional("target_offset"): str,
+        },
+        extra=vol.ALLOW_EXTRA,
+      ),
+      cv.has_at_least_one_key(
+        "target_hours", "target_start_time", "target_end_time", "target_offset"
+      ),
+    ),
+    "async_update_config",
+  )
 
   return True
 
@@ -98,6 +127,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     self._config = config
     self._is_export = is_export
     self._attributes = self._config.copy()
+    self._is_export = is_export
     self._attributes["is_target_export"] = is_export
     self._target_rates = []
 
@@ -209,6 +239,58 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
       self._attributes["next_time"] = active_result["next_time"]
 
     return active_result["is_active"]
+
+  @callback
+  def async_update_config(self, target_start_time=None, target_end_time=None, target_hours=None, target_offset=None):
+    """Update sensors config"""
+
+    config = dict(self._config)
+    
+    if target_hours is not None:
+      matches = re.search(REGEX_HOURS, target_hours)
+      if matches == None:
+        raise vol.Invalid("Target hours must be in half hour increments.")
+      else:
+        target_hours = float(target_hours)
+        if target_hours % 0.5 != 0:
+          raise vol.Invalid("Target hours must be in half hour increments.")
+        else:
+          config.update({
+            CONFIG_TARGET_HOURS: target_hours
+          })
+
+    if target_start_time is not None:
+      matches = re.search(REGEX_TIME, target_start_time)
+      if matches == None:
+        raise vol.Invalid("Start time must be in the format HH:MM")
+      else:
+        config.update({
+          CONFIG_TARGET_START_TIME: target_start_time
+        })
+
+    if target_end_time is not None:
+      matches = re.search(REGEX_TIME, target_end_time)
+      if matches == None:
+        raise vol.Invalid("End time must be in the format HH:MM")
+      else:
+        config.update({
+          CONFIG_TARGET_END_TIME: target_end_time
+        })
+
+    if target_offset is not None:
+      matches = re.search(REGEX_OFFSET_PARTS, target_offset)
+      if matches == None:
+        raise vol.Invalid("Offset must be in the form of HH:MM:SS with an optional negative symbol")
+      else:
+        config.update({
+          CONFIG_TARGET_OFFSET: target_offset
+        })
+
+    self._config = config
+    self._attributes = self._config.copy()
+    self._attributes["is_target_export"] = self._is_export
+    self._target_rates = []
+    self.async_write_ha_state()
 
 class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
   """Sensor for determining if a saving session is active."""

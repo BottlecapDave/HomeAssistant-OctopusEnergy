@@ -1,0 +1,32 @@
+update_target_config:
+  name: Update target rate config
+  description: Updates a given target rate's config. Please note this is temporary and will not persist between restarts.
+  target:
+    entity:
+      integration: octopus_energy
+      domain: binary_sensor
+  fields:
+    target_hours:
+      name: Hours
+      description: The optional number of hours the target rate sensor should come on during a 24 hour period.
+      example: '1.5'
+      selector:
+        text:
+    target_start_time:
+      name: Start time
+      description: The optional time the evaluation period should start.
+      example: '06:00'
+      selector:
+        text:
+    target_end_time:
+      name: End time
+      description: The optional time the evaluation period should end.
+      example: '19:00'
+      selector:
+        text:
+    target_offset:
+      name: Offset
+      description:
+        The optional offset to apply to the target rate when it starts
+      selector:
+        text:
