@@ -10,6 +10,7 @@
       - [From and To times](#from-and-to-times)
       - [Offset](#offset)
       - [Rolling Target](#rolling-target)
+      - [Service octopus\_energy.update\_target\_config](#service-octopus_energyupdate_target_config)
       - [Examples](#examples)
         - [Continuous](#continuous)
         - [Intermittent](#intermittent)
@@ -99,6 +100,20 @@ Depending on how you're going to use the sensor, you might want the best period 
 However, you might also only want the target time to occur once a day so once the best time for that day has passed it won't turn on again. For example, you might be using the sensor to turn on something that isn't time critical and could wait till the next day like a charger.
 
 This feature is toggled on by the `Re-evaluate multiple times a day` checkbox.
+
+#### Service octopus_energy.update_target_config
+
+Service for updating a given target rate's config. This allows you to change target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
+
+> Please note this is temporary and will not persist between restarts.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated                                                    |
+| `data.target_hours`      | `yes`    | The optional number of hours the target rate sensor should come on during a 24 hour period. Must be divisible by 0.5. |
+| `data.target_start_time` | `yes`    | The optional time the evaluation period should start. Must be in the format of `HH:MM`.                               |
+| `data.target_end_time`   | `yes`    | The optional time the evaluation period should end. Must be in the format of `HH:MM`.                                 |
+| `data.target_offset`     | `yes`    | The optional offset to apply to the target rate when it starts. Must be in the format `(+/-)HH:MM:SS`                 |
 
 #### Examples
 
