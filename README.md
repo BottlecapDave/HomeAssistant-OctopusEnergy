@@ -10,11 +10,12 @@
       - [From and To times](#from-and-to-times)
       - [Offset](#offset)
       - [Rolling Target](#rolling-target)
-      - [Service octopus\_energy.update\_target\_config](#service-octopus_energyupdate_target_config)
       - [Examples](#examples)
         - [Continuous](#continuous)
         - [Intermittent](#intermittent)
     - [Gas Meters](#gas-meters)
+  - [Services](#services)
+    - [Service octopus\_energy.update\_target\_config](#service-octopus_energyupdate_target_config)
   - [Increase Home Assistant logs](#increase-home-assistant-logs)
   - [FAQ](#faq)
     - [Can I get live sensor data? Do you support the new Octopus Home Mini?](#can-i-get-live-sensor-data-do-you-support-the-new-octopus-home-mini)
@@ -100,20 +101,6 @@ Depending on how you're going to use the sensor, you might want the best period 
 However, you might also only want the target time to occur once a day so once the best time for that day has passed it won't turn on again. For example, you might be using the sensor to turn on something that isn't time critical and could wait till the next day like a charger.
 
 This feature is toggled on by the `Re-evaluate multiple times a day` checkbox.
-
-#### Service octopus_energy.update_target_config
-
-Service for updating a given target rate's config. This allows you to change target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
-
-> Please note this is temporary and will not persist between restarts.
-
-| Attribute                | Optional | Description                                                                                                           |
-| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
-| `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated                                                    |
-| `data.target_hours`      | `yes`    | The optional number of hours the target rate sensor should come on during a 24 hour period. Must be divisible by 0.5. |
-| `data.target_start_time` | `yes`    | The optional time the evaluation period should start. Must be in the format of `HH:MM`.                               |
-| `data.target_end_time`   | `yes`    | The optional time the evaluation period should end. Must be in the format of `HH:MM`.                                 |
-| `data.target_offset`     | `yes`    | The optional offset to apply to the target rate when it starts. Must be in the format `(+/-)HH:MM:SS`                 |
 
 #### Examples
 
@@ -206,7 +193,74 @@ If we set an offset of `-00:30:00`, then while the times might be the same, the 
 
 ### Gas Meters
 
-When you sign into your account, if you have gas meters, we'll setup some sensors for you. However, the way these sensors report data isn't consistent between versions of the meters, and Octopus Energy doesn't expose what type of meter you have. Therefore, you have to toggle the checkbox when setting up your initial account within HA. If you've already setup your account, you can update this via the `Configure` option within the integrations configuration. This is a global setting, and therefore will apply to **all** gas meters.
+When you sign into your account, if you have gas meters, we'll setup some sensors for you. They are available in m3 and kwh, where one will be estimated from the native value.
+
+## Services
+
+### Service octopus_energy.update_target_config
+
+Service for updating a given target rate's config. This allows you to change target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
+
+> Please note this is temporary and will not persist between restarts.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated                                                    |
+| `data.target_hours`      | `yes`    | The optional number of hours the target rate sensor should come on during a 24 hour period. Must be divisible by 0.5. |
+| `data.target_start_time` | `yes`    | The optional time the evaluation period should start. Must be in the format of `HH:MM`.                               |
+| `data.target_end_time`   | `yes`    | The optional time the evaluation period should end. Must be in the format of `HH:MM`.                                 |
+| `data.target_offset`     | `yes`    | The optional offset to apply to the target rate when it starts. Must be in the format `(+/-)HH:MM:SS`                 |
+
+This can be used via automations in the following way. Assuming we have the following inputs.
+
+```yaml
+input_number:
+  octopus_energy_target_hours:
+    name: Octopus Energy Target Hours
+    min: 0
+    max: 24
+
+input_text:
+  # From/to would ideally use input_datetime, but we need the time in a different format
+  octopus_energy_target_from:
+    name: Octopus Energy Target From
+    initial: "00:00"
+  octopus_energy_target_to:
+    name: Octopus Energy Target To
+    initial: "00:00"
+  octopus_energy_target_offset:
+    name: Octopus Energy Target Offset
+    initial: "-00:00:00"
+```
+
+Then an automation might look like the following
+
+```yaml
+automations:
+  - alias: Update target rate config
+    trigger:
+    - platform: state
+      entity_id:
+      - input_number.octopus_energy_target_hours
+      - input_text.octopus_energy_target_from
+      - input_text.octopus_energy_target_to
+      - input_text.octopus_energy_target_offset
+    condition: []
+    action:
+    - service: octopus_energy.update_target_config
+      data:
+        target_hours: >
+          "{{ states('input_number.octopus_energy_target_hours') | string }}"
+        target_start_time: >
+          {{ states('input_text.octopus_energy_target_from') }}
+        target_end_time: >
+          {{ states('input_text.octopus_energy_target_to') }}
+        target_offset: >
+          {{ states('input_text.octopus_energy_target_offset') }}
+      target:
+        entity_id: binary_sensor.octopus_energy_target_example
+```
+
 
 ## Increase Home Assistant logs
 
