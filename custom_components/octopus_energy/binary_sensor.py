@@ -247,43 +247,51 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     config = dict(self._config)
     
     if target_hours is not None:
-      matches = re.search(REGEX_HOURS, target_hours)
+      # Inputs from automations can include quotes, so remove these
+      trimmed_target_hours = target_hours.strip('\"')
+      matches = re.search(REGEX_HOURS, trimmed_target_hours)
       if matches == None:
-        raise vol.Invalid("Target hours must be in half hour increments.")
+        raise vol.Invalid(f"Target hours of '{trimmed_target_hours}' must be in half hour increments.")
       else:
-        target_hours = float(target_hours)
-        if target_hours % 0.5 != 0:
-          raise vol.Invalid("Target hours must be in half hour increments.")
+        trimmed_target_hours = float(trimmed_target_hours)
+        if trimmed_target_hours % 0.5 != 0:
+          raise vol.Invalid(f"Target hours of '{trimmed_target_hours}' must be in half hour increments.")
         else:
           config.update({
-            CONFIG_TARGET_HOURS: target_hours
+            CONFIG_TARGET_HOURS: trimmed_target_hours
           })
 
     if target_start_time is not None:
-      matches = re.search(REGEX_TIME, target_start_time)
+      # Inputs from automations can include quotes, so remove these
+      trimmed_target_start_time = target_start_time.strip('\"')
+      matches = re.search(REGEX_TIME, trimmed_target_start_time)
       if matches == None:
         raise vol.Invalid("Start time must be in the format HH:MM")
       else:
         config.update({
-          CONFIG_TARGET_START_TIME: target_start_time
+          CONFIG_TARGET_START_TIME: trimmed_target_start_time
         })
 
     if target_end_time is not None:
-      matches = re.search(REGEX_TIME, target_end_time)
+      # Inputs from automations can include quotes, so remove these
+      trimmed_target_end_time = target_end_time.strip('\"')
+      matches = re.search(REGEX_TIME, trimmed_target_end_time)
       if matches == None:
         raise vol.Invalid("End time must be in the format HH:MM")
       else:
         config.update({
-          CONFIG_TARGET_END_TIME: target_end_time
+          CONFIG_TARGET_END_TIME: trimmed_target_end_time
         })
 
     if target_offset is not None:
-      matches = re.search(REGEX_OFFSET_PARTS, target_offset)
+      # Inputs from automations can include quotes, so remove these
+      trimmed_target_offset = target_offset.strip('\"')
+      matches = re.search(REGEX_OFFSET_PARTS, trimmed_target_offset)
       if matches == None:
         raise vol.Invalid("Offset must be in the form of HH:MM:SS with an optional negative symbol")
       else:
         config.update({
-          CONFIG_TARGET_OFFSET: target_offset
+          CONFIG_TARGET_OFFSET: trimmed_target_offset
         })
 
     self._config = config
