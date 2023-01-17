@@ -52,6 +52,14 @@ def __get_applicable_rates(current_date, target_start_time, target_end_time, rat
       if rate["valid_from"] >= target_start and (target_end == None or rate["valid_to"] <= target_end):
         applicable_rates.append(rate)
 
+  # Make sure that we have enough rates that meet our target period
+  date_diff = target_end - target_start
+  hours = (date_diff.days * 24) + (date_diff.seconds // 3600)
+  periods = hours * 2
+  if len(applicable_rates) < periods:
+    _LOGGER.debug(f'Incorrect number of periods discovered. Require {periods}, but only have {len(applicable_rates)}')
+    return None
+
   return applicable_rates
 
 def __get_rate(rate):
@@ -62,6 +70,9 @@ def __get_valid_to(rate):
 
 def calculate_continuous_times(current_date, target_start_time, target_end_time, target_hours, rates, target_start_offset = None, is_rolling_target = True, search_for_highest_rate = False):
   applicable_rates = __get_applicable_rates(current_date, target_start_time, target_end_time, rates, target_start_offset, is_rolling_target)
+  if (applicable_rates is None):
+    return []
+
   applicable_rates_count = len(applicable_rates)
   total_required_rates = math.ceil(target_hours * 2)
 
@@ -99,6 +110,9 @@ def calculate_continuous_times(current_date, target_start_time, target_end_time,
 
 def calculate_intermittent_times(current_date, target_start_time, target_end_time, target_hours, rates, target_start_offset = None, is_rolling_target = True, search_for_highest_rate = False):
   applicable_rates = __get_applicable_rates(current_date, target_start_time, target_end_time, rates, target_start_offset, is_rolling_target)
+  if (applicable_rates is None):
+    return []
+  
   total_required_rates = math.ceil(target_hours * 2)
 
   applicable_rates.sort(key=__get_rate, reverse=search_for_highest_rate)
