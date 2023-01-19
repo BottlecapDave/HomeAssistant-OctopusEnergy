@@ -238,8 +238,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     else:
       self._attributes["next_time"] = active_result["next_time"]
     
-    self._attributes["current_duration_in_minutes"] = active_result["current_duration_in_minutes"]
-    self._attributes["next_duration_in_minutes"] = active_result["next_duration_in_minutes"]
+    self._attributes["current_duration_in_hours"] = active_result["current_duration_in_hours"]
+    self._attributes["next_duration_in_hours"] = active_result["next_duration_in_hours"]
 
     return active_result["is_active"]
 

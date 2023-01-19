@@ -130,8 +130,8 @@ def calculate_intermittent_times(current_date, target_start_time, target_end_tim
 def is_target_rate_active(current_date: datetime, applicable_rates, offset: str = None):
   is_active = False
   next_time = None
-  current_duration_in_minutes = 0
-  next_duration_in_minutes = 0
+  current_duration_in_hours = 0
+  next_duration_in_hours = 0
   total_applicable_rates = len(applicable_rates)
 
   if (total_applicable_rates > 0):
@@ -146,7 +146,7 @@ def is_target_rate_active(current_date: datetime, applicable_rates, offset: str 
         applicable_rate_blocks.append({
           "valid_from": block_valid_from,
           "valid_to": applicable_rates[index - 1]["valid_to"],
-          "duration_in_minutes": diff.total_seconds() / 60
+          "duration_in_hours": diff.total_seconds() / 60 / 60
         })
 
         block_valid_from = rate["valid_from"]
@@ -156,7 +156,7 @@ def is_target_rate_active(current_date: datetime, applicable_rates, offset: str 
     applicable_rate_blocks.append({
       "valid_from": block_valid_from,
       "valid_to": applicable_rates[-1]["valid_to"],
-      "duration_in_minutes": diff.total_seconds() / 60
+      "duration_in_hours": diff.total_seconds() / 60 / 60
     })
 
     # Find out if we're within an active block, or find the next block
@@ -169,16 +169,16 @@ def is_target_rate_active(current_date: datetime, applicable_rates, offset: str 
         valid_to = rate["valid_to"]
       
       if current_date >= valid_from and current_date < valid_to:
-        current_duration_in_minutes = rate["duration_in_minutes"]
+        current_duration_in_hours = rate["duration_in_hours"]
         is_active = True
       elif current_date < valid_from:
         next_time = valid_from
-        next_duration_in_minutes = rate["duration_in_minutes"]
+        next_duration_in_hours = rate["duration_in_hours"]
         break
 
   return {
     "is_active": is_active,
-    "current_duration_in_minutes": current_duration_in_minutes,
+    "current_duration_in_hours": current_duration_in_hours,
     "next_time": next_time,
-    "next_duration_in_minutes": next_duration_in_minutes
+    "next_duration_in_hours": next_duration_in_hours
   }

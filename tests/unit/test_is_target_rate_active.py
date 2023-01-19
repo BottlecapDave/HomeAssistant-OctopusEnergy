@@ -35,9 +35,9 @@ async def test_when_called_before_rates_then_not_active_returned():
   # Assert
   assert result != None
   assert result["is_active"] == False
-  assert result["current_duration_in_minutes"] == 0
+  assert result["current_duration_in_hours"] == 0
   assert result["next_time"] == rates[0]["valid_from"]
-  assert result["next_duration_in_minutes"] == 60
+  assert result["next_duration_in_hours"] == 1
 
 @pytest.mark.asyncio
 async def test_when_called_during_rates_then_active_returned():
@@ -73,20 +73,20 @@ async def test_when_called_during_rates_then_active_returned():
     {
       "current_date": datetime.strptime("2022-02-09T10:15:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       "expected_next_time": datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-      "expected_current_duration_in_minutes": 90,
-      "expected_next_duration_in_minutes": 60
+      "expected_current_duration_in_hours": 1.5,
+      "expected_next_duration_in_hours": 1
     },
     {
       "current_date": datetime.strptime("2022-02-09T12:35:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       "expected_next_time": datetime.strptime("2022-02-09T14:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-      "expected_current_duration_in_minutes": 60,
-      "expected_next_duration_in_minutes": 30
+      "expected_current_duration_in_hours": 1,
+      "expected_next_duration_in_hours": 0.5
     },
     {
       "current_date": datetime.strptime("2022-02-09T14:05:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       "expected_next_time": None,
-      "expected_current_duration_in_minutes": 30,
-      "expected_next_duration_in_minutes": 0
+      "expected_current_duration_in_hours": 0.5,
+      "expected_next_duration_in_hours": 0
     }
   ]
   
@@ -99,9 +99,9 @@ async def test_when_called_during_rates_then_active_returned():
     # Assert
     assert result != None
     assert result["is_active"] == True
-    assert result["current_duration_in_minutes"] == test["expected_current_duration_in_minutes"]
+    assert result["current_duration_in_hours"] == test["expected_current_duration_in_hours"]
     assert result["next_time"] == test["expected_next_time"]
-    assert result["next_duration_in_minutes"] == test["expected_next_duration_in_minutes"]
+    assert result["next_duration_in_hours"] == test["expected_next_duration_in_hours"]
 
 @pytest.mark.asyncio
 async def test_when_called_after_rates_then_not_active_returned():
