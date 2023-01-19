@@ -131,6 +131,7 @@ def is_target_rate_active(current_date: datetime, applicable_rates, offset: str 
   is_active = False
   next_time = None
   current_duration_in_minutes = 0
+  next_duration_in_minutes = 0
   total_applicable_rates = len(applicable_rates)
 
   if (total_applicable_rates > 0):
@@ -172,10 +173,12 @@ def is_target_rate_active(current_date: datetime, applicable_rates, offset: str 
         is_active = True
       elif current_date < valid_from:
         next_time = valid_from
+        next_duration_in_minutes = rate["duration_in_minutes"]
         break
 
   return {
-    "next_time": next_time,
     "is_active": is_active,
-    "current_duration_in_minutes": current_duration_in_minutes
+    "current_duration_in_minutes": current_duration_in_minutes,
+    "next_time": next_time,
+    "next_duration_in_minutes": next_duration_in_minutes
   }
