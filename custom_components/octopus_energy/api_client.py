@@ -147,7 +147,7 @@ class OctopusEnergyApiClient:
               "agreements": list(map(lambda a: {
                 "valid_from": a["validFrom"],
                 "valid_to": a["validTo"],
-                "tariff_code": a["tariff"]["tariffCode"] if "tariffCode" in a["tariff"] else None,
+                "tariff_code": a["tariff"]["tariffCode"] if "tariff" in a and "tariffCode" in a["tariff"] else None,
               }, mp["meterPoint"]["agreements"]))
             }, account_response_body["data"]["account"]["electricityAgreements"])),
             "gas_meter_points": list(map(lambda mp: {
@@ -159,7 +159,7 @@ class OctopusEnergyApiClient:
               "agreements": list(map(lambda a: {
                 "valid_from": a["validFrom"],
                 "valid_to": a["validTo"],
-                "tariff_code": a["tariff"]["tariffCode"] if "tariffCode" in a["tariff"] else None,
+                "tariff_code": a["tariff"]["tariffCode"] if "tariff" in a and "tariffCode" in a["tariff"] else None,
               }, mp["meterPoint"]["agreements"]))
             }, account_response_body["data"]["account"]["gasAgreements"])),
           }
