@@ -129,6 +129,10 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     self._attributes = self._config.copy()
     self._is_export = is_export
     self._attributes["is_target_export"] = is_export
+    is_rolling_target = True
+    if CONFIG_TARGET_ROLLING_TARGET in self._config:
+      is_rolling_target = self._config[CONFIG_TARGET_ROLLING_TARGET]
+    self._attributes[CONFIG_TARGET_ROLLING_TARGET] = is_rolling_target
     self._target_rates = []
 
   @property
