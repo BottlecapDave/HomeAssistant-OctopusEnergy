@@ -130,30 +130,52 @@ def calculate_intermittent_times(current_date, target_start_time, target_end_tim
 def is_target_rate_active(current_date: datetime, applicable_rates, offset: str = None):
   is_active = False
   next_time = None
+  current_duration_in_minutes = 0
   total_applicable_rates = len(applicable_rates)
 
   if (total_applicable_rates > 0):
-    if (current_date < applicable_rates[0]["valid_from"]):
-      next_time = applicable_rates[0]["valid_from"]
 
+    # Work our our rate blocks. This is more for intermittent target rates
+    applicable_rates.sort(key=__get_valid_to)
+    applicable_rate_blocks = list()
+    block_valid_from = applicable_rates[0]["valid_from"]
     for index, rate in enumerate(applicable_rates):
+      if (index > 0 and applicable_rates[index - 1]["valid_to"] != rate["valid_from"]):
+        diff = applicable_rates[index - 1]["valid_to"] - block_valid_from
+        applicable_rate_blocks.append({
+          "valid_from": block_valid_from,
+          "valid_to": applicable_rates[index - 1]["valid_to"],
+          "duration_in_minutes": diff.total_seconds() / 60
+        })
+
+        block_valid_from = rate["valid_from"]
+
+    # Make sure our final block is added
+    diff = applicable_rates[-1]["valid_to"] - block_valid_from
+    applicable_rate_blocks.append({
+      "valid_from": block_valid_from,
+      "valid_to": applicable_rates[-1]["valid_to"],
+      "duration_in_minutes": diff.total_seconds() / 60
+    })
+
+    # Find out if we're within an active block, or find the next block
+    for index, rate in enumerate(applicable_rate_blocks):
       if (offset != None):
         valid_from = apply_offset(rate["valid_from"], offset)
         valid_to = apply_offset(rate["valid_to"], offset)
       else:
         valid_from = rate["valid_from"]
         valid_to = rate["valid_to"]
-
+      
       if current_date >= valid_from and current_date < valid_to:
+        current_duration_in_minutes = rate["duration_in_minutes"]
         is_active = True
-
-        next_index = index + 1
-        if (next_index < total_applicable_rates):
-          next_time = applicable_rates[next_index]["valid_from"]
-        
+      elif current_date < valid_from:
+        next_time = valid_from
         break
 
   return {
     "next_time": next_time,
     "is_active": is_active,
+    "current_duration_in_minutes": current_duration_in_minutes
   }
