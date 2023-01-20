@@ -268,9 +268,6 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
     
     if state is not None:
       self._state = state.state
-
-    if (self._state is None):
-      self._state = 0
     
     _LOGGER.debug(f'Restored state: {self._state}')
 
@@ -356,9 +353,6 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
     
     if state is not None:
       self._state = state.state
-
-    if (self._state is None):
-      self._state = 0
     
     _LOGGER.debug(f'Restored state: {self._state}')
 
@@ -444,9 +438,6 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
     
     if state is not None:
       self._state = state.state
-
-    if (self._state is None):
-      self._state = 0
     
     _LOGGER.debug(f'Restored state: {self._state}')
 
