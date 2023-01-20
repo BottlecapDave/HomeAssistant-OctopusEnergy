@@ -129,6 +129,10 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     self._attributes = self._config.copy()
     self._is_export = is_export
     self._attributes["is_target_export"] = is_export
+    is_rolling_target = True
+    if CONFIG_TARGET_ROLLING_TARGET in self._config:
+      is_rolling_target = self._config[CONFIG_TARGET_ROLLING_TARGET]
+    self._attributes[CONFIG_TARGET_ROLLING_TARGET] = is_rolling_target
     self._target_rates = []
 
   @property
@@ -237,6 +241,9 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
       self._attributes["next_time"] = apply_offset(active_result["next_time"], offset)
     else:
       self._attributes["next_time"] = active_result["next_time"]
+    
+    self._attributes["current_duration_in_hours"] = active_result["current_duration_in_hours"]
+    self._attributes["next_duration_in_hours"] = active_result["next_duration_in_hours"]
 
     return active_result["is_active"]
 

@@ -126,6 +126,7 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
           entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(coordinator, client, electricity_tariff_code, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
           entities.append(OctopusEnergyElectricityCurrentRate(rate_coordinator, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
           entities.append(OctopusEnergyElectricityPreviousRate(rate_coordinator, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
+          entities.append(OctopusEnergyElectricityNextRate(rate_coordinator, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
           entities.append(OctopusEnergyElectricityCurrentStandingCharge(client, electricity_tariff_code, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
       else:
         for meter in point["meters"]:
@@ -267,9 +268,6 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
     
     if state is not None:
       self._state = state.state
-
-    if (self._state is None):
-      self._state = 0
     
     _LOGGER.debug(f'Restored state: {self._state}')
 
@@ -355,9 +353,91 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
     
     if state is not None:
       self._state = state.state
+    
+    _LOGGER.debug(f'Restored state: {self._state}')
 
-    if (self._state is None):
-      self._state = 0
+class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectricitySensor):
+  """Sensor for displaying the next rate."""
+
+  def __init__(self, coordinator, mpan, serial_number, is_export, is_smart_meter):
+    """Init sensor."""
+    # Pass coordinator to base class
+    super().__init__(coordinator)
+    OctopusEnergyElectricitySensor.__init__(self, mpan, serial_number, is_export, is_smart_meter)
+
+    self._state = None
+
+  @property
+  def unique_id(self):
+    """The id of the sensor."""
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_next_rate"
+    
+  @property
+  def name(self):
+    """Name of the sensor."""
+    return f"Octopus Energy Electricity {self._serial_number} {self._mpan} Next Rate"
+
+  @property
+  def device_class(self):
+    """The type of sensor"""
+    return SensorDeviceClass.MONETARY
+
+  @property
+  def icon(self):
+    """Icon of the sensor."""
+    return "mdi:currency-gbp"
+
+  @property
+  def unit_of_measurement(self):
+    """Unit of measurement of the sensor."""
+    return "GBP/kWh"
+
+  @property
+  def extra_state_attributes(self):
+    """Attributes of the sensor."""
+    return self._attributes
+
+  @property
+  def state(self):
+    """The state of the sensor."""
+    # Find the next rate. We only need to do this every half an hour
+    now = utcnow()
+    if (now.minute % 30) == 0 or self._state == None:
+      _LOGGER.debug(f"Updating OctopusEnergyElectricityNextRate for '{self._mpan}/{self._serial_number}'")
+
+      target = now + timedelta(minutes=30)
+
+      next_rate = None
+      if self.coordinator.data != None:
+        rate = self.coordinator.data[self._mpan]
+        if rate != None:
+          for period in rate:
+            if target >= period["valid_from"] and target <= period["valid_to"]:
+              next_rate = period
+              break
+
+      if next_rate != None:
+        self._attributes = {
+          "rate": next_rate,
+          "is_export": self._is_export,
+          "is_smart_meter": self._is_smart_meter
+        }
+
+        self._state = next_rate["value_inc_vat"] / 100
+      else:
+        self._state = None
+        self._attributes = {}
+
+    return self._state
+
+  async def async_added_to_hass(self):
+    """Call when entity about to be added to hass."""
+    # If not None, we got an initial value.
+    await super().async_added_to_hass()
+    state = await self.async_get_last_state()
+    
+    if state is not None:
+      self._state = state.state
     
     _LOGGER.debug(f'Restored state: {self._state}')
 

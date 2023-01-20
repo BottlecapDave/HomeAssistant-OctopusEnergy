@@ -713,6 +713,12 @@ async def test_when_start_time_and_end_time_is_same_and_rolling_target_then_rate
           "valid_from": "2022-10-22T02:00:00Z",
           "valid_to": "2022-10-22T05:00:00Z"
         },
+        {
+          "value_exc_vat": 16.1,
+          "value_inc_vat": 16.1,
+          "valid_from": "2022-10-22T05:00:00Z",
+          "valid_to": "2022-10-23T00:00:00Z"
+        },
       ]
     },
     datetime.strptime("2022-10-21T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
@@ -737,3 +743,29 @@ async def test_when_start_time_and_end_time_is_same_and_rolling_target_then_rate
   assert result[0]["valid_from"] == expected_first_valid_from
   assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[0]["value_inc_vat"] == 15.1
+
+@pytest.mark.asyncio
+async def test_when_available_rates_are_too_low_then_no_times_are_returned():
+  # Arrange
+  current_date = datetime.strptime("2022-10-22T22:40:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  target_start_time = "16:00"
+  target_end_time = "16:00"
+  offset = None
+  
+  # Restrict our time block
+  target_hours = 3
+
+  # Act
+  result = calculate_continuous_times(
+    current_date,
+    target_start_time,
+    target_end_time,
+    target_hours,
+    agile_rates,
+    offset,
+    False
+  )
+
+  # Assert
+  assert result != None
+  assert len(result) == 0

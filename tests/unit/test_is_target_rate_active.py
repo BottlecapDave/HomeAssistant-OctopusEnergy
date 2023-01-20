@@ -9,15 +9,20 @@ from custom_components.octopus_energy.utils import rates_to_thirty_minute_increm
 @pytest.mark.asyncio
 async def test_when_called_before_rates_then_not_active_returned():
   # Arrange
-  period_from = datetime.strptime("2022-02-09T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  expected_rates = [0.1, 0.2]
-
-  rates = create_rate_data(
-    period_from,
-    period_to,
-    expected_rates
-  )
+  rates = [
+    {
+      "valid_from": datetime.strptime("2022-02-09T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "valid_to":  datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+      "valid_from": datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "valid_to":  datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+      "valid_from": datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "valid_to":  datetime.strptime("2022-02-09T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    }
+  ]
 
   current_date = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
@@ -30,40 +35,73 @@ async def test_when_called_before_rates_then_not_active_returned():
   # Assert
   assert result != None
   assert result["is_active"] == False
-  assert result["next_time"] == period_from
+  assert result["current_duration_in_hours"] == 0
+  assert result["next_time"] == rates[0]["valid_from"]
+  assert result["next_duration_in_hours"] == 1
 
 @pytest.mark.asyncio
 async def test_when_called_during_rates_then_active_returned():
   # Arrange
-  period_from = datetime.strptime("2022-02-09T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  expected_rates = [0.1, 0.2]
+  rates = [
+    {
+      "valid_from": datetime.strptime("2022-02-09T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "valid_to":  datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+      "valid_from": datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "valid_to":  datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+      "valid_from": datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "valid_to":  datetime.strptime("2022-02-09T11:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+      "valid_from": datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "valid_to":  datetime.strptime("2022-02-09T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+      "valid_from": datetime.strptime("2022-02-09T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "valid_to":  datetime.strptime("2022-02-09T13:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+      "valid_from": datetime.strptime("2022-02-09T14:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "valid_to":  datetime.strptime("2022-02-09T14:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    }
+  ]
 
-  rates = create_rate_data(
-    period_from,
-    period_to,
-    expected_rates
-  )
-
-  current_date = period_from + timedelta(minutes=15)
-  expected_next_time = (period_from + timedelta(minutes=30))
+  tests = [
+    {
+      "current_date": datetime.strptime("2022-02-09T10:15:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "expected_next_time": datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "expected_current_duration_in_hours": 1.5,
+      "expected_next_duration_in_hours": 1
+    },
+    {
+      "current_date": datetime.strptime("2022-02-09T12:35:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "expected_next_time": datetime.strptime("2022-02-09T14:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "expected_current_duration_in_hours": 1,
+      "expected_next_duration_in_hours": 0.5
+    },
+    {
+      "current_date": datetime.strptime("2022-02-09T14:05:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "expected_next_time": None,
+      "expected_current_duration_in_hours": 0.5,
+      "expected_next_duration_in_hours": 0
+    }
+  ]
   
-  while current_date < period_to:
+  for test in tests:
     result = is_target_rate_active(
-      current_date,
+      test["current_date"],
       rates
     )
 
     # Assert
     assert result != None
     assert result["is_active"] == True
-    assert result["next_time"] == expected_next_time
-
-    current_date = current_date + timedelta(minutes=30)
-    if expected_next_time != None:
-      expected_next_time = expected_next_time + timedelta(minutes=30)
-      if (expected_next_time >= period_to):
-        expected_next_time = None
+    assert result["current_duration_in_hours"] == test["expected_current_duration_in_hours"]
+    assert result["next_time"] == test["expected_next_time"]
+    assert result["next_duration_in_hours"] == test["expected_next_duration_in_hours"]
 
 @pytest.mark.asyncio
 async def test_when_called_after_rates_then_not_active_returned():
@@ -123,21 +161,25 @@ async def test_when_offset_set_and_current_date_in_non_offset_rate_then_not_acti
 @pytest.mark.asyncio
 async def test_when_offset_set_and_current_date_in_offset_rate_then_active():
   # Arrange
-  period_from = datetime.strptime("2022-02-09T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  expected_rates = [0.1, 0.2]
   offset = "-01:00:00"
 
-  rates = create_rate_data(
-    period_from,
-    period_to,
-    expected_rates
-  )
-
-  rates = rates[0:2]
+  rates = [
+    {
+      "valid_from": datetime.strptime("2022-02-09T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "valid_to":  datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+      "valid_from": datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "valid_to":  datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+      "valid_from": datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "valid_to":  datetime.strptime("2022-02-09T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    }
+  ]
 
   # Attempt where the current date should be within a rate
-  current_date = period_from + timedelta(minutes=15)
+  current_date = rates[0]["valid_from"] + timedelta(minutes=15)
 
   result = is_target_rate_active(
     current_date,
@@ -145,8 +187,12 @@ async def test_when_offset_set_and_current_date_in_offset_rate_then_active():
     offset
   )
 
+  assert result != None
+  assert result["is_active"] == False
+  assert result["next_time"] == datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+
   # Attempt where the current date should be within a rate with the offset applied
-  current_date = period_from - timedelta(minutes=45)
+  current_date = rates[0]["valid_from"] - timedelta(minutes=45)
 
   result = is_target_rate_active(
     current_date,
@@ -156,7 +202,7 @@ async def test_when_offset_set_and_current_date_in_offset_rate_then_active():
 
   assert result != None
   assert result["is_active"] == True
-  assert result["next_time"] == datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result["next_time"] == datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
 @pytest.mark.asyncio
 async def test_when_current_date_is_equal_to_last_end_date_then_not_active():
