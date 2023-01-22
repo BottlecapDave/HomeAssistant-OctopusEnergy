@@ -1,4 +1,7 @@
 from .api_client import OctopusEnergyApiClient
+import math
+from datetime import (timedelta)
+from homeassistant.util.dt import (parse_datetime)
 
 minimum_consumption_records = 2
 
@@ -239,3 +242,13 @@ def get_next_saving_sessions_event(current_date, events):
         }
 
   return next_event
+
+async def async_get_live_consumption(client: OctopusEnergyApiClient, current_date, device_id):
+    minutes = math.floor(int(current_date.strftime("%M")) / 5) * 5
+    period_to = current_date.strftime(f"%Y-%m-%dT%H:{f'{minutes}'.rjust(2, '0')}:00Z")
+    period_from = (parse_datetime(period_to) - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:00Z")
+    result = await client.async_get_smart_meter_consumption(device_id, period_from, period_to)
+    if result is not None:
+      return result[0]
+    
+    return None
