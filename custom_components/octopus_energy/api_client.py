@@ -101,6 +101,7 @@ live_consumption_query = '''query {{
 	) {{
     readAt
 		consumptionDelta
+    demand
 	}}
 }}'''
 
@@ -222,6 +223,7 @@ class OctopusEnergyApiClient:
         if (response_body != None and "data" in response_body and "smartMeterTelemetry" in response_body["data"] and response_body["data"]["smartMeterTelemetry"] is not None and len(response_body["data"]["smartMeterTelemetry"]) > 0):
           return list(map(lambda mp: {
             "consumption": float(mp["consumptionDelta"]),
+            "demand": float(mp["demand"]),
             "startAt": parse_datetime(mp["readAt"])
           }, response_body["data"]["smartMeterTelemetry"]))
         else:
