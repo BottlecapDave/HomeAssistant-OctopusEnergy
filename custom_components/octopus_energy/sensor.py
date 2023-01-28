@@ -695,12 +695,12 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
   @property
   def state(self):
     """Retrieve the latest electricity consumption"""
-    utc_now = utcnow()
+    
     _LOGGER.debug('Updating OctopusEnergyCurrentElectricityConsumption')
     consumption_result = self.coordinator.data
 
     if (consumption_result is not None):
-      self._latest_date = parse_datetime(utc_now.strftime(f"%Y-%m-%dT00:00:00Z"))
+      self._latest_date = consumption_result["startAt"]
       self._state = consumption_result["consumption"] / 1000
 
     return self._state
@@ -770,12 +770,12 @@ class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElec
   @property
   def state(self):
     """Retrieve the latest electricity demand"""
-    utc_now = utcnow()
+
     _LOGGER.debug('Updating OctopusEnergyCurrentElectricityConsumption')
     consumption_result = self.coordinator.data
 
     if (consumption_result is not None):
-      self._latest_date = parse_datetime(utc_now.strftime(f"%Y-%m-%dT00:00:00Z"))
+      self._latest_date = consumption_result["startAt"]
       self._state = consumption_result["demand"]
 
     return self._state
