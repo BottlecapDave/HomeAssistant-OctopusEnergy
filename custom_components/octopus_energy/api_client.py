@@ -289,10 +289,8 @@ class OctopusEnergyApiClient:
         
         return None
 
-  async def async_get_gas_rates(self, tariff_code, period_from, period_to):
-    """Get the gas rates"""
-    tariff_parts = get_tariff_parts(tariff_code)
-    product_code = tariff_parts["product_code"]
+  async def __get_gas_standard_rates__(self, tariff_code, product_code, period_from, period_to):
+    """Get the gas standard rates"""
 
     results = []
     async with aiohttp.ClientSession() as client:
@@ -310,6 +308,61 @@ class OctopusEnergyApiClient:
           raise
 
     return results
+
+  async def __async_get_gas_tracker_rates__(self, tariff_code, period_from, period_to):
+    """Get the gas tracker rates"""
+
+    results = []
+    async with aiohttp.ClientSession() as client:
+      auth = aiohttp.BasicAuth(self._api_key, '')
+      url = f'https://octopus.energy/api/v1/tracker/{tariff_code}/daily/current/0/0?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
+      async with client.get(url, auth=auth) as response:
+        try:
+          data = await self.__async_read_response(response, url)
+          if data == None:
+            return None
+
+          items = []
+          for period in data["periods"]:
+            items.append(
+              {
+                "valid_from": f'{period["date"]}T00:00:00Z',
+                "valid_to": (parse_datetime(f'{period["date"]}T00:00:00Z') + timedelta(days=1)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+                "value_exc_vat": period["unit_rate"],
+                "value_inc_vat": period["unit_rate"],
+              }
+            )
+
+          results = rates_to_thirty_minute_increments({ "results": items }, period_from, period_to, tariff_code)
+        except:
+          _LOGGER.error(f'Failed to extract tracker gas rates: {url}')
+          raise
+
+    return results
+
+  async def async_get_gas_rates(self, tariff_code, period_from, period_to):
+    """Get the gas rates"""
+    tariff_parts = get_tariff_parts(tariff_code)
+    product_code = tariff_parts["product_code"]
+
+    async with aiohttp.ClientSession() as client:
+      auth = aiohttp.BasicAuth(self._api_key, '')
+
+      # Determine if we're dealing with a tracker product
+      url = f'{self._base_url}/v1/products/{product_code}'
+      async with client.get(url, auth=auth) as response:
+        try:
+          data = await self.__async_read_response(response, url)
+          if data == None or "is_tracker" not in data:
+            return None
+
+          if data["is_tracker"] == True:
+            return await self.__async_get_gas_tracker_rates__(tariff_code, period_from, period_to)
+          
+          return await self.__get_gas_standard_rates__(tariff_code, product_code, period_from, period_to)
+        except:
+          _LOGGER.error(f'Failed to retrieve product: {url}')
+          raise
 
   async def async_get_gas_consumption(self, mprn, serial_number, period_from, period_to):
     """Get the current gas rates"""
@@ -439,7 +492,7 @@ class OctopusEnergyApiClient:
     text = await response.text()
 
     if response.status >= 400:
-      _LOGGER.error(f'Request failed: {response.status}; {text}')
+      _LOGGER.error(f'Request failed ({url}): {response.status}; {text}')
       return None
 
     try:
