@@ -13,6 +13,7 @@ from .const import (
   
   CONFIG_MAIN_API_KEY,
   CONFIG_MAIN_ACCOUNT_ID,
+  CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
   
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_HOURS,
@@ -234,10 +235,15 @@ class OptionsFlowHandler(OptionsFlow):
       config = dict(self._entry.data)
       if self._entry.options is not None:
         config.update(self._entry.options)
+
+      supports_live_consumption = False
+      if CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config:
+        supports_live_consumption = config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION]
       
       return self.async_show_form(
         step_id="user", data_schema=vol.Schema({
           vol.Required(CONFIG_MAIN_API_KEY, default=config[CONFIG_MAIN_API_KEY]): str,
+          vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION, default=supports_live_consumption): bool,
         })
       )
     elif CONFIG_TARGET_TYPE in self._entry.data:

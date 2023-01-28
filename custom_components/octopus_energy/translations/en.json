@@ -6,7 +6,8 @@
         "description": "Setup your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
         "data": {
           "Api key": "Api key",
-          "Account Id": "Your account Id (e.g. A-AAAA1111)"
+          "Account Id": "Your account Id (e.g. A-AAAA1111)",
+          "supports_live_consumption": "I have a Home Mini"
         }
       },
       "target_rate": {
@@ -40,7 +41,8 @@
         "title": "Update Account Info",
         "description": "Update your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
         "data": {
-          "Api key": "Api key"
+          "Api key": "Api key",
+          "supports_live_consumption": "I have a Home Mini"
         }
       },
       "target_rate": {
