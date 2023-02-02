@@ -95,7 +95,7 @@ saving_session_query = '''query {{
 live_consumption_query = '''query {{
 	smartMeterTelemetry(
     deviceId: "{device_id}"
-    grouping: FIVE_MINUTES 
+    grouping: ONE_MINUTE 
 		start: "{period_from}"
 		end: "{period_to}"
 	) {{
