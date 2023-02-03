@@ -268,6 +268,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
     
     if state is not None:
       self._state = state.state
+      self._attributes = state.attributes
     
     _LOGGER.debug(f'Restored state: {self._state}')
 
@@ -353,6 +354,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
     
     if state is not None:
       self._state = state.state
+      self._attributes = state.attributes
     
     _LOGGER.debug(f'Restored state: {self._state}')
 
@@ -438,6 +440,7 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
     
     if state is not None:
       self._state = state.state
+      self._attributes = state.attributes
     
     _LOGGER.debug(f'Restored state: {self._state}')
 
@@ -520,6 +523,7 @@ class OctopusEnergyElectricityCurrentStandingCharge(OctopusEnergyElectricitySens
     
     if state is not None:
       self._state = state.state
+      self._attributes = state.attributes
 
     if (self._state is None):
       self._state = 0
@@ -610,6 +614,7 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Oct
     
     if state is not None:
       self._state = state.state
+      self._attributes = state.attributes
 
     if (self._state is None):
       self._state = 0
@@ -720,6 +725,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     
     if state is not None:
       self._state = state.state
+      self._attributes = state.attributes
 
     if (self._state is None):
       self._state = 0
@@ -835,6 +841,7 @@ class OctopusEnergyGasCurrentRate(OctopusEnergyGasSensor):
     
     if state is not None:
       self._state = state.state
+      self._attributes = state.attributes
 
     if (self._state is None):
       self._state = 0
@@ -920,6 +927,7 @@ class OctopusEnergyGasCurrentStandingCharge(OctopusEnergyGasSensor):
     
     if state is not None:
       self._state = state.state
+      self._attributes = state.attributes
 
     if (self._state is None):
       self._state = 0
@@ -1012,6 +1020,7 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
     
     if state is not None:
       self._state = state.state
+      self._attributes = state.attributes
 
     if (self._state is None):
       self._state = 0
@@ -1102,6 +1111,7 @@ class OctopusEnergyPreviousAccumulativeGasReadingKwh(CoordinatorEntity, OctopusE
     
     if state is not None:
       self._state = state.state
+      self._attributes = state.attributes
 
     if (self._state is None):
       self._state = 0
@@ -1213,6 +1223,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
     
     if state is not None:
       self._state = state.state
+      self._attributes = state.attributes
 
     if (self._state is None):
       self._state = 0
@@ -1274,6 +1285,7 @@ class OctopusEnergySavingSessionPoints(CoordinatorEntity, SensorEntity, RestoreE
 
     if state is not None:
       self._state = state.state
+      self._attributes = state.attributes
     
     if (self._state is None):
       self._state = 0
