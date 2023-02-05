@@ -16,6 +16,8 @@
     - [Gas Meters](#gas-meters)
   - [Services](#services)
     - [Service octopus\_energy.update\_target\_config](#service-octopus_energyupdate_target_config)
+  - [UI](#ui)
+    - [Upcoming Prices](#upcoming-prices)
   - [Increase Home Assistant logs](#increase-home-assistant-logs)
   - [FAQ](#faq)
     - [Can I get live sensor data? Do you support the new Octopus Home Mini?](#can-i-get-live-sensor-data-do-you-support-the-new-octopus-home-mini)
@@ -265,6 +267,11 @@ automations:
         entity_id: binary_sensor.octopus_energy_target_example
 ```
 
+## UI
+
+### Upcoming Prices
+
+If you're wanting to display upcoming prices in a nice readable format, then I'll direct you to the plugin developed by @lozzd available at https://github.com/lozzd/octopus-energy-rates-card. 
 
 ## Increase Home Assistant logs
 

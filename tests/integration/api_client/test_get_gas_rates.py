@@ -2,8 +2,8 @@ from datetime import datetime, timedelta
 import os
 import pytest
 
-from homeassistant.util.dt import (parse_datetime, now)
-from integration import get_test_context
+from homeassistant.util.dt import (now)
+from integration import (get_test_context, async_get_tracker_tariff)
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 period_from = datetime.strptime("2021-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -48,6 +48,9 @@ async def test_when_get_gas_rates_is_called_with_tracker_tariff_then_rates_are_r
     period_to = (now() + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
     client = OctopusEnergyApiClient(context["api_key"])
 
+    expected_tracker = await async_get_tracker_tariff(context["api_key"], tariff, now())
+    assert expected_tracker is not None
+
     # Act
     data = await client.async_get_gas_rates(tariff, period_from, period_to)
 
@@ -67,6 +70,8 @@ async def test_when_get_gas_rates_is_called_with_tracker_tariff_then_rates_are_r
 
         assert "value_exc_vat" in item
         assert "value_inc_vat" in item
+        assert item["value_exc_vat"] == expected_tracker["unit_rate"] - expected_tracker["breakdown"]["unit_charge"]["VAT"]
+        assert item["value_inc_vat"] == expected_tracker["unit_rate"]
 
         expected_valid_from = expected_valid_to
 
