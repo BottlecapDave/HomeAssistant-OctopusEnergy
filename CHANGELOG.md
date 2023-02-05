@@ -1,3 +1,16 @@
+# [5.4.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v5.3.1...v5.4.0) (2023-02-05)
+
+
+### Bug Fixes
+
+* **sensor:** Fixed restoring attributes from restart ([fdfd72e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fdfd72e5c16f362c5a10a08e4926bcd9d816cc8a))
+* **sensor:** Fixed restoring attributes so they're not read only ([bbb3ef8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/bbb3ef840f48dd10aaad670c6999a99ea6c96eeb))
+
+
+### Features
+
+* **api_client:** Updated rates and standing charge logic to route to tracker endpoint where appropriate ([3be23d0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3be23d075ff36201e89f5ed3ad8aba6eafda330e))
+
 ## [5.3.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v5.3.0...v5.3.1) (2023-01-28)
 
 
