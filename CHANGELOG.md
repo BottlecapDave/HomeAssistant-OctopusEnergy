@@ -1,3 +1,10 @@
+## [5.4.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v5.4.0...v5.4.1) (2023-02-07)
+
+
+### Bug Fixes
+
+* **api-client:** Fixed tracker lookup logic ([c59085a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c59085aefb7afe51ca7ac5f6763969a169e5a614))
+
 # [5.4.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v5.3.1...v5.4.0) (2023-02-05)
 
 

@@ -11,6 +11,6 @@
   "codeowners": [
     "@bottlecapdave"
   ],
-  "version": "5.4.0",
+  "version": "5.4.1",
   "iot_class": "cloud_polling"
 }
