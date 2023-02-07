@@ -6,8 +6,8 @@ from homeassistant.util.dt import (now)
 from integration import (get_test_context, async_get_tracker_tariff)
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
-period_from = datetime.strptime("2021-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-period_to = datetime.strptime("2021-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+period_from = datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+period_to = datetime.strptime("2022-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
 async def async_assert_electricity_data(tariff, is_smart_meter):
     # Arrange
@@ -44,6 +44,7 @@ async def async_assert_electricity_data(tariff, is_smart_meter):
     ("E-1R-GO-18-06-12-A"),
     ("E-1R-VAR-21-09-29-A"),
     ("E-1R-AGILE-18-02-21-A"),
+    ("E-1R-AGILE-FLEX-22-11-25-D")
 ])
 async def test_when_get_electricity_rates_is_called_with_tariff_then_data_is_returned_in_thirty_minute_increments(tariff):
     await async_assert_electricity_data(tariff, False)
@@ -53,8 +54,8 @@ async def test_when_get_electricity_rates_is_called_with_duel_rate_tariff_dumb_m
     tariff = "E-2R-SUPER-GREEN-24M-21-07-30-A"
     data = await async_assert_electricity_data(tariff, False)
 
-    cheapest_rate_from = datetime.strptime("2021-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-    cheapest_rate_to = datetime.strptime("2021-12-01T07:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    cheapest_rate_from = datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    cheapest_rate_to = datetime.strptime("2022-12-01T07:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
     cheapest_rate = None
     for item in data:
@@ -74,8 +75,8 @@ async def test_when_get_electricity_rates_is_called_with_duel_rate_tariff_smart_
     tariff = "E-2R-SUPER-GREEN-24M-21-07-30-A"
     data = await async_assert_electricity_data(tariff, True)
 
-    cheapest_rate_from = datetime.strptime("2021-12-01T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-    cheapest_rate_to = datetime.strptime("2021-12-01T07:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    cheapest_rate_from = datetime.strptime("2022-12-01T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    cheapest_rate_to = datetime.strptime("2022-12-01T07:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
     cheapest_rate = None
     for item in data:
