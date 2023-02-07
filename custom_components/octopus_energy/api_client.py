@@ -104,6 +104,8 @@ class OctopusEnergyApiClient:
     self._graphql_token = None
     self._graphql_expiration = None
 
+    self._product_tracker_cache = dict()
+
   async def async_refresh_token(self):
     """Get the user's refresh token"""
     if (self._graphql_expiration != None and (self._graphql_expiration - timedelta(minutes=5)) > now()):
@@ -404,8 +406,23 @@ class OctopusEnergyApiClient:
     return result
 
   async def __async_is_tracker_tariff(self, tariff_code):
-    # Trying to avoid making a call to find out if we're on a tracker
-    return "FLEX" in tariff_code
+    tariff_parts = get_tariff_parts(tariff_code)
+    product_code = tariff_parts["product_code"]
+
+    if product_code in self._product_tracker_cache:
+      return self._product_tracker_cache[product_code]
+
+    async with aiohttp.ClientSession() as client:
+      auth = aiohttp.BasicAuth(self._api_key, '')
+      url = f'https://api.octopus.energy/v1/products/{product_code}'
+      async with client.get(url, auth=auth) as response:
+        data = await self.__async_read_response(response, url)
+        if data == None:
+          return False
+        
+        is_tracker = "is_tracker" in data and data["is_tracker"]
+        self._product_tracker_cache[product_code] = is_tracker
+        return is_tracker
 
   async def __async_get_tracker_rates__(self, tariff_code, period_from, period_to):
     """Get the tracker rates"""
