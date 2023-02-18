@@ -102,6 +102,8 @@ def create_current_consumption_coordinator(hass, client, device_id):
     if data is not None:
       hass.data[DOMAIN][previous_current_consumption_date_key] = data["startAt"]
 
+    return data
+
   coordinator = DataUpdateCoordinator(
     hass,
     _LOGGER,
