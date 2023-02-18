@@ -93,8 +93,14 @@ def create_current_consumption_coordinator(hass, client, device_id):
 
   async def async_update_data():
     """Fetch data from API endpoint."""
+    previous_current_consumption_date_key = f'{device_id}_previous_current_consumption_date'
+    last_date = None
+    if previous_current_consumption_date_key in hass.data[DOMAIN]:
+      last_date = hass.data[DOMAIN][previous_current_consumption_date_key]
 
-    return await async_get_live_consumption(client, utcnow(), device_id)
+    data = await async_get_live_consumption(client, device_id, utcnow(), last_date)
+    if data is not None:
+      hass.data[DOMAIN][previous_current_consumption_date_key] = data["startAt"]
 
   coordinator = DataUpdateCoordinator(
     hass,

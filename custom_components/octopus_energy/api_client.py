@@ -229,7 +229,7 @@ class OctopusEnergyApiClient:
             "startAt": parse_datetime(mp["readAt"])
           }, response_body["data"]["smartMeterTelemetry"]))
         else:
-          _LOGGER.error(f"Failed to retrieve smart meter consumption data - period_from: {period_from}; period_to: {period_to}")
+          _LOGGER.warn(f"Failed to retrieve smart meter consumption data - period_from: {period_from}; period_to: {period_to}")
     
     return None
 
@@ -574,7 +574,10 @@ class OctopusEnergyApiClient:
     text = await response.text()
 
     if response.status >= 400:
-      _LOGGER.error(f'Request failed ({url}): {response.status}; {text}')
+      if response.status >= 500:
+        _LOGGER.error(f'Octopus Energy server error ({url}): {response.status}; {text}')
+      else:
+        _LOGGER.error(f'Failed to send request ({url}): {response.status}; {text}')
       return None
 
     try:
