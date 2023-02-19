@@ -94,7 +94,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
     # Setup our basic sensors
     return self.async_create_entry(
-      title="Octopus Energy", 
+      title="Account", 
       data=user_input
     )
 
