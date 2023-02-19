@@ -1,10 +1,12 @@
 import voluptuous as vol
+import homeassistant.helpers.config_validation as cv
 
 DOMAIN = "octopus_energy"
 
 CONFIG_MAIN_API_KEY = "Api key"
 CONFIG_MAIN_ACCOUNT_ID = "Account Id"
 CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION = "supports_live_consumption"
+CONFIG_MAIN_CALORIFIC_VALUE = "calorific_value"
 
 CONFIG_TARGET_NAME = "Name"
 CONFIG_TARGET_HOURS = "Hours"
@@ -35,4 +37,5 @@ DATA_SCHEMA_ACCOUNT = vol.Schema({
   vol.Required(CONFIG_MAIN_API_KEY): str,
   vol.Required(CONFIG_MAIN_ACCOUNT_ID): str,
   vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION): bool,
+  vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=40.0): cv.positive_float
 })

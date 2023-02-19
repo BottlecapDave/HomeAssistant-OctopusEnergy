@@ -54,7 +54,8 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
     {
       "tariff_code": tariff_code
     },
-    consumption_units
+    consumption_units,
+    40
   )
 
   # Assert
