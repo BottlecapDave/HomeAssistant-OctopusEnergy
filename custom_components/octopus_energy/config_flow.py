@@ -241,11 +241,15 @@ class OptionsFlowHandler(OptionsFlow):
       if CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config:
         supports_live_consumption = config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION]
       
+      calorific_value = 40
+      if CONFIG_MAIN_CALORIFIC_VALUE in config:
+        calorific_value = config[CONFIG_MAIN_CALORIFIC_VALUE]
+      
       return self.async_show_form(
         step_id="user", data_schema=vol.Schema({
           vol.Required(CONFIG_MAIN_API_KEY, default=config[CONFIG_MAIN_API_KEY]): str,
           vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION, default=supports_live_consumption): bool,
-          vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=config[CONFIG_MAIN_CALORIFIC_VALUE]): cv.positive_float,
+          vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=calorific_value): cv.positive_float,
         })
       )
     elif CONFIG_TARGET_TYPE in self._entry.data:
