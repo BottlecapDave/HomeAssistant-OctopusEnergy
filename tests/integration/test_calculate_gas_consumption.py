@@ -39,7 +39,8 @@ async def test_when_calculate_gas_consumption_uses_real_data_then_calculation_re
   consumption = calculate_gas_consumption(
     consumption_data,
     latest_date,
-    consumption_units
+    consumption_units,
+    40
   )
 
   # Assert

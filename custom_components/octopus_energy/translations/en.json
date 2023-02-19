@@ -6,7 +6,8 @@
         "description": "Setup your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
         "data": {
           "Api key": "Api key",
-          "Account Id": "Your account Id (e.g. A-AAAA1111)"
+          "Account Id": "Your account Id (e.g. A-AAAA1111)",
+          "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time."
         }
       },
       "target_rate": {
@@ -40,7 +41,8 @@
         "title": "Update Account Info",
         "description": "Update your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
         "data": {
-          "Api key": "Api key"
+          "Api key": "Api key",
+          "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time."
         }
       },
       "target_rate": {

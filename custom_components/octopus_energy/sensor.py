@@ -30,6 +30,7 @@ from .const import (
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
+  CONFIG_MAIN_CALORIFIC_VALUE,
 
   DATA_ELECTRICITY_RATES_COORDINATOR,
   DATA_SAVING_SESSIONS_COORDINATOR,
@@ -136,6 +137,11 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
     _LOGGER.info('No electricity meters available')
 
   if len(account_info["gas_meter_points"]) > 0:
+
+    calorific_value = 40
+    if CONFIG_MAIN_CALORIFIC_VALUE in hass.data[DOMAIN]:
+      calorific_value = hass.data[DOMAIN][CONFIG_MAIN_CALORIFIC_VALUE]
+
     for point in account_info["gas_meter_points"]:
       # We only care about points that have active agreements
       gas_tariff_code = get_active_tariff_code(now, point["agreements"])
@@ -143,9 +149,9 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
         for meter in point["meters"]:
           _LOGGER.info(f'Adding gas meter; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
           coordinator = create_reading_coordinator(hass, client, False, point["mprn"], meter["serial_number"])
-          entities.append(OctopusEnergyPreviousAccumulativeGasReading(coordinator, point["mprn"], meter["serial_number"], meter["consumption_units"]))
-          entities.append(OctopusEnergyPreviousAccumulativeGasReadingKwh(coordinator, point["mprn"], meter["serial_number"], meter["consumption_units"]))
-          entities.append(OctopusEnergyPreviousAccumulativeGasCost(coordinator, client, gas_tariff_code, point["mprn"], meter["serial_number"], meter["consumption_units"]))
+          entities.append(OctopusEnergyPreviousAccumulativeGasReading(coordinator, point["mprn"], meter["serial_number"], meter["consumption_units"], calorific_value))
+          entities.append(OctopusEnergyPreviousAccumulativeGasReadingKwh(coordinator, point["mprn"], meter["serial_number"], meter["consumption_units"], calorific_value))
+          entities.append(OctopusEnergyPreviousAccumulativeGasCost(coordinator, client, gas_tariff_code, point["mprn"], meter["serial_number"], meter["consumption_units"], calorific_value))
           entities.append(OctopusEnergyGasCurrentRate(client, gas_tariff_code, point["mprn"], meter["serial_number"]))
           entities.append(OctopusEnergyGasCurrentStandingCharge(client, gas_tariff_code, point["mprn"], meter["serial_number"]))
       else:
@@ -953,7 +959,7 @@ class OctopusEnergyGasCurrentStandingCharge(OctopusEnergyGasSensor):
 class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEnergyGasSensor):
   """Sensor for displaying the previous days accumulative gas reading."""
 
-  def __init__(self, coordinator, mprn, serial_number, native_consumption_units):
+  def __init__(self, coordinator, mprn, serial_number, native_consumption_units, calorific_value):
     """Init sensor."""
     super().__init__(coordinator)
     OctopusEnergyGasSensor.__init__(self, mprn, serial_number)
@@ -961,6 +967,7 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
     self._native_consumption_units = native_consumption_units
     self._state = None
     self._latest_date = None
+    self._calorific_value = calorific_value
 
   @property
   def unique_id(self):
@@ -1008,7 +1015,8 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
     consumption = calculate_gas_consumption(
       self.coordinator.data,
       self._latest_date,
-      self._native_consumption_units
+      self._native_consumption_units,
+      self._calorific_value
     )
 
     if (consumption != None):
@@ -1023,7 +1031,8 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
         "total_kwh": consumption["total_kwh"],
         "total_m3": consumption["total_m3"],
         "last_calculated_timestamp": consumption["last_calculated_timestamp"],
-        "charges": consumption["consumptions"]
+        "charges": consumption["consumptions"],
+        "calorific_value": self._calorific_value
       }
     
     return self._state
@@ -1048,7 +1057,7 @@ class OctopusEnergyPreviousAccumulativeGasReading(CoordinatorEntity, OctopusEner
 class OctopusEnergyPreviousAccumulativeGasReadingKwh(CoordinatorEntity, OctopusEnergyGasSensor):
   """Sensor for displaying the previous days accumulative gas reading in kwh."""
 
-  def __init__(self, coordinator, mprn, serial_number, native_consumption_units):
+  def __init__(self, coordinator, mprn, serial_number, native_consumption_units, calorific_value):
     """Init sensor."""
     super().__init__(coordinator)
     OctopusEnergyGasSensor.__init__(self, mprn, serial_number)
@@ -1056,6 +1065,7 @@ class OctopusEnergyPreviousAccumulativeGasReadingKwh(CoordinatorEntity, OctopusE
     self._native_consumption_units = native_consumption_units
     self._state = None
     self._latest_date = None
+    self._calorific_value = calorific_value
 
   @property
   def unique_id(self):
@@ -1103,7 +1113,8 @@ class OctopusEnergyPreviousAccumulativeGasReadingKwh(CoordinatorEntity, OctopusE
     consumption = calculate_gas_consumption(
       self.coordinator.data,
       self._latest_date,
-      self._native_consumption_units
+      self._native_consumption_units,
+      self._calorific_value
     )
 
     if (consumption != None):
@@ -1116,7 +1127,8 @@ class OctopusEnergyPreviousAccumulativeGasReadingKwh(CoordinatorEntity, OctopusE
         "serial_number": self._serial_number,
         "is_estimated": self._native_consumption_units == "m³",
         "last_calculated_timestamp": consumption["last_calculated_timestamp"],
-        "charges": consumption["consumptions"]
+        "charges": consumption["consumptions"],
+        "calorific_value": self._calorific_value
       }
     
     return self._state
@@ -1141,7 +1153,7 @@ class OctopusEnergyPreviousAccumulativeGasReadingKwh(CoordinatorEntity, OctopusE
 class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyGasSensor):
   """Sensor for displaying the previous days accumulative gas cost."""
 
-  def __init__(self, coordinator, client, tariff_code, mprn, serial_number, native_consumption_units):
+  def __init__(self, coordinator, client, tariff_code, mprn, serial_number, native_consumption_units, calorific_value):
     """Init sensor."""
     super().__init__(coordinator)
     OctopusEnergyGasSensor.__init__(self, mprn, serial_number)
@@ -1152,6 +1164,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
 
     self._state = None
     self._latest_date = None
+    self._calorific_value = calorific_value
 
   @property
   def unique_id(self):
@@ -1216,7 +1229,8 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
       {
         "tariff_code": self._tariff_code,
       },
-      self._native_consumption_units
+      self._native_consumption_units,
+      self._calorific_value
     )
 
     if (consumption_cost != None):
@@ -1232,7 +1246,8 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
         "total_without_standing_charge": f'£{consumption_cost["total_without_standing_charge"]}',
         "total": f'£{consumption_cost["total"]}',
         "last_calculated_timestamp": consumption_cost["last_calculated_timestamp"],
-        "charges": consumption_cost["charges"]
+        "charges": consumption_cost["charges"],
+        "calorific_value": self._calorific_value
       }
 
   async def async_added_to_hass(self):
