@@ -14,6 +14,8 @@ from .const import (
   CONFIG_MAIN_API_KEY,
   CONFIG_MAIN_ACCOUNT_ID,
   CONFIG_MAIN_CALORIFIC_VALUE,
+  CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
+  CONFIG_MAIN_GAS_PRICE_CAP,
   
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_HOURS,
@@ -239,11 +241,21 @@ class OptionsFlowHandler(OptionsFlow):
       calorific_value = 40
       if CONFIG_MAIN_CALORIFIC_VALUE in config:
         calorific_value = config[CONFIG_MAIN_CALORIFIC_VALUE]
+
+      electricity_price_cap = None
+      if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config:
+        electricity_price_cap = config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
+
+      gas_price_cap = None
+      if CONFIG_MAIN_GAS_PRICE_CAP in config:
+        gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
       
       return self.async_show_form(
         step_id="user", data_schema=vol.Schema({
           vol.Required(CONFIG_MAIN_API_KEY, default=config[CONFIG_MAIN_API_KEY]): str,
           vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=calorific_value): cv.positive_float,
+          vol.Required(CONFIG_MAIN_ELECTRICITY_PRICE_CAP, default=electricity_price_cap): cv.positive_float,
+          vol.Required(CONFIG_MAIN_GAS_PRICE_CAP, default=gas_price_cap): cv.positive_float,
         })
       )
     elif CONFIG_TARGET_TYPE in self._entry.data:

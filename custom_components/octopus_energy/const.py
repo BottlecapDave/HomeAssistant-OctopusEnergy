@@ -6,6 +6,8 @@ DOMAIN = "octopus_energy"
 CONFIG_MAIN_API_KEY = "Api key"
 CONFIG_MAIN_ACCOUNT_ID = "Account Id"
 CONFIG_MAIN_CALORIFIC_VALUE = "calorific_value"
+CONFIG_MAIN_ELECTRICITY_PRICE_CAP = "electricity_price_cap"
+CONFIG_MAIN_GAS_PRICE_CAP = "gas_price_cap"
 
 CONFIG_TARGET_NAME = "Name"
 CONFIG_TARGET_HOURS = "Hours"
@@ -35,5 +37,7 @@ REGEX_OFFSET_PARTS = "^(-)?([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
 DATA_SCHEMA_ACCOUNT = vol.Schema({
   vol.Required(CONFIG_MAIN_API_KEY): str,
   vol.Required(CONFIG_MAIN_ACCOUNT_ID): str,
-  vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=40.0): cv.positive_float
+  vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=40.0): cv.positive_float,
+  vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP): cv.positive_float,
+  vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float
 })
