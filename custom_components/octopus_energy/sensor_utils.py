@@ -248,7 +248,7 @@ async def async_get_live_consumption(client: OctopusEnergyApiClient, device_id, 
     if (last_retrieval_date is None):
       period_from = (parse_datetime(period_to) - timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:00Z")
     else:
-      period_from = last_retrieval_date.strftime("%Y-%m-%dT%H:%M:00Z")
+      period_from = (last_retrieval_date + timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:00Z")
     
     result = await client.async_get_smart_meter_consumption(device_id, period_from, period_to)
     if result is not None:
