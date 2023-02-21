@@ -7,7 +7,9 @@
         "data": {
           "Api key": "Api key",
           "Account Id": "Your account Id (e.g. A-AAAA1111)",
-          "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time."
+          "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time.",
+          "electricity_price_cap": "Electricity price cap in pence",
+          "gas_price_cap": "Gas price cap in pence"
         }
       },
       "target_rate": {
@@ -42,7 +44,9 @@
         "description": "Update your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
         "data": {
           "Api key": "Api key",
-          "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time."
+          "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time.",
+          "electricity_price_cap": "Electricity price cap in pence",
+          "gas_price_cap": "Gas price cap in pence"
         }
       },
       "target_rate": {
