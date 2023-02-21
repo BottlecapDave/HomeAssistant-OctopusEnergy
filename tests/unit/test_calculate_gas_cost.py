@@ -113,7 +113,6 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
     return create_rate_data(period_from, period_to, [expected_rate_price])
 
   expected_standing_charge = {
-    "value_exc_vat": 1,
     "value_inc_vat": 2
   }
 
@@ -199,7 +198,6 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
     return create_rate_data(period_from, period_to, [expected_rate_price])
 
   expected_standing_charge = {
-    "value_exc_vat": 1,
     "value_inc_vat": 2
   }
 

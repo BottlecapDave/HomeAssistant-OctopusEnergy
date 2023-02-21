@@ -84,7 +84,15 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     """Setup the initial account based on the provided user input"""
     errors = {}
 
-    client = OctopusEnergyApiClient(user_input[CONFIG_MAIN_API_KEY])
+    electricity_price_cap = None
+    if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in user_input:
+      electricity_price_cap = user_input[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
+
+    gas_price_cap = None
+    if CONFIG_MAIN_GAS_PRICE_CAP in user_input:
+      gas_price_cap = user_input[CONFIG_MAIN_GAS_PRICE_CAP]
+
+    client = OctopusEnergyApiClient(user_input[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap)
     account_info = await client.async_get_account(user_input[CONFIG_MAIN_ACCOUNT_ID])
     if (account_info == None):
       errors[CONFIG_MAIN_ACCOUNT_ID] = "account_not_found"
