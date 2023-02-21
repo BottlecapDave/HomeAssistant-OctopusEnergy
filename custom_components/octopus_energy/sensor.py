@@ -790,7 +790,7 @@ class OctopusEnergyGasCurrentRate(OctopusEnergyGasSensor):
 
   def __init__(self, client, tariff_code, mprn, serial_number, gas_price_cap):
     """Init sensor."""
-    OctopusEnergyGasSensor.__init__(self, mprn, serial_number, gas_price_cap)
+    OctopusEnergyGasSensor.__init__(self, mprn, serial_number)
 
     self._client = client
     self._tariff_code = tariff_code
