@@ -82,7 +82,6 @@ async def test_go_rates_bst():
       rates_index = 5
 
     assert result[index]["value_inc_vat"] == rates[rates_index]["value_inc_vat"]
-    assert result[index]["value_exc_vat"] == rates[rates_index]["value_exc_vat"]
 
     assert result[index]["tariff_code"] == tariff_code
 

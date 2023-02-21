@@ -15,6 +15,8 @@ from .const import (
   CONFIG_MAIN_ACCOUNT_ID,
   CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
   CONFIG_MAIN_CALORIFIC_VALUE,
+  CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
+  CONFIG_MAIN_GAS_PRICE_CAP,
   
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_HOURS,
@@ -83,7 +85,15 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     """Setup the initial account based on the provided user input"""
     errors = {}
 
-    client = OctopusEnergyApiClient(user_input[CONFIG_MAIN_API_KEY])
+    electricity_price_cap = None
+    if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in user_input:
+      electricity_price_cap = user_input[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
+
+    gas_price_cap = None
+    if CONFIG_MAIN_GAS_PRICE_CAP in user_input:
+      gas_price_cap = user_input[CONFIG_MAIN_GAS_PRICE_CAP]
+
+    client = OctopusEnergyApiClient(user_input[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap)
     account_info = await client.async_get_account(user_input[CONFIG_MAIN_ACCOUNT_ID])
     if (account_info == None):
       errors[CONFIG_MAIN_ACCOUNT_ID] = "account_not_found"
@@ -93,7 +103,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
     # Setup our basic sensors
     return self.async_create_entry(
-      title="Octopus Energy", 
+      title="Account", 
       data=user_input
     )
 
@@ -244,12 +254,22 @@ class OptionsFlowHandler(OptionsFlow):
       calorific_value = 40
       if CONFIG_MAIN_CALORIFIC_VALUE in config:
         calorific_value = config[CONFIG_MAIN_CALORIFIC_VALUE]
+
+      electricity_price_cap = None
+      if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config:
+        electricity_price_cap = config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
+
+      gas_price_cap = None
+      if CONFIG_MAIN_GAS_PRICE_CAP in config:
+        gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
       
       return self.async_show_form(
         step_id="user", data_schema=vol.Schema({
           vol.Required(CONFIG_MAIN_API_KEY, default=config[CONFIG_MAIN_API_KEY]): str,
           vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION, default=supports_live_consumption): bool,
           vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=calorific_value): cv.positive_float,
+          vol.Required(CONFIG_MAIN_ELECTRICITY_PRICE_CAP, default=electricity_price_cap): cv.positive_float,
+          vol.Required(CONFIG_MAIN_GAS_PRICE_CAP, default=gas_price_cap): cv.positive_float,
         })
       )
     elif CONFIG_TARGET_TYPE in self._entry.data:
