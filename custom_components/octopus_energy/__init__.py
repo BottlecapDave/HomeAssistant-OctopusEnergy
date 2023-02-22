@@ -39,8 +39,13 @@ async def async_setup_entry(hass, entry):
   """This is called from the config flow."""
   hass.data.setdefault(DOMAIN, {})
 
-  if CONFIG_MAIN_API_KEY in entry.data:
-    await async_setup_dependencies(hass, entry.data)
+  config = dict(entry.data)
+
+  if entry.options:
+    config.update(entry.options)
+
+  if CONFIG_MAIN_API_KEY in config:
+    await async_setup_dependencies(hass, config)
 
     # Forward our entry to setup our default sensors
     hass.async_create_task(
@@ -50,7 +55,7 @@ async def async_setup_entry(hass, entry):
     hass.async_create_task(
       hass.config_entries.async_forward_entry_setup(entry, "binary_sensor")
     )
-  elif CONFIG_TARGET_NAME in entry.data:
+  elif CONFIG_TARGET_NAME in config:
     if DOMAIN not in hass.data or DATA_ELECTRICITY_RATES_COORDINATOR not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN]:
       raise ConfigEntryNotReady
 

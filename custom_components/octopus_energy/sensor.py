@@ -119,8 +119,8 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
 
   if len(account_info["electricity_meter_points"]) > 0:
     electricity_price_cap = None
-    if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in hass.data[DOMAIN]:
-      electricity_price_cap = hass.data[DOMAIN][CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
+    if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config:
+      electricity_price_cap = config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
 
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
@@ -145,12 +145,12 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
   if len(account_info["gas_meter_points"]) > 0:
 
     calorific_value = 40
-    if CONFIG_MAIN_CALORIFIC_VALUE in hass.data[DOMAIN]:
-      calorific_value = hass.data[DOMAIN][CONFIG_MAIN_CALORIFIC_VALUE]
+    if CONFIG_MAIN_CALORIFIC_VALUE in config:
+      calorific_value = config[CONFIG_MAIN_CALORIFIC_VALUE]
 
     gas_price_cap = None
-    if CONFIG_MAIN_GAS_PRICE_CAP in hass.data[DOMAIN]:
-      gas_price_cap = hass.data[DOMAIN][CONFIG_MAIN_GAS_PRICE_CAP]
+    if CONFIG_MAIN_GAS_PRICE_CAP in config:
+      gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
 
     for point in account_info["gas_meter_points"]:
       # We only care about points that have active agreements
