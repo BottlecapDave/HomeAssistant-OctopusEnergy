@@ -46,7 +46,9 @@
           "Api key": "Api key",
           "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time.",
           "electricity_price_cap": "Electricity price cap in pence",
-          "gas_price_cap": "Gas price cap in pence"
+          "clear_electricity_price_cap": "Clear electricity price cap",
+          "gas_price_cap": "Gas price cap in pence",
+          "clear_gas_price_cap": "Clear gas price cap"
         }
       },
       "target_rate": {

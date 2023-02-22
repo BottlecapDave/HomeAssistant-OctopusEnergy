@@ -15,7 +15,9 @@ from .const import (
   CONFIG_MAIN_ACCOUNT_ID,
   CONFIG_MAIN_CALORIFIC_VALUE,
   CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
+  CONFIG_MAIN_CLEAR_ELECTRICITY_PRICE_CAP,
   CONFIG_MAIN_GAS_PRICE_CAP,
+  CONFIG_MAIN_CLEAR_GAS_PRICE_CAP,
   
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_HOURS,
@@ -250,20 +252,22 @@ class OptionsFlowHandler(OptionsFlow):
       if CONFIG_MAIN_CALORIFIC_VALUE in config:
         calorific_value = config[CONFIG_MAIN_CALORIFIC_VALUE]
 
-      electricity_price_cap = None
-      if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config:
-        electricity_price_cap = config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
+      electricity_price_cap_key = vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP)
+      if (CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config):
+        electricity_price_cap_key = vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP, default=config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP])
 
-      gas_price_cap = None
-      if CONFIG_MAIN_GAS_PRICE_CAP in config:
-        gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
+      gas_price_cap_key = vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP)
+      if (CONFIG_MAIN_GAS_PRICE_CAP in config):
+        gas_price_cap_key = vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP, default=config[CONFIG_MAIN_GAS_PRICE_CAP])
       
       return self.async_show_form(
         step_id="user", data_schema=vol.Schema({
           vol.Required(CONFIG_MAIN_API_KEY, default=config[CONFIG_MAIN_API_KEY]): str,
           vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=calorific_value): cv.positive_float,
-          vol.Required(CONFIG_MAIN_ELECTRICITY_PRICE_CAP, default=electricity_price_cap): cv.positive_float,
-          vol.Required(CONFIG_MAIN_GAS_PRICE_CAP, default=gas_price_cap): cv.positive_float,
+          electricity_price_cap_key: cv.positive_float,
+          vol.Required(CONFIG_MAIN_CLEAR_ELECTRICITY_PRICE_CAP): bool,
+          gas_price_cap_key: cv.positive_float,
+          vol.Required(CONFIG_MAIN_CLEAR_GAS_PRICE_CAP): bool,
         })
       )
     elif CONFIG_TARGET_TYPE in self._entry.data:
@@ -281,6 +285,13 @@ class OptionsFlowHandler(OptionsFlow):
     if user_input is not None:
       config = dict(self._entry.data)
       config.update(user_input)
+
+      if config[CONFIG_MAIN_CLEAR_ELECTRICITY_PRICE_CAP] == True:
+        del config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
+
+      if config[CONFIG_MAIN_CLEAR_GAS_PRICE_CAP] == True:
+        del config[CONFIG_MAIN_GAS_PRICE_CAP]
+
       return self.async_create_entry(title="", data=config)
 
     return self.async_abort(reason="not_supported")
