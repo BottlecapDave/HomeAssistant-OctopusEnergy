@@ -213,6 +213,8 @@ class OctopusEnergyElectricitySensor(SensorEntity, RestoreEntity):
     self._serial_number = serial_number
     self._is_export = is_export
     self._is_smart_meter = is_smart_meter
+    self._export_id_addition = "_export_" if self._is_export == True else "_"
+    self._export_name_addition = " Export" if self._is_export == True else ""
 
     self._attributes = {
       "mpan": self._mpan,
@@ -246,12 +248,12 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_current_rate"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}current_rate"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Electricity {self._serial_number} {self._mpan} Current Rate"
+    return f"Octopus Energy Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Current Rate"
 
   @property
   def device_class(self):
@@ -341,12 +343,12 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_previous_rate"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_previous_rate"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Electricity {self._serial_number} {self._mpan} Previous Rate"
+    return f"Octopus Energy Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Rate"
 
   @property
   def device_class(self):
@@ -429,12 +431,12 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_next_rate"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_next_rate"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Electricity {self._serial_number} {self._mpan} Next Rate"
+    return f"Octopus Energy Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Next Rate"
 
   @property
   def device_class(self):
@@ -519,12 +521,12 @@ class OctopusEnergyElectricityCurrentStandingCharge(OctopusEnergyElectricitySens
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f'octopus_energy_electricity_{self._serial_number}_{self._mpan}_current_standing_charge';
+    return f'octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_current_standing_charge'
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f'Octopus Energy Electricity {self._serial_number} {self._mpan} Current Standing Charge'
+    return f'Octopus Energy Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Current Standing Charge'
 
   @property
   def device_class(self):
@@ -605,12 +607,12 @@ class OctopusEnergyPreviousAccumulativeElectricityReading(CoordinatorEntity, Oct
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_previous_accumulative_consumption"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_previous_accumulative_consumption"
 
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Electricity {self._serial_number} {self._mpan} Previous Accumulative Consumption"
+    return f"Octopus Energy Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Accumulative Consumption"
 
   @property
   def device_class(self):
@@ -851,12 +853,12 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_previous_accumulative_cost"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_previous_accumulative_cost"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Electricity {self._serial_number} {self._mpan} Previous Accumulative Cost"
+    return f"Octopus Energy Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Accumulative Cost"
 
   @property
   def device_class(self):
