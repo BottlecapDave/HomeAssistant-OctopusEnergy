@@ -11,6 +11,6 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues",
   "ssdp": [],
-  "version": "5.4.1",
+  "version": "6.0.0",
   "zeroconf": []
 }

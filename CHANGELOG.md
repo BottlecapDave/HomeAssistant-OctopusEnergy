@@ -1,3 +1,38 @@
+# [6.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v5.4.1...v6.0.0) (2023-02-25)
+
+
+### Bug Fixes
+
+* Fixed gas sensor ([70ea795](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/70ea7951c694ca3f0c0a21a2360ef53a182d5283))
+* Fixed last retrieval date ([a099e1b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a099e1b247e405dd24590dc5858071eeacbaad75))
+* Fixed resetting price caps ([4c1eadf](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4c1eadfbb16ae438c838f1825abc72100cb8d662))
+* Fixed returning consumption data ([00c2fa3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/00c2fa3736cdd2d2a02b6424bdb3a1fc07709c9d))
+* Fixed showing price caps in sensors ([1872833](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1872833b7a165e3ad4a478875ffe40b310268ab9))
+* **sensor:** Added "export" to export based sensors ([3df28bb](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3df28bb298dd31bbad0b226c775f22e886164376))
+* **sensor:** Fixed last reset time ([40660db](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/40660db414dbe09dc9867c569563dfc86d4c89b6))
+* Updated main integration name to make it easier to find with target rate integrations ([e4b3a64](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e4b3a648b888561d39a0ecd5fd04e2c7b75ea90e))
+
+
+### Features
+
+* Added option to configure gas calorific value ([d3e3333](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d3e3333c68813face9bff1e89409774e7275eb61))
+* Added price cap configuration ([fdd856a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fdd856ac94a8d03649ace52886e485061fd0fde8))
+* **config:** Added support for home mini ([3f811e3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3f811e3c811ff4471469de1745b3fb83584ff9b2))
+* **sensor:** Added ability to set price caps ([2b07db3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2b07db3b197483efaa451c32116fcb1cb03ff19a))
+* **sensor:** Added current consumption sensor for home mini support ([ee3f99d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ee3f99df388f20318f6d1401e205068f27531877))
+* **sensor:** Added current demand sensor ([cec1f02](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cec1f02882a1905635987103649b701230e4479b))
+* **sensor:** Added Home Mini support ([70dae3b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/70dae3b70f3c6eb79445418f9b1e3d613f67611c))
+* **sensor:** Updated home mini consumption to support missing requests ([115cf45](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/115cf45524dc333ff497511ac553f384bcc1bcfc))
+* **sensor:** Updated refreshing of price caps ([d1151fc](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d1151fc14cb36436281ee4f021d8caf2448ae7bb))
+* Updated api client to include optional price caps ([2fc605b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2fc605b502629202959e47137cc17d586f97b76f))
+* Updated sensors to include price cap if specified ([c00721f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c00721ff427ea2a80385fe00c80b722ca14389db))
+* Updated translations ([44d53f8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/44d53f85943c79045189314446f20db86df8ba5e))
+
+
+### BREAKING CHANGES
+
+* **sensor:** The name of export based electricity sensors have been updated to include the term "export". This is to make it more discoverable for new users.
+
 ## [5.4.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v5.4.0...v5.4.1) (2023-02-07)
 
 
