@@ -5,6 +5,9 @@
     - [HACS](#hacs)
   - [How to setup](#how-to-setup)
     - [Your account](#your-account)
+      - [Home Mini](#home-mini)
+      - [Calorific Value](#calorific-value)
+      - [Government Pricing Caps](#government-pricing-caps)
       - [Saving Sessions](#saving-sessions)
     - [Target Rates](#target-rates)
       - [From and To times](#from-and-to-times)
@@ -20,10 +23,13 @@
     - [Upcoming Prices](#upcoming-prices)
   - [Increase Home Assistant logs](#increase-home-assistant-logs)
   - [FAQ](#faq)
-    - [Can I get live sensor data? Do you support the new Octopus Home Mini?](#can-i-get-live-sensor-data-do-you-support-the-new-octopus-home-mini)
+    - [Data in my Home Assistant energy dashboard reported by Octopus Home Mini differs to Octopus Energy dashboard. Why is this?](#data-in-my-home-assistant-energy-dashboard-reported-by-octopus-home-mini-differs-to-octopus-energy-dashboard-why-is-this)
     - [Can I add the sensors to the Energy dashboard?](#can-i-add-the-sensors-to-the-energy-dashboard)
+      - [I have an Octopus Home Mini](#i-have-an-octopus-home-mini)
+      - [I don't have an Octopus Home Mini](#i-dont-have-an-octopus-home-mini)
     - [Why is my gas sensor reporting m3 when Octopus Energy reports it as kWh?](#why-is-my-gas-sensor-reporting-m3-when-octopus-energy-reports-it-as-kwh)
     - [I have sensors that are missing](#i-have-sensors-that-are-missing)
+    - [My gas consumption/costs seem out](#my-gas-consumptioncosts-seem-out)
 
 Custom component built from the ground up to bring your Octopus Energy details into Home Assistant to help you towards a more energy efficient (and or cheaper) home. This integration is built against the API provided by Octopus Energy UK and has not been tested for any other countries. 
 
@@ -58,19 +64,33 @@ You'll get the following sensors for each electricity meter with an active agree
 * `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption` - The total consumption reported by the meter for the previous day.
 * `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost` - The total cost for the previous day, including the standing charge.
 
-You'll get the following sensors if you have a gas meter with an active agreement:
-
-* `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_rate` - The rate of the current day that gas consumption is charged at (including VAT).
+If you export energy, then in addition you'll gain the above sensors with the name `export` present. E.g. `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_rate`.
 
 You'll get the following sensors for each gas meter with an active agreement:
 
+* `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_rate` - The rate of the current day that gas consumption is charged at (including VAT).
 * `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption` - The total consumption reported by the meter for the previous day in m3. If your meter reports in m3, then this will be an accurate value reported by Octopus, otherwise it will be a calculated value.
 * `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption_kwh` - The total consumption reported by the meter for the previous day in kwh. If your meter reports in kwh, then this will be an accurate value reported by Octopus, otherwise it will be a calculated value.
 * `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost` - The total cost for the previous day, including the standing charge.
 
-While you can add these sensors to [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/), because Octopus doesn't provide live consumption data, it will be off by a day.
+While you can add these sensors to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/), because Octopus doesn't provide live consumption data, it will be off by a day and be a single block of consumption/cost.
 
-Please note, that it's not possible to include current consumption sensors. This is due to Octopus Energy only providing data up to the previous day.
+By default, it's not possible to include current consumption sensors. This is due to Octopus Energy only receive data from the smart meters up to the previous day.
+
+#### Home Mini
+
+If you are lucky enough to own and [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to check the box next to `I have a Home Mini`. This will gain the following sensors which can be added to the  [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/):
+
+* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_consumption` - The latest consumption sent to Octopus Energy. By default, this will update every minute, but if this is missed then an attempt will be made to retrieve missing data. This has been built to see the accumulation within the energy dashboard. If you are wanting a sensor to see the current day's accumulation, then you will need to use something like [utility meter](https://www.home-assistant.io/integrations/utility_meter/). It has been noticed that daily consumption reported in Home Assistant can differ to when looking at past data within Octopus Energy. It looks like this is because Octopus Energy will favour "official" data from your smart meter over the data they collect.
+* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_demand` - The current demand reported by the Home Mini. This will try and update every minute.
+
+#### Calorific Value
+
+When calculating gas costs, a calorific value is included in the calculation. Unfortunately this changes from region to region and is not provided by the Octopus Energy API. The default value of this is `40`, but if you check your latest bill you should be able to find the value for you. This will give you a more accurate consumption and cost calculation when your meter reports in `m3`.
+
+#### Government Pricing Caps
+
+There has been inconsistencies across tariffs on whether government pricing caps are included or not. Therefore the ability to configure pricing caps has been added within you account. Please note that while rates are reflected straight away, consumption based sensors may take up to 24 hours to reflect. This is due to how they look at data and cannot be changed. 
 
 #### Saving Sessions
 
@@ -78,7 +98,6 @@ To support Octopus Energy's [saving sessions](https://octopus.energy/saving-sess
 
 * `octopus_energy_saving_session_points` - Supplies the points earned through the saving sessions
 * `octopus_energy_saving_sessions` - Binary sensor to indicate if a saving session that the account has joined is active. Also supplies the list of joined events including future events.
-
 
 ### Target Rates
 
@@ -271,7 +290,7 @@ automations:
 
 ### Upcoming Prices
 
-If you're wanting to display upcoming prices in a nice readable format, then I'll direct you to the plugin developed by @lozzd available at https://github.com/lozzd/octopus-energy-rates-card. 
+If you're wanting to display upcoming prices in a nice readable format, then I'll direct you to the plugin developed by @lozzd available at https://github.com/lozzd/octopus-energy-rates-card.
 
 ## Increase Home Assistant logs
 
@@ -289,19 +308,29 @@ Once done, you'll need to reload the integration and then check the "Full Home A
 
 ## FAQ
 
-### Can I get live sensor data? Do you support the new Octopus Home Mini?
+### Data in my Home Assistant energy dashboard reported by Octopus Home Mini differs to Octopus Energy dashboard. Why is this?
 
-Unfortunately, Octopus Energy only provide data up to the previous day, so it's not possible to expose current consumption. They also haven't provided any public APIs for accessing the data provided by [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/).
+The data can differ for a number of reasons.
 
-If you would like this to change, then you'll need to email Octopus Energy and raise your interests.
+If you are looking at the current day, then Home Assistant only updates the energy dashboard data once an hour, near the hour. This means you might be "missing" data in the energy dashboard when compared to the app. The integration also makes best effort to retrieve the data every minute, however it has been noticed that the API can fail at times to retrieve the data.
+
+If you are comparing data in the energy dashboard to previous days data in the Octopus Energy dashboard, then this can also differ. This is because Octopus Energy favour data reported by your smart meter, as this is what your bills use, over your Home Mini.
 
 ### Can I add the sensors to the Energy dashboard?
 
-While you can add the sensors to the dashboard, they will be associated with the wrong day. This is because the Energy dashboard uses the timestamp of when the sensor updates to determine which day the data should belong to. There is currently no official way of adding historic data to the dashboard, however there are indications this may be coming.
+#### I have an Octopus Home Mini
+
+You can add the `current consumption` sensor as normal. You can then add the `current rate` sensor as `Use an entity with current price`.
+
+#### I don't have an Octopus Home Mini
+
+While you can add the `previous consumption` sensors to the dashboard, they will be associated with the wrong day. This is because the Energy dashboard uses the timestamp of when the sensor updates to determine which day the data should belong to. There is currently no official way of adding historic data to the dashboard.
+
+However if you still want to add them, then you can add the `previous consumption` sensor as normal. You can then add the `previous consumption cost` sensor as `Use an entity tracking the total costs`.
 
 ### Why is my gas sensor reporting m3 when Octopus Energy reports it as kWh?
 
-The sensor was setup when Home Assistant only supported gas sensors in m3 format. While this has been changed since, the reporting of the sensor can't be changed because this would be a breaking change for existing users.
+The sensor was setup when Home Assistant only supported gas sensors in m3 format. While this has been changed since, the reporting of the sensor can't be changed because this would be a breaking change for existing users. However a `kwh` sensor has been added to provide this data.
 
 ### I have sensors that are missing
 
@@ -310,3 +339,7 @@ The integration only looks at the first property associated with your account th
 You should then see entries associated with this component stating either sensors were added, skipped or no sensors were available at all.
 
 The identifiers of the sensors should then be checked against your Octopus Energy dashboard to verify the correct sensors are being picked up. If this is producing unexpected results, then you should raise an issue.
+
+### My gas consumption/costs seem out
+
+This is most likely due to the default caloric value not matching your region/bill. This can be configured when setting up or updating your account.

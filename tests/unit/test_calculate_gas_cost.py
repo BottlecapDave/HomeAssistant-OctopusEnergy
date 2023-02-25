@@ -26,7 +26,8 @@ async def test_when_gas_consumption_is_none_then_no_calculation_is_returned():
     {
       "tariff_code": tariff_code
     },
-    "m³"
+    "m³",
+    40
   )
 
   # Assert
@@ -55,7 +56,8 @@ async def test_when_gas_consumption_is_less_than_three_records_then_no_calculati
     {
       "tariff_code": tariff_code
     },
-    "m³"
+    "m³",
+    40
   )
 
   # Assert
@@ -84,7 +86,8 @@ async def test_when_gas_consumption_is_before_latest_date_then_no_calculation_is
     {
       "tariff_code": tariff_code
     },
-    "m³"
+    "m³",
+    40
   )
 
   # Assert
@@ -110,7 +113,6 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
     return create_rate_data(period_from, period_to, [expected_rate_price])
 
   expected_standing_charge = {
-    "value_exc_vat": 1,
     "value_inc_vat": 2
   }
 
@@ -146,7 +148,8 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
       {
         "tariff_code": tariff_code
       },
-      consumption_units
+      consumption_units,
+      40
     )
 
     # Assert
@@ -195,7 +198,6 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
     return create_rate_data(period_from, period_to, [expected_rate_price])
 
   expected_standing_charge = {
-    "value_exc_vat": 1,
     "value_inc_vat": 2
   }
 
@@ -231,7 +233,8 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
       {
         "tariff_code": tariff_code
       },
-      consumption_units
+      consumption_units,
+      40
     )
 
     # Assert

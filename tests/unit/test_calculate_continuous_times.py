@@ -504,7 +504,6 @@ async def test_when_go_rates_supplied_once_a_day_set_and_cheapest_period_past_th
     assert result[index]["valid_from"] == start_time
     assert result[index]["valid_to"] == end_time
     assert result[index]["value_inc_vat"] == rates[1]["value_inc_vat"]
-    assert result[index]["value_exc_vat"] == rates[1]["value_exc_vat"]
 
     assert result[index]["tariff_code"] == tariff_code
 

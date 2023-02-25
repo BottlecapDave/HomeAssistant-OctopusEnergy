@@ -1,16 +1,16 @@
 {
   "domain": "octopus_energy",
   "name": "Octopus Energy",
-  "config_flow": true,
-  "documentation": "https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/",
-  "issue_tracker": "https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues",
-  "ssdp": [],
-  "zeroconf": [],
-  "homekit": {},
-  "dependencies": [],
   "codeowners": [
     "@bottlecapdave"
   ],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/",
+  "homekit": {},
+  "iot_class": "cloud_polling",
+  "issue_tracker": "https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues",
+  "ssdp": [],
   "version": "5.4.1",
-  "iot_class": "cloud_polling"
+  "zeroconf": []
 }

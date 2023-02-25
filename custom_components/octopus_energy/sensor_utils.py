@@ -1,4 +1,7 @@
 from .api_client import OctopusEnergyApiClient
+import math
+from datetime import (timedelta)
+from homeassistant.util.dt import (parse_datetime)
 
 minimum_consumption_records = 2
 
@@ -116,18 +119,18 @@ async def async_calculate_electricity_cost(client: OctopusEnergyApiClient, consu
         }
 
 # Adapted from https://www.theenergyshop.com/guides/how-to-convert-gas-units-to-kwh
-def convert_m3_to_kwh(value):
+def convert_m3_to_kwh(value, calorific_value):
   kwh_value = value * 1.02264 # Volume correction factor
-  kwh_value = kwh_value * 40.0 # Calorific value
+  kwh_value = kwh_value * calorific_value # Calorific value
   return round(kwh_value / 3.6, 3) # kWh Conversion factor
 
 # Adapted from https://www.theenergyshop.com/guides/how-to-convert-gas-units-to-kwh
-def convert_kwh_to_m3(value):
+def convert_kwh_to_m3(value, calorific_value):
   m3_value = value * 3.6 # kWh Conversion factor
-  m3_value = m3_value / 40 # Calorific value
+  m3_value = m3_value / calorific_value # Calorific value
   return round(m3_value / 1.02264, 3) # Volume correction factor
 
-def calculate_gas_consumption(consumption_data, last_calculated_timestamp, consumption_units):
+def calculate_gas_consumption(consumption_data, last_calculated_timestamp, consumption_units, calorific_value):
   if (consumption_data != None and len(consumption_data) > minimum_consumption_records):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
@@ -145,9 +148,9 @@ def calculate_gas_consumption(consumption_data, last_calculated_timestamp, consu
         
         if consumption_units == "m³":
           current_consumption_m3 = current_consumption
-          current_consumption_kwh = convert_m3_to_kwh(current_consumption)
+          current_consumption_kwh = convert_m3_to_kwh(current_consumption, calorific_value)
         else:
-          current_consumption_m3 = convert_kwh_to_m3(current_consumption)
+          current_consumption_m3 = convert_kwh_to_m3(current_consumption, calorific_value)
           current_consumption_kwh = current_consumption
 
         total_m3 = total_m3 + current_consumption_m3
@@ -169,7 +172,7 @@ def calculate_gas_consumption(consumption_data, last_calculated_timestamp, consu
         "consumptions": consumption_parts
       }
       
-async def async_calculate_gas_cost(client: OctopusEnergyApiClient, consumption_data, last_calculated_timestamp, period_from, period_to, sensor, consumption_units):
+async def async_calculate_gas_cost(client: OctopusEnergyApiClient, consumption_data, last_calculated_timestamp, period_from, period_to, sensor, consumption_units, calorific_value):
   if (consumption_data != None and len(consumption_data) > minimum_consumption_records):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
@@ -188,7 +191,7 @@ async def async_calculate_gas_cost(client: OctopusEnergyApiClient, consumption_d
           value = consumption["consumption"]
 
           if consumption_units == "m³":
-            value = convert_m3_to_kwh(value)
+            value = convert_m3_to_kwh(value, calorific_value)
 
           consumption_from = consumption["interval_start"]
           consumption_to = consumption["interval_end"]
@@ -239,3 +242,30 @@ def get_next_saving_sessions_event(current_date, events):
         }
 
   return next_event
+
+async def async_get_live_consumption(client: OctopusEnergyApiClient, device_id, current_date, last_retrieval_date):
+    period_to = current_date.strftime("%Y-%m-%dT%H:%M:00Z")
+    if (last_retrieval_date is None):
+      period_from = (parse_datetime(period_to) - timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:00Z")
+    else:
+      period_from = (last_retrieval_date + timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:00Z")
+    
+    result = await client.async_get_smart_meter_consumption(device_id, period_from, period_to)
+    if result is not None:
+
+      total_consumption = 0
+      latest_date = None
+      demand = None
+      for item in result:
+        total_consumption += item["consumption"]
+        if (latest_date is None or latest_date < item["startAt"]):
+          latest_date = item["startAt"]
+          demand = item["demand"]
+
+      return {
+        "consumption": total_consumption,
+        "startAt": latest_date,
+        "demand": demand
+      }
+    
+    return None

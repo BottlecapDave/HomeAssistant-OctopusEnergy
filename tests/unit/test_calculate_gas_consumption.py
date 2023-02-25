@@ -13,7 +13,8 @@ async def test_when_gas_consumption_is_none_then_no_calculation_is_returned():
   consumption = calculate_gas_consumption(
     None,
     latest_date,
-    "m³"
+    "m³",
+    40
   )
 
   # Assert
@@ -32,7 +33,8 @@ async def test_when_gas_consumption_is_less_than_three_records_then_no_calculati
   consumption = calculate_gas_consumption(
     consumption_data,
     latest_date,
-    "m³"
+    "m³",
+    40
   )
 
   # Assert
@@ -51,7 +53,8 @@ async def test_when_gas_consumption_is_before_latest_date_then_no_calculation_is
   consumption = calculate_gas_consumption(
     consumption_data,
     latest_date,
-    "m³"
+    "m³",
+    40
   )
 
   # Assert
@@ -79,7 +82,8 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
   consumption = calculate_gas_consumption(
     consumption_data,
     latest_date,
-    consumption_units
+    consumption_units,
+    40
   )
 
   # Assert
@@ -140,7 +144,8 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
   consumption = calculate_gas_consumption(
     consumption_data,
     latest_date,
-    consumption_units
+    consumption_units,
+    40
   )
 
   # Assert
