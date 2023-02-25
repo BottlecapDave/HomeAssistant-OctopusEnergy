@@ -68,8 +68,8 @@ async def async_setup_entry(hass, entry):
 
   return True
 
-async def async_get_current_electricity_agreement_tariff_codes(client, config):
-  account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
+async def async_get_current_electricity_agreement_tariff_codes(client: OctopusEnergyApiClient, account_id: str):
+  account_info = await client.async_get_account(account_id)
 
   tariff_codes = {}
   current = now()
@@ -90,35 +90,44 @@ async def async_get_current_electricity_agreement_tariff_codes(client, config):
 async def async_setup_dependencies(hass, config):
   """Setup the coordinator and api client which will be shared by various entities"""
 
-  if DATA_CLIENT not in hass.data[DOMAIN]:
-    electricity_price_cap = None
-    if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config:
-      electricity_price_cap = config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
+  electricity_price_cap = None
+  if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config:
+    electricity_price_cap = config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
 
-    gas_price_cap = None
-    if CONFIG_MAIN_GAS_PRICE_CAP in config:
-      gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
+  gas_price_cap = None
+  if CONFIG_MAIN_GAS_PRICE_CAP in config:
+    gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
 
-    client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap)
-    hass.data[DOMAIN][DATA_CLIENT] = client
-    hass.data[DOMAIN][DATA_ACCOUNT_ID] = config[CONFIG_MAIN_ACCOUNT_ID]
+  _LOGGER.info(f'electricity_price_cap: {electricity_price_cap}')
+  _LOGGER.info(f'gas_price_cap: {gas_price_cap}')
 
-    setup_rates_coordinator(hass, client, config)
+  client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap)
+  hass.data[DOMAIN][DATA_CLIENT] = client
+  hass.data[DOMAIN][DATA_ACCOUNT_ID] = config[CONFIG_MAIN_ACCOUNT_ID]
 
-    setup_saving_sessions_coordinators(hass, client)
- 
-    account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
+  setup_rates_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
 
-    hass.data[DOMAIN][DATA_ACCOUNT] = account_info
+  setup_saving_sessions_coordinators(hass)
 
-def setup_rates_coordinator(hass, client, config):
+  account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
+
+  hass.data[DOMAIN][DATA_ACCOUNT] = account_info
+
+def setup_rates_coordinator(hass, account_id: str):
+  # Reset data rates as we might have new information
+  hass.data[DOMAIN][DATA_RATES] = []
+
+  if DATA_ELECTRICITY_RATES_COORDINATOR in hass.data[DOMAIN]:
+    return
+  
   async def async_update_electricity_rates_data():
     """Fetch data from API endpoint."""
     # Only get data every half hour or if we don't have any data
     current = now()
+    client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     if (DATA_RATES not in hass.data[DOMAIN] or (current.minute % 30) == 0 or len(hass.data[DOMAIN][DATA_RATES]) == 0):
 
-      tariff_codes = await async_get_current_electricity_agreement_tariff_codes(client, config)
+      tariff_codes = await async_get_current_electricity_agreement_tariff_codes(client, account_id)
       _LOGGER.debug(f'tariff_codes: {tariff_codes}')
 
       period_from = as_utc(current.replace(hour=0, minute=0, second=0, microsecond=0))
@@ -148,11 +157,15 @@ def setup_rates_coordinator(hass, client, config):
     update_interval=timedelta(minutes=1),
   )
 
-def setup_saving_sessions_coordinators(hass, client: OctopusEnergyApiClient):
+def setup_saving_sessions_coordinators(hass):
+  if DATA_SAVING_SESSIONS_COORDINATOR in hass.data[DOMAIN]:
+    return
+
   async def async_update_saving_sessions():
     """Fetch data from API endpoint."""
     # Only get data every half hour or if we don't have any data
     current = now()
+    client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     if DATA_SAVING_SESSIONS not in hass.data[DOMAIN] or current.minute % 30 == 0:
       savings = await client.async_get_saving_sessions(hass.data[DOMAIN][DATA_ACCOUNT_ID])
       

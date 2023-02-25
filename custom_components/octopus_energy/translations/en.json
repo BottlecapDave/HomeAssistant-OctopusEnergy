@@ -50,7 +50,7 @@
           "electricity_price_cap": "Electricity price cap in pence",
           "clear_electricity_price_cap": "Clear electricity price cap",
           "gas_price_cap": "Gas price cap in pence",
-          "clear_gas_price_cap": "Clear gas price cap"
+          "clear_gas_price_cap": "Clear Gas price cap"
         }
       },
       "target_rate": {
