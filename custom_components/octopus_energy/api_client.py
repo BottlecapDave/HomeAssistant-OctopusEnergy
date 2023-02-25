@@ -92,6 +92,20 @@ saving_session_query = '''query {{
   }}
 }}'''
 
+live_consumption_query = '''query {{
+	smartMeterTelemetry(
+    deviceId: "{device_id}"
+    grouping: ONE_MINUTE 
+		start: "{period_from}"
+		end: "{period_to}"
+	) {{
+    readAt
+		consumptionDelta
+    demand
+	}}
+}}'''
+
+
 class OctopusEnergyApiClient:
 
   def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None):
@@ -148,6 +162,7 @@ class OctopusEnergyApiClient:
                 "serial_number": m["serialNumber"],
                 "is_export": m["smartExportElectricityMeter"] != None,
                 "is_smart_meter": m["smartImportElectricityMeter"] != None or m["smartExportElectricityMeter"] != None,
+                "device_id": m["smartImportElectricityMeter"]["deviceId"] if m["smartImportElectricityMeter"] != None else None
               }, mp["meterPoint"]["meters"])),
               "agreements": list(map(lambda a: {
                 "valid_from": a["validFrom"],
@@ -195,6 +210,29 @@ class OctopusEnergyApiClient:
           }
         else:
           _LOGGER.error("Failed to retrieve account")
+    
+    return None
+
+  async def async_get_smart_meter_consumption(self, device_id, period_from, period_to):
+    """Get the user's smart meter consumption"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession() as client:
+      url = f'{self._base_url}/v1/graphql/'
+
+      payload = { "query": live_consumption_query.format(device_id=device_id, period_from=period_from, period_to=period_to) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as live_consumption_response:
+        response_body = await self.__async_read_response(live_consumption_response, url)
+
+        if (response_body != None and "data" in response_body and "smartMeterTelemetry" in response_body["data"] and response_body["data"]["smartMeterTelemetry"] is not None and len(response_body["data"]["smartMeterTelemetry"]) > 0):
+          return list(map(lambda mp: {
+            "consumption": float(mp["consumptionDelta"]),
+            "demand": float(mp["demand"]),
+            "startAt": parse_datetime(mp["readAt"])
+          }, response_body["data"]["smartMeterTelemetry"]))
+        else:
+          _LOGGER.warn(f"Failed to retrieve smart meter consumption data - period_from: {period_from}; period_to: {period_to}")
     
     return None
 
@@ -533,7 +571,10 @@ class OctopusEnergyApiClient:
     text = await response.text()
 
     if response.status >= 400:
-      _LOGGER.error(f'Request failed ({url}): {response.status}; {text}')
+      if response.status >= 500:
+        _LOGGER.error(f'Octopus Energy server error ({url}): {response.status}; {text}')
+      else:
+        _LOGGER.error(f'Failed to send request ({url}): {response.status}; {text}')
       return None
 
     try:

@@ -13,6 +13,7 @@ from .const import (
   
   CONFIG_MAIN_API_KEY,
   CONFIG_MAIN_ACCOUNT_ID,
+  CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
   CONFIG_MAIN_CALORIFIC_VALUE,
   CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
   CONFIG_MAIN_CLEAR_ELECTRICITY_PRICE_CAP,
@@ -248,6 +249,10 @@ class OptionsFlowHandler(OptionsFlow):
       if self._entry.options is not None:
         config.update(self._entry.options)
 
+      supports_live_consumption = False
+      if CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config:
+        supports_live_consumption = config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION]
+      
       calorific_value = 40
       if CONFIG_MAIN_CALORIFIC_VALUE in config:
         calorific_value = config[CONFIG_MAIN_CALORIFIC_VALUE]
@@ -263,6 +268,7 @@ class OptionsFlowHandler(OptionsFlow):
       return self.async_show_form(
         step_id="user", data_schema=vol.Schema({
           vol.Required(CONFIG_MAIN_API_KEY, default=config[CONFIG_MAIN_API_KEY]): str,
+          vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION, default=supports_live_consumption): bool,
           vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=calorific_value): cv.positive_float,
           electricity_price_cap_key: cv.positive_float,
           vol.Required(CONFIG_MAIN_CLEAR_ELECTRICITY_PRICE_CAP): bool,
