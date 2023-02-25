@@ -13,6 +13,8 @@ from .const import (
 
   CONFIG_MAIN_API_KEY,
   CONFIG_MAIN_ACCOUNT_ID,
+  CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
+  CONFIG_MAIN_GAS_PRICE_CAP,
   
   CONFIG_TARGET_NAME,
 
@@ -84,7 +86,15 @@ async def async_setup_dependencies(hass, config):
   """Setup the coordinator and api client which will be shared by various entities"""
 
   if DATA_CLIENT not in hass.data[DOMAIN]:
-    client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY])
+    electricity_price_cap = None
+    if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config:
+      electricity_price_cap = config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
+
+    gas_price_cap = None
+    if CONFIG_MAIN_GAS_PRICE_CAP in config:
+      gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
+
+    client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap)
     hass.data[DOMAIN][DATA_CLIENT] = client
     hass.data[DOMAIN][DATA_ACCOUNT_ID] = config[CONFIG_MAIN_ACCOUNT_ID]
 

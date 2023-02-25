@@ -22,9 +22,6 @@ async def test_when_get_gas_standing_charge_is_called_for_existent_tariff_then_r
 
     # Assert
     assert result is not None
-    assert "value_exc_vat" in result
-    assert result["value_exc_vat"] == 25.32
-    
     assert "value_inc_vat" in result
     assert result["value_inc_vat"] == 26.586
 
@@ -45,9 +42,6 @@ async def test_when_get_gas_standing_charge_is_called_with_tracker_tariff_then_r
 
     # Assert
     assert result is not None
-    assert "value_exc_vat" in result
-    assert result["value_exc_vat"] == expected_tracker["standing_charge"] - expected_tracker["breakdown"]["standing_charge"]["VAT"]
-    
     assert "value_inc_vat" in result
     assert result["value_inc_vat"] == expected_tracker["standing_charge"]
 

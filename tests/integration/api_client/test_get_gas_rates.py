@@ -34,7 +34,6 @@ async def test_when_get_gas_rates_is_called_for_existent_tariff_then_rates_are_r
         assert "valid_to" in item
         assert item["valid_to"] == expected_valid_to
 
-        assert "value_exc_vat" in item
         assert "value_inc_vat" in item
 
         expected_valid_from = expected_valid_to
@@ -68,9 +67,7 @@ async def test_when_get_gas_rates_is_called_with_tracker_tariff_then_rates_are_r
         assert "valid_to" in item
         assert item["valid_to"] == expected_valid_to
 
-        assert "value_exc_vat" in item
         assert "value_inc_vat" in item
-        assert item["value_exc_vat"] == expected_tracker["unit_rate"] - expected_tracker["breakdown"]["unit_charge"]["VAT"]
         assert item["value_inc_vat"] == expected_tracker["unit_rate"]
 
         expected_valid_from = expected_valid_to

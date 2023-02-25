@@ -98,7 +98,6 @@ async def test_when_electricity_consumption_available_then_calculation_returned(
     return create_rate_data(period_from, period_to, [expected_rate_price])
 
   expected_standing_charge = {
-    "value_exc_vat": 1,
     "value_inc_vat": 2
   }
 
@@ -161,7 +160,6 @@ async def test_when_electricity_consumption_starting_at_latest_date_then_calcula
     return create_rate_data(period_from, period_to, [expected_rate_price])
 
   expected_standing_charge = {
-    "value_exc_vat": 1,
     "value_inc_vat": 2
   }
 

@@ -71,7 +71,7 @@ def apply_offset(date_time: datetime, offset: str, inverse = False):
 def get_valid_from(rate):
   return rate["valid_from"]
     
-def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: datetime, tariff_code: str):
+def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: datetime, tariff_code: str, price_cap: float = None):
   """Process the collection of rates to ensure they're in 30 minute periods"""
   starting_period_from = period_from
   results = []
@@ -82,8 +82,10 @@ def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: da
     # We need to normalise our data into 30 minute increments so that all of our rates across all tariffs are the same and it's 
     # easier to calculate our target rate sensors
     for item in items:
-      value_exc_vat = float(item["value_exc_vat"])
       value_inc_vat = float(item["value_inc_vat"])
+
+      if (price_cap is not None and value_inc_vat > price_cap):
+        value_inc_vat = price_cap
 
       if "valid_from" in item and item["valid_from"] != None:
         valid_from = as_utc(parse_datetime(item["valid_from"]))
@@ -108,7 +110,6 @@ def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: da
       while valid_from < target_date:
         valid_to = valid_from + timedelta(minutes=30)
         results.append({
-          "value_exc_vat": value_exc_vat,
           "value_inc_vat": value_inc_vat,
           "valid_from": valid_from,
           "valid_to": valid_to,
