@@ -1,3 +1,11 @@
+## [6.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.0.0...v6.0.1) (2023-03-02)
+
+
+### Bug Fixes
+
+* **sensor:** Fixed handling of tracker products ([2911ebb](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2911ebb43d8126d988f90cda2b1cd2b7409420b0))
+* **sensor:** Fixed rate sensors to update on the half hour ([2e2d795](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2e2d79532f48f82bcf6131950be4bd33df7d3139))
+
 # [6.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v5.4.1...v6.0.0) (2023-02-25)
 
 
