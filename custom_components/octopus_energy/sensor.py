@@ -283,7 +283,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
     """The state of the sensor."""
     # Find the current rate. We only need to do this every half an hour
     now = utcnow()
-    if (self._last_updated is None or self._last_updated < (now - timedelta(minutes=30))):
+    if (self._last_updated is None or self._last_updated < (now - timedelta(minutes=30)) or (now.minute % 30) == 0):
       _LOGGER.debug(f"Updating OctopusEnergyElectricityCurrentRate for '{self._mpan}/{self._serial_number}'")
 
       current_rate = None
@@ -381,7 +381,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
     """The state of the sensor."""
     # Find the previous rate. We only need to do this every half an hour
     now = utcnow()
-    if (self._last_updated is None or self._last_updated < (now - timedelta(minutes=30))):
+    if (self._last_updated is None or self._last_updated < (now - timedelta(minutes=30)) or (now.minute % 30) == 0):
       _LOGGER.debug(f"Updating OctopusEnergyElectricityPreviousRate for '{self._mpan}/{self._serial_number}'")
 
       target = now - timedelta(minutes=30)
@@ -472,7 +472,7 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
     """The state of the sensor."""
     # Find the next rate. We only need to do this every half an hour
     now = utcnow()
-    if (self._last_updated is None or self._last_updated < (now - timedelta(minutes=30))):
+    if (self._last_updated is None or self._last_updated < (now - timedelta(minutes=30)) or (now.minute % 30) == 0):
       _LOGGER.debug(f"Updating OctopusEnergyElectricityNextRate for '{self._mpan}/{self._serial_number}'")
 
       target = now + timedelta(minutes=30)

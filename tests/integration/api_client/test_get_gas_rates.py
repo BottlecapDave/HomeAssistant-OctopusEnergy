@@ -41,8 +41,13 @@ async def test_when_get_gas_rates_is_called_for_existent_tariff_then_rates_are_r
         expected_valid_from = expected_valid_to
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("tariff,price_cap",[("G-1R-SILVER-FLEX-22-11-25-C", None),("G-1R-SILVER-FLEX-22-11-25-C", 2)])
-async def test_when_get_gas_rates_is_called_with_tracker_tariff_then_rates_are_returned(tariff, price_cap):
+@pytest.mark.parametrize("tariff,price_cap,is_tracker",[
+    ("G-1R-SILVER-FLEX-22-11-25-C", None, True),
+    ("G-1R-SILVER-FLEX-22-11-25-C", 2, True),
+    ("G-1R-SILVER-2017-1-H", None, False),
+    ("G-1R-SILVER-2017-1-H", 2, False)
+])
+async def test_when_get_gas_rates_is_called_with_tracker_tariff_then_rates_are_returned(tariff, price_cap, is_tracker):
     # Arrange
     context = get_test_context()
     period_from = now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -72,8 +77,10 @@ async def test_when_get_gas_rates_is_called_with_tracker_tariff_then_rates_are_r
         assert "value_inc_vat" in item
         if (price_cap is not None and expected_tracker["unit_rate"] > price_cap):
             assert item["value_inc_vat"] == price_cap
-        else:
+        elif (is_tracker):
             assert item["value_inc_vat"] == expected_tracker["unit_rate"]
+        else:
+            assert item["value_inc_vat"] > 0
 
         expected_valid_from = expected_valid_to
 
