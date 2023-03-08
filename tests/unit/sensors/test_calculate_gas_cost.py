@@ -4,7 +4,7 @@ import pytest
 from tests.unit import create_rate_data
 
 from unit import (create_consumption_data)
-from custom_components.octopus_energy.sensor_utils import async_calculate_gas_cost
+from custom_components.octopus_energy.sensors import async_calculate_gas_cost
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 @pytest.mark.asyncio

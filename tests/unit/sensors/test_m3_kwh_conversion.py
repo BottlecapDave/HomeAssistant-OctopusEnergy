@@ -1,6 +1,6 @@
 import pytest
 
-from custom_components.octopus_energy.sensor_utils import convert_m3_to_kwh
+from custom_components.octopus_energy.sensors import convert_m3_to_kwh
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("m3,calorificValue,expected_kwh",[

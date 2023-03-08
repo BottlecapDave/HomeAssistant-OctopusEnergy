@@ -3,7 +3,7 @@ import pytest
 
 from unit import (create_rate_data, agile_rates)
 from custom_components.octopus_energy.utils import rates_to_thirty_minute_increments
-from custom_components.octopus_energy.target_sensor_utils import calculate_continuous_times
+from custom_components.octopus_energy.binary_sensors import calculate_continuous_times
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("current_date,target_start_time,target_end_time,expected_first_valid_from,is_rolling_target",[

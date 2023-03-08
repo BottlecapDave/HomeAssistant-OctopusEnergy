@@ -3,7 +3,7 @@ import pytest
 import mock
 
 from unit import (create_consumption_data, create_rate_data)
-from custom_components.octopus_energy.sensor_utils import async_calculate_electricity_cost
+from custom_components.octopus_energy.sensors import async_calculate_electricity_cost
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 @pytest.mark.asyncio

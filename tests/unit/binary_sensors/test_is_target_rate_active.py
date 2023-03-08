@@ -1,10 +1,8 @@
 from datetime import datetime, timedelta
-from time import time
 import pytest
 
 from unit import (create_rate_data)
-from custom_components.octopus_energy.target_sensor_utils import is_target_rate_active
-from custom_components.octopus_energy.utils import rates_to_thirty_minute_increments
+from custom_components.octopus_energy.binary_sensors import is_target_rate_active
 
 @pytest.mark.asyncio
 async def test_when_called_before_rates_then_not_active_returned():

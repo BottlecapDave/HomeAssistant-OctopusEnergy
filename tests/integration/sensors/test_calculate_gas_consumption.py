@@ -1,12 +1,16 @@
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 import pytest
 
 from integration import (get_test_context)
-from custom_components.octopus_energy.sensor_utils import async_get_consumption_data, calculate_electricity_consumption
+from custom_components.octopus_energy.sensors import async_get_consumption_data, calculate_gas_consumption
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 @pytest.mark.asyncio
-async def test_when_calculate_electricity_consumption_uses_real_data_then_calculation_returned():
+@pytest.mark.parametrize("consumption_units",[
+  ("m³"), 
+  ("kWh")
+])
+async def test_when_calculate_gas_consumption_uses_real_data_then_calculation_returned(consumption_units):
   # Arrange
   context = get_test_context()
   client = OctopusEnergyApiClient(context["api_key"])
@@ -14,12 +18,12 @@ async def test_when_calculate_electricity_consumption_uses_real_data_then_calcul
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   latest_date = None
-  
+
   # Retrieve real consumption data so we can make sure our calculation works with the result
   current_utc_timestamp = datetime.strptime(f'2022-03-02T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
-  sensor_identifier = context["electricity_mpan"]
-  sensor_serial_number = context["electricity_serial_number"]
-  is_electricity = True
+  sensor_identifier = context["gas_mprn"]
+  sensor_serial_number = context["gas_serial_number"]
+  is_electricity = False
   consumption_data = await async_get_consumption_data(
     client,
     [],
@@ -32,17 +36,25 @@ async def test_when_calculate_electricity_consumption_uses_real_data_then_calcul
   )
 
   # Act
-  consumption = calculate_electricity_consumption(
+  consumption = calculate_gas_consumption(
     consumption_data,
-    latest_date
+    latest_date,
+    consumption_units,
+    40
   )
 
   # Assert
   assert consumption != None
-  assert round(consumption["total"], 2) == 8.11
   assert consumption["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
 
-  assert len(consumption["consumptions"]) == 48
+  if consumption_units == "m³":
+    assert consumption["total_kwh"] == 63.86
+    assert consumption["total_m3"] == 5.62
+  else:
+    assert consumption["total_kwh"] == 5.62
+    assert consumption["total_m3"] == 0.498
+
+  assert len(consumption["consumptions"]) == len(consumption_data)
 
   # Make sure our data is returned in 30 minute increments
   expected_valid_from = period_from
