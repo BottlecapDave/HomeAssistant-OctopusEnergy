@@ -157,11 +157,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
 
     active_result = is_target_rate_active(current_date, self._target_rates, offset)
 
-    if offset != None and active_result["next_time"] != None:
-      self._attributes["next_time"] = apply_offset(active_result["next_time"], offset)
-    else:
-      self._attributes["next_time"] = active_result["next_time"]
-    
+    self._attributes["next_time"] = active_result["next_time"]    
     self._attributes["current_duration_in_hours"] = active_result["current_duration_in_hours"]
     self._attributes["next_duration_in_hours"] = active_result["next_duration_in_hours"]
 
