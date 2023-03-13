@@ -118,6 +118,7 @@ def setup_rates_coordinator(hass, account_id: str):
   hass.data[DOMAIN][DATA_RATES] = []
 
   if DATA_ELECTRICITY_RATES_COORDINATOR in hass.data[DOMAIN]:
+    _LOGGER.info("Rates coordinator has already been configured, so skipping")
     return
   
   async def async_update_electricity_rates_data():
