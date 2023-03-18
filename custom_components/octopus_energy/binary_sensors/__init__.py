@@ -6,7 +6,7 @@ import logging
 
 _LOGGER = logging.getLogger(__name__)
 
-def __get_applicable_rates(current_date, target_start_time, target_end_time, rates, target_start_offset, is_rolling_target):
+def __get_applicable_rates(current_date: datetime, target_start_time: str, target_end_time: str, rates, is_rolling_target: bool):
   if (target_start_time is not None):
     target_start = parse_datetime(current_date.strftime(f"%Y-%m-%dT{target_start_time}:00%z"))
   else:
@@ -31,12 +31,6 @@ def __get_applicable_rates(current_date, target_start_time, target_end_time, rat
   if (is_rolling_target == True and target_start < current_date and current_date < target_end):
     _LOGGER.debug(f'Rolling target and {target_start} is in the past. Setting start to {current_date}')
     target_start = current_date
-
-  # Apply our offset so we make sure our target turns on within the specified timeframe
-  if (target_start_offset is not None):
-    _LOGGER.debug(f'Offsetting time period')
-    target_start = apply_offset(target_start, target_start_offset, True)
-    target_end = apply_offset(target_end, target_start_offset, True)
 
   # If our start and end are both in the past, then look to the next day
   if (target_start < current_date and target_end < current_date):
@@ -68,8 +62,8 @@ def __get_rate(rate):
 def __get_valid_to(rate):
   return rate["valid_to"]
 
-def calculate_continuous_times(current_date, target_start_time, target_end_time, target_hours, rates, target_start_offset = None, is_rolling_target = True, search_for_highest_rate = False):
-  applicable_rates = __get_applicable_rates(current_date, target_start_time, target_end_time, rates, target_start_offset, is_rolling_target)
+def calculate_continuous_times(current_date: datetime, target_start_time: str, target_end_time: str, target_hours: float, rates, is_rolling_target = True, search_for_highest_rate = False):
+  applicable_rates = __get_applicable_rates(current_date, target_start_time, target_end_time, rates, is_rolling_target)
   if (applicable_rates is None):
     return []
 
@@ -108,8 +102,8 @@ def calculate_continuous_times(current_date, target_start_time, target_end_time,
   
   return []
 
-def calculate_intermittent_times(current_date, target_start_time, target_end_time, target_hours, rates, target_start_offset = None, is_rolling_target = True, search_for_highest_rate = False):
-  applicable_rates = __get_applicable_rates(current_date, target_start_time, target_end_time, rates, target_start_offset, is_rolling_target)
+def calculate_intermittent_times(current_date: datetime, target_start_time: str, target_end_time: str, target_hours: float, rates, is_rolling_target = True, search_for_highest_rate = False):
+  applicable_rates = __get_applicable_rates(current_date, target_start_time, target_end_time, rates, is_rolling_target)
   if (applicable_rates is None):
     return []
   
