@@ -43,7 +43,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Gas {self._serial_number} {self._mprn} Previous Accumulative Cost"
+    return f"Gas {self._serial_number} {self._mprn} Previous Accumulative Cost"
 
   @property
   def device_class(self):
