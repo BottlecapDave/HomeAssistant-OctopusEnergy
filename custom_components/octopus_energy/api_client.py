@@ -61,6 +61,9 @@ account_query = '''query {{
 				meters(includeInactive: false) {{
 					serialNumber
           consumptionUnits
+          smartGasMeter {{
+						deviceId
+					}}
 				}}
 				agreements {{
 					validFrom
@@ -175,6 +178,7 @@ class OctopusEnergyApiClient:
               "meters": list(map(lambda m: {
                 "serial_number": m["serialNumber"],
                 "consumption_units": m["consumptionUnits"],
+                "device_id": m["smartGasMeter"]["deviceId"] if m["smartGasMeter"] != None else None
               }, mp["meterPoint"]["meters"])),
               "agreements": list(map(lambda a: {
                 "valid_from": a["validFrom"],
@@ -228,11 +232,11 @@ class OctopusEnergyApiClient:
         if (response_body != None and "data" in response_body and "smartMeterTelemetry" in response_body["data"] and response_body["data"]["smartMeterTelemetry"] is not None and len(response_body["data"]["smartMeterTelemetry"]) > 0):
           return list(map(lambda mp: {
             "consumption": float(mp["consumptionDelta"]),
-            "demand": float(mp["demand"]),
+            "demand": float(mp["demand"]) if "demand" in mp and mp["demand"] is not None else None,
             "startAt": parse_datetime(mp["readAt"])
           }, response_body["data"]["smartMeterTelemetry"]))
         else:
-          _LOGGER.warn(f"Failed to retrieve smart meter consumption data - period_from: {period_from}; period_to: {period_to}")
+          _LOGGER.debug(f"Failed to retrieve smart meter consumption data - device_id: {device_id}; period_from: {period_from}; period_to: {period_to}")
     
     return None
 
@@ -294,7 +298,6 @@ class OctopusEnergyApiClient:
 
     # Because we retrieve our day and night periods separately over a 2 day period, we need to sort our rates 
     results.sort(key=get_valid_from)
-    _LOGGER.debug(results)
 
     return results
 
