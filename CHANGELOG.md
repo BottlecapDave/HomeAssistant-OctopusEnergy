@@ -1,3 +1,23 @@
+## [6.1.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.1.0...v6.1.1) (2023-03-18)
+
+
+### Bug Fixes
+
+* **sensor:** Fixed kwh gas sensor device class ([6a25058](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6a2505809a667347f7599dbbed614f4a7636bcd6))
+
+# [6.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.0.1...v6.1.0) (2023-03-18)
+
+
+### Bug Fixes
+
+* **binary-sensor:** Fixed issue with offset being applied twice for "next_time" in target rate sensors ([d8596fb](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d8596fb8ce5c22993d55d6dae426b818639b20a0))
+
+
+### Features
+
+* **sensor:** Added current consumption for gas through octopus mini ([df7b3dc](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/df7b3dc6f13806e6f87d6eb63b98eac1974d5b47))
+* **sensor:** Added the ability to configure current gas consumption for octopus mini ([6c6868a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6c6868a5ee54924c47300198d66b4fc149359daf))
+
 ## [6.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.0.0...v6.0.1) (2023-03-02)
 
 
