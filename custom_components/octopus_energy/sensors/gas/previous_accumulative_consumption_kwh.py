@@ -45,7 +45,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
   @property
   def device_class(self):
     """The type of sensor"""
-    return SensorDeviceClass.GAS
+    return SensorDeviceClass.ENERGY
 
   @property
   def state_class(self):
