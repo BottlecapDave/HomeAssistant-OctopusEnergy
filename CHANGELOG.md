@@ -1,3 +1,15 @@
+# [6.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.1.1...v6.2.0) (2023-03-18)
+
+
+### Bug Fixes
+
+* **binary-sensor:** Fixed offset incorrectly being applied to target times upon discovery ([94ed934](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/94ed934300d6996601766e5b9f1515df801954d1))
+
+
+### Features
+
+* **sensor:** Updated names of sensors to not include Octopus Energy ([07fdd8b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/07fdd8b86dec3d92a236f64086cddcdba963919c))
+
 ## [6.1.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.1.0...v6.1.1) (2023-03-18)
 
 
