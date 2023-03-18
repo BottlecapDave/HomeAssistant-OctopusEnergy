@@ -12,7 +12,9 @@ from .sensors.gas.current_rate import OctopusEnergyGasCurrentRate
 from .sensors.gas.previous_accumulative_consumption import OctopusEnergyPreviousAccumulativeGasConsumption
 from .sensors.gas.previous_accumulative_consumption_kwh import OctopusEnergyPreviousAccumulativeGasConsumptionKwh
 from .sensors.gas.previous_accumulative_cost import OctopusEnergyPreviousAccumulativeGasCost
+from .sensors.gas.current_consumption import OctopusEnergyCurrentGasConsumption
 from .sensors.gas.standing_charge import OctopusEnergyGasCurrentStandingCharge
+
 from .sensors.saving_sessions.points import OctopusEnergySavingSessionPoints
 
 from homeassistant.util.dt import (utcnow, now, as_utc)
@@ -92,7 +94,7 @@ def create_reading_coordinator(hass, client: OctopusEnergyApiClient, is_electric
 
   return coordinator
 
-def create_current_consumption_coordinator(hass, client: OctopusEnergyApiClient, device_id):
+def create_current_consumption_coordinator(hass, client: OctopusEnergyApiClient, device_id: str, is_electricity: bool):
   """Create current consumption coordinator"""
 
   async def async_update_data():
@@ -101,6 +103,8 @@ def create_current_consumption_coordinator(hass, client: OctopusEnergyApiClient,
     last_date = None
     if previous_current_consumption_date_key in hass.data[DOMAIN]:
       last_date = hass.data[DOMAIN][previous_current_consumption_date_key]
+    elif is_electricity == False:
+      last_date = (now() - timedelta(hours=1)).replace(minute=0, second=0, microsecond=0)
 
     data = await async_get_live_consumption(client, device_id, utcnow(), last_date)
     if data is not None:
@@ -166,7 +170,7 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
           entities.append(OctopusEnergyElectricityCurrentStandingCharge(client, electricity_tariff_code, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
 
           if meter["is_export"] == False and CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True:
-            consumption_coordinator = create_current_consumption_coordinator(hass, client, meter["device_id"])
+            consumption_coordinator = create_current_consumption_coordinator(hass, client, meter["device_id"], True)
             entities.append(OctopusEnergyCurrentElectricityConsumption(consumption_coordinator, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
             entities.append(OctopusEnergyCurrentElectricityDemand(consumption_coordinator, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
       else:
@@ -198,6 +202,10 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
           entities.append(OctopusEnergyPreviousAccumulativeGasCost(coordinator, client, gas_tariff_code, point["mprn"], meter["serial_number"], meter["consumption_units"], calorific_value))
           entities.append(OctopusEnergyGasCurrentRate(client, gas_tariff_code, point["mprn"], meter["serial_number"], gas_price_cap))
           entities.append(OctopusEnergyGasCurrentStandingCharge(client, gas_tariff_code, point["mprn"], meter["serial_number"]))
+
+          if CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True:
+            consumption_coordinator = create_current_consumption_coordinator(hass, client, meter["device_id"], False)
+            entities.append(OctopusEnergyCurrentGasConsumption(consumption_coordinator, point["mprn"], meter["serial_number"]))
       else:
         for meter in point["meters"]:
           _LOGGER.info(f'Skipping gas meter due to no active agreement; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
