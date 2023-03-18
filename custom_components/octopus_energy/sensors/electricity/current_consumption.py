@@ -34,7 +34,7 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Electricity {self._serial_number} {self._mpan} Current Consumption"
+    return f"Electricity {self._serial_number} {self._mpan} Current Consumption"
 
   @property
   def device_class(self):

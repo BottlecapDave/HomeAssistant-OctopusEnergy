@@ -135,7 +135,6 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
             end_time,
             target_hours,
             all_rates,
-            offset,
             is_rolling_target,
             self._is_export
           )
@@ -146,7 +145,6 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
             end_time,
             target_hours,
             all_rates,
-            offset,
             is_rolling_target,
             self._is_export
           )

@@ -34,7 +34,7 @@ class OctopusEnergyGasCurrentRate(OctopusEnergyGasSensor):
   @property
   def name(self):
     """Name of the sensor."""
-    return f'Octopus Energy Gas {self._serial_number} {self._mprn} Current Rate'
+    return f'Gas {self._serial_number} {self._mprn} Current Rate'
 
   @property
   def device_class(self):
