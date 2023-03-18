@@ -3,7 +3,7 @@ import pytest
 
 from integration import (create_consumption_data, get_test_context)
 
-from custom_components.octopus_energy.sensor_utils import async_get_consumption_data
+from custom_components.octopus_energy.sensors import async_get_consumption_data
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 @pytest.mark.asyncio

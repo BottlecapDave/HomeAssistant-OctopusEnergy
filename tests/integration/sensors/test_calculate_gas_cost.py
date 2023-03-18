@@ -2,26 +2,29 @@ from datetime import datetime, timedelta
 import pytest
 
 from integration import (get_test_context)
-from custom_components.octopus_energy.sensor_utils import async_calculate_electricity_cost, async_get_consumption_data
+from custom_components.octopus_energy.sensors import async_calculate_gas_cost, async_get_consumption_data
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 @pytest.mark.asyncio
-async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_returned():
+@pytest.mark.parametrize("consumption_units",[
+  ("m³"), 
+  ("kWh")
+])
+async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned(consumption_units):
   # Arrange
   context = get_test_context()
   client = OctopusEnergyApiClient(context["api_key"])
 
-  client = OctopusEnergyApiClient(context["api_key"])
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
+  tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
   latest_date = None
   
   # Retrieve real consumption data so we can make sure our calculation works with the result
   current_utc_timestamp = datetime.strptime(f'2022-03-02T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
-  sensor_identifier = context["electricity_mpan"]
-  sensor_serial_number = context["electricity_serial_number"]
-  is_electricity = True
+  sensor_identifier = context["gas_mprn"]
+  sensor_serial_number = context["gas_serial_number"]
+  is_electricity = False
   consumption_data = await async_get_consumption_data(
     client,
     [],
@@ -34,30 +37,38 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   )
 
   # Make sure we have rates and standing charges available
-  rates = await client.async_get_electricity_rates(tariff_code, False, period_from, period_to)
+  rates = await client.async_get_gas_rates(tariff_code, period_from, period_to)
   assert rates != None
   assert len(rates) > 0
 
-  standard_charge_result = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
+  standard_charge_result = await client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
   assert standard_charge_result != None
 
   # Act
-  consumption_cost = await async_calculate_electricity_cost(
+  consumption_cost = await async_calculate_gas_cost(
     client,
     consumption_data,
     latest_date,
     period_from,
     period_to,
-    tariff_code,
-    False
+    {
+      "tariff_code": tariff_code
+    },
+    consumption_units,
+    40
   )
 
   # Assert
   assert consumption_cost != None
-  assert consumption_cost["standing_charge"] == standard_charge_result["value_inc_vat"]
-  assert consumption_cost["total_without_standing_charge"] == 1.63
-  assert consumption_cost["total"] == 1.87
   assert consumption_cost["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
+  assert consumption_cost["standing_charge"] == standard_charge_result["value_inc_vat"]
+  
+  if consumption_units == "m³":
+    assert consumption_cost["total_without_standing_charge"] == 2.88
+    assert consumption_cost["total"] == 3.14
+  else:
+    assert consumption_cost["total_without_standing_charge"] == 0.25
+    assert consumption_cost["total"] == 0.52
 
   assert len(consumption_cost["charges"]) == 48
 

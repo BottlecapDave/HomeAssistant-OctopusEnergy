@@ -4,7 +4,7 @@ import mock
 
 from unit import (create_consumption_data)
 
-from custom_components.octopus_energy.sensor_utils import async_get_consumption_data
+from custom_components.octopus_energy.sensors import async_get_consumption_data
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 @pytest.mark.asyncio
