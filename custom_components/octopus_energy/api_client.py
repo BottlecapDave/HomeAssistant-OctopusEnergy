@@ -38,18 +38,23 @@ account_query = '''query {{
 					tariff {{
 						...on StandardTariff {{
 							tariffCode
+              productCode
 						}}
 						...on DayNightTariff {{
 							tariffCode
+              productCode
 						}}
 						...on ThreeRateTariff {{
 							tariffCode
+              productCode
 						}}
 						...on HalfHourlyTariff {{
 							tariffCode
+              productCode
 						}}
             ...on PrepayTariff {{
 							tariffCode
+              productCode
 						}}
 					}}
 				}}
@@ -70,6 +75,7 @@ account_query = '''query {{
 					validTo
 					tariff {{
 						tariffCode
+            productCode
 					}}
 				}}
 			}}
@@ -171,6 +177,7 @@ class OctopusEnergyApiClient:
                 "valid_from": a["validFrom"],
                 "valid_to": a["validTo"],
                 "tariff_code": a["tariff"]["tariffCode"] if "tariff" in a and "tariffCode" in a["tariff"] else None,
+                "product_code": a["tariff"]["productCode"] if "tariff" in a and "productCode" in a["tariff"] else None,
               }, mp["meterPoint"]["agreements"]))
             }, account_response_body["data"]["account"]["electricityAgreements"])),
             "gas_meter_points": list(map(lambda mp: {
@@ -184,6 +191,7 @@ class OctopusEnergyApiClient:
                 "valid_from": a["validFrom"],
                 "valid_to": a["validTo"],
                 "tariff_code": a["tariff"]["tariffCode"] if "tariff" in a and "tariffCode" in a["tariff"] else None,
+                "product_code": a["tariff"]["productCode"] if "tariff" in a and "productCode" in a["tariff"] else None,
               }, mp["meterPoint"]["agreements"]))
             }, account_response_body["data"]["account"]["gasAgreements"])),
           }
