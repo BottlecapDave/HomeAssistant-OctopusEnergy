@@ -1,3 +1,15 @@
+# [6.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.2.0...v6.3.0) (2023-03-21)
+
+
+### Bug Fixes
+
+* Updated diagnostics to redact device id ([093fc5a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/093fc5aa1b70110130f1ee8a7063aeb33868731d))
+
+
+### Features
+
+* Updated account to retrieve tariff product code ([3cdb4b5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3cdb4b5378e3c9175a2d1b8d3f9569aa06c8557c))
+
 # [6.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.1.1...v6.2.0) (2023-03-18)
 
 
