@@ -27,7 +27,7 @@ async def async_get_device_diagnostics(hass, config_entry, device):
         account_info["electricity_meter_points"][point_index] = async_redact_data(account_info["electricity_meter_points"][point_index], { "mpan" })
         meters_length = len(account_info["electricity_meter_points"][point_index]["meters"])
         for meter_index in range(meters_length):
-          account_info["electricity_meter_points"][point_index]["meters"][meter_index] = async_redact_data(account_info["electricity_meter_points"][point_index]["meters"][meter_index], { "serial_number" })
+          account_info["electricity_meter_points"][point_index]["meters"][meter_index] = async_redact_data(account_info["electricity_meter_points"][point_index]["meters"][meter_index], { "serial_number", "device_id" })
 
     points_length = len(account_info["gas_meter_points"])
     if points_length > 0:
@@ -35,7 +35,7 @@ async def async_get_device_diagnostics(hass, config_entry, device):
         account_info["gas_meter_points"][point_index] = async_redact_data(account_info["gas_meter_points"][point_index], { "mprn" })
         meters_length = len(account_info["gas_meter_points"][point_index]["meters"])
         for meter_index in range(meters_length):
-          account_info["gas_meter_points"][point_index]["meters"][meter_index] = async_redact_data(account_info["gas_meter_points"][point_index]["meters"][meter_index], { "serial_number" })
+          account_info["gas_meter_points"][point_index]["meters"][meter_index] = async_redact_data(account_info["gas_meter_points"][point_index]["meters"][meter_index], { "serial_number", "device_id" })
     
     _LOGGER.info(f'Returning diagnostic details; {len(account_info["electricity_meter_points"])} electricity meter point(s), {len(account_info["gas_meter_points"])} gas meter point(s)')
 
