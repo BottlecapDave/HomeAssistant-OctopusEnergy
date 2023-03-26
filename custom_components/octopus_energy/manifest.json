@@ -5,7 +5,7 @@
     "@bottlecapdave"
   ],
   "config_flow": true,
-  "dependencies": [],
+  "dependencies": ["repairs"],
   "documentation": "https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/",
   "homekit": {},
   "iot_class": "cloud_polling",

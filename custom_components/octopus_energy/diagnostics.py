@@ -21,16 +21,16 @@ async def async_get_device_diagnostics(hass, config_entry, device):
     
     account_info = await client.async_get_account(hass.data[DOMAIN][DATA_ACCOUNT_ID])
 
-    points_length = len(account_info["electricity_meter_points"])
-    if points_length > 0:
+    points_length = account_info is not None and len(account_info["electricity_meter_points"])
+    if account_info is not None and points_length > 0:
       for point_index in range(points_length):
         account_info["electricity_meter_points"][point_index] = async_redact_data(account_info["electricity_meter_points"][point_index], { "mpan" })
         meters_length = len(account_info["electricity_meter_points"][point_index]["meters"])
         for meter_index in range(meters_length):
           account_info["electricity_meter_points"][point_index]["meters"][meter_index] = async_redact_data(account_info["electricity_meter_points"][point_index]["meters"][meter_index], { "serial_number", "device_id" })
 
-    points_length = len(account_info["gas_meter_points"])
-    if points_length > 0:
+    points_length = account_info is not None and len(account_info["gas_meter_points"])
+    if account_info is not None and points_length > 0:
       for point_index in range(points_length):
         account_info["gas_meter_points"][point_index] = async_redact_data(account_info["gas_meter_points"][point_index], { "mprn" })
         meters_length = len(account_info["gas_meter_points"][point_index]["meters"])

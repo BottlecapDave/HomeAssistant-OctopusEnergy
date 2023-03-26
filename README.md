@@ -102,7 +102,7 @@ To support Octopus Energy's [saving sessions](https://octopus.energy/saving-sess
 
 ### Target Rates
 
-If you go through the [setup](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy) process after you've configured your account, you can set up target rate sensors. These sensors calculate the lowest continuous or intermittent rates **within a 24 hour period** and turn on when these periods are active. These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money.
+If you go through the [setup](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy) process after you've configured your account, you can set up target rate sensors. These sensors calculate the lowest continuous or intermittent rates **within a 24 hour period** and turn on when these periods are active. These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money. You can go through this flow as many times as you need target rate sensors.
 
 Each sensor will be in the form `binary_sensor.octopus_energy_target_{{TARGET_RATE_NAME}}`.
 
