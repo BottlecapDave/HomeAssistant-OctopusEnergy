@@ -77,7 +77,8 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
         ratesAttributes = list(map(lambda x: {
           "from": x["valid_from"],
           "to":   x["valid_to"],
-          "rate": x["value_inc_vat"]
+          "rate": x["value_inc_vat"],
+          "is_capped": x["is_capped"]
         }, rate))
         self._attributes = {
           "rate": current_rate,
