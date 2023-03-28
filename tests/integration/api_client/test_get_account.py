@@ -50,3 +50,17 @@ async def test_when_get_account_is_called_then_electricity_and_gas_points_return
     assert "tariff_code" in meter_point["agreements"][0]
     assert "valid_from" in meter_point["agreements"][0]
     assert "valid_to" in meter_point["agreements"][0]
+
+@pytest.mark.asyncio
+async def test_when_get_account_is_called_and_not_found_then_none_returned():
+    # Arrange
+    context = get_test_context()
+
+    client = OctopusEnergyApiClient(context["api_key"])
+    account_id = "not-an-account"
+
+    # Act
+    account = await client.async_get_account(account_id)
+
+    # Assert
+    assert account is None

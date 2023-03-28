@@ -9,8 +9,8 @@
           "Account Id": "Your account Id (e.g. A-AAAA1111)",
           "supports_live_consumption": "I have a Home Mini",
           "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time.",
-          "electricity_price_cap": "Electricity price cap in pence",
-          "gas_price_cap": "Gas price cap in pence"
+          "electricity_price_cap": "Optional electricity price cap in pence",
+          "gas_price_cap": "Optional gas price cap in pence"
         }
       },
       "target_rate": {
@@ -47,9 +47,9 @@
           "Api key": "Api key",
           "supports_live_consumption": "I have a Home Mini",
           "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time.",
-          "electricity_price_cap": "Electricity price cap in pence",
+          "electricity_price_cap": "Optional electricity price cap in pence",
           "clear_electricity_price_cap": "Clear electricity price cap",
-          "gas_price_cap": "Gas price cap in pence",
+          "gas_price_cap": "Optional gas price cap in pence",
           "clear_gas_price_cap": "Clear Gas price cap"
         }
       },
@@ -73,6 +73,12 @@
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment."
+    }
+  },
+  "issues": {
+    "account_not_found": {
+      "title": "Account \"{account_id}\" not found",
+      "description": "The integration failed to retrieve the information associated with your configured account. Please check your account exists and that your API key is valid. Click 'Learn More' to find out how to fix this."
     }
   }
 }

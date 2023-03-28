@@ -24,6 +24,7 @@ account_query = '''query {{
 			meterPoint {{
 				mpan
 				meters(includeInactive: false) {{
+          makeAndType
 					serialNumber
           smartExportElectricityMeter {{
 						deviceId
@@ -142,12 +143,16 @@ class OctopusEnergyApiClient:
       payload = { "query": api_token_query.format(api_key=self._api_key) }
       async with client.post(url, json=payload) as token_response:
         token_response_body = await self.__async_read_response(token_response, url)
-        if (token_response_body != None and "data" in token_response_body):
+        if (token_response_body != None and 
+            "data" in token_response_body and
+            "obtainKrakenToken" in token_response_body["data"] and 
+            token_response_body["data"]["obtainKrakenToken"] is not None and
+            "token" in token_response_body["data"]["obtainKrakenToken"]):
+          
           self._graphql_token = token_response_body["data"]["obtainKrakenToken"]["token"]
           self._graphql_expiration = now() + timedelta(hours=1)
         else:
           _LOGGER.error("Failed to retrieve auth token")
-          raise Exception('Failed to refresh token')
 
   async def async_get_account(self, account_id):
     """Get the user's account"""
@@ -161,9 +166,12 @@ class OctopusEnergyApiClient:
       async with client.post(url, json=payload, headers=headers) as account_response:
         account_response_body = await self.__async_read_response(account_response, url)
 
-        _LOGGER.debug(account_response_body)
+        _LOGGER.debug(f'account: {account_response_body}')
 
-        if (account_response_body != None and "data" in account_response_body):
+        if (account_response_body != None and 
+            "data" in account_response_body and 
+            "account" in account_response_body["data"] and 
+            account_response_body["data"]["account"] is not None):
           return {
             "electricity_meter_points": list(map(lambda mp: {
               "mpan": mp["meterPoint"]["mpan"],
