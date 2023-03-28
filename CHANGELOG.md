@@ -1,3 +1,10 @@
+## [6.3.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.3.0...v6.3.1) (2023-03-28)
+
+
+### Bug Fixes
+
+* Handle when account cant be found and display repair message ([7c7801a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7c7801a77f9416dd680580dec66e54de2af712a2))
+
 # [6.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.2.0...v6.3.0) (2023-03-21)
 
 
