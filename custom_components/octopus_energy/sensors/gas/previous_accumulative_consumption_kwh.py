@@ -1,4 +1,5 @@
 import logging
+from datetime import (timedelta)
 
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
@@ -9,6 +10,11 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR
+)
+
+from homeassistant.components.recorder.models import StatisticData, StatisticMetaData
+from homeassistant.components.recorder.statistics import (
+    async_import_statistics
 )
 
 from .. import (
@@ -22,11 +28,12 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, OctopusEnergyGasSensor):
   """Sensor for displaying the previous days accumulative gas consumption in kwh."""
 
-  def __init__(self, coordinator, mprn, serial_number, native_consumption_units, calorific_value):
+  def __init__(self, hass, coordinator, mprn, serial_number, native_consumption_units, calorific_value):
     """Init sensor."""
     super().__init__(coordinator)
     OctopusEnergyGasSensor.__init__(self, mprn, serial_number)
 
+    self._hass = hass
     self._native_consumption_units = native_consumption_units
     self._state = None
     self._latest_date = None
@@ -75,6 +82,13 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
   @property
   def state(self):
     """Retrieve the previous days accumulative consumption"""
+    return self._state
+  
+  @property
+  def should_poll(self) -> bool:
+    return True
+    
+  async def async_update(self):
     consumption = calculate_gas_consumption(
       self.coordinator.data,
       self._latest_date,
@@ -84,6 +98,34 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
 
     if (consumption != None):
       _LOGGER.debug(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
+
+      if self._latest_date is not None and self._latest_date != consumption["last_calculated_timestamp"] and consumption["consumptions"] is not None:
+        statistic_id = f"sensor.{self.unique_id}".lower()
+        statistics = []
+        sum = 0
+        for charge in consumption["consumptions"]:
+          sum += charge["consumption_kwh"]
+          start = charge["from"].replace(minute=0, second=0, microsecond=0)
+          
+          statistics.append(
+             StatisticData(
+                start=start,
+                sum=sum
+            )
+          )
+
+        metadata = StatisticMetaData(
+          has_mean=False,
+          has_sum=True,
+          name=self.name,
+          source='recorder',
+          statistic_id=statistic_id,
+          unit_of_measurement=ENERGY_KILO_WATT_HOUR,
+        )
+
+        async_import_statistics(self._hass, metadata, statistics)
+        _LOGGER.debug(f"Imported statistics for '{self._mprn}/{self._serial_number}'...")
+
       self._state = consumption["total_kwh"]
       self._latest_date = consumption["last_calculated_timestamp"]
 
@@ -95,8 +137,6 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
         "charges": consumption["consumptions"],
         "calorific_value": self._calorific_value
       }
-    
-    return self._state
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
