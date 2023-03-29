@@ -84,8 +84,10 @@ def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: da
     for item in items:
       value_inc_vat = float(item["value_inc_vat"])
 
+      is_capped = False
       if (price_cap is not None and value_inc_vat > price_cap):
         value_inc_vat = price_cap
+        is_capped = True
 
       if "valid_from" in item and item["valid_from"] != None:
         valid_from = as_utc(parse_datetime(item["valid_from"]))
@@ -113,7 +115,8 @@ def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: da
           "value_inc_vat": value_inc_vat,
           "valid_from": valid_from,
           "valid_to": valid_to,
-          "tariff_code": tariff_code
+          "tariff_code": tariff_code,
+          "is_capped": is_capped
         })
 
         valid_from = valid_to

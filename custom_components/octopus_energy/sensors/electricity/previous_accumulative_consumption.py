@@ -1,5 +1,5 @@
 import logging
-from datetime import (timedelta)
+from datetime import datetime
 
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
@@ -98,17 +98,26 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
       if self._latest_date is not None and self._latest_date != consumption["last_calculated_timestamp"] and consumption["consumptions"] is not None:
         statistic_id = f"sensor.{self.unique_id}".lower()
         statistics = []
+        
+        last_reset = consumption["consumptions"][0]["from"].replace(minute=0, second=0, microsecond=0)
+        current_start = last_reset
         sum = 0
+        
         for charge in consumption["consumptions"]:
-          sum += charge["consumption"]
           start = charge["from"].replace(minute=0, second=0, microsecond=0)
-          
-          statistics.append(
-             StatisticData(
-                start=start,
-                sum=sum
+          if current_start == start:
+            sum += charge["consumption"]
+          else:
+            statistics.append(
+              StatisticData(
+                  start=start,
+                  last_reset=last_reset,
+                  state=sum,
+                  sum=statistics[-1]["sum"] - sum if len(statistics) > 0 else sum
+              )
             )
-          )
+            current_start = start
+            sum = charge["consumption"]
 
         metadata = StatisticMetaData(
           has_mean=False,
@@ -146,5 +155,8 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
       self._attributes = {}
       for x in state.attributes.keys():
         self._attributes[x] = state.attributes[x]
-    
+
+        if x == "last_reset":
+          self._latest_date = datetime.strptime(state.attributes[x], "%Y-%m-%dT%H:%M:%S%z")
+
       _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeElectricityConsumption state: {self._state}')
