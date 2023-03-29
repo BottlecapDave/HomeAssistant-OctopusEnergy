@@ -2,4 +2,4 @@ pytest
 pytest-socket
 pytest-asyncio
 mock
-homeassistant>=2021.12.01
+homeassistant

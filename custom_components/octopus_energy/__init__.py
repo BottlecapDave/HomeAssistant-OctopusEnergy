@@ -8,6 +8,8 @@ from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
 )
 
+from homeassistant.helpers import issue_registry as ir
+
 from .const import (
   DOMAIN,
 
