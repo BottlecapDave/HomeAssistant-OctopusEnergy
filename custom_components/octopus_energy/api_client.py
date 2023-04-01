@@ -176,17 +176,25 @@ class OctopusEnergyApiClient:
             "electricity_meter_points": list(map(lambda mp: {
                 "mpan": mp["meterPoint"]["mpan"],
                 "meters": list(map(lambda m: {
-                  "serial_number": m["serialNumber"],
-                  "is_export": m["smartExportElectricityMeter"] != None,
-                  "is_smart_meter": m["smartImportElectricityMeter"] != None or m["smartExportElectricityMeter"] != None,
-                  "device_id": m["smartImportElectricityMeter"]["deviceId"] if m["smartImportElectricityMeter"] != None else None
-                }, mp["meterPoint"]["meters"])),
-                "agreements": list(map(lambda a: {
-                  "valid_from": a["validFrom"],
-                  "valid_to": a["validTo"],
-                  "tariff_code": a["tariff"]["tariffCode"] if "tariff" in a and "tariffCode" in a["tariff"] else None,
-                  "product_code": a["tariff"]["productCode"] if "tariff" in a and "productCode" in a["tariff"] else None,
-                }, mp["meterPoint"]["agreements"]))
+                      "serial_number": m["serialNumber"],
+                      "is_export": m["smartExportElectricityMeter"] != None,
+                      "is_smart_meter": m["smartImportElectricityMeter"] != None or m["smartExportElectricityMeter"] != None,
+                      "device_id": m["smartImportElectricityMeter"]["deviceId"] if m["smartImportElectricityMeter"] != None else None
+                    },
+                    mp["meterPoint"]["meters"]
+                    if "meterPoint" in mp and "meters" in mp["meterPoint"] and mp["meterPoint"]["meters"] is not None
+                    else []
+                  )),
+                  "agreements": list(map(lambda a: {
+                    "valid_from": a["validFrom"],
+                    "valid_to": a["validTo"],
+                    "tariff_code": a["tariff"]["tariffCode"] if "tariff" in a and "tariffCode" in a["tariff"] else None,
+                    "product_code": a["tariff"]["productCode"] if "tariff" in a and "productCode" in a["tariff"] else None,
+                  }, 
+                  mp["meterPoint"]["agreements"]
+                  if "meterPoint" in mp and "agreements" in mp["meterPoint"] and mp["meterPoint"]["agreements"] is not None
+                  else []
+                ))
               }, 
               account_response_body["data"]["account"]["electricityAgreements"]
               if "electricityAgreements" in account_response_body["data"]["account"] and account_response_body["data"]["account"]["electricityAgreements"] is not None
@@ -195,16 +203,24 @@ class OctopusEnergyApiClient:
             "gas_meter_points": list(map(lambda mp: {
                 "mprn": mp["meterPoint"]["mprn"],
                 "meters": list(map(lambda m: {
-                  "serial_number": m["serialNumber"],
-                  "consumption_units": m["consumptionUnits"],
-                  "device_id": m["smartGasMeter"]["deviceId"] if m["smartGasMeter"] != None else None
-                }, mp["meterPoint"]["meters"])),
+                    "serial_number": m["serialNumber"],
+                    "consumption_units": m["consumptionUnits"],
+                    "device_id": m["smartGasMeter"]["deviceId"] if m["smartGasMeter"] != None else None
+                  },
+                  mp["meterPoint"]["meters"]
+                  if "meterPoint" in mp and "meters" in mp["meterPoint"] and mp["meterPoint"]["meters"] is not None
+                  else []
+                )),
                 "agreements": list(map(lambda a: {
-                  "valid_from": a["validFrom"],
-                  "valid_to": a["validTo"],
-                  "tariff_code": a["tariff"]["tariffCode"] if "tariff" in a and "tariffCode" in a["tariff"] else None,
-                  "product_code": a["tariff"]["productCode"] if "tariff" in a and "productCode" in a["tariff"] else None,
-                }, mp["meterPoint"]["agreements"]))
+                    "valid_from": a["validFrom"],
+                    "valid_to": a["validTo"],
+                    "tariff_code": a["tariff"]["tariffCode"] if "tariff" in a and "tariffCode" in a["tariff"] else None,
+                    "product_code": a["tariff"]["productCode"] if "tariff" in a and "productCode" in a["tariff"] else None,
+                  },
+                  mp["meterPoint"]["agreements"]
+                  if "meterPoint" in mp and "agreements" in mp["meterPoint"] and mp["meterPoint"]["agreements"] is not None
+                  else []
+                ))
               }, 
               account_response_body["data"]["account"]["gasAgreements"] 
               if "gasAgreements" in account_response_body["data"]["account"] and account_response_body["data"]["account"]["gasAgreements"] is not None
