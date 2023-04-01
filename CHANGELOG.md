@@ -1,3 +1,11 @@
+## [6.4.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.4.0...v6.4.1) (2023-04-01)
+
+
+### Bug Fixes
+
+* Added more robust checks when retrieving account information ([5898f41](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5898f41b936d453e07c0f66c2c7826096645abe5))
+* **api-client:** Added more checks for when meters have no agreements ([ee86fe0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ee86fe0117dd39bc14ad08d4a1f2544f66a0dcd3))
+
 # [6.4.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.3.2...v6.4.0) (2023-04-01)
 
 
