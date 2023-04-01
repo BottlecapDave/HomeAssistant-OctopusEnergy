@@ -1,25 +1,26 @@
 from datetime import timedelta
 import logging
 
-from homeassistant.util.dt import (utcnow, as_utc, parse_datetime)
+from homeassistant.util.dt import (utcnow)
+from homeassistant.helpers.update_coordinator import (
+  CoordinatorEntity,
+)
 from homeassistant.components.sensor import (
     SensorDeviceClass
 )
-
-from ...api_client import (OctopusEnergyApiClient)
 
 from .base import (OctopusEnergyGasSensor)
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyGasCurrentRate(OctopusEnergyGasSensor):
+class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor):
   """Sensor for displaying the current rate."""
 
-  def __init__(self, client: OctopusEnergyApiClient, tariff_code, mprn, serial_number, gas_price_cap):
+  def __init__(self, coordinator, tariff_code, mprn, serial_number, gas_price_cap):
     """Init sensor."""
+    super().__init__(coordinator)
     OctopusEnergyGasSensor.__init__(self, mprn, serial_number)
 
-    self._client = client
     self._tariff_code = tariff_code
     self._gas_price_cap = gas_price_cap
 
@@ -59,35 +60,27 @@ class OctopusEnergyGasCurrentRate(OctopusEnergyGasSensor):
   @property
   def state(self):
     """Retrieve the latest gas price"""
-    return self._state
-
-  async def async_update(self):
-    """Get the current price."""
-    # Find the current rate. We only need to do this every day
 
     utc_now = utcnow()
-    if (self._latest_date == None or (self._latest_date + timedelta(days=1)) < utc_now):
+    if (self._latest_date is None or (self._latest_date + timedelta(days=1)) < utc_now) or self._state is None:
       _LOGGER.debug('Updating OctopusEnergyGasCurrentRate')
 
-      period_from = as_utc(parse_datetime(utc_now.strftime("%Y-%m-%dT00:00:00Z")))
-      period_to = as_utc(parse_datetime((utc_now + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00Z")))
-
-      rates = await self._client.async_get_gas_rates(self._tariff_code, period_from, period_to)
+      rates = self.coordinator.data
       
       current_rate = None
-      if rates != None:
+      if rates is not None:
         for period in rates:
           if utc_now >= period["valid_from"] and utc_now <= period["valid_to"]:
             current_rate = period
             break
 
-      if current_rate != None:
-        self._latest_date = period_from
+      if current_rate is not None:
+        self._latest_date = rates[0]["valid_from"]
         self._state = current_rate["value_inc_vat"] / 100
 
         # Adjust our period, as our gas only changes on a daily basis
-        current_rate["valid_from"] = period_from
-        current_rate["valid_to"] = period_to
+        current_rate["valid_from"] = rates[0]["valid_from"]
+        current_rate["valid_to"] = rates[-1]["valid_to"]
         self._attributes = current_rate
 
         if self._gas_price_cap is not None:
@@ -95,6 +88,8 @@ class OctopusEnergyGasCurrentRate(OctopusEnergyGasSensor):
       else:
         self._state = None
         self._attributes = {}
+
+    return self._state
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

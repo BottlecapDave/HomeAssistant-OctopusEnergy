@@ -21,3 +21,8 @@ async def test_get_tariff_parts(tariff_code, expected_energy, expected_rate, exp
   assert result["product_code"] == expected_product_code
   assert "region" in result
   assert result["region"] == expected_region
+
+@pytest.mark.asyncio
+async def test_get_tariff_parts_when_invalid_then_none_returned():
+  # Act
+  result = get_tariff_parts("invalid-tariff-code")

@@ -195,7 +195,7 @@ async def test_when_get_electricity_rates_is_called_with_tracker_tariff_then_rat
         expected_valid_from = expected_valid_to
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("tariff",[("E-2R-NOT-A-TARIFF-A"), ("E-1R-NOT-A-TARIFF-A")])
+@pytest.mark.parametrize("tariff",[("E-2R-NOT-A-TARIFF-A"), ("E-1R-NOT-A-TARIFF-A"), ("NOT-A-TARIFF")])
 async def test_when_get_electricity_rates_is_called_for_non_existent_tariff_then_none_is_returned(tariff):
     # Arrange
     context = get_test_context()

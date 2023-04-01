@@ -30,6 +30,7 @@
     - [Why is my gas sensor reporting m3 when Octopus Energy reports it as kWh?](#why-is-my-gas-sensor-reporting-m3-when-octopus-energy-reports-it-as-kwh)
     - [I have sensors that are missing](#i-have-sensors-that-are-missing)
     - [My gas consumption/costs seem out](#my-gas-consumptioncosts-seem-out)
+    - [I've been asked for my meter information in a bug request, how do I obtain this?](#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this)
 
 Custom component built from the ground up to bring your Octopus Energy details into Home Assistant to help you towards a more energy efficient (and or cheaper) home. This integration is built against the API provided by Octopus Energy UK and has not been tested for any other countries. 
 
@@ -344,3 +345,13 @@ The identifiers of the sensors should then be checked against your Octopus Energ
 ### My gas consumption/costs seem out
 
 This is most likely due to the default caloric value not matching your region/bill. This can be configured when setting up or updating your account.
+
+### I've been asked for my meter information in a bug request, how do I obtain this?
+
+If you've been asked for meter information, don't worry we won't ask for anything sensitive. To obtain this information
+
+1. Navigate to [your devices](https://my.home-assistant.io/redirect/devices/)
+2. Search for "Octopus Energy"
+3. Click on one of the meters
+4. Click on "Download diagnostics"
+5. Take the contents of the downloads json file and paste into the bug report. Remember to surround the contents with ``` both at the start and end.
