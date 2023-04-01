@@ -321,6 +321,9 @@ class OctopusEnergyApiClient:
     """Get the current rates"""
 
     tariff_parts = get_tariff_parts(tariff_code)
+    if tariff_parts is None:
+      return None
+    
     product_code = tariff_parts["product_code"]
 
     if (self.__async_is_tracker_tariff(tariff_code)):
@@ -357,6 +360,9 @@ class OctopusEnergyApiClient:
   async def async_get_gas_rates(self, tariff_code, period_from, period_to):
     """Get the gas rates"""
     tariff_parts = get_tariff_parts(tariff_code)
+    if tariff_parts is None:
+      return None
+    
     product_code = tariff_parts["product_code"]
 
     if (self.__async_is_tracker_tariff(tariff_code)):
@@ -402,21 +408,22 @@ class OctopusEnergyApiClient:
         
         return None
 
-  async def async_get_products(self, is_variable):
+  async def async_get_product(self, product_code):
     """Get all products"""
     async with aiohttp.ClientSession() as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
-      url = f'{self._base_url}/v1/products?is_variable={is_variable}'
+      url = f'{self._base_url}/v1/products/{product_code}'
       async with client.get(url, auth=auth) as response:
-        data = await self.__async_read_response(response, url)
-        if (data != None and "results" in data):
-          return data["results"]
+        return await self.__async_read_response(response, url)
 
-    return []
+    return None
 
   async def async_get_electricity_standing_charge(self, tariff_code, period_from, period_to):
     """Get the electricity standing charges"""
     tariff_parts = get_tariff_parts(tariff_code)
+    if tariff_parts is None:
+      return None
+    
     product_code = tariff_parts["product_code"]
 
     if self.__async_is_tracker_tariff(tariff_code):
@@ -445,6 +452,9 @@ class OctopusEnergyApiClient:
   async def async_get_gas_standing_charge(self, tariff_code, period_from, period_to):
     """Get the gas standing charges"""
     tariff_parts = get_tariff_parts(tariff_code)
+    if tariff_parts is None:
+      return None
+    
     product_code = tariff_parts["product_code"]
 
     if self.__async_is_tracker_tariff(tariff_code):
@@ -472,6 +482,9 @@ class OctopusEnergyApiClient:
 
   def __async_is_tracker_tariff(self, tariff_code):
     tariff_parts = get_tariff_parts(tariff_code)
+    if tariff_parts is None:
+      return None
+    
     product_code = tariff_parts["product_code"]
 
     if product_code in self._product_tracker_cache:
@@ -482,6 +495,9 @@ class OctopusEnergyApiClient:
   async def __async_get_tracker_rates__(self, tariff_code, period_from, period_to, price_cap: float = None):
     """Get the tracker rates"""
     tariff_parts = get_tariff_parts(tariff_code)
+    if tariff_parts is None:
+      return None
+    
     product_code = tariff_parts["product_code"]
 
     # If we know our tariff is not a tracker rate, then don't bother asking

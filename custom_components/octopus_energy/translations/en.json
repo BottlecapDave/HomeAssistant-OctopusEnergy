@@ -79,6 +79,14 @@
     "account_not_found": {
       "title": "Account \"{account_id}\" not found",
       "description": "The integration failed to retrieve the information associated with your configured account. Please check your account exists and that your API key is valid. Click 'Learn More' to find out how to fix this."
+    },
+    "unknown_tariff_format": {
+      "title": "Invalid format - {type} - {tariff_code}",
+      "description": "The tariff \"{tariff_code}\" associated with your {type} meter is not in an expected format. Click on 'Learn More' with instructions on what to do next."
+    },
+    "unknown_tariff": {
+      "title": "Unknown tariff - {type} - {tariff_code}",
+      "description": "The tariff \"{tariff_code}\" associated with your {type} meter has not been found. Click on 'Learn More' with instructions on what to do next."
     }
   }
 }

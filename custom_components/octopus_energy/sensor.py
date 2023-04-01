@@ -1,5 +1,7 @@
 from datetime import timedelta
 import logging
+
+from .utils.check_tariff import async_check_valid_tariff
 from .sensors.electricity.current_consumption import OctopusEnergyCurrentElectricityConsumption
 from .sensors.electricity.current_demand import OctopusEnergyCurrentElectricityDemand
 from .sensors.electricity.current_rate import OctopusEnergyElectricityCurrentRate
@@ -17,7 +19,7 @@ from .sensors.gas.standing_charge import OctopusEnergyGasCurrentStandingCharge
 
 from .sensors.saving_sessions.points import OctopusEnergySavingSessionPoints
 
-from homeassistant.util.dt import (utcnow, now, as_utc)
+from homeassistant.util.dt import (utcnow, now, as_utc, parse_datetime)
 from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
 )
@@ -40,7 +42,8 @@ from .const import (
   DATA_ELECTRICITY_RATES_COORDINATOR,
   DATA_SAVING_SESSIONS_COORDINATOR,
   DATA_CLIENT,
-  DATA_ACCOUNT
+  DATA_ACCOUNT,
+  DATA_GAS_RATES
 )
 
 from .api_client import (OctopusEnergyApiClient)
@@ -83,7 +86,7 @@ def create_reading_coordinator(hass, client: OctopusEnergyApiClient, is_electric
   coordinator = DataUpdateCoordinator(
     hass,
     _LOGGER,
-    name="rates",
+    name=f"rates_{identifier}_{serial_number}",
     update_method=async_update_data,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes
@@ -115,7 +118,34 @@ def create_current_consumption_coordinator(hass, client: OctopusEnergyApiClient,
   coordinator = DataUpdateCoordinator(
     hass,
     _LOGGER,
-    name="current_consumption",
+    name=f"current_consumption_{device_id}",
+    update_method=async_update_data,
+    update_interval=timedelta(minutes=1),
+  )
+
+  return coordinator
+
+def create_gas_rate_coordinator(hass, client: OctopusEnergyApiClient, tariff_code: str):
+  """Create gas rate coordinator"""
+
+  async def async_update_data():
+    """Fetch data from API endpoint."""
+    current = utcnow()
+    
+    rate_key = f'{DATA_GAS_RATES}_{tariff_code}'
+    if (rate_key not in hass.data[DOMAIN] or (current.minute % 30) == 0 or len(hass.data[DOMAIN][rate_key]) == 0):
+      period_from = as_utc(parse_datetime(current.strftime("%Y-%m-%dT00:00:00Z")))
+      period_to = as_utc(parse_datetime((current + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00Z")))
+
+      hass.data[DOMAIN][rate_key] = await client.async_get_gas_rates(tariff_code, period_from, period_to)
+      await async_check_valid_tariff(hass, client, tariff_code, False)
+
+    return hass.data[DOMAIN][rate_key]
+
+  coordinator = DataUpdateCoordinator(
+    hass,
+    _LOGGER,
+    name=f"gas_rates_{tariff_code}",
     update_method=async_update_data,
     update_interval=timedelta(minutes=1),
   )
@@ -200,7 +230,9 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
           entities.append(OctopusEnergyPreviousAccumulativeGasConsumption(coordinator, point["mprn"], meter["serial_number"], meter["consumption_units"], calorific_value))
           entities.append(OctopusEnergyPreviousAccumulativeGasConsumptionKwh(coordinator, point["mprn"], meter["serial_number"], meter["consumption_units"], calorific_value))
           entities.append(OctopusEnergyPreviousAccumulativeGasCost(coordinator, client, gas_tariff_code, point["mprn"], meter["serial_number"], meter["consumption_units"], calorific_value))
-          entities.append(OctopusEnergyGasCurrentRate(client, gas_tariff_code, point["mprn"], meter["serial_number"], gas_price_cap))
+          
+          rate_coordinator = create_gas_rate_coordinator(hass, client, gas_tariff_code)
+          entities.append(OctopusEnergyGasCurrentRate(rate_coordinator, gas_tariff_code, point["mprn"], meter["serial_number"], gas_price_cap))
           entities.append(OctopusEnergyGasCurrentStandingCharge(client, gas_tariff_code, point["mprn"], meter["serial_number"]))
 
           if CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True:

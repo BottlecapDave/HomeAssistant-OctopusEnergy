@@ -35,6 +35,8 @@ from .utils import (
   get_active_tariff_code
 )
 
+from .utils.check_tariff import (async_check_valid_tariff)
+
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, entry):
@@ -105,6 +107,7 @@ async def async_get_current_electricity_agreement_tariff_codes(hass, client: Oct
           key = (point["mpan"], is_smart_meter)
           if key not in tariff_codes:
             tariff_codes[(point["mpan"], is_smart_meter)] = active_tariff_code
+            await async_check_valid_tariff(hass, client, active_tariff_code, True)
   
   return tariff_codes
 

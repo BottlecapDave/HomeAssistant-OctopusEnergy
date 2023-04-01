@@ -46,7 +46,7 @@ async def test_when_get_gas_standing_charge_is_called_with_tracker_tariff_then_r
     assert result["value_inc_vat"] == expected_tracker["standing_charge"]
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("tariff",[("G-1R-NOT-A-TARIFF-A")])
+@pytest.mark.parametrize("tariff",[("G-1R-NOT-A-TARIFF-A"), ("NOT-A-TARIFF")])
 async def test_when_get_gas_standing_charge_is_called_for_non_existent_tariff_then_none_is_returned(tariff):
     # Arrange
     context = get_test_context()
