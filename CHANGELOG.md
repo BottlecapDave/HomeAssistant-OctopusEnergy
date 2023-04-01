@@ -1,3 +1,18 @@
+# [6.4.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.3.2...v6.4.0) (2023-04-01)
+
+
+### Features
+
+* **config:** Added checks for tariffs to report repair errors if not valid ([3f7dc86](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3f7dc86789d6fbfe629f935fc8558094e4e0c510))
+
+## [6.3.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.3.1...v6.3.2) (2023-03-29)
+
+
+### Bug Fixes
+
+* Added missing requirement for repairs ([69a4bcb](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/69a4bcb5af30a8fc91d09fa53c48aa4ff8770702))
+* Updated current rate sensors to indicate if prices are capped ([1368349](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/13683499a590fb30fa0afe6fbefd3a91350de519))
+
 ## [6.3.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.3.0...v6.3.1) (2023-03-28)
 
 

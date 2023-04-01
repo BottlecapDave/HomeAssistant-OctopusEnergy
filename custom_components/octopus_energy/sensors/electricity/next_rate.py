@@ -67,7 +67,7 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
 
       next_rate = None
       if self.coordinator.data != None:
-        rate = self.coordinator.data[self._mpan]
+        rate = self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None
         if rate != None:
           for period in rate:
             if target >= period["valid_from"] and target <= period["valid_to"]:
