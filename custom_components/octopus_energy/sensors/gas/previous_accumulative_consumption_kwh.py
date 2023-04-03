@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime
+from ..import_statistic import async_import_statistics_from_consumption
 
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
@@ -100,39 +101,14 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
       _LOGGER.debug(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
 
       if self._latest_date is not None and self._latest_date != consumption["last_calculated_timestamp"] and consumption["consumptions"] is not None:
-        statistic_id = f"sensor.{self.unique_id}".lower()
-        statistics = []
-        
-        last_reset = consumption["consumptions"][0]["from"].replace(minute=0, second=0, microsecond=0)
-        current_start = last_reset
-        sum = 0
-        
-        for charge in consumption["consumptions"]:
-          start = charge["from"].replace(minute=0, second=0, microsecond=0)
-          if current_start == start:
-            sum += charge["consumption_kwh"]
-          else:
-            statistics.append(
-              StatisticData(
-                  start=start,
-                  last_reset=last_reset,
-                  state=sum,
-                  sum=statistics[-1]["sum"] - sum if len(statistics) > 0 else sum
-              )
-            )
-            current_start = start
-            sum = charge["consumption_kwh"]
-
-        metadata = StatisticMetaData(
-          has_mean=False,
-          has_sum=True,
-          name=self.name,
-          source='recorder',
-          statistic_id=statistic_id,
-          unit_of_measurement=ENERGY_KILO_WATT_HOUR,
+        await async_import_statistics_from_consumption(
+          self._hass,
+          self.unique_id,
+          self.name,
+          consumption["consumptions"],
+          ENERGY_KILO_WATT_HOUR,
+          "consumption_kwh"
         )
-
-        async_import_statistics(self._hass, metadata, statistics)
         _LOGGER.debug(f"Imported statistics for '{self._mprn}/{self._serial_number}'...")
 
       self._state = consumption["total_kwh"]
