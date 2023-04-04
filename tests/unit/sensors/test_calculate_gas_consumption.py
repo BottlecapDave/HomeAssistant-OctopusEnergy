@@ -18,7 +18,7 @@ async def test_when_gas_consumption_is_none_then_no_calculation_is_returned():
   )
 
   # Assert
-  assert consumption == None
+  assert consumption is None
 
 @pytest.mark.asyncio
 async def test_when_gas_consumption_is_less_than_three_records_then_no_calculation_is_returned():
@@ -38,7 +38,7 @@ async def test_when_gas_consumption_is_less_than_three_records_then_no_calculati
   )
 
   # Assert
-  assert consumption == None
+  assert consumption is None
 
 @pytest.mark.asyncio
 async def test_when_gas_consumption_is_before_latest_date_then_no_calculation_is_returned():
@@ -58,7 +58,7 @@ async def test_when_gas_consumption_is_before_latest_date_then_no_calculation_is
   )
 
   # Assert
-  assert consumption == None
+  assert consumption is None
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("latest_date,consumption_units",[
@@ -73,7 +73,7 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   consumption_data = create_consumption_data(period_from, period_to)
-  assert consumption_data != None
+  assert consumption_data is not None
   assert len(consumption_data) > 0
   assert consumption_data[-1]["interval_end"] == period_to
   assert consumption_data[0]["interval_start"] == period_from
@@ -87,7 +87,7 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
   )
 
   # Assert
-  assert consumption != None
+  assert consumption is not None
   assert consumption["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
   
   if consumption_units == "m³":
@@ -135,7 +135,7 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
   latest_date = None
 
   consumption_data = create_consumption_data(period_from, period_to, True)
-  assert consumption_data != None
+  assert consumption_data is not None
   assert len(consumption_data) > 0
   assert consumption_data[0]["interval_end"] == period_to
   assert consumption_data[-1]["interval_start"] == period_from
@@ -149,7 +149,7 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
   )
 
   # Assert
-  assert consumption != None
+  assert consumption is not None
   assert consumption["last_calculated_timestamp"] == consumption_data[0]["interval_end"]
   
   if consumption_units == "m³":

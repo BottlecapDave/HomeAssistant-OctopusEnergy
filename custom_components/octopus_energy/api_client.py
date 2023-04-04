@@ -119,7 +119,7 @@ live_consumption_query = '''query {{
 class OctopusEnergyApiClient:
 
   def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None):
-    if (api_key == None):
+    if (api_key is None):
       raise Exception('API KEY is not set')
 
     self._api_key = api_key
@@ -135,7 +135,7 @@ class OctopusEnergyApiClient:
 
   async def async_refresh_token(self):
     """Get the user's refresh token"""
-    if (self._graphql_expiration != None and (self._graphql_expiration - timedelta(minutes=5)) > now()):
+    if (self._graphql_expiration is not None and (self._graphql_expiration - timedelta(minutes=5)) > now()):
       return
 
     async with aiohttp.ClientSession() as client:
@@ -143,7 +143,7 @@ class OctopusEnergyApiClient:
       payload = { "query": api_token_query.format(api_key=self._api_key) }
       async with client.post(url, json=payload) as token_response:
         token_response_body = await self.__async_read_response(token_response, url)
-        if (token_response_body != None and 
+        if (token_response_body is not None and 
             "data" in token_response_body and
             "obtainKrakenToken" in token_response_body["data"] and 
             token_response_body["data"]["obtainKrakenToken"] is not None and
@@ -168,7 +168,7 @@ class OctopusEnergyApiClient:
 
         _LOGGER.debug(f'account: {account_response_body}')
 
-        if (account_response_body != None and 
+        if (account_response_body is not None and 
             "data" in account_response_body and 
             "account" in account_response_body["data"] and 
             account_response_body["data"]["account"] is not None):
@@ -177,9 +177,9 @@ class OctopusEnergyApiClient:
                 "mpan": mp["meterPoint"]["mpan"],
                 "meters": list(map(lambda m: {
                       "serial_number": m["serialNumber"],
-                      "is_export": m["smartExportElectricityMeter"] != None,
-                      "is_smart_meter": m["smartImportElectricityMeter"] != None or m["smartExportElectricityMeter"] != None,
-                      "device_id": m["smartImportElectricityMeter"]["deviceId"] if m["smartImportElectricityMeter"] != None else None
+                      "is_export": m["smartExportElectricityMeter"] is not None,
+                      "is_smart_meter": m["smartImportElectricityMeter"] is not None or m["smartExportElectricityMeter"] is not None,
+                      "device_id": m["smartImportElectricityMeter"]["deviceId"] if m["smartImportElectricityMeter"] is not None else None
                     },
                     mp["meterPoint"]["meters"]
                     if "meterPoint" in mp and "meters" in mp["meterPoint"] and mp["meterPoint"]["meters"] is not None
@@ -205,7 +205,7 @@ class OctopusEnergyApiClient:
                 "meters": list(map(lambda m: {
                     "serial_number": m["serialNumber"],
                     "consumption_units": m["consumptionUnits"],
-                    "device_id": m["smartGasMeter"]["deviceId"] if m["smartGasMeter"] != None else None
+                    "device_id": m["smartGasMeter"]["deviceId"] if m["smartGasMeter"] is not None else None
                   },
                   mp["meterPoint"]["meters"]
                   if "meterPoint" in mp and "meters" in mp["meterPoint"] and mp["meterPoint"]["meters"] is not None
@@ -244,7 +244,7 @@ class OctopusEnergyApiClient:
       async with client.post(url, json=payload, headers=headers) as account_response:
         response_body = await self.__async_read_response(account_response, url)
 
-        if (response_body != None and "data" in response_body):
+        if (response_body is not None and "data" in response_body):
           return {
             "points": int(response_body["data"]["octoPoints"]["account"]["currentPointsInWallet"]),
             "events": list(map(lambda ev: {
@@ -269,7 +269,7 @@ class OctopusEnergyApiClient:
       async with client.post(url, json=payload, headers=headers) as live_consumption_response:
         response_body = await self.__async_read_response(live_consumption_response, url)
 
-        if (response_body != None and "data" in response_body and "smartMeterTelemetry" in response_body["data"] and response_body["data"]["smartMeterTelemetry"] is not None and len(response_body["data"]["smartMeterTelemetry"]) > 0):
+        if (response_body is not None and "data" in response_body and "smartMeterTelemetry" in response_body["data"] and response_body["data"]["smartMeterTelemetry"] is not None and len(response_body["data"]["smartMeterTelemetry"]) > 0):
           return list(map(lambda mp: {
             "consumption": float(mp["consumptionDelta"]),
             "demand": float(mp["demand"]) if "demand" in mp and mp["demand"] is not None else None,
@@ -289,7 +289,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         try:
           data = await self.__async_read_response(response, url)
-          if data == None:
+          if data is None:
             return await self.__async_get_tracker_rates__(tariff_code, period_from, period_to, self._electricity_price_cap)
           
           results = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap)
@@ -308,7 +308,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         try:
           data = await self.__async_read_response(response, url)
-          if data == None:
+          if data is None:
             return await self.__async_get_tracker_rates__(tariff_code, period_from, period_to, self._electricity_price_cap)
 
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our day period 
@@ -324,7 +324,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         try:
           data = await self.__async_read_response(response, url)
-          if data == None:
+          if data is None:
             return None
 
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our night period 
@@ -365,7 +365,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         
         data = await self.__async_read_response(response, url)
-        if (data != None and "results" in data):
+        if (data is not None and "results" in data):
           data = data["results"]
           results = []
           for item in data:
@@ -399,7 +399,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         try:
           data = await self.__async_read_response(response, url)
-          if data == None:
+          if data is None:
             return await self.__async_get_tracker_rates__(tariff_code, period_from, period_to, self._gas_price_cap)
 
           results = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._gas_price_cap)
@@ -416,7 +416,7 @@ class OctopusEnergyApiClient:
       url = f'{self._base_url}/v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response(response, url)
-        if (data != None and "results" in data):
+        if (data is not None and "results" in data):
           data = data["results"]
           results = []
           for item in data:
@@ -535,7 +535,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         try:
           data = await self.__async_read_response(response, url)
-          if data == None:
+          if data is None:
             return None
 
           items = []
@@ -570,7 +570,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         try:
           data = await self.__async_read_response(response, url)
-          if data == None:
+          if data is None:
             return None
 
           for period in data["periods"]:

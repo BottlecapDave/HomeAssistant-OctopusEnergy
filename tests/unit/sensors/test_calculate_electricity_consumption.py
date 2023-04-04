@@ -16,7 +16,7 @@ async def test_when_electricity_consumption_is_none_then_no_calculation_is_retur
   )
 
   # Assert
-  assert consumption_cost == None
+  assert consumption_cost is None
 
 @pytest.mark.asyncio
 async def test_when_electricity_consumption_is_less_than_three_records_then_no_calculation_is_returned():
@@ -34,7 +34,7 @@ async def test_when_electricity_consumption_is_less_than_three_records_then_no_c
   )
 
   # Assert
-  assert consumption_cost == None
+  assert consumption_cost is None
 
 @pytest.mark.asyncio
 async def test_when_electricity_consumption_is_before_latest_date_then_no_calculation_is_returned():
@@ -44,7 +44,7 @@ async def test_when_electricity_consumption_is_before_latest_date_then_no_calcul
   latest_date = datetime.strptime("2022-03-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   consumption_data = create_consumption_data(period_from, period_to)
-  assert consumption_data != None
+  assert consumption_data is not None
   assert len(consumption_data) > 0
 
   # Act
@@ -54,7 +54,7 @@ async def test_when_electricity_consumption_is_before_latest_date_then_no_calcul
   )
 
   # Assert
-  assert consumption_cost == None
+  assert consumption_cost is None
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("latest_date",[(datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")), (None)])
@@ -64,7 +64,7 @@ async def test_when_electricity_consumption_available_then_calculation_returned(
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   
   consumption_data = create_consumption_data(period_from, period_to)
-  assert consumption_data != None
+  assert consumption_data is not None
   assert len(consumption_data) > 0
   assert consumption_data[-1]["interval_end"] == period_to
   assert consumption_data[0]["interval_start"] == period_from
@@ -76,7 +76,7 @@ async def test_when_electricity_consumption_available_then_calculation_returned(
   )
 
   # Assert
-  assert consumption_cost != None
+  assert consumption_cost is not None
   assert consumption_cost["total"] == 48
   assert consumption_cost["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
 
@@ -102,7 +102,7 @@ async def test_when_electricity_consumption_starts_with_latest_date_then_calcula
   latest_date = None
   
   consumption_data = create_consumption_data(period_from, period_to, True)
-  assert consumption_data != None
+  assert consumption_data is not None
   assert len(consumption_data) > 0
   assert consumption_data[0]["interval_end"] == period_to
   assert consumption_data[-1]["interval_start"] == period_from
@@ -114,7 +114,7 @@ async def test_when_electricity_consumption_starts_with_latest_date_then_calcula
   )
 
   # Assert
-  assert consumption != None
+  assert consumption is not None
   assert consumption["total"] == 48
   assert consumption["last_calculated_timestamp"] == consumption_data[0]["interval_end"]
 

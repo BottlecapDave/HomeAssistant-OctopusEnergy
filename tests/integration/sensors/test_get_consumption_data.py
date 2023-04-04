@@ -48,7 +48,7 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
   )
 
   # Assert
-  assert result != None
+  assert result is not None
   assert len(result) == 48
 
   # Make sure our data is returned in 30 minute increments

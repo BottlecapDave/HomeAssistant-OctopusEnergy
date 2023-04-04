@@ -97,7 +97,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
       self._is_smart_meter
     )
 
-    if (consumption_cost != None):
+    if (consumption_cost is not None):
       _LOGGER.debug(f"Calculated previous electricity consumption cost for '{self._mpan}/{self._serial_number}'...")
       self._latest_date = consumption_cost["last_calculated_timestamp"]
       self._state = consumption_cost["total"]

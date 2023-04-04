@@ -12,7 +12,7 @@ async def test_get_tariff_parts(tariff_code, expected_energy, expected_rate, exp
   result = get_tariff_parts(tariff_code)
 
   # Assert
-  assert result != None
+  assert result is not None
   assert "energy" in result
   assert result["energy"] == expected_energy
   assert "rate" in result

@@ -40,7 +40,7 @@ async def test_when_active_tariff_available_then_get_active_tariff_code_returns_
   result = get_active_tariff_code(now, agreements)
 
   # Assert
-  assert result != None
+  assert result is not None
   assert result == 'G-1R-FIX-12M-21-02-16-G'
 
 @pytest.mark.asyncio
@@ -80,7 +80,7 @@ async def test_when_agreements_ended_then_get_active_tariff_code_returns_none():
   result = get_active_tariff_code(now, agreements)
 
   # Assert
-  assert result == None
+  assert result is None
 
 @pytest.mark.asyncio
 async def test_when_agreements_not_started_then_get_active_tariff_code_returns_none():
@@ -119,7 +119,7 @@ async def test_when_agreements_not_started_then_get_active_tariff_code_returns_n
   result = get_active_tariff_code(now, agreements)
 
   # Assert
-  assert result == None
+  assert result is None
 
 @pytest.mark.asyncio
 async def test_when_agreement_has_no_end_date_then_get_active_tariff_code_returns_code():
@@ -157,5 +157,5 @@ async def test_when_agreement_has_no_end_date_then_get_active_tariff_code_return
   result = get_active_tariff_code(now, agreements)
 
   # Assert
-  assert result != None
+  assert result is not None
   assert result == 'G-1R-FIX-12M-21-02-16-G'

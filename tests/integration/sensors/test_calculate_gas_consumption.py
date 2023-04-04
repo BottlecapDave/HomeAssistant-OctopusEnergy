@@ -44,7 +44,7 @@ async def test_when_calculate_gas_consumption_uses_real_data_then_calculation_re
   )
 
   # Assert
-  assert consumption != None
+  assert consumption is not None
   assert consumption["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
 
   if consumption_units == "m³":

@@ -13,10 +13,7 @@ from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR
 )
 
-from homeassistant.components.recorder.models import StatisticData, StatisticMetaData
-from homeassistant.components.recorder.statistics import (
-    async_import_statistics
-)
+from homeassistant.util.dt import (utcnow)
 
 from .. import (
   calculate_gas_consumption,
@@ -97,12 +94,13 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
       self._calorific_value
     )
 
-    if (consumption != None):
+    if (consumption is not None):
       _LOGGER.debug(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
 
       if self._latest_date is not None and self._latest_date != consumption["last_calculated_timestamp"] and consumption["consumptions"] is not None:
         await async_import_statistics_from_consumption(
           self._hass,
+          utcnow(),
           self.unique_id,
           self.name,
           consumption["consumptions"],

@@ -66,15 +66,15 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
       target = now - timedelta(minutes=30)
 
       previous_rate = None
-      if self.coordinator.data != None:
+      if self.coordinator.data is not None:
         rate = self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None
-        if rate != None:
+        if rate is not None:
           for period in rate:
             if target >= period["valid_from"] and target <= period["valid_to"]:
               previous_rate = period
               break
 
-      if previous_rate != None:
+      if previous_rate is not None:
         self._attributes = {
           "rate": previous_rate,
           "is_export": self._is_export,

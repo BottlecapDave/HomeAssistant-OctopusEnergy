@@ -35,11 +35,11 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
 
   # Make sure we have rates and standing charges available
   rates = await client.async_get_electricity_rates(tariff_code, False, period_from, period_to)
-  assert rates != None
+  assert rates is not None
   assert len(rates) > 0
 
   standard_charge_result = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
-  assert standard_charge_result != None
+  assert standard_charge_result is not None
 
   # Act
   consumption_cost = await async_calculate_electricity_cost(
@@ -53,7 +53,7 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   )
 
   # Assert
-  assert consumption_cost != None
+  assert consumption_cost is not None
   assert consumption_cost["standing_charge"] == standard_charge_result["value_inc_vat"]
   assert consumption_cost["total_without_standing_charge"] == 1.63
   assert consumption_cost["total"] == 1.87

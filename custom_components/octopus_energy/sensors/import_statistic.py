@@ -1,37 +1,49 @@
 import logging
+from datetime import (datetime, timedelta)
 
 from homeassistant.core import HomeAssistant
 from homeassistant.components.recorder import get_instance
 from homeassistant.components.recorder.models import StatisticData, StatisticMetaData
 from homeassistant.components.recorder.statistics import (
     async_import_statistics,
-    get_last_statistics
+    statistics_during_period
 )
 
 _LOGGER = logging.getLogger(__name__)
 
-async def async_import_statistics_from_consumption(hass: HomeAssistant, unique_id: str, name: str, consumptions, unit_of_measurement: str, consumption_key: str):
+async def async_import_statistics_from_consumption(hass: HomeAssistant, now: datetime, unique_id: str, name: str, consumptions, unit_of_measurement: str, consumption_key: str):
   statistic_id = f"sensor.{unique_id}".lower()
+
+  # Our sum needs to be based from the last total, so we need to grab the last record from the previous day
   last_stat = await get_instance(hass).async_add_executor_job(
-    get_last_statistics, hass, 1, statistic_id, False, {"sum"}
+    statistics_during_period,
+    hass,
+    consumptions[0]["from"] - timedelta(days=7),
+    consumptions[0]["from"],
+    {statistic_id},
+    "hour",
+    None, 
+    {"sum"}
   )
 
   statistics = []
   
-  start = consumptions[0]["from"].replace(minute=0, second=0, microsecond=0)
-  last_reset = consumptions[-1]["from"].replace(minute=0, second=0, microsecond=0)
-  sum = last_stat[statistic_id][0]["sum"] if statistic_id in last_stat and len(last_stat[statistic_id]) > 0 else 0 
+  last_reset = consumptions[-1]["to"].replace(minute=0, second=0, microsecond=0)
+  sum = last_stat[statistic_id][-1]["sum"] if statistic_id in last_stat and len(last_stat[statistic_id]) > 0 else 0 
+  state = 0
+
+  _LOGGER.debug(f'last_stat: {last_stat}; sum: {sum}; last_reset: {last_reset}')
 
   for index in range(len(consumptions)):
     charge = consumptions[index]
     
     start = charge["from"].replace(minute=0, second=0, microsecond=0)
-    state = charge[consumption_key]
-    sum += state
+    sum += charge[consumption_key]
+    state += charge[consumption_key]
 
-    _LOGGER.debug(f'index: {index}; start: {start}; sum: {sum}; state: {state}; added: {(index + 1) % 2}')
+    _LOGGER.debug(f'index: {index}; start: {start}; sum: {sum}; state: {state}; added: {(index) % 2 == 1}')
 
-    if (index + 1) % 2 == 0:
+    if index % 2 == 1:
       statistics.append(
         StatisticData(
             start=start,
@@ -40,6 +52,24 @@ async def async_import_statistics_from_consumption(hass: HomeAssistant, unique_i
             state=state
         )
       )
+      state = 0
+
+  # Fill up to now to wipe the capturing of the data on the entity
+  now = now + timedelta(hours=1)
+  current = start + timedelta(hours=1)
+  while (current <= now):
+    statistics.append(
+      StatisticData(
+          start=current,
+          last_reset=last_reset,
+          sum=sum,
+          state=0
+      )
+    )
+    
+    _LOGGER.debug(f'start: {current}; sum: {sum}; state: {0};')
+
+    current = current + timedelta(hours=1)
 
   metadata = StatisticMetaData(
     has_mean=False,

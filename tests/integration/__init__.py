@@ -6,27 +6,27 @@ from homeassistant.util.dt import (parse_datetime)
 
 def get_test_context():
   api_key = os.environ["API_KEY"]
-  if (api_key == None):
+  if (api_key is None):
       raise Exception("API_KEY must be set")
 
   account_id = os.environ["ACCOUNT_ID"]
-  if (account_id == None):
+  if (account_id is None):
       raise Exception("ACCOUNT_ID must be set")
 
   gas_mprn = os.environ["GAS_MPRN"]
-  if (gas_mprn == None):
+  if (gas_mprn is None):
       raise Exception("GAS_MPRN must be set")
 
   gas_serial_number = os.environ["GAS_SN"]
-  if (gas_serial_number == None):
+  if (gas_serial_number is None):
       raise Exception("GAS_SN must be set")
 
   electricity_mpan= os.environ["ELECTRICITY_MPAN"]
-  if (electricity_mpan == None):
+  if (electricity_mpan is None):
       raise Exception("ELECTRICITY_MPAN must be set")
 
   electricity_serial_number = os.environ["ELECTRICITY_SN"]
-  if (electricity_serial_number == None):
+  if (electricity_serial_number is None):
       raise Exception("ELECTRICITY_SN must be set")
 
   return {
@@ -42,7 +42,7 @@ def create_consumption_data(period_from, period_to, reverse = False):
   consumption = []
   current_valid_from = period_from
   current_valid_to = None
-  while current_valid_to == None or current_valid_to < period_to:
+  while current_valid_to is None or current_valid_to < period_to:
     current_valid_to = current_valid_from + timedelta(minutes=30)
 
     consumption.append({

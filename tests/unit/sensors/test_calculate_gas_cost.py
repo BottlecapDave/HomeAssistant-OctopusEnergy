@@ -31,7 +31,7 @@ async def test_when_gas_consumption_is_none_then_no_calculation_is_returned():
   )
 
   # Assert
-  assert consumption_cost == None
+  assert consumption_cost is None
 
 @pytest.mark.asyncio
 async def test_when_gas_consumption_is_less_than_three_records_then_no_calculation_is_returned():
@@ -61,7 +61,7 @@ async def test_when_gas_consumption_is_less_than_three_records_then_no_calculati
   )
 
   # Assert
-  assert consumption_cost == None
+  assert consumption_cost is None
 
 @pytest.mark.asyncio
 async def test_when_gas_consumption_is_before_latest_date_then_no_calculation_is_returned():
@@ -73,7 +73,7 @@ async def test_when_gas_consumption_is_before_latest_date_then_no_calculation_is
   tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
 
   consumption_data = create_consumption_data(period_from, period_to)
-  assert consumption_data != None
+  assert consumption_data is not None
   assert len(consumption_data) > 0
 
   # Act
@@ -91,7 +91,7 @@ async def test_when_gas_consumption_is_before_latest_date_then_no_calculation_is
   )
 
   # Assert
-  assert consumption_cost == None
+  assert consumption_cost is None
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("latest_date,consumption_units",[
@@ -125,18 +125,18 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
     tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
     
     consumption_data = create_consumption_data(period_from, period_to)
-    assert consumption_data != None
+    assert consumption_data is not None
     assert len(consumption_data) > 0
     assert consumption_data[-1]["interval_end"] == period_to
     assert consumption_data[0]["interval_start"] == period_from
 
     # Make sure we have rates and standing charges available
     rates = await client.async_get_gas_rates(tariff_code, period_from, period_to)
-    assert rates != None
+    assert rates is not None
     assert len(rates) > 0
 
     standard_charge_result = await client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
-    assert standard_charge_result != None
+    assert standard_charge_result is not None
 
     # Act
     consumption_cost = await async_calculate_gas_cost(
@@ -153,7 +153,7 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
     )
 
     # Assert
-    assert consumption_cost != None
+    assert consumption_cost is not None
     assert len(consumption_cost["charges"]) == 48
 
     assert consumption_cost["standing_charge"] == expected_standing_charge["value_inc_vat"]
@@ -210,18 +210,18 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
     latest_date = None
     
     consumption_data = create_consumption_data(period_from, period_to, True)
-    assert consumption_data != None
+    assert consumption_data is not None
     assert len(consumption_data) > 0
     assert consumption_data[0]["interval_end"] == period_to
     assert consumption_data[-1]["interval_start"] == period_from
 
     # Make sure we have rates and standing charges available
     rates = await client.async_get_gas_rates(tariff_code, period_from, period_to)
-    assert rates != None
+    assert rates is not None
     assert len(rates) > 0
 
     standard_charge_result = await client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
-    assert standard_charge_result != None
+    assert standard_charge_result is not None
 
     # Act
     consumption_cost = await async_calculate_gas_cost(
@@ -238,7 +238,7 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
     )
 
     # Assert
-    assert consumption_cost != None
+    assert consumption_cost is not None
     assert len(consumption_cost["charges"]) == 48
 
     assert consumption_cost["last_calculated_timestamp"] == consumption_data[0]["interval_end"]

@@ -31,7 +31,7 @@ async def test_when_called_before_rates_then_not_active_returned():
   )
 
   # Assert
-  assert result != None
+  assert result is not None
   assert result["is_active"] == False
   assert result["current_duration_in_hours"] == 0
   assert result["next_time"] == rates[0]["valid_from"]
@@ -95,7 +95,7 @@ async def test_when_called_during_rates_then_active_returned():
     )
 
     # Assert
-    assert result != None
+    assert result is not None
     assert result["is_active"] == True
     assert result["current_duration_in_hours"] == test["expected_current_duration_in_hours"]
     assert result["next_time"] == test["expected_next_time"]
@@ -123,9 +123,9 @@ async def test_when_called_after_rates_then_not_active_returned():
   )
 
   # Assert
-  assert result != None
+  assert result is not None
   assert result["is_active"] == False
-  assert result["next_time"] == None
+  assert result["next_time"] is None
 
 @pytest.mark.asyncio
 async def test_when_offset_set_then_active_at_correct_current_time():
@@ -156,7 +156,7 @@ async def test_when_offset_set_then_active_at_correct_current_time():
     offset
   )
 
-  assert result != None
+  assert result is not None
   assert result["is_active"] == False
   assert result["next_time"] == datetime.strptime("2022-02-09T09:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
@@ -170,7 +170,7 @@ async def test_when_offset_set_then_active_at_correct_current_time():
       offset
     )
 
-    assert result != None
+    assert result is not None
     assert result["is_active"] == True
     assert result["next_time"] is not None
 
@@ -183,7 +183,7 @@ async def test_when_offset_set_then_active_at_correct_current_time():
     offset
   )
 
-  assert result != None
+  assert result is not None
   assert result["is_active"] == False
   assert result["next_time"] == datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
@@ -207,6 +207,6 @@ async def test_when_current_date_is_equal_to_last_end_date_then_not_active():
     None
   )
 
-  assert result != None
+  assert result is not None
   assert result["is_active"] == False
-  assert result["next_time"] == None
+  assert result["next_time"] is None

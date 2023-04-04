@@ -103,7 +103,7 @@ async def async_get_current_electricity_agreement_tariff_codes(hass, client: Oct
       # have to enumerate the different meters being used for each tariff as well.
       for meter in point["meters"]:
         is_smart_meter = meter["is_smart_meter"]
-        if active_tariff_code != None:
+        if active_tariff_code is not None:
           key = (point["mpan"], is_smart_meter)
           if key not in tariff_codes:
             tariff_codes[(point["mpan"], is_smart_meter)] = active_tariff_code
@@ -162,7 +162,7 @@ def setup_rates_coordinator(hass, account_id: str):
       for ((meter_point, is_smart_meter), tariff_code) in tariff_codes.items():
         key = meter_point
         new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
-        if new_rates != None:
+        if new_rates is not None:
           rates[key] = new_rates
         elif (DATA_RATES in hass.data[DOMAIN] and key in hass.data[DOMAIN][DATA_RATES]):
           _LOGGER.debug(f"Failed to retrieve new rates for {tariff_code}, so using cached rates")

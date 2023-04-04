@@ -65,15 +65,15 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
       _LOGGER.debug(f"Updating OctopusEnergyElectricityCurrentRate for '{self._mpan}/{self._serial_number}'")
 
       current_rate = None
-      if self.coordinator.data != None:
+      if self.coordinator.data is not None:
         rate = self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None
-        if rate != None:
+        if rate is not None:
           for period in rate:
             if now >= period["valid_from"] and now <= period["valid_to"]:
               current_rate = period
               break
 
-      if current_rate != None:
+      if current_rate is not None:
         ratesAttributes = list(map(lambda x: {
           "from": x["valid_from"],
           "to":   x["valid_to"],

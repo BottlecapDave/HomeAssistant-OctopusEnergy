@@ -40,7 +40,7 @@ async def test_when_now_is_not_at_30_minute_mark_and_previous_data_is_available_
     )
 
     # Assert
-    assert result != None
+    assert result is not None
     assert len(result) == 0
 
 @pytest.mark.asyncio
@@ -76,7 +76,7 @@ async def test_when_now_is_at_30_minute_mark_and_previous_data_is_in_requested_p
   )
 
   # Assert
-  assert result != None
+  assert result is not None
   assert len(result) == len(previous_data)
 
   # Make sure our data is returned in 30 minute increments
@@ -139,7 +139,7 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_then_requested_data_
     )
 
     # Assert
-    assert result != None
+    assert result is not None
     assert len(result) == 48
 
     # Make sure our data is returned in 30 minute increments
@@ -202,7 +202,7 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
     )
 
     # Assert
-    assert result != None
+    assert result is not None
     assert len(result) == 48
 
     # Make sure our data is returned in 30 minute increments
@@ -260,7 +260,7 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_and_returned_data_is
     )
 
     # Assert
-    assert result != None
+    assert result is not None
     assert len(result) == 48
 
     # Make sure our data is returned in 30 minute increments
@@ -324,7 +324,7 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_and_returned
     )
 
     # Assert
-    assert result != None
+    assert result is not None
     assert len(result) == 48
 
     # Make sure our data is returned in 30 minute increments

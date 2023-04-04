@@ -120,7 +120,7 @@ async def test_when_get_electricity_rates_is_called_with_duel_rate_tariff_dumb_m
 
     cheapest_rate = None
     for item in data:
-        if cheapest_rate == None or cheapest_rate > item["value_inc_vat"]:
+        if cheapest_rate is None or cheapest_rate > item["value_inc_vat"]:
             cheapest_rate = item["value_inc_vat"]
 
     # Make sure all periods within the expected cheapest period have our cheapest rate
@@ -144,7 +144,7 @@ async def test_when_get_electricity_rates_is_called_with_duel_rate_tariff_smart_
 
     cheapest_rate = None
     for item in data:
-        if cheapest_rate == None or cheapest_rate > item["value_inc_vat"]:
+        if cheapest_rate is None or cheapest_rate > item["value_inc_vat"]:
             cheapest_rate = item["value_inc_vat"]
 
     # Make sure all periods within the expected cheapest period have our cheapest rate
@@ -206,4 +206,4 @@ async def test_when_get_electricity_rates_is_called_for_non_existent_tariff_then
     data = await client.async_get_electricity_rates(tariff, True, default_period_from, default_period_to)
 
     # Assert
-    assert data == None
+    assert data is None

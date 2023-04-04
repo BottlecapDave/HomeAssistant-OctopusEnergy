@@ -9,7 +9,7 @@ def create_consumption_data(period_from, period_to, reverse = False):
   consumption = []
   current_valid_from = period_from
   current_valid_to = None
-  while current_valid_to == None or current_valid_to < period_to:
+  while current_valid_to is None or current_valid_to < period_to:
     current_valid_to = current_valid_from + timedelta(minutes=30)
 
     consumption.append({
@@ -34,7 +34,7 @@ def create_rate_data(period_from, period_to, expected_rates: list):
   current_valid_to = None
 
   rate_index = 0
-  while current_valid_to == None or current_valid_to < period_to:
+  while current_valid_to is None or current_valid_to < period_to:
     current_valid_to = current_valid_from + timedelta(minutes=30)
 
     rates.append({

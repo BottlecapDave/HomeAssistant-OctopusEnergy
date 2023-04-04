@@ -22,7 +22,7 @@ async def async_get_consumption_data(
   sensor_serial_number,
   is_electricity: bool
 ):
-  if (previous_data == None or 
+  if (previous_data is None or 
       ((len(previous_data) < 1 or previous_data[-1]["interval_end"] < period_to) and 
        current_utc_timestamp.minute % 30 == 0)
       ):
@@ -31,21 +31,21 @@ async def async_get_consumption_data(
     else:
       data = await client.async_get_gas_consumption(sensor_identifier, sensor_serial_number, period_from, period_to)
     
-    if data != None and len(data) > 0:
+    if data is not None and len(data) > 0:
       data = __sort_consumption(data)
       return data
     
-  if previous_data != None:
+  if previous_data is not None:
     return previous_data
   else:
     return []
 
 def calculate_electricity_consumption(consumption_data, last_calculated_timestamp):
-  if (consumption_data != None and len(consumption_data) > minimum_consumption_records):
+  if (consumption_data is not None and len(consumption_data) > minimum_consumption_records):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
 
-    if (last_calculated_timestamp == None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
+    if (last_calculated_timestamp is None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
       total = 0
 
       consumption_parts = []
@@ -69,16 +69,16 @@ def calculate_electricity_consumption(consumption_data, last_calculated_timestam
       }
 
 async def async_calculate_electricity_cost(client: OctopusEnergyApiClient, consumption_data, last_calculated_timestamp, period_from, period_to, tariff_code, is_smart_meter):
-  if (consumption_data != None and len(consumption_data) > minimum_consumption_records):
+  if (consumption_data is not None and len(consumption_data) > minimum_consumption_records):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
 
     # Only calculate our consumption if our data has changed
-    if (last_calculated_timestamp == None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
+    if (last_calculated_timestamp is None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
       rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
       standard_charge_result = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
 
-      if (rates != None and len(rates) > 0 and standard_charge_result != None):
+      if (rates is not None and len(rates) > 0 and standard_charge_result is not None):
         standard_charge = standard_charge_result["value_inc_vat"]
 
         charges = []
@@ -130,11 +130,11 @@ def convert_kwh_to_m3(value, calorific_value):
   return round(m3_value / 1.02264, 3) # Volume correction factor
 
 def calculate_gas_consumption(consumption_data, last_calculated_timestamp, consumption_units, calorific_value):
-  if (consumption_data != None and len(consumption_data) > minimum_consumption_records):
+  if (consumption_data is not None and len(consumption_data) > minimum_consumption_records):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
 
-    if (last_calculated_timestamp == None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
+    if (last_calculated_timestamp is None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
       total_m3 = 0
       total_kwh = 0
 
@@ -172,16 +172,16 @@ def calculate_gas_consumption(consumption_data, last_calculated_timestamp, consu
       }
       
 async def async_calculate_gas_cost(client: OctopusEnergyApiClient, consumption_data, last_calculated_timestamp, period_from, period_to, sensor, consumption_units, calorific_value):
-  if (consumption_data != None and len(consumption_data) > minimum_consumption_records):
+  if (consumption_data is not None and len(consumption_data) > minimum_consumption_records):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
 
     # Only calculate our consumption if our data has changed
-    if (last_calculated_timestamp == None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
+    if (last_calculated_timestamp is None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
       rates = await client.async_get_gas_rates(sensor["tariff_code"], period_from, period_to)
       standard_charge_result = await client.async_get_gas_standing_charge(sensor["tariff_code"], period_from, period_to)
 
-      if (rates != None and len(rates) > 0 and standard_charge_result != None):
+      if (rates is not None and len(rates) > 0 and standard_charge_result is not None):
         standard_charge = standard_charge_result["value_inc_vat"]
 
         charges = []
@@ -233,7 +233,7 @@ def is_saving_sessions_event_active(current_date, events):
 def get_next_saving_sessions_event(current_date, events):
   next_event = None
   for event in events:
-    if event["start"] > current_date and (next_event == None or event["start"] < next_event["start"]):
+    if event["start"] > current_date and (next_event is None or event["start"] < next_event["start"]):
         next_event = {
           "start": event["start"],
           "end": event["end"],
