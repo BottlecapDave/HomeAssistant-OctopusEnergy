@@ -245,7 +245,6 @@ def get_next_saving_sessions_event(current_date, events):
           "end": event["end"],
           "duration_in_minutes": (event["end"] - event["start"]).total_seconds() / 60
         }
-        break
 
   return next_event
 
