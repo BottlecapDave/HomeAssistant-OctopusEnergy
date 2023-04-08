@@ -173,13 +173,6 @@ def is_target_rate_active(current_date: datetime, applicable_rates, offset: str 
         max_cost = rate["value_inc_vat"]
 
     # Make sure our final block is added
-    total_cost = applicable_rates[-1]["value_inc_vat"]
-    if min_cost is None or min_cost > applicable_rates[-1]["value_inc_vat"]:
-      min_cost = applicable_rates[-1]["value_inc_vat"]
-
-    if max_cost is None or max_cost < applicable_rates[-1]["value_inc_vat"]:
-      max_cost = applicable_rates[-1]["value_inc_vat"]
-      
     diff = applicable_rates[-1]["valid_to"] - block_valid_from
     minutes = diff.total_seconds() / 60
     applicable_rate_blocks.append({
