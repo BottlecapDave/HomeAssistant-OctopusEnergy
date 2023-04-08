@@ -1,3 +1,15 @@
+# [6.6.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.5.0...v6.6.0) (2023-04-08)
+
+
+### Bug Fixes
+
+* Fixed fallback onto make/model if import/export meter not available ([2940e73](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2940e73361d924bcdcda85f6d7b8fc0993e8cd5e))
+
+
+### Features
+
+* **binary-sensor:** Added overall average, min and max costs for target rate sensors ([060ea63](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/060ea632a1cb6c66e51c9bd85842dcf39fb1ab3e))
+
 # [6.5.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.4.1...v6.5.0) (2023-04-08)
 
 
