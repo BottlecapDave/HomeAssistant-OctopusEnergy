@@ -53,7 +53,7 @@ _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(minutes=1)
 
-def create_reading_coordinator(hass: HomeAssistant, client: OctopusEnergyApiClient, is_electricity, identifier, serial_number):
+def create_reading_coordinator(hass: HomeAssistant, client: OctopusEnergyApiClient, is_electricity: bool, identifier: str, serial_number: str):
   """Create reading coordinator"""
 
   async def async_update_data():
@@ -235,9 +235,9 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
 
           if meter["is_smart_meter"] == True:
             previous_consumption_coordinator = create_reading_coordinator(hass, client, False, point["mprn"], meter["serial_number"])
-            entities.append(OctopusEnergyPreviousAccumulativeGasConsumption(hass, previous_consumption_coordinator, meter, point, meter["consumption_units"], calorific_value))
-            entities.append(OctopusEnergyPreviousAccumulativeGasConsumptionKwh(hass, previous_consumption_coordinator, meter, point, meter["consumption_units"], calorific_value))
-            entities.append(OctopusEnergyPreviousAccumulativeGasCost(previous_consumption_coordinator, client, gas_tariff_code, meter, point, meter["consumption_units"], calorific_value))
+            entities.append(OctopusEnergyPreviousAccumulativeGasConsumption(hass, previous_consumption_coordinator, meter, point, calorific_value))
+            entities.append(OctopusEnergyPreviousAccumulativeGasConsumptionKwh(hass, previous_consumption_coordinator, meter, point, calorific_value))
+            entities.append(OctopusEnergyPreviousAccumulativeGasCost(hass, previous_consumption_coordinator, client, gas_tariff_code, meter, point, calorific_value))
 
             if CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True:
               consumption_coordinator = create_current_consumption_coordinator(hass, client, meter["device_id"], False)
