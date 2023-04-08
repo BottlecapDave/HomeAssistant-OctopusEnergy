@@ -15,10 +15,10 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElectricitySensor):
   """Sensor for displaying the current electricity demand."""
 
-  def __init__(self, coordinator, mpan, serial_number, is_export, is_smart_meter):
+  def __init__(self, coordinator, meter, point):
     """Init sensor."""
     super().__init__(coordinator)
-    OctopusEnergyElectricitySensor.__init__(self, mpan, serial_number, is_export, is_smart_meter)
+    OctopusEnergyElectricitySensor.__init__(self, meter, point)
 
     self._state = None
     self._latest_date = None

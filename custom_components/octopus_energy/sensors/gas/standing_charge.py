@@ -15,9 +15,9 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyGasCurrentStandingCharge(OctopusEnergyGasSensor):
   """Sensor for displaying the current standing charge."""
 
-  def __init__(self, client: OctopusEnergyApiClient, tariff_code, mprn, serial_number):
+  def __init__(self, client: OctopusEnergyApiClient, tariff_code, meter, point):
     """Init sensor."""
-    OctopusEnergyGasSensor.__init__(self, mprn, serial_number)
+    OctopusEnergyGasSensor.__init__(self, meter, point)
 
     self._client = client
     self._tariff_code = tariff_code

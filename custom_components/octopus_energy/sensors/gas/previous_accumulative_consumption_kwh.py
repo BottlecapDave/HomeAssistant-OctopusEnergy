@@ -26,10 +26,10 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, OctopusEnergyGasSensor):
   """Sensor for displaying the previous days accumulative gas consumption in kwh."""
 
-  def __init__(self, hass, coordinator, mprn, serial_number, native_consumption_units, calorific_value):
+  def __init__(self, hass, coordinator, meter, point, native_consumption_units, calorific_value):
     """Init sensor."""
     super().__init__(coordinator)
-    OctopusEnergyGasSensor.__init__(self, mprn, serial_number)
+    OctopusEnergyGasSensor.__init__(self, meter, point)
 
     self._hass = hass
     self._native_consumption_units = native_consumption_units

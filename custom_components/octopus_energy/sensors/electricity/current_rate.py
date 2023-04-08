@@ -16,11 +16,11 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectricitySensor):
   """Sensor for displaying the current rate."""
 
-  def __init__(self, coordinator, mpan, serial_number, is_export, is_smart_meter, electricity_price_cap):
+  def __init__(self, coordinator, meter, point, electricity_price_cap):
     """Init sensor."""
     # Pass coordinator to base class
     super().__init__(coordinator)
-    OctopusEnergyElectricitySensor.__init__(self, mpan, serial_number, is_export, is_smart_meter)
+    OctopusEnergyElectricitySensor.__init__(self, meter, point)
 
     self._state = None
     self._last_updated = None
