@@ -1,3 +1,19 @@
+# [6.5.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.4.1...v6.5.0) (2023-04-08)
+
+
+### Bug Fixes
+
+* **config:** Updated target rate sensor to support type and name to be updated ([4888976](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/48889765161abccaa57497b17fff51f1543635e4))
+* Fixed consumption sensors to not be created for users with no smart meters ([34003f4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/34003f400132b7cffa9b930d17520b4282601db0))
+* Updated tariff extraction to be more flexible with beta tariffs (e.g V2G) ([3a9c2fb](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3a9c2fb98378f7fbb8f0d60e4ab6ded9f26bcfd3))
+
+
+### Features
+
+* **binary-sensor:** Added cost attributes to target rate sensors ([98c0db9](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/98c0db96a418c76707081303b8e67c89d468b70b))
+* **sensor:** Updated saving session entity to display current event start/end/duration ([97b49d0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/97b49d03253cc5846ac48a6aee5f011f9614a9ee))
+* Update device to include make, model and firmware where available ([f65c34a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f65c34aa524360e8b203e42361adac23ec06a2de))
+
 ## [6.4.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.4.0...v6.4.1) (2023-04-01)
 
 

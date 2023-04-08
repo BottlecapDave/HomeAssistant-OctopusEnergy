@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from unit import (create_rate_data)
-from custom_components.octopus_energy.binary_sensors import is_target_rate_active
+from custom_components.octopus_energy.binary_sensors import get_target_rate_info
 
 @pytest.mark.asyncio
 async def test_when_called_before_rates_then_not_active_returned():
@@ -28,7 +28,7 @@ async def test_when_called_before_rates_then_not_active_returned():
   current_date = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   # Act
-  result = is_target_rate_active(
+  result = get_target_rate_info(
     current_date,
     rates
   )
@@ -36,6 +36,10 @@ async def test_when_called_before_rates_then_not_active_returned():
   # Assert
   assert result is not None
   assert result["is_active"] == False
+
+  assert result["overall_average_cost"] == 10
+  assert result["overall_min_cost"] == 5
+  assert result["overall_max_cost"] == 15
   
   assert result["current_duration_in_hours"] == 0
   assert result["current_average_cost"] == None
@@ -122,7 +126,7 @@ async def test_when_called_during_rates_then_active_returned(test):
     }
   ]
 
-  result = is_target_rate_active(
+  result = get_target_rate_info(
     test["current_date"],
     rates
   )
@@ -130,8 +134,13 @@ async def test_when_called_during_rates_then_active_returned(test):
   # Assert
   assert result != None
   assert result["is_active"] == True
+
+  assert result["overall_average_cost"] == 12.5
+  assert result["overall_min_cost"] == 5
+  assert result["overall_max_cost"] == 20
   
   assert result["current_duration_in_hours"] == test["expected_current_duration_in_hours"]
+  assert result["current_average_cost"] == test["expected_current_average_cost"]
   assert result["current_min_cost"] == test["expected_current_min_cost"]
   assert result["current_max_cost"] == test["expected_current_max_cost"]
 
@@ -157,7 +166,7 @@ async def test_when_called_after_rates_then_not_active_returned():
   current_date = period_to + timedelta(minutes=15)
 
   # Act
-  result = is_target_rate_active(
+  result = get_target_rate_info(
     current_date,
     rates
   )
@@ -166,6 +175,10 @@ async def test_when_called_after_rates_then_not_active_returned():
   assert result is not None
   assert result["is_active"] == False
   assert result["next_time"] is None
+
+  assert result["overall_average_cost"] == 0.15
+  assert result["overall_min_cost"] == 0.1
+  assert result["overall_max_cost"] == 0.2
 
   assert result["current_average_cost"] == None
   assert result["current_min_cost"] == None
@@ -201,7 +214,7 @@ async def test_when_offset_set_then_active_at_correct_current_time():
   # Check where we're before the offset
   current_date = rates[0]["valid_from"] - timedelta(hours=1, minutes=1)
 
-  result = is_target_rate_active(
+  result = get_target_rate_info(
     current_date,
     rates,
     offset
@@ -210,6 +223,10 @@ async def test_when_offset_set_then_active_at_correct_current_time():
   assert result is not None
   assert result["is_active"] == False
   assert result["next_time"] == datetime.strptime("2022-02-09T09:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+
+  assert result["overall_average_cost"] == 10
+  assert result["overall_min_cost"] == 5
+  assert result["overall_max_cost"] == 15
 
   assert result["current_average_cost"] == None
   assert result["current_min_cost"] == None
@@ -223,7 +240,7 @@ async def test_when_offset_set_then_active_at_correct_current_time():
   for minutes_to_add in range(60):
     current_date = rates[0]["valid_from"] - timedelta(hours=1) + timedelta(minutes=minutes_to_add)
 
-    result = is_target_rate_active(
+    result = get_target_rate_info(
       current_date,
       rates,
       offset
@@ -232,6 +249,10 @@ async def test_when_offset_set_then_active_at_correct_current_time():
     assert result is not None
     assert result["is_active"] == True
     assert result["next_time"] is not None
+
+    assert result["overall_average_cost"] == 10
+    assert result["overall_min_cost"] == 5
+    assert result["overall_max_cost"] == 15
 
     assert result["current_average_cost"] == 12.5
     assert result["current_min_cost"] == 10
@@ -244,7 +265,7 @@ async def test_when_offset_set_then_active_at_correct_current_time():
   # Check when within rate but after offset
   current_date = rates[0]["valid_from"] - timedelta(hours=1) + timedelta(minutes=61)
 
-  result = is_target_rate_active(
+  result = get_target_rate_info(
     current_date,
     rates,
     offset
@@ -253,6 +274,10 @@ async def test_when_offset_set_then_active_at_correct_current_time():
   assert result is not None
   assert result["is_active"] == False
   assert result["next_time"] == datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+
+  assert result["overall_average_cost"] == 10
+  assert result["overall_min_cost"] == 5
+  assert result["overall_max_cost"] == 15
 
   assert result["current_average_cost"] == None
   assert result["current_min_cost"] == None
@@ -276,7 +301,7 @@ async def test_when_current_date_is_equal_to_last_end_date_then_not_active():
 
   current_date = datetime.strptime("2022-10-09T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
-  result = is_target_rate_active(
+  result = get_target_rate_info(
     current_date,
     rates,
     None
@@ -285,6 +310,10 @@ async def test_when_current_date_is_equal_to_last_end_date_then_not_active():
   assert result is not None
   assert result["is_active"] == False
   assert result["next_time"] == None
+
+  assert result["overall_average_cost"] == 0.1
+  assert result["overall_min_cost"] == 0.1
+  assert result["overall_max_cost"] == 0.1
 
   assert result["current_average_cost"] == None
   assert result["current_min_cost"] == None

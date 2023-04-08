@@ -31,7 +31,7 @@ from ..const import (
 from . import (
   calculate_continuous_times,
   calculate_intermittent_times,
-  is_target_rate_active
+  get_target_rate_info
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -153,19 +153,22 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
 
         self._attributes["target_times"] = self._target_rates
 
-    active_result = is_target_rate_active(current_date, self._target_rates, offset)
+    active_result = get_target_rate_info(current_date, self._target_rates, offset)
 
-    self._attributes["next_time"] = active_result["next_time"]
+    self._attributes["overall_average_cost"] = f'{active_result["overall_average_cost"]}p' if active_result["overall_average_cost"] is not None else None
+    self._attributes["overall_min_cost"] = f'{active_result["overall_min_cost"]}p' if active_result["overall_min_cost"] is not None else None
+    self._attributes["overall_max_cost"] = f'{active_result["overall_max_cost"]}p' if active_result["overall_max_cost"] is not None else None
 
     self._attributes["current_duration_in_hours"] = active_result["current_duration_in_hours"]
-    self._attributes["current_average_cost"] = f'{active_result["current_average_cost"]}p'
-    self._attributes["current_min_cost"] = f'{active_result["current_min_cost"]}p'
-    self._attributes["current_max_cost"] = f'{active_result["current_max_cost"]}p'
+    self._attributes["current_average_cost"] = f'{active_result["current_average_cost"]}p' if active_result["current_average_cost"] is not None else None
+    self._attributes["current_min_cost"] = f'{active_result["current_min_cost"]}p' if active_result["current_min_cost"] is not None else None
+    self._attributes["current_max_cost"] = f'{active_result["current_max_cost"]}p' if active_result["current_max_cost"] is not None else None
 
+    self._attributes["next_time"] = active_result["next_time"]
     self._attributes["next_duration_in_hours"] = active_result["next_duration_in_hours"]
-    self._attributes["next_average_cost"] = f'{active_result["next_average_cost"]}p'
-    self._attributes["next_min_cost"] = f'{active_result["next_min_cost"]}p'
-    self._attributes["next_max_cost"] = f'{active_result["next_max_cost"]}p'
+    self._attributes["next_average_cost"] = f'{active_result["next_average_cost"]}p' if active_result["next_average_cost"] is not None else None
+    self._attributes["next_min_cost"] = f'{active_result["next_min_cost"]}p' if active_result["next_min_cost"] is not None else None
+    self._attributes["next_max_cost"] = f'{active_result["next_max_cost"]}p' if active_result["next_max_cost"] is not None else None
 
     return active_result["is_active"]
 
