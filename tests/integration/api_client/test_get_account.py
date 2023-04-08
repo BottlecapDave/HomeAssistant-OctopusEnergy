@@ -29,6 +29,9 @@ async def test_when_get_account_is_called_then_electricity_and_gas_points_return
     assert meter["is_export"] == False
     assert meter["is_smart_meter"] == True
     assert meter["serial_number"] == context["electricity_serial_number"]
+    assert meter["manufacturer"] is not None
+    assert meter["model"] is not None
+    assert meter["firmware"] is not None
 
     assert "agreements" in meter_point
     assert len(meter_point["agreements"]) == 1
@@ -45,6 +48,9 @@ async def test_when_get_account_is_called_then_electricity_and_gas_points_return
     meter = meter_point["meters"][0]
     assert meter["is_smart_meter"] == True
     assert meter["serial_number"] == context["gas_serial_number"]
+    assert meter["manufacturer"] is not None
+    assert meter["model"] is not None
+    assert meter["firmware"] is not None
 
     assert "agreements" in meter_point
     assert len(meter_point["agreements"]) == 1

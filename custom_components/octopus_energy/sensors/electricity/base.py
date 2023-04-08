@@ -8,12 +8,15 @@ from ...const import (
 )
 
 class OctopusEnergyElectricitySensor(SensorEntity, RestoreEntity):
-  def __init__(self, mpan, serial_number, is_export, is_smart_meter):
+  def __init__(self, meter, point):
     """Init sensor"""
-    self._mpan = mpan
-    self._serial_number = serial_number
-    self._is_export = is_export
-    self._is_smart_meter = is_smart_meter
+    self._point = point
+    self._meter = meter
+
+    self._mpan = point["mpan"]
+    self._serial_number = meter["serial_number"]
+    self._is_export = meter["is_export"]
+    self._is_smart_meter = meter["is_smart_meter"]
     self._export_id_addition = "_export" if self._is_export == True else ""
     self._export_name_addition = " Export" if self._is_export == True else ""
 
@@ -31,5 +34,8 @@ class OctopusEnergyElectricitySensor(SensorEntity, RestoreEntity):
             # Serial numbers/mpan are unique identifiers within a specific domain
             (DOMAIN, f"electricity_{self._serial_number}_{self._mpan}")
         },
-        "default_name": "Electricity Meter",
+        "default_name": f"Electricity Meter{self._export_name_addition}",
+        "manufacturer": self._meter["manufacturer"],
+        "model": self._meter["model"],
+        "sw_version": self._meter["firmware"]
     }
