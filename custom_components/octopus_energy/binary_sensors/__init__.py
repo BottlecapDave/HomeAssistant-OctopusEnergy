@@ -128,29 +128,67 @@ def is_target_rate_active(current_date: datetime, applicable_rates, offset: str 
   next_duration_in_hours = 0
   total_applicable_rates = len(applicable_rates)
 
+  current_average_cost = None
+  current_min_cost = None
+  current_max_cost = None
+
+  next_average_cost = None
+  next_min_cost = None
+  next_max_cost = None
+
   if (total_applicable_rates > 0):
 
     # Work our our rate blocks. This is more for intermittent target rates
     applicable_rates.sort(key=__get_valid_to)
     applicable_rate_blocks = list()
     block_valid_from = applicable_rates[0]["valid_from"]
+
+    total_cost = 0
+    min_cost = None
+    max_cost = None
+
     for index, rate in enumerate(applicable_rates):
       if (index > 0 and applicable_rates[index - 1]["valid_to"] != rate["valid_from"]):
         diff = applicable_rates[index - 1]["valid_to"] - block_valid_from
+        minutes = diff.total_seconds() / 60
         applicable_rate_blocks.append({
           "valid_from": block_valid_from,
           "valid_to": applicable_rates[index - 1]["valid_to"],
-          "duration_in_hours": diff.total_seconds() / 60 / 60
+          "duration_in_hours": minutes / 60,
+          "average_cost": total_cost / (minutes / 30),
+          "min_cost": min_cost,
+          "max_cost": max_cost
         })
 
         block_valid_from = rate["valid_from"]
+        total_cost = 0
+        min_cost = None
+        max_cost = None
+
+      total_cost += rate["value_inc_vat"]
+      if min_cost is None or min_cost > rate["value_inc_vat"]:
+        min_cost = rate["value_inc_vat"]
+
+      if max_cost is None or max_cost < rate["value_inc_vat"]:
+        max_cost = rate["value_inc_vat"]
 
     # Make sure our final block is added
+    total_cost = applicable_rates[-1]["value_inc_vat"]
+    if min_cost is None or min_cost > applicable_rates[-1]["value_inc_vat"]:
+      min_cost = applicable_rates[-1]["value_inc_vat"]
+
+    if max_cost is None or max_cost < applicable_rates[-1]["value_inc_vat"]:
+      max_cost = applicable_rates[-1]["value_inc_vat"]
+      
     diff = applicable_rates[-1]["valid_to"] - block_valid_from
+    minutes = diff.total_seconds() / 60
     applicable_rate_blocks.append({
       "valid_from": block_valid_from,
       "valid_to": applicable_rates[-1]["valid_to"],
-      "duration_in_hours": diff.total_seconds() / 60 / 60
+      "duration_in_hours": minutes / 60,
+      "average_cost": total_cost / (minutes / 30),
+      "min_cost": min_cost,
+      "max_cost": max_cost
     })
 
     # Find out if we're within an active block, or find the next block
@@ -164,15 +202,27 @@ def is_target_rate_active(current_date: datetime, applicable_rates, offset: str 
       
       if current_date >= valid_from and current_date < valid_to:
         current_duration_in_hours = rate["duration_in_hours"]
+        current_average_cost = rate["average_cost"]
+        current_min_cost = rate["min_cost"]
+        current_max_cost = rate["max_cost"]
         is_active = True
       elif current_date < valid_from:
         next_time = valid_from
         next_duration_in_hours = rate["duration_in_hours"]
+        next_average_cost = rate["average_cost"]
+        next_min_cost = rate["min_cost"]
+        next_max_cost = rate["max_cost"]
         break
 
   return {
     "is_active": is_active,
     "current_duration_in_hours": current_duration_in_hours,
+    "current_average_cost": current_average_cost,
+    "current_min_cost": current_min_cost,
+    "current_max_cost": current_max_cost,
     "next_time": next_time,
-    "next_duration_in_hours": next_duration_in_hours
+    "next_duration_in_hours": next_duration_in_hours,
+    "next_average_cost": next_average_cost,
+    "next_min_cost": next_min_cost,
+    "next_max_cost": next_max_cost,
   }

@@ -231,7 +231,12 @@ class OptionsFlowHandler(OptionsFlow):
     return self.async_show_form(
       step_id="target_rate",
       data_schema=vol.Schema({
+        vol.Required(CONFIG_TARGET_NAME, default=config[CONFIG_TARGET_NAME]): str,
         vol.Required(CONFIG_TARGET_HOURS, default=f'{config[CONFIG_TARGET_HOURS]}'): str,
+        vol.Required(CONFIG_TARGET_TYPE, default=config[CONFIG_TARGET_TYPE]): vol.In({
+          "Continuous": "Continuous",
+          "Intermittent": "Intermittent"
+        }),
         vol.Required(CONFIG_TARGET_MPAN, default=config[CONFIG_TARGET_MPAN]): vol.In(
           meters
         ),

@@ -12,13 +12,13 @@ def get_tariff_parts(tariff_code):
   matches = re.search(REGEX_TARIFF_PARTS, tariff_code)
   if matches == None:
     return None
-
-  # According to https://www.guylipman.com/octopus/api_guide.html#s1b, this part should indicate if we're dealing
-  # with standard rates or day/night rates
-  energy = matches[1]
-  rate = matches[2]
-  product_code = matches[3]
-  region = matches[4]
+  
+  # If our energy or rate isn't extracted, then assume is electricity and "single" rate as that's 
+  # where our experimental tariffs are
+  energy = matches.groupdict()["energy"] or "E"
+  rate = matches.groupdict()["rate"] or "1R"
+  product_code =matches.groupdict()["product_code"]
+  region = matches.groupdict()["region"]
 
   return {
     "energy": energy,

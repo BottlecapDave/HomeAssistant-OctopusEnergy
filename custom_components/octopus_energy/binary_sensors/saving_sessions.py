@@ -10,7 +10,7 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from ..sensors import (
-  is_saving_sessions_event_active,
+  current_saving_sessions_event,
   get_next_saving_sessions_event
 )
 
@@ -68,7 +68,15 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
     }
 
     current_date = now()
-    self._state = is_saving_sessions_event_active(current_date, self._events)
+    current_event = current_saving_sessions_event(current_date, self._events)
+    if (current_event is not None):
+      self._state = True
+      self._attributes["current_joined_event_start"] = current_event["start"]
+      self._attributes["current_joined_event_end"] = current_event["end"]
+      self._attributes["current_joined_event_duration_in_minutes"] = current_event["duration_in_minutes"]
+    else:
+      self._state = False
+
     next_event = get_next_saving_sessions_event(current_date, self._events)
     if (next_event is not None):
       self._attributes["next_joined_event_start"] = next_event["start"]

@@ -223,12 +223,18 @@ async def async_calculate_gas_cost(client: OctopusEnergyApiClient, consumption_d
           "charges": charges
         }
 
-def is_saving_sessions_event_active(current_date, events):
+def current_saving_sessions_event(current_date, events):
+  current_event = None
   for event in events:
     if (event["start"] <= current_date and event["end"] >= current_date):
-      return True
+      current_event = {
+          "start": event["start"],
+          "end": event["end"],
+          "duration_in_minutes": (event["end"] - event["start"]).total_seconds() / 60
+        }
+      break
   
-  return False
+  return current_event
 
 def get_next_saving_sessions_event(current_date, events):
   next_event = None
