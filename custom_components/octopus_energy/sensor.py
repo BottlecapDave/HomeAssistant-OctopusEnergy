@@ -192,17 +192,19 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
         for meter in point["meters"]:
           _LOGGER.info(f'Adding electricity meter; mpan: {point["mpan"]}; serial number: {meter["serial_number"]}')
           coordinator = create_reading_coordinator(hass, client, True, point["mpan"], meter["serial_number"])
-          entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumption(coordinator, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
-          entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(coordinator, client, electricity_tariff_code, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
           entities.append(OctopusEnergyElectricityCurrentRate(rate_coordinator, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"], electricity_price_cap))
           entities.append(OctopusEnergyElectricityPreviousRate(rate_coordinator, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
           entities.append(OctopusEnergyElectricityNextRate(rate_coordinator, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
           entities.append(OctopusEnergyElectricityCurrentStandingCharge(client, electricity_tariff_code, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
 
-          if meter["is_export"] == False and CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True:
-            consumption_coordinator = create_current_consumption_coordinator(hass, client, meter["device_id"], True)
-            entities.append(OctopusEnergyCurrentElectricityConsumption(consumption_coordinator, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
-            entities.append(OctopusEnergyCurrentElectricityDemand(consumption_coordinator, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
+          if meter["is_smart_meter"] == True:
+            entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumption(coordinator, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
+            entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(coordinator, client, electricity_tariff_code, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
+
+            if meter["is_export"] == False and CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True:
+              consumption_coordinator = create_current_consumption_coordinator(hass, client, meter["device_id"], True)
+              entities.append(OctopusEnergyCurrentElectricityConsumption(consumption_coordinator, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
+              entities.append(OctopusEnergyCurrentElectricityDemand(consumption_coordinator, point["mpan"], meter["serial_number"], meter["is_export"], meter["is_smart_meter"]))
       else:
         for meter in point["meters"]:
           _LOGGER.info(f'Skipping electricity meter due to no active agreement; mpan: {point["mpan"]}; serial number: {meter["serial_number"]}')
@@ -226,18 +228,19 @@ async def async_setup_default_sensors(hass, entry, async_add_entities):
       if gas_tariff_code != None:
         for meter in point["meters"]:
           _LOGGER.info(f'Adding gas meter; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
-          coordinator = create_reading_coordinator(hass, client, False, point["mprn"], meter["serial_number"])
-          entities.append(OctopusEnergyPreviousAccumulativeGasConsumption(coordinator, point["mprn"], meter["serial_number"], meter["consumption_units"], calorific_value))
-          entities.append(OctopusEnergyPreviousAccumulativeGasConsumptionKwh(coordinator, point["mprn"], meter["serial_number"], meter["consumption_units"], calorific_value))
-          entities.append(OctopusEnergyPreviousAccumulativeGasCost(coordinator, client, gas_tariff_code, point["mprn"], meter["serial_number"], meter["consumption_units"], calorific_value))
-          
           rate_coordinator = create_gas_rate_coordinator(hass, client, gas_tariff_code)
           entities.append(OctopusEnergyGasCurrentRate(rate_coordinator, gas_tariff_code, point["mprn"], meter["serial_number"], gas_price_cap))
           entities.append(OctopusEnergyGasCurrentStandingCharge(client, gas_tariff_code, point["mprn"], meter["serial_number"]))
 
-          if CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True:
-            consumption_coordinator = create_current_consumption_coordinator(hass, client, meter["device_id"], False)
-            entities.append(OctopusEnergyCurrentGasConsumption(consumption_coordinator, point["mprn"], meter["serial_number"]))
+          if meter["is_smart_meter"] == True:
+            coordinator = create_reading_coordinator(hass, client, False, point["mprn"], meter["serial_number"])
+            entities.append(OctopusEnergyPreviousAccumulativeGasConsumption(coordinator, point["mprn"], meter["serial_number"], meter["consumption_units"], calorific_value))
+            entities.append(OctopusEnergyPreviousAccumulativeGasConsumptionKwh(coordinator, point["mprn"], meter["serial_number"], meter["consumption_units"], calorific_value))
+            entities.append(OctopusEnergyPreviousAccumulativeGasCost(coordinator, client, gas_tariff_code, point["mprn"], meter["serial_number"], meter["consumption_units"], calorific_value))
+
+            if CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True:
+              consumption_coordinator = create_current_consumption_coordinator(hass, client, meter["device_id"], False)
+              entities.append(OctopusEnergyCurrentGasConsumption(consumption_coordinator, point["mprn"], meter["serial_number"]))
       else:
         for meter in point["meters"]:
           _LOGGER.info(f'Skipping gas meter due to no active agreement; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
