@@ -36,7 +36,9 @@ DATA_GAS_RATES = "GAS_RATES"
 REGEX_HOURS = "^[0-9]+(\\.[0-9]+)*$"
 REGEX_TIME = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
 REGEX_ENTITY_NAME = "^[a-z0-9_]+$"
-REGEX_TARIFF_PARTS = "^([A-Z])-([0-9A-Z]+)-([A-Z0-9-]+)-([A-Z])$"
+# According to https://www.guylipman.com/octopus/api_guide.html#s1b, this part should indicate the types of tariff
+# However it looks like there are some tariffs that don't fit this mold
+REGEX_TARIFF_PARTS = "^((?P<energy>[A-Z])-(?P<rate>[0-9A-Z]+)-)?(?P<product_code>[A-Z0-9-]+)-(?P<region>[A-Z])$"
 REGEX_OFFSET_PARTS = "^(-)?([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
 
 DATA_SCHEMA_ACCOUNT = vol.Schema({
