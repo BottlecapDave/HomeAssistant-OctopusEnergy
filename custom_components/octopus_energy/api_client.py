@@ -26,11 +26,18 @@ account_query = '''query {{
 				meters(includeInactive: false) {{
           makeAndType
 					serialNumber
+          makeAndType
           smartExportElectricityMeter {{
 						deviceId
+            manufacturer
+            model
+            firmwareVersion
 					}}
           smartImportElectricityMeter {{
 						deviceId
+            manufacturer
+            model
+            firmwareVersion
 					}}
 				}}
 				agreements {{
@@ -67,8 +74,12 @@ account_query = '''query {{
 				meters(includeInactive: false) {{
 					serialNumber
           consumptionUnits
+          modelName
           smartGasMeter {{
 						deviceId
+            manufacturer
+            model
+            firmwareVersion
 					}}
 				}}
 				agreements {{
@@ -179,7 +190,22 @@ class OctopusEnergyApiClient:
                     "serial_number": m["serialNumber"],
                     "is_export": m["smartExportElectricityMeter"] is not None,
                     "is_smart_meter": m["smartImportElectricityMeter"] is not None or m["smartExportElectricityMeter"] is not None,
-                    "device_id": m["smartImportElectricityMeter"]["deviceId"] if m["smartImportElectricityMeter"] is not None else None
+                    "device_id": m["smartImportElectricityMeter"]["deviceId"] if m["smartImportElectricityMeter"] is not None else None,
+                    "manufacturer": m["smartImportElectricityMeter"]["manufacturer"] 
+                      if m["smartImportElectricityMeter"] is not None 
+                      else m["smartExportElectricityMeter"]["manufacturer"] 
+                      if m["smartExportElectricityMeter"] is not None
+                      else mp["meterPoint"]["makeAndType"],
+                    "model": m["smartImportElectricityMeter"]["model"] 
+                      if m["smartImportElectricityMeter"] is not None 
+                      else m["smartExportElectricityMeter"]["model"] 
+                      if m["smartExportElectricityMeter"] is not None
+                      else None,
+                    "firmware": m["smartImportElectricityMeter"]["firmwareVersion"] 
+                      if m["smartImportElectricityMeter"] is not None 
+                      else m["smartExportElectricityMeter"]["firmwareVersion"] 
+                      if m["smartExportElectricityMeter"] is not None
+                      else None
                   },
                   mp["meterPoint"]["meters"]
                   if "meterPoint" in mp and "meters" in mp["meterPoint"] and mp["meterPoint"]["meters"] is not None
@@ -206,7 +232,16 @@ class OctopusEnergyApiClient:
                   "serial_number": m["serialNumber"],
                   "consumption_units": m["consumptionUnits"],
                   "is_smart_meter": m["smartGasMeter"] is not None,
-                  "device_id": m["smartGasMeter"]["deviceId"] if m["smartGasMeter"] is not None else None
+                  "device_id": m["smartGasMeter"]["deviceId"] if m["smartGasMeter"] is not None else None,
+                  "manufacturer": m["smartGasMeter"]["manufacturer"] 
+                    if m["smartGasMeter"] is not None 
+                    else mp["meterPoint"]["modelName"],
+                  "model": m["smartGasMeter"]["model"] 
+                    if m["smartGasMeter"] is not None 
+                    else None,
+                  "firmware": m["smartGasMeter"]["firmwareVersion"] 
+                    if m["smartGasMeter"] is not None 
+                    else None
                 },
                 mp["meterPoint"]["meters"]
                 if "meterPoint" in mp and "meters" in mp["meterPoint"] and mp["meterPoint"]["meters"] is not None

@@ -18,10 +18,10 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSensor):
   """Sensor for displaying the current gas consumption."""
 
-  def __init__(self, coordinator, mprn, serial_number):
+  def __init__(self, coordinator, meter, point):
     """Init sensor."""
     super().__init__(coordinator)
-    OctopusEnergyGasSensor.__init__(self, mprn, serial_number)
+    OctopusEnergyGasSensor.__init__(self, meter, point)
 
     self._state = None
     self._latest_date = None

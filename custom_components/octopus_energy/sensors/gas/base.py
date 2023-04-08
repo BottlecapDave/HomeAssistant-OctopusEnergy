@@ -8,10 +8,13 @@ from ...const import (
 )
 
 class OctopusEnergyGasSensor(SensorEntity, RestoreEntity):
-  def __init__(self, mprn, serial_number):
+  def __init__(self, meter, point):
     """Init sensor"""
-    self._mprn = mprn
-    self._serial_number = serial_number
+    self._point = point
+    self._meter = meter
+    
+    self._mprn = point["mprn"]
+    self._serial_number = meter["serial_number"]
 
     self._attributes = {
       "mprn": self._mprn,
@@ -26,4 +29,7 @@ class OctopusEnergyGasSensor(SensorEntity, RestoreEntity):
             (DOMAIN, f"electricity_{self._serial_number}_{self._mprn}")
         },
         "default_name": "Gas Meter",
+        "manufacturer": self._meter["manufacturer"],
+        "model": self._meter["model"],
+        "sw_version": self._meter["firmware"]
     }
