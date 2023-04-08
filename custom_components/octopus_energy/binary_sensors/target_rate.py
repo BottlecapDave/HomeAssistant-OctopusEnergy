@@ -158,14 +158,14 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     self._attributes["next_time"] = active_result["next_time"]
 
     self._attributes["current_duration_in_hours"] = active_result["current_duration_in_hours"]
-    self._attributes["current_average_cost"] = f'{active_result["current_average_cost"]}p'
-    self._attributes["current_min_cost"] = f'{active_result["current_min_cost"]}p'
-    self._attributes["current_max_cost"] = f'{active_result["current_max_cost"]}p'
+    self._attributes["current_average_cost"] = f'{active_result["current_average_cost"]}p' if active_result["current_average_cost"] is not None else None
+    self._attributes["current_min_cost"] = f'{active_result["current_min_cost"]}p' if active_result["current_min_cost"] is not None else None
+    self._attributes["current_max_cost"] = f'{active_result["current_max_cost"]}p' if active_result["current_max_cost"] is not None else None
 
     self._attributes["next_duration_in_hours"] = active_result["next_duration_in_hours"]
-    self._attributes["next_average_cost"] = f'{active_result["next_average_cost"]}p'
-    self._attributes["next_min_cost"] = f'{active_result["next_min_cost"]}p'
-    self._attributes["next_max_cost"] = f'{active_result["next_max_cost"]}p'
+    self._attributes["next_average_cost"] = f'{active_result["next_average_cost"]}p' if active_result["next_average_cost"] is not None else None
+    self._attributes["next_min_cost"] = f'{active_result["next_min_cost"]}p' if active_result["next_min_cost"] is not None else None
+    self._attributes["next_max_cost"] = f'{active_result["next_max_cost"]}p' if active_result["next_max_cost"] is not None else None
 
     return active_result["is_active"]
 
