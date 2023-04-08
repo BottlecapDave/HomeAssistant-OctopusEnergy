@@ -195,7 +195,7 @@ class OctopusEnergyApiClient:
                       if m["smartImportElectricityMeter"] is not None 
                       else m["smartExportElectricityMeter"]["manufacturer"] 
                       if m["smartExportElectricityMeter"] is not None
-                      else mp["meterPoint"]["makeAndType"],
+                      else m["makeAndType"],
                     "model": m["smartImportElectricityMeter"]["model"] 
                       if m["smartImportElectricityMeter"] is not None 
                       else m["smartExportElectricityMeter"]["model"] 
@@ -235,7 +235,7 @@ class OctopusEnergyApiClient:
                   "device_id": m["smartGasMeter"]["deviceId"] if m["smartGasMeter"] is not None else None,
                   "manufacturer": m["smartGasMeter"]["manufacturer"] 
                     if m["smartGasMeter"] is not None 
-                    else mp["meterPoint"]["modelName"],
+                    else m["modelName"],
                   "model": m["smartGasMeter"]["model"] 
                     if m["smartGasMeter"] is not None 
                     else None,

@@ -1,5 +1,7 @@
 # Home Assistant Octopus Energy
 
+![installation_badge](https://img.shields.io/badge/dynamic/json?color=41BDF5&logo=home-assistant&label=integration%20usage&suffix=%20installs&cacheSeconds=15600&url=https://analytics.home-assistant.io/custom_integrations.json&query=$.octopus_energy.total)
+
 - [Home Assistant Octopus Energy](#home-assistant-octopus-energy)
   - [How to install](#how-to-install)
     - [HACS](#hacs)
