@@ -1,7 +1,7 @@
 from datetime import datetime
 import pytest
 
-from custom_components.octopus_energy.sensors import is_saving_sessions_event_active
+from custom_components.octopus_energy.sensors import current_saving_sessions_event
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("current_date",[
@@ -11,17 +11,28 @@ from custom_components.octopus_energy.sensors import is_saving_sessions_event_ac
 async def test_when_active_event_present_then_true_is_returned(current_date):
   events = [
     {
+      "start": datetime.strptime("2022-12-06T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "end": datetime.strptime("2022-12-06T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    },
+    {
       "start": datetime.strptime("2022-12-05T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       "end": datetime.strptime("2022-12-05T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    },
+    {
+      "start": datetime.strptime("2022-12-07T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "end": datetime.strptime("2022-12-07T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     }
   ]
 
-  result = is_saving_sessions_event_active(
+  result = current_saving_sessions_event(
     current_date,
     events,
   )
 
-  assert result == True
+  assert result is not None
+  assert result["start"] == events[1]["start"]
+  assert result["end"] == events[1]["end"]
+  assert result["duration_in_minutes"] == 60
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("current_date",[
@@ -36,9 +47,9 @@ async def test_when_no_active_event_present_then_false_is_returned(current_date)
     }
   ]
 
-  result = is_saving_sessions_event_active(
+  result = current_saving_sessions_event(
     current_date,
     events,
   )
 
-  assert result == False
+  assert result is None
