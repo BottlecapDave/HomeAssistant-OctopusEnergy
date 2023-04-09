@@ -1,6 +1,7 @@
 import logging
 from datetime import timedelta
 import asyncio
+from .utils.intelligent import adjust_intelligent_rates, is_intelligent_tariff
 
 from homeassistant.util.dt import (now, as_utc)
 from homeassistant.exceptions import ConfigEntryNotReady
@@ -163,7 +164,10 @@ def setup_rates_coordinator(hass, account_id: str):
         key = meter_point
         new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
         if new_rates != None:
-          rates[key] = new_rates
+          if is_intelligent_tariff(tariff_code):
+            rates[key] = adjust_intelligent_rates(new_rates, [], [])
+          else:
+            rates[key] = new_rates
         elif (DATA_RATES in hass.data[DOMAIN] and key in hass.data[DOMAIN][DATA_RATES]):
           _LOGGER.debug(f"Failed to retrieve new rates for {tariff_code}, so using cached rates")
           rates[key] = hass.data[DOMAIN][DATA_RATES][key]
