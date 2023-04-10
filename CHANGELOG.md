@@ -1,3 +1,10 @@
+## [6.6.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.6.0...v6.6.1) (2023-04-10)
+
+
+### Bug Fixes
+
+* Fixed average cost on target rate sensors to handle when no rates are available ([b67989e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b67989e5e28df55a1bba288b0592d60bee2fb20e))
+
 # [6.6.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.5.0...v6.6.0) (2023-04-08)
 
 
