@@ -3,26 +3,23 @@ from homeassistant.components.sensor import (
 )
 from homeassistant.helpers.restore_state import RestoreEntity
 
-from ...const import (
+from ..const import (
   DOMAIN,
 )
 
 class OctopusEnergyIntelligentSensor(RestoreEntity):
-  def __init__(self, meter, point):
+  def __init_intelligent_sensor__(self, device):
     """Init sensor"""
 
-    self._attributes = {
-    }
+    self._device = device
 
   @property
   def device_info(self):
     return {
         "identifiers": {
-            # Serial numbers/mpan are unique identifiers within a specific domain
-            (DOMAIN, f"electricity_{self._serial_number}_{self._mpan}")
+            (DOMAIN, self._device["krakenflexDeviceId"])
         },
-        "default_name": f"Electricity Meter{self._export_name_addition}",
-        "manufacturer": self._meter["manufacturer"],
-        "model": self._meter["model"],
-        "sw_version": self._meter["firmware"]
+        "default_name": "",
+        "manufacturer": self._device["chargePointMake"],
+        "model": self._device["model"]
     }

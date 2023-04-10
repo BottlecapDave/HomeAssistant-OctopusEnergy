@@ -206,7 +206,9 @@ def setup_rates_coordinator(hass, account_id: str):
         new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
         if new_rates != None:
           if is_intelligent_tariff(tariff_code):
-            rates[key] = adjust_intelligent_rates(new_rates, [], [])
+            rates[key] = adjust_intelligent_rates(new_rates, 
+                                                  hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]["planned"] if "planned" in hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] else [],
+                                                  hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]["complete"] if "complete" in hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] else [])
           else:
             rates[key] = new_rates
         elif (DATA_RATES in hass.data[DOMAIN] and key in hass.data[DOMAIN][DATA_RATES]):
@@ -245,25 +247,25 @@ def setup_intelligent_dispatches_coordinator(hass, account_id: str):
     # Only get data every half hour or if we don't have any data
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-    if (DATA_ACCOUNT in hass.data[DOMAIN] and DATA_INTELLIGENT_DISPATCHES not in hass.data[DOMAIN] or (current.minute % 30) == 0 or len(hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]) == 0):
+    if (DATA_ACCOUNT in hass.data[DOMAIN] and 
+        (DATA_INTELLIGENT_DISPATCHES not in hass.data[DOMAIN] or 
+         (current.minute % 30) == 0 or 
+         hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] is None)):
 
       tariff_codes = await async_get_current_electricity_agreement_tariff_codes(hass, client, account_id)
       _LOGGER.debug(f'tariff_codes: {tariff_codes}')
 
-      dispatches = {}
+      dispatches = None
       for ((meter_point), tariff_code) in tariff_codes.items():
-        key = meter_point
-        new_dispatches = []
         if is_intelligent_tariff(tariff_code):
-          new_dispatches = await client.async_get_intelligent_dispatches(account_id)
+          dispatches = await client.async_get_intelligent_dispatches(account_id)
+          break
 
-        if new_dispatches is not None:
-          dispatches[key] = new_dispatches
-        elif (DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] and key in hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]):
-          _LOGGER.debug(f"Failed to retrieve new dispatches for {tariff_code}, so using cached rates")
-          dispatches[key] = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES][key]
-      
-      hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] = dispatches
+      if dispatches is not None:
+        hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] = dispatches
+      elif (DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN]):
+        _LOGGER.debug(f"Failed to retrieve new dispatches for {tariff_code}, so using cached dispatches")
+        dispatches = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]
     
     return hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]
 
