@@ -1,6 +1,3 @@
-from homeassistant.components.sensor import (
-    SensorEntity,
-)
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from ..const import (
@@ -8,7 +5,7 @@ from ..const import (
 )
 
 class OctopusEnergyIntelligentSensor(RestoreEntity):
-  def __init_intelligent_sensor__(self, device):
+  def __init__(self, device):
     """Init sensor"""
 
     self._device = device
@@ -19,7 +16,7 @@ class OctopusEnergyIntelligentSensor(RestoreEntity):
         "identifiers": {
             (DOMAIN, self._device["krakenflexDeviceId"])
         },
-        "default_name": "",
+        "default_name": "Charger",
         "manufacturer": self._device["chargePointMake"],
-        "model": self._device["model"]
+        "model": self._device["chargePointModel"]
     }

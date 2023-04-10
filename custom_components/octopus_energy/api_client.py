@@ -1,7 +1,8 @@
 import logging
 import json
 import aiohttp
-from datetime import (datetime, timedelta)
+from datetime import (timedelta)
+
 from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime)
 
 from .utils import (
@@ -141,6 +142,17 @@ intelligent_dispatches_query = '''query {{
 			source
 		}
 	}
+}}'''
+
+intelligent_device_query = '''query {{
+	registeredKrakenflexDevice(accountNumber: "{account_id}") {{
+		krakenflexDeviceId
+		vehicleMake
+		vehicleModel
+		chargePointMake
+		chargePointModel
+		status
+	}}
 }}'''
 
 
@@ -588,6 +600,26 @@ class OctopusEnergyApiClient:
           }
         else:
           _LOGGER.error("Failed to retrieve account")
+    
+    return None
+  
+  async def async_get_intelligent_device(self, account_id: str):
+    """Get the user's intelligent dispatches"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession() as client:
+      url = f'{self._base_url}/v1/graphql/'
+      # Get account response
+      payload = { "query": intelligent_device_query.format(account_id=account_id) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response(response, url)
+
+        if (response_body is not None and "data" in response_body and
+            "registeredKrakenflexDevice" in response_body["data"]):
+          return response_body["data"]["registeredKrakenflexDevice"]
+        else:
+          _LOGGER.error("Failed to retrieve intelligent device")
     
     return None
 

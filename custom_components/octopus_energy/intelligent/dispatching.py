@@ -17,14 +17,14 @@ from .base import OctopusEnergyIntelligentSensor
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity, RestoreEntity, OctopusEnergyIntelligentSensor):
+class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity, OctopusEnergyIntelligentSensor):
   """Sensor for determining if an intelligent is dispatching."""
 
   def __init__(self, coordinator, device):
     """Init sensor."""
 
     super().__init__(coordinator)
-    super().__init_intelligent_sensor__(device)
+    OctopusEnergyIntelligentSensor.__init__(self, device)
   
     self._state = None
     self._attributes = {
@@ -58,7 +58,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
     dispatches = self.coordinator.data
     if (dispatches is not None):
       self._attributes["planned_dispatches"] = self.coordinator.data["planned"]
-      self._attributes["completed_dispatches"] = self.coordinator.data["completed_dispatches"]
+      self._attributes["completed_dispatches"] = self.coordinator.data["complete"]
     else:
       self._attributes["planned_dispatches"] = []
       self._attributes["completed_dispatches"] = []
