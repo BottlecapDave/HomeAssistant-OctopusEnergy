@@ -221,7 +221,7 @@ def get_target_rate_info(current_date: datetime, applicable_rates, offset: str =
 
   return {
     "is_active": is_active,
-    "overall_average_cost": round(overall_total_cost / total_applicable_rates, 5),
+    "overall_average_cost": round(overall_total_cost / total_applicable_rates, 5) if total_applicable_rates > 0  else 0,
     "overall_min_cost": overall_min_cost,
     "overall_max_cost": overall_max_cost,
     "current_duration_in_hours": current_duration_in_hours,

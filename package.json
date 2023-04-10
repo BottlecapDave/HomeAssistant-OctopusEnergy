@@ -20,14 +20,14 @@
   },
   "homepage": "https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy#readme",
   "devDependencies": {
-    "@semantic-release/changelog": "^6.0.1",
-    "@semantic-release/exec": "^6.0.2",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/exec": "^6.0.3",
     "@semantic-release/git": "^10.0.1",
-    "commitizen": "^4.2.4",
+    "commitizen": "^4.3.0",
     "conventional-changelog-eslint": "^3.0.9",
-    "cz-customizable": "^6.3.0",
+    "cz-customizable": "^7.0.0",
     "husky": "^4.3.8",
-    "semantic-release": "^18.0.0"
+    "semantic-release": "^21.0.1"
   },
   "config": {
     "commitizen": {
