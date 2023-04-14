@@ -2,7 +2,6 @@ import re
 import voluptuous as vol
 import logging
 
-
 from homeassistant.util.dt import (utcnow)
 from homeassistant.config_entries import (ConfigFlow, OptionsFlow)
 from homeassistant.core import callback
