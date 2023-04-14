@@ -1,6 +1,7 @@
 from datetime import timedelta
 import logging
 from homeassistant.util.dt import (utcnow)
+from homeassistant.core import HomeAssistant
 
 from .electricity.current_consumption import OctopusEnergyCurrentElectricityConsumption
 from .electricity.current_demand import OctopusEnergyCurrentElectricityDemand
