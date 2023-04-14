@@ -37,7 +37,7 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     if (DATA_ACCOUNT in hass.data[DOMAIN] and 
         # DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] and
-        DATA_RATES not in hass.data[DOMAIN] or (current.minute % 30) == 0 or len(hass.data[DOMAIN][DATA_RATES]) == 0):
+        DATA_RATES not in hass.data[DOMAIN] or (current.minute % 30) == 0 or hass.data[DOMAIN][DATA_RATES] is None or len(hass.data[DOMAIN][DATA_RATES]) == 0):
 
       tariff_codes = await async_get_current_electricity_agreement_tariff_codes(hass, client, account_id)
       _LOGGER.debug(f'tariff_codes: {tariff_codes}')
