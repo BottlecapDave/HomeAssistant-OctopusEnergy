@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
-import os
 import pytest
 
 from homeassistant.util.dt import (now)
+
 from integration import (get_test_context, async_get_tracker_tariff)
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
