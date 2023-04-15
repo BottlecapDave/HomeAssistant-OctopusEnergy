@@ -674,7 +674,7 @@ class OctopusEnergyApiClient:
           results = rates_to_thirty_minute_increments({ "results": items }, period_from, period_to, tariff_code, price_cap)
           self._product_tracker_cache[product_code] = True
         except:
-          _LOGGER.error(f'Failed to extract tracker gas rates: {url}')
+          _LOGGER.error(f'Failed to extract tracker rates: {url}')
           raise
 
     return results

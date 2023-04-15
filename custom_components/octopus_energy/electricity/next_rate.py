@@ -1,6 +1,8 @@
 from datetime import timedelta
 import logging
 
+from homeassistant.core import HomeAssistant
+
 from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
@@ -16,11 +18,11 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectricitySensor):
   """Sensor for displaying the next rate."""
 
-  def __init__(self, coordinator, meter, point):
+  def __init__(self, hass: HomeAssistant, coordinator, meter, point):
     """Init sensor."""
     # Pass coordinator to base class
     super().__init__(coordinator)
-    OctopusEnergyElectricitySensor.__init__(self, meter, point)
+    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._state = None
     self._last_updated = None

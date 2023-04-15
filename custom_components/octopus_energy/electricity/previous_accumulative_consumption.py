@@ -2,6 +2,8 @@ import logging
 from datetime import datetime
 from ..import_statistic import async_import_statistics_from_consumption
 
+from homeassistant.core import HomeAssistant
+
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -24,10 +26,10 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity, OctopusEnergyElectricitySensor):
   """Sensor for displaying the previous days accumulative electricity reading."""
 
-  def __init__(self, hass, coordinator, meter, point):
+  def __init__(self, hass: HomeAssistant, coordinator, meter, point):
     """Init sensor."""
     super().__init__(coordinator)
-    OctopusEnergyElectricitySensor.__init__(self, meter, point)
+    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._state = None
     self._latest_date = None

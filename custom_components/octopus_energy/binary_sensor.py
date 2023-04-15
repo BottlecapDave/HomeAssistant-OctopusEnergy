@@ -74,7 +74,7 @@ async def async_setup_season_sensors(hass, entry, async_add_entities):
 
   await saving_session_coordinator.async_config_entry_first_refresh()
 
-  async_add_entities([OctopusEnergySavingSessions(saving_session_coordinator)], True)
+  async_add_entities([OctopusEnergySavingSessions(hass, saving_session_coordinator)], True)
 
 async def async_setup_intelligent_sensors(hass, async_add_entities):
   _LOGGER.debug('Setting up intelligent sensors')
@@ -98,7 +98,7 @@ async def async_setup_intelligent_sensors(hass, async_add_entities):
 
     device = await client.async_get_intelligent_device(hass.data[DOMAIN][DATA_ACCOUNT_ID])
 
-    async_add_entities([OctopusEnergyIntelligentDispatching(coordinator, device)], True)
+    async_add_entities([OctopusEnergyIntelligentDispatching(hass, coordinator, device)], True)
 
 async def async_setup_target_sensors(hass, entry, async_add_entities):
   config = dict(entry.data)
@@ -118,5 +118,5 @@ async def async_setup_target_sensors(hass, entry, async_add_entities):
       for meter in point["meters"]:
         is_export = meter["is_export"]
 
-  entities = [OctopusEnergyTargetRate(coordinator, config, is_export)]
+  entities = [OctopusEnergyTargetRate(hass, coordinator, config, is_export)]
   async_add_entities(entities, True)

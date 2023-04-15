@@ -3,6 +3,9 @@ import logging
 import re
 import voluptuous as vol
 
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import generate_entity_id
+
 from homeassistant.core import callback
 from homeassistant.util.dt import (utcnow, now)
 from homeassistant.helpers.update_coordinator import (
@@ -38,7 +41,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
   """Sensor for calculating when a target should be turned on or off."""
 
-  def __init__(self, coordinator, config, is_export):
+  def __init__(self, hass: HomeAssistant, coordinator, config, is_export):
     """Init sensor."""
     # Pass coordinator to base class
     super().__init__(coordinator)
@@ -53,6 +56,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
       is_rolling_target = self._config[CONFIG_TARGET_ROLLING_TARGET]
     self._attributes[CONFIG_TARGET_ROLLING_TARGET] = is_rolling_target
     self._target_rates = []
+    
+    self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
 
   @property
   def unique_id(self):

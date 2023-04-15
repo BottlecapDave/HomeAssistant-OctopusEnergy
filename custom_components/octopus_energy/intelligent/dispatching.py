@@ -1,5 +1,8 @@
 import logging
 
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import generate_entity_id
+
 from homeassistant.util.dt import (now)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
@@ -7,7 +10,6 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
-from homeassistant.helpers.restore_state import RestoreEntity
 
 from ..intelligent import (
   is_in_planned_dispatch
@@ -20,7 +22,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity, OctopusEnergyIntelligentSensor):
   """Sensor for determining if an intelligent is dispatching."""
 
-  def __init__(self, coordinator, device):
+  def __init__(self, hass: HomeAssistant, coordinator, device):
     """Init sensor."""
 
     super().__init__(coordinator)
@@ -31,6 +33,8 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
       "planned_dispatches": [],
       "completed_dispatches": []
     }
+
+    self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
 
   @property
   def unique_id(self):
