@@ -1,14 +1,18 @@
+from homeassistant.core import HomeAssistant
+
 from homeassistant.components.sensor import (
     SensorEntity,
 )
 from homeassistant.helpers.restore_state import RestoreEntity
+
+from homeassistant.helpers.entity import generate_entity_id
 
 from ..const import (
   DOMAIN,
 )
 
 class OctopusEnergyElectricitySensor(SensorEntity, RestoreEntity):
-  def __init__(self, meter, point):
+  def __init__(self, hass: HomeAssistant, meter, point):
     """Init sensor"""
     self._point = point
     self._meter = meter
@@ -26,6 +30,8 @@ class OctopusEnergyElectricitySensor(SensorEntity, RestoreEntity):
       "is_export": self._is_export,
       "is_smart_meter": self._is_smart_meter
     }
+
+    self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
 
   @property
   def device_info(self):

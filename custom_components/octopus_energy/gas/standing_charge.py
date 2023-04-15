@@ -1,6 +1,8 @@
 from datetime import timedelta
 import logging
 
+from homeassistant.core import HomeAssistant
+
 from homeassistant.util.dt import (utcnow, as_utc, parse_datetime)
 from homeassistant.components.sensor import (
     SensorDeviceClass
@@ -15,9 +17,9 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyGasCurrentStandingCharge(OctopusEnergyGasSensor):
   """Sensor for displaying the current standing charge."""
 
-  def __init__(self, client: OctopusEnergyApiClient, tariff_code, meter, point):
+  def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, tariff_code, meter, point):
     """Init sensor."""
-    OctopusEnergyGasSensor.__init__(self, meter, point)
+    OctopusEnergyGasSensor.__init__(self, hass, meter, point)
 
     self._client = client
     self._tariff_code = tariff_code

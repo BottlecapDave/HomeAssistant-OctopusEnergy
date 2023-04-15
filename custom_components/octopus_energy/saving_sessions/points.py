@@ -1,5 +1,8 @@
 import logging
 
+from homeassistant.core import HomeAssistant
+from homeassistant.helpers.entity import generate_entity_id
+
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -14,13 +17,15 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergySavingSessionPoints(CoordinatorEntity, SensorEntity, RestoreEntity):
   """Sensor for determining saving session points"""
 
-  def __init__(self, coordinator):
+  def __init__(self, hass: HomeAssistant, coordinator):
     """Init sensor."""
 
     super().__init__(coordinator)
   
     self._state = None
     self._attributes = {}
+
+    self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
 
   @property
   def unique_id(self):

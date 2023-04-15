@@ -1,6 +1,8 @@
 from datetime import timedelta
 import logging
 
+from homeassistant.core import HomeAssistant
+
 from homeassistant.util.dt import (now, as_utc)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
@@ -22,10 +24,10 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyGasSensor):
   """Sensor for displaying the previous days accumulative gas cost."""
 
-  def __init__(self, coordinator, client: OctopusEnergyApiClient, tariff_code, meter, point, calorific_value):
+  def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, tariff_code, meter, point, calorific_value):
     """Init sensor."""
     super().__init__(coordinator)
-    OctopusEnergyGasSensor.__init__(self, meter, point)
+    OctopusEnergyGasSensor.__init__(self, hass, meter, point)
 
     self._client = client
     self._tariff_code = tariff_code
