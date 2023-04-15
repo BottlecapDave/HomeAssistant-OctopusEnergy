@@ -11,7 +11,7 @@ from homeassistant.components.recorder.statistics import (
 
 _LOGGER = logging.getLogger(__name__)
 
-async def async_import_statistics_from_consumption(hass: HomeAssistant, now: datetime, unique_id: str, name: str, consumptions, unit_of_measurement: str, consumption_key: str):
+async def async_import_statistics_from_consumption(hass: HomeAssistant, unique_id: str, name: str, consumptions, unit_of_measurement: str, consumption_key: str):
   statistic_id = f"sensor.{unique_id}".lower()
 
   # Our sum needs to be based from the last total, so we need to grab the last record from the previous day
@@ -53,23 +53,6 @@ async def async_import_statistics_from_consumption(hass: HomeAssistant, now: dat
         )
       )
       state = 0
-
-  # Fill up to now to wipe the capturing of the data on the entity
-  now = now + timedelta(hours=1)
-  current = start + timedelta(hours=1)
-  while (current <= now):
-    statistics.append(
-      StatisticData(
-          start=current,
-          last_reset=last_reset,
-          sum=sum,
-          state=0
-      )
-    )
-    
-    _LOGGER.debug(f'start: {current}; sum: {sum}; state: {0};')
-
-    current = current + timedelta(hours=1)
 
   metadata = StatisticMetaData(
     has_mean=False,
