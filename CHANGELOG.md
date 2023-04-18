@@ -1,3 +1,17 @@
+# [7.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.6.1...v7.0.0) (2023-04-18)
+
+
+### Bug Fixes
+
+* Added check when gas rates are unavailable ([b90131a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b90131a58d9be3011507ae6cac9c3518ae971f43))
+* fixed entity names to match documentation and include octopus_energy domain ([f6f589b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f6f589b93990740d236994a08acfdd69cb7a5fad))
+
+
+### BREAKING CHANGES
+
+* The name of the entity should stay how it was formed when the entities were first created, however
+the names might change in either your HA instance or other dependent services.
+
 ## [6.6.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.6.0...v6.6.1) (2023-04-10)
 
 
