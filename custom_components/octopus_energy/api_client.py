@@ -2,6 +2,7 @@ import logging
 import json
 import aiohttp
 from datetime import (timedelta)
+
 from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime)
 
 from .utils import (
@@ -123,6 +124,34 @@ live_consumption_query = '''query {{
     readAt
 		consumptionDelta
     demand
+	}}
+}}'''
+
+intelligent_dispatches_query = '''query {{
+	plannedDispatches(accountNumber: "{account_id}") {
+		startDt
+		endDt
+    meta {
+			source
+		}
+	}
+	completedDispatches(accountNumber: "{account_id}") {
+		startDt
+		endDt
+    meta {
+			source
+		}
+	}
+}}'''
+
+intelligent_device_query = '''query {{
+	registeredKrakenflexDevice(accountNumber: "{account_id}") {{
+		krakenflexDeviceId
+		vehicleMake
+		vehicleModel
+		chargePointMake
+		chargePointModel
+		status
 	}}
 }}'''
 
@@ -539,6 +568,60 @@ class OctopusEnergyApiClient:
           raise
 
     return result
+  
+  async def async_get_intelligent_dispatches(self, account_id: str):
+    """Get the user's intelligent dispatches"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession() as client:
+      url = f'{self._base_url}/v1/graphql/'
+      # Get account response
+      payload = { "query": intelligent_dispatches_query.format(account_id=account_id) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response(response, url)
+
+        if (response_body is not None and "data" in response_body):
+          return {
+            "planned": list(map(lambda ev: {
+                "start": as_utc(parse_datetime(ev["startDt"])),
+                "end": as_utc(parse_datetime(ev["endDt"]))
+              }, response_body["data"]["plannedDispatches"]
+              if "plannedDispatches" in response_body["data"] and response_body["data"]["plannedDispatches"] is not None
+              else [])
+            ),
+            "complete": list(map(lambda ev: {
+                "start": as_utc(parse_datetime(ev["startDt"])),
+                "end": as_utc(parse_datetime(ev["endDt"]))
+              }, response_body["data"]["completeDispatches"]
+              if "completeDispatches" in response_body["data"] and response_body["data"]["completeDispatches"] is not None
+              else [])
+            )
+          }
+        else:
+          _LOGGER.error("Failed to retrieve account")
+    
+    return None
+  
+  async def async_get_intelligent_device(self, account_id: str):
+    """Get the user's intelligent dispatches"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession() as client:
+      url = f'{self._base_url}/v1/graphql/'
+      # Get account response
+      payload = { "query": intelligent_device_query.format(account_id=account_id) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response(response, url)
+
+        if (response_body is not None and "data" in response_body and
+            "registeredKrakenflexDevice" in response_body["data"]):
+          return response_body["data"]["registeredKrakenflexDevice"]
+        else:
+          _LOGGER.error("Failed to retrieve intelligent device")
+    
+    return None
 
   def __async_is_tracker_tariff(self, tariff_code):
     tariff_parts = get_tariff_parts(tariff_code)
@@ -591,7 +674,7 @@ class OctopusEnergyApiClient:
           results = rates_to_thirty_minute_increments({ "results": items }, period_from, period_to, tariff_code, price_cap)
           self._product_tracker_cache[product_code] = True
         except:
-          _LOGGER.error(f'Failed to extract tracker gas rates: {url}')
+          _LOGGER.error(f'Failed to extract tracker rates: {url}')
           raise
 
     return results

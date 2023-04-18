@@ -1,12 +1,22 @@
 from datetime import timedelta
 import logging
-from .binary_sensors.saving_sessions import OctopusEnergySavingSessions
-from .binary_sensors.target_rate import OctopusEnergyTargetRate
 
 import voluptuous as vol
 
 from homeassistant.helpers import config_validation as cv, entity_platform
+from homeassistant.util.dt import (utcnow)
+
+from .saving_sessions.saving_sessions import OctopusEnergySavingSessions
+from .target_rates.target_rate import OctopusEnergyTargetRate
+from .intelligent.dispatching import OctopusEnergyIntelligentDispatching
+from .api_client import OctopusEnergyApiClient
+from .intelligent import is_intelligent_tariff
+from .utils import get_active_tariff_code
+
 from .const import (
+  DATA_ACCOUNT_ID,
+  DATA_CLIENT,
+  DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
   DOMAIN,
 
   CONFIG_MAIN_API_KEY,
@@ -27,6 +37,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
   if CONFIG_MAIN_API_KEY in entry.data:
     await async_setup_season_sensors(hass, entry, async_add_entities)
+    # await async_setup_intelligent_sensors(hass, async_add_entities)
   elif CONFIG_TARGET_NAME in entry.data:
     await async_setup_target_sensors(hass, entry, async_add_entities)
 
@@ -63,7 +74,31 @@ async def async_setup_season_sensors(hass, entry, async_add_entities):
 
   await saving_session_coordinator.async_config_entry_first_refresh()
 
-  async_add_entities([OctopusEnergySavingSessions(saving_session_coordinator)], True)
+  async_add_entities([OctopusEnergySavingSessions(hass, saving_session_coordinator)], True)
+
+async def async_setup_intelligent_sensors(hass, async_add_entities):
+  _LOGGER.debug('Setting up intelligent sensors')
+
+  account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+
+  now = utcnow()
+  has_intelligent_tariff = False
+  if len(account_info["electricity_meter_points"]) > 0:
+
+    for point in account_info["electricity_meter_points"]:
+      # We only care about points that have active agreements
+      tariff_code = get_active_tariff_code(now, point["agreements"])
+      if is_intelligent_tariff(tariff_code):
+        has_intelligent_tariff = True
+        break
+
+  if has_intelligent_tariff:
+    coordinator = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES_COORDINATOR]
+    client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
+
+    device = await client.async_get_intelligent_device(hass.data[DOMAIN][DATA_ACCOUNT_ID])
+
+    async_add_entities([OctopusEnergyIntelligentDispatching(hass, coordinator, device)], True)
 
 async def async_setup_target_sensors(hass, entry, async_add_entities):
   config = dict(entry.data)
@@ -83,5 +118,5 @@ async def async_setup_target_sensors(hass, entry, async_add_entities):
       for meter in point["meters"]:
         is_export = meter["is_export"]
 
-  entities = [OctopusEnergyTargetRate(coordinator, config, is_export)]
+  entities = [OctopusEnergyTargetRate(hass, coordinator, config, is_export)]
   async_add_entities(entities, True)
