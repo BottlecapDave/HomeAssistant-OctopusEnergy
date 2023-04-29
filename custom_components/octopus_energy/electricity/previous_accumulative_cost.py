@@ -117,6 +117,10 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
         "charges": consumption_cost["charges"]
       }
 
+      if "total_off_peak" in consumption_cost and "total_peak" in consumption_cost:
+        self._attributes["total_off_peak"] = f'£{consumption_cost["total_off_peak"]}'
+        self._attributes["total_peak"] = f'£{consumption_cost["total_peak"]}'
+
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
     # If not None, we got an initial value.

@@ -219,3 +219,58 @@ async def test_when_electricity_consumption_starting_at_latest_date_then_calcula
       assert item["to"] == expected_valid_to
 
       expected_valid_from = expected_valid_to
+
+    assert "total_off_peak" not in consumption_cost
+    assert "total_peak" not in consumption_cost
+
+@pytest.mark.asyncio
+async def test_when_electricity_consumption_available_and_two_peaks_available_then_peak_off_peak_calculation_returned():
+  # Arrange
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  peak_from =  datetime.strptime("2022-02-28T05:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  latest_date = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+
+  # Rate price is in pence
+  expected_peak_rate_price = 50
+  expected_off_peak_rate_price = 10
+
+  async def async_mocked_get_electricity_rates(*args, **kwargs):
+    return create_rate_data(period_from, peak_from, [expected_off_peak_rate_price]) + create_rate_data(peak_from, period_to, [expected_peak_rate_price])
+
+  expected_standing_charge = {
+    "value_inc_vat": 2
+  }
+
+  async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
+    return expected_standing_charge
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_rates=async_mocked_get_electricity_rates, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
+    
+    consumption_data = create_consumption_data(period_from, period_to)
+    assert consumption_data != None
+    assert len(consumption_data) == 48
+    assert consumption_data[-1]["interval_end"] == period_to
+    assert consumption_data[0]["interval_start"] == period_from
+
+    # Act
+    consumption_cost = await async_calculate_electricity_cost(
+      client,
+      consumption_data,
+      latest_date,
+      period_from,
+      period_to,
+      tariff_code,
+      False
+    )
+
+    # Assert
+    assert consumption_cost != None
+
+    assert "total_off_peak" in consumption_cost
+    assert consumption_cost["total_off_peak"] == round((10 * expected_off_peak_rate_price) / 100, 2)
+
+    assert "total_peak" in consumption_cost
+    assert consumption_cost["total_peak"] == round((38 * expected_peak_rate_price) / 100, 2)

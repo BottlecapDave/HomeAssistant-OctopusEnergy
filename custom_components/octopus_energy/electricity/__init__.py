@@ -53,8 +53,9 @@ async def async_calculate_electricity_cost(client: OctopusEnergyApiClient, consu
 
         charges = []
         total_cost_in_pence = 0
+        rate_charges = {}
         for consumption in sorted_consumption_data:
-          value = consumption["consumption"]
+          consumption_value = consumption["consumption"]
           consumption_from = consumption["interval_start"]
           consumption_to = consumption["interval_end"]
 
@@ -63,14 +64,17 @@ async def async_calculate_electricity_cost(client: OctopusEnergyApiClient, consu
           except StopIteration:
             raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to} for tariff {tariff_code}")
 
-          cost = (rate["value_inc_vat"] * value)
+          value = rate["value_inc_vat"]
+          cost = (value * consumption_value)
           total_cost_in_pence = total_cost_in_pence + cost
+
+          rate_charges[value] = (rate_charges[value] if value in rate_charges else 0) + cost
 
           charges.append({
             "from": rate["valid_from"],
             "to": rate["valid_to"],
-            "rate": f'{rate["value_inc_vat"]}p',
-            "consumption": f'{value} kWh',
+            "rate": f'{value}p',
+            "consumption": f'{consumption_value} kWh',
             "cost": f'£{round(cost / 100, 2)}'
           })
         
@@ -79,10 +83,23 @@ async def async_calculate_electricity_cost(client: OctopusEnergyApiClient, consu
 
         last_calculated_timestamp = sorted_consumption_data[-1]["interval_end"]
 
-        return {
+        result = {
           "standing_charge": standard_charge,
           "total_without_standing_charge": total_cost,
           "total": total_cost_plus_standing_charge,
           "last_calculated_timestamp": last_calculated_timestamp,
           "charges": charges
         }
+
+        if len(rate_charges) == 2:
+          key_one = list(rate_charges.keys())[0]
+          key_two = list(rate_charges.keys())[1]
+
+          if (rate_charges[key_one] < rate_charges[key_two]):
+            result["total_off_peak"] = round(rate_charges[key_one] / 100, 2)
+            result["total_peak"] = round(rate_charges[key_two] / 100, 2)
+          else:
+            result["total_off_peak"] = round(rate_charges[key_two] / 100, 2)
+            result["total_peak"] = round(rate_charges[key_one] / 100, 2)
+
+        return result
