@@ -22,12 +22,12 @@ def convert_kwh_to_m3(value, calorific_value):
   m3_value = m3_value / calorific_value # Calorific value
   return round(m3_value / 1.02264, 3) # Volume correction factor
 
-def calculate_gas_consumption(consumption_data, last_calculated_timestamp, consumption_units, calorific_value):
+def calculate_gas_consumption(consumption_data, last_reset, consumption_units, calorific_value):
   if (consumption_data != None and len(consumption_data) > minimum_consumption_records):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
 
-    if (last_calculated_timestamp == None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
+    if (last_reset == None or last_reset < sorted_consumption_data[0]["interval_start"]):
       total_m3 = 0
       total_kwh = 0
 
@@ -55,22 +55,24 @@ def calculate_gas_consumption(consumption_data, last_calculated_timestamp, consu
           "consumption_kwh": current_consumption_kwh,
         })
       
+      last_reset = sorted_consumption_data[0]["interval_start"]
       last_calculated_timestamp = sorted_consumption_data[-1]["interval_end"]
 
       return {
         "total_m3": round(total_m3, 3),
         "total_kwh": round(total_kwh, 3),
+        "last_reset": last_reset,
         "last_calculated_timestamp": last_calculated_timestamp,
         "consumptions": consumption_parts
       }
       
-async def async_calculate_gas_cost(client: OctopusEnergyApiClient, consumption_data, last_calculated_timestamp, period_from, period_to, sensor, consumption_units, calorific_value):
+async def async_calculate_gas_cost(client: OctopusEnergyApiClient, consumption_data, last_reset, period_from, period_to, sensor, consumption_units, calorific_value):
   if (consumption_data != None and len(consumption_data) > minimum_consumption_records):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
 
     # Only calculate our consumption if our data has changed
-    if (last_calculated_timestamp == None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
+    if (last_reset == None or last_reset < sorted_consumption_data[0]["interval_start"]):
       rates = await client.async_get_gas_rates(sensor["tariff_code"], period_from, period_to)
       standard_charge_result = await client.async_get_gas_standing_charge(sensor["tariff_code"], period_from, period_to)
 
@@ -106,12 +108,14 @@ async def async_calculate_gas_cost(client: OctopusEnergyApiClient, consumption_d
         
         total_cost = round(total_cost_in_pence / 100, 2)
         total_cost_plus_standing_charge = round((total_cost_in_pence + standard_charge) / 100, 2)
+        last_reset = sorted_consumption_data[0]["interval_start"]
         last_calculated_timestamp = sorted_consumption_data[-1]["interval_end"]
 
         return {
           "standing_charge": standard_charge,
           "total_without_standing_charge": total_cost,
           "total": total_cost_plus_standing_charge,
+          "last_reset": last_reset,
           "last_calculated_timestamp": last_calculated_timestamp,
           "charges": charges
         }

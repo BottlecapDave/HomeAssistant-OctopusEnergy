@@ -34,7 +34,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
     self._native_consumption_units = meter["consumption_units"]
 
     self._state = None
-    self._latest_date = None
+    self._last_reset = None
     self._calorific_value = calorific_value
 
   @property
@@ -79,7 +79,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
   @property
   def last_reset(self):
     """Return the time when the sensor was last reset, if any."""
-    return self._latest_date
+    return self._last_reset
 
   @property
   def state(self):
@@ -94,7 +94,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
     consumption_cost = await async_calculate_gas_cost(
       self._client,
       self.coordinator.data,
-      self._latest_date,
+      self._last_reset,
       period_from,
       period_to,
       {
@@ -106,7 +106,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
 
     if (consumption_cost is not None):
       _LOGGER.debug(f"Calculated previous gas consumption cost for '{self._mprn}/{self._serial_number}'...")
-      self._latest_date = consumption_cost["last_calculated_timestamp"]
+      self._last_reset = consumption_cost["last_reset"]
       self._state = consumption_cost["total"]
 
       self._attributes = {

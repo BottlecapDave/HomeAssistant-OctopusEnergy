@@ -33,7 +33,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     self._tariff_code = tariff_code
 
     self._state = None
-    self._latest_date = None
+    self._last_reset = None
 
   @property
   def unique_id(self):
@@ -77,7 +77,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
   @property
   def last_reset(self):
     """Return the time when the sensor was last reset, if any."""
-    return self._latest_date
+    return self._last_reset
 
   @property
   def state(self):
@@ -92,7 +92,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     consumption_cost = await async_calculate_electricity_cost(
       self._client,
       self.coordinator.data,
-      self._latest_date,
+      self._last_reset,
       period_from,
       period_to,
       self._tariff_code,
@@ -101,7 +101,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
 
     if (consumption_cost is not None):
       _LOGGER.debug(f"Calculated previous electricity consumption cost for '{self._mpan}/{self._serial_number}'...")
-      self._latest_date = consumption_cost["last_calculated_timestamp"]
+      self._last_reset = consumption_cost["last_reset"]
       self._state = consumption_cost["total"]
 
       self._attributes = {

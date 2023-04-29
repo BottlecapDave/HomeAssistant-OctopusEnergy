@@ -3,6 +3,7 @@ from datetime import datetime
 from ..import_statistic import async_import_statistics_from_consumption
 
 from homeassistant.core import HomeAssistant
+from homeassistant.util.dt import (utcnow)
 
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
@@ -32,7 +33,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._state = None
-    self._latest_date = None
+    self._last_reset = None
     self._hass = hass
 
   @property
@@ -73,7 +74,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
   @property
   def last_reset(self):
     """Return the time when the sensor was last reset, if any."""
-    return self._latest_date
+    return self._last_reset
 
   @property
   def state(self):
@@ -87,15 +88,16 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
   async def async_update(self):
     consumption = calculate_electricity_consumption(
       self.coordinator.data,
-      self._latest_date
+      self._last_reset
     )
 
     if (consumption is not None):
       _LOGGER.debug(f"Calculated previous electricity consumption for '{self._mpan}/{self._serial_number}'...")
 
-      if self._latest_date is not None and self._latest_date != consumption["last_calculated_timestamp"] and consumption["consumptions"] is not None:
+      if self._last_reset is not None and self._last_reset != consumption["last_reset"] and consumption["consumptions"] is not None:
         await async_import_statistics_from_consumption(
           self._hass,
+          utcnow(),
           self.unique_id,
           self.name,
           consumption["consumptions"],
@@ -105,7 +107,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
         _LOGGER.debug(f"Imported statistics for '{self._mpan}/{self._serial_number}'...")
 
       self._state = consumption["total"]
-      self._latest_date = consumption["last_calculated_timestamp"]
+      self._last_reset = consumption["last_reset"]
 
       self._attributes = {
         "mpan": self._mpan,
@@ -130,6 +132,6 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
         self._attributes[x] = state.attributes[x]
 
         if x == "last_reset":
-          self._latest_date = datetime.strptime(state.attributes[x], "%Y-%m-%dT%H:%M:%S%z")
+          self._last_reset = datetime.strptime(state.attributes[x], "%Y-%m-%dT%H:%M:%S%z")
 
       _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeElectricityConsumption state: {self._state}')

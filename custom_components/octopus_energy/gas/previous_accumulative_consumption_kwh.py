@@ -3,7 +3,7 @@ from datetime import datetime
 from ..import_statistic import async_import_statistics_from_consumption
 
 from homeassistant.core import HomeAssistant
-
+from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -34,7 +34,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
     self._hass = hass
     self._native_consumption_units = meter["consumption_units"]
     self._state = None
-    self._latest_date = None
+    self._last_reset = None
     self._calorific_value = calorific_value
 
   @property
@@ -75,7 +75,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
   @property
   def last_reset(self):
     """Return the time when the sensor was last reset, if any."""
-    return self._latest_date
+    return self._last_reset
 
   @property
   def state(self):
@@ -89,7 +89,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
   async def async_update(self):
     consumption = calculate_gas_consumption(
       self.coordinator.data,
-      self._latest_date,
+      self._last_reset,
       self._native_consumption_units,
       self._calorific_value
     )
@@ -97,9 +97,10 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
     if (consumption is not None):
       _LOGGER.debug(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
 
-      if self._latest_date is not None and self._latest_date != consumption["last_calculated_timestamp"] and consumption["consumptions"] is not None:
+      if self._last_reset is not None and self._last_reset != consumption["last_reset"] and consumption["consumptions"] is not None:
         await async_import_statistics_from_consumption(
           self._hass,
+          utcnow(),
           self.unique_id,
           self.name,
           consumption["consumptions"],
@@ -109,7 +110,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
         _LOGGER.debug(f"Imported statistics for '{self._mprn}/{self._serial_number}'...")
 
       self._state = consumption["total_kwh"]
-      self._latest_date = consumption["last_calculated_timestamp"]
+      self._last_reset = consumption["last_reset"]
 
       self._attributes = {
         "mprn": self._mprn,
@@ -133,6 +134,6 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
         self._attributes[x] = state.attributes[x]
 
         if x == "last_reset":
-          self._latest_date = datetime.strptime(state.attributes[x], "%Y-%m-%dT%H:%M:%S%z")
+          self._last_reset = datetime.strptime(state.attributes[x], "%Y-%m-%dT%H:%M:%S%z")
     
       _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeGasConsumptionKwh state: {self._state}')
