@@ -5,6 +5,7 @@
 - [Home Assistant Octopus Energy](#home-assistant-octopus-energy)
   - [How to install](#how-to-install)
     - [HACS](#hacs)
+    - [Manual](#manual)
   - [How to setup](#how-to-setup)
     - [Your account](#your-account)
       - [Electricity](#electricity)
@@ -45,15 +46,22 @@ If you find this useful and are planning on moving to Octopus Energy, why not us
 
 ## How to install
 
-You should take the latest [published release](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases). The current state of `develop` will be in flux and therefore possibly subject to change.
-
-To install, place the contents of `custom_components` into the `<config directory>/custom_components` folder of your Home Assistant installation. Once installed, don't forget to restart your home assistant instance for the integration to be picked up.
+There are multiple ways of installing the integration.
 
 ### HACS
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
-This integration can be installed directly via HACS.
+This integration can be installed directly via HACS. To install:
+
+* [Add the repository](https://my.home-assistant.io/redirect/hacs_repository/?owner=BottlecapDave&repository=homeassistant-octopusenergy&category=integration) to your HACS installation
+* Click `Download`
+
+### Manual
+
+You should take the latest [published release](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases). The current state of `develop` will be in flux and therefore possibly subject to change.
+
+To install, place the contents of `custom_components` into the `<config directory>/custom_components` folder of your Home Assistant installation. Once installed, don't forget to restart your home assistant instance for the integration to be picked up.
 
 ## How to setup
 
