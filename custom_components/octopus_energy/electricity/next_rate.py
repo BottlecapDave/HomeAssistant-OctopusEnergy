@@ -12,6 +12,7 @@ from homeassistant.components.sensor import (
 )
 
 from .base import (OctopusEnergyElectricitySensor)
+from . import (get_rate_information)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -67,26 +68,31 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
 
       target = now + timedelta(minutes=30)
 
-      next_rate = None
-      if self.coordinator.data != None:
-        rate = self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None
-        if rate != None:
-          for period in rate:
-            if target >= period["valid_from"] and target <= period["valid_to"]:
-              next_rate = period
-              break
+      rate_information = get_rate_information(self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None, target)
 
-      if next_rate != None:
+      if rate_information is not None:
         self._attributes = {
-          "rate": next_rate,
+          "mpan": self._mpan,
+          "serial_number": self._serial_number,
           "is_export": self._is_export,
-          "is_smart_meter": self._is_smart_meter
+          "is_smart_meter": self._is_smart_meter,
+          "rates": rate_information["rates"],
+          "rate": rate_information["current_rate"],
+          "current_day_min_rate": rate_information["min_rate_today"],
+          "current_day_max_rate": rate_information["max_rate_today"],
+          "current_day_average_rate": rate_information["average_rate_today"]
         }
 
-        self._state = next_rate["value_inc_vat"] / 100
+        self._state = self._attributes["current_rate"]["value_inc_vat"] / 100
       else:
+        self._attributes = {
+          "mpan": self._mpan,
+          "serial_number": self._serial_number,
+          "is_export": self._is_export,
+          "is_smart_meter": self._is_smart_meter,
+        }
+
         self._state = None
-        self._attributes = {}
 
       self._last_updated = now
 

@@ -40,7 +40,8 @@ def create_rate_data(period_from, period_to, expected_rates: list):
     rates.append({
       "valid_from": current_valid_from,
       "valid_to": current_valid_to,
-      "value_inc_vat": expected_rates[rate_index]
+      "value_inc_vat": expected_rates[rate_index],
+      "is_capped": False
     })
 
     current_valid_from = current_valid_to

@@ -1,3 +1,5 @@
+from datetime import (datetime, timedelta)
+
 from ..api_client import OctopusEnergyApiClient
 
 def __get_interval_end(item):
@@ -44,11 +46,11 @@ async def async_calculate_electricity_cost(client: OctopusEnergyApiClient, consu
     sorted_consumption_data = __sort_consumption(consumption_data)
 
     # Only calculate our consumption if our data has changed
-    if (last_calculated_timestamp == None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
+    if (last_calculated_timestamp is None or last_calculated_timestamp < sorted_consumption_data[-1]["interval_end"]):
       rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
       standard_charge_result = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
 
-      if (rates != None and len(rates) > 0 and standard_charge_result != None):
+      if (rates is not None and len(rates) > 0 and standard_charge_result is not None):
         standard_charge = standard_charge_result["value_inc_vat"]
 
         charges = []
@@ -103,3 +105,47 @@ async def async_calculate_electricity_cost(client: OctopusEnergyApiClient, consu
             result["total_peak"] = round(rate_charges[key_one] / 100, 2)
 
         return result
+      
+def get_rate_information(rates, target: datetime):
+  min_target = target.replace(hour=0, minute=0, second=0, microsecond=0)
+  max_target = min_target + timedelta(days=1)
+
+  min_rate_value = None
+  max_rate_value = None
+  total_rate_value = 0
+  total_rates = 0
+  current_rate = None
+
+  if rates is not None:
+    for period in rates:
+      if target >= period["valid_from"] and target <= period["valid_to"]:
+        current_rate = period
+
+      if period["valid_from"] >= min_target and period["valid_to"] <= max_target:
+        if min_rate_value is None or period["value_inc_vat"] < min_rate_value:
+          min_rate_value = period["value_inc_vat"]
+
+        if max_rate_value is None or period["value_inc_vat"] > max_rate_value:
+          max_rate_value = period["value_inc_vat"]
+
+        total_rate_value = total_rate_value + period["value_inc_vat"]
+        total_rates = total_rates + 1
+
+  print(total_rate_value)
+  print(total_rates)
+
+  if current_rate is not None:
+    return {
+      "rates": list(map(lambda x: {
+        "from": x["valid_from"],
+        "to":   x["valid_to"],
+        "rate": x["value_inc_vat"],
+        "is_capped": x["is_capped"]
+      }, rates)),
+      "current_rate": current_rate,
+      "min_rate_today": min_rate_value,
+      "max_rate_today": max_rate_value,
+      "average_rate_today": total_rate_value / total_rates
+    }
+
+  return None
