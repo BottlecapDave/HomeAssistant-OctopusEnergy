@@ -15,6 +15,7 @@
       - [Saving Sessions](#saving-sessions)
     - [Target Rates](#target-rates)
       - [From and To times](#from-and-to-times)
+      - [Hours](#hours)
       - [Offset](#offset)
       - [Rolling Target](#rolling-target)
       - [Examples](#examples)
@@ -131,6 +132,10 @@ If not specified, these default from `00:00:00` to `23:59:59`. However you can u
 If for example you want to look at prices overnight you could set your from time to something like `20:00` and your `to` time to something like `05:00`. If you're wanting to "shift" the evaluation period to be in line with something (e.g. agile pricing), you could set your `from` and `to` to something like `16:00`.
 
 See the examples below for how this might work.
+
+#### Hours
+
+The hours that you require for the sensor to find. This should be in decimal format and represent 30 minute increments. For example 30 minutes would be `0.5`, 1 hour would be `1` or `1.0`, 1 hour and 30 minutes would be `1.5`, etc.
 
 #### Offset
 

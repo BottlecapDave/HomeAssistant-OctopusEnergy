@@ -65,7 +65,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
   @property
   def icon(self):
     """Icon of the sensor."""
-    return "mdi:fire"
+    return "mdi:lightning-bolt"
 
   @property
   def extra_state_attributes(self):
