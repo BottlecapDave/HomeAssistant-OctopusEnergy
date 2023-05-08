@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from ..import_statistic import async_import_statistics_from_consumption
+from ..import_statistic import async_import_external_statistics_from_consumption
 
 from homeassistant.core import HomeAssistant
 from homeassistant.util.dt import (utcnow)
@@ -97,17 +97,15 @@ class OctopusEnergyPreviousAccumulativeGasConsumption(CoordinatorEntity, Octopus
     if (consumption is not None):
       _LOGGER.debug(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
 
-      if self._last_reset is not None and self._last_reset != consumption["last_reset"] and consumption["consumptions"] is not None:
-        await async_import_statistics_from_consumption(
-          self._hass,
-          utcnow(),
-          self.unique_id,
-          self.name,
-          consumption["consumptions"],
-          VOLUME_CUBIC_METERS,
-          "consumption_m3"
-        )
-        _LOGGER.debug(f"Imported statistics for '{self._mprn}/{self._serial_number}'...")
+      await async_import_external_statistics_from_consumption(
+        self._hass,
+        utcnow(),
+        f"gas_{self._serial_number}_{self._mprn}_previous_accumulative_consumption",
+        self.name,
+        consumption["consumptions"],
+        VOLUME_CUBIC_METERS,
+        "consumption_m3"
+      )
 
       self._state = consumption["total_m3"]
       self._last_reset = consumption["last_reset"]

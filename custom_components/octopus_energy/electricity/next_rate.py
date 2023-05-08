@@ -69,7 +69,7 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
       target = now + timedelta(minutes=30)
 
       rate_information = get_rate_information(self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None, target)
-
+      
       if rate_information is not None:
         self._attributes = {
           "mpan": self._mpan,
@@ -83,7 +83,7 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
           "current_day_average_rate": rate_information["average_rate_today"]
         }
 
-        self._state = self._attributes["current_rate"]["value_inc_vat"] / 100
+        self._state = rate_information["current_rate"]["value_inc_vat"] / 100
       else:
         self._attributes = {
           "mpan": self._mpan,

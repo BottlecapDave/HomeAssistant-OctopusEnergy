@@ -135,9 +135,6 @@ def get_rate_information(rates, target: datetime):
         total_rate_value = total_rate_value + period["value_inc_vat"]
         total_rates = total_rates + 1
 
-  print(total_rate_value)
-  print(total_rates)
-
   if current_rate is not None:
     return {
       "rates": list(map(lambda x: {
