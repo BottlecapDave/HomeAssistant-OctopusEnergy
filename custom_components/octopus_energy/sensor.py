@@ -97,8 +97,8 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
               electricity_tariff_code,
               meter["is_smart_meter"]
             )
-            entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumption(hass, previous_consumption_coordinator, meter, point))
-            entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(hass, previous_consumption_coordinator, client, electricity_tariff_code, meter, point))
+            entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumption(hass, previous_consumption_coordinator, electricity_tariff_code, meter, point))
+            entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(hass, previous_consumption_coordinator, electricity_tariff_code, meter, point))
 
             if meter["is_export"] == False and CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True:
               consumption_coordinator = await async_create_current_consumption_coordinator(hass, client, meter["device_id"], True)

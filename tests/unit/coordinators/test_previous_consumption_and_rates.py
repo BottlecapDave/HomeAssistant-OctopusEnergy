@@ -22,7 +22,8 @@ async def test_when_now_is_not_at_30_minute_mark_and_previous_data_is_available_
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   previous_data = {
     "consumption": [],
-    "rates": []
+    "rates": [],
+    "standing_charge": None
   }
 
   for minute in range(0, 59):
@@ -68,7 +69,8 @@ async def test_when_now_is_at_30_minute_mark_and_previous_data_is_in_requested_p
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   previous_data = {
     "consumption": create_consumption_data(period_from, period_to),
-    "rates": create_rate_data(period_from, period_to, [1, 2])
+    "rates": create_rate_data(period_from, period_to, [1, 2]),
+    "standing_charge": 10.1
   }
     
   minutesStr = f'{minutes}'.zfill(2)
@@ -109,69 +111,78 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_then_requested_data_
   expected_rates = create_rate_data(period_from, period_to, [1, 2])
   async def async_mocked_get_gas_rates(*args, **kwargs):
     return expected_rates
+  
+  expected_standing_charge = 100.2
+  async def async_mocked_get_gas_standing_charge(*args, **kwargs):
+    return {
+      "value_inc_vat": expected_standing_charge
+    }
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_consumption=async_mocked_get_gas_consumption, async_get_gas_rates=async_mocked_get_gas_rates, async_get_gas_standing_charge=async_mocked_get_gas_standing_charge):
+    client = OctopusEnergyApiClient("NOT_REAL")
 
-  with mock.patch.object(OctopusEnergyApiClient, 'async_get_gas_consumption', new=async_mocked_get_gas_consumption):
-    with mock.patch.object(OctopusEnergyApiClient, 'async_get_gas_rates', new=async_mocked_get_gas_rates):
-      client = OctopusEnergyApiClient("NOT_REAL")
+    sensor_identifier = "ABC123"
+    sensor_serial_number = "123456"
+    is_electricity = False
+    tariff_code = "AB-123"
+    is_smart_meter = True
 
-      sensor_identifier = "ABC123"
-      sensor_serial_number = "123456"
-      is_electricity = False
-      tariff_code = "AB-123"
-      is_smart_meter = True
+    previous_data = None
+    if previous_data_available == True:
+      # Make our previous data for the previous period
+      previous_data = {
+        "consumption": create_consumption_data(
+          datetime.strptime("2022-02-27T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+          datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+        ),
+        "rates": create_rate_data(
+          datetime.strptime("2022-02-27T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+          datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+          [1, 2]
+        ),
+        "standing_charge": 10.1
+      }
+    
+    minutesStr = f'{minutes}'.zfill(2)
+    current_utc_timestamp = datetime.strptime(f'2022-02-12T00:{minutesStr}:00Z', "%Y-%m-%dT%H:%M:%S%z")
 
-      previous_data = None
-      if previous_data_available == True:
-        # Make our previous data for the previous period
-        previous_data = {
-          "consumption": create_consumption_data(
-            datetime.strptime("2022-02-27T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-            datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-          ),
-          "rates": create_rate_data(
-            datetime.strptime("2022-02-27T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-            datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-            [1, 2]
-          )
-        }
-      
-      minutesStr = f'{minutes}'.zfill(2)
-      current_utc_timestamp = datetime.strptime(f'2022-02-12T00:{minutesStr}:00Z', "%Y-%m-%dT%H:%M:%S%z")
+    # Act
+    result = await async_fetch_consumption_and_rates(
+      previous_data,
+      current_utc_timestamp,
+      client,
+      period_from,
+      period_to,
+      sensor_identifier,
+      sensor_serial_number,
+      is_electricity,
+      tariff_code,
+      is_smart_meter
+    )
 
-      # Act
-      result = await async_fetch_consumption_and_rates(
-        previous_data,
-        current_utc_timestamp,
-        client,
-        period_from,
-        period_to,
-        sensor_identifier,
-        sensor_serial_number,
-        is_electricity,
-        tariff_code,
-        is_smart_meter
-      )
+    # Assert
+    assert result is not None
 
-      # Assert
-      assert result is not None
+    assert "consumption" in result
+    assert len(result["consumption"]) == 48
 
-      assert "consumption" in result
-      assert len(result["consumption"]) == 48
+    # Make sure our data is returned in 30 minute increments
+    expected_valid_from = period_from
+    for item in result["consumption"]:
+      expected_valid_to = expected_valid_from + timedelta(minutes=30)
 
-      # Make sure our data is returned in 30 minute increments
-      expected_valid_from = period_from
-      for item in result["consumption"]:
-        expected_valid_to = expected_valid_from + timedelta(minutes=30)
+      assert "interval_start" in item
+      assert item["interval_start"] == expected_valid_from
+      assert "interval_end" in item
+      assert item["interval_end"] == expected_valid_to
 
-        assert "interval_start" in item
-        assert item["interval_start"] == expected_valid_from
-        assert "interval_end" in item
-        assert item["interval_end"] == expected_valid_to
+      expected_valid_from = expected_valid_to
 
-        expected_valid_from = expected_valid_to
+    assert "rates" in result
+    assert result["rates"] == expected_rates
 
-      assert "rates" in result
-      assert result["rates"] == expected_rates
+    assert "standing_charge" in result
+    assert result["standing_charge"] == expected_standing_charge
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("minutes,previous_data_available",[
@@ -191,71 +202,80 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
   expected_rates = create_rate_data(period_from, period_to, [1, 2])
   async def async_mocked_get_electricity_rates(*args, **kwargs):
     return expected_rates
+  
+  expected_standing_charge = 100.2
+  async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
+    return {
+      "value_inc_vat": expected_standing_charge
+    }
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_consumption=async_mocked_get_electricity_consumption, async_get_electricity_rates=async_mocked_get_electricity_rates, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
+    client = OctopusEnergyApiClient("NOT_REAL")
 
-  with mock.patch.object(OctopusEnergyApiClient, 'async_get_electricity_consumption', new=async_mocked_get_electricity_consumption):
-    with mock.patch.object(OctopusEnergyApiClient, 'async_get_electricity_rates', new=async_mocked_get_electricity_rates):
-      client = OctopusEnergyApiClient("NOT_REAL")
+    sensor_identifier = "ABC123"
+    sensor_serial_number = "123456"
+    is_electricity = True
+    tariff_code = "AB-123"
+    is_smart_meter = True
 
-      sensor_identifier = "ABC123"
-      sensor_serial_number = "123456"
-      is_electricity = True
-      tariff_code = "AB-123"
-      is_smart_meter = True
+    period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    previous_data = None
+    if previous_data_available == True:
+      # Make our previous data for the previous period
+      previous_data = {
+        "consumption": create_consumption_data(
+          datetime.strptime("2022-02-27T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+          datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+        ),
+        "rates": create_rate_data(
+          datetime.strptime("2022-02-27T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+          datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+          [1, 2]
+        ),
+        "standing_charge": 10.1
+      }
+    
+    minutesStr = f'{minutes}'.zfill(2)
+    current_utc_timestamp = datetime.strptime(f'2022-02-12T00:{minutesStr}:00Z', "%Y-%m-%dT%H:%M:%S%z")
 
-      period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-      period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-      previous_data = None
-      if previous_data_available == True:
-        # Make our previous data for the previous period
-        previous_data = {
-          "consumption": create_consumption_data(
-            datetime.strptime("2022-02-27T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-            datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-          ),
-          "rates": create_rate_data(
-            datetime.strptime("2022-02-27T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-            datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-            [1, 2]
-          )
-        }
-      
-      minutesStr = f'{minutes}'.zfill(2)
-      current_utc_timestamp = datetime.strptime(f'2022-02-12T00:{minutesStr}:00Z', "%Y-%m-%dT%H:%M:%S%z")
+    # Act
+    result = await async_fetch_consumption_and_rates(
+      previous_data,
+      current_utc_timestamp,
+      client,
+      period_from,
+      period_to,
+      sensor_identifier,
+      sensor_serial_number,
+      is_electricity,
+      tariff_code,
+      is_smart_meter
+    )
 
-      # Act
-      result = await async_fetch_consumption_and_rates(
-        previous_data,
-        current_utc_timestamp,
-        client,
-        period_from,
-        period_to,
-        sensor_identifier,
-        sensor_serial_number,
-        is_electricity,
-        tariff_code,
-        is_smart_meter
-      )
+    # Assert
+    assert result is not None
 
-      # Assert
-      assert result is not None
+    assert "consumption" in result
+    assert len(result["consumption"]) == 48
 
-      assert "consumption" in result
-      assert len(result["consumption"]) == 48
+    # Make sure our data is returned in 30 minute increments
+    expected_valid_from = period_from
+    for item in result["consumption"]:
+      expected_valid_to = expected_valid_from + timedelta(minutes=30)
 
-      # Make sure our data is returned in 30 minute increments
-      expected_valid_from = period_from
-      for item in result["consumption"]:
-        expected_valid_to = expected_valid_from + timedelta(minutes=30)
+      assert "interval_start" in item
+      assert item["interval_start"] == expected_valid_from
+      assert "interval_end" in item
+      assert item["interval_end"] == expected_valid_to
 
-        assert "interval_start" in item
-        assert item["interval_start"] == expected_valid_from
-        assert "interval_end" in item
-        assert item["interval_end"] == expected_valid_to
+      expected_valid_from = expected_valid_to
 
-        expected_valid_from = expected_valid_to
-
-      assert "rates" in result
-      assert result["rates"] == expected_rates
+    assert "rates" in result
+    assert result["rates"] == expected_rates
+    
+    assert "standing_charge" in result
+    assert result["standing_charge"] == expected_standing_charge
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("minutes",[
@@ -264,10 +284,13 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
 ])
 async def test_when_now_is_at_30_minute_mark_and_gas_sensor_and_returned_data_is_empty_then_previous_data_returned(minutes):
   # Arrange
-  async def async_mocked_client_consumption(*args, **kwargs):
+  async def async_mocked_get_gas_consumption(*args, **kwargs):
     return []
+  
+  async def async_mocked_get_gas_standing_charge(*args, **kwargs):
+    return None
 
-  with mock.patch.object(OctopusEnergyApiClient, 'async_get_gas_consumption', new=async_mocked_client_consumption):
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_consumption=async_mocked_get_gas_consumption, async_get_gas_standing_charge=async_mocked_get_gas_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
 
     sensor_identifier = "ABC123"
@@ -290,7 +313,8 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_and_returned_data_is
         previous_period_from,
         previous_period_to,
         [1, 2]
-      )
+      ),
+      "standing_charge": 10.1
     }
     
     minutesStr = f'{minutes}'.zfill(2)
@@ -320,10 +344,13 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_and_returned_data_is
 ])
 async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_and_returned_data_is_empty_then_previous_data_returned(minutes):
   # Arrange
-  async def async_mocked_client_consumption(*args, **kwargs):
+  async def async_mocked_get_electricity_consumption(*args, **kwargs):
     return []
+  
+  async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
+    return None
 
-  with mock.patch.object(OctopusEnergyApiClient, 'async_get_gas_consumption', new=async_mocked_client_consumption):
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_consumption=async_mocked_get_electricity_consumption, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
 
     sensor_identifier = "ABC123"
@@ -346,7 +373,8 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_and_returned
         previous_period_from,
         previous_period_to,
         [1, 2]
-      )
+      ),
+      "standing_charge": 10.1
     }
     
     minutesStr = f'{minutes}'.zfill(2)

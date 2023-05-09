@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from integration import (get_test_context)
-from custom_components.octopus_energy.electricity import async_calculate_electricity_cost
+from custom_components.octopus_energy.electricity import async_calculate_electricity_consumption_and_cost
 from custom_components.octopus_energy.coordinators.previous_consumption_and_rates import async_fetch_consumption_and_rates
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
@@ -40,6 +40,7 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   assert consumption_and_rates_result is not None
   assert "consumption" in consumption_and_rates_result
   assert "rates" in consumption_and_rates_result
+  assert "standing_charge" in consumption_and_rates_result
 
   # Make sure we have rates and standing charges available
   rates = await client.async_get_electricity_rates(tariff_code, False, period_from, period_to)
@@ -50,28 +51,26 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   assert standard_charge_result is not None
 
   # Act
-  consumption_cost = await async_calculate_electricity_cost(
-    client,
+  result = await async_calculate_electricity_consumption_and_cost(
     consumption_and_rates_result["consumption"],
     consumption_and_rates_result["rates"],
+    consumption_and_rates_result["standing_charge"],
     latest_date,
-    period_from,
-    period_to,
     tariff_code
   )
 
   # Assert
-  assert consumption_cost is not None
-  assert consumption_cost["standing_charge"] == standard_charge_result["value_inc_vat"]
-  assert consumption_cost["total_without_standing_charge"] == 1.63
-  assert consumption_cost["total"] == 1.87
-  assert consumption_cost["last_calculated_timestamp"] == consumption_and_rates_result["consumption"][-1]["interval_end"]
+  assert result is not None
+  assert result["standing_charge"] == standard_charge_result["value_inc_vat"]
+  assert result["total_cost_without_standing_charge"] == 1.63
+  assert result["total_cost"] == 1.87
+  assert result["last_calculated_timestamp"] == consumption_and_rates_result["consumption"][-1]["interval_end"]
 
-  assert len(consumption_cost["charges"]) == 48
+  assert len(result["charges"]) == 48
 
   # Make sure our data is returned in 30 minute increments
   expected_valid_from = period_from
-  for item in consumption_cost["charges"]:
+  for item in result["charges"]:
     expected_valid_to = expected_valid_from + timedelta(minutes=30)
 
     assert "from" in item
@@ -80,3 +79,9 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
     assert item["to"] == expected_valid_to
 
     expected_valid_from = expected_valid_to
+
+    assert "rate" in item
+    assert "cost" in item
+    assert "consumption" in item
+
+  assert round(result["total_consumption"], 2) == 8.11

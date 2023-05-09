@@ -38,7 +38,8 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
         datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         [1, 2]
-      )
+      ),
+      "standing_charge": 10.1,
     }
   
   minutesStr = f'{minutes}'.zfill(2)
@@ -78,4 +79,7 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
 
   assert "rates" in result
   assert len(result["rates"]) == 48
+
+  assert "standing_charge" in result
+  assert result["standing_charge"] is not None
 

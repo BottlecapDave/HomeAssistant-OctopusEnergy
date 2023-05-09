@@ -44,16 +44,19 @@ async def async_fetch_consumption_and_rates(
     if (is_electricity == True):
       consumption_data = await client.async_get_electricity_consumption(identifier, serial_number, period_from, period_to)
       rate_data = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
+      standing_charge = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
     else:
       consumption_data = await client.async_get_gas_consumption(identifier, serial_number, period_from, period_to)
       rate_data = await client.async_get_gas_rates(tariff_code, period_from, period_to)
+      standing_charge = await client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
     
     if consumption_data is not None and len(consumption_data) > 0 and rate_data is not None and len(rate_data) > 0:
       consumption_data = __sort_consumption(consumption_data)
 
       return {
         "consumption": consumption_data,
-        "rates": rate_data
+        "rates": rate_data,
+        "standing_charge": standing_charge["value_inc_vat"]
       }
 
   return previous_data 
@@ -76,7 +79,10 @@ async def async_create_previous_consumption_and_rates_coordinator(
     period_to = as_utc(now().replace(hour=0, minute=0, second=0, microsecond=0))
     result = await async_fetch_consumption_and_rates(
       hass.data[DOMAIN][previous_consumption_key] 
-      if previous_consumption_key in hass.data[DOMAIN] and "rates" in hass.data[DOMAIN][previous_consumption_key] and "consumption" in hass.data[DOMAIN][previous_consumption_key] 
+      if previous_consumption_key in hass.data[DOMAIN] and 
+      "rates" in hass.data[DOMAIN][previous_consumption_key] and 
+      "consumption" in hass.data[DOMAIN][previous_consumption_key] and 
+      "standing_charge" in hass.data[DOMAIN][previous_consumption_key] 
       else None,
       utcnow(),
       client,
@@ -92,7 +98,7 @@ async def async_create_previous_consumption_and_rates_coordinator(
     if (result is not None):
       hass.data[DOMAIN][previous_consumption_key] = result
 
-    return hass.data[DOMAIN][previous_consumption_key] if "rates" in hass.data[DOMAIN][previous_consumption_key] else None
+    return hass.data[DOMAIN][previous_consumption_key] if "rates" in hass.data[DOMAIN][previous_consumption_key] and "standing_charge" in hass.data[DOMAIN][previous_consumption_key] else None
 
   coordinator = DataUpdateCoordinator(
     hass,
