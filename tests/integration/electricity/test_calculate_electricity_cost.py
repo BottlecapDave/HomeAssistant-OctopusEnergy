@@ -3,7 +3,7 @@ import pytest
 
 from integration import (get_test_context)
 from custom_components.octopus_energy.electricity import async_calculate_electricity_cost
-from custom_components.octopus_energy.coordinators.previous_consumption import async_get_consumption_data
+from custom_components.octopus_energy.coordinators.previous_consumption_and_rates import async_fetch_consumption_and_rates
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 @pytest.mark.asyncio
@@ -17,22 +17,29 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
   latest_date = None
+  is_smart_meter = True
   
   # Retrieve real consumption data so we can make sure our calculation works with the result
   current_utc_timestamp = datetime.strptime(f'2022-03-02T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
   sensor_identifier = context["electricity_mpan"]
   sensor_serial_number = context["electricity_serial_number"]
   is_electricity = True
-  consumption_data = await async_get_consumption_data(
-    client,
-    [],
+  consumption_and_rates_result = await async_fetch_consumption_and_rates(
+    None,
     current_utc_timestamp,
+    client,
     period_from,
     period_to,
     sensor_identifier,
     sensor_serial_number,
-    is_electricity
+    is_electricity,
+    tariff_code,
+    is_smart_meter
   )
+
+  assert consumption_and_rates_result is not None
+  assert "consumption" in consumption_and_rates_result
+  assert "rates" in consumption_and_rates_result
 
   # Make sure we have rates and standing charges available
   rates = await client.async_get_electricity_rates(tariff_code, False, period_from, period_to)
@@ -45,12 +52,12 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   # Act
   consumption_cost = await async_calculate_electricity_cost(
     client,
-    consumption_data,
+    consumption_and_rates_result["consumption"],
+    consumption_and_rates_result["rates"],
     latest_date,
     period_from,
     period_to,
-    tariff_code,
-    False
+    tariff_code
   )
 
   # Assert
@@ -58,7 +65,7 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   assert consumption_cost["standing_charge"] == standard_charge_result["value_inc_vat"]
   assert consumption_cost["total_without_standing_charge"] == 1.63
   assert consumption_cost["total"] == 1.87
-  assert consumption_cost["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
+  assert consumption_cost["last_calculated_timestamp"] == consumption_and_rates_result["consumption"][-1]["interval_end"]
 
   assert len(consumption_cost["charges"]) == 48
 

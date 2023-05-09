@@ -86,12 +86,14 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
     return True
     
   async def async_update(self):
-    consumption = calculate_electricity_consumption(
-      self.coordinator.data,
+    consumption_data = self.coordinator.data["consumption"] if "consumption" in self.coordinator.data else None
+
+    consumption_result = calculate_electricity_consumption(
+      consumption_data,
       self._last_reset
     )
 
-    if (consumption is not None):
+    if (consumption_result is not None):
       _LOGGER.debug(f"Calculated previous electricity consumption for '{self._mpan}/{self._serial_number}'...")
 
       await async_import_external_statistics_from_consumption(
@@ -99,22 +101,22 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
         utcnow(),
         f"electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_previous_accumulative_consumption",
         self.name,
-        consumption["consumptions"],
+        consumption_result["consumptions"],
         ENERGY_KILO_WATT_HOUR,
         "consumption"
       )
 
-      self._state = consumption["total"]
-      self._last_reset = consumption["last_reset"]
+      self._state = consumption_result["total"]
+      self._last_reset = consumption_result["last_reset"]
 
       self._attributes = {
         "mpan": self._mpan,
         "serial_number": self._serial_number,
         "is_export": self._is_export,
         "is_smart_meter": self._is_smart_meter,
-        "total": consumption["total"],
-        "last_calculated_timestamp": consumption["last_calculated_timestamp"],
-        "charges": consumption["consumptions"]
+        "total": consumption_result["total"],
+        "last_calculated_timestamp": consumption_result["last_calculated_timestamp"],
+        "charges": consumption_result["consumptions"]
       }
 
   async def async_added_to_hass(self):

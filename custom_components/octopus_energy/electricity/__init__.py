@@ -42,17 +42,24 @@ def calculate_electricity_consumption(consumption_data, last_reset):
         "consumptions": consumption_parts
       }
 
-async def async_calculate_electricity_cost(client: OctopusEnergyApiClient, consumption_data, last_reset, period_from, period_to, tariff_code, is_smart_meter):
-  if (consumption_data != None and len(consumption_data) > minimum_consumption_records):
+async def async_calculate_electricity_cost(
+    client: OctopusEnergyApiClient,
+    consumption_data,
+    rate_data,
+    last_reset,
+    period_from,
+    period_to,
+    tariff_code
+  ):
+  if (consumption_data is not None and len(consumption_data) > minimum_consumption_records and rate_data is not None and len(rate_data) > 0):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
 
     # Only calculate our consumption if our data has changed
     if (last_reset is None or last_reset < sorted_consumption_data[-1]["interval_end"]):
-      rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
       standard_charge_result = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
 
-      if (rates is not None and len(rates) > 0 and standard_charge_result is not None):
+      if (standard_charge_result is not None):
         standard_charge = standard_charge_result["value_inc_vat"]
 
         charges = []
@@ -64,7 +71,7 @@ async def async_calculate_electricity_cost(client: OctopusEnergyApiClient, consu
           consumption_to = consumption["interval_end"]
 
           try:
-            rate = next(r for r in rates if r["valid_from"] == consumption_from and r["valid_to"] == consumption_to)
+            rate = next(r for r in rate_data if r["valid_from"] == consumption_from and r["valid_to"] == consumption_to)
           except StopIteration:
             raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to} for tariff {tariff_code}")
 

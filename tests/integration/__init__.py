@@ -61,6 +61,30 @@ def create_consumption_data(period_from, period_to, reverse = False):
 
   return consumption
 
+def create_rate_data(period_from, period_to, expected_rates: list):
+  rates = []
+  current_valid_from = period_from
+  current_valid_to = None
+
+  rate_index = 0
+  while current_valid_to is None or current_valid_to < period_to:
+    current_valid_to = current_valid_from + timedelta(minutes=30)
+
+    rates.append({
+      "valid_from": current_valid_from,
+      "valid_to": current_valid_to,
+      "value_inc_vat": expected_rates[rate_index],
+      "is_capped": False
+    })
+
+    current_valid_from = current_valid_to
+    rate_index = rate_index + 1
+
+    if (rate_index > (len(expected_rates) - 1)):
+      rate_index = 0
+
+  return rates
+
 async def async_get_tracker_tariff(api_key, tariff_code, target_date):
   async with aiohttp.ClientSession() as client:
     auth = aiohttp.BasicAuth(api_key, '')

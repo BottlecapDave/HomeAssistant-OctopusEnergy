@@ -87,14 +87,16 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
     return True
     
   async def async_update(self):
-    consumption = calculate_gas_consumption(
-      self.coordinator.data,
+    consumption_data = self.coordinator.data["consumption"] if "consumption" in self.coordinator.data else None
+
+    consumption_result = calculate_gas_consumption(
+      consumption_data,
       self._last_reset,
       self._native_consumption_units,
       self._calorific_value
     )
 
-    if (consumption is not None):
+    if (consumption_result is not None):
       _LOGGER.debug(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
 
       await async_import_external_statistics_from_consumption(
@@ -102,20 +104,20 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
         utcnow(),
         f"gas_{self._serial_number}_{self._mprn}_previous_accumulative_consumption_kwh",
         self.name,
-        consumption["consumptions"],
+        consumption_result["consumptions"],
         ENERGY_KILO_WATT_HOUR,
         "consumption_kwh"
       )
 
-      self._state = consumption["total_kwh"]
-      self._last_reset = consumption["last_reset"]
+      self._state = consumption_result["total_kwh"]
+      self._last_reset = consumption_result["last_reset"]
 
       self._attributes = {
         "mprn": self._mprn,
         "serial_number": self._serial_number,
         "is_estimated": self._native_consumption_units == "m³",
-        "last_calculated_timestamp": consumption["last_calculated_timestamp"],
-        "charges": consumption["consumptions"],
+        "last_calculated_timestamp": consumption_result["last_calculated_timestamp"],
+        "charges": consumption_result["consumptions"],
         "calorific_value": self._calorific_value
       }
 

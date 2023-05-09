@@ -88,21 +88,23 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     current_datetime = now()
     period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
     period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
+    consumption_data = self.coordinator.data["consumption"] if "consumption" in self.coordinator.data else None
+    rate_data = self.coordinator.data["rates"] if "rates" in self.coordinator.data else None
 
-    consumption_cost = await async_calculate_electricity_cost(
+    consumption_cost_result = await async_calculate_electricity_cost(
       self._client,
-      self.coordinator.data,
+      consumption_data,
+      rate_data,
       self._last_reset,
       period_from,
       period_to,
-      self._tariff_code,
-      self._is_smart_meter
+      self._tariff_code
     )
 
-    if (consumption_cost is not None):
+    if (consumption_cost_result is not None):
       _LOGGER.debug(f"Calculated previous electricity consumption cost for '{self._mpan}/{self._serial_number}'...")
-      self._last_reset = consumption_cost["last_reset"]
-      self._state = consumption_cost["total"]
+      self._last_reset = consumption_cost_result["last_reset"]
+      self._state = consumption_cost_result["total"]
 
       self._attributes = {
         "mpan": self._mpan,
@@ -110,16 +112,16 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
         "is_export": self._is_export,
         "is_smart_meter": self._is_smart_meter,
         "tariff_code": self._tariff_code,
-        "standing_charge": f'{consumption_cost["standing_charge"]}p',
-        "total_without_standing_charge": f'£{consumption_cost["total_without_standing_charge"]}',
-        "total": f'£{consumption_cost["total"]}',
-        "last_calculated_timestamp": consumption_cost["last_calculated_timestamp"],
-        "charges": consumption_cost["charges"]
+        "standing_charge": f'{consumption_cost_result["standing_charge"]}p',
+        "total_without_standing_charge": f'£{consumption_cost_result["total_without_standing_charge"]}',
+        "total": f'£{consumption_cost_result["total"]}',
+        "last_calculated_timestamp": consumption_cost_result["last_calculated_timestamp"],
+        "charges": consumption_cost_result["charges"]
       }
 
-      if "total_off_peak" in consumption_cost and "total_peak" in consumption_cost:
-        self._attributes["total_off_peak"] = f'£{consumption_cost["total_off_peak"]}'
-        self._attributes["total_peak"] = f'£{consumption_cost["total_peak"]}'
+      if "total_off_peak" in consumption_cost_result and "total_peak" in consumption_cost_result:
+        self._attributes["total_off_peak"] = f'£{consumption_cost_result["total_off_peak"]}'
+        self._attributes["total_peak"] = f'£{consumption_cost_result["total_peak"]}'
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

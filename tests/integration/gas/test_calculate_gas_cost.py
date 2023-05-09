@@ -3,7 +3,7 @@ import pytest
 
 from integration import (get_test_context)
 from custom_components.octopus_energy.gas import async_calculate_gas_cost
-from custom_components.octopus_energy.coordinators.previous_consumption import async_get_consumption_data
+from custom_components.octopus_energy.coordinators.previous_consumption_and_rates import async_fetch_consumption_and_rates
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 @pytest.mark.asyncio
@@ -26,21 +26,24 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
   sensor_identifier = context["gas_mprn"]
   sensor_serial_number = context["gas_serial_number"]
   is_electricity = False
-  consumption_data = await async_get_consumption_data(
-    client,
-    [],
+  consumption_and_rates_result = await async_fetch_consumption_and_rates(
+    None,
     current_utc_timestamp,
+    client,
     period_from,
     period_to,
     sensor_identifier,
     sensor_serial_number,
-    is_electricity
+    is_electricity,
+    tariff_code,
+    True
   )
 
-  # Make sure we have rates and standing charges available
-  rates = await client.async_get_gas_rates(tariff_code, period_from, period_to)
-  assert rates is not None
-  assert len(rates) > 0
+  assert consumption_and_rates_result is not None
+  assert "consumption" in consumption_and_rates_result
+  assert "rates" in consumption_and_rates_result
+
+  # Make sure we have standing charges available
 
   standard_charge_result = await client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
   assert standard_charge_result is not None
@@ -48,7 +51,8 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
   # Act
   consumption_cost = await async_calculate_gas_cost(
     client,
-    consumption_data,
+    consumption_and_rates_result["consumption"],
+    consumption_and_rates_result["rates"],
     latest_date,
     period_from,
     period_to,
@@ -61,7 +65,7 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
 
   # Assert
   assert consumption_cost is not None
-  assert consumption_cost["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
+  assert consumption_cost["last_calculated_timestamp"] == consumption_and_rates_result["consumption"][-1]["interval_end"]
   assert consumption_cost["standing_charge"] == standard_charge_result["value_inc_vat"]
   
   if consumption_units == "m³":

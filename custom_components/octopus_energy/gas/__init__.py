@@ -66,17 +66,26 @@ def calculate_gas_consumption(consumption_data, last_reset, consumption_units, c
         "consumptions": consumption_parts
       }
       
-async def async_calculate_gas_cost(client: OctopusEnergyApiClient, consumption_data, last_reset, period_from, period_to, sensor, consumption_units, calorific_value):
-  if (consumption_data != None and len(consumption_data) > minimum_consumption_records):
+async def async_calculate_gas_cost(
+    client: OctopusEnergyApiClient,
+    consumption_data,
+    rate_data,
+    last_reset,
+    period_from,
+    period_to,
+    sensor,
+    consumption_units,
+    calorific_value
+  ):
+  if (consumption_data is not None and len(consumption_data) > minimum_consumption_records and rate_data is not None and len(rate_data) > 0):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
 
     # Only calculate our consumption if our data has changed
     if (last_reset == None or last_reset < sorted_consumption_data[0]["interval_start"]):
-      rates = await client.async_get_gas_rates(sensor["tariff_code"], period_from, period_to)
       standard_charge_result = await client.async_get_gas_standing_charge(sensor["tariff_code"], period_from, period_to)
 
-      if (rates != None and len(rates) > 0 and standard_charge_result != None):
+      if (standard_charge_result is not None):
         standard_charge = standard_charge_result["value_inc_vat"]
 
         charges = []
@@ -91,7 +100,7 @@ async def async_calculate_gas_cost(client: OctopusEnergyApiClient, consumption_d
           consumption_to = consumption["interval_end"]
 
           try:
-            rate = next(r for r in rates if r["valid_from"] == consumption_from and r["valid_to"] == consumption_to)
+            rate = next(r for r in rate_data if r["valid_from"] == consumption_from and r["valid_to"] == consumption_to)
           except StopIteration:
             raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to} for tariff {sensor['tariff_code']}")
 
