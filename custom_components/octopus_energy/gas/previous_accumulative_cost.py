@@ -3,7 +3,6 @@ import logging
 
 from homeassistant.core import HomeAssistant
 
-from homeassistant.util.dt import (now, as_utc)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -12,7 +11,7 @@ from homeassistant.components.sensor import (
     SensorStateClass
 )
 from . import (
-  async_calculate_gas_cost,
+  async_calculate_gas_consumption_and_cost,
 )
 
 from ..api_client import (OctopusEnergyApiClient)
@@ -90,51 +89,51 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
     return self._state
 
   async def async_update(self):
-    current_datetime = now()
-    period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
-    period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
     consumption_data = self.coordinator.data["consumption"] if "consumption" in self.coordinator.data else None
     rate_data = self.coordinator.data["rates"] if "rates" in self.coordinator.data else None
+    standing_charge = self.coordinator.data["standing_charge"] if "standing_charge" in self.coordinator.data else None
 
-    consumption_cost_result = await async_calculate_gas_cost(
-      self._client,
+    consumption_and_cost = await async_calculate_gas_consumption_and_cost(
       consumption_data,
       rate_data,
+      standing_charge,
       self._last_reset,
-      period_from,
-      period_to,
-      {
-        "tariff_code": self._tariff_code,
-      },
+      self._tariff_code,
       self._native_consumption_units,
       self._calorific_value
     )
 
-    if (consumption_cost_result is not None):
+    if (consumption_and_cost is not None):
       _LOGGER.debug(f"Calculated previous gas consumption cost for '{self._mprn}/{self._serial_number}'...")
 
       await async_import_external_statistics_from_cost(
         self._hass,
         f"gas_{self._serial_number}_{self._mprn}_previous_accumulative_cost",
         self.name,
-        consumption_data,
+        consumption_and_cost["charges"],
         rate_data,
         "GBP",
         "consumption_kwh"
       )
 
-      self._last_reset = consumption_cost_result["last_reset"]
-      self._state = consumption_cost_result["total"]
+      self._last_reset = consumption_and_cost["last_reset"]
+      self._state = consumption_and_cost["total_cost"]
 
       self._attributes = {
         "mprn": self._mprn,
         "serial_number": self._serial_number,
         "tariff_code": self._tariff_code,
-        "standing_charge": f'{consumption_cost_result["standing_charge"]}p',
-        "total_without_standing_charge": f'£{consumption_cost_result["total_without_standing_charge"]}',
-        "total": f'£{consumption_cost_result["total"]}',
-        "last_calculated_timestamp": consumption_cost_result["last_calculated_timestamp"],
-        "charges": consumption_cost_result["charges"],
+        "standing_charge": f'{consumption_and_cost["standing_charge"]}p',
+        "total_without_standing_charge": f'£{consumption_and_cost["total_cost_without_standing_charge"]}',
+        "total": f'£{consumption_and_cost["total_cost"]}',
+        "last_calculated_timestamp": consumption_and_cost["last_calculated_timestamp"],
+        "charges": list(map(lambda charge: {
+          "from": charge["from"],
+          "to": charge["to"],
+          "rate": f'{charge["rate"]}p',
+          "consumption": f'{charge["consumption_kwh"]} kWh',
+          "cost": charge["cost"]
+        }, consumption_and_cost["charges"])),
         "calorific_value": self._calorific_value
       }
 

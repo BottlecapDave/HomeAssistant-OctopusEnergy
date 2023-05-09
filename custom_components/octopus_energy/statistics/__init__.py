@@ -12,7 +12,7 @@ from ..utils import get_off_peak_cost
 _LOGGER = logging.getLogger(__name__)
 
 def build_consumption_statistics(consumptions, rates, consumption_key: str, latest_total_sum: float, latest_peak_sum: float, latest_off_peak_sum: float):
-  last_reset = consumptions[0]["interval_start"].replace(minute=0, second=0, microsecond=0)
+  last_reset = consumptions[0]["from"].replace(minute=0, second=0, microsecond=0)
   sums = {
     "total": latest_total_sum,
     "peak": latest_peak_sum,
@@ -33,8 +33,8 @@ def build_consumption_statistics(consumptions, rates, consumption_key: str, late
 
   for index in range(len(consumptions)):
     consumption = consumptions[index]
-    consumption_from = consumption["interval_start"]
-    consumption_to = consumption["interval_end"]
+    consumption_from = consumption["from"]
+    consumption_to = consumption["to"]
 
     try:
       rate = next(r for r in rates if r["valid_from"] == consumption_from and r["valid_to"] == consumption_to)
@@ -48,7 +48,7 @@ def build_consumption_statistics(consumptions, rates, consumption_key: str, late
       sums["peak"] += consumption[consumption_key]
       states["peak"] += consumption[consumption_key]
     
-    start = consumption["interval_start"].replace(minute=0, second=0, microsecond=0)
+    start = consumption["from"].replace(minute=0, second=0, microsecond=0)
     sums["total"] += consumption[consumption_key]
     states["total"] += consumption[consumption_key]
 
@@ -89,7 +89,7 @@ def build_consumption_statistics(consumptions, rates, consumption_key: str, late
   }
 
 def build_cost_statistics(consumptions, rates, consumption_key: str, latest_total_sum: float, latest_peak_sum: float, latest_off_peak_sum: float):
-  last_reset = consumptions[0]["interval_start"].replace(minute=0, second=0, microsecond=0)
+  last_reset = consumptions[0]["from"].replace(minute=0, second=0, microsecond=0)
   sums = {
     "total": latest_total_sum,
     "peak": latest_peak_sum,
@@ -110,9 +110,9 @@ def build_cost_statistics(consumptions, rates, consumption_key: str, latest_tota
 
   for index in range(len(consumptions)):
     consumption = consumptions[index]
-    consumption_from = consumption["interval_start"]
-    consumption_to = consumption["interval_end"]
-    start = consumption["interval_start"].replace(minute=0, second=0, microsecond=0)
+    consumption_from = consumption["from"]
+    consumption_to = consumption["to"]
+    start = consumption["from"].replace(minute=0, second=0, microsecond=0)
 
     try:
       rate = next(r for r in rates if r["valid_from"] == consumption_from and r["valid_to"] == consumption_to)

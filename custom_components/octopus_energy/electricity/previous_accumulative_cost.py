@@ -103,7 +103,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
         self._hass,
         f"electricity_{self._serial_number}_{self._mpan}_previous_accumulative_cost",
         self.name,
-        consumption_data,
+        consumption_and_cost["charges"],
         rate_data,
         "GBP",
         "consumption"

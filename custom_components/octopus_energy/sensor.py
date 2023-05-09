@@ -141,8 +141,8 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
               gas_tariff_code,
               None
             )
-            entities.append(OctopusEnergyPreviousAccumulativeGasConsumption(hass, previous_consumption_coordinator, meter, point, calorific_value))
-            entities.append(OctopusEnergyPreviousAccumulativeGasConsumptionKwh(hass, previous_consumption_coordinator, meter, point, calorific_value))
+            entities.append(OctopusEnergyPreviousAccumulativeGasConsumption(hass, previous_consumption_coordinator, gas_tariff_code, meter, point, calorific_value))
+            entities.append(OctopusEnergyPreviousAccumulativeGasConsumptionKwh(hass, previous_consumption_coordinator, gas_tariff_code, meter, point, calorific_value))
             entities.append(OctopusEnergyPreviousAccumulativeGasCost(hass, previous_consumption_coordinator, client, gas_tariff_code, meter, point, calorific_value))
 
             if CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True:

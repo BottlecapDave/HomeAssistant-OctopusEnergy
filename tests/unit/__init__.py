@@ -5,7 +5,7 @@ from custom_components.octopus_energy.utils import rates_to_thirty_minute_increm
 
 logging.getLogger().setLevel(logging.DEBUG)
 
-def create_consumption_data(period_from, period_to, reverse = False, from_name = "interval_start", end_name = "interval_end"):
+def create_consumption_data(period_from, period_to, reverse = False, from_key = "interval_start", to_key = "interval_end"):
   consumption = []
   current_valid_from = period_from
   current_valid_to = None
@@ -13,8 +13,8 @@ def create_consumption_data(period_from, period_to, reverse = False, from_name =
     current_valid_to = current_valid_from + timedelta(minutes=30)
 
     consumption.append({
-      from_name: current_valid_from,
-      end_name: current_valid_to,
+      from_key: current_valid_from,
+      to_key: current_valid_to,
       "consumption": 1
     })
 
@@ -22,7 +22,7 @@ def create_consumption_data(period_from, period_to, reverse = False, from_name =
 
   if reverse == True:
     def get_interval_start(item):
-      return item["interval_start"]
+      return item[from_key]
 
     consumption.sort(key=get_interval_start, reverse=True)
 
