@@ -19,6 +19,8 @@ from ..api_client import (OctopusEnergyApiClient)
 
 from .base import (OctopusEnergyElectricitySensor)
 
+from ..statistics.cost import async_import_external_statistics_from_cost
+
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, OctopusEnergyElectricitySensor):
@@ -29,6 +31,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     super().__init__(coordinator)
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
+    self._hass = hass
     self._client = client
     self._tariff_code = tariff_code
 
@@ -103,6 +106,16 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
 
     if (consumption_cost_result is not None):
       _LOGGER.debug(f"Calculated previous electricity consumption cost for '{self._mpan}/{self._serial_number}'...")
+      await async_import_external_statistics_from_cost(
+        self._hass,
+        f"electricity_{self._serial_number}_{self._mpan}_previous_accumulative_cost",
+        self.name,
+        consumption_data,
+        rate_data,
+        "GBP",
+        "consumption"
+      )
+
       self._last_reset = consumption_cost_result["last_reset"]
       self._state = consumption_cost_result["total"]
 

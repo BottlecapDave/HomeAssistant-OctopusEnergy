@@ -75,7 +75,9 @@ async def async_create_previous_consumption_and_rates_coordinator(
     period_from = as_utc((now() - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
     period_to = as_utc(now().replace(hour=0, minute=0, second=0, microsecond=0))
     result = await async_fetch_consumption_and_rates(
-      hass.data[DOMAIN][previous_consumption_key] if previous_consumption_key in hass.data[DOMAIN] else None,
+      hass.data[DOMAIN][previous_consumption_key] 
+      if previous_consumption_key in hass.data[DOMAIN] and "rates" in hass.data[DOMAIN][previous_consumption_key] and "consumption" in hass.data[DOMAIN][previous_consumption_key] 
+      else None,
       utcnow(),
       client,
       period_from,
@@ -90,7 +92,7 @@ async def async_create_previous_consumption_and_rates_coordinator(
     if (result is not None):
       hass.data[DOMAIN][previous_consumption_key] = result
 
-    return hass.data[DOMAIN][previous_consumption_key]
+    return hass.data[DOMAIN][previous_consumption_key] if "rates" in hass.data[DOMAIN][previous_consumption_key] else None
 
   coordinator = DataUpdateCoordinator(
     hass,

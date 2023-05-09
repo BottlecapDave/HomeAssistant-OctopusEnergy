@@ -3,3 +3,5 @@ pytest-socket
 pytest-asyncio
 mock
 homeassistant
+sqlalchemy
+fnvhash

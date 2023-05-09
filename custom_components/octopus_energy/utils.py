@@ -107,3 +107,15 @@ def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: da
         starting_period_from = valid_to
     
   return results
+
+def get_off_peak_cost(rates):
+  off_peak_cost = None
+
+  rate_charges = {}
+  for rate in rates:
+    value = rate["value_inc_vat"]
+    rate_charges[value] = (rate_charges[value] if value in rate_charges else value)
+    if off_peak_cost is None or off_peak_cost > rate["value_inc_vat"]:
+      off_peak_cost = rate["value_inc_vat"]
+
+  return off_peak_cost if len(rate_charges) == 2 else None
