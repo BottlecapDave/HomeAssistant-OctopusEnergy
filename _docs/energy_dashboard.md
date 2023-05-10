@@ -34,6 +34,8 @@ While you can add the `previous consumption` sensors to the dashboard, they will
 
 Instead, you can use external statistics that are exported by the `previous consumption` sensors, which are broken down into hourly chunks. Please note it can take **up to 24 hours** for the external statistics to appear.
 
+> Please note: I'm still investigating having hourly breakdowns imported on the entity themselves rather than as external statistics, but currently in doing so it's still including the spikes on the day of retrieval. I've opened a [forum post](https://community.home-assistant.io/t/help-needed-around-importing-historic-statistics/567726) but awaiting answers.
+
 ### For Electricity
 
 <img src="./assets/previous_consumption_electricity.png" alt="HA modal electricity example" height="500">
