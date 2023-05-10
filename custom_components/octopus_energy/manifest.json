@@ -6,7 +6,8 @@
   ],
   "config_flow": true,
   "dependencies": [
-    "repairs"
+    "repairs",
+    "recorder"
   ],
   "documentation": "https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/",
   "homekit": {},
