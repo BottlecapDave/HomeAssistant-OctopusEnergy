@@ -111,7 +111,8 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
         consumption_and_cost["charges"],
         rate_data,
         ENERGY_KILO_WATT_HOUR,
-        "consumption_kwh"
+        "consumption_kwh",
+        False
       )
 
       self._state = consumption_and_cost["total_consumption_kwh"]

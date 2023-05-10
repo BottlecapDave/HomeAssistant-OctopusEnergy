@@ -11,7 +11,16 @@ from ..const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-async def async_import_external_statistics_from_cost(hass: HomeAssistant, unique_id: str, name: str, consumptions, rates, unit_of_measurement: str, consumption_key: str):
+async def async_import_external_statistics_from_cost(
+    hass: HomeAssistant,
+    unique_id: str,
+    name: str,
+    consumptions,
+    rates,
+    unit_of_measurement: str,
+    consumption_key: str,
+    include_peak_off_peak: bool = True
+  ):
   if (consumptions is None or len(consumptions) < 1 or rates is None or len(rates) < 1):
     return
 
@@ -41,28 +50,29 @@ async def async_import_external_statistics_from_cost(hass: HomeAssistant, unique
     statistics["total"]
   )
 
-  async_add_external_statistics(
-    hass,
-    StatisticMetaData(
-      has_mean=False,
-      has_sum=True,
-      name=f'{name} Peak',
-      source=DOMAIN,
-      statistic_id=peak_statistic_id,
-      unit_of_measurement=unit_of_measurement,
-    ),
-    statistics["peak"]
-  )
+  if (include_peak_off_peak):
+    async_add_external_statistics(
+      hass,
+      StatisticMetaData(
+        has_mean=False,
+        has_sum=True,
+        name=f'{name} Peak',
+        source=DOMAIN,
+        statistic_id=peak_statistic_id,
+        unit_of_measurement=unit_of_measurement,
+      ),
+      statistics["peak"]
+    )
 
-  async_add_external_statistics(
-    hass,
-    StatisticMetaData(
-      has_mean=False,
-      has_sum=True,
-      name=f'{name} Off Peak',
-      source=DOMAIN,
-      statistic_id=off_peak_statistic_id,
-      unit_of_measurement=unit_of_measurement,
-    ),
-    statistics["off_peak"]
-  )
+    async_add_external_statistics(
+      hass,
+      StatisticMetaData(
+        has_mean=False,
+        has_sum=True,
+        name=f'{name} Off Peak',
+        source=DOMAIN,
+        statistic_id=off_peak_statistic_id,
+        unit_of_measurement=unit_of_measurement,
+      ),
+      statistics["off_peak"]
+    )

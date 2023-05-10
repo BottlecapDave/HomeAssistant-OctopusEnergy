@@ -113,7 +113,8 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
         consumption_and_cost["charges"],
         rate_data,
         "GBP",
-        "consumption_kwh"
+        "consumption_kwh",
+        False
       )
 
       self._last_reset = consumption_and_cost["last_reset"]

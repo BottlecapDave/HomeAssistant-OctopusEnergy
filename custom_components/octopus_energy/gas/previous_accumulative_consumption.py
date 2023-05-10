@@ -111,7 +111,8 @@ class OctopusEnergyPreviousAccumulativeGasConsumption(CoordinatorEntity, Octopus
         consumption_and_cost["charges"],
         rate_data,
         VOLUME_CUBIC_METERS,
-        "consumption_m3"
+        "consumption_m3",
+        False
       )
 
       self._state = consumption_and_cost["total_consumption_m3"]
