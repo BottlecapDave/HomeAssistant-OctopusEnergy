@@ -15,12 +15,10 @@ from . import (
 
 from .base import (OctopusEnergyElectricitySensor)
 
-from ..statistics.cost import async_import_external_statistics_from_cost
-
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, OctopusEnergyElectricitySensor):
-  """Sensor for displaying the previous days accumulative electricity cost."""
+class OctopusEnergyPreviousAccumulativeElectricityCostPeak(CoordinatorEntity, OctopusEnergyElectricitySensor):
+  """Sensor for displaying the previous days accumulative electricity cost during peak hours."""
 
   def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point):
     """Init sensor."""
@@ -34,14 +32,22 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     self._last_reset = None
 
   @property
+  def entity_registry_enabled_default(self) -> bool:
+    """Return if the entity should be enabled when first added.
+
+    This only applies when fist added to the entity registry.
+    """
+    return False
+
+  @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_previous_accumulative_cost"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_previous_accumulative_cost_peak"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Accumulative Cost"
+    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Accumulative Cost (Peak)"
 
   @property
   def device_class(self):
@@ -96,38 +102,12 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     )
 
     if (consumption_and_cost is not None):
-      _LOGGER.debug(f"Calculated previous electricity consumption cost for '{self._mpan}/{self._serial_number}'...")
-      await async_import_external_statistics_from_cost(
-        self._hass,
-        f"electricity_{self._serial_number}_{self._mpan}_previous_accumulative_cost",
-        self.name,
-        consumption_and_cost["charges"],
-        rate_data,
-        "GBP",
-        "consumption"
-      )
+      _LOGGER.debug(f"Calculated previous electricity consumption cost peak for '{self._mpan}/{self._serial_number}'...")
 
       self._last_reset = consumption_and_cost["last_reset"]
-      self._state = consumption_and_cost["total_cost"]
+      self._state = consumption_and_cost["total_cost_peak"] if "total_cost_peak" in consumption_and_cost else 0
 
-      self._attributes = {
-        "mpan": self._mpan,
-        "serial_number": self._serial_number,
-        "is_export": self._is_export,
-        "is_smart_meter": self._is_smart_meter,
-        "tariff_code": self._tariff_code,
-        "standing_charge": f'{consumption_and_cost["standing_charge"]}p',
-        "total_without_standing_charge": f'£{consumption_and_cost["total_cost_without_standing_charge"]}',
-        "total": f'£{consumption_and_cost["total_cost"]}',
-        "last_calculated_timestamp": consumption_and_cost["last_calculated_timestamp"],
-        "charges": list(map(lambda charge: {
-          "from": charge["from"],
-          "to": charge["to"],
-          "rate": f'{charge["rate"]}p',
-          "consumption": f'{charge["consumption"]} kWh',
-          "cost": charge["cost"]
-        }, consumption_and_cost["charges"]))
-      }
+      self._attributes["last_calculated_timestamp"] = consumption_and_cost["last_calculated_timestamp"]
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
@@ -141,4 +121,4 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
       for x in state.attributes.keys():
         self._attributes[x] = state.attributes[x]
     
-      _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeElectricityCost state: {self._state}')
+      _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeElectricityCostPeak state: {self._state}')

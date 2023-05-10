@@ -59,9 +59,9 @@ def __get_applicable_rates(current_date: datetime, target_start_time: str, targe
 
   # Retrieve the rates that are applicable for our target rate
   applicable_rates = []
-  if rates != None:
+  if rates is not None:
     for rate in rates:
-      if rate["valid_from"] >= target_start and (target_end == None or rate["valid_to"] <= target_end):
+      if rate["valid_from"] >= target_start and (target_end is None or rate["valid_to"] <= target_end):
         applicable_rates.append(rate)
 
   # Make sure that we have enough rates that meet our target period
@@ -107,7 +107,7 @@ def calculate_continuous_times(current_date: datetime, target_start_time: str, t
       else:
         break
     
-    if ((best_continuous_rates == None or (search_for_highest_rate == False and continuous_rates_total < best_continuous_rates_total) or (search_for_highest_rate and continuous_rates_total > best_continuous_rates_total)) and len(continuous_rates) == total_required_rates):
+    if ((best_continuous_rates is None or (search_for_highest_rate == False and continuous_rates_total < best_continuous_rates_total) or (search_for_highest_rate and continuous_rates_total > best_continuous_rates_total)) and len(continuous_rates) == total_required_rates):
       best_continuous_rates = continuous_rates
       best_continuous_rates_total = continuous_rates_total
     else:
@@ -216,7 +216,7 @@ def get_target_rate_info(current_date: datetime, applicable_rates, offset: str =
 
     # Find out if we're within an active block, or find the next block
     for index, rate in enumerate(applicable_rate_blocks):
-      if (offset != None):
+      if (offset is not None):
         valid_from = apply_offset(rate["valid_from"], offset)
         valid_to = apply_offset(rate["valid_to"], offset)
       else:

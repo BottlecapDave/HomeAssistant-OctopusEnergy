@@ -66,7 +66,7 @@ async def test_go_rates_bst():
   )
 
   # Assert
-  assert result != None
+  assert result is not None
   assert len(result) == 48
 
   start_time = as_utc(parse_datetime("2022-10-09T00:00+01:00"))

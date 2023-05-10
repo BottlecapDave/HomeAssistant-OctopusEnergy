@@ -159,7 +159,7 @@ intelligent_device_query = '''query {{
 class OctopusEnergyApiClient:
 
   def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None):
-    if (api_key == None):
+    if (api_key is None):
       raise Exception('API KEY is not set')
 
     self._api_key = api_key
@@ -354,7 +354,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         try:
           data = await self.__async_read_response(response, url)
-          if data == None:
+          if data is None:
             return await self.__async_get_tracker_rates__(tariff_code, period_from, period_to, self._electricity_price_cap)
           
           results = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap)
@@ -373,7 +373,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         try:
           data = await self.__async_read_response(response, url)
-          if data == None:
+          if data is None:
             return await self.__async_get_tracker_rates__(tariff_code, period_from, period_to, self._electricity_price_cap)
 
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our day period 
@@ -389,7 +389,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         try:
           data = await self.__async_read_response(response, url)
-          if data == None:
+          if data is None:
             return None
 
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our night period 
@@ -464,7 +464,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         try:
           data = await self.__async_read_response(response, url)
-          if data == None:
+          if data is None:
             return await self.__async_get_tracker_rates__(tariff_code, period_from, period_to, self._gas_price_cap)
 
           results = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._gas_price_cap)
@@ -654,7 +654,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         try:
           data = await self.__async_read_response(response, url)
-          if data == None:
+          if data is None:
             return None
 
           items = []
@@ -689,7 +689,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         try:
           data = await self.__async_read_response(response, url)
-          if data == None:
+          if data is None:
             return None
 
           for period in data["periods"]:

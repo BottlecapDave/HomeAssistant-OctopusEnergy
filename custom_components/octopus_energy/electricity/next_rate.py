@@ -69,7 +69,7 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
       target = now + timedelta(minutes=30)
 
       rate_information = get_rate_information(self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None, target)
-
+      
       if rate_information is not None:
         self._attributes = {
           "mpan": self._mpan,
