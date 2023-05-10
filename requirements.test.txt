@@ -6,3 +6,4 @@ homeassistant
 psutil-home-assistant
 sqlalchemy
 fnvhash
+fnv_hash_fast

@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from homeassistant.core import HomeAssistant
 
@@ -9,44 +10,53 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorStateClass
 )
+from homeassistant.const import (
+    ENERGY_KILO_WATT_HOUR
+)
+
 from . import (
   async_calculate_electricity_consumption_and_cost,
 )
 
 from .base import (OctopusEnergyElectricitySensor)
 
-from ..statistics.cost import async_import_external_statistics_from_cost
-
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, OctopusEnergyElectricitySensor):
-  """Sensor for displaying the previous days accumulative electricity cost."""
+class OctopusEnergyPreviousAccumulativeElectricityConsumptionOffPeak(CoordinatorEntity, OctopusEnergyElectricitySensor):
+  """Sensor for displaying the previous days accumulative electricity reading during off peak hours."""
 
   def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point):
     """Init sensor."""
     super().__init__(coordinator)
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
-    self._hass = hass
-    self._tariff_code = tariff_code
-
     self._state = None
+    self._tariff_code = tariff_code
     self._last_reset = None
+    self._hass = hass
+
+  @property
+  def entity_registry_enabled_default(self) -> bool:
+    """Return if the entity should be enabled when first added.
+
+    This only applies when fist added to the entity registry.
+    """
+    return False
 
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_previous_accumulative_cost"
-    
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_previous_accumulative_consumption_off_peak"
+
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Accumulative Cost"
+    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Accumulative Consumption (Off Peak)"
 
   @property
   def device_class(self):
     """The type of sensor"""
-    return SensorDeviceClass.MONETARY
+    return SensorDeviceClass.ENERGY
 
   @property
   def state_class(self):
@@ -56,21 +66,17 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
   @property
   def unit_of_measurement(self):
     """The unit of measurement of sensor"""
-    return "GBP"
+    return ENERGY_KILO_WATT_HOUR
 
   @property
   def icon(self):
     """Icon of the sensor."""
-    return "mdi:currency-gbp"
+    return "mdi:lightning-bolt"
 
   @property
   def extra_state_attributes(self):
     """Attributes of the sensor."""
     return self._attributes
-
-  @property
-  def should_poll(self):
-    return True
 
   @property
   def last_reset(self):
@@ -79,9 +85,13 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
 
   @property
   def state(self):
-    """Retrieve the previously calculated state"""
+    """Retrieve the previous days accumulative consumption"""
     return self._state
-
+  
+  @property
+  def should_poll(self) -> bool:
+    return True
+    
   async def async_update(self):
     consumption_data = self.coordinator.data["consumption"] if "consumption" in self.coordinator.data else None
     rate_data = self.coordinator.data["rates"] if "rates" in self.coordinator.data else None
@@ -96,38 +106,12 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     )
 
     if (consumption_and_cost is not None):
-      _LOGGER.debug(f"Calculated previous electricity consumption cost for '{self._mpan}/{self._serial_number}'...")
-      await async_import_external_statistics_from_cost(
-        self._hass,
-        f"electricity_{self._serial_number}_{self._mpan}_previous_accumulative_cost",
-        self.name,
-        consumption_and_cost["charges"],
-        rate_data,
-        "GBP",
-        "consumption"
-      )
+      _LOGGER.debug(f"Calculated previous electricity consumption off peak for '{self._mpan}/{self._serial_number}'...")
 
+      self._state = consumption_and_cost["total_consumption_off_peak"] if "total_consumption_off_peak" in consumption_and_cost else 0
       self._last_reset = consumption_and_cost["last_reset"]
-      self._state = consumption_and_cost["total_cost"]
 
-      self._attributes = {
-        "mpan": self._mpan,
-        "serial_number": self._serial_number,
-        "is_export": self._is_export,
-        "is_smart_meter": self._is_smart_meter,
-        "tariff_code": self._tariff_code,
-        "standing_charge": f'{consumption_and_cost["standing_charge"]}p',
-        "total_without_standing_charge": f'£{consumption_and_cost["total_cost_without_standing_charge"]}',
-        "total": f'£{consumption_and_cost["total_cost"]}',
-        "last_calculated_timestamp": consumption_and_cost["last_calculated_timestamp"],
-        "charges": list(map(lambda charge: {
-          "from": charge["from"],
-          "to": charge["to"],
-          "rate": f'{charge["rate"]}p',
-          "consumption": f'{charge["consumption"]} kWh',
-          "cost": charge["cost"]
-        }, consumption_and_cost["charges"]))
-      }
+      self._attributes["last_calculated_timestamp"] = consumption_and_cost["last_calculated_timestamp"]
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
@@ -140,5 +124,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
       self._attributes = {}
       for x in state.attributes.keys():
         self._attributes[x] = state.attributes[x]
-    
-      _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeElectricityCost state: {self._state}')
+
+        if x == "last_reset":
+          self._last_reset = datetime.strptime(state.attributes[x], "%Y-%m-%dT%H:%M:%S%z")
+
+      _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeElectricityConsumptionOffPeak state: {self._state}')
