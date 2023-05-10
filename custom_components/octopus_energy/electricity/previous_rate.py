@@ -8,7 +8,8 @@ from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
 from homeassistant.components.sensor import (
-    SensorDeviceClass
+    SensorDeviceClass,
+    SensorStateClass
 )
 
 from .base import (OctopusEnergyElectricitySensor)
@@ -37,6 +38,11 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
   def name(self):
     """Name of the sensor."""
     return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Rate"
+
+  @property
+  def state_class(self):
+    """The state class of sensor"""
+    return SensorStateClass.TOTAL
 
   @property
   def device_class(self):

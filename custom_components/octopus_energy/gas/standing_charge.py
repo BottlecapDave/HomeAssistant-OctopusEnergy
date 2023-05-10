@@ -5,7 +5,8 @@ from homeassistant.core import HomeAssistant
 
 from homeassistant.util.dt import (utcnow, as_utc, parse_datetime)
 from homeassistant.components.sensor import (
-    SensorDeviceClass
+    SensorDeviceClass,
+    SensorStateClass
 )
 
 from ..api_client import (OctopusEnergyApiClient)
@@ -36,6 +37,11 @@ class OctopusEnergyGasCurrentStandingCharge(OctopusEnergyGasSensor):
   def name(self):
     """Name of the sensor."""
     return f'Gas {self._serial_number} {self._mprn} Current Standing Charge'
+  
+  @property
+  def state_class(self):
+    """The state class of sensor"""
+    return SensorStateClass.TOTAL
 
   @property
   def device_class(self):
