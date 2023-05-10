@@ -32,7 +32,7 @@
 
 While you can add the `previous consumption` sensors to the dashboard, they will be associated with the wrong day. This is because the Energy dashboard uses the timestamp of when the sensor updates to determine which day the data should belong to. There is currently no official way of adding historic data to the dashboard.
 
-Instead, you can use external statistics that are exported by the `previous consumption` sensors, which are broken down into hourly chunks. The following external statistics are available
+Instead, you can use external statistics that are exported by the `previous consumption` sensors, which are broken down into hourly chunks. Please note it can take **up to 24 hours** for the external statistics to appear.
 
 ### For Electricity
 

@@ -10,6 +10,7 @@
   - [Target Rate Sensors](#target-rate-sensors)
   - [Services](#services)
     - [Service octopus\_energy.update\_target\_config](#service-octopus_energyupdate_target_config)
+  - [Energy Dashboard](#energy-dashboard)
   - [Community Contributions](#community-contributions)
   - [FAQ](#faq)
 
@@ -115,6 +116,10 @@ automations:
       target:
         entity_id: binary_sensor.octopus_energy_target_example
 ```
+
+## Energy Dashboard
+
+The core sensors have been designed to work with the energy dashboard. Please see the [guide](./_docs/energy_dashboard.md) for instructions on how to set this up.
 
 ## Community Contributions
 
