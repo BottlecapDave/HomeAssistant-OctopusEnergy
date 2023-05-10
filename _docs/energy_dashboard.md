@@ -36,7 +36,7 @@ Instead, you can use external statistics that are exported by the `previous cons
 
 ### For Electricity
 
-<img src="./assets/current_consumption_electricity.png" alt="HA modal electricity example" height="500">
+<img src="./assets/previous_consumption_electricity.png" alt="HA modal electricity example" height="500">
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
 2. Click `Add Consumption` under `Electricity Grid`
@@ -44,14 +44,14 @@ Instead, you can use external statistics that are exported by the `previous cons
 * `octopus_energy:electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption` - The total consumption reported by the meter for the previous day.
 * `octopus_energy:electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_peak` - The total consumption reported by the meter for the previous day that applied during peak hours. This is disabled by default. This will only be populated if you're on a tariff with two available rates.
 * `octopus_energy:electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_off_peak` - The total consumption reported by the meter for the previous day that applied during off peak hours. This is disabled by default. This will only be populated if you're on a tariff with two available rates.
-4. For `Use an entity tracking the total costs` option you want one of the following
+1. For `Use an entity tracking the total costs` option you want one of the following
 * `octopus_energy:electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost` - The total cost for the previous day, including the standing charge.
 * `octopus_energy:electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_peak` - The total cost for the previous day that applied during peak hours. This is disabled by default. This will only be populated if you're on a tariff with two available rates.
 * `octopus_energy:electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_off_peak` - The total cost for the previous day that applied during off peak hours. This is disabled by default. This will only be populated if you're on a tariff with two available rates.
 
 ### For Gas
 
-<img src="./assets/current_consumption_gas.png" alt="HA modal gas example" height="500">
+<img src="./assets/previous_consumption_gas.png" alt="HA modal gas example" height="500">
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
 2. Click `Add Gas Source` under `Gas Consumption`
