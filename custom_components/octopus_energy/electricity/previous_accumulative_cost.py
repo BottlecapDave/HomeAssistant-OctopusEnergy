@@ -1,9 +1,7 @@
-from datetime import timedelta
 import logging
 
 from homeassistant.core import HomeAssistant
 
-from homeassistant.util.dt import (now, as_utc)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -12,28 +10,28 @@ from homeassistant.components.sensor import (
     SensorStateClass
 )
 from . import (
-  async_calculate_electricity_cost,
+  async_calculate_electricity_consumption_and_cost,
 )
 
-from ..api_client import (OctopusEnergyApiClient)
-
 from .base import (OctopusEnergyElectricitySensor)
+
+from ..statistics.cost import async_import_external_statistics_from_cost
 
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, OctopusEnergyElectricitySensor):
   """Sensor for displaying the previous days accumulative electricity cost."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, tariff_code, meter, point):
+  def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point):
     """Init sensor."""
     super().__init__(coordinator)
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
-    self._client = client
+    self._hass = hass
     self._tariff_code = tariff_code
 
     self._state = None
-    self._latest_date = None
+    self._last_reset = None
 
   @property
   def unique_id(self):
@@ -77,7 +75,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
   @property
   def last_reset(self):
     """Return the time when the sensor was last reset, if any."""
-    return self._latest_date
+    return self._last_reset
 
   @property
   def state(self):
@@ -85,24 +83,32 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     return self._state
 
   async def async_update(self):
-    current_datetime = now()
-    period_from = as_utc((current_datetime - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
-    period_to = as_utc(current_datetime.replace(hour=0, minute=0, second=0, microsecond=0))
+    consumption_data = self.coordinator.data["consumption"] if "consumption" in self.coordinator.data else None
+    rate_data = self.coordinator.data["rates"] if "rates" in self.coordinator.data else None
+    standing_charge = self.coordinator.data["standing_charge"] if "standing_charge" in self.coordinator.data else None
 
-    consumption_cost = await async_calculate_electricity_cost(
-      self._client,
-      self.coordinator.data,
-      self._latest_date,
-      period_from,
-      period_to,
-      self._tariff_code,
-      self._is_smart_meter
+    consumption_and_cost = await async_calculate_electricity_consumption_and_cost(
+      consumption_data,
+      rate_data,
+      standing_charge,
+      self._last_reset,
+      self._tariff_code
     )
 
-    if (consumption_cost != None):
+    if (consumption_and_cost is not None):
       _LOGGER.debug(f"Calculated previous electricity consumption cost for '{self._mpan}/{self._serial_number}'...")
-      self._latest_date = consumption_cost["last_calculated_timestamp"]
-      self._state = consumption_cost["total"]
+      await async_import_external_statistics_from_cost(
+        self._hass,
+        f"electricity_{self._serial_number}_{self._mpan}_previous_accumulative_cost",
+        self.name,
+        consumption_and_cost["charges"],
+        rate_data,
+        "GBP",
+        "consumption"
+      )
+
+      self._last_reset = consumption_and_cost["last_reset"]
+      self._state = consumption_and_cost["total_cost"]
 
       self._attributes = {
         "mpan": self._mpan,
@@ -110,11 +116,17 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
         "is_export": self._is_export,
         "is_smart_meter": self._is_smart_meter,
         "tariff_code": self._tariff_code,
-        "standing_charge": f'{consumption_cost["standing_charge"]}p',
-        "total_without_standing_charge": f'£{consumption_cost["total_without_standing_charge"]}',
-        "total": f'£{consumption_cost["total"]}',
-        "last_calculated_timestamp": consumption_cost["last_calculated_timestamp"],
-        "charges": consumption_cost["charges"]
+        "standing_charge": f'{consumption_and_cost["standing_charge"]}p',
+        "total_without_standing_charge": f'£{consumption_and_cost["total_cost_without_standing_charge"]}',
+        "total": f'£{consumption_and_cost["total_cost"]}',
+        "last_calculated_timestamp": consumption_and_cost["last_calculated_timestamp"],
+        "charges": list(map(lambda charge: {
+          "from": charge["from"],
+          "to": charge["to"],
+          "rate": f'{charge["rate"]}p',
+          "consumption": f'{charge["consumption"]} kWh',
+          "cost": charge["cost"]
+        }, consumption_and_cost["charges"]))
       }
 
   async def async_added_to_hass(self):

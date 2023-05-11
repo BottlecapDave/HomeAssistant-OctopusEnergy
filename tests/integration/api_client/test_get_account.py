@@ -15,7 +15,7 @@ async def test_when_get_account_is_called_then_electricity_and_gas_points_return
     account = await client.async_get_account(account_id)
 
     # Assert
-    assert account != None
+    assert account is not None
     assert "electricity_meter_points" in account
     
     assert len(account["electricity_meter_points"]) == 1

@@ -5,7 +5,8 @@ from homeassistant.core import HomeAssistant
 
 from homeassistant.util.dt import (utcnow, as_utc, parse_datetime)
 from homeassistant.components.sensor import (
-    SensorDeviceClass
+    SensorDeviceClass,
+    SensorStateClass
 )
 
 from ..api_client import (OctopusEnergyApiClient)
@@ -36,6 +37,11 @@ class OctopusEnergyGasCurrentStandingCharge(OctopusEnergyGasSensor):
   def name(self):
     """Name of the sensor."""
     return f'Gas {self._serial_number} {self._mprn} Current Standing Charge'
+  
+  @property
+  def state_class(self):
+    """The state class of sensor"""
+    return SensorStateClass.TOTAL
 
   @property
   def device_class(self):
@@ -67,7 +73,7 @@ class OctopusEnergyGasCurrentStandingCharge(OctopusEnergyGasSensor):
     # Find the current rate. We only need to do this every day
 
     utc_now = utcnow()
-    if (self._latest_date == None or (self._latest_date + timedelta(days=1)) < utc_now):
+    if (self._latest_date is None or (self._latest_date + timedelta(days=1)) < utc_now):
       _LOGGER.debug('Updating OctopusEnergyGasCurrentStandingCharge')
 
       period_from = as_utc(parse_datetime(utc_now.strftime("%Y-%m-%dT00:00:00Z")))
@@ -75,7 +81,7 @@ class OctopusEnergyGasCurrentStandingCharge(OctopusEnergyGasSensor):
 
       standard_charge_result = await self._client.async_get_gas_standing_charge(self._tariff_code, period_from, period_to)
       
-      if standard_charge_result != None:
+      if standard_charge_result is not None:
         self._latest_date = period_from
         self._state = standard_charge_result["value_inc_vat"] / 100
 

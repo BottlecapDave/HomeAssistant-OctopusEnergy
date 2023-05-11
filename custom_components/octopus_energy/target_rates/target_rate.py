@@ -101,7 +101,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
           break
       
       if all_rates_in_past:
-        if self.coordinator.data != None:
+        if self.coordinator.data is not None:
           all_rates = self.coordinator.data
           
           # Retrieve our rates. For backwards compatibility, if CONFIG_TARGET_MPAN is not set, then pick the first set
@@ -115,7 +115,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
           _LOGGER.debug(f"Rate data missing. Setting to empty array")
           all_rates = []
 
-        _LOGGER.debug(f'{len(all_rates) if all_rates != None else None} rate periods found')
+        _LOGGER.debug(f'{len(all_rates) if all_rates is not None else None} rate periods found')
 
         start_time = None
         if CONFIG_TARGET_START_TIME in self._config:
@@ -186,7 +186,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
       # Inputs from automations can include quotes, so remove these
       trimmed_target_hours = target_hours.strip('\"')
       matches = re.search(REGEX_HOURS, trimmed_target_hours)
-      if matches == None:
+      if matches is None:
         raise vol.Invalid(f"Target hours of '{trimmed_target_hours}' must be in half hour increments.")
       else:
         trimmed_target_hours = float(trimmed_target_hours)
@@ -201,7 +201,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
       # Inputs from automations can include quotes, so remove these
       trimmed_target_start_time = target_start_time.strip('\"')
       matches = re.search(REGEX_TIME, trimmed_target_start_time)
-      if matches == None:
+      if matches is None:
         raise vol.Invalid("Start time must be in the format HH:MM")
       else:
         config.update({
@@ -212,7 +212,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
       # Inputs from automations can include quotes, so remove these
       trimmed_target_end_time = target_end_time.strip('\"')
       matches = re.search(REGEX_TIME, trimmed_target_end_time)
-      if matches == None:
+      if matches is None:
         raise vol.Invalid("End time must be in the format HH:MM")
       else:
         config.update({
@@ -223,7 +223,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
       # Inputs from automations can include quotes, so remove these
       trimmed_target_offset = target_offset.strip('\"')
       matches = re.search(REGEX_OFFSET_PARTS, trimmed_target_offset)
-      if matches == None:
+      if matches is None:
         raise vol.Invalid("Offset must be in the form of HH:MM:SS with an optional negative symbol")
       else:
         config.update({

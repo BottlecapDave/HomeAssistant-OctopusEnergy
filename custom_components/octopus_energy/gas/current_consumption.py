@@ -41,7 +41,7 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
   @property
   def device_class(self):
     """The type of sensor"""
-    return SensorDeviceClass.GAS
+    return SensorDeviceClass.ENERGY
 
   @property
   def state_class(self):
@@ -56,7 +56,7 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
   @property
   def icon(self):
     """Icon of the sensor."""
-    return "mdi:lightning-bolt"
+    return "mdi:fire"
 
   @property
   def extra_state_attributes(self):

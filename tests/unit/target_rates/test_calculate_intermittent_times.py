@@ -57,7 +57,7 @@ async def test_when_intermittent_times_present_then_next_intermittent_times_retu
   )
 
   # Assert
-  assert result != None
+  assert result is not None
   assert len(result) == 2
   assert result[0]["valid_from"] == expected_first_valid_from
   assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
@@ -120,7 +120,7 @@ async def test_when_intermittent_times_present_and_highest_prices_are_true_then_
   )
 
   # Assert
-  assert result != None
+  assert result is not None
   assert len(result) == 2
   assert result[0]["valid_from"] == expected_first_valid_from
   assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
@@ -159,7 +159,7 @@ async def test_when_current_time_has_not_enough_time_left_then_no_intermittent_t
   )
 
   # Assert
-  assert result != None
+  assert result is not None
   assert len(result) == 0
 
 @pytest.mark.asyncio
@@ -218,7 +218,7 @@ async def test_when_start_time_is_after_end_time_then_rates_are_overnight():
   )
 
   # Assert
-  assert result != None
+  assert result is not None
   assert len(result) == 2
   assert result[0]["valid_from"] == datetime.strptime("2022-10-21T20:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[0]["valid_to"] == datetime.strptime("2022-10-21T20:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -296,7 +296,7 @@ async def test_when_start_time_and_end_time_is_same_then_rates_are_shifted():
   )
 
   # Assert
-  assert result != None
+  assert result is not None
   assert len(result) == 2
   assert result[0]["valid_from"] == datetime.strptime("2022-10-21T22:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[0]["valid_to"] == datetime.strptime("2022-10-21T22:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -368,7 +368,7 @@ async def test_when_start_time_is_after_end_time_and_rolling_target_then_rates_a
   )
 
   # Assert
-  assert result != None
+  assert result is not None
   assert len(result) == 2
   assert result[0]["valid_from"] == datetime.strptime("2022-10-21T21:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[0]["valid_to"] == datetime.strptime("2022-10-21T22:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -446,7 +446,7 @@ async def test_when_start_time_and_end_time_is_same_and_rolling_target_then_rate
   )
 
   # Assert
-  assert result != None
+  assert result is not None
   assert len(result) == 2
 
   assert result[0]["valid_from"] == datetime.strptime("2022-10-22T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -478,7 +478,7 @@ async def test_when_using_agile_times_then_lowest_rates_are_picked():
   )
 
   # Assert
-  assert result != None
+  assert result is not None
   assert len(result) == 6
 
   assert result[0]["valid_from"] == datetime.strptime("2022-10-21T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -526,5 +526,5 @@ async def test_when_available_rates_are_too_low_then_no_times_are_returned():
   )
 
   # Assert
-  assert result != None
+  assert result is not None
   assert len(result) == 0

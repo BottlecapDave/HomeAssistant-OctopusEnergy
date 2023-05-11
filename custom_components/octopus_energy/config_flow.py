@@ -48,12 +48,12 @@ def validate_target_rate_sensor(data):
   errors = {}
 
   matches = re.search(REGEX_ENTITY_NAME, data[CONFIG_TARGET_NAME])
-  if matches == None:
+  if matches is None:
     errors[CONFIG_TARGET_NAME] = "invalid_target_name"
 
   # For some reason float type isn't working properly - reporting user input malformed
   matches = re.search(REGEX_HOURS, data[CONFIG_TARGET_HOURS])
-  if matches == None:
+  if matches is None:
     errors[CONFIG_TARGET_HOURS] = "invalid_target_hours"
   else:
     data[CONFIG_TARGET_HOURS] = float(data[CONFIG_TARGET_HOURS])
@@ -62,17 +62,17 @@ def validate_target_rate_sensor(data):
 
   if CONFIG_TARGET_START_TIME in data:
     matches = re.search(REGEX_TIME, data[CONFIG_TARGET_START_TIME])
-    if matches == None:
+    if matches is None:
       errors[CONFIG_TARGET_START_TIME] = "invalid_target_time"
 
   if CONFIG_TARGET_END_TIME in data:
     matches = re.search(REGEX_TIME, data[CONFIG_TARGET_END_TIME])
-    if matches == None:
+    if matches is None:
       errors[CONFIG_TARGET_END_TIME] = "invalid_target_time"
 
   if CONFIG_TARGET_OFFSET in data:
     matches = re.search(REGEX_OFFSET_PARTS, data[CONFIG_TARGET_OFFSET])
-    if matches == None:
+    if matches is None:
       errors[CONFIG_TARGET_OFFSET] = "invalid_offset"
 
   return errors
@@ -96,7 +96,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
     client = OctopusEnergyApiClient(user_input[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap)
     account_info = await client.async_get_account(user_input[CONFIG_MAIN_ACCOUNT_ID])
-    if (account_info == None):
+    if (account_info is None):
       errors[CONFIG_MAIN_ACCOUNT_ID] = "account_not_found"
       return self.async_show_form(
         step_id="user", data_schema=DATA_SCHEMA_ACCOUNT, errors=errors
@@ -117,7 +117,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
       for point in account_info["electricity_meter_points"]:
         active_tariff_code = get_active_tariff_code(now, point["agreements"])
-        if active_tariff_code != None:
+        if active_tariff_code is not None:
           meters.append(point["mpan"])
 
     return vol.Schema({
@@ -204,7 +204,7 @@ class OptionsFlowHandler(OptionsFlow):
     if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
       for point in account_info["electricity_meter_points"]:
         active_tariff_code = get_active_tariff_code(now, point["agreements"])
-        if active_tariff_code != None:
+        if active_tariff_code is not None:
           meters.append(point["mpan"])
 
     if (CONFIG_TARGET_MPAN not in config):

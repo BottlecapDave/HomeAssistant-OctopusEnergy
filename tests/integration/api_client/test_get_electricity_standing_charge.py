@@ -63,4 +63,4 @@ async def test_when_get_electricity_standing_charge_is_called_for_non_existent_t
     result = await client.async_get_electricity_standing_charge(tariff, period_from, period_to)
 
     # Assert
-    assert result == None
+    assert result is None

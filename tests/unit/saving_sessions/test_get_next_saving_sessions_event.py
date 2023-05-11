@@ -55,4 +55,4 @@ async def test_when_no_future_events_present_then_none_returned():
     events,
   )
 
-  assert result == None
+  assert result is None

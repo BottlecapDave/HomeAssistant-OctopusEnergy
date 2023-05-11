@@ -17,7 +17,7 @@
         "description": "Setup a target rate period. Continuous target will find the cheapest continuous period for your target hours. While intermittent will find the cheapest periods with potential gaps, which when combined will meet your target hours.",
         "data": {
           "entity_id": "The name of your target",
-          "Hours": "The hours you require.",
+          "Hours": "The hours you require in decimal format.",
           "Type": "The type of target you're after",
           "MPAN": "The MPAN number of the meter to apply the target to",
           "Start time": "The minimum time to start the device",
@@ -29,7 +29,7 @@
     },
     "error": {
       "account_not_found": "Account information was not found",
-      "invalid_target_hours": "Target hours must be in half hour increments.",
+      "invalid_target_hours": "Target hours must be in half hour increments (e.g. 0.5 = 30 minutes; 1 = 60 minutes).",
       "invalid_target_name": "Name must only include lower case alpha characters and underscore (e.g. my_target)",
       "invalid_target_time": "Must be in the format HH:MM",
       "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol"
@@ -57,7 +57,7 @@
         "title": "Update Target Rate",
         "description": "Update the settings for your target rate sensor, which can be used to help you save energy and money.",
         "data": {
-          "Hours": "The hours you require.",
+          "Hours": "The hours you require in decimal format.",
           "MPAN": "The MPAN number of the meter to apply the target to",
           "Start time": "The minimum time to start the device",
           "End time": "The maximum time to stop the device",
@@ -67,7 +67,7 @@
       }
     },
     "error": {
-      "invalid_target_hours": "Target hours must be in half hour increments.",
+      "invalid_target_hours": "Target hours must be in half hour increments (e.g. 0.5 = 30 minutes; 1 = 60 minutes).",
       "invalid_target_time": "Must be in the format HH:MM",
       "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol"
     },

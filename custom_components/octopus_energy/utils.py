@@ -9,7 +9,7 @@ from .const import (
 
 def get_tariff_parts(tariff_code):
   matches = re.search(REGEX_TARIFF_PARTS, tariff_code)
-  if matches == None:
+  if matches is None:
     return None
   
   # If our energy or rate isn't extracted, then assume is electricity and "single" rate as that's 
@@ -32,22 +32,22 @@ def get_active_tariff_code(utcnow: datetime, agreements):
 
   # Find our latest agreement
   for agreement in agreements:
-    if agreement["tariff_code"] == None:
+    if agreement["tariff_code"] is None:
       continue
 
     valid_from = as_utc(parse_datetime(agreement["valid_from"]))
 
-    if utcnow >= valid_from and (latest_valid_from == None or valid_from > latest_valid_from):
+    if utcnow >= valid_from and (latest_valid_from is None or valid_from > latest_valid_from):
 
       latest_valid_to = None
-      if "valid_to" in agreement and agreement["valid_to"] != None:
+      if "valid_to" in agreement and agreement["valid_to"] is not None:
         latest_valid_to = as_utc(parse_datetime(agreement["valid_to"]))
 
-      if latest_valid_to == None or latest_valid_to >= utcnow:
+      if latest_valid_to is None or latest_valid_to >= utcnow:
         latest_agreement = agreement
         latest_valid_from = valid_from
 
-  if latest_agreement != None:
+  if latest_agreement is not None:
     return latest_agreement["tariff_code"]
   
   return None
@@ -73,7 +73,7 @@ def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: da
         value_inc_vat = price_cap
         is_capped = True
 
-      if "valid_from" in item and item["valid_from"] != None:
+      if "valid_from" in item and item["valid_from"] is not None:
         valid_from = as_utc(parse_datetime(item["valid_from"]))
 
         # If we're on a fixed rate, then our current time could be in the past so we should go from
@@ -84,7 +84,7 @@ def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: da
         valid_from = starting_period_from
 
       # Some rates don't have end dates, so we should treat this as our period to target
-      if "valid_to" in item and item["valid_to"] != None:
+      if "valid_to" in item and item["valid_to"] is not None:
         target_date = as_utc(parse_datetime(item["valid_to"]))
 
         # Cap our target date to our end period
@@ -107,3 +107,15 @@ def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: da
         starting_period_from = valid_to
     
   return results
+
+def get_off_peak_cost(rates):
+  off_peak_cost = None
+
+  rate_charges = {}
+  for rate in rates:
+    value = rate["value_inc_vat"]
+    rate_charges[value] = (rate_charges[value] if value in rate_charges else value)
+    if off_peak_cost is None or off_peak_cost > rate["value_inc_vat"]:
+      off_peak_cost = rate["value_inc_vat"]
+
+  return off_peak_cost if len(rate_charges) == 2 else None

@@ -8,10 +8,13 @@ from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
 from homeassistant.components.sensor import (
-    SensorDeviceClass
+    SensorDeviceClass,
+    SensorStateClass
 )
 
 from .base import (OctopusEnergyElectricitySensor)
+
+from . import (get_rate_information)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,6 +40,11 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
   def name(self):
     """Name of the sensor."""
     return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Current Rate"
+  
+  @property
+  def state_class(self):
+    """The state class of sensor"""
+    return SensorStateClass.TOTAL
 
   @property
   def device_class(self):
@@ -66,36 +74,34 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
     if (self._last_updated is None or self._last_updated < (now - timedelta(minutes=30)) or (now.minute % 30) == 0):
       _LOGGER.debug(f"Updating OctopusEnergyElectricityCurrentRate for '{self._mpan}/{self._serial_number}'")
 
-      current_rate = None
-      if self.coordinator.data != None:
-        rate = self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None
-        if rate != None:
-          for period in rate:
-            if now >= period["valid_from"] and now <= period["valid_to"]:
-              current_rate = period
-              break
+      rate_information = get_rate_information(self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None, now)
 
-      if current_rate != None:
-        ratesAttributes = list(map(lambda x: {
-          "from": x["valid_from"],
-          "to":   x["valid_to"],
-          "rate": x["value_inc_vat"],
-          "is_capped": x["is_capped"]
-        }, rate))
+      if rate_information is not None:
         self._attributes = {
-          "rate": current_rate,
+          "mpan": self._mpan,
+          "serial_number": self._serial_number,
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
-          "rates": ratesAttributes
+          "rates": rate_information["rates"],
+          "rate": rate_information["current_rate"],
+          "current_day_min_rate": rate_information["min_rate_today"],
+          "current_day_max_rate": rate_information["max_rate_today"],
+          "current_day_average_rate": rate_information["average_rate_today"]
         }
 
-        if self._electricity_price_cap is not None:
-          self._attributes["price_cap"] = self._electricity_price_cap
-        
-        self._state = current_rate["value_inc_vat"] / 100
+        self._state = rate_information["current_rate"]["value_inc_vat"] / 100
       else:
+        self._attributes = {
+          "mpan": self._mpan,
+          "serial_number": self._serial_number,
+          "is_export": self._is_export,
+          "is_smart_meter": self._is_smart_meter
+        }
+
         self._state = None
-        self._attributes = {}
+
+      if self._electricity_price_cap is not None:
+        self._attributes["price_cap"] = self._electricity_price_cap
 
       self._last_updated = now
 
