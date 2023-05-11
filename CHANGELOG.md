@@ -1,3 +1,21 @@
+# [7.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.0.0...v7.1.0) (2023-05-11)
+
+
+### Bug Fixes
+
+* **sensor:** Fixed current gas consumption device class to energy ([d4222b6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d4222b6e15ac3a52d95ec819030b345acf235f76))
+* **sensor:** Fixed icon for previous gas consumption sensor ([91f9096](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/91f909636ae02672507708ba2fce4337c9a68e40))
+* **sensor:** Fixed rate sensors not having long term statistics ([07db8f8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/07db8f85a1ddd153ce04564aa87195a1dda58be3))
+
+
+### Features
+
+* **config:** Added detail around target rate hours ([9b084c9](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9b084c99601afb7d22ccae27fba7aa287286022a))
+* **sensor:** Added breakdown of peak/off peak costs as attributes in previous electricity cost sensors ([78ed9e8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/78ed9e8f6b70eead24786f924de2c30d23e3be8b))
+* **sensor:** Added disabled sensors for representing electricity peak/off peak consumption and cost for previous day ([76de3fb](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/76de3fbfa8cba04a5b7186c1d4702a54b296108b))
+* **sensor:** Added min/max/average rates to electricity rate sensors ([df82983](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/df8298350e4ded78c306ba40acdaa89985c4a85f))
+* **sensors:** Added support for external statistics for previous consumption sensors ([4d4e460](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4d4e46002b3c8835bea794ba61f44de556554121))
+
 # [7.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v6.6.1...v7.0.0) (2023-04-18)
 
 
