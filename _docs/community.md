@@ -51,3 +51,79 @@ type: custom:apexcharts-card
 which will produce something like the following...
 
 ![chart example](./assets/apex-chart.png)
+
+If you're looking for cost vs power using ApexCharts, then @plandregan has you covered
+
+```yaml
+type: custom:apexcharts-card
+experimental:
+color_threshold: true
+header:
+show: true
+floating: true
+title: Cost vs Power
+graph_span: 24h
+show:
+last_updated: true
+loading: true
+apex_config:
+legend:
+show: false
+chart:
+zoom:
+type: x
+enabled: true
+autoScaleYaxis: false
+toolbar:
+show: true
+autoSelected: zoom
+xaxis.type: datetime
+fill:
+type: gradient
+gradient:
+shadeIntensity: 0.1
+opacityFrom: 0.3
+opacityTo: 1
+inverseColors: true
+series:
+
+    entity: sensor.octopus_energy_electricity_***************************_current_rate
+    transform: return x * 100;
+    type: area
+    name: GBP/kWh
+    yaxis_id: pence
+    color: lightblue
+    group_by:
+    func: avg
+    duration: 5m
+    stroke_width: 2
+    extend_to: now
+    show:
+    extremas: false
+    header_color_threshold: true
+    entity: sensor.givtcp_grid_power
+    transform: return x /1000;
+    type: line
+    invert: true
+    name: Power
+    yaxis_id: kwh
+    group_by:
+    func: avg
+    duration: 5m
+    color: red
+    stroke_width: 2
+    extend_to: now
+    yaxis:
+    id: pence
+    min: 0
+    max: 35
+    opposite: false
+    id: kwh
+    min: 0
+    max: 10
+    opposite: true
+```
+
+which will produce something like the following...
+
+![chart example](./assets/apex-chart-power-vs-cost.png)
