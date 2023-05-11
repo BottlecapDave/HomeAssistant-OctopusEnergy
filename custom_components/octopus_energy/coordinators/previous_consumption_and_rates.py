@@ -50,7 +50,7 @@ async def async_fetch_consumption_and_rates(
       rate_data = await client.async_get_gas_rates(tariff_code, period_from, period_to)
       standing_charge = await client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
     
-    if consumption_data is not None and len(consumption_data) > 0 and rate_data is not None and len(rate_data) > 0:
+    if consumption_data is not None and len(consumption_data) > 0 and rate_data is not None and len(rate_data) > 0 and standing_charge is not None:
       consumption_data = __sort_consumption(consumption_data)
 
       return {
