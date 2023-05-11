@@ -89,9 +89,9 @@ class OctopusEnergyPreviousAccumulativeElectricityCostPeak(CoordinatorEntity, Oc
     return self._state
 
   async def async_update(self):
-    consumption_data = self.coordinator.data["consumption"] if "consumption" in self.coordinator.data else None
-    rate_data = self.coordinator.data["rates"] if "rates" in self.coordinator.data else None
-    standing_charge = self.coordinator.data["standing_charge"] if "standing_charge" in self.coordinator.data else None
+    consumption_data = self.coordinator.data["consumption"] if self.coordinator.data is not None and "consumption" in self.coordinator.data else None
+    rate_data = self.coordinator.data["rates"] if self.coordinator.data is not None and "rates" in self.coordinator.data else None
+    standing_charge = self.coordinator.data["standing_charge"] if self.coordinator.data is not None and "standing_charge" in self.coordinator.data else None
 
     consumption_and_cost = await async_calculate_electricity_consumption_and_cost(
       consumption_data,
