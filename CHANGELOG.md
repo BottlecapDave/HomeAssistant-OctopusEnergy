@@ -1,3 +1,11 @@
+## [7.1.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.1.0...v7.1.1) (2023-05-11)
+
+
+### Bug Fixes
+
+* Added check for when standing charge can't be retrieved ([383ec65](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/383ec6534f4d7dbb500d13bc4e5e22a7c626eb4c))
+* Added more checks around retrieving previous rates and consumption ([a1ec6fe](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a1ec6fe139c81532a25ed4048acaef0fcc70127d))
+
 # [7.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.0.0...v7.1.0) (2023-05-11)
 
 
