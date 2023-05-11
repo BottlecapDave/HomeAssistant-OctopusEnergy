@@ -98,7 +98,10 @@ async def async_create_previous_consumption_and_rates_coordinator(
     if (result is not None):
       hass.data[DOMAIN][previous_consumption_key] = result
 
-    return hass.data[DOMAIN][previous_consumption_key] if "rates" in hass.data[DOMAIN][previous_consumption_key] and "standing_charge" in hass.data[DOMAIN][previous_consumption_key] else None
+    if previous_consumption_key in hass.data[DOMAIN] and "rates" in hass.data[DOMAIN][previous_consumption_key] and "consumption" in hass.data[DOMAIN][previous_consumption_key] and "standing_charge" in hass.data[DOMAIN][previous_consumption_key]:
+      return hass.data[DOMAIN][previous_consumption_key] 
+    else:
+      return None
 
   coordinator = DataUpdateCoordinator(
     hass,
@@ -110,7 +113,7 @@ async def async_create_previous_consumption_and_rates_coordinator(
     update_interval=timedelta(minutes=1),
   )
 
-  hass.data[DOMAIN][f'{identifier}_{serial_number}_previous_consumption_coordinator'] = coordinator
+  hass.data[DOMAIN][f'{identifier}_{serial_number}_previous_consumption_and_cost_coordinator'] = coordinator
 
   await coordinator.async_config_entry_first_refresh()
 
