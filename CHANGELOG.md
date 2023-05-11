@@ -1,3 +1,10 @@
+## [7.1.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.1.1...v7.1.2) (2023-05-11)
+
+
+### Bug Fixes
+
+* **sensor:** Added additional checks around previous consumptions and costs when data is not available ([28b31b5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/28b31b5e4d884d80ede288e5f22c3c69484a2ed1))
+
 ## [7.1.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.1.0...v7.1.1) (2023-05-11)
 
 
