@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 
 from homeassistant.core import HomeAssistant
 
@@ -140,5 +141,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
       self._attributes = {}
       for x in state.attributes.keys():
         self._attributes[x] = state.attributes[x]
+
+        if x == "last_reset":
+          self._last_reset = datetime.strptime(state.attributes[x], "%Y-%m-%dT%H:%M:%S%z")
     
       _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeElectricityCost state: {self._state}')
