@@ -251,12 +251,12 @@ async def test_when_electricity_consumption_available_and_two_peaks_available_th
   # Arrange
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   peak_from =  datetime.strptime("2022-02-28T05:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-02-28T06:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   latest_date = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   # Rate price is in pence
-  expected_peak_rate_price = 50
-  expected_off_peak_rate_price = 10
+  expected_peak_rate_price = 2
+  expected_off_peak_rate_price = 1
 
   rate_data = create_rate_data(period_from, peak_from, [expected_off_peak_rate_price]) + create_rate_data(peak_from, period_to, [expected_peak_rate_price])
 
@@ -265,7 +265,7 @@ async def test_when_electricity_consumption_available_and_two_peaks_available_th
   
   consumption_data = create_consumption_data(period_from, period_to)
   assert consumption_data != None
-  assert len(consumption_data) == 48
+  assert len(consumption_data) == 12
   assert consumption_data[-1]["interval_end"] == period_to
   assert consumption_data[0]["interval_start"] == period_from
 
@@ -285,10 +285,10 @@ async def test_when_electricity_consumption_available_and_two_peaks_available_th
   assert result["total_cost_off_peak"] == round((10 * expected_off_peak_rate_price) / 100, 2)
 
   assert "total_cost_peak" in result
-  assert result["total_cost_peak"] == round((38 * expected_peak_rate_price) / 100, 2)
+  assert result["total_cost_peak"] == round((2 * expected_peak_rate_price) / 100, 2)
 
   assert "total_consumption_off_peak" in result
   assert result["total_consumption_off_peak"] == 10
 
   assert "total_consumption_peak" in result
-  assert result["total_consumption_peak"] == 38
+  assert result["total_consumption_peak"] == 2
