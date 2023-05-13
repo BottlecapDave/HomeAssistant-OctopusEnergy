@@ -1,6 +1,6 @@
 from datetime import (datetime, timedelta)
 
-from ..api_client import OctopusEnergyApiClient
+from ..utils import get_off_peak_cost
 
 def __get_interval_end(item):
     return item["interval_end"]
@@ -29,8 +29,13 @@ async def async_calculate_electricity_consumption_and_cost(
       charges = []
       total_cost_in_pence = 0
       total_consumption = 0
-      rate_charges = {}
-      consumption_charges = {}
+
+      off_peak_cost = get_off_peak_cost(rate_data)
+      total_cost_off_peak = 0
+      total_cost_peak = 0
+      total_consumption_off_peak = 0
+      total_consumption_peak = 0
+
       for consumption in sorted_consumption_data:
         consumption_value = consumption["consumption"]
         consumption_from = consumption["interval_start"]
@@ -46,8 +51,12 @@ async def async_calculate_electricity_consumption_and_cost(
         cost = (value * consumption_value)
         total_cost_in_pence = total_cost_in_pence + cost
 
-        rate_charges[value] = (rate_charges[value] if value in rate_charges else 0) + cost
-        consumption_charges[value] = (consumption_charges[value] if value in consumption_charges else 0) + consumption_value
+        if value == off_peak_cost:
+          total_consumption_off_peak = total_consumption_off_peak + consumption_value
+          total_cost_off_peak = total_cost_off_peak + cost
+        else:
+          total_consumption_peak = total_consumption_peak + consumption_value
+          total_cost_peak = total_cost_peak + cost
 
         charges.append({
           "from": rate["valid_from"],
@@ -73,20 +82,11 @@ async def async_calculate_electricity_consumption_and_cost(
         "charges": charges
       }
 
-      if len(rate_charges) == 2:
-        key_one = list(rate_charges.keys())[0]
-        key_two = list(rate_charges.keys())[1]
-
-        if (rate_charges[key_one] < rate_charges[key_two]):
-          result["total_cost_off_peak"] = round(rate_charges[key_one] / 100, 2)
-          result["total_cost_peak"] = round(rate_charges[key_two] / 100, 2)
-          result["total_consumption_off_peak"] = consumption_charges[key_one]
-          result["total_consumption_peak"] = consumption_charges[key_two]
-        else:
-          result["total_cost_off_peak"] = round(rate_charges[key_two] / 100, 2)
-          result["total_cost_peak"] = round(rate_charges[key_one] / 100, 2)
-          result["total_consumption_off_peak"] = consumption_charges[key_two]
-          result["total_consumption_peak"] = consumption_charges[key_one]
+      if off_peak_cost is not None:
+        result["total_cost_off_peak"] = round(total_cost_off_peak / 100, 2)
+        result["total_cost_peak"] = round(total_cost_peak / 100, 2)
+        result["total_consumption_off_peak"] = total_consumption_off_peak
+        result["total_consumption_peak"] = total_consumption_peak
 
       return result
       
