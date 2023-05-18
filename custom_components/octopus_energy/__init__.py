@@ -48,6 +48,10 @@ async def async_setup_entry(hass, entry):
     hass.async_create_task(
       hass.config_entries.async_forward_entry_setup(entry, "binary_sensor")
     )
+
+    hass.async_create_task(
+      hass.config_entries.async_forward_entry_setup(entry, "text")
+    )
   elif CONFIG_TARGET_NAME in config:
     if DOMAIN not in hass.data or DATA_ELECTRICITY_RATES_COORDINATOR not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN]:
       raise ConfigEntryNotReady

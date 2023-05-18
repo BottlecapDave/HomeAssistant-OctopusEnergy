@@ -130,3 +130,6 @@ def get_rate_information(rates, target: datetime):
     }
 
   return None
+
+def get_electricity_tariff_override_key(serial_number: str, mpan: str):
+  f'electricity_previous_consumption_tariff_{serial_number}_{mpan}'
