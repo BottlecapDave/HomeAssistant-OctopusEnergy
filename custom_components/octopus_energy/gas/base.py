@@ -30,12 +30,12 @@ class OctopusEnergyGasSensor(SensorEntity, RestoreEntity):
   @property
   def device_info(self):
     return {
-        "identifiers": {
-            # Serial numbers/mpan are unique identifiers within a specific domain
-            (DOMAIN, f"electricity_{self._serial_number}_{self._mprn}")
-        },
-        "default_name": "Gas Meter",
-        "manufacturer": self._meter["manufacturer"],
-        "model": self._meter["model"],
-        "sw_version": self._meter["firmware"]
+      "identifiers": {
+          # Serial numbers/mpan are unique identifiers within a specific domain
+          (DOMAIN, f"electricity_{self._serial_number}_{self._mprn}")
+      },
+      "default_name": "Gas Meter",
+      "manufacturer": self._meter["manufacturer"],
+      "model": self._meter["model"],
+      "sw_version": self._meter["firmware"]
     }

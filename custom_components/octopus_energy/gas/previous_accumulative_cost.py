@@ -14,8 +14,6 @@ from . import (
   async_calculate_gas_consumption_and_cost,
 )
 
-from ..api_client import (OctopusEnergyApiClient)
-
 from .base import (OctopusEnergyGasSensor)
 
 from ..statistics.cost import async_import_external_statistics_from_cost
@@ -25,13 +23,12 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyGasSensor):
   """Sensor for displaying the previous days accumulative gas cost."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, tariff_code, meter, point, calorific_value):
+  def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point, calorific_value):
     """Init sensor."""
     super().__init__(coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
     
     self._hass = hass
-    self._client = client
     self._tariff_code = tariff_code
     self._native_consumption_units = meter["consumption_units"]
 

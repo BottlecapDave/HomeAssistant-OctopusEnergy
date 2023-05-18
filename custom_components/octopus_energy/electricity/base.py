@@ -36,12 +36,12 @@ class OctopusEnergyElectricitySensor(SensorEntity, RestoreEntity):
   @property
   def device_info(self):
     return {
-        "identifiers": {
-            # Serial numbers/mpan are unique identifiers within a specific domain
-            (DOMAIN, f"electricity_{self._serial_number}_{self._mpan}")
-        },
-        "default_name": f"Electricity Meter{self._export_name_addition}",
-        "manufacturer": self._meter["manufacturer"],
-        "model": self._meter["model"],
-        "sw_version": self._meter["firmware"]
+      "identifiers": {
+          # Serial numbers/mpan are unique identifiers within a specific domain
+          (DOMAIN, f"electricity_{self._serial_number}_{self._mpan}")
+      },
+      "default_name": f"Electricity Meter{self._export_name_addition}",
+      "manufacturer": self._meter["manufacturer"],
+      "model": self._meter["model"],
+      "sw_version": self._meter["firmware"]
     }

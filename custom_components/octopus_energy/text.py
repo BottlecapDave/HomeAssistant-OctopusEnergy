@@ -1,10 +1,11 @@
 from datetime import timedelta
 import logging
+
 from homeassistant.util.dt import (utcnow)
 from homeassistant.core import HomeAssistant
 
-from .coordinators.previous_consumption_and_rates import async_create_previous_consumption_and_rates_coordinator
 from .electricity.previous_accumulative_cost_override_tariff import OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride
+from .gas.previous_accumulative_cost_override_tariff import OctopusEnergyPreviousAccumulativeGasCostTariffOverride
 
 from .utils import (get_active_tariff_code)
 from .const import (
@@ -77,7 +78,8 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
         for meter in point["meters"]:
           _LOGGER.info(f'Adding gas meter; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
 
-          # if meter["is_smart_meter"] == True:
+          if meter["is_smart_meter"] == True:
+            entities.append(OctopusEnergyPreviousAccumulativeGasCostTariffOverride(hass, gas_tariff_code, meter, point))
       else:
         for meter in point["meters"]:
           _LOGGER.info(f'Skipping gas meter due to no active agreement; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')

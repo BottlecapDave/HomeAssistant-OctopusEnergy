@@ -10,12 +10,12 @@ from homeassistant.helpers.entity import generate_entity_id
 
 from ..const import (DOMAIN, REGEX_TARIFF_PARTS)
 
-from . import get_electricity_tariff_override_key
+from . import get_gas_tariff_override_key
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(TextEntity, RestoreEntity):
-  """Sensor for the tariff for the previous days accumulative electricity cost looking at a different tariff."""
+class OctopusEnergyPreviousAccumulativeGasCostTariffOverride(TextEntity, RestoreEntity):
+  """Sensor for the tariff for the previous days accumulative gas cost looking at a different tariff."""
 
   _attr_pattern = REGEX_TARIFF_PARTS
 
@@ -24,22 +24,16 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(TextEntity,
     
     self._point = point
     self._meter = meter
-
-    self._mpan = point["mpan"]
+    
+    self._mprn = point["mprn"]
     self._serial_number = meter["serial_number"]
-    self._is_export = meter["is_export"]
-    self._is_smart_meter = meter["is_smart_meter"]
-    self._export_id_addition = "_export" if self._is_export == True else ""
-    self._export_name_addition = " Export" if self._is_export == True else ""
 
     self._attributes = {
-      "mpan": self._mpan,
-      "serial_number": self._serial_number,
-      "is_export": self._is_export,
-      "is_smart_meter": self._is_smart_meter
+      "mprn": self._mprn,
+      "serial_number": self._serial_number
     }
 
-    self.entity_id = generate_entity_id("text.{}", self.unique_id, hass=hass)
+    self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
 
     self._hass = hass
 
@@ -50,9 +44,9 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(TextEntity,
     return {
       "identifiers": {
           # Serial numbers/mpan are unique identifiers within a specific domain
-          (DOMAIN, f"electricity_{self._serial_number}_{self._mpan}")
+          (DOMAIN, f"electricity_{self._serial_number}_{self._mprn}")
       },
-      "default_name": f"Electricity Meter{self._export_name_addition}",
+      "default_name": "Gas Meter",
       "manufacturer": self._meter["manufacturer"],
       "model": self._meter["model"],
       "sw_version": self._meter["firmware"]
@@ -69,12 +63,12 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(TextEntity,
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_previous_accumulative_cost_override_tariff"
+    return f"octopus_energy_gas_{self._serial_number}_{self._mprn}_previous_accumulative_cost_override_tariff"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Cost Override Tariff"
+    return f"Gas {self._serial_number} {self._mprn} Previous Cost Override Tariff"
   
   @property
   def icon(self):
@@ -84,7 +78,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(TextEntity,
   async def async_set_value(self, value: str) -> None:
     """Update the value."""
     self._attr_native_value = value
-    self._hass.data[DOMAIN][get_electricity_tariff_override_key(self._serial_number, self._mpan)] = value
+    self._hass.data[DOMAIN][get_gas_tariff_override_key(self._serial_number, self._mprn)] = value
     self.async_write_ha_state()
 
   async def async_added_to_hass(self):
@@ -94,13 +88,14 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(TextEntity,
     state = await self.async_get_last_state()
     
     if state is not None:
+
       if state.state is not None:
         self._attr_native_value = state.state
         self._attr_state = state.state
-        self._hass.data[DOMAIN][get_electricity_tariff_override_key(self._serial_number, self._mpan)] = self._attr_native_value
+        self._hass.data[DOMAIN][get_gas_tariff_override_key(self._serial_number, self._mprn)] = self._attr_native_value
       
       self._attributes = {}
       for x in state.attributes.keys():
         self._attributes[x] = state.attributes[x]
     
-      _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride state: {self._attr_state}')
+      _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeGasCostTariffOverride state: {self._attr_state}')
