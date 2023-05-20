@@ -24,7 +24,7 @@ async def async_calculate_electricity_consumption_and_cost(
     sorted_consumption_data = __sort_consumption(consumption_data)
 
     # Only calculate our consumption if our data has changed
-    if (last_reset is None or last_reset < sorted_consumption_data[-1]["interval_end"]):
+    if (last_reset is None or last_reset < sorted_consumption_data[0]["interval_start"]):
 
       charges = []
       total_cost_in_pence = 0
