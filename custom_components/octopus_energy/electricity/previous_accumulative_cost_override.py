@@ -108,7 +108,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     is_tariff_present = tariff_override_key in self._hass.data[DOMAIN]
     has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][tariff_override_key] != self._tariff_code
 
-    if (is_tariff_present and (is_old_data or has_tariff_changed)):
+    if (consumption_data is not None and is_tariff_present and (is_old_data or has_tariff_changed)):
       
       self._tariff_code = self._hass.data[DOMAIN][tariff_override_key]
       current = now()
