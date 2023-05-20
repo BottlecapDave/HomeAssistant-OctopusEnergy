@@ -12,6 +12,10 @@ from ..const import (DOMAIN, REGEX_TARIFF_PARTS)
 
 from . import get_electricity_tariff_override_key
 
+from ..utils.tariff_check import check_tariff_override_valid
+
+from ..api_client import OctopusEnergyApiClient
+
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(TextEntity, RestoreEntity):
@@ -19,7 +23,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(TextEntity,
 
   _attr_pattern = REGEX_TARIFF_PARTS
 
-  def __init__(self, hass: HomeAssistant, tariff_code, meter, point):
+  def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, tariff_code, meter, point):
     """Init sensor."""
     
     self._point = point
@@ -43,6 +47,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(TextEntity,
 
     self._hass = hass
 
+    self._client = client
+    self._tariff_code = tariff_code
     self._attr_native_value = tariff_code
 
   @property
@@ -83,6 +89,10 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(TextEntity,
 
   async def async_set_value(self, value: str) -> None:
     """Update the value."""
+    result = check_tariff_override_valid(self._client, self._tariff_code, value)
+    if (result is not None):
+      raise Exception(result)
+
     self._attr_native_value = value
     self._hass.data[DOMAIN][get_electricity_tariff_override_key(self._serial_number, self._mpan)] = value
     self.async_write_ha_state()

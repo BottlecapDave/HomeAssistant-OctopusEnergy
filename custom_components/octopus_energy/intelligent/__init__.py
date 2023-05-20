@@ -5,7 +5,7 @@ from ..utils import get_tariff_parts
 def is_intelligent_tariff(tariff_code: str):
   parts = get_tariff_parts(tariff_code.upper())
 
-  return parts is not None and "INTELLI" in parts["product_code"]
+  return parts is not None and "INTELLI" in parts.product_code
 
 def __get_dispatch(rate, dispatches):
   for dispatch in dispatches:

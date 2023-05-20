@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 import logging
 
-from custom_components.octopus_energy.utils import rates_to_thirty_minute_increments
+from custom_components.octopus_energy.api_client import rates_to_thirty_minute_increments
 
 logging.getLogger().setLevel(logging.DEBUG)
 

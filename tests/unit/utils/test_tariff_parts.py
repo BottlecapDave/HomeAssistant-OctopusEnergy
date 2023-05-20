@@ -14,14 +14,10 @@ async def test_get_tariff_parts(tariff_code, expected_energy, expected_rate, exp
 
   # Assert
   assert result is not None
-  assert "energy" in result
-  assert result["energy"] == expected_energy
-  assert "rate" in result
-  assert result["rate"] == expected_rate
-  assert "product_code" in result
-  assert result["product_code"] == expected_product_code
-  assert "region" in result
-  assert result["region"] == expected_region
+  assert result.energy == expected_energy
+  assert result.rate == expected_rate
+  assert result.product_code == expected_product_code
+  assert result.region == expected_region
 
 @pytest.mark.asyncio
 async def test_get_tariff_parts_when_invalid_then_none_returned():
