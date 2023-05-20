@@ -1,6 +1,15 @@
 from . import get_tariff_parts
 from ..api_client import (OctopusEnergyApiClient)
 
+def is_tariff_present(root_key: str, region: str, tariff_code: str, product) -> bool:
+  target_region = f'_{region}'
+  if root_key in product and target_region in product[root_key]:
+    first_key = next(iter(product[root_key][target_region]))
+    return (first_key in product[root_key][target_region] and
+            'code' in product[root_key][target_region][first_key] and
+            product[root_key][target_region][first_key]['code'] == tariff_code)
+  return False
+
 async def check_tariff_override_valid(client: OctopusEnergyApiClient, original_tariff_code: str, tariff_code: str):
   tariff_parts = get_tariff_parts(tariff_code)
   original_tariff_parts = get_tariff_parts(original_tariff_code)
@@ -15,25 +24,13 @@ async def check_tariff_override_valid(client: OctopusEnergyApiClient, original_t
     return f"Failed to find owning product '{tariff_parts.product_code}'"
   
   if tariff_parts.energy == 'E':
-    is_present = ('single_register_electricity_tariffs' in product and
-                  f'_{tariff_parts.region}' in product['single_register_electricity_tariffs'] and
-                  'direct_debit_monthly' in product['single_register_electricity_tariffs'][f'_{tariff_parts.region}'] and
-                  'code' in product['single_register_electricity_tariffs'][f'_{tariff_parts.region}']['direct_debit_monthly'] and
-                  product['single_register_electricity_tariffs'][f'_{tariff_parts.region}']['direct_debit_monthly']['code'] == tariff_code)
+    is_present = is_tariff_present('single_register_electricity_tariffs', tariff_parts.region, tariff_code, product)
     if is_present == False:
-      is_present = ('dual_register_electricity_tariffs' in product and
-                  f'_{tariff_parts.region}' in product['dual_register_electricity_tariffs'] and
-                  'direct_debit_monthly' in product['dual_register_electricity_tariffs'][f'_{tariff_parts.region}'] and
-                  'code' in product['dual_register_electricity_tariffs'][f'_{tariff_parts.region}']['direct_debit_monthly'] and
-                  product['dual_register_electricity_tariffs'][f'_{tariff_parts.region}']['direct_debit_monthly']['code'] == tariff_code)
+      is_present = is_tariff_present('dual_register_electricity_tariffs', tariff_parts.region, tariff_code, product)
       if is_present == False:
         return f"Failed to find tariff '{tariff_code}'"
   elif tariff_parts.energy == 'G':
-    is_present = ('single_register_gas_tariffs' in product and
-                  f'_{tariff_parts.region}' in product['single_register_gas_tariffs'] and
-                  'direct_debit_monthly' in product['single_register_gas_tariffs'][f'_{tariff_parts.region}'] and
-                  'code' in product['single_register_gas_tariffs'][f'_{tariff_parts.region}']['direct_debit_monthly'] and
-                  product['single_register_gas_tariffs'][f'_{tariff_parts.region}']['direct_debit_monthly']['code'] == tariff_code)
+    is_present = is_tariff_present('single_register_gas_tariffs', tariff_parts.region, tariff_code, product)
     if is_present == False:
       return f"Failed to find tariff '{tariff_code}'"
   else:

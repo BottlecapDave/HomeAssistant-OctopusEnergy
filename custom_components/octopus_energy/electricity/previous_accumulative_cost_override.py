@@ -1,5 +1,5 @@
 import logging
-from datetime import (datetime, timedelta)
+from datetime import (datetime)
 
 from homeassistant.core import HomeAssistant
 
@@ -10,8 +10,6 @@ from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorStateClass
 )
-
-from homeassistant.util.dt import (now, as_utc)
 
 from . import (
   async_calculate_electricity_consumption_and_cost,
@@ -108,22 +106,24 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     is_tariff_present = tariff_override_key in self._hass.data[DOMAIN]
     has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][tariff_override_key] != self._tariff_code
 
-    if (consumption_data is not None and is_tariff_present and (is_old_data or has_tariff_changed)):
+    if (consumption_data is not None and len(consumption_data) > 0 and is_tariff_present and (is_old_data or has_tariff_changed)):
+      _LOGGER.debug(f"Calculating previous electricity consumption cost override for '{self._mpan}/{self._serial_number}'...")
       
-      self._tariff_code = self._hass.data[DOMAIN][tariff_override_key]
-      current = now()
-      period_from = as_utc((current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
-      period_to = as_utc(current.replace(hour=0, minute=0, second=0, microsecond=0))
-      rate_data = await self._client.async_get_electricity_rates(self._tariff_code, self._is_smart_meter, period_from, period_to)
-      standing_charge = await self._client.async_get_electricity_standing_charge(self._tariff_code, period_from, period_to)
+      tariff_override = self._hass.data[DOMAIN][tariff_override_key]
+      period_from = consumption_data[0]["interval_start"]
+      period_to = consumption_data[-1]["interval_end"]
+      rate_data = await self._client.async_get_electricity_rates(tariff_override, self._is_smart_meter, period_from, period_to)
+      standing_charge = await self._client.async_get_electricity_standing_charge(tariff_override, period_from, period_to)
 
       consumption_and_cost = await async_calculate_electricity_consumption_and_cost(
         consumption_data,
         rate_data,
         standing_charge["value_inc_vat"] if standing_charge is not None else None,
-        self._last_reset,
-        self._tariff_code
+        None if has_tariff_changed else self._last_reset,
+        tariff_override
       )
+
+      self._tariff_code = tariff_override
 
       if (consumption_and_cost is not None):
         _LOGGER.debug(f"Calculated previous electricity consumption cost override for '{self._mpan}/{self._serial_number}'...")

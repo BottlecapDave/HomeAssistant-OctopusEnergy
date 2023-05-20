@@ -79,7 +79,7 @@ There has been inconsistencies across tariffs on whether government pricing caps
 
 ## Tariff Overrides
 
-You may be on an existing tariff but want to know if the grass is greener (or cheaper) on the other side. The following entities are available in a disabled state.
+You may be on an existing tariff but want to know if the grass is greener (or cheaper) on the other side. The following entities are available in a disabled state, which when enabled can give you an indication what you'd be paying if you were on a different tariff and didn't change your energy habits.
 
 * `text.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_override_tariff` - This is used to define the electricity tariff you want to compare
 * `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_override` - This is the cost of the previous electricity accumulation based on the specified tariff override.
@@ -96,4 +96,7 @@ In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https:
 
 ![Target product example](./assets/product_tariff_lookup.png)
 
-> Please note: There are plans to be able to override tariffs at a global level so that you can test target rate sensors and potential automations you may have running against the main sensors. However, this hasn't been implemented yet.
+> Please note: When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
+
+There are plans to be able to override tariffs at a global level so that you can test target rate sensors and potential automations you may have running against the main sensors. However, this hasn't been implemented yet.
+
