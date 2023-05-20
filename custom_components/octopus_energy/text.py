@@ -53,7 +53,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
           _LOGGER.info(f'Adding electricity meter; mpan: {point["mpan"]}; serial number: {meter["serial_number"]}')
 
           if meter["is_smart_meter"] == True:
-            entities.append(OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(hass, electricity_tariff_code, meter, point))
+            entities.append(OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(hass, client, electricity_tariff_code, meter, point))
       else:
         for meter in point["meters"]:
           _LOGGER.info(f'Skipping electricity meter due to no active agreement; mpan: {point["mpan"]}; serial number: {meter["serial_number"]}')
@@ -79,7 +79,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
           _LOGGER.info(f'Adding gas meter; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
 
           if meter["is_smart_meter"] == True:
-            entities.append(OctopusEnergyPreviousAccumulativeGasCostTariffOverride(hass, gas_tariff_code, meter, point))
+            entities.append(OctopusEnergyPreviousAccumulativeGasCostTariffOverride(hass, client, gas_tariff_code, meter, point))
       else:
         for meter in point["meters"]:
           _LOGGER.info(f'Skipping gas meter due to no active agreement; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
