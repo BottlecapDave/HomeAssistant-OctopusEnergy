@@ -8,6 +8,7 @@
   - [Home Mini](#home-mini)
   - [Calorific Value](#calorific-value)
   - [Government Pricing Caps](#government-pricing-caps)
+  - [Tariff Overrides](#tariff-overrides)
 
 
 Setup is done entirely via the [integration UI](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
@@ -75,3 +76,24 @@ When calculating gas costs, a calorific value is included in the calculation. Un
 ## Government Pricing Caps
 
 There has been inconsistencies across tariffs on whether government pricing caps are included or not. Therefore the ability to configure pricing caps has been added within you account. Please note that while rates are reflected straight away, consumption based sensors may take up to 24 hours to reflect. This is due to how they look at data and cannot be changed.
+
+## Tariff Overrides
+
+You may be on an existing tariff but want to know if the grass is greener (or cheaper) on the other side. The following entities are available in a disabled state.
+
+* `text.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_override_tariff` - This is used to define the electricity tariff you want to compare
+* `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_override` - This is the cost of the previous electricity accumulation based on the specified tariff override.
+* `text.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost_override_tariff` - This is used to define the gas tariff you want to compare
+* `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost_override` - This is the cost of the previous gas accumulation based on the specified tariff override.
+
+To find an available tariff, you can use the Octopus Energy API to search for [current products](https://developer.octopus.energy/docs/api/#list-products). Once a product has been found, you can look up the product to find the tariff in your region and for your target energy supply.
+
+For example if I was on the tariff `E-1R-SUPER-GREEN-24M-21-07-30-A` and I wanted to check `Flexible Octopus November 2022 v1`. I would look up all of the [products](https://api.octopus.energy/v1/products) and look for my target under `full_name` or `display_name`. I would then look up the product by taking the specified `code` and putting it at the end of the [products url](https://api.octopus.energy/v1/products). 
+
+![All products example](./assets/product_lookup.png)
+
+In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https://api.octopus.energy/v1/products/VAR-22-11-01](https://api.octopus.energy/v1/products/VAR-22-11-01). From this list, I would then look up the tariff for my region (e.g. `A` defined at the end of my current tariff) which is defined in the `code` field. It is this value that you add to the `cost_override_tariff` sensors. In this example, I want the duel electricity tariff version, so will pick `E-2R-VAR-22-11-01-A`.
+
+![Target product example](./assets/product_tariff_lookup.png)
+
+> Please note: There are plans to be able to override tariffs at a global level so that you can test target rate sensors and potential automations you may have running against the main sensors. However, this hasn't been implemented yet.
