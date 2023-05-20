@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import (datetime, timedelta)
 import logging
 
 from homeassistant.util.dt import (parse_datetime, utcnow, now)
@@ -14,10 +14,12 @@ from ..api_client import (OctopusEnergyApiClient)
 
 _LOGGER = logging.getLogger(__name__)
 
-async def async_get_live_consumption(client: OctopusEnergyApiClient, device_id, current_date, last_retrieval_date):
+async def async_get_live_consumption(client: OctopusEnergyApiClient, device_id, current_date: datetime, last_retrieval_date: datetime):
     period_to = current_date.strftime("%Y-%m-%dT%H:%M:00Z")
     if (last_retrieval_date is None):
       period_from = (parse_datetime(period_to) - timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:00Z")
+    elif (current_date - last_retrieval_date).days >= 5:
+      period_from = (parse_datetime(period_to) - timedelta(days=5)).strftime("%Y-%m-%dT00:00:00Z")
     else:
       period_from = (last_retrieval_date + timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:00Z")
     
