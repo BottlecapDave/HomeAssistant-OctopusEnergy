@@ -1,3 +1,10 @@
+## [7.1.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.1.2...v7.1.3) (2023-05-13)
+
+
+### Bug Fixes
+
+* **sensor:** Fixed peak/off peak calculations when off peak cost exceeds peak costs ([317e916](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/317e916602ca005827cdd351ffd67054fcdb620c))
+
 ## [7.1.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.1.1...v7.1.2) (2023-05-11)
 
 
