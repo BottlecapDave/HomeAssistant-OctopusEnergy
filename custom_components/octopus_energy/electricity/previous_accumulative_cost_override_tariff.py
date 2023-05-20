@@ -89,7 +89,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(TextEntity,
 
   async def async_set_value(self, value: str) -> None:
     """Update the value."""
-    result = check_tariff_override_valid(self._client, self._tariff_code, value)
+    result = await check_tariff_override_valid(self._client, self._tariff_code, value)
     if (result is not None):
       raise Exception(result)
 
