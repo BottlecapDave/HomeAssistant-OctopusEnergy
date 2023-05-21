@@ -2,7 +2,7 @@ from datetime import timedelta
 import pytest
 
 from homeassistant.util.dt import (as_utc, parse_datetime)
-from custom_components.octopus_energy.utils import rates_to_thirty_minute_increments
+from custom_components.octopus_energy.api_client import rates_to_thirty_minute_increments
 
 # Based on E-1R-GO-22-07-05-D
 @pytest.mark.asyncio
