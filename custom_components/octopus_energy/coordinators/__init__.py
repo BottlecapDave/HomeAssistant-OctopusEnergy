@@ -37,7 +37,7 @@ async def async_check_valid_tariff(hass, client: OctopusEnergyApiClient, tariff_
         translation_placeholders={ "type": "Electricity" if is_electricity else "Gas", "tariff_code": tariff_code },
       )
     else:
-      product = await client.async_get_product(tariff_parts["product_code"])
+      product = await client.async_get_product(tariff_parts.product_code)
       if product is None:
         ir.async_create_issue(
           hass,

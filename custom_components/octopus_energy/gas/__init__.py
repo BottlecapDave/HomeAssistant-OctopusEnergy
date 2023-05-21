@@ -94,3 +94,6 @@ async def async_calculate_gas_consumption_and_cost(
         "last_calculated_timestamp": last_calculated_timestamp,
         "charges": charges
       }
+    
+def get_gas_tariff_override_key(serial_number: str, mprn: str) -> str:
+  return f'gas_previous_consumption_tariff_{serial_number}_{mprn}'
