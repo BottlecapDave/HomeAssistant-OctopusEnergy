@@ -36,7 +36,7 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     if (DATA_ACCOUNT in hass.data[DOMAIN] and 
-        # DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] and
+        DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] and
         DATA_RATES not in hass.data[DOMAIN] or (current.minute % 30) == 0 or hass.data[DOMAIN][DATA_RATES] is None or len(hass.data[DOMAIN][DATA_RATES]) == 0):
 
       tariff_codes = await async_get_current_electricity_agreement_tariff_codes(hass, client, account_id)
@@ -50,11 +50,11 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
         key = meter_point
         new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
         if new_rates != None:
-          # if is_intelligent_tariff(tariff_code):
-          #   rates[key] = adjust_intelligent_rates(new_rates, 
-          #                                         hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]["planned"] if "planned" in hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] else [],
-          #                                         hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]["complete"] if "complete" in hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] else [])
-          # else:
+          if is_intelligent_tariff(tariff_code):
+            rates[key] = adjust_intelligent_rates(new_rates, 
+                                                  hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]["planned"] if "planned" in hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] else [],
+                                                  hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]["complete"] if "complete" in hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] else [])
+          else:
             rates[key] = new_rates
         elif (DATA_RATES in hass.data[DOMAIN] and key in hass.data[DOMAIN][DATA_RATES]):
           _LOGGER.debug(f"Failed to retrieve new rates for {tariff_code}, so using cached rates")
