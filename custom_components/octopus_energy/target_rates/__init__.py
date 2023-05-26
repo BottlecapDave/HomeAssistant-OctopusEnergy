@@ -143,7 +143,17 @@ def calculate_intermittent_times(
   
   total_required_rates = math.ceil(target_hours * 2)
 
-  applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], rate["valid_to"]), reverse=search_for_highest_rate)
+  if find_latest_times:
+    if search_for_highest_rate:
+      applicable_rates.sort(key= lambda rate: (-rate["value_inc_vat"], -rate["valid_to"].timestamp()))
+    else:
+      applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], -rate["valid_to"].timestamp()))
+  else:
+    if search_for_highest_rate:
+      applicable_rates.sort(key= lambda rate: (-rate["value_inc_vat"], rate["valid_to"]))
+    else:
+      applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], rate["valid_to"]))
+  print(applicable_rates)
   applicable_rates = applicable_rates[:total_required_rates]
   
   _LOGGER.debug(f'{len(applicable_rates)} applicable rates found')

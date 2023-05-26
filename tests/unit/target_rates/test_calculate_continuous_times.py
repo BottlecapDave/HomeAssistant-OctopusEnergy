@@ -53,7 +53,8 @@ async def test_when_continuous_times_present_then_next_continuous_times_returned
     target_end_time,
     target_hours,
     rates,
-    is_rolling_target
+    is_rolling_target,
+    False
   )
 
   # Assert
