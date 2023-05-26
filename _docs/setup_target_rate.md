@@ -5,6 +5,7 @@
   - [Hours](#hours)
   - [Offset](#offset)
   - [Rolling Target](#rolling-target)
+  - [Latest Period](#latest-period)
   - [Examples](#examples)
     - [Continuous](#continuous)
     - [Intermittent](#intermittent)
@@ -42,6 +43,14 @@ Depending on how you're going to use the sensor, you might want the best period 
 However, you might also only want the target time to occur once a day so once the best time for that day has passed it won't turn on again. For example, you might be using the sensor to turn on something that isn't time critical and could wait till the next day like a charger.
 
 This feature is toggled on by the `Re-evaluate multiple times a day` checkbox.
+
+## Latest Period
+
+Depending on how you're going to use the sensor, you might want the best period at the latest possible time. For example, you might be using the sensor to turn on an emersion heater which you'll want to come on at the end of the cheap period. 
+
+For instance if you turn this on, the cheapest period is between `2023-01-01T00:30` and `2023-01-01T05:00` and your target rate is for 1 hour, then it will come on between `2023-01-01T04:00` and `2023-01-01T05:00` instead of `2023-01-01T00:30` and `2023-01-01T01:30`.
+
+This feature is toggled on by the `Find latest applicable dates` checkbox.
 
 ## Examples
 
