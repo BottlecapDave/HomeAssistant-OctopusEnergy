@@ -646,8 +646,8 @@ class OctopusEnergyApiClient:
                 "start": as_utc(parse_datetime(ev["startDt"])),
                 "end": as_utc(parse_datetime(ev["endDt"])),
                 "source": ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
-              }, response_body["data"]["completeDispatches"]
-              if "completeDispatches" in response_body["data"] and response_body["data"]["completeDispatches"] is not None
+              }, response_body["data"]["completedDispatches"]
+              if "completedDispatches" in response_body["data"] and response_body["data"]["completedDispatches"] is not None
               else [])
             )
           }
