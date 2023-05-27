@@ -153,7 +153,7 @@ def calculate_intermittent_times(
       applicable_rates.sort(key= lambda rate: (-rate["value_inc_vat"], rate["valid_to"]))
     else:
       applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], rate["valid_to"]))
-  print(applicable_rates)
+
   applicable_rates = applicable_rates[:total_required_rates]
   
   _LOGGER.debug(f'{len(applicable_rates)} applicable rates found')
