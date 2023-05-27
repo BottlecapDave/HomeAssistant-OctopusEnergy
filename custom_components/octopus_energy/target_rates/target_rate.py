@@ -24,6 +24,7 @@ from ..const import (
   CONFIG_TARGET_END_TIME,
   CONFIG_TARGET_MPAN,
   CONFIG_TARGET_ROLLING_TARGET,
+  CONFIG_TARGET_LAST_RATES,
   
   REGEX_HOURS,
   REGEX_TIME,
@@ -51,10 +52,17 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     self._attributes = self._config.copy()
     self._is_export = is_export
     self._attributes["is_target_export"] = is_export
+    
     is_rolling_target = True
     if CONFIG_TARGET_ROLLING_TARGET in self._config:
       is_rolling_target = self._config[CONFIG_TARGET_ROLLING_TARGET]
     self._attributes[CONFIG_TARGET_ROLLING_TARGET] = is_rolling_target
+
+    find_last_rates = False
+    if CONFIG_TARGET_LAST_RATES in self._config:
+      find_last_rates = self._config[CONFIG_TARGET_LAST_RATES]
+    self._attributes[CONFIG_TARGET_LAST_RATES] = find_last_rates
+
     self._target_rates = []
     
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
@@ -128,7 +136,11 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
         # True by default for backwards compatibility
         is_rolling_target = True
         if CONFIG_TARGET_ROLLING_TARGET in self._config:
-          is_rolling_target = self._config[CONFIG_TARGET_ROLLING_TARGET]     
+          is_rolling_target = self._config[CONFIG_TARGET_ROLLING_TARGET]
+
+        find_last_rates = False
+        if CONFIG_TARGET_LAST_RATES in self._config:
+          find_last_rates = self._config[CONFIG_TARGET_LAST_RATES]     
 
         target_hours = float(self._config[CONFIG_TARGET_HOURS])
 
@@ -140,7 +152,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
             target_hours,
             all_rates,
             is_rolling_target,
-            self._is_export
+            self._is_export,
+            find_last_rates
           )
         elif (self._config[CONFIG_TARGET_TYPE] == "Intermittent"):
           self._target_rates = calculate_intermittent_times(
@@ -150,7 +163,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
             target_hours,
             all_rates,
             is_rolling_target,
-            self._is_export
+            self._is_export,
+            find_last_rates
           )
         else:
           _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")
