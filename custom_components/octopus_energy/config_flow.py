@@ -27,7 +27,7 @@ from .const import (
   CONFIG_TARGET_MPAN,
   CONFIG_TARGET_OFFSET,
   CONFIG_TARGET_ROLLING_TARGET,
-  CONFIG_TARGET_LATEST_DATES,
+  CONFIG_TARGET_LAST_RATES,
 
   DATA_SCHEMA_ACCOUNT,
   DATA_CLIENT,
@@ -135,7 +135,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Optional(CONFIG_TARGET_END_TIME): str,
       vol.Optional(CONFIG_TARGET_OFFSET): str,
       vol.Optional(CONFIG_TARGET_ROLLING_TARGET, default=False): bool,
-      vol.Optional(CONFIG_TARGET_LATEST_DATES, default=False): bool,
+      vol.Optional(CONFIG_TARGET_LAST_RATES, default=False): bool,
     })
 
   async def async_step_target_rate(self, user_input):
@@ -229,9 +229,9 @@ class OptionsFlowHandler(OptionsFlow):
     if (CONFIG_TARGET_ROLLING_TARGET in config):
       is_rolling_target = config[CONFIG_TARGET_ROLLING_TARGET]
 
-    find_latest_dates = False
-    if (CONFIG_TARGET_LATEST_DATES in config):
-      find_latest_dates = config[CONFIG_TARGET_LATEST_DATES]
+    find_last_rates = False
+    if (CONFIG_TARGET_LAST_RATES in config):
+      find_last_rates = config[CONFIG_TARGET_LAST_RATES]
     
     return self.async_show_form(
       step_id="target_rate",
@@ -249,7 +249,7 @@ class OptionsFlowHandler(OptionsFlow):
         end_time_key: str,
         offset_key: str,
         vol.Optional(CONFIG_TARGET_ROLLING_TARGET, default=is_rolling_target): bool,
-        vol.Optional(CONFIG_TARGET_LATEST_DATES, default=find_latest_dates): bool,
+        vol.Optional(CONFIG_TARGET_LAST_RATES, default=find_last_rates): bool,
       }),
       errors=errors
     )

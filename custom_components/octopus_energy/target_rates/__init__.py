@@ -85,13 +85,13 @@ def calculate_continuous_times(
     rates,
     is_rolling_target = True,
     search_for_highest_rate = False,
-    find_latest_times = False
+    find_last_rates = False
   ):
   applicable_rates = __get_applicable_rates(current_date, target_start_time, target_end_time, rates, is_rolling_target)
   if (applicable_rates is None):
     return []
   
-  applicable_rates.sort(key=__get_valid_to, reverse=find_latest_times)
+  applicable_rates.sort(key=__get_valid_to, reverse=find_last_rates)
   applicable_rates_count = len(applicable_rates)
   total_required_rates = math.ceil(target_hours * 2)
 
@@ -135,7 +135,7 @@ def calculate_intermittent_times(
     rates,
     is_rolling_target = True,
     search_for_highest_rate = False,
-    find_latest_times = False
+    find_last_rates = False
   ):
   applicable_rates = __get_applicable_rates(current_date, target_start_time, target_end_time, rates, is_rolling_target)
   if (applicable_rates is None):
@@ -143,7 +143,7 @@ def calculate_intermittent_times(
   
   total_required_rates = math.ceil(target_hours * 2)
 
-  if find_latest_times:
+  if find_last_rates:
     if search_for_highest_rate:
       applicable_rates.sort(key= lambda rate: (-rate["value_inc_vat"], -rate["valid_to"].timestamp()))
     else:
