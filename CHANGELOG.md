@@ -1,3 +1,10 @@
+# [7.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.2.0...v7.3.0) (2023-05-28)
+
+
+### Features
+
+* **binary-sensor:** Added the ability to force target rate sensors to find the latest applicable set of rates ([dc2e456](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/dc2e456e257404c8a29b9444666f6406b3fdec38))
+
 # [7.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.1.3...v7.2.0) (2023-05-21)
 
 
