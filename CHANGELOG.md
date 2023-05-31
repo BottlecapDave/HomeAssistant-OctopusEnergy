@@ -1,3 +1,24 @@
+# [7.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.2.0...v7.3.0) (2023-05-28)
+
+
+### Features
+
+* **binary-sensor:** Added the ability to force target rate sensors to find the latest applicable set of rates ([dc2e456](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/dc2e456e257404c8a29b9444666f6406b3fdec38))
+
+# [7.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.1.3...v7.2.0) (2023-05-21)
+
+
+### Bug Fixes
+
+* Fixed issue when Octopus Home Mini data can't be retrieved for 1 week or beyond. ([1c05ea7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1c05ea737f5154f75938173bb0e7f93dcba1e859))
+* **sensor:** Added missing last reset attribute restoration ([d596b3b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d596b3b005f13bde13096dccf00d4dc3a3bf8309))
+* **sensor:** Fixed last_reset of previous electricity consumption/cost ([3996ab7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3996ab7258b02afb157e514384b7c6b5a20db2d0))
+
+
+### Features
+
+* **sensor:** Added support for comparing previous consumption cost with another tariff ([44ef244](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/44ef244d90192a824b9a21982a760229713aa460))
+
 ## [7.1.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.1.2...v7.1.3) (2023-05-13)
 
 
