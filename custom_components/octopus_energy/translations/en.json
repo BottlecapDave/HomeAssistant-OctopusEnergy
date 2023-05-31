@@ -7,7 +7,7 @@
         "data": {
           "Api key": "Api key",
           "Account Id": "Your account Id (e.g. A-AAAA1111)",
-          "supports_live_consumption": "I have a Home Mini",
+          "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
           "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time.",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence"
@@ -46,7 +46,7 @@
         "description": "Update your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
         "data": {
           "Api key": "Api key",
-          "supports_live_consumption": "I have a Home Mini",
+          "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
           "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time.",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "clear_electricity_price_cap": "Clear electricity price cap",
