@@ -1,3 +1,10 @@
+## [7.4.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.4.0...v7.4.1) (2023-06-03)
+
+
+### Bug Fixes
+
+* **sensors:** Fixed handling the retrieving of tracker tariff data for non tracker tariffs ([6c277d4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6c277d4bbf26c347418b68604d7efb87c0c4fb49))
+
 # [7.4.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.3.0...v7.4.0) (2023-06-03)
 
 
