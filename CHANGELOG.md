@@ -1,3 +1,16 @@
+# [7.4.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.3.0...v7.4.0) (2023-06-03)
+
+
+### Bug Fixes
+
+* **config:** Updated mini configuration to have link to minimise confusion ([9d277af](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9d277afeb3a6b8d4bced614ee95ffaeacfb258a5))
+* Updated api client to throw errors based on responses and caught appropriately in the coordinators ([c1c031a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c1c031a57587651b3ec34658e224cee75e3e0e17))
+
+
+### Features
+
+* **sensors:** Updated sensors to appear in disabled state if account info determines no smart meter is present ([b1f123a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b1f123a641defd9abd7fcaf6e6e335dbe575860e))
+
 # [7.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.2.0...v7.3.0) (2023-05-28)
 
 
