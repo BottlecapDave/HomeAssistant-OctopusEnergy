@@ -19,6 +19,7 @@ class OctopusEnergyGasSensor(SensorEntity, RestoreEntity):
     
     self._mprn = point["mprn"]
     self._serial_number = meter["serial_number"]
+    self._is_smart_meter = meter["is_smart_meter"]
 
     self._attributes = {
       "mprn": self._mprn,

@@ -23,23 +23,27 @@ async def async_get_live_consumption(client: OctopusEnergyApiClient, device_id, 
     else:
       period_from = (last_retrieval_date + timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:00Z")
     
-    result = await client.async_get_smart_meter_consumption(device_id, period_from, period_to)
-    if result is not None:
+    try:
+      result = await client.async_get_smart_meter_consumption(device_id, period_from, period_to)
+      if result is not None:
 
-      total_consumption = 0
-      latest_date = None
-      demand = None
-      for item in result:
-        total_consumption += item["consumption"]
-        if (latest_date is None or latest_date < item["startAt"]):
-          latest_date = item["startAt"]
-          demand = item["demand"]
+        total_consumption = 0
+        latest_date = None
+        demand = None
+        for item in result:
+          total_consumption += item["consumption"]
+          if (latest_date is None or latest_date < item["startAt"]):
+            latest_date = item["startAt"]
+            demand = item["demand"]
 
-      return {
-        "consumption": total_consumption,
-        "startAt": latest_date,
-        "demand": demand
-      }
+        return {
+          "consumption": total_consumption,
+          "startAt": latest_date,
+          "demand": demand
+        }
+      
+    except:
+      _LOGGER.debug('Failed to retrieve smart meter consumption data')
     
     return None
 

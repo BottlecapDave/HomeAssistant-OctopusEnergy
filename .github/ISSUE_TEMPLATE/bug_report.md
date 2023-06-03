@@ -1,6 +1,6 @@
 ---
-name: Bug report
-about: Create a report to help us improve
+name: Bug/issue
+about: Create a bug/issue detailing something that is broken or not working correctly
 title: ''
 labels: bug
 assignees: BottlecapDave

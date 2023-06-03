@@ -28,9 +28,12 @@ async def async_setup_saving_sessions_coordinators(hass):
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     if DATA_SAVING_SESSIONS not in hass.data[DOMAIN] or current.minute % 30 == 0:
-      savings = await client.async_get_saving_sessions(hass.data[DOMAIN][DATA_ACCOUNT_ID])
-      
-      hass.data[DOMAIN][DATA_SAVING_SESSIONS] = savings
+
+      try:
+        savings = await client.async_get_saving_sessions(hass.data[DOMAIN][DATA_ACCOUNT_ID])  
+        hass.data[DOMAIN][DATA_SAVING_SESSIONS] = savings
+      except:
+        _LOGGER.debug('Failed to retrieve saving session information')
     
     return hass.data[DOMAIN][DATA_SAVING_SESSIONS]
 
