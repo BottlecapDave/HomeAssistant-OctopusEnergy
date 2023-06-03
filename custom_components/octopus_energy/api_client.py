@@ -411,7 +411,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
         if data is None:
-          if await self.__async_is_tracker_product__(tariff_code):
+          if await self.__async_is_tracker_tariff_or_product__(tariff_code):
             return await self.__async_get_tracker_rates__(tariff_code, period_from, period_to, self._electricity_price_cap)
           
           return None
@@ -429,7 +429,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
         if data is None:
-          if await self.__async_is_tracker_product__(tariff_code):
+          if await self.__async_is_tracker_tariff_or_product__(tariff_code):
             return await self.__async_get_tracker_rates__(tariff_code, period_from, period_to, self._electricity_price_cap)
           
           return None
@@ -515,7 +515,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
         if data is None:
-          if await self.__async_is_tracker_product__(tariff_code):
+          if await self.__async_is_tracker_tariff_or_product__(tariff_code):
             return await self.__async_get_tracker_rates__(tariff_code, period_from, period_to, self._gas_price_cap)
 
           return None
@@ -573,7 +573,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
         if data is None:
-          if await self.__async_is_tracker_product__(tariff_code):
+          if await self.__async_is_tracker_tariff_or_product__(tariff_code):
             return await self.__async_get_tracker_standing_charge__(tariff_code, period_from, period_to)
         elif ("results" in data and len(data["results"]) > 0):
           result = {
@@ -600,7 +600,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
         if data is None:
-          if await self.__async_is_tracker_product__(tariff_code):
+          if await self.__async_is_tracker_tariff_or_product__(tariff_code):
             return await self.__async_get_tracker_standing_charge__(tariff_code, period_from, period_to)
         elif ("results" in data and len(data["results"]) > 0):
           result = {
@@ -675,7 +675,7 @@ class OctopusEnergyApiClient:
     
     return False
   
-  async def __async_is_tracker_product__(self, tariff_code):
+  async def __async_is_tracker_tariff_or_product__(self, tariff_code):
     tariff_parts = get_tariff_parts(tariff_code)
     if tariff_parts is None:
       return None
