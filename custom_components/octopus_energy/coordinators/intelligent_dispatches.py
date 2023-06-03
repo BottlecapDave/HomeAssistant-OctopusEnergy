@@ -53,16 +53,19 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
       _LOGGER.debug(f'tariff_codes: {tariff_codes}')
 
       dispatches = None
-      for ((meter_point), tariff_code) in tariff_codes.items():
-        if is_intelligent_tariff(tariff_code):
-          dispatches = await client.async_get_intelligent_dispatches(account_id)
-          break
+      try:
+        for ((meter_point), tariff_code) in tariff_codes.items():
+          if is_intelligent_tariff(tariff_code):
+            dispatches = await client.async_get_intelligent_dispatches(account_id)
+            break
 
-      if dispatches is not None:
-        hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] = dispatches
-      elif (DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN]):
-        _LOGGER.debug(f"Failed to retrieve new dispatches for {tariff_code}, so using cached dispatches")
-        dispatches = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]
+        if dispatches is not None:
+          hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] = dispatches
+        elif (DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN]):
+          _LOGGER.debug(f"Failed to retrieve new dispatches for {tariff_code}, so using cached dispatches")
+          dispatches = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]
+      except:
+        _LOGGER.debug('Failed to retrieve intelligent information')
     
     return hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]
 

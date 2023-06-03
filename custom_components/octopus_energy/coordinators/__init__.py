@@ -21,6 +21,8 @@ from ..const import (
   DATA_KNOWN_TARIFF,
 )
 
+_LOGGER = logging.getLogger(__name__)
+
 async def async_check_valid_tariff(hass, client: OctopusEnergyApiClient, tariff_code: str, is_electricity: bool):
   tariff_key = f'{DATA_KNOWN_TARIFF}_{tariff_code}'
   if (tariff_key not in hass.data[DOMAIN]):
@@ -37,20 +39,23 @@ async def async_check_valid_tariff(hass, client: OctopusEnergyApiClient, tariff_
         translation_placeholders={ "type": "Electricity" if is_electricity else "Gas", "tariff_code": tariff_code },
       )
     else:
-      product = await client.async_get_product(tariff_parts.product_code)
-      if product is None:
-        ir.async_create_issue(
-          hass,
-          DOMAIN,
-          f"unknown_tariff_{tariff_code}",
-          is_fixable=False,
-          severity=ir.IssueSeverity.ERROR,
-          learn_more_url="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/repairs/unknown_tariff.md",
-          translation_key="unknown_tariff",
-          translation_placeholders={ "type": "Electricity" if is_electricity else "Gas", "tariff_code": tariff_code },
-        )
-      else:
-        hass.data[DOMAIN][tariff_key] = True
+      try:
+        product = await client.async_get_product(tariff_parts.product_code)
+        if product is None:
+          ir.async_create_issue(
+            hass,
+            DOMAIN,
+            f"unknown_tariff_{tariff_code}",
+            is_fixable=False,
+            severity=ir.IssueSeverity.ERROR,
+            learn_more_url="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/repairs/unknown_tariff.md",
+            translation_key="unknown_tariff",
+            translation_placeholders={ "type": "Electricity" if is_electricity else "Gas", "tariff_code": tariff_code },
+          )
+        else:
+          hass.data[DOMAIN][tariff_key] = True
+      except:
+        _LOGGER.debug(f"Failed to retrieve product info for '{tariff_parts.product_code}'")
 
 async def async_get_current_electricity_agreement_tariff_codes(hass, client: OctopusEnergyApiClient, account_id: str):
   account_info = hass.data[DOMAIN][DATA_ACCOUNT]

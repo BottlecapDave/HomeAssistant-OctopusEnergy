@@ -30,8 +30,11 @@ async def async_create_gas_rate_coordinator(hass, client: OctopusEnergyApiClient
       period_from = as_utc(parse_datetime(current.strftime("%Y-%m-%dT00:00:00Z")))
       period_to = as_utc(parse_datetime((current + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00Z")))
 
-      hass.data[DOMAIN][rate_key] = await client.async_get_gas_rates(tariff_code, period_from, period_to)
-      await async_check_valid_tariff(hass, client, tariff_code, False)
+      try:
+        hass.data[DOMAIN][rate_key] = await client.async_get_gas_rates(tariff_code, period_from, period_to)
+        await async_check_valid_tariff(hass, client, tariff_code, False)
+      except:
+        _LOGGER.debug('Failed to retrieve gas rates')
 
     return hass.data[DOMAIN][rate_key]
 
