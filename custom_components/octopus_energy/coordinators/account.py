@@ -35,24 +35,25 @@ async def async_setup_account_info_coordinator(hass, account_id: str):
       account_info = None
       try:
         account_info = await client.async_get_account(account_id)
+
+        if account_info is None:
+          ir.async_create_issue(
+            hass,
+            DOMAIN,
+            f"account_not_found_{account_id}",
+            is_fixable=False,
+            severity=ir.IssueSeverity.ERROR,
+            learn_more_url="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/repairs/account_not_found.md",
+            translation_key="account_not_found",
+            translation_placeholders={ "account_id": account_id },
+          )
+        else:
+          ir.async_delete_issue(hass, DOMAIN, f"account_not_found_{account_id}")
+          hass.data[DOMAIN][DATA_ACCOUNT] = account_info
+
       except:
         # count exceptions as failure to retrieve account
-        _LOGGER.debug('Failed to retrieve account')
-
-      if account_info is None:
-        ir.async_create_issue(
-          hass,
-          DOMAIN,
-          f"account_not_found_{account_id}",
-          is_fixable=False,
-          severity=ir.IssueSeverity.ERROR,
-          learn_more_url="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/repairs/account_not_found.md",
-          translation_key="account_not_found",
-          translation_placeholders={ "account_id": account_id },
-        )
-      else:
-        ir.async_delete_issue(hass, DOMAIN, f"account_not_found_{account_id}")
-        hass.data[DOMAIN][DATA_ACCOUNT] = account_info
+        _LOGGER.debug('Failed to retrieve account information')
     
     return hass.data[DOMAIN][DATA_ACCOUNT]
 

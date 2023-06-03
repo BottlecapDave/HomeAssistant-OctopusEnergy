@@ -45,30 +45,33 @@ async def async_fetch_consumption_and_rates(
       ((len(previous_data["consumption"]) < 1 or 
       previous_data["consumption"][-1]["interval_end"] < period_to) and 
       utc_now.minute % 30 == 0)):
-
-    if (is_electricity == True):
-      consumption_data = await client.async_get_electricity_consumption(identifier, serial_number, period_from, period_to)
-      rate_data = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
-      if intelligent_dispatches is not None:
-        rate_data = adjust_intelligent_rates(rate_data,
-                                              intelligent_dispatches["planned"] if "planned" in intelligent_dispatches else [],
-                                              intelligent_dispatches["complete"] if "complete" in intelligent_dispatches else [])
-        
-        _LOGGER.debug(f"Tariff: {tariff_code}; dispatches: {intelligent_dispatches}")
-      standing_charge = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
-    else:
-      consumption_data = await client.async_get_gas_consumption(identifier, serial_number, period_from, period_to)
-      rate_data = await client.async_get_gas_rates(tariff_code, period_from, period_to)
-      standing_charge = await client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
     
-    if consumption_data is not None and len(consumption_data) > 0 and rate_data is not None and len(rate_data) > 0 and standing_charge is not None:
-      consumption_data = __sort_consumption(consumption_data)
+    try:
+      if (is_electricity == True):
+        consumption_data = await client.async_get_electricity_consumption(identifier, serial_number, period_from, period_to)
+        rate_data = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
+        if intelligent_dispatches is not None:
+          rate_data = adjust_intelligent_rates(rate_data,
+                                                intelligent_dispatches["planned"] if "planned" in intelligent_dispatches else [],
+                                                intelligent_dispatches["complete"] if "complete" in intelligent_dispatches else [])
+          
+          _LOGGER.debug(f"Tariff: {tariff_code}; dispatches: {intelligent_dispatches}")
+        standing_charge = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
+      else:
+        consumption_data = await client.async_get_gas_consumption(identifier, serial_number, period_from, period_to)
+        rate_data = await client.async_get_gas_rates(tariff_code, period_from, period_to)
+        standing_charge = await client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
+      
+      if consumption_data is not None and len(consumption_data) > 0 and rate_data is not None and len(rate_data) > 0 and standing_charge is not None:
+        consumption_data = __sort_consumption(consumption_data)
 
-      return {
-        "consumption": consumption_data,
-        "rates": rate_data,
-        "standing_charge": standing_charge["value_inc_vat"]
-      }
+        return {
+          "consumption": consumption_data,
+          "rates": rate_data,
+          "standing_charge": standing_charge["value_inc_vat"]
+        }
+    except:
+      _LOGGER.debug(f"Failed to retrieve {'electricity' if is_electricity else 'gas'} previous consumption and rate data")
 
   return previous_data 
 
