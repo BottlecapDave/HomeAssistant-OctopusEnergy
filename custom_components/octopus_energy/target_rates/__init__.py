@@ -272,7 +272,7 @@ def get_target_rate_info(current_date: datetime, applicable_rates, offset: str =
     "current_average_cost": current_average_cost,
     "current_min_cost": current_min_cost,
     "current_max_cost": current_max_cost,
-    "next_time": next_time,
+    "next_time": apply_offset(next_time, offset) if next_time is not None and offset is not None else next_time,
     "next_duration_in_hours": next_duration_in_hours,
     "next_average_cost": next_average_cost,
     "next_min_cost": next_min_cost,
