@@ -49,6 +49,7 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
       for ((meter_point, is_smart_meter), tariff_code) in tariff_codes.items():
         key = meter_point
 
+        new_rates = None
         try:
           new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
         except:
