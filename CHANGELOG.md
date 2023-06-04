@@ -1,3 +1,11 @@
+## [7.4.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.4.1...v7.4.2) (2023-06-04)
+
+
+### Bug Fixes
+
+* **binary-sensor:** Fixed next_time on target rate sensors to take account of configured offsets ([9673b4e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9673b4ecaa5881a9d2ec3c9f83c2543882b667b5))
+* **sensor:** Fixed recovery of electricity rates if new rates fail to be retrieved ([210f6c4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/210f6c4ed6740c03e6147256c1a533c30e00618f))
+
 ## [7.4.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.4.0...v7.4.1) (2023-06-03)
 
 
