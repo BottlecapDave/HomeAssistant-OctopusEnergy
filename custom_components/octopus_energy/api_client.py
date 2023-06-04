@@ -820,9 +820,13 @@ class OctopusEnergyApiClient:
 
     if response.status >= 400:
       if response.status >= 500:
-        raise ServerError(f'DO NOT REPORT - Octopus Energy server error ({url}): {response.status}; {text}')
+        msg = f'DO NOT REPORT - Octopus Energy server error ({url}): {response.status}; {text}'
+        _LOGGER.debug(msg)
+        raise ServerError(msg)
       elif response.status not in [401, 403, 404]:
-        raise RequestError(f'Failed to send request ({url}): {response.status}; {text}')
+        msg = f'Failed to send request ({url}): {response.status}; {text}'
+        _LOGGER.debug(msg)
+        raise RequestError(msg)
       return None
 
     try:
