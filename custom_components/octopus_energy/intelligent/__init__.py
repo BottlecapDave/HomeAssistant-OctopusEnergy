@@ -1,4 +1,4 @@
-from datetime import (datetime)
+from datetime import (datetime, timedelta)
 
 from ..utils import get_tariff_parts
 
@@ -42,3 +42,13 @@ def is_in_planned_dispatch(current_date: datetime, dispatches) -> bool:
       return True
   
   return False
+
+def clean_previous_dispatches(time: datetime, dispatches):
+  min_time = (time - timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
+
+  new_dispatches = []
+  for dispatch in dispatches:
+    if (dispatch["start"] >= min_time):
+      new_dispatches.append(dispatch)
+
+  return new_dispatches

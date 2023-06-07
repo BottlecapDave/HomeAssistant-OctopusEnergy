@@ -16,6 +16,6 @@ async def test_when_get_intelligent_dispatches_is_called_for_account_on_differen
 
     # Assert
     assert dispatches is not None
-    assert "complete" in dispatches
+    assert "completed" in dispatches
     assert "planned" in dispatches
   

@@ -53,7 +53,7 @@ async def async_fetch_consumption_and_rates(
         if intelligent_dispatches is not None:
           rate_data = adjust_intelligent_rates(rate_data,
                                                 intelligent_dispatches["planned"] if "planned" in intelligent_dispatches else [],
-                                                intelligent_dispatches["complete"] if "complete" in intelligent_dispatches else [])
+                                                intelligent_dispatches["completed"] if "completed" in intelligent_dispatches else [])
           
           _LOGGER.debug(f"Tariff: {tariff_code}; dispatches: {intelligent_dispatches}")
         standing_charge = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)

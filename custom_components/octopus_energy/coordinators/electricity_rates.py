@@ -59,7 +59,7 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
           if is_intelligent_tariff(tariff_code):
             rates[key] = adjust_intelligent_rates(new_rates, 
                                                   hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]["planned"] if "planned" in hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] else [],
-                                                  hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]["complete"] if "complete" in hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] else [])
+                                                  hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]["completed"] if "completed" in hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] else [])
             
             _LOGGER.debug(f"Rates adjusted: {rates[key]}; dispatches: {hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]}")
           else:

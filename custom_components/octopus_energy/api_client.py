@@ -631,7 +631,7 @@ class OctopusEnergyApiClient:
               if "plannedDispatches" in response_body["data"] and response_body["data"]["plannedDispatches"] is not None
               else [])
             ),
-            "complete": list(map(lambda ev: {
+            "completed": list(map(lambda ev: {
                 "start": as_utc(parse_datetime(ev["startDt"])),
                 "end": as_utc(parse_datetime(ev["endDt"])),
                 "source": ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
