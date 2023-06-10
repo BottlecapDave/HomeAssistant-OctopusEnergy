@@ -9,20 +9,25 @@ async def test_when_clean_previous_dispatches_called_then_old_dispatches_removed
   # Arrange
   old_dispatches = [
     {
-      "start": as_utc(parse_datetime("2023-06-04T10:00:00Z")),
-      "end": as_utc(parse_datetime("2023-06-04T11:00:00Z")),
+      "start": "2023-06-04T10:00:00Z",
+      "end": "2023-06-04T11:00:00Z",
     },
     {
-      "start": as_utc(parse_datetime("2023-06-05T13:00:00Z")),
-      "end": as_utc(parse_datetime("2023-06-05T14:00:00Z")),
+      "start": "2023-06-05T13:00:00Z",
+      "end": "2023-06-05T14:00:00Z",
     },
     {
-      "start": as_utc(parse_datetime("2023-06-05T16:00:00Z")),
-      "end": as_utc(parse_datetime("2023-06-05T17:00:00Z")),
+      "start": "2023-06-05T16:00:00Z",
+      "end": "2023-06-05T17:00:00Z",
     }
   ]
 
   new_dispatches = [
+    # Make sure duplicates get removed
+    {
+      "start": as_utc(parse_datetime("2023-06-05T16:00:00Z")),
+      "end": as_utc(parse_datetime("2023-06-05T17:00:00Z")),
+    },
     {
       "start": as_utc(parse_datetime("2023-06-07T10:00:00Z")),
       "end": as_utc(parse_datetime("2023-06-07T11:00:00Z")),
@@ -49,4 +54,5 @@ async def test_when_clean_previous_dispatches_called_then_old_dispatches_removed
   assert len(result) == 5
 
   for dispatch in result:
-    assert dispatch["start"] >= min_date
+    start = parse_datetime(dispatch["start"]) if type(dispatch["start"]) == str else dispatch["start"]
+    assert start >= min_date

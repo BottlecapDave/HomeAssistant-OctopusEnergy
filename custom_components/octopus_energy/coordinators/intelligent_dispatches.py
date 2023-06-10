@@ -34,7 +34,7 @@ async def async_merge_dispatch_data(hass, account_id: str, completed_dispatches)
 
   new_data = clean_previous_dispatches(now(), (saved_completed_dispatches if saved_completed_dispatches is not None else []) + completed_dispatches)
 
-  await storage.async_save(new_data)
+  await store.async_save(new_data)
   return new_data
 
 async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):

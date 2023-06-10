@@ -1,5 +1,7 @@
 from datetime import (datetime, timedelta)
 
+from homeassistant.util.dt import (parse_datetime)
+
 from ..utils import get_tariff_parts
 
 def is_intelligent_tariff(tariff_code: str):
@@ -46,9 +48,11 @@ def is_in_planned_dispatch(current_date: datetime, dispatches) -> bool:
 def clean_previous_dispatches(time: datetime, dispatches):
   min_time = (time - timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
 
-  new_dispatches = []
+  new_dispatches = {}
   for dispatch in dispatches:
-    if (dispatch["start"] >= min_time):
-      new_dispatches.append(dispatch)
+    start = parse_datetime(dispatch["start"]) if type(dispatch["start"]) == str else dispatch["start"]
+    end = parse_datetime(dispatch["end"]) if type(dispatch["end"]) == str else dispatch["end"]
+    if (start >= min_time):
+      new_dispatches[(start, end)] = dispatch
 
-  return new_dispatches
+  return list(new_dispatches.values())
