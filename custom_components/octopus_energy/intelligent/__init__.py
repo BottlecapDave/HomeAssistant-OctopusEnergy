@@ -50,9 +50,12 @@ def clean_previous_dispatches(time: datetime, dispatches):
 
   new_dispatches = {}
   for dispatch in dispatches:
+    # Some of our dispatches will be strings when loaded from cache, so convert
     start = parse_datetime(dispatch["start"]) if type(dispatch["start"]) == str else dispatch["start"]
     end = parse_datetime(dispatch["end"]) if type(dispatch["end"]) == str else dispatch["end"]
     if (start >= min_time):
       new_dispatches[(start, end)] = dispatch
+      new_dispatches[(start, end)]["start"] = start
+      new_dispatches[(start, end)]["end"] = end
 
   return list(new_dispatches.values())

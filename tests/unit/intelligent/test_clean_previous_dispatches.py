@@ -54,5 +54,4 @@ async def test_when_clean_previous_dispatches_called_then_old_dispatches_removed
   assert len(result) == 5
 
   for dispatch in result:
-    start = parse_datetime(dispatch["start"]) if type(dispatch["start"]) == str else dispatch["start"]
-    assert start >= min_date
+    assert dispatch["start"] >= min_date
