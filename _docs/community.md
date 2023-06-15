@@ -85,7 +85,7 @@ apex_config:
       opacityTo: 1
       inverseColors: true
 series:
-  - entity: sensor.octopus_energy_electricity_xxxxxxxxxxxx_1100000946808_current_rate
+  - entity: sensor.octopus_energy_electricity_xxxxxxxxxxxx_xxxxxxxxxxxx_current_rate
     transform: return x * 100;
     type: area
     name: GBP/kWh
@@ -99,7 +99,7 @@ series:
     show:
       extremas: false
       header_color_threshold: true
-  - entity: sensor.givtcp_ce2146g163_grid_power
+  - entity: sensor.givtcp_xxxxxxxxxxxx_grid_power
     transform: return x /1000;
     type: line
     invert: true
