@@ -26,6 +26,7 @@ account_query = '''query {{
           makeAndType
 					serialNumber
           makeAndType
+          meterType
           smartExportElectricityMeter {{
 						deviceId
             manufacturer
@@ -74,6 +75,7 @@ account_query = '''query {{
 					serialNumber
           consumptionUnits
           modelName
+          mechanism
           smartGasMeter {{
 						deviceId
             manufacturer
@@ -275,7 +277,7 @@ class OctopusEnergyApiClient:
                 "meters": list(map(lambda m: {
                     "serial_number": m["serialNumber"],
                     "is_export": m["smartExportElectricityMeter"] is not None,
-                    "is_smart_meter": m["smartImportElectricityMeter"] is not None or m["smartExportElectricityMeter"] is not None,
+                    "is_smart_meter": f'{m["meterType"]}'.startswith("S1") or f'{m["meterType"]}'.startswith("S2"),
                     "device_id": m["smartImportElectricityMeter"]["deviceId"] if m["smartImportElectricityMeter"] is not None else None,
                     "manufacturer": m["smartImportElectricityMeter"]["manufacturer"] 
                       if m["smartImportElectricityMeter"] is not None 
@@ -317,7 +319,7 @@ class OctopusEnergyApiClient:
               "meters": list(map(lambda m: {
                   "serial_number": m["serialNumber"],
                   "consumption_units": m["consumptionUnits"],
-                  "is_smart_meter": m["smartGasMeter"] is not None,
+                  "is_smart_meter": m["mechanism"] == "S1" or m["mechanism"] == "S2",
                   "device_id": m["smartGasMeter"]["deviceId"] if m["smartGasMeter"] is not None else None,
                   "manufacturer": m["smartGasMeter"]["manufacturer"] 
                     if m["smartGasMeter"] is not None 
