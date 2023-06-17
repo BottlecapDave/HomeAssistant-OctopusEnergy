@@ -7,12 +7,12 @@ You'll get the following sensors for each electricity meter with an active agree
   - [Previous Rate](#previous-rate)
   - [Next rate](#next-rate)
   - [Smart Meter Sensors](#smart-meter-sensors)
-- [Previous Accumulative Consumption](#previous-accumulative-consumption)
-- [Previous Accumulative Consumptions (Peak Rate)](#previous-accumulative-consumptions-peak-rate)
-- [Previous Accumulative Consumption (Off Peak Rate)](#previous-accumulative-consumption-off-peak-rate)
-- [Previous Accumulative Cost](#previous-accumulative-cost)
-- [Previous Accumulative Cost (Peak Rate)](#previous-accumulative-cost-peak-rate)
-- [Previous Accumulative Cost (Off Peak Rate)](#previous-accumulative-cost-off-peak-rate)
+    - [Previous Accumulative Consumption](#previous-accumulative-consumption)
+    - [Previous Accumulative Consumptions (Peak Rate)](#previous-accumulative-consumptions-peak-rate)
+    - [Previous Accumulative Consumption (Off Peak Rate)](#previous-accumulative-consumption-off-peak-rate)
+    - [Previous Accumulative Cost](#previous-accumulative-cost)
+    - [Previous Accumulative Cost (Peak Rate)](#previous-accumulative-cost-peak-rate)
+    - [Previous Accumulative Cost (Off Peak Rate)](#previous-accumulative-cost-off-peak-rate)
   - [Export Sensors](#export-sensors)
   - [Home Mini Sensors](#home-mini-sensors)
     - [Current Consumption (Electricity)](#current-consumption-electricity)
@@ -83,7 +83,7 @@ If you are wishing to use these sensors with the Energy Dashboard, then you can 
 
 > By default, it's not possible to include current consumption sensors. This is due to Octopus Energy only receive data from the smart meters up to the previous day. If you want current consumption, then you will need a [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/).
 
-# Previous Accumulative Consumption
+### Previous Accumulative Consumption
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption`
 
@@ -98,7 +98,7 @@ The total consumption reported by the meter for the previous day.
 | `total` | `float` | The total energy value for the previous day |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 
-# Previous Accumulative Consumptions (Peak Rate) 
+### Previous Accumulative Consumptions (Peak Rate) 
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_peak`
 
@@ -111,7 +111,7 @@ The total consumption reported by the meter for the previous day that applied du
 | `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
 
-# Previous Accumulative Consumption (Off Peak Rate) 
+### Previous Accumulative Consumption (Off Peak Rate) 
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_off_peak`
 
@@ -124,7 +124,7 @@ The total consumption reported by the meter for the previous day that applied du
 | `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
 
-# Previous Accumulative Cost
+### Previous Accumulative Cost
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost`
 
@@ -143,7 +143,7 @@ The total cost for the previous day, including the standing charge.
 | `charges` | `array` | Collection of consumption periods and costs for the previous day broken down into 30 minute periods. |
 | `last_calculated_timestamp` | `datetime` | The timestamp determining when the cost was last calculated. |
 
-# Previous Accumulative Cost (Peak Rate) 
+### Previous Accumulative Cost (Peak Rate) 
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_peak`
 
@@ -156,7 +156,7 @@ The total cost for the previous day that applied during peak hours. This is disa
 | `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
 
-# Previous Accumulative Cost (Off Peak Rate) 
+### Previous Accumulative Cost (Off Peak Rate) 
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_off_peak`
 
