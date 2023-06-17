@@ -45,6 +45,13 @@ def is_in_planned_dispatch(current_date: datetime, dispatches) -> bool:
   
   return False
 
+def is_in_bump_charge(current_date: datetime, dispatches) -> bool:
+  for event in dispatches:
+    if (event["source"] == "bump-charge" and event["start"] <= current_date and event["end"] >= current_date):
+      return True
+  
+  return False
+
 def clean_previous_dispatches(time: datetime, dispatches):
   min_time = (time - timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
 

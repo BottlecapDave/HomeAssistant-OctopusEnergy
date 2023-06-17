@@ -1,10 +1,8 @@
-from homeassistant.helpers.restore_state import RestoreEntity
-
 from ..const import (
   DOMAIN,
 )
 
-class OctopusEnergyIntelligentSensor(RestoreEntity):
+class OctopusEnergyIntelligentSensor:
   def __init__(self, device):
     """Init sensor"""
 

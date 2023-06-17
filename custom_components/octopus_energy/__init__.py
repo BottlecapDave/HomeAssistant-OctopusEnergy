@@ -5,6 +5,7 @@ from homeassistant.exceptions import ConfigEntryNotReady
 
 from .coordinators.account import async_setup_account_info_coordinator
 from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatches_coordinator
+from .coordinators.intelligent_settings import async_setup_intelligent_settings_coordinator
 from .coordinators.electricity_rates import async_setup_electricity_rates_coordinator
 from .coordinators.saving_sessions import async_setup_saving_sessions_coordinators
 
@@ -52,6 +53,18 @@ async def async_setup_entry(hass, entry):
     hass.async_create_task(
       hass.config_entries.async_forward_entry_setup(entry, "text")
     )
+
+    hass.async_create_task(
+      hass.config_entries.async_forward_entry_setup(entry, "number")
+    )
+
+    hass.async_create_task(
+      hass.config_entries.async_forward_entry_setup(entry, "switch")
+    )
+
+    hass.async_create_task(
+      hass.config_entries.async_forward_entry_setup(entry, "time")
+    )
   elif CONFIG_TARGET_NAME in config:
     if DOMAIN not in hass.data or DATA_ELECTRICITY_RATES_COORDINATOR not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN]:
       raise ConfigEntryNotReady
@@ -90,6 +103,8 @@ async def async_setup_dependencies(hass, config):
   await async_setup_account_info_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
 
   await async_setup_intelligent_dispatches_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
+
+  await async_setup_intelligent_settings_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
   
   await async_setup_electricity_rates_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
 

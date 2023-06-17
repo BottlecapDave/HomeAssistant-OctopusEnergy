@@ -144,6 +144,18 @@ intelligent_dispatches_query = '''query {{
 	}}
 }}'''
 
+intelligent_settings_query = '''query vehicleChargingPreferences {{
+  vehicleChargingPreferences(accountNumber: "{account_id}") {{
+    weekdayTargetTime
+    weekdayTargetSoc
+    weekendTargetTime
+    weekendTargetSoc
+  }}
+  registeredKrakenflexDevice(accountNumber: "{account_id}") {{
+    suspended
+	}}
+}}'''
+
 intelligent_device_query = '''query {{
 	registeredKrakenflexDevice(accountNumber: "{account_id}") {{
 		krakenflexDeviceId
@@ -151,7 +163,6 @@ intelligent_device_query = '''query {{
 		vehicleModel
 		chargePointMake
 		chargePointModel
-		status
 	}}
 }}'''
 
@@ -644,6 +655,42 @@ class OctopusEnergyApiClient:
           }
         else:
           _LOGGER.error("Failed to retrieve intelligent dispatches")
+    
+    return None
+  
+  async def async_get_intelligent_settings(self, account_id: str):
+    """Get the user's intelligent settings"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession() as client:
+      url = f'{self._base_url}/v1/graphql/'
+      # Get account response
+      payload = { "query": intelligent_settings_query.format(account_id=account_id) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+
+        _LOGGER.debug(f'Intelligent Settings: {response_body}')
+        if (response_body is not None and "data" in response_body):
+          return {
+            "smart_charge": response_body["data"]["registeredKrakenflexDevice"]["suspended"]
+                            if "registeredKrakenflexDevice" in response_body["data"] and "suspended" in response_body["data"]["registeredKrakenflexDevice"]
+                            else None,
+            "charge_limit_weekday": int(response_body["data"]["vehicleChargingPreferences"]["weekdayTargetSoc"])
+                                    if "vehicleChargingPreferences" in response_body["data"] and "weekdayTargetSoc" in response_body["data"]["vehicleChargingPreferences"]
+                                    else None,
+            "charge_limit_weekend": int(response_body["data"]["vehicleChargingPreferences"]["weekendTargetSoc"])
+                                    if "vehicleChargingPreferences" in response_body["data"] and "weekendTargetSoc" in response_body["data"]["vehicleChargingPreferences"]
+                                    else None,
+            "ready_time_weekday": response_body["data"]["vehicleChargingPreferences"]["weekdayTargetTime"]
+                                  if "vehicleChargingPreferences" in response_body["data"] and "weekdayTargetTime" in response_body["data"]["vehicleChargingPreferences"]
+                                  else None,
+            "ready_time_weekend": response_body["data"]["vehicleChargingPreferences"]["weekendTargetTime"]
+                                  if "vehicleChargingPreferences" in response_body["data"] and "weekendTargetTime" in response_body["data"]["vehicleChargingPreferences"]
+                                  else None, 
+          }
+        else:
+          _LOGGER.error("Failed to retrieve intelligent settings")
     
     return None
   

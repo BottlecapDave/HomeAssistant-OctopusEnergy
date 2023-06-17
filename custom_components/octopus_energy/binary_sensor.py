@@ -98,7 +98,7 @@ async def async_setup_intelligent_sensors(hass, async_add_entities):
 
     device = await client.async_get_intelligent_device(hass.data[DOMAIN][DATA_ACCOUNT_ID])
 
-    async_add_entities([OctopusEnergyIntelligentDispatching(hass, coordinator, device)], True)
+    async_add_entities([OctopusEnergyIntelligentDispatching(hass, coordinator, device, hass.data[DOMAIN][DATA_ACCOUNT_ID])], True)
 
 async def async_setup_target_sensors(hass, entry, async_add_entities):
   config = dict(entry.data)
