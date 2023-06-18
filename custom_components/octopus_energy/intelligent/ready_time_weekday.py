@@ -27,7 +27,7 @@ class OctopusEnergyIntelligentReadyTimeWeekday(CoordinatorEntity, TimeEntity, Oc
     super().__init__(coordinator)
     OctopusEnergyIntelligentSensor.__init__(self, device)
 
-    self._state = None
+    self._state = time()
     self._last_updated = None
     self._client = client
     self._account_id = account_id
@@ -57,17 +57,22 @@ class OctopusEnergyIntelligentReadyTimeWeekday(CoordinatorEntity, TimeEntity, Oc
   @property
   def native_value(self) -> time:
     """The state of the sensor."""
-    if self._last_updated is not None and "last_updated" in self.coordinator.data and self._last_updated > self.coordinator.data["last_updated"]:
+    if (self.coordinator.data is None) or (self._last_updated is not None and "last_updated" in self.coordinator.data and self._last_updated > self.coordinator.data["last_updated"]):
       self._attributes["last_updated_timestamp"] = self._last_updated
       return self._state
-    
+
     self._attributes["last_updated_timestamp"] = self.coordinator.data["last_updated"]
     return self.coordinator.data["ready_time_weekday"]
 
-  async def async_set_value(self, value: float) -> None:
+  async def async_set_value(self, value: time) -> None:
     """Set new value."""
-    #TODO: call endpoint and set value
-
+    await self._client.async_update_intelligent_car_preferences(
+      self._account_id,
+      self.coordinator.data["charge_limit_weekday"] if self.coordinator.data is not None else 100,
+      self.coordinator.data["charge_limit_weekend"] if self.coordinator.data is not None else 100,
+      value,
+      self.coordinator.data["ready_time_weekend"] if self.coordinator.data is not None else time(9,0),
+    )
     self._state = value
     self._last_updated = utcnow()
     self.async_write_ha_state()

@@ -1,7 +1,7 @@
 import logging
 import json
 import aiohttp
-from datetime import (datetime, timedelta)
+from datetime import (datetime, timedelta, time)
 
 from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime)
 
@@ -144,6 +144,16 @@ intelligent_dispatches_query = '''query {{
 	}}
 }}'''
 
+intelligent_device_query = '''query {{
+	registeredKrakenflexDevice(accountNumber: "{account_id}") {{
+		krakenflexDeviceId
+		vehicleMake
+		vehicleModel
+		chargePointMake
+		chargePointModel
+	}}
+}}'''
+
 intelligent_settings_query = '''query vehicleChargingPreferences {{
   vehicleChargingPreferences(accountNumber: "{account_id}") {{
     weekdayTargetTime
@@ -156,13 +166,67 @@ intelligent_settings_query = '''query vehicleChargingPreferences {{
 	}}
 }}'''
 
-intelligent_device_query = '''query {{
-	registeredKrakenflexDevice(accountNumber: "{account_id}") {{
-		krakenflexDeviceId
-		vehicleMake
-		vehicleModel
-		chargePointMake
-		chargePointModel
+intelligent_settings_mutation = '''mutation vehicleChargingPreferences {{
+  setVehicleChargePreferences(
+    input: {{
+      accountNumber: "{account_id}"
+      weekdayTargetSoc: {weekday_target_percentage}
+      weekendTargetSoc: {weekend_target_percentage}
+      weekdayTargetTime: "{weekday_target_time}"
+      weekendTargetTime: "{weekend_target_time}"
+    }}
+  ) {{
+     krakenflexDevice {{
+			 krakenflexDeviceId
+		}}
+  }}
+}}'''
+
+intelligent_turn_on_bump_charge_mutation = '''mutation {{
+	triggerBoostCharge(
+    input: {{
+      accountNumber: "{account_id}"
+    }}
+  ) {{
+		krakenflexDevice {{
+			 krakenflexDeviceId
+		}}
+	}}
+}}'''
+
+intelligent_turn_off_bump_charge_mutation = '''mutation {{
+	deleteBoostCharge(
+    input: {{
+      accountNumber: "{account_id}"
+    }}
+  ) {{
+		krakenflexDevice {{
+			 krakenflexDeviceId
+		}}
+	}}
+}}'''
+
+intelligent_turn_on_smart_charge_mutation = '''mutation {{
+	resumeControl(
+    input: {{
+      accountNumber: "{account_id}"
+    }}
+  ) {{
+		krakenflexDevice {{
+			 krakenflexDeviceId
+		}}
+	}}
+}}'''
+
+intelligent_turn_off_smart_charge_mutation = '''mutation {{
+	suspendControl(
+    input: {{
+      accountNumber: "{account_id}"
+    }}
+  ) {{
+		krakenflexDevice {{
+			 krakenflexDeviceId
+		}}
 	}}
 }}'''
 
@@ -633,6 +697,7 @@ class OctopusEnergyApiClient:
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_get_intelligent_dispatches: {response_body}')
 
         if (response_body is not None and "data" in response_body):
           return {
@@ -664,14 +729,15 @@ class OctopusEnergyApiClient:
 
     async with aiohttp.ClientSession() as client:
       url = f'{self._base_url}/v1/graphql/'
-      # Get account response
       payload = { "query": intelligent_settings_query.format(account_id=account_id) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_get_intelligent_settings: {response_body}')
 
         _LOGGER.debug(f'Intelligent Settings: {response_body}')
         if (response_body is not None and "data" in response_body):
+
           return {
             "smart_charge": response_body["data"]["registeredKrakenflexDevice"]["suspended"]
                             if "registeredKrakenflexDevice" in response_body["data"] and "suspended" in response_body["data"]["registeredKrakenflexDevice"]
@@ -682,10 +748,10 @@ class OctopusEnergyApiClient:
             "charge_limit_weekend": int(response_body["data"]["vehicleChargingPreferences"]["weekendTargetSoc"])
                                     if "vehicleChargingPreferences" in response_body["data"] and "weekendTargetSoc" in response_body["data"]["vehicleChargingPreferences"]
                                     else None,
-            "ready_time_weekday": response_body["data"]["vehicleChargingPreferences"]["weekdayTargetTime"]
+            "ready_time_weekday": self.__ready_time_to_time__(response_body["data"]["vehicleChargingPreferences"]["weekdayTargetTime"])
                                   if "vehicleChargingPreferences" in response_body["data"] and "weekdayTargetTime" in response_body["data"]["vehicleChargingPreferences"]
                                   else None,
-            "ready_time_weekend": response_body["data"]["vehicleChargingPreferences"]["weekendTargetTime"]
+            "ready_time_weekend": self.__ready_time_to_time__(response_body["data"]["vehicleChargingPreferences"]["weekendTargetTime"])
                                   if "vehicleChargingPreferences" in response_body["data"] and "weekendTargetTime" in response_body["data"]["vehicleChargingPreferences"]
                                   else None, 
           }
@@ -694,17 +760,120 @@ class OctopusEnergyApiClient:
     
     return None
   
+  def __ready_time_to_time__(self, time_str: str) -> time:
+    if time_str is not None:
+      parts = time_str.split(':')
+      if len(parts) != 2:
+        raise Exception(f"Unexpected number of parts in '{time_str}'")
+      
+      return time(int(parts[0]), int(parts[1]))
+
+    return None
+  
+  async def async_update_intelligent_car_preferences(
+      self, account_id: str,
+      weekday_target_percentage: int,
+      weekend_target_percentage: int,
+      weekday_target_time: time,
+      weekend_target_time: time,
+    ):
+    """Update a user's intelligent car preferences"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession() as client:
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": intelligent_settings_mutation.format(
+        account_id=account_id,
+        weekday_target_percentage=weekday_target_percentage,
+        weekend_target_percentage=weekend_target_percentage,
+        weekday_target_time=weekday_target_time.strftime("%H:%M"),
+        weekend_target_time=weekend_target_time.strftime("%H:%M")
+      ) }
+
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_update_intelligent_car_preferences: {response_body}')
+
+  async def async_turn_on_intelligent_bump_charge(
+      self, account_id: str,
+    ):
+    """Turn on an intelligent bump charge"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession() as client:
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": intelligent_turn_on_bump_charge_mutation.format(
+        account_id=account_id,
+      ) }
+
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_turn_on_intelligent_bump_charge: {response_body}')
+
+  async def async_turn_off_intelligent_bump_charge(
+      self, account_id: str,
+    ):
+    """Turn off an intelligent bump charge"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession() as client:
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": intelligent_turn_off_bump_charge_mutation.format(
+        account_id=account_id,
+      ) }
+
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_turn_off_intelligent_bump_charge: {response_body}')
+
+  async def async_turn_on_intelligent_smart_charge(
+      self, account_id: str,
+    ):
+    """Turn on an intelligent bump charge"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession() as client:
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": intelligent_turn_on_smart_charge_mutation.format(
+        account_id=account_id,
+      ) }
+
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_turn_on_intelligent_smart_charge: {response_body}')
+
+  async def async_turn_off_intelligent_smart_charge(
+      self, account_id: str,
+    ):
+    """Turn off an intelligent bump charge"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession() as client:
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": intelligent_turn_off_smart_charge_mutation.format(
+        account_id=account_id,
+      ) }
+
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_turn_off_intelligent_smart_charge: {response_body}')
+  
   async def async_get_intelligent_device(self, account_id: str):
     """Get the user's intelligent dispatches"""
     await self.async_refresh_token()
 
     async with aiohttp.ClientSession() as client:
       url = f'{self._base_url}/v1/graphql/'
-      # Get account response
       payload = { "query": intelligent_device_query.format(account_id=account_id) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_get_intelligent_device: {response_body}')
 
         if (response_body is not None and "data" in response_body and
             "registeredKrakenflexDevice" in response_body["data"]):

@@ -51,8 +51,9 @@ async def async_setup_intelligent_sensors(hass, async_add_entities):
   if has_intelligent_tariff:
     coordinator = hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS_COORDINATOR]
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-    device = await client.async_get_intelligent_device(hass.data[DOMAIN][DATA_ACCOUNT_ID])
+    account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]
+    device = await client.async_get_intelligent_device(account_id)
     async_add_entities([
-      OctopusEnergyIntelligentReadyTimeWeekday(hass, coordinator, client, device),
-      OctopusEnergyIntelligentReadyTimeWeekend(hass, coordinator, client, device)
+      OctopusEnergyIntelligentReadyTimeWeekday(hass, coordinator, client, device, account_id),
+      OctopusEnergyIntelligentReadyTimeWeekend(hass, coordinator, client, device, account_id)
     ], True)

@@ -1,7 +1,6 @@
 import logging
 
-import re
-import voluptuous as vol
+from datetime import time
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import generate_entity_id
@@ -60,7 +59,7 @@ class OctopusEnergyIntelligentChargeLimitWeekday(CoordinatorEntity, RestoreNumbe
   @property
   def native_value(self) -> float:
     """The state of the sensor."""
-    if self._last_updated is not None and "last_updated" in self.coordinator.data and self._last_updated > self.coordinator.data["last_updated"]:
+    if (self.coordinator.data is None) or (self._last_updated is not None and "last_updated" in self.coordinator.data and self._last_updated > self.coordinator.data["last_updated"]):
       self._attributes["last_updated_timestamp"] = self._last_updated
       return self._state
     
@@ -69,8 +68,13 @@ class OctopusEnergyIntelligentChargeLimitWeekday(CoordinatorEntity, RestoreNumbe
 
   async def async_set_native_value(self, value: float) -> None:
     """Set new value."""
-    #TODO: call endpoint and set value
-
+    await self._client.async_update_intelligent_car_preferences(
+      self._account_id,
+      int(value),
+      self.coordinator.data["charge_limit_weekend"] if self.coordinator.data is not None else 100,
+      self.coordinator.data["ready_time_weekday"] if self.coordinator.data is not None else time(9,0),
+      self.coordinator.data["ready_time_weekend"] if self.coordinator.data is not None else time(9,0),
+    )
     self._state = value
     self._last_updated = utcnow()
     self.async_write_ha_state()

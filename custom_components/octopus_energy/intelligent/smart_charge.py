@@ -56,21 +56,25 @@ class OctopusEnergyIntelligentSmartCharge(CoordinatorEntity, SwitchEntity, Octop
   @property
   def is_on(self):
     """The state of the sensor."""
-    if self._last_updated is not None and "last_updated" in self.coordinator.data and self._last_updated > self.coordinator.data["last_updated"]:
+    if (self.coordinator.data is None) or (self._last_updated is not None and "last_updated" in self.coordinator.data and self._last_updated > self.coordinator.data["last_updated"]):
       return self._state
 
     return self.coordinator.data["smart_charge"]
 
   async def async_turn_on(self):
     """Turn on the switch."""
-    #TODO: call endpoint and set value
+    await self._client.async_turn_on_intelligent_smart_charge(
+      self._account_id
+    )
     self._state = True
     self._last_updated = utcnow()
     self.async_write_ha_state()
 
   async def async_turn_off(self):
     """Turn off the switch."""
-    #TODO: call endpoint and set value
+    await self._client.async_turn_off_intelligent_smart_charge(
+      self._account_id
+    )
     self._state = False
     self._last_updated = utcnow()
     self.async_write_ha_state()

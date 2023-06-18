@@ -22,7 +22,7 @@ class OctopusEnergyIntelligentBumpCharge(CoordinatorEntity, SwitchEntity, Octopu
     """Init sensor."""
     # Pass coordinator to base class
     super().__init__(coordinator)
-    OctopusEnergyIntelligentSensor.__ini__(self, device)
+    OctopusEnergyIntelligentSensor.__init__(self, device)
 
     self._state = False
     self._last_updated = None
@@ -54,21 +54,25 @@ class OctopusEnergyIntelligentBumpCharge(CoordinatorEntity, SwitchEntity, Octopu
   @property
   def is_on(self):
     """The state of the sensor."""
-    if self._last_updated is not None and "last_updated" in self.coordinator.data and self._last_updated > self.coordinator.data["last_updated"]:
+    if (self.coordinator.data is None) or (self._last_updated is not None and "last_updated" in self.coordinator.data and self._last_updated > self.coordinator.data["last_updated"]):
       return self._state
 
-    return is_in_bump_charge(self.coordinator.data["planned"])
+    return is_in_bump_charge(utcnow(), self.coordinator.data["planned"])
 
   async def async_turn_on(self):
     """Turn on the switch."""
-    #TODO: call endpoint and set value
+    await self._client.async_turn_on_intelligent_bump_charge(
+      self._account_id
+    )
     self._state = True
     self._last_updated = utcnow()
     self.async_write_ha_state()
 
   async def async_turn_off(self):
     """Turn off the switch."""
-    #TODO: call endpoint and set value
+    await self._client.async_turn_off_intelligent_bump_charge(
+      self._account_id
+    )
     self._state = False
     self._last_updated = utcnow()
     self.async_write_ha_state()
