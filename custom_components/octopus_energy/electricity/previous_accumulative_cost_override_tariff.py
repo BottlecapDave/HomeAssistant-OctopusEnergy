@@ -6,7 +6,7 @@ from homeassistant.components.text import TextEntity
 
 from homeassistant.helpers.restore_state import RestoreEntity
 
-from homeassistant.helpers.entity import generate_entity_id
+from homeassistant.helpers.entity import generate_entity_id, DeviceInfo
 
 from ..const import (DOMAIN, REGEX_TARIFF_PARTS)
 
@@ -51,18 +51,13 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(TextEntity,
     self._tariff_code = tariff_code
     self._attr_native_value = tariff_code
 
-  @property
-  def device_info(self):
-    return {
-      "identifiers": {
-          # Serial numbers/mpan are unique identifiers within a specific domain
-          (DOMAIN, f"electricity_{self._serial_number}_{self._mpan}")
-      },
-      "default_name": f"Electricity Meter{self._export_name_addition}",
-      "manufacturer": self._meter["manufacturer"],
-      "model": self._meter["model"],
-      "sw_version": self._meter["firmware"]
-    }
+    self._attr_device_info = DeviceInfo(
+      identifiers={(DOMAIN, f"electricity_{self._serial_number}_{self._mpan}")},
+      default_name=f"Electricity Meter{self._export_name_addition}",
+      manufacturer=self._meter["manufacturer"],
+      model=self._meter["model"],
+      sw_version=self._meter["firmware"]
+    )
   
   @property
   def entity_registry_enabled_default(self) -> bool:

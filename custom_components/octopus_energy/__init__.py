@@ -116,15 +116,26 @@ async def options_update_listener(hass, entry):
 
 async def async_unload_entry(hass, entry):
     """Unload a config entry."""
-    if CONFIG_MAIN_API_KEY in entry.data:
-      target_domain = "sensor"
-    elif CONFIG_TARGET_NAME in entry.data:
-      target_domain = "binary_sensor"
 
-    unload_ok = all(
+    unload_ok = False
+    if CONFIG_MAIN_API_KEY in entry.data:
+      unload_ok = all(
         await asyncio.gather(
-            *[hass.config_entries.async_forward_entry_unload(entry, target_domain)]
+            *[
+              hass.config_entries.async_forward_entry_unload(entry, "sensor"),
+              hass.config_entries.async_forward_entry_unload(entry, "binary_sensor"),
+              hass.config_entries.async_forward_entry_unload(entry, "text"),
+              hass.config_entries.async_forward_entry_unload(entry, "number"),
+              hass.config_entries.async_forward_entry_unload(entry, "switch"),
+              hass.config_entries.async_forward_entry_unload(entry, "time")
+             ]
         )
-    )
+      )
+    elif CONFIG_TARGET_NAME in entry.data:
+      unload_ok = all(
+        await asyncio.gather(
+            *[hass.config_entries.async_forward_entry_unload(entry, "binary_sensor")]
+        )
+      )
 
     return unload_ok
