@@ -42,7 +42,7 @@ class OctopusEnergyIntelligentReadyTimeWeekday(CoordinatorEntity, TimeEntity, Oc
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Intelligent Ready Time Weekdays"
+    return f"Octopus Energy Intelligent Ready Time Weekday"
 
   @property
   def icon(self):
