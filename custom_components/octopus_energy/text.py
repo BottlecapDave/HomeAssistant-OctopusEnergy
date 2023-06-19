@@ -19,8 +19,6 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-SCAN_INTERVAL = timedelta(minutes=1)
-
 async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
 

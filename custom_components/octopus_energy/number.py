@@ -6,7 +6,7 @@ from homeassistant.util.dt import (utcnow)
 from .intelligent.charge_limit_weekday import OctopusEnergyIntelligentChargeLimitWeekday
 from .intelligent.charge_limit_weekend import OctopusEnergyIntelligentChargeLimitWeekend
 from .api_client import OctopusEnergyApiClient
-from .intelligent import is_intelligent_tariff
+from .intelligent import async_mock_intelligent_data, is_intelligent_tariff
 from .utils import get_active_tariff_code
 
 from .const import (
@@ -21,8 +21,6 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
-
-SCAN_INTERVAL = timedelta(minutes=1)
 
 async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
@@ -48,7 +46,7 @@ async def async_setup_intelligent_sensors(hass, async_add_entities):
         has_intelligent_tariff = True
         break
 
-  if has_intelligent_tariff:
+  if has_intelligent_tariff or await async_mock_intelligent_data(hass):
     coordinator = hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS_COORDINATOR]
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]

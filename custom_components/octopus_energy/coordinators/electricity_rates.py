@@ -18,7 +18,7 @@ from ..const import (
 from ..api_client import OctopusEnergyApiClient
 
 from . import async_get_current_electricity_agreement_tariff_codes
-from ..intelligent import adjust_intelligent_rates, is_intelligent_tariff
+from ..intelligent import adjust_intelligent_rates, async_mock_intelligent_data, is_intelligent_tariff
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -56,7 +56,7 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
           _LOGGER.debug('Failed to retrieve electricity rates')
           
         if new_rates is not None:
-          if is_intelligent_tariff(tariff_code):
+          if is_intelligent_tariff(tariff_code) or await async_mock_intelligent_data(hass):
             rates[key] = adjust_intelligent_rates(new_rates, 
                                                   hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]["planned"] if "planned" in hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] else [],
                                                   hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]["completed"] if "completed" in hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] else [])

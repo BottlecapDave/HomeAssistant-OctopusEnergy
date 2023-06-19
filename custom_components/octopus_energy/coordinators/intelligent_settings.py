@@ -2,9 +2,9 @@ import logging
 from datetime import timedelta
 
 from . import async_get_current_electricity_agreement_tariff_codes
-from ..intelligent import clean_previous_dispatches, is_intelligent_tariff
+from ..intelligent import async_mock_intelligent_data, clean_previous_dispatches, is_intelligent_tariff, mock_intelligent_settings
 
-from homeassistant.util.dt import (now)
+from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
 )
@@ -40,7 +40,7 @@ async def async_setup_intelligent_settings_coordinator(hass, account_id: str):
       await account_coordinator.async_request_refresh()
 
     # Only get data every half hour or if we don't have any data
-    current = now()
+    current = utcnow()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     if (DATA_ACCOUNT in hass.data[DOMAIN] and 
         (DATA_INTELLIGENT_SETTINGS not in hass.data[DOMAIN] or 
@@ -59,11 +59,14 @@ async def async_setup_intelligent_settings_coordinator(hass, account_id: str):
             _LOGGER.debug('Failed to retrieve intelligent dispatches')
           break
 
+      if await async_mock_intelligent_data(hass):
+        settings = mock_intelligent_settings()
+
       if settings is not None:
         hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS] = settings
-        hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS]["last_updated"] = now()
+        hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS]["last_updated"] = utcnow()
       elif (DATA_INTELLIGENT_SETTINGS in hass.data[DOMAIN]):
-        _LOGGER.debug(f"Failed to retrieve intelligent settings for {tariff_code}, so using cached settings")
+        _LOGGER.debug(f"Failed to retrieve intelligent settings, so using cached settings")
     
     return hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS]
 

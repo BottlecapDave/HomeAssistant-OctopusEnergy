@@ -1,9 +1,6 @@
 import logging
 
-import re
-import voluptuous as vol
-
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 
 from homeassistant.helpers.update_coordinator import (
@@ -56,10 +53,16 @@ class OctopusEnergyIntelligentSmartCharge(CoordinatorEntity, SwitchEntity, Octop
   @property
   def is_on(self):
     """The state of the sensor."""
+    return self._state
+  
+  @callback
+  def _handle_coordinator_update(self) -> None:
+    """Handle updated data from the coordinator."""
     if (self.coordinator.data is None) or (self._last_updated is not None and "last_updated" in self.coordinator.data and self._last_updated > self.coordinator.data["last_updated"]):
       return self._state
 
-    return self.coordinator.data["smart_charge"]
+    self._state = self.coordinator.data["smart_charge"]
+    self.async_write_ha_state()
 
   async def async_turn_on(self):
     """Turn on the switch."""

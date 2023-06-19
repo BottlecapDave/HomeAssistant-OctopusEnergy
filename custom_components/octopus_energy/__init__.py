@@ -1,5 +1,6 @@
 import logging
 import asyncio
+from datetime import timedelta
 
 from homeassistant.exceptions import ConfigEntryNotReady
 
@@ -28,6 +29,8 @@ from .const import (
 from .api_client import OctopusEnergyApiClient
 
 _LOGGER = logging.getLogger(__name__)
+
+SCAN_INTERVAL = timedelta(minutes=1)
 
 async def async_setup_entry(hass, entry):
   """This is called from the config flow."""
