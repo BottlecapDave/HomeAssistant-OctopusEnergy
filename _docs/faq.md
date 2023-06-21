@@ -7,6 +7,7 @@
   - [I have sensors that are missing](#i-have-sensors-that-are-missing)
   - [My gas consumption/costs seem out](#my-gas-consumptioncosts-seem-out)
   - [I've been asked for my meter information in a bug request, how do I obtain this?](#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this)
+  - [I want to use the tariff overrides, but how do I find an available tariff?](#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff)
   - [How do I increase the logs for the integration?](#how-do-i-increase-the-logs-for-the-integration)
 
 
@@ -47,6 +48,18 @@ If you've been asked for meter information, don't worry we won't ask for anythin
 3. Click on one of the meters
 4. Click on "Download diagnostics"
 5. Take the contents of the downloads json file and paste into the bug report. Remember to surround the contents with ``` both at the start and end.
+
+## I want to use the tariff overrides, but how do I find an available tariff?
+
+To find an available tariff, you can use the Octopus Energy API to search for [current products](https://developer.octopus.energy/docs/api/#list-products). Once a product has been found, you can look up the product to find the tariff in your region and for your target energy supply.
+
+For example if I was on the tariff `E-1R-SUPER-GREEN-24M-21-07-30-A` and I wanted to check `Flexible Octopus November 2022 v1`. I would look up all of the [products](https://api.octopus.energy/v1/products) and look for my target under `full_name` or `display_name`. I would then look up the product by taking the specified `code` and putting it at the end of the [products url](https://api.octopus.energy/v1/products). 
+
+![All products example](./assets/product_lookup.png)
+
+In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https://api.octopus.energy/v1/products/VAR-22-11-01](https://api.octopus.energy/v1/products/VAR-22-11-01). From this list, I would then look up the tariff for my region (e.g. `A` defined at the end of my current tariff) which is defined in the `code` field. It is this value that you add to the `cost_override_tariff` sensors. In this example, I want the duel electricity tariff version, so will pick `E-2R-VAR-22-11-01-A`.
+
+![Target product example](./assets/product_tariff_lookup.png)
 
 ## How do I increase the logs for the integration?
 
