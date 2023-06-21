@@ -41,6 +41,8 @@ DATA_INTELLIGENT_SETTINGS_COORDINATOR = "INTELLIGENT_SETTINGS_COORDINATOR"
 
 STORAGE_COMPLETED_DISPATCHES_NAME = "octopus_energy.{}-completed-intelligent-dispatches.json"
 
+STORAGE_COMPLETED_DISPATCHES_NAME = "octopus_energy.{}-completed-intelligent-dispatches.json"
+
 REGEX_HOURS = "^[0-9]+(\\.[0-9]+)*$"
 REGEX_TIME = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
 REGEX_ENTITY_NAME = "^[a-z0-9_]+$"

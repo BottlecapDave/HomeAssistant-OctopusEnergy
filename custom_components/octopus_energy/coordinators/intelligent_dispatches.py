@@ -77,7 +77,7 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
         hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] = dispatches
         hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]["last_updated"] = utcnow()
       elif (DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN]):
-        _LOGGER.debug(f"Failed to retrieve new dispatches for, so using cached dispatches")
+        _LOGGER.debug(f"Failed to retrieve new dispatches, so using cached dispatches")
     
     return hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]
 

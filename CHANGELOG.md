@@ -1,3 +1,10 @@
+## [7.4.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.4.2...v7.4.3) (2023-06-16)
+
+
+### Bug Fixes
+
+* **api_client:** Improved detection of smart meters ([d614210](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d6142108c7e28601f3374c31c288c35c7d8b9f6e))
+
 ## [7.4.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.4.1...v7.4.2) (2023-06-04)
 
 
