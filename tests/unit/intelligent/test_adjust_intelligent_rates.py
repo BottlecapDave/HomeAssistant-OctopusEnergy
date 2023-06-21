@@ -51,7 +51,7 @@ async def test_when_planned_smart_charge_dispatch_present_in_rate_then_rates_adj
   off_peak = rates[0]["value_inc_vat"]
   planned_dispatches = [{
     "start": as_utc(parse_datetime("2022-10-10T05:00:00Z")),
-    "end": as_utc(parse_datetime("2022-10-10T05:30:00Z")),
+    "end": as_utc(parse_datetime("2022-10-10T06:00:00Z")),
     "source": "smart-charge"
   }]
   complete_dispatches = []
@@ -60,11 +60,13 @@ async def test_when_planned_smart_charge_dispatch_present_in_rate_then_rates_adj
   adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches)
 
   # Assert
+  assert len(rates) == len(adjusted_rates)
   for index, rate in enumerate(rates):
     if index == 3:
       assert rate["valid_from"] == adjusted_rates[index]["valid_from"]
       assert rate["valid_to"] == adjusted_rates[index]["valid_to"]
       assert off_peak == adjusted_rates[index]["value_inc_vat"]
+      assert True == adjusted_rates[index]["is_intelligent_adjusted"]
       
     else:
       assert rate == adjusted_rates[index]
@@ -75,7 +77,7 @@ async def test_when_planned_non_smart_charge_dispatch_present_in_rate_then_rates
   rates = create_rates()
   planned_dispatches = [{
     "start": as_utc(parse_datetime("2022-10-10T05:00:00Z")),
-    "end": as_utc(parse_datetime("2022-10-10T05:30:00Z")),
+    "end": as_utc(parse_datetime("2022-10-10T06:00:00Z")),
     "source": "not-mart-charge"
   }]
   complete_dispatches = []
@@ -93,7 +95,7 @@ async def test_when_complete_smart_charge_dispatch_present_in_rate_then_rates_ad
   off_peak = rates[0]["value_inc_vat"]
   complete_dispatches = [{
     "start": as_utc(parse_datetime("2022-10-10T05:00:00Z")),
-    "end": as_utc(parse_datetime("2022-10-10T05:30:00Z")),
+    "end": as_utc(parse_datetime("2022-10-10T06:00:00Z")),
     "source": "smart-charge"
   }]
   planned_dispatches = []
@@ -102,22 +104,25 @@ async def test_when_complete_smart_charge_dispatch_present_in_rate_then_rates_ad
   adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches)
 
   # Assert
+  assert len(rates) == len(adjusted_rates)
   for index, rate in enumerate(rates):
     if index == 3:
       assert rate["valid_from"] == adjusted_rates[index]["valid_from"]
       assert rate["valid_to"] == adjusted_rates[index]["valid_to"]
       assert off_peak == adjusted_rates[index]["value_inc_vat"]
+      assert True == adjusted_rates[index]["is_intelligent_adjusted"]
       
     else:
       assert rate == adjusted_rates[index]
 
 @pytest.mark.asyncio
-async def test_when_complete_non_smart_charge_dispatch_present_in_rate_then_rates_not_adjusted():
+async def test_when_complete_non_smart_charge_dispatch_present_in_rate_then_rates_adjusted():
   # Arrange
   rates = create_rates()
+  off_peak = rates[0]["value_inc_vat"]
   complete_dispatches = [{
     "start": as_utc(parse_datetime("2022-10-10T05:00:00Z")),
-    "end": as_utc(parse_datetime("2022-10-10T05:30:00Z")),
+    "end": as_utc(parse_datetime("2022-10-10T06:00:00Z")),
     "source": "not-mart-charge"
   }]
   planned_dispatches = []
@@ -126,4 +131,13 @@ async def test_when_complete_non_smart_charge_dispatch_present_in_rate_then_rate
   adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches)
 
   # Assert
-  assert rates == adjusted_rates
+  assert len(rates) == len(adjusted_rates)
+  for index, rate in enumerate(rates):
+    if index == 3:
+      assert rate["valid_from"] == adjusted_rates[index]["valid_from"]
+      assert rate["valid_to"] == adjusted_rates[index]["valid_to"]
+      assert off_peak == adjusted_rates[index]["value_inc_vat"]
+      assert True == adjusted_rates[index]["is_intelligent_adjusted"]
+      
+    else:
+      assert rate == adjusted_rates[index]
