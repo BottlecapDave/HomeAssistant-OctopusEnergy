@@ -16,8 +16,8 @@ from ..api_client import OctopusEnergyApiClient
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyIntelligentChargeLimitWeekend(CoordinatorEntity, RestoreNumber, OctopusEnergyIntelligentSensor):
-  """Sensor for setting the target percentage for car charging on weekend."""
+class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, OctopusEnergyIntelligentSensor):
+  """Sensor for setting the target percentage for car charging."""
 
   def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, device, account_id: str):
     """Init sensor."""
@@ -35,12 +35,12 @@ class OctopusEnergyIntelligentChargeLimitWeekend(CoordinatorEntity, RestoreNumbe
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_intelligent_charge_limit_weekend"
+    return f"octopus_energy_intelligent_charge_limit"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Intelligent Charge Limit Weekend"
+    return f"Octopus Energy Intelligent Charge Limit"
 
   @property
   def icon(self):
@@ -48,7 +48,8 @@ class OctopusEnergyIntelligentChargeLimitWeekend(CoordinatorEntity, RestoreNumbe
     return "mdi:battery-charging"
   
   @property
-  def native_unit_of_measurement(self):
+  def device_class(self):
+    """The type of sensor"""
     return NumberDeviceClass.BATTERY
 
   @property
@@ -69,14 +70,14 @@ class OctopusEnergyIntelligentChargeLimitWeekend(CoordinatorEntity, RestoreNumbe
       return self._state
     
     self._attributes["last_updated_timestamp"] = self.coordinator.data["last_updated"]
-    self._state = self.coordinator.data["charge_limit_weekend"]
+    self._state = self.coordinator.data["charge_limit_weekday"]
     self.async_write_ha_state()
 
   async def async_set_native_value(self, value: float) -> None:
     """Set new value."""
     await self._client.async_update_intelligent_car_preferences(
       self._account_id,
-      self.coordinator.data["charge_limit_weekday"] if self.coordinator.data is not None else 100,
+      int(value),
       int(value),
       self.coordinator.data["ready_time_weekday"] if self.coordinator.data is not None else time(9,0),
       self.coordinator.data["ready_time_weekend"] if self.coordinator.data is not None else time(9,0),

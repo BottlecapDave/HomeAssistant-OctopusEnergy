@@ -3,8 +3,7 @@ import logging
 
 from homeassistant.util.dt import (utcnow)
 
-from .intelligent.ready_time_weekday import OctopusEnergyIntelligentReadyTimeWeekday
-from .intelligent.ready_time_weekend import OctopusEnergyIntelligentReadyTimeWeekend
+from .intelligent.ready_time import OctopusEnergyIntelligentReadyTime
 from .api_client import OctopusEnergyApiClient
 from .intelligent import async_mock_intelligent_data, is_intelligent_tariff
 from .utils import get_active_tariff_code
@@ -52,6 +51,5 @@ async def async_setup_intelligent_sensors(hass, async_add_entities):
     account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]
     device = await client.async_get_intelligent_device(account_id)
     async_add_entities([
-      OctopusEnergyIntelligentReadyTimeWeekday(hass, coordinator, client, device, account_id),
-      OctopusEnergyIntelligentReadyTimeWeekend(hass, coordinator, client, device, account_id)
+      OctopusEnergyIntelligentReadyTime(hass, coordinator, client, device, account_id),
     ], True)

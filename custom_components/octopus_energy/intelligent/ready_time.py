@@ -15,8 +15,8 @@ from ..api_client import OctopusEnergyApiClient
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyIntelligentReadyTimeWeekend(CoordinatorEntity, TimeEntity, OctopusEnergyIntelligentSensor):
-  """Sensor for setting the target time to charge the car to the desired percentage on weekends."""
+class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEnergyIntelligentSensor):
+  """Sensor for setting the target time to charge the car to the desired percentage."""
 
   def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, device, account_id: str):
     """Init sensor."""
@@ -34,12 +34,12 @@ class OctopusEnergyIntelligentReadyTimeWeekend(CoordinatorEntity, TimeEntity, Oc
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_intelligent_ready_time_weekend"
+    return f"octopus_energy_intelligent_ready_time"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Intelligent Ready Time Weekend"
+    return f"Octopus Energy Intelligent Ready Time"
 
   @property
   def icon(self):
@@ -62,9 +62,9 @@ class OctopusEnergyIntelligentReadyTimeWeekend(CoordinatorEntity, TimeEntity, Oc
     if (self.coordinator.data is None) or (self._last_updated is not None and "last_updated" in self.coordinator.data and self._last_updated > self.coordinator.data["last_updated"]):
       self._attributes["last_updated_timestamp"] = self._last_updated
       return self._state
-    
+
     self._attributes["last_updated_timestamp"] = self.coordinator.data["last_updated"]
-    self._state = self.coordinator.data["ready_time_weekend"]
+    self._state = self.coordinator.data["ready_time_weekday"]
     self.async_write_ha_state()
 
   async def async_set_value(self, value: time) -> None:
@@ -73,7 +73,7 @@ class OctopusEnergyIntelligentReadyTimeWeekend(CoordinatorEntity, TimeEntity, Oc
       self._account_id,
       self.coordinator.data["charge_limit_weekday"] if self.coordinator.data is not None else 100,
       self.coordinator.data["charge_limit_weekend"] if self.coordinator.data is not None else 100,
-      self.coordinator.data["ready_time_weekday"] if self.coordinator.data is not None else time(9,0),
+      value,
       value,
     )
     self._state = value
