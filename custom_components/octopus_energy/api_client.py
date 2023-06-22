@@ -1049,7 +1049,15 @@ class OctopusEnergyApiClient:
         raise RequestError(msg)
       return None
 
+    data_as_json = None
     try:
-      return json.loads(text)
+      data_as_json = json.loads(text)
     except:
       raise Exception(f'Failed to extract response json: {url}; {text}')
+    
+    if ("graphql" in url and "errors" in data_as_json):
+      msg = f'Errors in request ({url}): {data_as_json["errors"]}'
+      _LOGGER.debug(msg)
+      raise RequestError(msg)
+    
+    return data_as_json
