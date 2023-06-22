@@ -51,6 +51,11 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
   def device_class(self):
     """The type of sensor"""
     return NumberDeviceClass.BATTERY
+  
+  @property
+  def unit_of_measurement(self):
+    """The unit of measurement of sensor"""
+    return "%"
 
   @property
   def extra_state_attributes(self):
