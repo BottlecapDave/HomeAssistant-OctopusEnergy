@@ -42,10 +42,7 @@ async def async_setup_intelligent_settings_coordinator(hass, account_id: str):
     # Only get data every half hour or if we don't have any data
     current = utcnow()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-    if (DATA_ACCOUNT in hass.data[DOMAIN] and 
-        (DATA_INTELLIGENT_SETTINGS not in hass.data[DOMAIN] or 
-         (current.minute % 30) == 0 or 
-         hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS] is None)):
+    if (DATA_ACCOUNT in hass.data[DOMAIN]):
 
       tariff_codes = await async_get_current_electricity_agreement_tariff_codes(hass, client, account_id)
       _LOGGER.debug(f'tariff_codes: {tariff_codes}')
