@@ -12,10 +12,13 @@ async def test_when_get_intelligent_dispatches_is_called_for_account_on_differen
     account_id = context["account_id"]
 
     # Act
-    dispatches = await client.async_get_intelligent_dispatches(account_id)
+    exception_raised = False
+    try:
+        dispatches = await client.async_get_intelligent_dispatches(account_id)
+    except:
+        exception_raised = True
+
 
     # Assert
-    assert dispatches is not None
-    assert "completed" in dispatches
-    assert "planned" in dispatches
+    assert exception_raised == True
   
