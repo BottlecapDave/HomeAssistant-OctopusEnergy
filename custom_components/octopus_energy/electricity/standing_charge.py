@@ -85,6 +85,8 @@ class OctopusEnergyElectricityCurrentStandingCharge(OctopusEnergyElectricitySens
       else:
         self._state = None
 
+    self.async_write_ha_state()
+
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
     # If not None, we got an initial value.
