@@ -40,6 +40,7 @@ async def async_check_valid_tariff(hass, client: OctopusEnergyApiClient, tariff_
       )
     else:
       try:
+        _LOGGER.debug(f"Retrieving product information for '{tariff_parts.product_code}'")
         product = await client.async_get_product(tariff_parts.product_code)
         if product is None:
           ir.async_create_issue(

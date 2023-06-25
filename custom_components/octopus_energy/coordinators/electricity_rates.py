@@ -35,9 +35,7 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
     # Only get data every half hour or if we don't have any data
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-    if (DATA_ACCOUNT in hass.data[DOMAIN] and 
-        DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] and
-        DATA_RATES not in hass.data[DOMAIN] or (current.minute % 30) == 0 or hass.data[DOMAIN][DATA_RATES] is None or len(hass.data[DOMAIN][DATA_RATES]) == 0):
+    if (DATA_ACCOUNT in hass.data[DOMAIN] and DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN]):
 
       tariff_codes = await async_get_current_electricity_agreement_tariff_codes(hass, client, account_id)
       _LOGGER.debug(f'tariff_codes: {tariff_codes}')
@@ -50,10 +48,17 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
         key = meter_point
 
         new_rates = None
-        try:
-          new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
-        except:
-          _LOGGER.debug('Failed to retrieve electricity rates')
+        if ((current.minute % 30) == 0 or 
+            DATA_RATES not in hass.data[DOMAIN] or
+            hass.data[DOMAIN][DATA_RATES] is None or
+            key not in hass.data[DOMAIN][DATA_RATES] or
+            hass.data[DOMAIN][DATA_RATES][key][-1]["valid_from"] < period_from):
+          try:
+            new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
+          except:
+            _LOGGER.debug('Failed to retrieve electricity rates')
+        else:
+            new_rates = hass.data[DOMAIN][DATA_RATES][key]
           
         if new_rates is not None:
           if is_intelligent_tariff(tariff_code):
