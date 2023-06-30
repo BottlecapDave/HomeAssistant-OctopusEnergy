@@ -3,16 +3,19 @@
 - [Community Contributions](#community-contributions)
   - [Agile Price Table](#agile-price-table)
   - [Export Rates Chart](#export-rates-chart)
+  - [Import And Export Rates Chart](#import-and-export-rates-chart)
 
 These are a few contributions by the community.
 
 ## Agile Price Table
 
-If you're wanting to display upcoming prices in a nice readable format, then might I suggest you utilise the plugin developed by @lozzd available at https://github.com/lozzd/octopus-energy-rates-card.
+If you're wanting to display upcoming prices in a nice readable format, then might I suggest you utilise the [Octopus Engergy Rates card](https://github.com/lozzd/octopus-energy-rates-card).
+
+<img src="https://github.com/lozzd/octopus-energy-rates-card/raw/main/assets/screenshot_1.png" height="300"/>
 
 ## Export Rates Chart
 
-Thanks to @fboundy you can use ApexCharts to plot the rates for the current day. After you have installed ApexCharts, you can use the following configuration
+Thanks to @fboundy you can use [ApexCharts Card](https://github.com/RomRider/apexcharts-card) to plot the rates for the current day using the following configuration:
 
 ```yaml
 type: custom:apexcharts-card
@@ -52,8 +55,9 @@ which will produce something like the following...
 
 ![chart example](./assets/apex-chart.png)
 
-If you're looking for cost vs power using ApexCharts, then @plandregan has you covered
+If you're looking for cost vs power using ApexCharts, then @plandregan has you covered:
 
+```yaml
 type: custom:apexcharts-card
 experimental:
   color_threshold: true
@@ -120,7 +124,120 @@ yaxis:
     min: 0
     max: 10
     opposite: true
+```
 
 which will produce something like the following...
 
 ![chart example](./assets/apex-chart-power-vs-cost.png)
+
+## Import and Export Rates Chart
+
+If you're looking to combine import and export rates then create a card with the configuration:
+
+
+```yaml
+type: custom:config-template-card
+entities:
+  - sensor.octopus_energy_electricity_21l4726127_2000021792976_current_rate
+  - >-
+    sensor.octopus_energy_electricity_21l4726127_2000060201274_export_current_rate
+card:
+  card_mod:
+    style: |
+      ha-card {
+        --secondary-text-color: rgb(225,225,225)
+      }
+  type: custom:apexcharts-card
+  show:
+    loading: false
+  color_list:
+    - orange
+    - green  
+  header:
+    title: Electricity tariffs with Octopus
+    show: true
+    show_states: true
+    colorize_states: true
+  span:
+    start: day
+  graph_span: 48h
+  update_interval: 30mins
+  all_series_config:
+    type: area
+    float_precision: 4
+    extend_to: now
+    stroke_width: 2
+    fill_raw: 'null'
+  series:
+    - entity: sensor.octopus_energy_electricity_21l4726127_2000021792976_current_rate
+      name: Import
+      curve: stepline
+      data_generator: |
+        return entity.attributes.rates.map((entry) => {
+          return [new Date(entry.from), entry.rate/100];
+        });
+    - entity: >-
+        sensor.octopus_energy_electricity_21l4726127_2000060201274_export_current_rate
+      name: Export
+      curve: stepline
+      data_generator: |
+        return entity.attributes.rates.map((entry) => {
+          return [new Date(entry.from), entry.rate/100];
+        });
+  apex_config:
+    tooltip:
+      x:
+        format: ddd dd MMM - HH:mm
+    xaxis:
+      axisBorder:
+        show: false
+      tooltip:
+        enabled: false
+    grid:
+      borderColor: '#7B7B7B'
+    legend:
+      show: false
+      toolbar:
+        show: true
+        autoSelected: zoom
+        tools:
+          zoom: true
+          zoomin: false
+          zoomout: false
+          pan: false
+          reset: true
+    annotations:
+      xaxis:
+        - x: ${ new Date().setHours(24,0,0,0) }
+          label:
+            text: Tomorrow
+        - x: ${Date.now()}
+          label:
+            text: Now
+            borderColor: '#00E396'
+            style:
+              color: '#fff'
+              background: '#00E396'
+            borderWidth: 0
+    yaxis:
+      min: 0
+      max: 0.4
+      tickAmount: 4
+      labels:
+        formatter: |
+          EVAL:function (val) {
+           return "£" + val.toFixed(2);
+          }
+      forceNiceScale: true
+    chart:
+      height: 150
+      foreColor: '#7B7B7B'
+      zoom:
+        type: x
+        enabled: true
+        autoScaleYaxis: true
+```
+
+to generate this card:
+
+![Chart example](./assets/apex-chart-tariffs.png)
