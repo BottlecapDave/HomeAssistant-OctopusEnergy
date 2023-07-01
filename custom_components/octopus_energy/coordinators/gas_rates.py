@@ -26,8 +26,13 @@ async def async_create_gas_rate_coordinator(hass, client: OctopusEnergyApiClient
     current = utcnow()
     
     rate_key = f'{DATA_GAS_RATES}_{tariff_code}'
-    if (rate_key not in hass.data[DOMAIN] or (current.minute % 30) == 0 or hass.data[DOMAIN][rate_key] is None or len(hass.data[DOMAIN][rate_key]) == 0):
-      period_from = as_utc(parse_datetime(current.strftime("%Y-%m-%dT00:00:00Z")))
+    period_from = as_utc(parse_datetime(current.strftime("%Y-%m-%dT00:00:00Z")))
+    
+    if (rate_key not in hass.data[DOMAIN] or 
+        (current.minute % 30) == 0 or 
+        hass.data[DOMAIN][rate_key] is None or 
+        len(hass.data[DOMAIN][rate_key]) == 0 or
+        hass.data[DOMAIN][rate_key][-1]["valid_from"] < period_from):
       period_to = as_utc(parse_datetime((current + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00Z")))
 
       try:

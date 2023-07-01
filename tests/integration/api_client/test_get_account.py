@@ -67,8 +67,9 @@ async def test_when_get_account_is_called_and_not_found_then_none_returned():
     # Act
     exception_raised = False
     try:
-        account = await client.async_get_account(account_id)
+        await client.async_get_account(account_id)
     except RequestError:
         exception_raised = True
 
+    # Assert
     assert exception_raised == True

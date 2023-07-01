@@ -1,6 +1,6 @@
 import logging
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 
 from homeassistant.util.dt import (now)
@@ -55,10 +55,10 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
   def extra_state_attributes(self):
     """Attributes of the sensor."""
     return self._attributes
-
-  @property
-  def is_on(self):
-    """The state of the sensor."""
+  
+  @callback
+  def _handle_coordinator_update(self) -> None:
+    """Handle updated data from the coordinator."""
     saving_session = self.coordinator.data
     if (saving_session is not None and "events" in saving_session):
       self._events = saving_session["events"]
@@ -88,6 +88,11 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
       self._attributes["next_joined_event_end"] = next_event["end"]
       self._attributes["next_joined_event_duration_in_minutes"] = next_event["duration_in_minutes"]
 
+    self.async_write_ha_state()
+
+  @property
+  def is_on(self):
+    """The state of the sensor."""
     return self._state
 
   async def async_added_to_hass(self):

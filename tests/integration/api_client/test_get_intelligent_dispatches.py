@@ -14,10 +14,9 @@ async def test_when_get_intelligent_dispatches_is_called_for_account_on_differen
     # Act
     exception_raised = False
     try:
-        dispatches = await client.async_get_intelligent_dispatches(account_id)
+        await client.async_get_intelligent_dispatches(account_id)
     except:
         exception_raised = True
-
 
     # Assert
     assert exception_raised == True
