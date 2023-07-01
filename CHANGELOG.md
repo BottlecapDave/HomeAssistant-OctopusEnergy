@@ -1,3 +1,14 @@
+## [7.4.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.4.3...v7.4.4) (2023-07-01)
+
+
+### Bug Fixes
+
+* **api-client:** Fixed  api client to handle graphql errors ([78414d2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/78414d2ddf19afea0f55fda59f702d59feb33347))
+* **sensor:** Fixed inclusion of intelligent dispatches in consumption costs and pricings ([34ef0e8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/34ef0e8213a773290db997184d8c4b2815ef7350))
+* **sensor:** Fixed issue during BST with rate sensors ([dcfd1b6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/dcfd1b62d740469ccd8398a796b7d8d4ca35f623))
+* **sensor:** Updated retrieving of rates to try more frequently if rates are out of date ([a50e0bc](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a50e0bccd2d75286c2eb9ba7666bbd0068938f37))
+* Updated various sensors to update via coordinator callback ([16c1c75](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/16c1c750c2d4705a537ace81b002f7bf8f4707e3))
+
 ## [7.4.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.4.2...v7.4.3) (2023-06-16)
 
 
