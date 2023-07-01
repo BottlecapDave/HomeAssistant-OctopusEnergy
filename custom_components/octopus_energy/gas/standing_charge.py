@@ -3,7 +3,7 @@ import logging
 
 from homeassistant.core import HomeAssistant
 
-from homeassistant.util.dt import (utcnow, as_utc, parse_datetime)
+from homeassistant.util.dt import (now)
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorStateClass
@@ -72,12 +72,12 @@ class OctopusEnergyGasCurrentStandingCharge(OctopusEnergyGasSensor):
     """Get the current price."""
     # Find the current rate. We only need to do this every day
 
-    utc_now = utcnow()
-    if (self._latest_date is None or (self._latest_date + timedelta(days=1)) < utc_now):
+    current = now()
+    if (self._latest_date is None or (self._latest_date + timedelta(days=1)) < current):
       _LOGGER.debug('Updating OctopusEnergyGasCurrentStandingCharge')
 
-      period_from = as_utc(parse_datetime(utc_now.strftime("%Y-%m-%dT00:00:00Z")))
-      period_to = as_utc(parse_datetime((utc_now + timedelta(days=1)).strftime("%Y-%m-%dT00:00:00Z")))
+      period_from = current.replace(hour=0, minute=0, second=0, microsecond=0)
+      period_to = period_from + timedelta(days=1)
 
       standard_charge_result = await self._client.async_get_gas_standing_charge(self._tariff_code, period_from, period_to)
       

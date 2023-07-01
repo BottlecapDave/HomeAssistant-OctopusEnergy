@@ -1,9 +1,9 @@
 from datetime import timedelta
 import logging
 
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 
-from homeassistant.util.dt import (utcnow)
+from homeassistant.util.dt import (now)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -64,12 +64,13 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor):
   def extra_state_attributes(self):
     """Attributes of the sensor."""
     return self._attributes
-  
-  @callback
-  def _handle_coordinator_update(self) -> None:
-    """Handle updated data from the coordinator."""
-    utc_now = utcnow()
-    if (self._latest_date is None or (self._latest_date + timedelta(days=1)) < utc_now) or self._state is None:
+
+  @property
+  def state(self):
+    """Retrieve the latest gas price"""
+
+    current = now()
+    if (self._latest_date is None or (self._latest_date + timedelta(days=1)) < current) or self._state is None:
       _LOGGER.debug('Updating OctopusEnergyGasCurrentRate')
 
       rates = self.coordinator.data
@@ -77,7 +78,7 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor):
       current_rate = None
       if rates is not None:
         for period in rates:
-          if utc_now >= period["valid_from"] and utc_now <= period["valid_to"]:
+          if current >= period["valid_from"] and current <= period["valid_to"]:
             current_rate = period
             break
 
@@ -96,11 +97,6 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor):
         self._state = None
         self._attributes = {}
 
-    self.async_write_ha_state()
-
-  @property
-  def state(self):
-    """Retrieve the latest gas price"""
     return self._state
 
   async def async_added_to_hass(self):
