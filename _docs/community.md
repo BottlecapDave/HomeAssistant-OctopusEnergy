@@ -9,13 +9,13 @@ These are a few contributions by the community.
 
 ## Agile Price Table
 
-If you're wanting to display upcoming prices in a nice readable format, then might I suggest you utilise the [Octopus Engergy Rates card](https://github.com/lozzd/octopus-energy-rates-card).
+If you're wanting to display upcoming prices in a nice readable format, then might I suggest you utilise the [Octopus Engergy Rates card](https://github.com/lozzd/octopus-energy-rates-card) developed by @lozzd.
 
 <img src="https://github.com/lozzd/octopus-energy-rates-card/raw/main/assets/screenshot_1.png" height="300"/>
 
 ## Export Rates Chart
 
-Thanks to @fboundy you can use [ApexCharts Card](https://github.com/RomRider/apexcharts-card) to plot the rates for the current day using the following configuration:
+Thanks to @fboundy you can use [ApexCharts Card](https://github.com/RomRider/apexcharts-card) to plot the rates for the current day using the following configuration. Replace `{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}` with your information:
 
 ```yaml
 type: custom:apexcharts-card
@@ -55,7 +55,7 @@ which will produce something like the following...
 
 ![chart example](./assets/apex-chart.png)
 
-If you're looking for cost vs power using ApexCharts, then @plandregan has you covered:
+If you're looking for cost vs power using [ApexCharts Card](https://github.com/RomRider/apexcharts-card), then @plandregan has you covered with the following configuration. Replace `{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}` and `sensor.givtcp_xxxxxxxxxxxx_grid_power` with your information:
 
 ```yaml
 type: custom:apexcharts-card
@@ -89,7 +89,7 @@ apex_config:
       opacityTo: 1
       inverseColors: true
 series:
-  - entity: sensor.octopus_energy_electricity_xxxxxxxxxxxx_xxxxxxxxxxxx_current_rate
+  - entity: sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_rate
     transform: return x * 100;
     type: area
     name: GBP/kWh
@@ -132,15 +132,15 @@ which will produce something like the following...
 
 ## Import and Export Rates Chart
 
-If you're looking to combine import and export rates then create a card with the configuration:
+If you're looking to combine import and export rates then create a card with the configuration. Replace `{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}` with your information:
 
 
 ```yaml
 type: custom:config-template-card
 entities:
-  - sensor.octopus_energy_electricity_21l4726127_2000021792976_current_rate
+  - sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_rate
   - >-
-    sensor.octopus_energy_electricity_21l4726127_2000060201274_export_current_rate
+    sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_rate
 card:
   card_mod:
     style: |
@@ -169,7 +169,7 @@ card:
     stroke_width: 2
     fill_raw: 'null'
   series:
-    - entity: sensor.octopus_energy_electricity_21l4726127_2000021792976_current_rate
+    - entity: sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_rate
       name: Import
       curve: stepline
       data_generator: |
@@ -177,7 +177,7 @@ card:
           return [new Date(entry.from), entry.rate/100];
         });
     - entity: >-
-        sensor.octopus_energy_electricity_21l4726127_2000060201274_export_current_rate
+        sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_rate
       name: Export
       curve: stepline
       data_generator: |
@@ -238,6 +238,6 @@ card:
         autoScaleYaxis: true
 ```
 
-to generate this card:
+to generate the following card...
 
 ![Chart example](./assets/apex-chart-tariffs.png)
