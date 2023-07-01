@@ -1,7 +1,6 @@
 # Home Assistant Octopus Energy
 
-![installation_badge](https://img.shields.io/badge/dynamic/json?color=41BDF5&logo=home-assistant&label=integration%20usage&suffix=%20installs&cacheSeconds=15600&url=https://analytics.home-assistant.io/custom_integrations.json&query=$.octopus_energy.total)
-
+![installation_badge](https://img.shields.io/badge/dynamic/json?color=41BDF5&logo=home-assistant&label=integration%20usage&suffix=%20installs&cacheSeconds=15600&url=https://analytics.home-assistant.io/custom_integrations.json&query=$.octopus_energy.total) [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/bottlecapdave)
 - [Home Assistant Octopus Energy](#home-assistant-octopus-energy)
   - [How to install](#how-to-install)
     - [HACS](#hacs)
@@ -22,7 +21,7 @@ If you find this useful and are planning on moving to Octopus Energy, why not us
 
 ## How to install
 
-There are multiple ways of installing the integration.
+There are multiple ways of installing the integration. Once you've installed the integration, you'll need to [setup your account](#how-to-setup) before you can use the integration.
 
 ### HACS
 

@@ -37,7 +37,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
   if CONFIG_MAIN_API_KEY in entry.data:
     await async_setup_season_sensors(hass, entry, async_add_entities)
-    # await async_setup_intelligent_sensors(hass, async_add_entities)
+    await async_setup_intelligent_sensors(hass, async_add_entities)
   elif CONFIG_TARGET_NAME in entry.data:
     await async_setup_target_sensors(hass, entry, async_add_entities)
 

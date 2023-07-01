@@ -128,20 +128,20 @@ live_consumption_query = '''query {{
 }}'''
 
 intelligent_dispatches_query = '''query {{
-	plannedDispatches(accountNumber: "{account_id}") {
+	plannedDispatches(accountNumber: "{account_id}") {{
 		startDt
 		endDt
-    meta {
+    meta {{
 			source
-		}
-	}
-	completedDispatches(accountNumber: "{account_id}") {
+		}}
+	}}
+	completedDispatches(accountNumber: "{account_id}") {{
 		startDt
 		endDt
-    meta {
+    meta {{
 			source
-		}
-	}
+		}}
+	}}
 }}'''
 
 intelligent_device_query = '''query {{
@@ -627,21 +627,23 @@ class OctopusEnergyApiClient:
           return {
             "planned": list(map(lambda ev: {
                 "start": as_utc(parse_datetime(ev["startDt"])),
-                "end": as_utc(parse_datetime(ev["endDt"]))
+                "end": as_utc(parse_datetime(ev["endDt"])),
+                "source": ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
               }, response_body["data"]["plannedDispatches"]
               if "plannedDispatches" in response_body["data"] and response_body["data"]["plannedDispatches"] is not None
               else [])
             ),
-            "complete": list(map(lambda ev: {
+            "completed": list(map(lambda ev: {
                 "start": as_utc(parse_datetime(ev["startDt"])),
-                "end": as_utc(parse_datetime(ev["endDt"]))
-              }, response_body["data"]["completeDispatches"]
-              if "completeDispatches" in response_body["data"] and response_body["data"]["completeDispatches"] is not None
+                "end": as_utc(parse_datetime(ev["endDt"])),
+                "source": ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
+              }, response_body["data"]["completedDispatches"]
+              if "completedDispatches" in response_body["data"] and response_body["data"]["completedDispatches"] is not None
               else [])
             )
           }
         else:
-          _LOGGER.error("Failed to retrieve account")
+          _LOGGER.error("Failed to retrieve intelligent dispatches")
     
     return None
   
@@ -831,7 +833,15 @@ class OctopusEnergyApiClient:
         raise RequestError(msg)
       return None
 
+    data_as_json = None
     try:
-      return json.loads(text)
+      data_as_json = json.loads(text)
     except:
       raise Exception(f'Failed to extract response json: {url}; {text}')
+
+    if ("graphql" in url and "errors" in data_as_json):
+      msg = f'Errors in request ({url}): {data_as_json["errors"]}'
+      _LOGGER.debug(msg)
+      raise RequestError(msg)
+
+    return data_as_json

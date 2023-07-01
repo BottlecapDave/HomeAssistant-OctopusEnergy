@@ -1,9 +1,9 @@
 from datetime import timedelta
 import logging
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 
-from homeassistant.util.dt import (utcnow)
+from homeassistant.util.dt import (now)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -65,16 +65,16 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
   def extra_state_attributes(self):
     """Attributes of the sensor."""
     return self._attributes
-
-  @property
-  def state(self):
-    """The state of the sensor."""
+  
+  @callback
+  def _handle_coordinator_update(self) -> None:
+    """Handle updated data from the coordinator."""
     # Find the current rate. We only need to do this every half an hour
-    now = utcnow()
-    if (self._last_updated is None or self._last_updated < (now - timedelta(minutes=30)) or (now.minute % 30) == 0):
+    current = now()
+    if (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0):
       _LOGGER.debug(f"Updating OctopusEnergyElectricityCurrentRate for '{self._mpan}/{self._serial_number}'")
 
-      rate_information = get_rate_information(self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None, now)
+      rate_information = get_rate_information(self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None, current)
 
       if rate_information is not None:
         self._attributes = {
@@ -103,8 +103,13 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
       if self._electricity_price_cap is not None:
         self._attributes["price_cap"] = self._electricity_price_cap
 
-      self._last_updated = now
+      self._last_updated = current
 
+    self.async_write_ha_state()
+
+  @property
+  def state(self):
+    """The state of the sensor."""
     return self._state
 
   async def async_added_to_hass(self):

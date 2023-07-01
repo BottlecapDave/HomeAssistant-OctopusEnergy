@@ -121,7 +121,8 @@ def get_rate_information(rates, target: datetime):
         "from": x["valid_from"],
         "to":   x["valid_to"],
         "rate": x["value_inc_vat"],
-        "is_capped": x["is_capped"]
+        "is_capped": x["is_capped"],
+        "is_intelligent_adjusted": x["is_intelligent_adjusted"] if "is_intelligent_adjusted" in x else False
       }, rates)),
       "current_rate": current_rate,
       "min_rate_today": min_rate_value,

@@ -76,10 +76,6 @@ class OctopusEnergyPreviousAccumulativeElectricityCostPeak(CoordinatorEntity, Oc
     return self._attributes
 
   @property
-  def should_poll(self):
-    return True
-
-  @property
   def last_reset(self):
     """Return the time when the sensor was last reset, if any."""
     return self._last_reset
@@ -88,6 +84,10 @@ class OctopusEnergyPreviousAccumulativeElectricityCostPeak(CoordinatorEntity, Oc
   def state(self):
     """Retrieve the previously calculated state"""
     return self._state
+  
+  @property
+  def should_poll(self):
+    return True
 
   async def async_update(self):
     consumption_data = self.coordinator.data["consumption"] if self.coordinator.data is not None and "consumption" in self.coordinator.data else None

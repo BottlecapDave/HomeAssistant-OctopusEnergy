@@ -3,10 +3,9 @@ import logging
 import re
 import voluptuous as vol
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 
-from homeassistant.core import callback
 from homeassistant.util.dt import (utcnow, now)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
@@ -47,6 +46,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     # Pass coordinator to base class
     super().__init__(coordinator)
 
+    self._state = None
     self._config = config
     self._is_export = is_export
     self._attributes = self._config.copy()
@@ -86,11 +86,10 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
   def extra_state_attributes(self):
     """Attributes of the sensor."""
     return self._attributes
-
-  @property
-  def is_on(self):
-    """The state of the sensor."""
-
+  
+  @callback
+  def _handle_coordinator_update(self) -> None:
+    """Handle updated data from the coordinator."""
     if CONFIG_TARGET_OFFSET in self._config:
       offset = self._config[CONFIG_TARGET_OFFSET]
     else:
@@ -188,7 +187,14 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     self._attributes["next_min_cost"] = f'{active_result["next_min_cost"]}p' if active_result["next_min_cost"] is not None else None
     self._attributes["next_max_cost"] = f'{active_result["next_max_cost"]}p' if active_result["next_max_cost"] is not None else None
 
-    return active_result["is_active"]
+    self._state = active_result["is_active"]
+
+    self.async_write_ha_state()
+
+  @property
+  def is_on(self):
+    """The state of the sensor."""
+    return self._state
 
   @callback
   def async_update_config(self, target_start_time=None, target_end_time=None, target_hours=None, target_offset=None):

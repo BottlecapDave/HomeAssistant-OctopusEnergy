@@ -3,7 +3,7 @@ import logging
 
 from homeassistant.core import HomeAssistant
 
-from homeassistant.util.dt import (utcnow)
+from homeassistant.util.dt import (now)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -69,8 +69,8 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor):
   def state(self):
     """Retrieve the latest gas price"""
 
-    utc_now = utcnow()
-    if (self._latest_date is None or (self._latest_date + timedelta(days=1)) < utc_now) or self._state is None:
+    current = now()
+    if (self._latest_date is None or (self._latest_date + timedelta(days=1)) < current) or self._state is None:
       _LOGGER.debug('Updating OctopusEnergyGasCurrentRate')
 
       rates = self.coordinator.data
@@ -78,7 +78,7 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor):
       current_rate = None
       if rates is not None:
         for period in rates:
-          if utc_now >= period["valid_from"] and utc_now <= period["valid_to"]:
+          if current >= period["valid_from"] and current <= period["valid_to"]:
             current_rate = period
             break
 

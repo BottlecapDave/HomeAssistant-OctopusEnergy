@@ -31,7 +31,8 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
     self._state = None
     self._attributes = {
       "planned_dispatches": [],
-      "completed_dispatches": []
+      "completed_dispatches": [],
+      "last_retrieved": None
     }
 
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
@@ -62,7 +63,10 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
     dispatches = self.coordinator.data
     if (dispatches is not None):
       self._attributes["planned_dispatches"] = self.coordinator.data["planned"]
-      self._attributes["completed_dispatches"] = self.coordinator.data["complete"]
+      self._attributes["completed_dispatches"] = self.coordinator.data["completed"]
+
+      if "last_retrieved" in self.coordinator.data:
+        self._attributes["last_retrieved"] = self.coordinator.data["last_retrieved"]
     else:
       self._attributes["planned_dispatches"] = []
       self._attributes["completed_dispatches"] = []

@@ -4,7 +4,7 @@ import asyncio
 from homeassistant.exceptions import ConfigEntryNotReady
 
 from .coordinators.account import async_setup_account_info_coordinator
-# from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatches_coordinator
+from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatches_coordinator
 from .coordinators.electricity_rates import async_setup_electricity_rates_coordinator
 from .coordinators.saving_sessions import async_setup_saving_sessions_coordinators
 
@@ -89,7 +89,7 @@ async def async_setup_dependencies(hass, config):
 
   await async_setup_account_info_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
 
-  # await async_setup_intelligent_dispatches_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
+  await async_setup_intelligent_dispatches_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
   
   await async_setup_electricity_rates_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
 
