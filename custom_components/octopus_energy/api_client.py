@@ -739,7 +739,7 @@ class OctopusEnergyApiClient:
         if (response_body is not None and "data" in response_body):
 
           return {
-            "smart_charge": response_body["data"]["registeredKrakenflexDevice"]["suspended"]
+            "smart_charge": response_body["data"]["registeredKrakenflexDevice"]["suspended"] == False
                             if "registeredKrakenflexDevice" in response_body["data"] and "suspended" in response_body["data"]["registeredKrakenflexDevice"]
                             else None,
             "charge_limit_weekday": int(response_body["data"]["vehicleChargingPreferences"]["weekdayTargetSoc"])
