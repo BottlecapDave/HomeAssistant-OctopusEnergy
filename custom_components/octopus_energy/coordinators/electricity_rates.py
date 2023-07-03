@@ -35,7 +35,7 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
     # Only get data every half hour or if we don't have any data
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-    if (DATA_ACCOUNT in hass.data[DOMAIN] and DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN]):
+    if (DATA_ACCOUNT in hass.data[DOMAIN]):
 
       tariff_codes = await async_get_current_electricity_agreement_tariff_codes(hass, client, account_id)
       _LOGGER.debug(f'tariff_codes: {tariff_codes}')
@@ -44,6 +44,7 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
       period_to = as_utc((current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0))
 
       rates = {}
+      dispatches = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] else None
       for ((meter_point, is_smart_meter), tariff_code) in tariff_codes.items():
         key = meter_point
 
@@ -61,12 +62,12 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
             new_rates = hass.data[DOMAIN][DATA_RATES][key]
           
         if new_rates is not None:
-          if is_intelligent_tariff(tariff_code):
+          if dispatches is not None:
             rates[key] = adjust_intelligent_rates(new_rates, 
-                                                  hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]["planned"] if "planned" in hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] else [],
-                                                  hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]["completed"] if "completed" in hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] else [])
+                                                  dispatches["planned"] if "planned" in dispatches else [],
+                                                  dispatches["completed"] if "completed" in dispatches else [])
             
-            _LOGGER.debug(f"Rates adjusted: {rates[key]}; dispatches: {hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]}")
+            _LOGGER.debug(f"Rates adjusted: {rates[key]}; dispatches: {dispatches}")
           else:
             rates[key] = new_rates
         elif (DATA_RATES in hass.data[DOMAIN] and key in hass.data[DOMAIN][DATA_RATES]):
