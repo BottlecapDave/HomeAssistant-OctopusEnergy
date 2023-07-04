@@ -10,25 +10,31 @@
 
 ## Current Consumption
 
-This is only available if you have an Octopus Home Mini.
-
 ### For Electricity
 
 <img src="./assets/current_consumption_electricity.png" alt="HA modal electricity example" height="500">
+
+This is only available if you have an Octopus Home Mini and a smart electricity meter.
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
 2. Click `Add Consumption` under `Electricity Grid`
 3. For `consumed energy` you want `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_consumption`
 4. For `Use an entity with current price` option you want `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_rate`
 
+> Please note that data will only appear in the energy dashboard from the point you configure the Home Mini within the integration. It doesn't backport any data.
+
 ### For Gas
 
 <img src="./assets/current_consumption_gas.png" alt="HA modal gas example" height="500">
+
+This is only available if you have an Octopus Home Mini and a smart gas meter.
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
 2. Click `Add Gas Source` under `Gas Consumption`
 3. For `consumed energy` you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_consumption`
 4. For `Use an entity with current price` option you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_rate` 
+
+> Please note that data will only appear in the energy dashboard from the point you configure the Home Mini within the integration. It doesn't backport any data.
 
 ## Previous Day Consumption
 
