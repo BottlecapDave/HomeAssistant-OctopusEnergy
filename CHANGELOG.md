@@ -1,3 +1,10 @@
+## [7.4.5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.4.4...v7.4.5) (2023-07-04)
+
+
+### Bug Fixes
+
+* Fixed issue with dispatch times and electricity rates ([7a5b470](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7a5b470e542acc616b4fcc3c30e851195feb052a))
+
 ## [7.4.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.4.3...v7.4.4) (2023-07-01)
 
 
