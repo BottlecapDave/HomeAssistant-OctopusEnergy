@@ -17,6 +17,12 @@ You'll get the following sensors for each electricity meter with an active agree
   - [Home Mini Sensors](#home-mini-sensors)
     - [Current Consumption (Electricity)](#current-consumption-electricity)
     - [Current Demand (Electricity)](#current-demand-electricity)
+  - [Octopus Intelligent](#octopus-intelligent)
+    - [Is Dispatching](#is-dispatching)
+    - [Bump Charge](#bump-charge)
+    - [Smart Charge](#smart-charge)
+    - [Charge Limit](#charge-limit)
+    - [Ready Time](#ready-time)
   - [Tariff Overrides](#tariff-overrides)
     - [Previous Accumulative Cost Override Tariff (Electricity)](#previous-accumulative-cost-override-tariff-electricity)
     - [Previous Accumulative Cost Override (Electricity)](#previous-accumulative-cost-override-electricity)
@@ -208,6 +214,54 @@ The current demand reported by the Home Mini. This will try and update every min
 | `serial_number` | `string` | The serial for the associated meter |
 | `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+
+## Octopus Intelligent
+
+The following sensors will be available if you're on an Octopus Intelligent tariff.
+
+### Is Dispatching
+
+`binary_sensor.octopus_energy_intelligent_dispatching`
+
+This sensor is used to determine if you're currently in a planned dispatch period.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `planned_dispatches` | `array` | An array of the dispatches that are currently planned by Octopus Energy |
+| `completed_dispatches` | `array` | An array of the dispatches that have been completed by Octopus Energy. This will only store up to the last 3 days worth of completed dispatches. |
+| `last_updated_timestamp` | `datetime` | The date/time the dispatching information was last retrieved from Octopus Energy. |
+
+### Bump Charge
+
+`switch.octopus_energy_intelligent_bump_charge`
+
+This sensor is used to turn on/off bump charging
+
+### Smart Charge
+
+`switch.octopus_energy_intelligent_smart_charge`
+
+This sensor is used to turn on/off intelligent smart charging
+
+### Charge Limit
+
+`number.octopus_energy_intelligent_charge_limit`
+
+This sensor is used to see and set the charge limit for your future intelligent charges.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `last_updated_timestamp` | `datetime` | The date/time the information was last retrieved from Octopus Energy. |
+
+### Ready Time
+
+`time.octopus_energy_intelligent_ready_time`
+
+This sensor is used to see and set the ready time for your future intelligent charges.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `last_updated_timestamp` | `datetime` | The date/time the information was last retrieved from Octopus Energy. |
 
 ## Tariff Overrides
 
