@@ -12,16 +12,12 @@ from .const import (
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
-  CONFIG_MAIN_CALORIFIC_VALUE,
-  CONFIG_MAIN_GAS_PRICE_CAP,
 
   DATA_CLIENT,
   DATA_ACCOUNT
 )
 
 _LOGGER = logging.getLogger(__name__)
-
-SCAN_INTERVAL = timedelta(minutes=1)
 
 async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
@@ -62,15 +58,6 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
     _LOGGER.info('No electricity meters available')
 
   if len(account_info["gas_meter_points"]) > 0:
-
-    calorific_value = 40
-    if CONFIG_MAIN_CALORIFIC_VALUE in config:
-      calorific_value = config[CONFIG_MAIN_CALORIFIC_VALUE]
-
-    gas_price_cap = None
-    if CONFIG_MAIN_GAS_PRICE_CAP in config:
-      gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
-
     for point in account_info["gas_meter_points"]:
       # We only care about points that have active agreements
       gas_tariff_code = get_active_tariff_code(now, point["agreements"])

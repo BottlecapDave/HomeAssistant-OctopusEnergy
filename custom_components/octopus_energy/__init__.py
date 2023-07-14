@@ -1,10 +1,12 @@
 import logging
 import asyncio
+from datetime import timedelta
 
 from homeassistant.exceptions import ConfigEntryNotReady
 
 from .coordinators.account import async_setup_account_info_coordinator
 from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatches_coordinator
+from .coordinators.intelligent_settings import async_setup_intelligent_settings_coordinator
 from .coordinators.electricity_rates import async_setup_electricity_rates_coordinator
 from .coordinators.saving_sessions import async_setup_saving_sessions_coordinators
 
@@ -27,6 +29,8 @@ from .const import (
 from .api_client import OctopusEnergyApiClient
 
 _LOGGER = logging.getLogger(__name__)
+
+SCAN_INTERVAL = timedelta(minutes=1)
 
 async def async_setup_entry(hass, entry):
   """This is called from the config flow."""
@@ -51,6 +55,18 @@ async def async_setup_entry(hass, entry):
 
     hass.async_create_task(
       hass.config_entries.async_forward_entry_setup(entry, "text")
+    )
+
+    hass.async_create_task(
+      hass.config_entries.async_forward_entry_setup(entry, "number")
+    )
+
+    hass.async_create_task(
+      hass.config_entries.async_forward_entry_setup(entry, "switch")
+    )
+
+    hass.async_create_task(
+      hass.config_entries.async_forward_entry_setup(entry, "time")
     )
   elif CONFIG_TARGET_NAME in config:
     if DOMAIN not in hass.data or DATA_ELECTRICITY_RATES_COORDINATOR not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN]:
@@ -90,6 +106,8 @@ async def async_setup_dependencies(hass, config):
   await async_setup_account_info_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
 
   await async_setup_intelligent_dispatches_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
+
+  await async_setup_intelligent_settings_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
   
   await async_setup_electricity_rates_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
 
@@ -101,15 +119,26 @@ async def options_update_listener(hass, entry):
 
 async def async_unload_entry(hass, entry):
     """Unload a config entry."""
-    if CONFIG_MAIN_API_KEY in entry.data:
-      target_domain = "sensor"
-    elif CONFIG_TARGET_NAME in entry.data:
-      target_domain = "binary_sensor"
 
-    unload_ok = all(
+    unload_ok = False
+    if CONFIG_MAIN_API_KEY in entry.data:
+      unload_ok = all(
         await asyncio.gather(
-            *[hass.config_entries.async_forward_entry_unload(entry, target_domain)]
+            *[
+              hass.config_entries.async_forward_entry_unload(entry, "sensor"),
+              hass.config_entries.async_forward_entry_unload(entry, "binary_sensor"),
+              hass.config_entries.async_forward_entry_unload(entry, "text"),
+              hass.config_entries.async_forward_entry_unload(entry, "number"),
+              hass.config_entries.async_forward_entry_unload(entry, "switch"),
+              hass.config_entries.async_forward_entry_unload(entry, "time")
+             ]
         )
-    )
+      )
+    elif CONFIG_TARGET_NAME in entry.data:
+      unload_ok = all(
+        await asyncio.gather(
+            *[hass.config_entries.async_forward_entry_unload(entry, "binary_sensor")]
+        )
+      )
 
     return unload_ok

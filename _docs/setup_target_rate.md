@@ -6,6 +6,7 @@
   - [Offset](#offset)
   - [Rolling Target](#rolling-target)
   - [Latest Period](#latest-period)
+  - [Attributes](#attributes)
   - [Examples](#examples)
     - [Continuous](#continuous)
     - [Intermittent](#intermittent)
@@ -51,6 +52,36 @@ Depending on how you're going to use the sensor, you might want the best period 
 For instance if you turn this on, the cheapest period is between `2023-01-01T00:30` and `2023-01-01T05:00` and your target rate is for 1 hour, then it will come on between `2023-01-01T04:00` and `2023-01-01T05:00` instead of `2023-01-01T00:30` and `2023-01-01T01:30`.
 
 This feature is toggled on by the `Find last applicable rates` checkbox.
+
+## Attributes
+
+The following attributes are available on each sensor
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `name` | `string` | The name of the sensor |
+| `hours` | `string` | The total hours are being discovered  |
+| `type` | `string` | The type/mode for the target rate sensor. This will be either `continuous` or `intermittent` |
+| `mpan` | `string` | The `mpan` of the meter being used to determine the rates |
+| `rolling_target` | `boolean` | Determines if `Re-evaluate multiple times a day` is turned on for the sensor. |
+| `last_rates` | `boolean` | Determines if `Find last applicable rates` is turned off for the sensor |
+| `offset` | `string` | The offset configured for the sensor |
+| `start_time` | `string` | The start time configured for the sensor |
+| `end_time` | `string` | The end time configured for the sensor |
+| `is_target_export` | `boolean` | Determines if the meter being targeted is exporting energy. This will change the behaviour of the sensor to look for the highest rates. |
+| `target_times` | `list` | The discovered times and rates the sensor will come on for. |
+| `overall_average_cost` | `float` | The average cost/rate of all discovered times during the current **24 hour period** |
+| `overall_min_cost` | `float` | The minimum cost/rate of all discovered times during the current **24 hour period** |
+| `overall_max_cost` | `float` | The maximum cost/rate of all discovered times during the current **24 hour period** |
+| `current_duration_in_hours` | `float` | The duration the sensor will be on for, for the current continuous discovered period. For `continuous` sensors, this will be the entire period. For `intermittent` sensors, this could be the entire period or a portion of it, depending on the discovered times. This could be `none`/`unknown` if the sensor is not currently in a discovered period. |
+| `current_average_cost` | `float` | The average cost/rate for the current continuous discovered period. This could be `none`/`unknown` if the sensor is not currently in a discovered period. |
+| `current_min_cost` | `float` | The min cost/rate for the current continuous discovered period. This could be `none`/`unknown` if the sensor is not currently in a discovered period. |
+| `current_max_cost` | `float` | The max cost/rate for the current continuous discovered period. This could be `none`/`unknown` if the sensor is not currently in a discovered period. |
+| `next_time` | `datetime` | The next date/time the sensor will come on. This could be `none`/`unknown` if there are no more periods for the current **24 hour period**. |
+| `next_duration_in_hours` | `float` | The duration the sensor will be on for, for the next continuous discovered period. For `continuous` sensors, this will be the entire period. For `intermittent` sensors, this could be the entire period or a portion of it, depending on the discovered times. This could be `none`/`unknown` if there are no more periods for the current **24 hour period**. |
+| `next_average_cost` | `float` | The average cost/rate for the next continuous discovered period. For `continuous` sensors, this will be the entire period. For `intermittent` sensors, this could be the entire period or a portion of it, depending on the discovered times. This could be `none`/`unknown` if there are no more periods for the current **24 hour period**. |
+| `next_min_cost` | `float` | The average cost/rate for the next continuous discovered period. This could be `none`/`unknown` if there are no more periods for the current **24 hour period**. |
+| `next_max_cost` | `float` | The average cost/rate for the next continuous discovered period. This could be `none`/`unknown` if there are no more periods for the current **24 hour period**. |
 
 ## Examples
 

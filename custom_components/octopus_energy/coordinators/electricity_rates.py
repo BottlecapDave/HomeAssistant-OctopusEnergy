@@ -18,7 +18,7 @@ from ..const import (
 from ..api_client import OctopusEnergyApiClient
 
 from . import async_get_current_electricity_agreement_tariff_codes
-from ..intelligent import adjust_intelligent_rates, is_intelligent_tariff
+from ..intelligent import adjust_intelligent_rates
 
 _LOGGER = logging.getLogger(__name__)
 

@@ -1,6 +1,6 @@
 import logging
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 
 from homeassistant.util.dt import (now)
@@ -10,6 +10,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from ..intelligent import (
   is_in_planned_dispatch
@@ -19,7 +20,7 @@ from .base import OctopusEnergyIntelligentSensor
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity, OctopusEnergyIntelligentSensor):
+class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
   """Sensor for determining if an intelligent is dispatching."""
 
   def __init__(self, hass: HomeAssistant, coordinator, device):
@@ -60,21 +61,25 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
   @property
   def is_on(self):
     """The state of the sensor."""
+    return self._state
+  
+  @callback
+  def _handle_coordinator_update(self) -> None:
+    """Handle updated data from the coordinator."""
     dispatches = self.coordinator.data
     if (dispatches is not None):
       self._attributes["planned_dispatches"] = self.coordinator.data["planned"]
       self._attributes["completed_dispatches"] = self.coordinator.data["completed"]
 
-      if "last_retrieved" in self.coordinator.data:
-        self._attributes["last_retrieved"] = self.coordinator.data["last_retrieved"]
+      if "last_updated" in self.coordinator.data:
+        self._attributes["last_updated_timestamp"] = self.coordinator.data["last_updated"]
     else:
       self._attributes["planned_dispatches"] = []
       self._attributes["completed_dispatches"] = []
 
     current_date = now()
     self._state = is_in_planned_dispatch(current_date, self._attributes["planned_dispatches"])
-
-    return self._state
+    self.async_write_ha_state()
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
