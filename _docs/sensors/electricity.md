@@ -217,7 +217,7 @@ The current demand reported by the Home Mini. This will try and update every min
 
 ## Octopus Intelligent
 
-The following sensors will be available if you're on an Octopus Intelligent tariff.
+The following sensors will be available if you're on an [Octopus Intelligent tariff](https://octopus.energy/smart/intelligent-octopus/).
 
 ### Is Dispatching
 
