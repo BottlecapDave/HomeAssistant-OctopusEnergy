@@ -1,3 +1,10 @@
+# [7.5.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.4.5...v7.5.0) (2023-07-14)
+
+
+### Features
+
+* **sensor:** Added various sensors for Octopus Intelligent to support various configurations ([0380377](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/03803772981a812adebe2c6aeb1070192b0e93ba))
+
 ## [7.4.5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.4.4...v7.4.5) (2023-07-04)
 
 
