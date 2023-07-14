@@ -129,6 +129,8 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
     gas_price_cap = None
     if CONFIG_MAIN_GAS_PRICE_CAP in config:
       gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
+    
+    gas_rate_coordinator = await async_create_gas_rate_coordinator(hass, client)
 
     for point in account_info["gas_meter_points"]:
       # We only care about points that have active agreements
@@ -136,8 +138,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
       if gas_tariff_code is not None:
         for meter in point["meters"]:
           _LOGGER.info(f'Adding gas meter; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
-          rate_coordinator = await async_create_gas_rate_coordinator(hass, client, gas_tariff_code)
-          entities.append(OctopusEnergyGasCurrentRate(hass, rate_coordinator, gas_tariff_code, meter, point, gas_price_cap))
+          entities.append(OctopusEnergyGasCurrentRate(hass, gas_rate_coordinator, gas_tariff_code, meter, point, gas_price_cap))
           entities.append(OctopusEnergyGasCurrentStandingCharge(hass, client, gas_tariff_code, meter, point))
 
           previous_consumption_coordinator = await async_create_previous_consumption_and_rates_coordinator(

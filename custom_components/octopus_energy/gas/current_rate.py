@@ -73,7 +73,7 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor):
     if (self._latest_date is None or (self._latest_date + timedelta(days=1)) < current) or self._state is None:
       _LOGGER.debug('Updating OctopusEnergyGasCurrentRate')
 
-      rates = self.coordinator.data
+      rates = self.coordinator.data[self._mprn]
       
       current_rate = None
       if rates is not None:
