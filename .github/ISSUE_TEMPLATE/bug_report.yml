@@ -32,6 +32,13 @@ body:
     validations:
       required: true
   - type: input
+    id: tariff
+    attributes:
+      label: Tariff Code
+      description: The tariff code that is located in your `current_rate` sensors. This might help identify issues that are related to specific tariffs
+    validations:
+      required: false
+  - type: input
     id: integration-version
     attributes:
       label: Integration Version
