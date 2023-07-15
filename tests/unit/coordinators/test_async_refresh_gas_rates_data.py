@@ -12,14 +12,14 @@ period_from = datetime.strptime("2023-07-14T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%
 period_to = datetime.strptime("2023-07-15T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
 
 tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
-mpan = "1234567890"
+mprn = "1234567890"
 serial_number = "abcdefgh"
 
 def get_account_info(is_active_agreement = True):
   return {
     "gas_meter_points": [
       {
-        "mpan": mpan,
+        "mprn": mprn,
         "meters": [
           {
             "serial_number": serial_number,
@@ -54,7 +54,7 @@ async def test_when_account_info_is_none_then_existing_rates_returned():
   
   account_info = None
   existing_rates = {
-    mpan: create_rate_data(period_from, period_to, [2, 4])
+    mprn: create_rate_data(period_from, period_to, [2, 4])
   }
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
@@ -80,7 +80,7 @@ async def test_when_no_active_rates_then_empty_rates_returned():
   
   account_info = get_account_info(False)
   existing_rates = {
-    mpan: create_rate_data(period_from, period_to, [2, 4])
+    mprn: create_rate_data(period_from, period_to, [2, 4])
   }
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
@@ -111,7 +111,7 @@ async def test_when_current_is_not_thirty_minutes_then_existing_rates_returned()
     
     account_info = get_account_info()
     existing_rates = {
-      mpan: create_rate_data(period_from, period_to, [2, 4])
+      mprn: create_rate_data(period_from, period_to, [2, 4])
     }
 
     with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
@@ -142,7 +142,7 @@ async def test_when_existing_rates_is_none_then_rates_retrieved():
   account_info = get_account_info()
   existing_rates = None
   expected_retrieved_rates = {
-    mpan: expected_rates
+    mprn: expected_rates
   }
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
@@ -171,7 +171,7 @@ async def test_when_key_not_in_existing_rates_is_none_then_rates_retrieved():
   account_info = get_account_info()
   existing_rates = {}
   expected_retrieved_rates = {
-    mpan: expected_rates
+    mprn: expected_rates
   }
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
@@ -197,10 +197,10 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
   
   account_info = get_account_info()
   existing_rates = {
-    mpan: create_rate_data(period_from - timedelta(days=60), period_to - timedelta(days=60), [2, 4])
+    mprn: create_rate_data(period_from - timedelta(days=60), period_to - timedelta(days=60), [2, 4])
   }
   expected_retrieved_rates = {
-    mpan: expected_rates
+    mprn: expected_rates
   }
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
@@ -226,7 +226,7 @@ async def test_when_rates_not_retrieved_then_existing_rates_returned():
   
   account_info = get_account_info()
   existing_rates = {
-    mpan: expected_rates
+    mprn: expected_rates
   }
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
@@ -239,6 +239,6 @@ async def test_when_rates_not_retrieved_then_existing_rates_returned():
     )
 
     assert retrieved_rates is not None
-    assert mpan in retrieved_rates
-    assert retrieved_rates[mpan] == expected_rates
+    assert mprn in retrieved_rates
+    assert retrieved_rates[mprn] == expected_rates
     assert rates_returned == True
