@@ -51,6 +51,7 @@ body:
       label: Fresh Install?
       description: What this encountered after upgrading or a fresh install
       options:
+        - Not specified
         - Fresh install
         - After upgrading
     validations:
