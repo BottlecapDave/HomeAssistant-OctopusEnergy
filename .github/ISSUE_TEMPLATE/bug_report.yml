@@ -1,0 +1,64 @@
+name: Bug Report
+description: Create a bug/issue detailing something that is broken or not working correctly
+title: "[Bug]: "
+labels: ["bug"]
+assignees:
+  - BottlecapDave
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report, and first may I say I'm sorry that you've encountered an issue.
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: Please provide a clear and concise description of what the bug/issue is
+      placeholder: ex. target rate sensor with the following settings is not turning on
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction steps
+      description: Please provide steps to reproduce the behavior
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: Please provide a clear and concise description of what you expected to happen
+    validations:
+      required: true
+  - type: input
+    id: expected
+    attributes:
+      label: Integration Version
+      description: The version of the integration that you encountered the bug on
+    validations:
+      required: true
+  - type: input
+    id: expected
+    attributes:
+      label: Home Assistant Version
+      description: The version of Home Assistant you're currently running
+    validations:
+      required: true
+  - type: dropdown
+    id: freshinstall
+    attributes:
+      label: Fresh Install?
+      description: What this encountered after upgrading or a fresh install
+      options:
+        - Fresh install
+        - After upgrading
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Home Assistant Logs
+      description: Paste any related Home Assistant logs here. Please follow the instructions as outlined in the [readme](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy#increase-home-assistant-logs)
+    validations:
+      required: true
