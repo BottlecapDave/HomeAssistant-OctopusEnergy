@@ -1,6 +1,5 @@
 name: Bug/Issue Report
 description: Create a bug/issue detailing something that is broken or not working correctly
-title: "[Bug]: "
 labels: ["bug"]
 assignees:
   - BottlecapDave
