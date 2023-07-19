@@ -39,7 +39,6 @@ async def async_setup_intelligent_settings_coordinator(hass, account_id: str):
     if account_coordinator is not None:
       await account_coordinator.async_request_refresh()
 
-    # Only get data every half hour or if we don't have any data
     current = utcnow()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     if (DATA_ACCOUNT in hass.data[DOMAIN]):

@@ -79,7 +79,6 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
   
   async def async_update_electricity_rates_data():
     """Fetch data from API endpoint."""
-    # Only get data every half hour or if we don't have any data
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     account_info = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
