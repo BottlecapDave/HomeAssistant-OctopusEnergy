@@ -1,3 +1,11 @@
+## [7.5.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.5.0...v7.5.1) (2023-07-20)
+
+
+### Bug Fixes
+
+* **sensors:** Fixed issue with saving session evaluating incorrectly … ([#317](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/317)) ([66dc168](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/66dc168067fde3363c67809ce90ceb721a34d42f))
+* **sensors:** Fixed issue with saving session evaluating incorrectly when data is unavailable ([94a03fb](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/94a03fbf53e2b8539982517d66e84eba8ccb6553))
+
 # [7.5.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.4.5...v7.5.0) (2023-07-14)
 
 
