@@ -101,12 +101,7 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
         self._state = None
 
       self._last_updated = current
-
-    self.async_write_ha_state()
-
-  @property
-  def state(self):
-    """The state of the sensor."""
+    
     return self._state
 
   async def async_added_to_hass(self):
