@@ -1,6 +1,6 @@
 import logging
 
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
@@ -68,9 +68,9 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
     """Return the time when the sensor was last reset, if any."""
     return self._latest_date
   
-  @callback
-  def _handle_coordinator_update(self) -> None:
-    """Handle updated data from the coordinator."""
+  @property
+  def state(self):
+    """The current consumption for the meter."""
     _LOGGER.debug('Updating OctopusEnergyCurrentGasConsumption')
     consumption_result = self.coordinator.data
 
@@ -78,11 +78,6 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
       self._latest_date = consumption_result["startAt"]
       self._state = consumption_result["consumption"] / 1000
 
-    self.async_write_ha_state()
-
-  @property
-  def state(self):
-    """Retrieve the latest gas consumption"""
     return self._state
 
   async def async_added_to_hass(self):

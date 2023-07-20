@@ -1,6 +1,6 @@
 import logging
 
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import generate_entity_id
 
 from homeassistant.util.dt import (now)
@@ -60,12 +60,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
 
   @property
   def is_on(self):
-    """The state of the sensor."""
-    return self._state
-  
-  @callback
-  def _handle_coordinator_update(self) -> None:
-    """Handle updated data from the coordinator."""
+    """Determine if OE is currently dispatching energy."""
     dispatches = self.coordinator.data
     if (dispatches is not None):
       self._attributes["planned_dispatches"] = self.coordinator.data["planned"]
@@ -79,7 +74,8 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
 
     current_date = now()
     self._state = is_in_planned_dispatch(current_date, self._attributes["planned_dispatches"])
-    self.async_write_ha_state()
+    
+    return self._state
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
