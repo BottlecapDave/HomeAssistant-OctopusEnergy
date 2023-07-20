@@ -1,6 +1,6 @@
 import logging
 
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import generate_entity_id
 
 from homeassistant.helpers.update_coordinator import (
@@ -51,20 +51,16 @@ class OctopusEnergySavingSessionPoints(CoordinatorEntity, SensorEntity, RestoreE
   def state_class(self):
     """The state class of sensor"""
     return SensorStateClass.TOTAL_INCREASING
-  
-  @callback
-  def _handle_coordinator_update(self) -> None:
-    """Handle updated data from the coordinator."""
+
+  @property
+  def state(self):
+    """Update the points based on data."""
     saving_session = self.coordinator.data
     if (saving_session is not None and "points" in saving_session):
       self._state = saving_session["points"]
     else:
       self._state = 0
-    self.async_write_ha_state()
 
-  @property
-  def state(self):
-    """Retrieve the previously calculated state"""
     return self._state
 
   async def async_added_to_hass(self):
