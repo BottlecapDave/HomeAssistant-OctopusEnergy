@@ -53,3 +53,15 @@ async def test_when_no_active_event_present_then_false_is_returned(current_date)
   )
 
   assert result is None
+
+@pytest.mark.asyncio
+async def test_when_events_is_none_then_none_returned():
+  events = None
+  current_date = datetime.strptime("2022-12-08T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+
+  result = current_saving_sessions_event(
+    current_date,
+    events,
+  )
+
+  assert result is None
