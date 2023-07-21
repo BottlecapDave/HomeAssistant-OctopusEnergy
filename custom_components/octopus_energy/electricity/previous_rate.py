@@ -1,7 +1,7 @@
 from datetime import timedelta
 import logging
 
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import HomeAssistant
 
 from homeassistant.util.dt import (now)
 from homeassistant.helpers.update_coordinator import (
@@ -64,9 +64,9 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
     """Attributes of the sensor."""
     return self._attributes
   
-  @callback
-  def _handle_coordinator_update(self) -> None:
-    """Handle updated data from the coordinator."""
+  @property
+  def state(self):
+    """Retrieve the previous rate."""
     # Find the previous rate. We only need to do this every half an hour
     current = now()
     if (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0):
@@ -102,11 +102,6 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
 
       self._last_updated = current
 
-    self.async_write_ha_state()
-
-  @property
-  def state(self):
-    """The state of the sensor."""
     return self._state
 
   async def async_added_to_hass(self):
