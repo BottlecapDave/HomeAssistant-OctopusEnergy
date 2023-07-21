@@ -87,9 +87,9 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     """Attributes of the sensor."""
     return self._attributes
   
-  @callback
-  def _handle_coordinator_update(self) -> None:
-    """Handle updated data from the coordinator."""
+  @property
+  def is_on(self):
+    """Determines if the target rate sensor is active."""
     if CONFIG_TARGET_OFFSET in self._config:
       offset = self._config[CONFIG_TARGET_OFFSET]
     else:
@@ -189,11 +189,6 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
 
     self._state = active_result["is_active"]
 
-    self.async_write_ha_state()
-
-  @property
-  def is_on(self):
-    """The state of the sensor."""
     return self._state
 
   @callback

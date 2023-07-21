@@ -34,7 +34,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
 
   if CONFIG_MAIN_API_KEY in entry.data:
-    await async_setup_season_sensors(hass, entry, async_add_entities)
+    await async_setup_saving_session_sensors(hass, entry, async_add_entities)
     await async_setup_intelligent_sensors(hass, async_add_entities)
   elif CONFIG_TARGET_NAME in entry.data:
     await async_setup_target_sensors(hass, entry, async_add_entities)
@@ -61,8 +61,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
   return True
 
-async def async_setup_season_sensors(hass, entry, async_add_entities):
-  _LOGGER.debug('Setting up Season Saving entity')
+async def async_setup_saving_session_sensors(hass, entry, async_add_entities):
+  _LOGGER.debug('Setting up Saving Session entities')
   config = dict(entry.data)
 
   if entry.options:
