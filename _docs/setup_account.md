@@ -5,6 +5,7 @@
   - [Gas Sensors](#gas-sensors)
   - [Saving Sessions](#saving-sessions)
   - [Home Mini](#home-mini)
+    - [Refresh Rate In Minutes](#refresh-rate-in-minutes)
   - [Calorific Value](#calorific-value)
   - [Government Pricing Caps](#government-pricing-caps)
 
@@ -34,6 +35,11 @@ If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blo
 For electricity sensors, see [here](./sensors/electricity.md#home-mini-sensors).
 
 For gas sensors, see [here](./sensors/gas.md#home-mini-sensors)
+
+
+### Refresh Rate In Minutes
+
+This determines how often data related to your Home Mini is retrieved from Octopus Energy. The Octopus Energy APIs have a rate limit of 100 calls per hour, which is shared among all calls including through the app. This is usually enough for one meter's data to be retrieved once a minute. However, if you are using other integrations, have more than one meter (e.g. gas) or want the app to not be effected you may want to increase this rate.
 
 ## Calorific Value
 

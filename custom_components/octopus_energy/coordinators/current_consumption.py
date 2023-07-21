@@ -47,7 +47,7 @@ async def async_get_live_consumption(client: OctopusEnergyApiClient, device_id, 
     
     return None
 
-async def async_create_current_consumption_coordinator(hass, client: OctopusEnergyApiClient, device_id: str, is_electricity: bool):
+async def async_create_current_consumption_coordinator(hass, client: OctopusEnergyApiClient, device_id: str, is_electricity: bool, refresh_rate_in_minutes: int):
   """Create current consumption coordinator"""
 
   async def async_update_data():
@@ -70,7 +70,7 @@ async def async_create_current_consumption_coordinator(hass, client: OctopusEner
     _LOGGER,
     name=f"current_consumption_{device_id}",
     update_method=async_update_data,
-    update_interval=timedelta(minutes=1),
+    update_interval=timedelta(minutes=refresh_rate_in_minutes),
   )
   
   await coordinator.async_config_entry_first_refresh()
