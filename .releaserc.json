@@ -11,7 +11,7 @@
     ],
     [
       "@semantic-release/exec", {
-        "generateNotesCmd" : "NOTES=\"${nextRelease.notes}\n---\nEnjoying the integration and want to say thanks? You can make a one time or monthly [GitHub sponsorship](https://github.com/sponsors/bottlecapdave) or use my [Octopus Energy referral link](https://share.octopus.energy/gray-jade-372)\" && echo $NOTES"
+        "generateNotesCmd" : "NOTES=\"${nextRelease.notes}\n---\nEnjoying the integration? Why not make a one time or monthly [GitHub sponsorship](https://github.com/sponsors/bottlecapdave) or use my [Octopus Energy referral link](https://share.octopus.energy/gray-jade-372)?\" && echo $NOTES"
       }
     ],
     [
