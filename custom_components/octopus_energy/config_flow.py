@@ -79,6 +79,23 @@ def validate_target_rate_sensor(data):
 
   return errors
 
+def get_target_rate_meters(account_info, now):
+  meters = {}
+  if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
+    for point in account_info["electricity_meter_points"]:
+      active_tariff_code = get_active_tariff_code(now, point["agreements"])
+
+      is_export = False
+      for meter in point["meters"]:
+        if meter["is_export"] == True:
+          is_export = True
+          break
+
+      if active_tariff_code is not None:
+        meters[point["mpan"]] = f'{point["mpan"]} ({"Export" if is_export == True else "Import"})'
+
+  return meters
+
 class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN): 
   """Config flow."""
 
@@ -114,13 +131,8 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     client = self.hass.data[DOMAIN][DATA_CLIENT]
     account_info = await client.async_get_account(self.hass.data[DOMAIN][DATA_ACCOUNT_ID])
 
-    meters = []
     now = utcnow()
-    if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
-      for point in account_info["electricity_meter_points"]:
-        active_tariff_code = get_active_tariff_code(now, point["agreements"])
-        if active_tariff_code is not None:
-          meters.append(point["mpan"])
+    meters = get_target_rate_meters(account_info, now)
 
     return vol.Schema({
       vol.Required(CONFIG_TARGET_NAME): str,
@@ -202,13 +214,8 @@ class OptionsFlowHandler(OptionsFlow):
     if account_info is None:
       errors[CONFIG_TARGET_MPAN] = "account_not_found"
 
-    meters = []
     now = utcnow()
-    if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
-      for point in account_info["electricity_meter_points"]:
-        active_tariff_code = get_active_tariff_code(now, point["agreements"])
-        if active_tariff_code is not None:
-          meters.append(point["mpan"])
+    meters = get_target_rate_meters(account_info, now)
 
     if (CONFIG_TARGET_MPAN not in config):
       config[CONFIG_TARGET_MPAN] = meters[0]
