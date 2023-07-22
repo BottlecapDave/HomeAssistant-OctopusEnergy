@@ -89,48 +89,6 @@ async def async_calculate_electricity_consumption_and_cost(
         result["total_consumption_peak"] = total_consumption_peak
 
       return result
-      
-def get_rate_information(rates, target: datetime):
-  min_target = target.replace(hour=0, minute=0, second=0, microsecond=0)
-  max_target = min_target + timedelta(days=1)
-
-  min_rate_value = None
-  max_rate_value = None
-  total_rate_value = 0
-  total_rates = 0
-  current_rate = None
-
-  if rates is not None:
-    for period in rates:
-      if target >= period["valid_from"] and target <= period["valid_to"]:
-        current_rate = period
-
-      if period["valid_from"] >= min_target and period["valid_to"] <= max_target:
-        if min_rate_value is None or period["value_inc_vat"] < min_rate_value:
-          min_rate_value = period["value_inc_vat"]
-
-        if max_rate_value is None or period["value_inc_vat"] > max_rate_value:
-          max_rate_value = period["value_inc_vat"]
-
-        total_rate_value = total_rate_value + period["value_inc_vat"]
-        total_rates = total_rates + 1
-
-  if current_rate is not None:
-    return {
-      "rates": list(map(lambda x: {
-        "from": x["valid_from"],
-        "to":   x["valid_to"],
-        "rate": x["value_inc_vat"],
-        "is_capped": x["is_capped"],
-        "is_intelligent_adjusted": x["is_intelligent_adjusted"] if "is_intelligent_adjusted" in x else False
-      }, rates)),
-      "current_rate": current_rate,
-      "min_rate_today": min_rate_value,
-      "max_rate_today": max_rate_value,
-      "average_rate_today": total_rate_value / total_rates
-    }
-
-  return None
 
 def get_electricity_tariff_override_key(serial_number: str, mpan: str) -> str:
   return f'electricity_previous_consumption_tariff_{serial_number}_{mpan}'

@@ -13,7 +13,7 @@ from homeassistant.components.sensor import (
 )
 
 from .base import (OctopusEnergyElectricitySensor)
-from . import (get_rate_information)
+from ..utils.rate_information import (get_previous_rate_information)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -28,6 +28,16 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
 
     self._state = None
     self._last_updated = None
+
+    self._attributes = {
+      "mpan": self._mpan,
+      "serial_number": self._serial_number,
+      "is_export": self._is_export,
+      "is_smart_meter": self._is_smart_meter,
+      "applicable_rates": [],
+      "valid_from": None,
+      "valid_to": None,
+    }
 
   @property
   def unique_id(self):
@@ -72,9 +82,8 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
     if (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0):
       _LOGGER.debug(f"Updating OctopusEnergyElectricityPreviousRate for '{self._mpan}/{self._serial_number}'")
 
-      target = current - timedelta(minutes=30)
-
-      rate_information = get_rate_information(self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None, target)
+      target = current
+      rate_information = get_previous_rate_information(self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None, target)
 
       if rate_information is not None:
         self._attributes = {
@@ -82,20 +91,22 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
           "serial_number": self._serial_number,
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
-          "rates": rate_information["rates"],
-          "rate": rate_information["current_rate"],
-          "current_day_min_rate": rate_information["min_rate_today"],
-          "current_day_max_rate": rate_information["max_rate_today"],
-          "current_day_average_rate": rate_information["average_rate_today"]
+          "applicable_rates": rate_information["applicable_rates"],
+          "previous_rate": rate_information["previous_rate"],
+          "valid_from": rate_information["previous_rate"]["valid_from"],
+          "valid_to": rate_information["previous_rate"]["valid_to"],
         }
 
-        self._state = rate_information["current_rate"]["value_inc_vat"] / 100
+        self._state = rate_information["previous_rate"]["value_inc_vat"] / 100
       else:
         self._attributes = {
           "mpan": self._mpan,
           "serial_number": self._serial_number,
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
+          "applicable_rates": [],
+          "valid_from": None,
+          "valid_to": None,
         }
 
         self._state = None

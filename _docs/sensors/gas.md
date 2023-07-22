@@ -4,10 +4,12 @@ You'll get the following sensors for each gas meter with an active agreement:
 
 - [Gas Sensors](#gas-sensors)
   - [Current Rate](#current-rate)
+  - [Previous Rate](#previous-rate)
+  - [Next rate](#next-rate)
   - [Smart Meter Sensors](#smart-meter-sensors)
-  - [Previous Accumulative Consumption](#previous-accumulative-consumption)
-  - [Previous Accumulative Consumption (kWH)](#previous-accumulative-consumption-kwh)
-  - [Previous Accumulative Cost](#previous-accumulative-cost)
+    - [Previous Accumulative Consumption](#previous-accumulative-consumption)
+    - [Previous Accumulative Consumption (kWH)](#previous-accumulative-consumption-kwh)
+    - [Previous Accumulative Cost](#previous-accumulative-cost)
   - [Home Mini Sensors](#home-mini-sensors)
     - [Current Consumption (Gas)](#current-consumption-gas)
   - [Tariff Overrides](#tariff-overrides)
@@ -18,15 +20,50 @@ You'll get the following sensors for each gas meter with an active agreement:
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_rate`
 
-The rate of the current day that gas consumption is charged at (including VAT).
+The current rate that energy consumption is charged at (including VAT).
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `value_inc_vat` | `float` | The value of the price including VAT |
-| `valid_from` | `datetime` | The date/time when the price is valid from |
-| `valid_to` | `datetime` | The date/time when the price is valid to |
-| `tariff_code` | `string` | The tariff code the current price was defined by |
-| `is_capped` | `boolean` | Determines if the price has been capped by the cap set when you setup your account |
+| `mprn` | `string` | The mprn for the associated meter |
+| `serial_number` | `string` | The serial for the associated meter |
+| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+| `tariff` | `string` | The tariff the meter/rates are associated with |
+| `all_rates` | `array` | Collection of latest rates for the previous day and next few days |
+| `applicable_rates` | `array` | Collection of rates where the current rate applies, in case it spans multiple time periods. |
+| `valid_from` | `datetime` | The date/time when the rate is valid from |
+| `valid_to` | `datetime` | The date/time when the rate is valid to |
+| `is_capped` | `boolean` | Determines if the rate has been capped by the cap set when you setup your account |
+| `price_cap` | `float` | The price cap that has been configured for the account and is currently applied to all gas rates |
+
+## Previous Rate
+
+`sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_rate`
+
+The previous rate that energy consumption was charged at (including VAT). If there is no previous rate (e.g. rates before now are of the same value as the current rate), then this will be reported as `unknown`/`none`.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `mprn` | `string` | The mprn for the associated meter |
+| `serial_number` | `string` | The serial for the associated meter |
+| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+| `applicable_rates` | `array` | Collection of rates where the previous rate applies, in case it spans multiple time periods. |
+| `valid_from` | `datetime` | The date/time when the rate is valid from |
+| `valid_to` | `datetime` | The date/time when the rate is valid to |
+
+## Next rate
+
+`sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_next_rate`
+
+The next/upcoming rate that energy consumption will be charged at (including VAT). If there is no previous rate (e.g. rates before now are of the same value as the current rate), then this will be reported as `unknown`/`none`.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `mprn` | `string` | The mprn for the associated meter |
+| `serial_number` | `string` | The serial for the associated meter |
+| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+| `applicable_rates` | `array` | Collection of rates where the next rate applies, in case it spans multiple time periods. |
+| `valid_from` | `datetime` | The date/time when the rate is valid from |
+| `valid_to` | `datetime` | The date/time when the rate is valid to |
 
 ## Smart Meter Sensors
 
@@ -36,7 +73,7 @@ If you are wishing to use these sensors with the Energy Dashboard, then you can 
 
 > By default, it's not possible to include current consumption sensors. This is due to Octopus Energy only receive data from the smart meters up to the previous day.
 
-## Previous Accumulative Consumption
+### Previous Accumulative Consumption
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption`
 
@@ -53,7 +90,7 @@ The total consumption reported by the meter for the previous day in m3. If your 
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup_account.md#calorific-value). |
 
-## Previous Accumulative Consumption (kWH)
+### Previous Accumulative Consumption (kWH)
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption_kwh`
 
@@ -68,7 +105,7 @@ The total consumption reported by the meter for the previous day in kwh. If your
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup_account.md#calorific-value). |
 
-## Previous Accumulative Cost
+### Previous Accumulative Cost
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost`
 
