@@ -10,8 +10,19 @@ def get_current_rate_information(rates, now: datetime):
   total_rates = 0
   current_rate = None
 
+  applicable_rates = []
+  is_adding_applicable_rates = True
+
   if rates is not None:
     for period in rates:
+      if current_rate is None and len(applicable_rates) > 0 and applicable_rates[0]["value_inc_vat"] != period["value_inc_vat"]:
+        applicable_rates.clear()
+
+      if is_adding_applicable_rates and (len(applicable_rates) < 1 or current_rate is None or applicable_rates[0]["value_inc_vat"] == period["value_inc_vat"]):
+        applicable_rates.append(period)
+      elif current_rate is not None and len(applicable_rates) > 0 and applicable_rates[0]["value_inc_vat"] != period["value_inc_vat"]:
+        is_adding_applicable_rates = False
+      
       if now >= period["valid_from"] and now <= period["valid_to"]:
         current_rate = period
 
@@ -27,14 +38,25 @@ def get_current_rate_information(rates, now: datetime):
 
   if current_rate is not None:
     return {
-      "rates": list(map(lambda x: {
+      "all_rates": list(map(lambda x: {
         "valid_from": x["valid_from"],
         "valid_to":   x["valid_to"],
         "value_inc_vat": x["value_inc_vat"],
         "is_capped": x["is_capped"],
         "is_intelligent_adjusted": x["is_intelligent_adjusted"] if "is_intelligent_adjusted" in x else False
       }, rates)),
-      "current_rate": current_rate,
+      "applicable_rates": list(map(lambda x: {
+        "valid_from": x["valid_from"],
+        "valid_to":   x["valid_to"],
+        "value_inc_vat": x["value_inc_vat"],
+        "is_capped": x["is_capped"],
+        "is_intelligent_adjusted": x["is_intelligent_adjusted"] if "is_intelligent_adjusted" in x else False
+      }, applicable_rates)),
+      "current_rate": {
+        "valid_from": applicable_rates[0]["valid_from"],
+        "valid_to": applicable_rates[-1]["valid_to"],
+        "value_inc_vat": applicable_rates[0]["value_inc_vat"],
+      },
       "min_rate_today": min_rate_value,
       "max_rate_today": max_rate_value,
       "average_rate_today": total_rate_value / total_rates
@@ -64,7 +86,7 @@ def get_previous_rate_information(rates, now: datetime):
 
   if len(applicable_rates) > 0:
     return {
-      "rates": list(map(lambda x: {
+      "applicable_rates": list(map(lambda x: {
         "valid_from": x["valid_from"],
         "valid_to":   x["valid_to"],
         "value_inc_vat": x["value_inc_vat"],
@@ -97,7 +119,7 @@ def get_next_rate_information(rates, now: datetime):
 
   if len(applicable_rates) > 0:
     return {
-      "rates": list(map(lambda x: {
+      "applicable_rates": list(map(lambda x: {
         "valid_from": x["valid_from"],
         "valid_to":   x["valid_to"],
         "value_inc_vat": x["value_inc_vat"],

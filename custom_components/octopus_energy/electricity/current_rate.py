@@ -14,7 +14,7 @@ from homeassistant.components.sensor import (
 
 from .base import (OctopusEnergyElectricitySensor)
 
-from . import (get_rate_information)
+from ..utils.rate_information import (get_current_rate_information)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -74,7 +74,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
     if (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0):
       _LOGGER.debug(f"Updating OctopusEnergyElectricityCurrentRate for '{self._mpan}/{self._serial_number}'")
 
-      rate_information = get_rate_information(self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None, current)
+      rate_information = get_current_rate_information(self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None, current)
 
       if rate_information is not None:
         self._attributes = {
@@ -82,8 +82,9 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
           "serial_number": self._serial_number,
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
-          "rates": rate_information["rates"],
-          "rate": rate_information["current_rate"],
+          "all_rates": rate_information["all_rates"],
+          "applicable_rates": rate_information["applicable_rates"],
+          "current_rate": rate_information["current_rate"],
           "current_day_min_rate": rate_information["min_rate_today"],
           "current_day_max_rate": rate_information["max_rate_today"],
           "current_day_average_rate": rate_information["average_rate_today"]
