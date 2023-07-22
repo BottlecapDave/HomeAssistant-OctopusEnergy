@@ -36,7 +36,7 @@ def get_current_rate_information(rates, now: datetime):
         total_rate_value = total_rate_value + period["value_inc_vat"]
         total_rates = total_rates + 1
 
-  if current_rate is not None:
+  if len(applicable_rates) > 0 and current_rate is not None:
     return {
       "all_rates": list(map(lambda x: {
         "valid_from": x["valid_from"],
@@ -56,6 +56,8 @@ def get_current_rate_information(rates, now: datetime):
         "valid_from": applicable_rates[0]["valid_from"],
         "valid_to": applicable_rates[-1]["valid_to"],
         "value_inc_vat": applicable_rates[0]["value_inc_vat"],
+        "is_capped": current_rate["is_capped"],
+        "is_intelligent_adjusted": current_rate["is_intelligent_adjusted"] if "is_intelligent_adjusted" in current_rate else False
       },
       "min_rate_today": min_rate_value,
       "max_rate_today": max_rate_value,
@@ -84,7 +86,7 @@ def get_previous_rate_information(rates, now: datetime):
 
   applicable_rates.sort(key=get_valid_from)
 
-  if len(applicable_rates) > 0:
+  if len(applicable_rates) > 0 and current_rate is not None:
     return {
       "applicable_rates": list(map(lambda x: {
         "valid_from": x["valid_from"],
@@ -117,7 +119,7 @@ def get_next_rate_information(rates, now: datetime):
         else:
           break
 
-  if len(applicable_rates) > 0:
+  if len(applicable_rates) > 0 and current_rate is not None:
     return {
       "applicable_rates": list(map(lambda x: {
         "valid_from": x["valid_from"],

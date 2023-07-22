@@ -29,6 +29,16 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
     self._state = None
     self._last_updated = None
 
+    self._attributes = {
+      "mpan": self._mpan,
+      "serial_number": self._serial_number,
+      "is_export": self._is_export,
+      "is_smart_meter": self._is_smart_meter,
+      "applicable_rates": [],
+      "valid_from": None,
+      "valid_to": None,
+    }
+
   @property
   def unique_id(self):
     """The id of the sensor."""
@@ -82,7 +92,9 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
           "applicable_rates": rate_information["applicable_rates"],
-          "previous_rate": rate_information["previous_rate"]
+          "previous_rate": rate_information["previous_rate"],
+          "valid_from": rate_information["previous_rate"]["valid_from"],
+          "valid_to": rate_information["previous_rate"]["valid_to"],
         }
 
         self._state = rate_information["previous_rate"]["value_inc_vat"] / 100
@@ -92,6 +104,9 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
           "serial_number": self._serial_number,
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
+          "applicable_rates": [],
+          "valid_from": None,
+          "valid_to": None,
         }
 
         self._state = None

@@ -31,7 +31,7 @@ You'll get the following sensors for each electricity meter with an active agree
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_rate`
 
-The rate of the current 30 minute period that energy consumption is charged at (including VAT).
+The current rate that energy consumption is charged at (including VAT).
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -39,17 +39,23 @@ The rate of the current 30 minute period that energy consumption is charged at (
 | `serial_number` | `string` | The serial for the associated meter |
 | `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
-| `rates` | `array` | Collection of latest rates for the next few days |
-| `rate` | `object` | Information about the current rate |
+| `tariff` | `string` | The tariff the meter/rates are associated with |
+| `all_rates` | `array` | Collection of latest rates for the previous day and next few days |
+| `applicable_rates` | `array` | Collection of rates where the current rate applies, in case it spans multiple time periods. |
+| `valid_from` | `datetime` | The date/time when the rate is valid from |
+| `valid_to` | `datetime` | The date/time when the rate is valid to |
+| `is_capped` | `boolean` | Determines if the rate has been capped by the cap set when you setup your account |
+| `is_intelligent_adjusted` | `boolean` | Determines if the rate is the result of being adjusted for intelligent dispatches. This is only applicable for intelligent tariffs |
 | `current_day_min_rate` | `float` | The minimum rate available for the current day |
 | `current_day_max_rate` | `float` | The maximum rate available for the current day |
 | `current_day_average_rate` | `float` | The average rate for the current day |
+| `price_cap` | `float` | The price cap that has been configured for the account and is currently applied to all electricity rates |
 
 ## Previous Rate
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_rate`
 
-The rate of the previous 30 minute period that energy consumption was charged at (including VAT).
+The previous rate that energy consumption was charged at (including VAT). If there is no previous rate (e.g. rates before now are of the same value as the current rate), then this will be reported as `unknown`/`none`.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -57,17 +63,15 @@ The rate of the previous 30 minute period that energy consumption was charged at
 | `serial_number` | `string` | The serial for the associated meter |
 | `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
-| `rates` | `array` | Collection of latest rates for the next few days |
-| `rate` | `object` | Information about the previous rate |
-| `current_day_min_rate` | `float` | The minimum rate available for the current day |
-| `current_day_max_rate` | `float` | The maximum rate available for the current day |
-| `current_day_average_rate` | `float` | The average rate for the current day |
+| `applicable_rates` | `array` | Collection of rates where the previous rate applies, in case it spans multiple time periods. |
+| `valid_from` | `datetime` | The date/time when the rate is valid from |
+| `valid_to` | `datetime` | The date/time when the rate is valid to |
 
 ## Next rate
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_next_rate`
 
-The rate of the next 30 minute period that energy consumption will be charged at (including VAT).
+The next/upcoming rate that energy consumption will be charged at (including VAT). If there is no previous rate (e.g. rates before now are of the same value as the current rate), then this will be reported as `unknown`/`none`.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -75,11 +79,9 @@ The rate of the next 30 minute period that energy consumption will be charged at
 | `serial_number` | `string` | The serial for the associated meter |
 | `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
-| `rates` | `array` | Collection of latest rates for the next few days |
-| `rate` | `object` | Information about the next rate |
-| `current_day_min_rate` | `float` | The minimum rate available for the current day |
-| `current_day_max_rate` | `float` | The maximum rate available for the current day |
-| `current_day_average_rate` | `float` | The average rate for the current day |
+| `applicable_rates` | `array` | Collection of rates where the next rate applies, in case it spans multiple time periods. |
+| `valid_from` | `datetime` | The date/time when the rate is valid from |
+| `valid_to` | `datetime` | The date/time when the rate is valid to |
 
 ## Smart Meter Sensors
 

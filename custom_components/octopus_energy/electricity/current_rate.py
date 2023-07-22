@@ -21,7 +21,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectricitySensor):
   """Sensor for displaying the current rate."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, meter, point, electricity_price_cap):
+  def __init__(self, hass: HomeAssistant, coordinator, meter, point, tariff_code, electricity_price_cap):
     """Init sensor."""
     # Pass coordinator to base class
     super().__init__(coordinator)
@@ -30,6 +30,24 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
     self._state = None
     self._last_updated = None
     self._electricity_price_cap = electricity_price_cap
+    self._tariff_code = tariff_code
+
+    self._attributes = {
+      "mpan": self._mpan,
+      "serial_number": self._serial_number,
+      "is_export": self._is_export,
+      "is_smart_meter": self._is_smart_meter,
+      "tariff": self._tariff_code,
+      "all_rates": [],
+      "applicable_rates": [],
+      "valid_from": None,
+      "valid_to": None,
+      "is_capped": None,
+      "is_intelligent_adjusted": None,
+      "current_day_min_rate": None,
+      "current_day_max_rate": None,
+      "current_day_average_rate": None
+    }
 
   @property
   def unique_id(self):
@@ -82,9 +100,13 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
           "serial_number": self._serial_number,
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
+          "tariff": self._tariff_code,
           "all_rates": rate_information["all_rates"],
           "applicable_rates": rate_information["applicable_rates"],
-          "current_rate": rate_information["current_rate"],
+          "valid_from":  rate_information["current_rate"]["valid_from"],
+          "valid_to":  rate_information["current_rate"]["valid_to"],
+          "is_capped":  rate_information["current_rate"]["is_capped"],
+          "is_intelligent_adjusted":  rate_information["current_rate"]["is_intelligent_adjusted"],
           "current_day_min_rate": rate_information["min_rate_today"],
           "current_day_max_rate": rate_information["max_rate_today"],
           "current_day_average_rate": rate_information["average_rate_today"]
@@ -96,7 +118,17 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
           "mpan": self._mpan,
           "serial_number": self._serial_number,
           "is_export": self._is_export,
-          "is_smart_meter": self._is_smart_meter
+          "is_smart_meter": self._is_smart_meter,
+          "tariff": self._tariff_code,
+          "all_rates": [],
+          "applicable_rates": [],
+          "valid_from": None,
+          "valid_to": None,
+          "is_capped": None,
+          "is_intelligent_adjusted": None,
+          "current_day_min_rate": None,
+          "current_day_max_rate": None,
+          "current_day_average_rate": None
         }
 
         self._state = None

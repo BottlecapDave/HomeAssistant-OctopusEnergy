@@ -17,6 +17,8 @@ from .electricity.previous_accumulative_cost_override import OctopusEnergyPrevio
 from .electricity.previous_rate import OctopusEnergyElectricityPreviousRate
 from .electricity.standing_charge import OctopusEnergyElectricityCurrentStandingCharge
 from .gas.current_rate import OctopusEnergyGasCurrentRate
+from .gas.next_rate import OctopusEnergyGasNextRate
+from .gas.previous_rate import OctopusEnergyGasPreviousRate
 from .gas.previous_accumulative_consumption import OctopusEnergyPreviousAccumulativeGasConsumption
 from .gas.previous_accumulative_consumption_kwh import OctopusEnergyPreviousAccumulativeGasConsumptionKwh
 from .gas.previous_accumulative_cost import OctopusEnergyPreviousAccumulativeGasCost
@@ -88,7 +90,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
       if electricity_tariff_code is not None:
         for meter in point["meters"]:
           _LOGGER.info(f'Adding electricity meter; mpan: {point["mpan"]}; serial number: {meter["serial_number"]}')
-          entities.append(OctopusEnergyElectricityCurrentRate(hass, electricity_rate_coordinator, meter, point, electricity_price_cap))
+          entities.append(OctopusEnergyElectricityCurrentRate(hass, electricity_rate_coordinator, meter, point, electricity_tariff_code, electricity_price_cap))
           entities.append(OctopusEnergyElectricityPreviousRate(hass, electricity_rate_coordinator, meter, point))
           entities.append(OctopusEnergyElectricityNextRate(hass, electricity_rate_coordinator, meter, point))
           entities.append(OctopusEnergyElectricityCurrentStandingCharge(hass, client, electricity_tariff_code, meter, point))
@@ -144,6 +146,8 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
         for meter in point["meters"]:
           _LOGGER.info(f'Adding gas meter; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
           entities.append(OctopusEnergyGasCurrentRate(hass, gas_rate_coordinator, gas_tariff_code, meter, point, gas_price_cap))
+          entities.append(OctopusEnergyGasPreviousRate(hass, gas_rate_coordinator, meter, point))
+          entities.append(OctopusEnergyGasNextRate(hass, gas_rate_coordinator, meter, point))
           entities.append(OctopusEnergyGasCurrentStandingCharge(hass, client, gas_tariff_code, meter, point))
 
           previous_consumption_coordinator = await async_create_previous_consumption_and_rates_coordinator(
