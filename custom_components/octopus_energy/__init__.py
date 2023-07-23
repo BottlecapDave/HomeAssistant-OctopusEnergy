@@ -3,6 +3,7 @@ import asyncio
 from datetime import timedelta
 
 from homeassistant.exceptions import ConfigEntryNotReady
+from homeassistant.helpers import device_registry as dr
 
 from .coordinators.account import async_setup_account_info_coordinator
 from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatches_coordinator
@@ -102,6 +103,17 @@ async def async_setup_dependencies(hass, config):
   account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
 
   hass.data[DOMAIN][DATA_ACCOUNT] = account_info
+
+  # Remove gas meter devices which had incorrect identifier
+  if account_info is not None and len(account_info["gas_meter_points"]) > 0:
+    device_registry = dr.async_get(hass)
+    for point in account_info["gas_meter_points"]:
+      mprn = point["mprn"]
+      for meter in point["meters"]:
+        serial_number = meter["serial_number"]
+        device = device_registry.async_get_device(identifiers={(DOMAIN, f"electricity_{serial_number}_{mprn}")})
+        if device is not None:
+          device_registry.async_remove_device(device.id)
 
   await async_setup_account_info_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
 
