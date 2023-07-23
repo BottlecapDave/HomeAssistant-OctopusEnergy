@@ -5,11 +5,11 @@
   - [Can I add the sensors to the Energy dashboard?](#can-i-add-the-sensors-to-the-energy-dashboard)
   - [Why is my gas sensor reporting m3 when Octopus Energy reports it as kWh?](#why-is-my-gas-sensor-reporting-m3-when-octopus-energy-reports-it-as-kwh)
   - [I have sensors that are missing](#i-have-sensors-that-are-missing)
+  - [I have data missing, is this an issue with the integration](#i-have-data-missing-is-this-an-issue-with-the-integration)
   - [My gas consumption/costs seem out](#my-gas-consumptioncosts-seem-out)
   - [I've been asked for my meter information in a bug request, how do I obtain this?](#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this)
   - [I want to use the tariff overrides, but how do I find an available tariff?](#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff)
   - [How do I increase the logs for the integration?](#how-do-i-increase-the-logs-for-the-integration)
-
 
 ## Data in my Home Assistant energy dashboard reported by Octopus Home Mini differs to Octopus Energy dashboard. Why is this?
 
@@ -34,6 +34,10 @@ The integration only looks at the first property associated with your account th
 You should then see entries associated with this component stating either sensors were added, skipped or no sensors were available at all.
 
 The identifiers of the sensors should then be checked against your Octopus Energy dashboard to verify the correct sensors are being picked up. If this is producing unexpected results, then you should raise an issue.
+
+## I have data missing, is this an issue with the integration
+
+Data can not appear for a variety of reasons. Before raising any issues, check if the data is available within the app. If it's not available within the app, then unfortunately there is nothing I can do. Data might also not appear if you lose internet connection of the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs. If none of this is applicable, then please raise an issue so we can try and solve the problem.
 
 ## My gas consumption/costs seem out
 

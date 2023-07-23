@@ -79,6 +79,8 @@ If you are wishing to use these sensors with the Energy Dashboard, then you can 
 
 The total consumption reported by the meter for the previous day in m3. If your meter reports in m3, then this will be an accurate value reported by Octopus, otherwise it will be a calculated/estimated value.
 
+> Please note that this data won't necessarily be available at the stroke of midnight and has been reported to take up to 18 hours for it to appear. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. If data is not available within the 24 hour timeframe, then the integration will not be able to pick up and display the data.
+
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `mprn` | `string` | The mprn for the associated meter |
@@ -96,6 +98,8 @@ The total consumption reported by the meter for the previous day in m3. If your 
 
 The total consumption reported by the meter for the previous day in kwh. If your meter reports in kwh, then this will be an accurate value reported by Octopus, otherwise it will be a calculated/estimated value.
 
+> Please note that this data won't necessarily be available at the stroke of midnight and has been reported to take up to 18 hours for it to appear. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. If data is not available within the 24 hour timeframe, then the integration will not be able to pick up and display the data.
+
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `mprn` | `string` | The mprn for the associated meter |
@@ -110,6 +114,8 @@ The total consumption reported by the meter for the previous day in kwh. If your
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost`
 
 The total cost for the previous day, including the standing charge.
+
+> Please note that this will only populate once the consumption data is available.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
