@@ -59,11 +59,6 @@ class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElec
   def extra_state_attributes(self):
     """Attributes of the sensor."""
     return self._attributes
-
-  @property
-  def last_reset(self):
-    """Return the time when the sensor was last reset, if any."""
-    return self._latest_date
   
   @property
   def state(self):
