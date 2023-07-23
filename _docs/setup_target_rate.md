@@ -1,11 +1,12 @@
 # Setup Target Rate Sensor(s)
 
 - [Setup Target Rate Sensor(s)](#setup-target-rate-sensors)
-  - [From and To times](#from-and-to-times)
+  - [From/To Times](#fromto-times)
   - [Hours](#hours)
   - [Offset](#offset)
   - [Rolling Target](#rolling-target)
   - [Latest Period](#latest-period)
+  - [Invert Target Rates](#invert-target-rates)
   - [Attributes](#attributes)
   - [Examples](#examples)
     - [Continuous](#continuous)
@@ -19,7 +20,7 @@ These sensors can then be used in automations to turn on/off devices that save y
 
 Each sensor will be in the form `binary_sensor.octopus_energy_target_{{TARGET_RATE_NAME}}`.
 
-## From and To times
+## From/To Times
 
 If you're wanting your devices to come on during a certain period, for example while you're at work, you can set the minimum and/or maximum times for your target rate sensor. These are specified in 24 hour clock format and will attempt to find the optimum discovered period during these times.
 
@@ -52,6 +53,10 @@ Depending on how you're going to use the sensor, you might want the best period 
 For instance if you turn this on, the cheapest period is between `2023-01-01T00:30` and `2023-01-01T05:00` and your target rate is for 1 hour, then it will come on between `2023-01-01T04:00` and `2023-01-01T05:00` instead of `2023-01-01T00:30` and `2023-01-01T01:30`.
 
 This feature is toggled on by the `Find last applicable rates` checkbox.
+
+## Invert Target Rates
+
+If this is checked, then the normal behaviour of the sensor will be revered. This means if you target an **import** sensor, it will normally look for the cheapest rates. But with this checked it will find the most expensive rates. Similarly if you target an **export** meter, normally it will look for the most expensive rates. But with this checked it will find the cheapest rates.
 
 ## Attributes
 

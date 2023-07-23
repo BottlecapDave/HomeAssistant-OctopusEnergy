@@ -29,6 +29,7 @@ from .const import (
   CONFIG_TARGET_OFFSET,
   CONFIG_TARGET_ROLLING_TARGET,
   CONFIG_TARGET_LAST_RATES,
+  CONFIG_TARGET_INVERT_TARGET_RATES,
 
   DATA_SCHEMA_ACCOUNT,
   DATA_CLIENT,
@@ -149,6 +150,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Optional(CONFIG_TARGET_OFFSET): str,
       vol.Optional(CONFIG_TARGET_ROLLING_TARGET, default=False): bool,
       vol.Optional(CONFIG_TARGET_LAST_RATES, default=False): bool,
+      vol.Optional(CONFIG_TARGET_INVERT_TARGET_RATES, default=False): bool,
     })
 
   async def async_step_target_rate(self, user_input):
@@ -240,6 +242,14 @@ class OptionsFlowHandler(OptionsFlow):
     find_last_rates = False
     if (CONFIG_TARGET_LAST_RATES in config):
       find_last_rates = config[CONFIG_TARGET_LAST_RATES]
+
+    find_last_rates = False
+    if (CONFIG_TARGET_LAST_RATES in config):
+      find_last_rates = config[CONFIG_TARGET_LAST_RATES]
+
+    invert_target_rates = False
+    if (CONFIG_TARGET_INVERT_TARGET_RATES in config):
+      invert_target_rates = config[CONFIG_TARGET_INVERT_TARGET_RATES]
     
     return self.async_show_form(
       step_id="target_rate",
@@ -258,6 +268,7 @@ class OptionsFlowHandler(OptionsFlow):
         offset_key: str,
         vol.Optional(CONFIG_TARGET_ROLLING_TARGET, default=is_rolling_target): bool,
         vol.Optional(CONFIG_TARGET_LAST_RATES, default=find_last_rates): bool,
+        vol.Optional(CONFIG_TARGET_INVERT_TARGET_RATES, default=invert_target_rates): bool,
       }),
       errors=errors
     )
