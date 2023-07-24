@@ -60,8 +60,8 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
 
     self._attributes["last_updated_timestamp"] = self.coordinator.data["last_updated"]
     self._state = self.coordinator.data["ready_time_weekday"]
-    
-    self._state
+
+    return self._state
 
   async def async_set_value(self, value: time) -> None:
     """Set new value."""
