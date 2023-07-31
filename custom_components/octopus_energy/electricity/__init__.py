@@ -1,5 +1,3 @@
-from datetime import (datetime, timedelta)
-
 from ..utils import get_off_peak_cost
 
 def __get_interval_end(item):

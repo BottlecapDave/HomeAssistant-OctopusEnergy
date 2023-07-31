@@ -117,7 +117,7 @@ saving_session_query = '''query {{
 live_consumption_query = '''query {{
 	smartMeterTelemetry(
     deviceId: "{device_id}"
-    grouping: ONE_MINUTE 
+    grouping: HALF_HOURLY 
 		start: "{period_from}"
 		end: "{period_to}"
 	) {{
@@ -456,14 +456,14 @@ class OctopusEnergyApiClient:
     
     return None
 
-  async def async_get_smart_meter_consumption(self, device_id, period_from, period_to):
+  async def async_get_smart_meter_consumption(self, device_id: str, period_from: datetime, period_to: datetime):
     """Get the user's smart meter consumption"""
     await self.async_refresh_token()
 
     async with aiohttp.ClientSession() as client:
       url = f'{self._base_url}/v1/graphql/'
 
-      payload = { "query": live_consumption_query.format(device_id=device_id, period_from=period_from, period_to=period_to) }
+      payload = { "query": live_consumption_query.format(device_id=device_id, period_from=period_from.strftime("%Y-%m-%dT%H:%M:%S%z"), period_to=period_to.strftime("%Y-%m-%dT%H:%M:%S%z")) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as live_consumption_response:
         response_body = await self.__async_read_response__(live_consumption_response, url)
@@ -472,7 +472,8 @@ class OctopusEnergyApiClient:
           return list(map(lambda mp: {
             "consumption": float(mp["consumptionDelta"]),
             "demand": float(mp["demand"]) if "demand" in mp and mp["demand"] is not None else None,
-            "startAt": parse_datetime(mp["readAt"])
+            "interval_start": parse_datetime(mp["readAt"]),
+            "interval_end": parse_datetime(mp["readAt"]) + timedelta(minutes=30)
           }, response_body["data"]["smartMeterTelemetry"]))
         else:
           _LOGGER.debug(f"Failed to retrieve smart meter consumption data - device_id: {device_id}; period_from: {period_from}; period_to: {period_to}")
@@ -681,6 +682,8 @@ class OctopusEnergyApiClient:
             return await self.__async_get_tracker_standing_charge__(tariff_code, period_from, period_to)
         elif ("results" in data and len(data["results"]) > 0):
           result = {
+            "valid_from": parse_datetime(data["results"][0]["valid_from"]) if "valid_from" in data["results"][0] and data["results"][0]["valid_from"] is not None else None,
+            "valid_to": parse_datetime(data["results"][0]["valid_to"]) if "valid_to" in data["results"][0] and data["results"][0]["valid_to"] is not None else None,
             "value_inc_vat": float(data["results"][0]["value_inc_vat"])
           }
 
@@ -987,6 +990,8 @@ class OctopusEnergyApiClient:
           valid_to = parse_datetime(f'{period["date"]}T00:00:00Z') + timedelta(days=1)
           if ((valid_from >= period_from and valid_from <= period_to) or (valid_to >= period_from and valid_to <= period_to)):
             return {
+              "valid_from": parse_datetime(period["valid_from"]),
+              "valid_to": parse_datetime(period["valid_to"]),
               "value_inc_vat": float(period["standing_charge"])
             }
 
