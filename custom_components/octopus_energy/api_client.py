@@ -470,7 +470,7 @@ class OctopusEnergyApiClient:
 
         if (response_body is not None and "data" in response_body and "smartMeterTelemetry" in response_body["data"] and response_body["data"]["smartMeterTelemetry"] is not None and len(response_body["data"]["smartMeterTelemetry"]) > 0):
           return list(map(lambda mp: {
-            "consumption": float(mp["consumptionDelta"]),
+            "consumption": float(mp["consumptionDelta"]) / 1000,
             "demand": float(mp["demand"]) if "demand" in mp and mp["demand"] is not None else None,
             "interval_start": parse_datetime(mp["readAt"]),
             "interval_end": parse_datetime(mp["readAt"]) + timedelta(minutes=30)
@@ -655,6 +655,8 @@ class OctopusEnergyApiClient:
             return await self.__async_get_tracker_standing_charge__(tariff_code, period_from, period_to)
         elif ("results" in data and len(data["results"]) > 0):
           result = {
+            "valid_from": parse_datetime(data["results"][0]["valid_from"]) if "valid_from" in data["results"][0] and data["results"][0]["valid_from"] is not None else None,
+            "valid_to": parse_datetime(data["results"][0]["valid_to"]) if "valid_to" in data["results"][0] and data["results"][0]["valid_to"] is not None else None,
             "value_inc_vat": float(data["results"][0]["value_inc_vat"])
           }
 

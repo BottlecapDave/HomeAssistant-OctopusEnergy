@@ -10,7 +10,7 @@ from ..const import (
   DOMAIN,
   DATA_CLIENT,
   DATA_ELECTRICITY_RATES_COORDINATOR,
-  DATA_RATES,
+  DATA_ELECTRICITY_RATES,
   DATA_ACCOUNT,
   DATA_INTELLIGENT_DISPATCHES,
 )
@@ -71,7 +71,7 @@ async def async_refresh_electricity_rates_data(
 
 async def async_setup_electricity_rates_coordinator(hass, account_id: str):
   # Reset data rates as we might have new information
-  hass.data[DOMAIN][DATA_RATES] = []
+  hass.data[DOMAIN][DATA_ELECTRICITY_RATES] = []
 
   if DATA_ELECTRICITY_RATES_COORDINATOR in hass.data[DOMAIN]:
     _LOGGER.info("Rates coordinator has already been configured, so skipping")
@@ -83,9 +83,9 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     account_info = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
     dispatches = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] else None
-    rates = hass.data[DOMAIN][DATA_RATES] if DATA_RATES in hass.data[DOMAIN] else {}
+    rates = hass.data[DOMAIN][DATA_ELECTRICITY_RATES] if DATA_ELECTRICITY_RATES in hass.data[DOMAIN] else {}
 
-    hass.data[DOMAIN][DATA_RATES] = await async_refresh_electricity_rates_data(
+    hass.data[DOMAIN][DATA_ELECTRICITY_RATES] = await async_refresh_electricity_rates_data(
       current,
       client,
       account_info,
@@ -93,12 +93,12 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
       dispatches
     )
 
-    return hass.data[DOMAIN][DATA_RATES]
+    return hass.data[DOMAIN][DATA_ELECTRICITY_RATES]
 
   hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR] = DataUpdateCoordinator(
     hass,
     _LOGGER,
-    name="rates",
+    name="electricity_rates",
     update_method=async_update_electricity_rates_data,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes
