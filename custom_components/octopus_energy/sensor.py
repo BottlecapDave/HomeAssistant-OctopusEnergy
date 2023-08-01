@@ -1,9 +1,9 @@
-from datetime import timedelta
 import logging
 from homeassistant.util.dt import (utcnow)
 from homeassistant.core import HomeAssistant
 
 from .electricity.current_consumption import OctopusEnergyCurrentElectricityConsumption
+from .electricity.current_accumulative_consumption import OctopusEnergyCurrentAccumulativeElectricityConsumption
 from .electricity.current_demand import OctopusEnergyCurrentElectricityDemand
 from .electricity.current_rate import OctopusEnergyElectricityCurrentRate
 from .electricity.next_rate import OctopusEnergyElectricityNextRate
@@ -23,6 +23,7 @@ from .gas.previous_accumulative_consumption import OctopusEnergyPreviousAccumula
 from .gas.previous_accumulative_consumption_kwh import OctopusEnergyPreviousAccumulativeGasConsumptionKwh
 from .gas.previous_accumulative_cost import OctopusEnergyPreviousAccumulativeGasCost
 from .gas.current_consumption import OctopusEnergyCurrentGasConsumption
+from .gas.current_accumlative_consumption import OctopusEnergyCurrentAccumulativeGasConsumption
 from .gas.standing_charge import OctopusEnergyGasCurrentStandingCharge
 from .gas.previous_accumulative_cost_override import OctopusEnergyPreviousAccumulativeGasCostOverride
 
@@ -119,6 +120,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
 
             consumption_coordinator = await async_create_current_consumption_coordinator(hass, client, meter["device_id"], True, live_consumption_refresh_in_minutes)
             entities.append(OctopusEnergyCurrentElectricityConsumption(hass, consumption_coordinator, meter, point))
+            entities.append(OctopusEnergyCurrentAccumulativeElectricityConsumption(hass, consumption_coordinator, meter, point))
             entities.append(OctopusEnergyCurrentElectricityDemand(hass, consumption_coordinator, meter, point))
       else:
         for meter in point["meters"]:
@@ -171,6 +173,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
             
             consumption_coordinator = await async_create_current_consumption_coordinator(hass, client, meter["device_id"], False, live_consumption_refresh_in_minutes)
             entities.append(OctopusEnergyCurrentGasConsumption(hass, consumption_coordinator, meter, point))
+            entities.append(OctopusEnergyCurrentAccumulativeGasConsumption(hass, consumption_coordinator, meter, point))
       else:
         for meter in point["meters"]:
           _LOGGER.info(f'Skipping gas meter due to no active agreement; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')

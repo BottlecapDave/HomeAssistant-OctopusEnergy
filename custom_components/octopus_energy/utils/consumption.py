@@ -12,6 +12,6 @@ def get_current_consumption_delta(current_datetime: datetime, current_total_cons
     return None
   
   if (current_datetime.date() == previous_updated.date()):
-    return (current_total_consumption - previous_total_consumption) / 1000
+    return (current_total_consumption - previous_total_consumption)
   
-  return current_total_consumption / 1000
+  return current_total_consumption
