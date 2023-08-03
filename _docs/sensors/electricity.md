@@ -15,8 +15,10 @@ You'll get the following sensors for each electricity meter with an active agree
     - [Previous Accumulative Cost (Off Peak Rate)](#previous-accumulative-cost-off-peak-rate)
   - [Export Sensors](#export-sensors)
   - [Home Mini Sensors](#home-mini-sensors)
-    - [Current Consumption (Electricity)](#current-consumption-electricity)
-    - [Current Demand (Electricity)](#current-demand-electricity)
+    - [Current Consumption](#current-consumption)
+    - [Current Demand](#current-demand)
+    - [Current Accumulative Consumption](#current-accumulative-consumption)
+    - [Current Accumulative Cost](#current-accumulative-cost)
   - [Octopus Intelligent](#octopus-intelligent)
     - [Is Dispatching](#is-dispatching)
     - [Bump Charge](#bump-charge)
@@ -183,7 +185,7 @@ If you export energy, then in addition you'll gain the above sensors with the na
 
 ## Home Mini Sensors
 
-### Current Consumption (Electricity)
+### Current Consumption
 
 > This will only be available if you have specified you have a [Octopus Home Mini](../setup_account.md#home-mini). Do not set unless you have one
 
@@ -197,12 +199,9 @@ If current consumption data is unable to be retrieved, then the integration will
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `mpan` | `string` | The mpan for the associated meter |
-| `serial_number` | `string` | The serial for the associated meter |
-| `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
-| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+| `last_updated_timestamp` | `datetime` | The datetime the data was last retrieved |
 
-### Current Demand (Electricity)
+### Current Demand
 
 > This will only be available if you have specified you have a [Octopus Home Mini](../setup_account.md#home-mini). Do not set unless you have one
 
@@ -212,10 +211,37 @@ The current demand reported by the Home Mini. This will try and update every min
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
+| `last_updated_timestamp` | `datetime` | The datetime the data was last retrieved |
+
+### Current Accumulative Consumption
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption`
+
+The total consumption reported by the meter for the current day.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+
+| `last_updated_timestamp` | `datetime` | The datetime the data was last retrieved |
+| `charges` | `array` | Collection of consumption periods for the current day broken down into 30 minute periods. |
+
+### Current Accumulative Cost
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost`
+
+The total cost for the current day, including the standing charge.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
 | `mpan` | `string` | The mpan for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
 | `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+| `tariff_code` | `string` | The tariff that determined the cost |
+| `standing_charge` | `float` | The standing charge included in the cost |
+| `total_without_standing_charge` | `float` | The total cost of the current day excluding the standing charge |
+| `total` | `float` | The total cost for the current day |
+| `charges` | `array` | Collection of consumption periods and costs for the current day broken down into 30 minute periods. |
 
 ## Octopus Intelligent
 
