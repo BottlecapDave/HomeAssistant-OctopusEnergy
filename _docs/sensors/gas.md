@@ -11,7 +11,9 @@ You'll get the following sensors for each gas meter with an active agreement:
     - [Previous Accumulative Consumption (kWH)](#previous-accumulative-consumption-kwh)
     - [Previous Accumulative Cost](#previous-accumulative-cost)
   - [Home Mini Sensors](#home-mini-sensors)
-    - [Current Consumption (Gas)](#current-consumption-gas)
+    - [Current Consumption](#current-consumption)
+    - [Current Accumulative Consumption](#current-accumulative-consumption)
+    - [Current Accumulative Cost](#current-accumulative-cost)
   - [Tariff Overrides](#tariff-overrides)
     - [Previous Accumulative Cost Override Tariff (Gas)](#previous-accumulative-cost-override-tariff-gas)
     - [Previous Accumulative Cost Override (Gas)](#previous-accumulative-cost-override-gas)
@@ -131,7 +133,7 @@ The total cost for the previous day, including the standing charge.
 
 ## Home Mini Sensors
 
-### Current Consumption (Gas)
+### Current Consumption
 
 > This will only be available if you have specified you have a [Octopus Home Mini](../setup_account.md#home-mini). Do not set unless you have one
 
@@ -145,6 +147,38 @@ If current consumption data is unable to be retrieved, then the integration will
 |-----------|------|-------------|
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
+
+### Current Accumulative Consumption
+
+`sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption`
+
+The total consumption reported by the meter for the current day.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+
+| `mprn` | `string` | The mprn for the associated meter |
+| `serial_number` | `string` | The serial for the associated meter |
+| `total` | `float` | The total energy value for the previous day in `kwh`. If your meter reports in `m3`, then this will be estimated using your set [calorific value](../setup_account.md#calorific-value) |
+| `last_calculated_timestamp` | `datetime` | The timestamp determining when the consumption was last calculated. |
+| `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
+| `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup_account.md#calorific-value). |
+
+### Current Accumulative Cost
+
+`sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_cost`
+
+The total cost for the current day, including the standing charge.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `mprn` | `string` | The mprn for the associated meter |
+| `serial_number` | `string` | The serial for the associated meter |
+| `tariff_code` | `string` | The tariff that determined the cost |
+| `standing_charge` | `float` | The standing charge included in the cost |
+| `total_without_standing_charge` | `float` | The total cost of the current day excluding the standing charge |
+| `total` | `float` | The total cost for the current day |
+| `charges` | `array` | Collection of consumption periods and costs for the current day broken down into 30 minute periods. |
 
 ## Tariff Overrides
 
