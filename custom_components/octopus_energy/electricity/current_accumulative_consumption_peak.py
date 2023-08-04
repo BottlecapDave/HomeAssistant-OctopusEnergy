@@ -1,9 +1,10 @@
 import logging
+from datetime import datetime
 
 from homeassistant.core import HomeAssistant
 
 from homeassistant.helpers.update_coordinator import (
-  CoordinatorEntity
+  CoordinatorEntity,
 )
 from homeassistant.components.sensor import (
     SensorDeviceClass,
@@ -13,14 +14,16 @@ from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR
 )
 
-from .base import (OctopusEnergyElectricitySensor)
+from . import (
+  async_calculate_electricity_consumption_and_cost,
+)
 
-from . import async_calculate_electricity_consumption_and_cost
+from .base import (OctopusEnergyElectricitySensor)
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyCurrentAccumulativeElectricityConsumption(CoordinatorEntity, OctopusEnergyElectricitySensor):
-  """Sensor for displaying the current accumulative electricity consumption."""
+class OctopusEnergyCurrentAccumulativeElectricityConsumptionPeak(CoordinatorEntity, OctopusEnergyElectricitySensor):
+  """Sensor for displaying the current days accumulative electricity reading during peak hours."""
 
   def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, standing_charge_coordinator, tariff_code, meter, point):
     """Init sensor."""
@@ -28,21 +31,29 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(CoordinatorEntity, 
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._state = None
-    self._last_reset = None
+    self._latest_date = None
     
     self._tariff_code = tariff_code
     self._rates_coordinator = rates_coordinator
     self._standing_charge_coordinator = standing_charge_coordinator
 
   @property
+  def entity_registry_enabled_default(self) -> bool:
+    """Return if the entity should be enabled when first added.
+
+    This only applies when fist added to the entity registry.
+    """
+    return False
+
+  @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_current_accumulative_consumption"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_current_accumulative_consumption_peak"
 
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan} Current Accumulative Consumption"
+    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Current Accumulative Consumption (Peak)"
 
   @property
   def device_class(self):
@@ -73,7 +84,7 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(CoordinatorEntity, 
   def last_reset(self):
     """Return the time when the sensor was last reset, if any."""
     return self._last_reset
-  
+
   @property
   def state(self):
     """Retrieve the current days accumulative consumption"""
@@ -92,29 +103,17 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(CoordinatorEntity, 
       consumption_data,
       rate_data,
       standing_charge,
-      None, # We want to recalculate
+      None, # We want to always recalculate
       self._tariff_code
     )
 
     if (consumption_and_cost is not None):
-      _LOGGER.debug(f"Calculated previous electricity consumption for '{self._mpan}/{self._serial_number}'...")
+      _LOGGER.debug(f"Calculated current electricity consumption peak for '{self._mpan}/{self._serial_number}'...")
 
-      self._state = consumption_and_cost["total_consumption"]
+      self._state = consumption_and_cost["total_consumption_peak"] if "total_consumption_peak" in consumption_and_cost else 0
       self._last_reset = consumption_and_cost["last_reset"]
 
-      self._attributes = {
-        "mpan": self._mpan,
-        "serial_number": self._serial_number,
-        "is_export": self._is_export,
-        "is_smart_meter": self._is_smart_meter,
-        "total": consumption_and_cost["total_consumption"],
-        "last_calculated_timestamp": consumption_and_cost["last_calculated_timestamp"],
-        "charges": list(map(lambda charge: {
-          "from": charge["from"],
-          "to": charge["to"],
-          "consumption": charge["consumption"]
-        }, consumption_and_cost["charges"]))
-      }
+      self._attributes["last_calculated_timestamp"] = consumption_and_cost["last_calculated_timestamp"]
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
@@ -124,5 +123,11 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(CoordinatorEntity, 
     
     if state is not None and self._state is None:
       self._state = state.state
-    
-      _LOGGER.debug(f'Restored OctopusEnergyCurrentAccumulativeElectricityConsumption state: {self._state}')
+      self._attributes = {}
+      for x in state.attributes.keys():
+        self._attributes[x] = state.attributes[x]
+
+        if x == "last_reset":
+          self._last_reset = datetime.strptime(state.attributes[x], "%Y-%m-%dT%H:%M:%S%z")
+
+      _LOGGER.debug(f'Restored OctopusEnergyCurrentAccumulativeElectricityConsumptionPeak state: {self._state}')

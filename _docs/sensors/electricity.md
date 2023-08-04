@@ -222,8 +222,12 @@ The total consumption reported by the meter for the current day.
 | Attribute | Type | Description |
 |-----------|------|-------------|
 
-| `last_updated_timestamp` | `datetime` | The datetime the data was last retrieved |
-| `charges` | `array` | Collection of consumption periods for the current day broken down into 30 minute periods. |
+| `mpan` | `string` | The mpan for the associated meter |
+| `serial_number` | `string` | The serial for the associated meter |
+| `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
+| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+| `total` | `float` | The total energy value for the previous day |
+| `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 
 ### Current Accumulative Cost
 

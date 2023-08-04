@@ -157,8 +157,12 @@ The total consumption reported by the meter for the current day.
 | Attribute | Type | Description |
 |-----------|------|-------------|
 
-| `last_updated_timestamp` | `datetime` | The datetime the data was last retrieved |
-| `charges` | `array` | Collection of consumption periods for the current day broken down into 30 minute periods. |
+| `mprn` | `string` | The mprn for the associated meter |
+| `serial_number` | `string` | The serial for the associated meter |
+| `total` | `float` | The total energy value for the previous day in `kwh`. If your meter reports in `m3`, then this will be estimated using your set [calorific value](../setup_account.md#calorific-value) |
+| `last_calculated_timestamp` | `datetime` | The timestamp determining when the consumption was last calculated. |
+| `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
+| `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup_account.md#calorific-value). |
 
 ### Current Accumulative Cost
 

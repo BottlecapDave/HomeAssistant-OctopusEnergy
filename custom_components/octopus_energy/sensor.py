@@ -5,6 +5,10 @@ from homeassistant.core import HomeAssistant
 from .electricity.current_consumption import OctopusEnergyCurrentElectricityConsumption
 from .electricity.current_accumulative_consumption import OctopusEnergyCurrentAccumulativeElectricityConsumption
 from .electricity.current_accumulative_cost import OctopusEnergyCurrentAccumulativeElectricityCost
+from .electricity.current_accumulative_consumption_off_peak import OctopusEnergyCurrentAccumulativeElectricityConsumptionOffPeak
+from .electricity.current_accumulative_consumption_peak import OctopusEnergyCurrentAccumulativeElectricityConsumptionPeak
+from .electricity.current_accumulative_cost_off_peak import OctopusEnergyCurrentAccumulativeElectricityCostOffPeak
+from .electricity.current_accumulative_cost_peak import OctopusEnergyCurrentAccumulativeElectricityCostPeak
 from .electricity.current_demand import OctopusEnergyCurrentElectricityDemand
 from .electricity.current_rate import OctopusEnergyElectricityCurrentRate
 from .electricity.next_rate import OctopusEnergyElectricityNextRate
@@ -126,8 +130,12 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
 
             consumption_coordinator = await async_create_current_consumption_coordinator(hass, client, meter["device_id"], True, live_consumption_refresh_in_minutes)
             entities.append(OctopusEnergyCurrentElectricityConsumption(hass, consumption_coordinator, meter, point))
-            entities.append(OctopusEnergyCurrentAccumulativeElectricityConsumption(hass, consumption_coordinator, meter, point))
+            entities.append(OctopusEnergyCurrentAccumulativeElectricityConsumption(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, electricity_tariff_code, meter, point))
+            entities.append(OctopusEnergyCurrentAccumulativeElectricityConsumptionPeak(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, electricity_tariff_code, meter, point))
+            entities.append(OctopusEnergyCurrentAccumulativeElectricityConsumptionOffPeak(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, electricity_tariff_code, meter, point))
             entities.append(OctopusEnergyCurrentAccumulativeElectricityCost(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, electricity_tariff_code, meter, point))
+            entities.append(OctopusEnergyCurrentAccumulativeElectricityCostPeak(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, electricity_tariff_code, meter, point))
+            entities.append(OctopusEnergyCurrentAccumulativeElectricityCostOffPeak(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, electricity_tariff_code, meter, point))
             entities.append(OctopusEnergyCurrentElectricityDemand(hass, consumption_coordinator, meter, point))
       else:
         for meter in point["meters"]:
@@ -180,7 +188,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
             
             consumption_coordinator = await async_create_current_consumption_coordinator(hass, client, meter["device_id"], False, live_consumption_refresh_in_minutes)
             entities.append(OctopusEnergyCurrentGasConsumption(hass, consumption_coordinator, meter, point))
-            entities.append(OctopusEnergyCurrentAccumulativeGasConsumption(hass, consumption_coordinator, meter, point))
+            entities.append(OctopusEnergyCurrentAccumulativeGasConsumption(hass, consumption_coordinator, gas_rate_coordinator, gas_standing_charges_coordinator, gas_tariff_code, meter, point, calorific_value))
             entities.append(OctopusEnergyCurrentAccumulativeGasCost(hass, consumption_coordinator, gas_rate_coordinator, gas_standing_charges_coordinator, gas_tariff_code, meter, point, calorific_value))
       else:
         for meter in point["meters"]:
