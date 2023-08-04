@@ -26,9 +26,11 @@ If you're wanting your devices to come on during a certain period, for example w
 
 If not specified, these default from `00:00:00` to `23:59:59`. However you can use this feature to change this evaluation period. 
 
-If for example you want to look at prices overnight you could set your from time to something like `20:00` and your `to` time to something like `05:00`. If you're wanting to "shift" the evaluation period to be in line with something (e.g. agile pricing), you could set your `from` and `to` to something like `16:00`.
+If for example you want to look at prices overnight you could set your from time to something like `20:00` and your `to` time to something like `05:00`. If the to time is "before" the from time, then it is assumed it is for the following day.
 
-See the examples below for how this might work.
+If you are an agile user, then agile prices are available from [11pm to 11pm UK time](https://developer.octopus.energy/docs/api/#agile-octopus).  Therefore you will want your `from`/`to` time to be `16:00` or `23:00` to cover a 24 hour period. This is not automatically done by the integration as I didn't want to cause confusion with users when they didn't set anything nor did I want behaviour to implicitly change when users switch tariffs.
+
+See the examples below for how this can be used and how rates will be selected.
 
 ## Hours
 
