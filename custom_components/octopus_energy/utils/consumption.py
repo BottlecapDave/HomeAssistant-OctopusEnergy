@@ -8,7 +8,7 @@ def get_total_consumption(consumption: list):
   return total_consumption
 
 def get_current_consumption_delta(current_datetime: datetime, current_total_consumption: float, previous_updated: datetime, previous_total_consumption: float):
-  if (previous_total_consumption is None):
+  if (previous_total_consumption is None or previous_updated is None):
     return None
   
   if (current_datetime.date() == previous_updated.date()):
