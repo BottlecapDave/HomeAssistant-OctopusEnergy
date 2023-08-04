@@ -53,7 +53,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(TextEntity,
 
     self._attr_device_info = DeviceInfo(
       identifiers={(DOMAIN, f"electricity_{self._serial_number}_{self._mpan}")},
-      default_name=f"Electricity Meter{self._export_name_addition}",
+      name=f"Electricity Meter{self._export_name_addition}",
+      connections=set(),
       manufacturer=self._meter["manufacturer"],
       model=self._meter["model"],
       sw_version=self._meter["firmware"]
