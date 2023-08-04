@@ -76,7 +76,7 @@ async def async_calculate_gas_consumption_and_cost(
           "rate": value,
           "consumption_m3": current_consumption_m3,
           "consumption_kwh": current_consumption_kwh,
-          "cost": f'£{round(cost / 100, 2)}'
+          "cost": round(cost / 100, 2)
         })
       
       total_cost = round(total_cost_in_pence / 100, 2)

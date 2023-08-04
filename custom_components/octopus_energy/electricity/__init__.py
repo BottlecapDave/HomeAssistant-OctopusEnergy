@@ -61,7 +61,7 @@ async def async_calculate_electricity_consumption_and_cost(
           "to": rate["valid_to"],
           "rate": value,
           "consumption": consumption_value,
-          "cost": f'£{round(cost / 100, 2)}'
+          "cost": round(cost / 100, 2)
         })
       
       total_cost = round(total_cost_in_pence / 100, 2)
