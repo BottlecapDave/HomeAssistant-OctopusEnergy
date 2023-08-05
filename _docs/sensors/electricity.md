@@ -18,7 +18,11 @@ You'll get the following sensors for each electricity meter with an active agree
     - [Current Consumption](#current-consumption)
     - [Current Demand](#current-demand)
     - [Current Accumulative Consumption](#current-accumulative-consumption)
+    - [Current Accumulative Consumptions (Peak Rate)](#current-accumulative-consumptions-peak-rate)
+    - [Current Accumulative Consumption (Off Peak Rate)](#current-accumulative-consumption-off-peak-rate)
     - [Current Accumulative Cost](#current-accumulative-cost)
+    - [Current Accumulative Cost (Peak Rate)](#current-accumulative-cost-peak-rate)
+    - [Current Accumulative Cost (Off Peak Rate)](#current-accumulative-cost-off-peak-rate)
   - [Octopus Intelligent](#octopus-intelligent)
     - [Is Dispatching](#is-dispatching)
     - [Bump Charge](#bump-charge)
@@ -229,6 +233,32 @@ The total consumption reported by the meter for the current day.
 | `total` | `float` | The total energy value for the previous day |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 
+### Current Accumulative Consumptions (Peak Rate) 
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption_peak`
+
+The total consumption reported by the meter for the current day that applied during peak hours. This is disabled by default. This will only be populated if you're on a tariff with two available rates.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `mpan` | `string` | The mpan for the associated meter |
+| `serial_number` | `string` | The serial for the associated meter |
+| `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
+| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+
+### Current Accumulative Consumption (Off Peak Rate) 
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption_off_peak`
+
+The total consumption reported by the meter for the current day that applied during off peak hours. This is disabled by default. This will only be populated if you're on a tariff with two available rates.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `mpan` | `string` | The mpan for the associated meter |
+| `serial_number` | `string` | The serial for the associated meter |
+| `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
+| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+
 ### Current Accumulative Cost
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost`
@@ -246,6 +276,32 @@ The total cost for the current day, including the standing charge.
 | `total_without_standing_charge` | `float` | The total cost of the current day excluding the standing charge |
 | `total` | `float` | The total cost for the current day |
 | `charges` | `array` | Collection of consumption periods and costs for the current day broken down into 30 minute periods. |
+
+### Current Accumulative Cost (Peak Rate) 
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost_peak`
+
+The total cost for the current day that applied during peak hours. This is disabled by default. This will only be populated if you're on a tariff with two available rates.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `mpan` | `string` | The mpan for the associated meter |
+| `serial_number` | `string` | The serial for the associated meter |
+| `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
+| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+
+### Current Accumulative Cost (Off Peak Rate) 
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost_off_peak`
+
+The total cost for the current day that applied during off peak hours. This is disabled by default. This will only be populated if you're on a tariff with two available rates.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `mpan` | `string` | The mpan for the associated meter |
+| `serial_number` | `string` | The serial for the associated meter |
+| `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
+| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
 
 ## Octopus Intelligent
 

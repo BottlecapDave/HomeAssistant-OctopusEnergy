@@ -57,10 +57,14 @@ async def async_fetch_consumption_and_rates(
           
           _LOGGER.debug(f"Tariff: {tariff_code}; dispatches: {intelligent_dispatches}")
         standing_charge = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
+        
+        _LOGGER.debug(f'Previous Electricity consumption, rates and standing charges retrieved for {tariff_code}')
       else:
         consumption_data = await client.async_get_gas_consumption(identifier, serial_number, period_from, period_to)
         rate_data = await client.async_get_gas_rates(tariff_code, period_from, period_to)
         standing_charge = await client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
+
+        _LOGGER.debug(f'Previous Gas consumption, rates and standing charges retrieved for {tariff_code}')
       
       if consumption_data is not None and len(consumption_data) > 0 and rate_data is not None and len(rate_data) > 0 and standing_charge is not None:
         consumption_data = __sort_consumption(consumption_data)

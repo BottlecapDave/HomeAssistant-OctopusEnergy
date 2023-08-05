@@ -21,6 +21,7 @@ async def async_get_live_consumption(client: OctopusEnergyApiClient, device_id, 
     try:
       result = await client.async_get_smart_meter_consumption(device_id, period_from, period_to)
       if result is not None:
+        _LOGGER.debug(f'Current Home Mini consumption retrieved')
         return result
       
     except:

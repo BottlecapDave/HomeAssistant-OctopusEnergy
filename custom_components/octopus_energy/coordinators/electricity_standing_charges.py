@@ -28,7 +28,6 @@ async def async_refresh_electricity_standing_charges_data(
   ):
   if (account_info is not None):
     tariff_codes = get_current_electricity_agreement_tariff_codes(current, account_info)
-    _LOGGER.debug(f'Electricity tariff codes: {tariff_codes}')
 
     period_from = as_utc(current.replace(hour=0, minute=0, second=0, microsecond=0))
     period_to = period_from + timedelta(days=1)
@@ -44,7 +43,7 @@ async def async_refresh_electricity_standing_charges_data(
           existing_standing_charges[key]["valid_from"] < period_from):
         try:
           new_standing_charges = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
-          _LOGGER.debug(f'Retrieved electricity standing charges for {tariff_code}')
+          _LOGGER.debug(f'Electricity standing charges retrieved for {tariff_code}')
         except:
           _LOGGER.debug(f'Failed to retrieve electricity standing charges for {tariff_code}')
       else:

@@ -34,7 +34,6 @@ async def async_setup_account_info_coordinator(hass, account_id: str):
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     if (DATA_ACCOUNT not in hass.data[DOMAIN] or (current.minute % 30) == 0):
-
       account_info = None
       try:
         account_info = await client.async_get_account(account_id)
@@ -51,6 +50,8 @@ async def async_setup_account_info_coordinator(hass, account_id: str):
             translation_placeholders={ "account_id": account_id },
           )
         else:
+          _LOGGER.debug('Account information retrieved')
+
           ir.async_delete_issue(hass, DOMAIN, f"account_not_found_{account_id}")
           hass.data[DOMAIN][DATA_ACCOUNT] = account_info
 
