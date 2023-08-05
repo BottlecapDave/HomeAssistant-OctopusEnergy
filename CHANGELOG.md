@@ -1,3 +1,45 @@
+# [8.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.5.2...v8.0.0) (2023-08-05)
+
+
+### Bug Fixes
+
+* **api-client:** removed tracker fall-back API ([fd095cb](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fd095cbc3a06b668c65daf547b220e7d95645ab8))
+* Fixed "ignoring invalid device info" error ([c6219d7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c6219d7af3be83d4a44e84f658ba87a6bc818a69))
+* **intelligent:** Fixed ready time state when initial value is returned ([8296fce](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8296fce0ab7b156e0be5bcb6131bf6f171177be0))
+* Removed empty gas meter devices ([f0c4258](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f0c4258eb28d01b3719bf7bb1671916027d0386f))
+* Removed last reset from current demand based on state class warning ([f452ee7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f452ee7665183f8be70ade67c7a6e78d2b2d7876))
+* **sensor:** fixed issue with previous rate sensor going unknown when crossing midnight ([45b7e43](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/45b7e43ddd082aeea60cfa7ca681ee2ae9d26ea8))
+* **sensors:** Fixed deprecated warning for charge limit sensor ([6b0e894](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6b0e894b9398a2ab079b90717aae865cd66fac15))
+
+
+### Features
+
+* Added peak/offpeak consumption/cost sensors for current accumlative elec/gas ([e0c756f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e0c756fe57e979a6289f65e7180fe71fb1bebb67))
+* Added sensors for current elec/gas accumulative consumption ([d3315a5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d3315a5c86250157e5a242432d0c8935c76598d5))
+* Added sensors for current elec/gas accumulative cost ([f6971f3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f6971f3802d4a6840f9b22f77a8545aed0265018))
+* Added sensors for current elec/gas accumulative cost ([0dec111](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0dec11124acf00dcc6a887877c3200c05aa7d91c))
+* **config:** Added refresh rate configuration for Home Mini ([dbfe805](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/dbfe8052df409b9876fb1ac45e4f2ede8eb8ec8c))
+* **config:** Improved target rate sensor config to show if an import or export meter is being picked ([e415b41](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e415b4155f43db1bd3fb2134db9fa2535fa3f9a0))
+* **sensor:** Added next/previous rate sensors for gas ([dceb784](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/dceb78455e7996abc5bff89027fd2b19efeca22c))
+* **sensors:** Added functions for retrieving next/previous rates ([79e5471](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/79e5471caa2f61a54b09d90324329362222c4c39))
+* **sensor:** updated next/previous electricity sensors to find rates that have a different value to current rate ([37ad6c1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/37ad6c1c82d06dcb4f93fce886ada265258057de))
+* **target-rate:** Added ability to invert normal behaviour of target rate sensors when finding target rates ([080d2cc](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/080d2cc2c829aaccb805b6b3ed959964aae644e6))
+* Updated charges in cost sensors to include raw representation ([e981c27](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e981c2720d6abb561c6b88ca0523d136b38928ab))
+
+
+### BREAKING CHANGES
+
+* **api-client:** While this shouldn't have a negative effect on anyone, I'm marking the removal of the tracker
+fallback API as a breaking change. This is because I believe it's cause bugs to be raised and there
+are several threads within the OE forums that don't suggest using it for various reasons
+https://forum.octopus.energy/t/finding-the-latest-gas-tracker-api/6021/9. This original tariff that
+introduced this work around is now properly supported by the API.
+* **sensor:** These sensors no longer look at the next/previous 30 minute rate so behaviour will change for all
+tariffs. This is to make them more useful for non agile tariffs. Attributes of these sensors have
+also changed. Please review docs for more information.
+* **sensor:** The rates attribute on the previous/current/next rate sensors will now contain the previous days
+rates. If you are using this attribute, you may need to adjust your use.
+
 ## [7.5.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.5.1...v7.5.2) (2023-07-21)
 
 
