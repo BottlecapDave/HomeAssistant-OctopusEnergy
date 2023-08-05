@@ -51,6 +51,7 @@ async def async_setup_intelligent_settings_coordinator(hass, account_id: str):
         if is_intelligent_tariff(tariff_code):
           try:
             settings = await client.async_get_intelligent_settings(account_id)
+            _LOGGER.debug(f'Intelligent settings retrieved for {tariff_code}')
           except:
             _LOGGER.debug('Failed to retrieve intelligent dispatches')
           break

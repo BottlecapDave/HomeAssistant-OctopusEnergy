@@ -31,7 +31,6 @@ async def async_refresh_electricity_rates_data(
   ):
   if (account_info is not None):
     tariff_codes = get_current_electricity_agreement_tariff_codes(current, account_info)
-    _LOGGER.debug(f'Electricity tariff codes: {tariff_codes}')
 
     period_from = as_utc((current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
     period_to = as_utc((current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0))
@@ -47,6 +46,7 @@ async def async_refresh_electricity_rates_data(
           existing_rates[key][-1]["valid_from"] < period_from):
         try:
           new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
+          _LOGGER.debug(f'Electricity rates retrieved for {tariff_code}')
         except:
           _LOGGER.debug('Failed to retrieve electricity rates')
       else:
