@@ -77,7 +77,7 @@ The previous rate that energy consumption was charged at (including VAT). If the
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_next_rate`
 
-The next/upcoming rate that energy consumption will be charged at (including VAT). If there is no previous rate (e.g. rates before now are of the same value as the current rate), then this will be reported as `unknown`/`none`.
+The next/upcoming rate that energy consumption will be charged at (including VAT). If there is no next rate (e.g. rates after now are of the same value as the current rate), then this will be reported as `unknown`/`none`.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
