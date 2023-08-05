@@ -14,8 +14,6 @@ from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
 from ..const import (
-  CONFIG_TARGET_OFFSET,
-
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_HOURS,
   CONFIG_TARGET_TYPE,
@@ -24,6 +22,8 @@ from ..const import (
   CONFIG_TARGET_MPAN,
   CONFIG_TARGET_ROLLING_TARGET,
   CONFIG_TARGET_LAST_RATES,
+  CONFIG_TARGET_INVERT_TARGET_RATES,
+  CONFIG_TARGET_OFFSET,
   
   REGEX_HOURS,
   REGEX_TIME,
@@ -143,6 +143,12 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
 
         target_hours = float(self._config[CONFIG_TARGET_HOURS])
 
+        invert_target_rates = False
+        if (CONFIG_TARGET_INVERT_TARGET_RATES in self._config):
+          invert_target_rates = self._config[CONFIG_TARGET_INVERT_TARGET_RATES]
+
+        find_highest_rates = (self._is_export and invert_target_rates == False) or (self._is_export == False and invert_target_rates)
+
         if (self._config[CONFIG_TARGET_TYPE] == "Continuous"):
           self._target_rates = calculate_continuous_times(
             now(),
@@ -151,7 +157,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
             target_hours,
             all_rates,
             is_rolling_target,
-            self._is_export,
+            find_highest_rates,
             find_last_rates
           )
         elif (self._config[CONFIG_TARGET_TYPE] == "Intermittent"):
@@ -162,7 +168,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
             target_hours,
             all_rates,
             is_rolling_target,
-            self._is_export,
+            find_highest_rates,
             find_last_rates
           )
         else:

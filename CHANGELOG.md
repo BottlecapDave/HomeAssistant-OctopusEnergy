@@ -5,12 +5,6 @@
 
 * **sensor:** Fixes to various sensors and how they update their values ([92d8a57](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/92d8a57c5ba65f3ebbb0e9bc92562008f758a3d9))
 
-
-
-
-
-## [7.5.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.5.1...v7.5.2) (2023-07-21) ### Bug Fixes CHANGELOG.md CONTRIBUTING.md LICENSE README.md _docs custom_components hacs.json node_modules package-lock.json package.json requirements.test.txt tests **sensor:** Fixes to various sensors and how they update their values ([92d8a57](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/92d8a57c5ba65f3ebbb0e9bc92562008f758a3d9)) --- Enjoying the integration? Why not make a one time or monthly [GitHub sponsorship](https://github.com/sponsors/bottlecapdave) or use my [Octopus Energy referral link](https://share.octopus.energy/gray-jade-372)?
-
 ## [7.5.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.5.0...v7.5.1) (2023-07-20)
 
 

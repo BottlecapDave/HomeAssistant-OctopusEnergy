@@ -1,3 +1,4 @@
 node_modules/
 **/__pycache__/**
 run_tests.sh
+run_unit_tests.sh

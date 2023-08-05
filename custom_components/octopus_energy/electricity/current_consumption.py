@@ -1,3 +1,4 @@
+from homeassistant.util.dt import (now)
 import logging
 
 from homeassistant.core import HomeAssistant
@@ -15,6 +16,8 @@ from homeassistant.const import (
 
 from .base import (OctopusEnergyElectricitySensor)
 
+from ..utils.consumption import (get_current_consumption_delta, get_total_consumption)
+
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnergyElectricitySensor):
@@ -27,6 +30,10 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
 
     self._state = None
     self._latest_date = None
+    self._previous_total_consumption = None
+    self._attributes = {
+      "last_updated_timestamp": None
+    }
 
   @property
   def unique_id(self):
@@ -74,10 +81,19 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
     _LOGGER.debug('Updating OctopusEnergyCurrentElectricityConsumption')
     consumption_result = self.coordinator.data
 
+    current_date = now()
     if (consumption_result is not None):
-      self._latest_date = consumption_result["startAt"]
-      self._state = consumption_result["consumption"] / 1000
-      self._attributes["last_updated_timestamp"] = consumption_result["startAt"]
+      total_consumption = get_total_consumption(consumption_result)
+      self._state = get_current_consumption_delta(current_date,
+                                                  total_consumption,
+                                                  self._attributes["last_updated_timestamp"] if self._attributes["last_updated_timestamp"] is not None else current_date,
+                                                  self._previous_total_consumption)
+      if (self._state is not None):
+        self._latest_date = current_date
+        self._attributes["last_updated_timestamp"] = current_date
+
+      # Store the total consumption ready for the next run
+      self._previous_total_consumption = total_consumption
     
     return self._state
 

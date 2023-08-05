@@ -117,7 +117,7 @@ saving_session_query = '''query {{
 live_consumption_query = '''query {{
 	smartMeterTelemetry(
     deviceId: "{device_id}"
-    grouping: ONE_MINUTE 
+    grouping: HALF_HOURLY 
 		start: "{period_from}"
 		end: "{period_to}"
 	) {{
@@ -456,23 +456,24 @@ class OctopusEnergyApiClient:
     
     return None
 
-  async def async_get_smart_meter_consumption(self, device_id, period_from, period_to):
+  async def async_get_smart_meter_consumption(self, device_id: str, period_from: datetime, period_to: datetime):
     """Get the user's smart meter consumption"""
     await self.async_refresh_token()
 
     async with aiohttp.ClientSession() as client:
       url = f'{self._base_url}/v1/graphql/'
 
-      payload = { "query": live_consumption_query.format(device_id=device_id, period_from=period_from, period_to=period_to) }
+      payload = { "query": live_consumption_query.format(device_id=device_id, period_from=period_from.strftime("%Y-%m-%dT%H:%M:%S%z"), period_to=period_to.strftime("%Y-%m-%dT%H:%M:%S%z")) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as live_consumption_response:
         response_body = await self.__async_read_response__(live_consumption_response, url)
 
         if (response_body is not None and "data" in response_body and "smartMeterTelemetry" in response_body["data"] and response_body["data"]["smartMeterTelemetry"] is not None and len(response_body["data"]["smartMeterTelemetry"]) > 0):
           return list(map(lambda mp: {
-            "consumption": float(mp["consumptionDelta"]),
+            "consumption": float(mp["consumptionDelta"]) / 1000,
             "demand": float(mp["demand"]) if "demand" in mp and mp["demand"] is not None else None,
-            "startAt": parse_datetime(mp["readAt"])
+            "interval_start": parse_datetime(mp["readAt"]),
+            "interval_end": parse_datetime(mp["readAt"]) + timedelta(minutes=30)
           }, response_body["data"]["smartMeterTelemetry"]))
         else:
           _LOGGER.debug(f"Failed to retrieve smart meter consumption data - device_id: {device_id}; period_from: {period_from}; period_to: {period_to}")
@@ -488,9 +489,6 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
         if data is None:
-          if await self.__async_is_tracker_tariff_or_product__(tariff_code):
-            return await self.__async_get_tracker_rates__(tariff_code, period_from, period_to, self._electricity_price_cap)
-          
           return None
         else:
           results = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap)
@@ -506,9 +504,6 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
         if data is None:
-          if await self.__async_is_tracker_tariff_or_product__(tariff_code):
-            return await self.__async_get_tracker_rates__(tariff_code, period_from, period_to, self._electricity_price_cap)
-          
           return None
         else:
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our day period 
@@ -543,9 +538,7 @@ class OctopusEnergyApiClient:
     
     product_code = tariff_parts.product_code
 
-    if (self.__is_tracker_tariff__(tariff_code)):
-      return await self.__async_get_tracker_rates__(tariff_code, period_from, period_to, self._electricity_price_cap)
-    elif (tariff_parts.rate.startswith("1")):
+    if (tariff_parts.rate.startswith("1")):
       return await self.async_get_electricity_standard_rates(product_code, tariff_code, period_from, period_to)
     else:
       return await self.async_get_electricity_day_night_rates(product_code, tariff_code, is_smart_meter, period_from, period_to)
@@ -582,9 +575,6 @@ class OctopusEnergyApiClient:
     
     product_code = tariff_parts.product_code
 
-    if (self.__is_tracker_tariff__(tariff_code)):
-      return await self.__async_get_tracker_rates__(tariff_code, period_from, period_to, self._gas_price_cap)
-    
     results = []
     async with aiohttp.ClientSession() as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
@@ -592,9 +582,6 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
         if data is None:
-          if await self.__async_is_tracker_tariff_or_product__(tariff_code):
-            return await self.__async_get_tracker_rates__(tariff_code, period_from, period_to, self._gas_price_cap)
-
           return None
         else:
           results = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._gas_price_cap)
@@ -649,11 +636,10 @@ class OctopusEnergyApiClient:
       url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standing-charges?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
-        if data is None:
-          if await self.__async_is_tracker_tariff_or_product__(tariff_code):
-            return await self.__async_get_tracker_standing_charge__(tariff_code, period_from, period_to)
-        elif ("results" in data and len(data["results"]) > 0):
+        if (data is not None and "results" in data and len(data["results"]) > 0):
           result = {
+            "valid_from": parse_datetime(data["results"][0]["valid_from"]) if "valid_from" in data["results"][0] and data["results"][0]["valid_from"] is not None else None,
+            "valid_to": parse_datetime(data["results"][0]["valid_to"]) if "valid_to" in data["results"][0] and data["results"][0]["valid_to"] is not None else None,
             "value_inc_vat": float(data["results"][0]["value_inc_vat"])
           }
 
@@ -676,11 +662,10 @@ class OctopusEnergyApiClient:
       url = f'{self._base_url}/v1/products/{product_code}/gas-tariffs/{tariff_code}/standing-charges?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
-        if data is None:
-          if await self.__async_is_tracker_tariff_or_product__(tariff_code):
-            return await self.__async_get_tracker_standing_charge__(tariff_code, period_from, period_to)
-        elif ("results" in data and len(data["results"]) > 0):
+        if (data is not None and "results" in data and len(data["results"]) > 0):
           result = {
+            "valid_from": parse_datetime(data["results"][0]["valid_from"]) if "valid_from" in data["results"][0] and data["results"][0]["valid_from"] is not None else None,
+            "valid_to": parse_datetime(data["results"][0]["valid_to"]) if "valid_to" in data["results"][0] and data["results"][0]["valid_to"] is not None else None,
             "value_inc_vat": float(data["results"][0]["value_inc_vat"])
           }
 
@@ -894,103 +879,6 @@ class OctopusEnergyApiClient:
       return self._product_tracker_cache[product_code]
     
     return False
-  
-  async def __async_is_tracker_tariff_or_product__(self, tariff_code):
-    tariff_parts = get_tariff_parts(tariff_code)
-    if tariff_parts is None:
-      return None
-    
-    product_code = tariff_parts.product_code
-
-    if self.__is_tracker_tariff__(tariff_code):
-      return True
-    
-    async with aiohttp.ClientSession() as client:
-      auth = aiohttp.BasicAuth(self._api_key, '')
-      url = f'https://api.octopus.energy/v1/products/{product_code}'
-      async with client.get(url, auth=auth) as response:
-        data = await self.__async_read_response__(response, url)
-        if data == None:
-          return False
-        
-        # Just because a product states its a tracker, it may go through the normal APIs or it may go through
-        # the bespoke tracker api, so we can't assume anything from a tracker cache perspective
-        is_tracker = "is_tracker" in data and data["is_tracker"]
-        return is_tracker
-
-  async def __async_get_tracker_rates__(self, tariff_code, period_from, period_to, price_cap: float = None):
-    """Get the tracker rates"""
-    tariff_parts = get_tariff_parts(tariff_code)
-    if tariff_parts is None:
-      return None
-    
-    product_code = tariff_parts.product_code
-
-    # If we know our tariff is not a tracker rate, then don't bother asking
-    if product_code in self._product_tracker_cache and self._product_tracker_cache[product_code] == False:
-      return None
-
-    results = []
-    async with aiohttp.ClientSession() as client:
-      auth = aiohttp.BasicAuth(self._api_key, '')
-      url = f'https://octopus.energy/api/v1/tracker/{tariff_code}/daily/past/1/0'
-      async with client.get(url, auth=auth) as response:
-        try:
-          data = await self.__async_read_response__(response, url)
-        except RequestError:
-          # This is thrown when the tariff isn't present
-          self._product_tracker_cache[product_code] = False
-          return None
-        
-        if data is None:
-          # This is thrown when the tariff isn't present
-          self._product_tracker_cache[product_code] = False
-          return None
-
-        items = []
-        for period in data["periods"]:
-          valid_from = parse_datetime(f'{period["date"]}T00:00:00Z')
-          valid_to = parse_datetime(f'{period["date"]}T00:00:00Z') + timedelta(days=1)
-
-          if ((valid_from >= period_from and valid_from <= period_to) or (valid_to >= period_from and valid_to <= period_to)):
-            items.append(
-              {
-                "valid_from": valid_from.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "valid_to": valid_to.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                "value_inc_vat": float(period["unit_rate"]),
-              }
-            )
-
-        results = rates_to_thirty_minute_increments({ "results": items }, period_from, period_to, tariff_code, price_cap)
-        self._product_tracker_cache[product_code] = True
-
-    return results
-
-  async def __async_get_tracker_standing_charge__(self, tariff_code, period_from, period_to):
-    """Get the tracker standing charge"""
-
-    async with aiohttp.ClientSession() as client:
-      auth = aiohttp.BasicAuth(self._api_key, '')
-      url = f'https://octopus.energy/api/v1/tracker/{tariff_code}/daily/past/1/0'
-      async with client.get(url, auth=auth) as response:
-        try:
-          data = await self.__async_read_response__(response, url)
-        except RequestError:
-          # This is thrown when the tariff isn't present
-          return None
-        
-        if data is None:
-          return None
-
-        for period in data["periods"]:
-          valid_from = parse_datetime(f'{period["date"]}T00:00:00Z')
-          valid_to = parse_datetime(f'{period["date"]}T00:00:00Z') + timedelta(days=1)
-          if ((valid_from >= period_from and valid_from <= period_to) or (valid_to >= period_from and valid_to <= period_to)):
-            return {
-              "value_inc_vat": float(period["standing_charge"])
-            }
-
-    return None
 
   def __get_interval_end(self, item):
     return item["interval_end"]

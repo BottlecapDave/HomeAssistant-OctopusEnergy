@@ -8,6 +8,7 @@
           "Api key": "Api key",
           "Account Id": "Your account Id (e.g. A-AAAA1111)",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
+          "live_consumption_refresh_in_minutes": "Home Mini refresh rate in minutes",
           "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time.",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence"
@@ -24,7 +25,8 @@
           "End time": "The maximum time to stop the device",
           "offset": "The offset to apply to the scheduled block to be considered active",
           "rolling_target": "Re-evaluate multiple times a day",
-          "last_rates": "Find last applicable rates"
+          "last_rates": "Find last applicable rates",
+          "target_invert_target_rates": "Invert targeted rates"
         }
       }
     },
@@ -47,6 +49,7 @@
         "data": {
           "Api key": "Api key",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
+          "live_consumption_refresh_in_minutes": "Home Mini refresh rate in minutes",
           "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time.",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "clear_electricity_price_cap": "Clear electricity price cap",
@@ -64,7 +67,8 @@
           "End time": "The maximum time to stop the device",
           "offset": "The offset to apply to the scheduled block to be considered active",
           "rolling_target": "Re-evaluate multiple times a day",
-          "last_rates": "Find last applicable rates"
+          "last_rates": "Find last applicable rates",
+          "target_invert_target_rates": "Invert targeted rates"
         }
       }
     },

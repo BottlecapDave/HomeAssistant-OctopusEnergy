@@ -1,6 +1,9 @@
 import logging
 from datetime import timedelta
 
+from . import async_check_valid_tariff
+from ..utils import get_active_tariff_code
+
 from homeassistant.util.dt import (now)
 from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
@@ -50,6 +53,16 @@ async def async_setup_account_info_coordinator(hass, account_id: str):
         else:
           ir.async_delete_issue(hass, DOMAIN, f"account_not_found_{account_id}")
           hass.data[DOMAIN][DATA_ACCOUNT] = account_info
+
+          if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
+            for point in account_info["electricity_meter_points"]:
+              active_tariff_code = get_active_tariff_code(current, point["agreements"])
+              await async_check_valid_tariff(hass, client, active_tariff_code, True)
+
+          if account_info is not None and len(account_info["gas_meter_points"]) > 0:
+            for point in account_info["gas_meter_points"]:
+              active_tariff_code = get_active_tariff_code(current, point["agreements"])
+              await async_check_valid_tariff(hass, client, active_tariff_code, False)
 
       except:
         # count exceptions as failure to retrieve account

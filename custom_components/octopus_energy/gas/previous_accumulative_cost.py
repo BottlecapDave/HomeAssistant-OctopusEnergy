@@ -138,7 +138,9 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
           "to": charge["to"],
           "rate": f'{charge["rate"]}p',
           "consumption": f'{charge["consumption_kwh"]} kWh',
-          "cost": charge["cost"]
+          "consumption_raw": charge["consumption_kwh"],
+          "cost": f'£{charge["cost"]}',
+          "cost_raw": charge["cost"],
         }, consumption_and_cost["charges"])),
         "calorific_value": self._calorific_value
       }

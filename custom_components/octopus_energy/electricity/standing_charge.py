@@ -1,27 +1,26 @@
-from datetime import timedelta
 import logging
 
 from homeassistant.core import HomeAssistant
 
-from homeassistant.util.dt import (now)
 from homeassistant.components.sensor import (
     SensorDeviceClass
 )
-
-from ..api_client import (OctopusEnergyApiClient)
+from homeassistant.helpers.update_coordinator import (
+  CoordinatorEntity,
+)
 
 from .base import (OctopusEnergyElectricitySensor)
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyElectricityCurrentStandingCharge(OctopusEnergyElectricitySensor):
+class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEnergyElectricitySensor):
   """Sensor for displaying the current standing charge."""
 
-  def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, tariff_code, meter, point):
+  def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point):
     """Init sensor."""
+    super().__init__(coordinator)
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
-    self._client = client
     self._tariff_code = tariff_code
 
     self._state = None
@@ -64,26 +63,19 @@ class OctopusEnergyElectricityCurrentStandingCharge(OctopusEnergyElectricitySens
 
   async def async_update(self):
     """Get the current price."""
-    # Find the current rate. We only need to do this every day
+    _LOGGER.debug('Updating OctopusEnergyElectricityCurrentStandingCharge')
 
-    current = now()
-    if (self._latest_date is None or (self._latest_date + timedelta(days=1)) < current):
-      _LOGGER.debug('Updating OctopusEnergyElectricityCurrentStandingCharge')
+    standard_charge_result = self.coordinator.data[self._mpan] if self.coordinator.data is not None and self._mpan in self.coordinator.data else None
+    
+    if standard_charge_result is not None:
+      self._latest_date = standard_charge_result["valid_from"]
+      self._state = standard_charge_result["value_inc_vat"] / 100
 
-      period_from = current.replace(hour=0, minute=0, second=0, microsecond=0)
-      period_to = period_from + timedelta(days=1)
-
-      standard_charge_result = await self._client.async_get_electricity_standing_charge(self._tariff_code, period_from, period_to)
-      
-      if standard_charge_result is not None:
-        self._latest_date = period_from
-        self._state = standard_charge_result["value_inc_vat"] / 100
-
-        # Adjust our period, as our gas only changes on a daily basis
-        self._attributes["valid_from"] = period_from
-        self._attributes["valid_to"] = period_to
-      else:
-        self._state = None
+      # Adjust our period, as our gas only changes on a daily basis
+      self._attributes["valid_from"] = standard_charge_result["valid_from"]
+      self._attributes["valid_to"] = standard_charge_result["valid_to"]
+    else:
+      self._state = None
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

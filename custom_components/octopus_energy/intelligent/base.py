@@ -13,7 +13,8 @@ class OctopusEnergyIntelligentSensor:
       identifiers={
         (DOMAIN, self._device["krakenflexDeviceId"] if "krakenflexDeviceId" in self._device and self._device["krakenflexDeviceId"] is not None else "charger-1")
       },
-      default_name="Charger",
+      name="Charger",
+      connections=set(),
       manufacturer=self._device["chargePointMake"],
       model=self._device["chargePointModel"]
     )

@@ -13,6 +13,7 @@ from .const import (
   CONFIG_MAIN_API_KEY,
   CONFIG_MAIN_ACCOUNT_ID,
   CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
+  CONFIG_MAIN_LIVE_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_CALORIFIC_VALUE,
   CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
   CONFIG_MAIN_CLEAR_ELECTRICITY_PRICE_CAP,
@@ -28,6 +29,7 @@ from .const import (
   CONFIG_TARGET_OFFSET,
   CONFIG_TARGET_ROLLING_TARGET,
   CONFIG_TARGET_LAST_RATES,
+  CONFIG_TARGET_INVERT_TARGET_RATES,
 
   DATA_SCHEMA_ACCOUNT,
   DATA_CLIENT,
@@ -78,6 +80,23 @@ def validate_target_rate_sensor(data):
 
   return errors
 
+def get_target_rate_meters(account_info, now):
+  meters = {}
+  if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
+    for point in account_info["electricity_meter_points"]:
+      active_tariff_code = get_active_tariff_code(now, point["agreements"])
+
+      is_export = False
+      for meter in point["meters"]:
+        if meter["is_export"] == True:
+          is_export = True
+          break
+
+      if active_tariff_code is not None:
+        meters[point["mpan"]] = f'{point["mpan"]} ({"Export" if is_export == True else "Import"})'
+
+  return meters
+
 class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN): 
   """Config flow."""
 
@@ -113,13 +132,8 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     client = self.hass.data[DOMAIN][DATA_CLIENT]
     account_info = await client.async_get_account(self.hass.data[DOMAIN][DATA_ACCOUNT_ID])
 
-    meters = []
     now = utcnow()
-    if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
-      for point in account_info["electricity_meter_points"]:
-        active_tariff_code = get_active_tariff_code(now, point["agreements"])
-        if active_tariff_code is not None:
-          meters.append(point["mpan"])
+    meters = get_target_rate_meters(account_info, now)
 
     return vol.Schema({
       vol.Required(CONFIG_TARGET_NAME): str,
@@ -136,6 +150,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Optional(CONFIG_TARGET_OFFSET): str,
       vol.Optional(CONFIG_TARGET_ROLLING_TARGET, default=False): bool,
       vol.Optional(CONFIG_TARGET_LAST_RATES, default=False): bool,
+      vol.Optional(CONFIG_TARGET_INVERT_TARGET_RATES, default=False): bool,
     })
 
   async def async_step_target_rate(self, user_input):
@@ -201,13 +216,8 @@ class OptionsFlowHandler(OptionsFlow):
     if account_info is None:
       errors[CONFIG_TARGET_MPAN] = "account_not_found"
 
-    meters = []
     now = utcnow()
-    if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
-      for point in account_info["electricity_meter_points"]:
-        active_tariff_code = get_active_tariff_code(now, point["agreements"])
-        if active_tariff_code is not None:
-          meters.append(point["mpan"])
+    meters = get_target_rate_meters(account_info, now)
 
     if (CONFIG_TARGET_MPAN not in config):
       config[CONFIG_TARGET_MPAN] = meters[0]
@@ -232,6 +242,14 @@ class OptionsFlowHandler(OptionsFlow):
     find_last_rates = False
     if (CONFIG_TARGET_LAST_RATES in config):
       find_last_rates = config[CONFIG_TARGET_LAST_RATES]
+
+    find_last_rates = False
+    if (CONFIG_TARGET_LAST_RATES in config):
+      find_last_rates = config[CONFIG_TARGET_LAST_RATES]
+
+    invert_target_rates = False
+    if (CONFIG_TARGET_INVERT_TARGET_RATES in config):
+      invert_target_rates = config[CONFIG_TARGET_INVERT_TARGET_RATES]
     
     return self.async_show_form(
       step_id="target_rate",
@@ -250,6 +268,7 @@ class OptionsFlowHandler(OptionsFlow):
         offset_key: str,
         vol.Optional(CONFIG_TARGET_ROLLING_TARGET, default=is_rolling_target): bool,
         vol.Optional(CONFIG_TARGET_LAST_RATES, default=find_last_rates): bool,
+        vol.Optional(CONFIG_TARGET_INVERT_TARGET_RATES, default=invert_target_rates): bool,
       }),
       errors=errors
     )
@@ -265,6 +284,10 @@ class OptionsFlowHandler(OptionsFlow):
       supports_live_consumption = False
       if CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config:
         supports_live_consumption = config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION]
+
+      live_consumption_refresh_in_minutes = 1
+      if CONFIG_MAIN_LIVE_CONSUMPTION_REFRESH_IN_MINUTES in config:
+        live_consumption_refresh_in_minutes = config[CONFIG_MAIN_LIVE_CONSUMPTION_REFRESH_IN_MINUTES]
       
       calorific_value = 40
       if CONFIG_MAIN_CALORIFIC_VALUE in config:
@@ -282,6 +305,7 @@ class OptionsFlowHandler(OptionsFlow):
         step_id="user", data_schema=vol.Schema({
           vol.Required(CONFIG_MAIN_API_KEY, default=config[CONFIG_MAIN_API_KEY]): str,
           vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION, default=supports_live_consumption): bool,
+          vol.Required(CONFIG_MAIN_LIVE_CONSUMPTION_REFRESH_IN_MINUTES, default=live_consumption_refresh_in_minutes): cv.positive_int,
           vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=calorific_value): cv.positive_float,
           electricity_price_cap_key: cv.positive_float,
           vol.Required(CONFIG_MAIN_CLEAR_ELECTRICITY_PRICE_CAP): bool,

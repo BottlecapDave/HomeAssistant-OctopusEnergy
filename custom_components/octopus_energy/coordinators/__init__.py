@@ -1,3 +1,4 @@
+from datetime import datetime
 import logging
 
 from homeassistant.helpers import issue_registry as ir
@@ -58,11 +59,8 @@ async def async_check_valid_tariff(hass, client: OctopusEnergyApiClient, tariff_
       except:
         _LOGGER.debug(f"Failed to retrieve product info for '{tariff_parts.product_code}'")
 
-async def async_get_current_electricity_agreement_tariff_codes(hass, client: OctopusEnergyApiClient, account_id: str):
-  account_info = hass.data[DOMAIN][DATA_ACCOUNT]
-
+def get_current_electricity_agreement_tariff_codes(current: datetime, account_info):
   tariff_codes = {}
-  current = now()
   if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
       active_tariff_code = get_active_tariff_code(current, point["agreements"])
@@ -70,10 +68,25 @@ async def async_get_current_electricity_agreement_tariff_codes(hass, client: Oct
       # have to enumerate the different meters being used for each tariff as well.
       for meter in point["meters"]:
         is_smart_meter = meter["is_smart_meter"]
-        if active_tariff_code != None:
+        if active_tariff_code is not None:
           key = (point["mpan"], is_smart_meter)
           if key not in tariff_codes:
             tariff_codes[(point["mpan"], is_smart_meter)] = active_tariff_code
-            await async_check_valid_tariff(hass, client, active_tariff_code, True)
+  
+  return tariff_codes
+
+def get_current_gas_agreement_tariff_codes(current: datetime, account_info):
+  tariff_codes = {}
+  if account_info is not None and len(account_info["gas_meter_points"]) > 0:
+    for point in account_info["gas_meter_points"]:
+      active_tariff_code = get_active_tariff_code(current, point["agreements"])
+      # The type of meter (ie smart vs dumb) can change the tariff behaviour, so we
+      # have to enumerate the different meters being used for each tariff as well.
+      for meter in point["meters"]:
+        is_smart_meter = meter["is_smart_meter"]
+        if active_tariff_code is not None:
+          key = (point["mprn"], is_smart_meter)
+          if key not in tariff_codes:
+            tariff_codes[(point["mprn"], is_smart_meter)] = active_tariff_code
   
   return tariff_codes

@@ -167,7 +167,7 @@ async def test_when_electricity_consumption_available_then_calculation_returned(
     assert item["rate"] == expected_rate_price
     
     assert "cost" in item
-    assert item["cost"] == f'£{round(expected_rate_price / 100, 2)}'
+    assert item["cost"] == round(expected_rate_price / 100, 2)
     
     assert "consumption" in item
     assert item["consumption"] == 1
@@ -236,7 +236,7 @@ async def test_when_electricity_consumption_starting_at_latest_date_then_calcula
     assert item["rate"] == expected_rate_price
     
     assert "cost" in item
-    assert item["cost"] == f'£{round(expected_rate_price / 100, 2)}'
+    assert item["cost"] == round(expected_rate_price / 100, 2)
     
     assert "consumption" in item
     assert item["consumption"] == 1

@@ -47,7 +47,8 @@ class OctopusEnergyPreviousAccumulativeGasCostTariffOverride(TextEntity, Restore
 
     self._attr_device_info = DeviceInfo(
       identifiers={(DOMAIN, f"gas_{self._serial_number}_{self._mprn}")},
-      default_name="Gas Meter",
+      name="Gas Meter",
+      connections=set(),
       manufacturer=self._meter["manufacturer"],
       model=self._meter["model"],
       sw_version=self._meter["firmware"]
