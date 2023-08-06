@@ -11,7 +11,7 @@ from homeassistant.components.sensor import (
     SensorStateClass
 )
 from . import (
-  async_calculate_electricity_consumption_and_cost,
+  calculate_electricity_consumption_and_cost,
 )
 
 from .base import (OctopusEnergyElectricitySensor)
@@ -96,7 +96,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     rate_data = self.coordinator.data["rates"] if self.coordinator.data is not None and "rates" in self.coordinator.data else None
     standing_charge = self.coordinator.data["standing_charge"] if self.coordinator.data is not None and "standing_charge" in self.coordinator.data else None
 
-    consumption_and_cost = await async_calculate_electricity_consumption_and_cost(
+    consumption_and_cost = calculate_electricity_consumption_and_cost(
       consumption_data,
       rate_data,
       standing_charge,

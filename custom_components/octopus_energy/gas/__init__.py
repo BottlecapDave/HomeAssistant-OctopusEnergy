@@ -22,7 +22,7 @@ def convert_kwh_to_m3(value, calorific_value):
   m3_value = m3_value / calorific_value # Calorific value
   return round(m3_value / 1.02264, 3) # Volume correction factor
       
-async def async_calculate_gas_consumption_and_cost(
+def calculate_gas_consumption_and_cost(
     consumption_data,
     rate_data,
     standing_charge,

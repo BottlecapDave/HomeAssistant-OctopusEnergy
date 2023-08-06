@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from integration import (get_test_context)
-from custom_components.octopus_energy.electricity import async_calculate_electricity_consumption_and_cost
+from custom_components.octopus_energy.electricity import calculate_electricity_consumption_and_cost
 from custom_components.octopus_energy.coordinators.previous_consumption_and_rates import async_fetch_consumption_and_rates
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
@@ -51,7 +51,7 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   assert standard_charge_result is not None
 
   # Act
-  result = await async_calculate_electricity_consumption_and_cost(
+  result = calculate_electricity_consumption_and_cost(
     consumption_and_rates_result["consumption"],
     consumption_and_rates_result["rates"],
     consumption_and_rates_result["standing_charge"],

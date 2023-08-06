@@ -3,7 +3,7 @@ import pytest
 import mock
 
 from unit import (create_consumption_data, create_rate_data)
-from custom_components.octopus_energy.electricity import async_calculate_electricity_consumption_and_cost
+from custom_components.octopus_energy.electricity import calculate_electricity_consumption_and_cost
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 @pytest.mark.asyncio
@@ -18,7 +18,7 @@ async def test_when_electricity_consumption_is_none_then_no_calculation_is_retur
   standing_charge = 10.1
 
   # Act
-  result = await async_calculate_electricity_consumption_and_cost(
+  result = calculate_electricity_consumption_and_cost(
     consumption_data,
     rate_data,
     standing_charge,
@@ -42,7 +42,7 @@ async def test_when_electricity_rates_is_none_then_no_calculation_is_returned():
   standing_charge = 10.1
 
   # Act
-  result = await async_calculate_electricity_consumption_and_cost(
+  result = calculate_electricity_consumption_and_cost(
     consumption_data,
     rate_data,
     standing_charge,
@@ -68,7 +68,7 @@ async def test_when_electricity_consumption_is_less_than_three_records_then_no_c
   standing_charge = 10.1
 
   # Act
-  result = await async_calculate_electricity_consumption_and_cost(
+  result = calculate_electricity_consumption_and_cost(
     consumption_data,
     rate_data,
     standing_charge,
@@ -95,7 +95,7 @@ async def test_when_electricity_consumption_is_before_latest_date_then_no_calcul
   rate_data = create_rate_data(period_from, period_to, [1, 2])
 
   # Act
-  result = await async_calculate_electricity_consumption_and_cost(
+  result = calculate_electricity_consumption_and_cost(
     consumption_data,
     rate_data,
     standing_charge,
@@ -133,7 +133,7 @@ async def test_when_electricity_consumption_available_then_calculation_returned(
     expected_consumption_total = expected_consumption_total + consumption["consumption"]
 
   # Act
-  result = await async_calculate_electricity_consumption_and_cost(
+  result = calculate_electricity_consumption_and_cost(
     consumption_data,
     rate_data,
     standing_charge,
@@ -199,7 +199,7 @@ async def test_when_electricity_consumption_starting_at_latest_date_then_calcula
     expected_consumption_total = expected_consumption_total + consumption["consumption"]
 
   # Act
-  result = await async_calculate_electricity_consumption_and_cost(
+  result = calculate_electricity_consumption_and_cost(
     consumption_data,
     rate_data,
     standing_charge,
@@ -270,7 +270,7 @@ async def test_when_electricity_consumption_available_and_two_peaks_available_th
   assert consumption_data[0]["interval_start"] == period_from
 
   # Act
-  result = await async_calculate_electricity_consumption_and_cost(
+  result = calculate_electricity_consumption_and_cost(
     consumption_data,
     rate_data,
     standing_charge,

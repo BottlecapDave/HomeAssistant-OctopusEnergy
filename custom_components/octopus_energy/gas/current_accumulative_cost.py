@@ -12,7 +12,7 @@ from homeassistant.components.sensor import (
     SensorStateClass
 )
 from . import (
-  async_calculate_gas_consumption_and_cost,
+  calculate_gas_consumption_and_cost,
 )
 
 from .base import (OctopusEnergyGasSensor)
@@ -100,7 +100,7 @@ class OctopusEnergyCurrentAccumulativeGasCost(CoordinatorEntity, OctopusEnergyGa
     rate_data = self._rates_coordinator.data[self._mprn] if self._rates_coordinator.data is not None and self._mprn in self._rates_coordinator.data else None
     standing_charge = self._standing_charge_coordinator.data[self._mprn]["value_inc_vat"] if self._standing_charge_coordinator.data is not None and self._mprn in self._standing_charge_coordinator.data and "value_inc_vat" in self._standing_charge_coordinator.data[self._mprn] else None
 
-    consumption_and_cost = await async_calculate_gas_consumption_and_cost(
+    consumption_and_cost = calculate_gas_consumption_and_cost(
       consumption_data,
       rate_data,
       standing_charge,

@@ -12,7 +12,7 @@ from homeassistant.components.sensor import (
 )
 
 from . import (
-  async_calculate_electricity_consumption_and_cost,
+  calculate_electricity_consumption_and_cost,
 )
 
 from .base import (OctopusEnergyElectricitySensor)
@@ -115,7 +115,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
       rate_data = await self._client.async_get_electricity_rates(tariff_override, self._is_smart_meter, period_from, period_to)
       standing_charge = await self._client.async_get_electricity_standing_charge(tariff_override, period_from, period_to)
 
-      consumption_and_cost = await async_calculate_electricity_consumption_and_cost(
+      consumption_and_cost = calculate_electricity_consumption_and_cost(
         consumption_data,
         rate_data,
         standing_charge["value_inc_vat"] if standing_charge is not None else None,
