@@ -91,10 +91,9 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
           "serial_number": self._serial_number,
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
-          "applicable_rates": rate_information["applicable_rates"],
-          "previous_rate": rate_information["previous_rate"],
           "valid_from": rate_information["previous_rate"]["valid_from"],
           "valid_to": rate_information["previous_rate"]["valid_to"],
+          "applicable_rates": rate_information["applicable_rates"],
         }
 
         self._state = rate_information["previous_rate"]["value_inc_vat"] / 100
@@ -104,9 +103,9 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
           "serial_number": self._serial_number,
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
-          "applicable_rates": [],
           "valid_from": None,
           "valid_to": None,
+          "applicable_rates": [],
         }
 
         self._state = None

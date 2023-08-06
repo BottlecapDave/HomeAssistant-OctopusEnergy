@@ -93,11 +93,11 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor):
           "serial_number": self._serial_number,
           "is_smart_meter": self._is_smart_meter,
           "tariff": self._tariff_code,
-          "all_rates": rate_information["all_rates"],
-          "applicable_rates": rate_information["applicable_rates"],
           "valid_from": rate_information["current_rate"]["valid_from"],
           "valid_to": rate_information["current_rate"]["valid_to"],
           "is_capped": rate_information["current_rate"]["is_capped"],
+          "all_rates": rate_information["all_rates"],
+          "applicable_rates": rate_information["applicable_rates"],
         }
 
         self._state = rate_information["current_rate"]["value_inc_vat"] / 100
@@ -107,11 +107,11 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor):
           "serial_number": self._serial_number,
           "is_smart_meter": self._is_smart_meter,
           "tariff": self._tariff_code,
-          "all_rates": [],
-          "applicable_rates": [],
           "valid_from": None,
           "valid_to": None,
           "is_capped": None,
+          "all_rates": [],
+          "applicable_rates": [],
         }
 
         self._state = None

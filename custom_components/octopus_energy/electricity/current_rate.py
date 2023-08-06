@@ -101,15 +101,15 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
           "tariff": self._tariff_code,
-          "all_rates": rate_information["all_rates"],
-          "applicable_rates": rate_information["applicable_rates"],
           "valid_from":  rate_information["current_rate"]["valid_from"],
           "valid_to":  rate_information["current_rate"]["valid_to"],
           "is_capped":  rate_information["current_rate"]["is_capped"],
           "is_intelligent_adjusted":  rate_information["current_rate"]["is_intelligent_adjusted"],
           "current_day_min_rate": rate_information["min_rate_today"],
           "current_day_max_rate": rate_information["max_rate_today"],
-          "current_day_average_rate": rate_information["average_rate_today"]
+          "current_day_average_rate": rate_information["average_rate_today"],
+          "all_rates": rate_information["all_rates"],
+          "applicable_rates": rate_information["applicable_rates"],
         }
 
         self._state = rate_information["current_rate"]["value_inc_vat"] / 100
@@ -120,15 +120,15 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
           "tariff": self._tariff_code,
-          "all_rates": [],
-          "applicable_rates": [],
           "valid_from": None,
           "valid_to": None,
           "is_capped": None,
           "is_intelligent_adjusted": None,
           "current_day_min_rate": None,
           "current_day_max_rate": None,
-          "current_day_average_rate": None
+          "current_day_average_rate": None,
+          "all_rates": [],
+          "applicable_rates": [],
         }
 
         self._state = None
