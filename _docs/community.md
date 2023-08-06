@@ -3,7 +3,7 @@
 - [Community Contributions](#community-contributions)
   - [Agile Price Table](#agile-price-table)
   - [Export Rates Chart](#export-rates-chart)
-  - [Import And Export Rates Chart](#import-and-export-rates-chart)
+  - [Import and Export Rates Chart](#import-and-export-rates-chart)
 
 These are a few contributions by the community.
 
@@ -45,7 +45,7 @@ type: custom:apexcharts-card
         in_header: false
         legend_value: false
       data_generator: |
-        return entity.attributes.rates.map((entry) => {
+        return entity.attributes.all_rates.map((entry) => {
            return [new Date(entry.from), entry.rate];
          });
       offset: '-15min'
@@ -173,7 +173,7 @@ card:
       name: Import
       curve: stepline
       data_generator: |
-        return entity.attributes.rates.map((entry) => {
+        return entity.attributes.all_rates.map((entry) => {
           return [new Date(entry.from), entry.rate/100];
         });
     - entity: >-
@@ -181,7 +181,7 @@ card:
       name: Export
       curve: stepline
       data_generator: |
-        return entity.attributes.rates.map((entry) => {
+        return entity.attributes.all_rates.map((entry) => {
           return [new Date(entry.from), entry.rate/100];
         });
   apex_config:
