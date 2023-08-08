@@ -83,13 +83,6 @@ class OctopusEnergyPreviousAccumulativeElectricityCostPeak(CoordinatorEntity, Oc
   @property
   def state(self):
     """Retrieve the previously calculated state"""
-    return self._state
-  
-  @property
-  def should_poll(self):
-    return True
-
-  async def async_update(self):
     consumption_data = self.coordinator.data["consumption"] if self.coordinator.data is not None and "consumption" in self.coordinator.data else None
     rate_data = self.coordinator.data["rates"] if self.coordinator.data is not None and "rates" in self.coordinator.data else None
     standing_charge = self.coordinator.data["standing_charge"] if self.coordinator.data is not None and "standing_charge" in self.coordinator.data else None
@@ -109,6 +102,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCostPeak(CoordinatorEntity, Oc
       self._state = consumption_and_cost["total_cost_peak"] if "total_cost_peak" in consumption_and_cost else 0
 
       self._attributes["last_calculated_timestamp"] = consumption_and_cost["last_calculated_timestamp"]
+
+    return self._state
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

@@ -9,7 +9,6 @@ from homeassistant.helpers.update_coordinator import (
 from ..const import (
   DOMAIN,
   DATA_CLIENT,
-  DATA_ELECTRICITY_STANDING_CHARGES_COORDINATOR,
   DATA_ELECTRICITY_STANDING_CHARGES,
   DATA_ACCOUNT,
 )
@@ -62,10 +61,6 @@ async def async_refresh_electricity_standing_charges_data(
 async def async_setup_electricity_standing_charges_coordinator(hass, account_id: str):
   # Reset data rates as we might have new information
   hass.data[DOMAIN][DATA_ELECTRICITY_STANDING_CHARGES] = []
-
-  if DATA_ELECTRICITY_STANDING_CHARGES_COORDINATOR in hass.data[DOMAIN]:
-    _LOGGER.info("Rates coordinator has already been configured, so skipping")
-    return
   
   async def async_update_electricity_standing_charges_data():
     """Fetch data from API endpoint."""
@@ -83,7 +78,7 @@ async def async_setup_electricity_standing_charges_coordinator(hass, account_id:
 
     return hass.data[DOMAIN][DATA_ELECTRICITY_STANDING_CHARGES]
 
-  hass.data[DOMAIN][DATA_ELECTRICITY_STANDING_CHARGES_COORDINATOR] = DataUpdateCoordinator(
+  coordinator = DataUpdateCoordinator(
     hass,
     _LOGGER,
     name="electricity_standing_charges",
@@ -93,6 +88,6 @@ async def async_setup_electricity_standing_charges_coordinator(hass, account_id:
     update_interval=timedelta(minutes=1),
   )
 
-  await hass.data[DOMAIN][DATA_ELECTRICITY_STANDING_CHARGES_COORDINATOR].async_config_entry_first_refresh()
+  await coordinator.async_config_entry_first_refresh()
 
-  return hass.data[DOMAIN][DATA_ELECTRICITY_STANDING_CHARGES_COORDINATOR]
+  return coordinator

@@ -98,6 +98,11 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     return True
 
   async def async_update(self):
+    await super().async_update()
+
+    if not self.enabled:
+      return
+    
     consumption_data = self.coordinator.data["consumption"] if self.coordinator.data is not None and "consumption" in self.coordinator.data else None
 
     tariff_override_key = get_electricity_tariff_override_key(self._serial_number, self._mpan)

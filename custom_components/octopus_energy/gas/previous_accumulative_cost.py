@@ -94,6 +94,11 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
     return True
 
   async def async_update(self):
+    await super().async_update()
+
+    if not self.enabled:
+      return
+    
     consumption_data = self.coordinator.data["consumption"] if self.coordinator.data is not None and "consumption" in self.coordinator.data else None
     rate_data = self.coordinator.data["rates"] if self.coordinator.data is not None and "rates" in self.coordinator.data else None
     standing_charge = self.coordinator.data["standing_charge"] if self.coordinator.data is not None and "standing_charge" in self.coordinator.data else None

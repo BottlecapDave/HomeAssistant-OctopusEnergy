@@ -87,13 +87,6 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(CoordinatorEntity, Octopus
   @property
   def state(self):
     """Retrieve the currently calculated state"""
-    return self._state
-  
-  @property
-  def should_poll(self):
-    return True
-
-  async def async_update(self):
     consumption_data = self.coordinator.data if self.coordinator.data is not None else None
     rate_data = self._rates_coordinator.data[self._mpan] if self._rates_coordinator.data is not None and self._mpan in self._rates_coordinator.data else None
     standing_charge = self._standing_charge_coordinator.data[self._mpan]["value_inc_vat"] if self._standing_charge_coordinator.data is not None and self._mpan in self._standing_charge_coordinator.data and "value_inc_vat" in self._standing_charge_coordinator.data[self._mpan] else None
@@ -131,6 +124,8 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(CoordinatorEntity, Octopus
           "cost_raw": charge["cost"],
         }, consumption_and_cost["charges"]))
       }
+
+    return self._state
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
