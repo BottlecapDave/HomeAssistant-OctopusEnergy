@@ -2,7 +2,6 @@ import logging
 from datetime import datetime
 
 from homeassistant.core import HomeAssistant
-from homeassistant.util.dt import (now)
 
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
@@ -112,7 +111,7 @@ class OctopusEnergyCurrentAccumulativeGasCost(CoordinatorEntity, OctopusEnergyGa
 
     if (consumption_and_cost is not None):
       _LOGGER.debug(f"Calculated current gas consumption cost for '{self._mprn}/{self._serial_number}'...")
-      self._last_reset = now()
+      self._last_reset = consumption_and_cost["last_reset"]
       self._state = consumption_and_cost["total_cost"]
 
       self._attributes = {
