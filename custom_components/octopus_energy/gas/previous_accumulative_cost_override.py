@@ -12,7 +12,7 @@ from homeassistant.components.sensor import (
 )
 
 from . import (
-  async_calculate_gas_consumption_and_cost,
+  calculate_gas_consumption_and_cost,
   get_gas_tariff_override_key,
 )
 
@@ -99,6 +99,11 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
     return True
 
   async def async_update(self):
+    await super().async_update()
+
+    if not self.enabled:
+      return
+    
     consumption_data = self.coordinator.data["consumption"] if self.coordinator.data is not None and "consumption" in self.coordinator.data else None
 
     tariff_override_key = get_gas_tariff_override_key(self._serial_number, self._mprn)
@@ -115,7 +120,7 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
       rate_data = await self._client.async_get_gas_rates(tariff_override, period_from, period_to)
       standing_charge = await self._client.async_get_gas_standing_charge(tariff_override, period_from, period_to)
 
-      consumption_and_cost = await async_calculate_gas_consumption_and_cost(
+      consumption_and_cost = calculate_gas_consumption_and_cost(
         consumption_data,
         rate_data,
         standing_charge["value_inc_vat"] if standing_charge is not None else None,

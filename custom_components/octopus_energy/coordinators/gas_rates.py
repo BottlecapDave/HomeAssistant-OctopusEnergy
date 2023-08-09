@@ -59,6 +59,8 @@ async def async_refresh_gas_rates_data(
 
 async def async_create_gas_rate_coordinator(hass, client: OctopusEnergyApiClient):
   """Create gas rate coordinator"""
+  # Reset data rates as we might have new information
+  hass.data[DOMAIN][DATA_GAS_RATES] = []
 
   async def async_update_data():
     """Fetch data from API endpoint."""

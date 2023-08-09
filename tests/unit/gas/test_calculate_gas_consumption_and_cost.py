@@ -3,7 +3,7 @@ import pytest
 from tests.unit import create_rate_data
 
 from unit import (create_consumption_data)
-from custom_components.octopus_energy.gas import async_calculate_gas_consumption_and_cost
+from custom_components.octopus_energy.gas import calculate_gas_consumption_and_cost
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 @pytest.mark.asyncio
@@ -20,7 +20,7 @@ async def test_when_gas_consumption_is_none_then_no_calculation_is_returned():
   standing_charge = 27.0
 
   # Act
-  consumption_cost = await async_calculate_gas_consumption_and_cost(
+  consumption_cost = calculate_gas_consumption_and_cost(
     consumption_data,
     rates_data,
     standing_charge,
@@ -46,7 +46,7 @@ async def test_when_gas_rates_is_none_then_no_calculation_is_returned():
   standing_charge = 27.0
 
   # Act
-  consumption_cost = await async_calculate_gas_consumption_and_cost(
+  consumption_cost = calculate_gas_consumption_and_cost(
     consumption_data,
     rates_data,
     standing_charge,
@@ -76,7 +76,7 @@ async def test_when_gas_consumption_is_less_than_three_records_then_no_calculati
   standing_charge = 27.0
 
   # Act
-  consumption_cost = await async_calculate_gas_consumption_and_cost(
+  consumption_cost = calculate_gas_consumption_and_cost(
     consumption_data,
     rates_data,
     standing_charge,
@@ -109,7 +109,7 @@ async def test_when_gas_consumption_is_before_latest_date_then_no_calculation_is
   standing_charge = 27.0
 
   # Act
-  consumption_cost = await async_calculate_gas_consumption_and_cost(
+  consumption_cost = calculate_gas_consumption_and_cost(
     consumption_data,
     rates_data,
     standing_charge,
@@ -151,7 +151,7 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
   assert consumption_data[0]["interval_start"] == period_from
 
   # Act
-  result = await async_calculate_gas_consumption_and_cost(
+  result = calculate_gas_consumption_and_cost(
     consumption_data,
     rates_data,
     standing_charge,
@@ -233,7 +233,7 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
   assert consumption_data[-1]["interval_start"] == period_from
 
   # Act
-  result = await async_calculate_gas_consumption_and_cost(
+  result = calculate_gas_consumption_and_cost(
     consumption_data,
     rates_data,
     standing_charge,
