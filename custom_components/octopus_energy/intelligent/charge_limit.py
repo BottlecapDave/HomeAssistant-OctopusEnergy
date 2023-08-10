@@ -65,7 +65,7 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
   @property
   def native_value(self) -> float:
     """The value of the charge limit."""
-    if (self.coordinator.data is None) or (self._last_updated is not None and "last_updated" in self.coordinator.data and self._last_updated > self.coordinator.data["last_updated"]):
+    if self.coordinator is None or self.coordinator.data is None or (self._last_updated is not None and "last_updated" in self.coordinator.data and self._last_updated > self.coordinator.data["last_updated"]):
       self._attributes["last_updated_timestamp"] = self._last_updated
       return self._state
     
@@ -80,8 +80,8 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
       self._account_id,
       int(value),
       int(value),
-      self.coordinator.data["ready_time_weekday"] if self.coordinator.data is not None else time(9,0),
-      self.coordinator.data["ready_time_weekend"] if self.coordinator.data is not None else time(9,0),
+      self.coordinator.data["ready_time_weekday"] if self.coordinator is not None and self.coordinator.data is not None else time(9,0),
+      self.coordinator.data["ready_time_weekend"] if self.coordinator is not None and self.coordinator.data is not None else time(9,0),
     )
     self._state = value
     self._last_updated = utcnow()

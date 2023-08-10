@@ -79,7 +79,7 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
   def state(self):
     """Retrieve the latest electricity consumption"""
     _LOGGER.debug('Updating OctopusEnergyCurrentElectricityConsumption')
-    consumption_result = self.coordinator.data
+    consumption_result = self.coordinator.data if self.coordinator is not None else None
 
     current_date = now()
     if (consumption_result is not None):

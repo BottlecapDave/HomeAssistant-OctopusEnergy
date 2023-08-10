@@ -83,7 +83,7 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
       _LOGGER.debug(f"Updating OctopusEnergyElectricityNextRate for '{self._mpan}/{self._serial_number}'")
 
       target = current
-      rate_information = get_next_rate_information(self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None, target)
+      rate_information = get_next_rate_information(self.coordinator.data[self._mpan] if self.coordinator is not None and self._mpan in self.coordinator.data else None, target)
       
       if rate_information is not None:
         self._attributes = {

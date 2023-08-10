@@ -67,7 +67,7 @@ class OctopusEnergyGasCurrentStandingCharge(CoordinatorEntity, OctopusEnergyGasS
     """Retrieve the latest gas standing charge"""
     _LOGGER.debug('Updating OctopusEnergyGasCurrentStandingCharge')
 
-    standard_charge_result = self.coordinator.data[self._mprn] if self.coordinator.data is not None and self._mprn in self.coordinator.data else None
+    standard_charge_result = self.coordinator.data[self._mprn] if self.coordinator is not None and self.coordinator.data is not None and self._mprn in self.coordinator.data else None
     
     if standard_charge_result is not None:
       self._latest_date = standard_charge_result["valid_from"]

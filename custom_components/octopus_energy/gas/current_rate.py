@@ -85,7 +85,7 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor):
     if (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0):
       _LOGGER.debug(f"Updating OctopusEnergyGasCurrentRate for '{self._mprn}/{self._serial_number}'")
 
-      rate_information = get_current_rate_information(self.coordinator.data[self._mprn] if self._mprn in self.coordinator.data else None, current)
+      rate_information = get_current_rate_information(self.coordinator.data[self._mprn] if self.coordinator is not None and self._mprn in self.coordinator.data else None, current)
 
       if rate_information is not None:
         self._attributes = {

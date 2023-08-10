@@ -68,7 +68,7 @@ class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElec
   def state(self):
     """Handle updated data from the coordinator."""
     _LOGGER.debug('Updating OctopusEnergyCurrentElectricityConsumption')
-    consumption_result = self.coordinator.data
+    consumption_result = self.coordinator.data if self.coordinator is not None else None
 
     if (consumption_result is not None):
       self._state = consumption_result[-1]["demand"]
