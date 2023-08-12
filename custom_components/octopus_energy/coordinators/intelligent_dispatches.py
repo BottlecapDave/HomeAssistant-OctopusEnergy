@@ -40,10 +40,6 @@ async def async_merge_dispatch_data(hass, account_id: str, completed_dispatches)
 async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
   # Reset data rates as we might have new information
   hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] = None
-
-  if DATA_INTELLIGENT_DISPATCHES_COORDINATOR in hass.data[DOMAIN]:
-    _LOGGER.info("Intelligent coordinator has already been configured, so skipping")
-    return
   
   async def async_update_intelligent_dispatches_data():
     """Fetch data from API endpoint."""
