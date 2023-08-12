@@ -9,6 +9,7 @@
         "changelogFile": "CHANGELOG.md"
       }
     ],
+    "@semantic-release/github",
     [
       "@semantic-release/exec", {
         "prepareCmd" : "node .build/update-manifest ${nextRelease.version}"
