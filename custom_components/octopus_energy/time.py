@@ -5,7 +5,7 @@ from homeassistant.util.dt import (utcnow)
 
 from .intelligent.ready_time import OctopusEnergyIntelligentReadyTime
 from .api_client import OctopusEnergyApiClient
-from .intelligent import async_mock_intelligent_data, is_intelligent_tariff
+from .intelligent import async_mock_intelligent_data, is_intelligent_tariff, mock_intelligent_device
 from .utils import get_active_tariff_code
 
 from .const import (
@@ -45,11 +45,17 @@ async def async_setup_intelligent_sensors(hass, async_add_entities):
         has_intelligent_tariff = True
         break
 
-  if has_intelligent_tariff or await async_mock_intelligent_data(hass):
+  should_mock_intelligent_data = await async_mock_intelligent_data(hass)
+  if has_intelligent_tariff or should_mock_intelligent_data:
     coordinator = hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS_COORDINATOR]
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
+    
     account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]
-    device = await client.async_get_intelligent_device(account_id)
+    if should_mock_intelligent_data:
+      device = mock_intelligent_device()
+    else:
+      device = await client.async_get_intelligent_device(account_id)
+
     async_add_entities([
       OctopusEnergyIntelligentReadyTime(hass, coordinator, client, device, account_id),
     ], True)

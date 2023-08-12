@@ -108,7 +108,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
           break
       
       if all_rates_in_past:
-        if self.coordinator.data is not None:
+        if self.coordinator is not None and self.coordinator.data is not None:
           all_rates = self.coordinator.data
           
           # Retrieve our rates. For backwards compatibility, if CONFIG_TARGET_MPAN is not set, then pick the first set

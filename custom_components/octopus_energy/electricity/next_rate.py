@@ -83,7 +83,7 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
       _LOGGER.debug(f"Updating OctopusEnergyElectricityNextRate for '{self._mpan}/{self._serial_number}'")
 
       target = current
-      rate_information = get_next_rate_information(self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None, target)
+      rate_information = get_next_rate_information(self.coordinator.data[self._mpan] if self.coordinator is not None and self._mpan in self.coordinator.data else None, target)
       
       if rate_information is not None:
         self._attributes = {
@@ -91,9 +91,9 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
           "serial_number": self._serial_number,
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
-          "applicable_rates": rate_information["applicable_rates"],
           "valid_from": rate_information["next_rate"]["valid_from"],
           "valid_to": rate_information["next_rate"]["valid_to"],
+          "applicable_rates": rate_information["applicable_rates"],
         }
 
         self._state = rate_information["next_rate"]["value_inc_vat"] / 100
@@ -103,9 +103,9 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
           "serial_number": self._serial_number,
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
-          "applicable_rates": [],
           "valid_from": None,
           "valid_to": None,
+          "applicable_rates": [],
         }
 
         self._state = None

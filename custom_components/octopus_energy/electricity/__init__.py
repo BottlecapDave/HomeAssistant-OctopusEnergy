@@ -10,7 +10,7 @@ def __sort_consumption(consumption_data):
 
 minimum_consumption_records = 2
 
-async def async_calculate_electricity_consumption_and_cost(
+def calculate_electricity_consumption_and_cost(
     consumption_data,
     rate_data,
     standing_charge,

@@ -19,9 +19,6 @@ from ..api_client import OctopusEnergyApiClient
 _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_saving_sessions_coordinators(hass):
-  if DATA_SAVING_SESSIONS_COORDINATOR in hass.data[DOMAIN]:
-    return
-
   async def async_update_saving_sessions():
     """Fetch data from API endpoint."""
     # Only get data every half hour or if we don't have any data

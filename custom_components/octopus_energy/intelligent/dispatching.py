@@ -33,7 +33,9 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
     self._attributes = {
       "planned_dispatches": [],
       "completed_dispatches": [],
-      "last_retrieved": None
+      "last_retrieved": None,
+      "vehicle_battery_size_in_kwh": device["vehicleBatterySizeInKwh"],
+      "charge_point_power_in_kw": device["chargePointPowerInKw"]
     }
 
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
@@ -61,7 +63,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
   @property
   def is_on(self):
     """Determine if OE is currently dispatching energy."""
-    dispatches = self.coordinator.data
+    dispatches = self.coordinator.data if self.coordinator is not None else None
     if (dispatches is not None):
       self._attributes["planned_dispatches"] = self.coordinator.data["planned"]
       self._attributes["completed_dispatches"] = self.coordinator.data["completed"]

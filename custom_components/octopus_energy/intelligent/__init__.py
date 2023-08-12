@@ -24,26 +24,39 @@ async def async_mock_intelligent_data(hass):
   return hass.data[DOMAIN][mock_intelligent_data_key]
 
 def mock_intelligent_dispatches():
+  planned = []
+  completed = []
+
+  dispatches = [
+    {
+      "start": utcnow().replace(hour=19, minute=0, second=0, microsecond=0),
+      "end": utcnow().replace(hour=20, minute=0, second=0, microsecond=0),
+      "charge_in_kwh": 1,
+      "source": "smart-charge"
+    },
+    {
+      "start": utcnow().replace(hour=6, minute=0, second=0, microsecond=0),
+      "end": utcnow().replace(hour=7, minute=0, second=0, microsecond=0),
+      "charge_in_kwh": 1.2,
+      "source": "smart-charge"
+    },
+    {
+      "start": utcnow().replace(hour=7, minute=0, second=0, microsecond=0),
+      "end": utcnow().replace(hour=8, minute=0, second=0, microsecond=0),
+      "charge_in_kwh": 4.6,
+      "source": "smart-charge"
+    }
+  ]
+
+  for dispatch in dispatches:
+    if (dispatch["end"] > utcnow()):
+      planned.append(dispatch)
+    else:
+      completed.append(dispatch)
+
   return {
-    "planned": [
-      {
-        "start": utcnow().replace(hour=19, minute=0, second=0, microsecond=0),
-        "end": utcnow().replace(hour=20, minute=0, second=0, microsecond=0),
-        "source": "smart-charge"
-      }
-    ],
-    "completed": [
-      {
-        "start": utcnow().replace(hour=6, minute=0, second=0, microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "end": utcnow().replace(hour=7, minute=0, second=0, microsecond=0).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "source": None
-      },
-      {
-        "start": utcnow().replace(hour=7, minute=0, second=0, microsecond=0),
-        "end": utcnow().replace(hour=8, minute=0, second=0, microsecond=0),
-        "source": None
-      }
-    ]
+    "planned": planned,
+    "completed": completed
   }
 
 def mock_intelligent_settings():
@@ -53,6 +66,17 @@ def mock_intelligent_settings():
     "charge_limit_weekend": 80,
     "ready_time_weekday": time(7,30),
     "ready_time_weekend": time(9,10), 
+  }
+
+def mock_intelligent_device():
+  return {
+    "krakenflexDeviceId": "1",
+		"vehicleMake": "Tesla",
+		"vehicleModel": "Model Y",
+    "vehicleBatterySizeInKwh": 75.0,
+		"chargePointMake": "MyEnergi",
+		"chargePointModel": "Zappi",
+    "chargePointPowerInKw": 6.5 
   }
 
 def is_intelligent_tariff(tariff_code: str):

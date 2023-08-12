@@ -11,7 +11,7 @@ from homeassistant.components.sensor import (
     SensorStateClass
 )
 from . import (
-  async_calculate_electricity_consumption_and_cost,
+  calculate_electricity_consumption_and_cost,
 )
 
 from .base import (OctopusEnergyElectricitySensor)
@@ -76,10 +76,6 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOffPeak(CoordinatorEntity,
     return self._attributes
 
   @property
-  def should_poll(self):
-    return True
-
-  @property
   def last_reset(self):
     """Return the time when the sensor was last reset, if any."""
     return self._last_reset
@@ -87,14 +83,11 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOffPeak(CoordinatorEntity,
   @property
   def state(self):
     """Retrieve the previously calculated state"""
-    return self._state
+    consumption_data = self.coordinator.data["consumption"] if self.coordinator is not None and self.coordinator.data is not None and "consumption" in self.coordinator.data else None
+    rate_data = self.coordinator.data["rates"] if self.coordinator is not None and self.coordinator.data is not None and "rates" in self.coordinator.data else None
+    standing_charge = self.coordinator.data["standing_charge"] if self.coordinator is not None and self.coordinator.data is not None and "standing_charge" in self.coordinator.data else None
 
-  async def async_update(self):
-    consumption_data = self.coordinator.data["consumption"] if self.coordinator.data is not None and "consumption" in self.coordinator.data else None
-    rate_data = self.coordinator.data["rates"] if self.coordinator.data is not None and "rates" in self.coordinator.data else None
-    standing_charge = self.coordinator.data["standing_charge"] if self.coordinator.data is not None and "standing_charge" in self.coordinator.data else None
-
-    consumption_and_cost = await async_calculate_electricity_consumption_and_cost(
+    consumption_and_cost = calculate_electricity_consumption_and_cost(
       consumption_data,
       rate_data,
       standing_charge,
@@ -109,6 +102,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOffPeak(CoordinatorEntity,
       self._state = consumption_and_cost["total_cost_off_peak"] if "total_cost_off_peak" in consumption_and_cost else 0
 
       self._attributes["last_calculated_timestamp"] = consumption_and_cost["last_calculated_timestamp"]
+
+    return self._state
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

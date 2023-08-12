@@ -74,12 +74,6 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
     config.update(entry.options)
   
   client = hass.data[DOMAIN][DATA_CLIENT]
-  
-  electricity_rate_coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR]
-  await electricity_rate_coordinator.async_config_entry_first_refresh()
-
-  electricity_standing_charges_coordinator = await async_setup_electricity_standing_charges_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
-  gas_standing_charges_coordinator = await async_setup_gas_standing_charges_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
 
   saving_session_coordinator = hass.data[DOMAIN][DATA_SAVING_SESSIONS_COORDINATOR]
   await saving_session_coordinator.async_config_entry_first_refresh()
@@ -91,6 +85,11 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
   now = utcnow()
 
   if len(account_info["electricity_meter_points"]) > 0:
+    electricity_rate_coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR]
+    await electricity_rate_coordinator.async_config_entry_first_refresh()
+
+    electricity_standing_charges_coordinator = await async_setup_electricity_standing_charges_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
+
     electricity_price_cap = None
     if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config:
       electricity_price_cap = config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
@@ -155,6 +154,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
       gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
     
     gas_rate_coordinator = await async_create_gas_rate_coordinator(hass, client)
+    gas_standing_charges_coordinator = await async_setup_gas_standing_charges_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
 
     for point in account_info["gas_meter_points"]:
       # We only care about points that have active agreements

@@ -92,7 +92,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
     if (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0):
       _LOGGER.debug(f"Updating OctopusEnergyElectricityCurrentRate for '{self._mpan}/{self._serial_number}'")
 
-      rate_information = get_current_rate_information(self.coordinator.data[self._mpan] if self._mpan in self.coordinator.data else None, current)
+      rate_information = get_current_rate_information(self.coordinator.data[self._mpan] if self.coordinator is not None and self._mpan in self.coordinator.data else None, current)
 
       if rate_information is not None:
         self._attributes = {
@@ -101,15 +101,15 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
           "tariff": self._tariff_code,
-          "all_rates": rate_information["all_rates"],
-          "applicable_rates": rate_information["applicable_rates"],
           "valid_from":  rate_information["current_rate"]["valid_from"],
           "valid_to":  rate_information["current_rate"]["valid_to"],
           "is_capped":  rate_information["current_rate"]["is_capped"],
           "is_intelligent_adjusted":  rate_information["current_rate"]["is_intelligent_adjusted"],
           "current_day_min_rate": rate_information["min_rate_today"],
           "current_day_max_rate": rate_information["max_rate_today"],
-          "current_day_average_rate": rate_information["average_rate_today"]
+          "current_day_average_rate": rate_information["average_rate_today"],
+          "all_rates": rate_information["all_rates"],
+          "applicable_rates": rate_information["applicable_rates"],
         }
 
         self._state = rate_information["current_rate"]["value_inc_vat"] / 100
@@ -120,15 +120,15 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
           "tariff": self._tariff_code,
-          "all_rates": [],
-          "applicable_rates": [],
           "valid_from": None,
           "valid_to": None,
           "is_capped": None,
           "is_intelligent_adjusted": None,
           "current_day_min_rate": None,
           "current_day_max_rate": None,
-          "current_day_average_rate": None
+          "current_day_average_rate": None,
+          "all_rates": [],
+          "applicable_rates": [],
         }
 
         self._state = None

@@ -3,7 +3,7 @@
 - [Community Contributions](#community-contributions)
   - [Agile Price Table](#agile-price-table)
   - [Export Rates Chart](#export-rates-chart)
-  - [Import And Export Rates Chart](#import-and-export-rates-chart)
+  - [Import and Export Rates Chart](#import-and-export-rates-chart)
 
 These are a few contributions by the community.
 
@@ -29,8 +29,8 @@ type: custom:apexcharts-card
   span:
     start: day
   yaxis:
-    - min: 0
-      max: 35
+    - min: ~0
+      max: ~35
       decimals: 1
   series:
     - entity: >-
@@ -45,8 +45,8 @@ type: custom:apexcharts-card
         in_header: false
         legend_value: false
       data_generator: |
-        return entity.attributes.rates.map((entry) => {
-           return [new Date(entry.from), entry.rate];
+        return entity.attributes.all_rates.map((entry) => {
+           return [new Date(entry.valid_from), entry.value_inc_vat];
          });
       offset: '-15min'
 ```
@@ -117,12 +117,12 @@ series:
     extend_to: now
 yaxis:
   - id: pence
-    min: 0
-    max: 35
+    min: ~0
+    max: ~35
     opposite: false
   - id: kwh
-    min: 0
-    max: 10
+    min: ~0
+    max: ~10
     opposite: true
 ```
 
@@ -173,16 +173,16 @@ card:
       name: Import
       curve: stepline
       data_generator: |
-        return entity.attributes.rates.map((entry) => {
-          return [new Date(entry.from), entry.rate/100];
+        return entity.attributes.all_rates.map((entry) => {
+          return [new Date(entry.valid_from), entry.value_inc_vat/100];
         });
     - entity: >-
         sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_rate
       name: Export
       curve: stepline
       data_generator: |
-        return entity.attributes.rates.map((entry) => {
-          return [new Date(entry.from), entry.rate/100];
+        return entity.attributes.all_rates.map((entry) => {
+          return [new Date(entry.valid_from), entry.value_inc_vat/100];
         });
   apex_config:
     tooltip:
@@ -220,8 +220,8 @@ card:
               background: '#00E396'
             borderWidth: 0
     yaxis:
-      min: 0
-      max: 0.4
+      min: ~0
+      max: ~0.4
       tickAmount: 4
       labels:
         formatter: |

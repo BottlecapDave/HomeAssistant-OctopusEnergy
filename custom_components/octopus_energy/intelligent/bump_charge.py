@@ -54,7 +54,7 @@ class OctopusEnergyIntelligentBumpCharge(CoordinatorEntity, SwitchEntity, Octopu
   @property
   def is_on(self):
     """Determine if the bump charge is on."""
-    if (self.coordinator.data is None) or (self._last_updated is not None and "last_updated" in self.coordinator.data and self._last_updated > self.coordinator.data["last_updated"]):
+    if self.coordinator is None or self.coordinator.data is None or (self._last_updated is not None and "last_updated" in self.coordinator.data and self._last_updated > self.coordinator.data["last_updated"]):
       return self._state
 
     self._state = is_in_bump_charge(utcnow(), self.coordinator.data["planned"])

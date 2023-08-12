@@ -55,7 +55,7 @@ class OctopusEnergySavingSessionPoints(CoordinatorEntity, SensorEntity, RestoreE
   @property
   def state(self):
     """Update the points based on data."""
-    saving_session = self.coordinator.data
+    saving_session = self.coordinator.data if self.coordinator is not None else None
     if (saving_session is not None and "points" in saving_session):
       self._state = saving_session["points"]
     else:

@@ -65,13 +65,9 @@ class OctopusEnergyGasCurrentStandingCharge(CoordinatorEntity, OctopusEnergyGasS
   @property
   def state(self):
     """Retrieve the latest gas standing charge"""
-    return self._state
-
-  async def async_update(self):
-    """Get the current price."""
     _LOGGER.debug('Updating OctopusEnergyGasCurrentStandingCharge')
 
-    standard_charge_result = self.coordinator.data[self._mprn] if self.coordinator.data is not None and self._mprn in self.coordinator.data else None
+    standard_charge_result = self.coordinator.data[self._mprn] if self.coordinator is not None and self.coordinator.data is not None and self._mprn in self.coordinator.data else None
     
     if standard_charge_result is not None:
       self._latest_date = standard_charge_result["valid_from"]
@@ -82,6 +78,8 @@ class OctopusEnergyGasCurrentStandingCharge(CoordinatorEntity, OctopusEnergyGasS
       self._attributes["valid_to"] = standard_charge_result["valid_to"]
     else:
       self._state = None
+
+    return self._state
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

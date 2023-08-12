@@ -72,10 +72,6 @@ async def async_refresh_electricity_rates_data(
 async def async_setup_electricity_rates_coordinator(hass, account_id: str):
   # Reset data rates as we might have new information
   hass.data[DOMAIN][DATA_ELECTRICITY_RATES] = []
-
-  if DATA_ELECTRICITY_RATES_COORDINATOR in hass.data[DOMAIN]:
-    _LOGGER.info("Rates coordinator has already been configured, so skipping")
-    return
   
   async def async_update_electricity_rates_data():
     """Fetch data from API endpoint."""
