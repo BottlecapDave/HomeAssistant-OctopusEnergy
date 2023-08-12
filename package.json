@@ -27,7 +27,8 @@
     "conventional-changelog-eslint": "^3.0.9",
     "cz-customizable": "^7.0.0",
     "husky": "^4.3.8",
-    "semantic-release": "^21.0.1"
+    "semantic-release": "^21.0.1",
+    "typescript": "^5.1.6"
   },
   "config": {
     "commitizen": {
@@ -38,5 +39,8 @@
     "hooks": {
       "prepare-commit-msg": "exec < /dev/tty && git cz --hook || true"
     }
+  },
+  "dependencies": {
+    "ts-node": "^10.9.1"
   }
 }
