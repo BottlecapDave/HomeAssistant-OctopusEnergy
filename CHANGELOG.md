@@ -1,3 +1,20 @@
+# [8.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.0.0...v8.1.0) (2023-08-12)
+
+
+### Bug Fixes
+
+* Added more checks around coordinators ([31205c5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/31205c5037be9ac8a50cc60d3535592263668df5))
+* Fixed issue with accumulative cost sensors when used in the energy dashboard ([3db7228](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3db7228ac9d95f501e14abe96e9554a5437bcd44))
+* Moved various sensor updates out of update loop and into state property which should stabilize updates ([662a32b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/662a32b8df00484408c2794aefa5d6ff00d2dfa6))
+* Removed coordinator setup skipping if already setup ([54bb347](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/54bb347d56f36ad48ecc73a498f22050dc153040))
+
+
+### Features
+
+* Change order of rates/applicable rates attributes so they're last on rate sensors ([b4d0c6b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b4d0c6b0744312e42a4cd4e2ed86cc6661e8a2dd))
+* Updated intelligent dispatching sensor to include vehicle battery size information and charge point power ([b7e0294](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b7e0294675aee0e4d5d5da7a0b7537cbd4443395))
+* Updated planned/completed intelligent dispatches to include charge in kwh ([4fec0cf](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4fec0cf2e3dfe9ef95a7dd47a59318725318acf8))
+
 # [8.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v7.5.2...v8.0.0) (2023-08-05)
 
 
