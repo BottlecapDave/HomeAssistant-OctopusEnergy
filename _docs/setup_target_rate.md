@@ -1,13 +1,16 @@
 # Setup Target Rate Sensor(s)
 
 - [Setup Target Rate Sensor(s)](#setup-target-rate-sensors)
-  - [From/To Times](#fromto-times)
-  - [Hours](#hours)
-  - [Offset](#offset)
-  - [Rolling Target](#rolling-target)
-  - [Latest Period](#latest-period)
-  - [Invert Target Rates](#invert-target-rates)
+  - [Setup](#setup)
+    - [From/To Times](#fromto-times)
+    - [Hours](#hours)
+    - [Offset](#offset)
+    - [Rolling Target](#rolling-target)
+    - [Latest Period](#latest-period)
+    - [Invert Target Rates](#invert-target-rates)
   - [Attributes](#attributes)
+  - [Services](#services)
+    - [Service octopus\_energy.update\_target\_config](#service-octopus_energyupdate_target_config)
   - [Examples](#examples)
     - [Continuous](#continuous)
     - [Intermittent](#intermittent)
@@ -20,7 +23,9 @@ These sensors can then be used in automations to turn on/off devices that save y
 
 Each sensor will be in the form `binary_sensor.octopus_energy_target_{{TARGET_RATE_NAME}}`.
 
-## From/To Times
+## Setup
+
+### From/To Times
 
 If you're wanting your devices to come on during a certain period, for example while you're at work, you can set the minimum and/or maximum times for your target rate sensor. These are specified in 24 hour clock format and will attempt to find the optimum discovered period during these times.
 
@@ -32,15 +37,15 @@ If you are an agile user, then agile prices are available from [11pm to 11pm UK 
 
 See the examples below for how this can be used and how rates will be selected.
 
-## Hours
+### Hours
 
 The hours that you require for the sensor to find. This should be in decimal format and represent 30 minute increments. For example 30 minutes would be `0.5`, 1 hour would be `1` or `1.0`, 1 hour and 30 minutes would be `1.5`, etc.
 
-## Offset
+### Offset
 
 You may want your target rate sensors to turn on a period of time before the optimum discovered period. For example, you may be turning on a robot vacuum cleaner for a 30 minute clean and want it to charge during the optimum period. For this, you'd use the `offset` field and set it to `-00:30:00`, which can be both positive and negative and go up to a maximum of 24 hours. This will shift when the sensor turns on relative to the optimum period. For example, if the optimum period is between `2023-01-18T10:00` and `2023-01-18T11:00` with an offset of `-00:30:00`, the sensor will turn on between `2023-01-18T09:30` and `2023-01-18T10:30`.
 
-## Rolling Target
+### Rolling Target
 
 Depending on how you're going to use the sensor, you might want the best period to be found throughout the day so it's always applicable. For example, you might be using the sensor to turn on a washing machine which you might want to come on at the best time regardless of when you use the washing machine.
 
@@ -48,7 +53,7 @@ However, you might also only want the target time to occur once a day so once th
 
 This feature is toggled on by the `Re-evaluate multiple times a day` checkbox.
 
-## Latest Period
+### Latest Period
 
 Depending on how you're going to use the sensor, you might want the best period at the latest possible time. For example, you might be using the sensor to turn on an emersion heater which you'll want to come on at the end of the cheap period. 
 
@@ -56,7 +61,7 @@ For instance if you turn this on, the cheapest period is between `2023-01-01T00:
 
 This feature is toggled on by the `Find last applicable rates` checkbox.
 
-## Invert Target Rates
+### Invert Target Rates
 
 If this is checked, then the normal behaviour of the sensor will be revered. This means if you target an **import** sensor, it will normally look for the cheapest rates. But with this checked it will find the most expensive rates. Similarly if you target an **export** meter, normally it will look for the most expensive rates. But with this checked it will find the cheapest rates.
 
@@ -89,6 +94,72 @@ The following attributes are available on each sensor
 | `next_average_cost` | `float` | The average cost/rate for the next continuous discovered period. For `continuous` sensors, this will be the entire period. For `intermittent` sensors, this could be the entire period or a portion of it, depending on the discovered times. This could be `none`/`unknown` if there are no more periods for the current **24 hour period**. |
 | `next_min_cost` | `float` | The average cost/rate for the next continuous discovered period. This could be `none`/`unknown` if there are no more periods for the current **24 hour period**. |
 | `next_max_cost` | `float` | The average cost/rate for the next continuous discovered period. This could be `none`/`unknown` if there are no more periods for the current **24 hour period**. |
+
+## Services
+
+### Service octopus_energy.update_target_config
+
+Service for updating a given target rate's config. This allows you to change target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
+
+> Please note this is temporary and will not persist between restarts.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated                                                    |
+| `data.target_hours`      | `yes`    | The optional number of hours the target rate sensor should come on during a 24 hour period. Must be divisible by 0.5. |
+| `data.target_start_time` | `yes`    | The optional time the evaluation period should start. Must be in the format of `HH:MM`.                               |
+| `data.target_end_time`   | `yes`    | The optional time the evaluation period should end. Must be in the format of `HH:MM`.                                 |
+| `data.target_offset`     | `yes`    | The optional offset to apply to the target rate when it starts. Must be in the format `(+/-)HH:MM:SS`                 |
+
+This can be used via automations in the following way. Assuming we have the following inputs.
+
+```yaml
+input_number:
+  octopus_energy_target_hours:
+    name: Octopus Energy Target Hours
+    min: 0
+    max: 24
+
+input_text:
+  # From/to would ideally use input_datetime, but we need the time in a different format
+  octopus_energy_target_from:
+    name: Octopus Energy Target From
+    initial: "00:00"
+  octopus_energy_target_to:
+    name: Octopus Energy Target To
+    initial: "00:00"
+  octopus_energy_target_offset:
+    name: Octopus Energy Target Offset
+    initial: "-00:00:00"
+```
+
+Then an automation might look like the following
+
+```yaml
+automations:
+  - alias: Update target rate config
+    trigger:
+    - platform: state
+      entity_id:
+      - input_number.octopus_energy_target_hours
+      - input_text.octopus_energy_target_from
+      - input_text.octopus_energy_target_to
+      - input_text.octopus_energy_target_offset
+    condition: []
+    action:
+    - service: octopus_energy.update_target_config
+      data:
+        target_hours: >
+          "{{ states('input_number.octopus_energy_target_hours') | string }}"
+        target_start_time: >
+          {{ states('input_text.octopus_energy_target_from') }}
+        target_end_time: >
+          {{ states('input_text.octopus_energy_target_to') }}
+        target_offset: >
+          {{ states('input_text.octopus_energy_target_offset') }}
+      target:
+        entity_id: binary_sensor.octopus_energy_target_example
+```
 
 ## Examples
 
