@@ -31,16 +31,19 @@ def mock_intelligent_dispatches():
     {
       "start": utcnow().replace(hour=19, minute=0, second=0, microsecond=0),
       "end": utcnow().replace(hour=20, minute=0, second=0, microsecond=0),
+      "charge_in_kwh": 1,
       "source": "smart-charge"
     },
     {
       "start": utcnow().replace(hour=6, minute=0, second=0, microsecond=0),
       "end": utcnow().replace(hour=7, minute=0, second=0, microsecond=0),
+      "charge_in_kwh": 1.2,
       "source": "smart-charge"
     },
     {
       "start": utcnow().replace(hour=7, minute=0, second=0, microsecond=0),
       "end": utcnow().replace(hour=8, minute=0, second=0, microsecond=0),
+      "charge_in_kwh": 4.6,
       "source": "smart-charge"
     }
   ]

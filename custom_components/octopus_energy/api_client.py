@@ -131,6 +131,7 @@ intelligent_dispatches_query = '''query {{
 	plannedDispatches(accountNumber: "{account_id}") {{
 		startDt
 		endDt
+    delta
     meta {{
 			source
 		}}
@@ -138,6 +139,7 @@ intelligent_dispatches_query = '''query {{
 	completedDispatches(accountNumber: "{account_id}") {{
 		startDt
 		endDt
+    delta
     meta {{
 			source
 		}}
@@ -689,6 +691,7 @@ class OctopusEnergyApiClient:
             "planned": list(map(lambda ev: {
                 "start": as_utc(parse_datetime(ev["startDt"])),
                 "end": as_utc(parse_datetime(ev["endDt"])),
+                "charge_in_kwh": int(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
                 "source": ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
               }, response_body["data"]["plannedDispatches"]
               if "plannedDispatches" in response_body["data"] and response_body["data"]["plannedDispatches"] is not None
@@ -697,6 +700,7 @@ class OctopusEnergyApiClient:
             "completed": list(map(lambda ev: {
                 "start": as_utc(parse_datetime(ev["startDt"])),
                 "end": as_utc(parse_datetime(ev["endDt"])),
+                "charge_in_kwh": int(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
                 "source": ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
               }, response_body["data"]["completedDispatches"]
               if "completedDispatches" in response_body["data"] and response_body["data"]["completedDispatches"] is not None
