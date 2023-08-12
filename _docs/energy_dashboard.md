@@ -18,8 +18,8 @@ This is only available if you have an Octopus Home Mini and a smart electricity 
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
 2. Click `Add Consumption` under `Electricity Grid`
-3. For `consumed energy` you want `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_consumption`
-4. For `Use an entity with current price` option you want `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_rate`
+3. For `consumed energy` you want `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_consumption` or `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption`
+4. For `Use an entity tracking the total costs` option you want `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost`
 
 > Please note that data will only appear in the energy dashboard from the point you configure the Home Mini within the integration. It doesn't backport any data.
 
@@ -31,8 +31,8 @@ This is only available if you have an Octopus Home Mini and a smart gas meter.
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
 2. Click `Add Gas Source` under `Gas Consumption`
-3. For `consumed energy` you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_consumption`
-4. For `Use an entity with current price` option you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_rate` 
+3. For `consumed energy` you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_consumption` or `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption`
+4. For `Use an entity tracking the total costs` option you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_cost` 
 
 > Please note that data will only appear in the energy dashboard from the point you configure the Home Mini within the integration. It doesn't backport any data.
 
