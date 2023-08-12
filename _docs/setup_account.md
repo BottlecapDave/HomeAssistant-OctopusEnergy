@@ -5,7 +5,8 @@
   - [Gas Sensors](#gas-sensors)
   - [Saving Sessions](#saving-sessions)
   - [Home Mini](#home-mini)
-    - [Refresh Rate In Minutes](#refresh-rate-in-minutes)
+  - [Intelligent Tariff](#intelligent-tariff)
+  - [Refresh Rate In Minutes](#refresh-rate-in-minutes)
   - [Calorific Value](#calorific-value)
   - [Government Pricing Caps](#government-pricing-caps)
 
@@ -36,8 +37,15 @@ For electricity sensors, see [here](./sensors/electricity.md#home-mini-sensors).
 
 For gas sensors, see [here](./sensors/gas.md#home-mini-sensors)
 
+## Intelligent Tariff
 
-### Refresh Rate In Minutes
+If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-octopus/), then you'll get a few additional sensors when you install the integration. 
+
+A full list of intelligent sensors can be found [here](./sensors/intelligent.md)
+
+> Please note: If you switch to the intelligent tariff after you have installed the integration, you will need to reload the integration or restart your Home Assistant instance.
+
+## Refresh Rate In Minutes
 
 This determines how often data related to your Home Mini is retrieved from Octopus Energy. The Octopus Energy APIs have a rate limit of 100 calls per hour, which is shared among all calls including through the app. This is usually enough for one meter's data to be retrieved once a minute. However, if you are using other integrations, have more than one meter (e.g. gas) or want the app to not be effected you may want to increase this rate.
 
