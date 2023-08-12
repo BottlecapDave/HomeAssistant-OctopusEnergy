@@ -151,8 +151,10 @@ intelligent_device_query = '''query {{
 		krakenflexDeviceId
 		vehicleMake
 		vehicleModel
+    vehicleBatterySizeInKwh
 		chargePointMake
 		chargePointModel
+    chargePointPowerInKw
 	}}
 }}'''
 
@@ -866,7 +868,17 @@ class OctopusEnergyApiClient:
 
         if (response_body is not None and "data" in response_body and
             "registeredKrakenflexDevice" in response_body["data"]):
-          return response_body["data"]["registeredKrakenflexDevice"]
+          device = response_body["data"]["registeredKrakenflexDevice"]
+          return {
+            "krakenflexDeviceId": device["krakenflexDeviceId"],
+            "vehicleMake": device["vehicleMake"],
+            "vehicleModel": device["vehicleModel"],
+            "vehicleBatterySizeInKwh": float(device["vehicleBatterySizeInKwh"]) if "vehicleBatterySizeInKwh" in device and device["vehicleBatterySizeInKwh"] is not None else None,
+            "chargePointMake": device["chargePointMake"],
+            "chargePointModel": device["chargePointModel"],
+            "chargePointPowerInKw": float(device["chargePointPowerInKw"]) if "chargePointPowerInKw" in device and device["chargePointPowerInKw"] is not None else None,
+            
+          }
         else:
           _LOGGER.error("Failed to retrieve intelligent device")
     

@@ -68,6 +68,17 @@ def mock_intelligent_settings():
     "ready_time_weekend": time(9,10), 
   }
 
+def mock_intelligent_device():
+  return {
+    "krakenflexDeviceId": "1",
+		"vehicleMake": "Tesla",
+		"vehicleModel": "Model Y",
+    "vehicleBatterySizeInKwh": 75.0,
+		"chargePointMake": "MyEnergi",
+		"chargePointModel": "Zappi",
+    "chargePointPowerInKw": 6.5 
+  }
+
 def is_intelligent_tariff(tariff_code: str):
   parts = get_tariff_parts(tariff_code.upper())
 
