@@ -1,3 +1,5 @@
+const bodySuffix = "---\nEnjoying the integration? Why not make a one time or monthly [GitHub sponsorship](https://github.com/sponsors/bottlecapdave) or use my [Octopus Energy referral link](https://share.octopus.energy/gray-jade-372)?"
+
 async function createGithubRelease(githubToken: string, githubOwnerRepo: string, tag: string, notes: string) {
   if (!githubToken) {
     throw new Error('Github token not specified');
@@ -33,5 +35,5 @@ createGithubRelease(
   process.env.GITHUB_TOKEN,
   process.env.GITHUB_REPOSITORY,
   process.argv[2],
-  `${process.argv[3]}\n${process.env.RELEASE_BODY_APPENDIX}`
+  `${process.argv[3]}\n${bodySuffix}`
 ).then(() => console.log('Success'));
