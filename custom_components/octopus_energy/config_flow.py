@@ -209,10 +209,6 @@ class OptionsFlowHandler(OptionsFlow):
     if (CONFIG_TARGET_LAST_RATES in config):
       find_last_rates = config[CONFIG_TARGET_LAST_RATES]
 
-    find_last_rates = False
-    if (CONFIG_TARGET_LAST_RATES in config):
-      find_last_rates = config[CONFIG_TARGET_LAST_RATES]
-
     invert_target_rates = False
     if (CONFIG_TARGET_INVERT_TARGET_RATES in config):
       invert_target_rates = config[CONFIG_TARGET_INVERT_TARGET_RATES]
