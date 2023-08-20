@@ -33,7 +33,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
     self._attributes = {
       "planned_dispatches": [],
       "completed_dispatches": [],
-      "last_retrieved": None,
+      "last_updated_timestamp": None,
       "vehicle_battery_size_in_kwh": device["vehicleBatterySizeInKwh"],
       "charge_point_power_in_kw": device["chargePointPowerInKw"]
     }
