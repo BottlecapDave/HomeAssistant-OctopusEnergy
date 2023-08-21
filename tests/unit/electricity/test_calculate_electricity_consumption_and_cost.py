@@ -73,7 +73,8 @@ async def test_when_electricity_consumption_is_less_than_three_records_then_no_c
     rate_data,
     standing_charge,
     latest_date,
-    tariff_code
+    tariff_code,
+    3
   )
 
   # Assert

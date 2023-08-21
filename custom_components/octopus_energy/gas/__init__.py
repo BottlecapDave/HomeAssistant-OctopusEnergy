@@ -26,7 +26,7 @@ def calculate_gas_consumption_and_cost(
     tariff_code,
     consumption_units,
     calorific_value,
-    minimum_consumption_records = 3
+    minimum_consumption_records = 0
   ):
   if (consumption_data is not None and len(consumption_data) >= minimum_consumption_records and rate_data is not None and len(rate_data) > 0 and standing_charge is not None):
 

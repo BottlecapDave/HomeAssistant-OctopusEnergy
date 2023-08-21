@@ -14,7 +14,7 @@ def calculate_electricity_consumption_and_cost(
     standing_charge,
     last_reset,
     tariff_code,
-    minimum_consumption_records = 3
+    minimum_consumption_records = 0
   ):
   if (consumption_data is not None and len(consumption_data) >= minimum_consumption_records and rate_data is not None and len(rate_data) > 0 and standing_charge is not None):
 

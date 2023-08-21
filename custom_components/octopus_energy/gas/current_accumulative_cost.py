@@ -99,8 +99,7 @@ class OctopusEnergyCurrentAccumulativeGasCost(CoordinatorEntity, OctopusEnergyGa
       None, # We want to always recalculate
       self._tariff_code,
       "kwh",
-      self._calorific_value,
-      0
+      self._calorific_value
     )
 
     if (consumption_and_cost is not None):

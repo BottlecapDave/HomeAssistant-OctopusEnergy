@@ -83,7 +83,8 @@ async def test_when_gas_consumption_is_less_than_three_records_then_no_calculati
     latest_date,
     tariff_code,
     "m³",
-    40
+    40,
+    3
   )
 
   # Assert
