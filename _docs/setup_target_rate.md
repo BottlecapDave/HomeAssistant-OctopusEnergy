@@ -29,11 +29,15 @@ Each sensor will be in the form `binary_sensor.octopus_energy_target_{{TARGET_RA
 
 If you're wanting your devices to come on during a certain period, for example while you're at work, you can set the minimum and/or maximum times for your target rate sensor. These are specified in 24 hour clock format and will attempt to find the optimum discovered period during these times.
 
-If not specified, these default from `00:00:00` to `23:59:59`. However you can use this feature to change this evaluation period. 
+If not specified, these default from `00:00:00` to `00:00:00` the following day. However you can use this feature to change this evaluation period. 
 
 If for example you want to look at prices overnight you could set your from time to something like `20:00` and your `to` time to something like `05:00`. If the to time is "before" the from time, then it is assumed it is for the following day.
 
-If you are an agile user, then agile prices are available from [11pm to 11pm UK time](https://developer.octopus.energy/docs/api/#agile-octopus).  Therefore you will want your `from`/`to` time to be `16:00` or `23:00` to cover a 24 hour period. This is not automatically done by the integration as I didn't want to cause confusion with users when they didn't set anything nor did I want behaviour to implicitly change when users switch tariffs.
+> Please note: The target rate will not be evaluated until **all rates** are available for the specified time period. Therefore if we're looking between `00:00` and `00:00`, full rate information must exist between this time. Whereas if times are between `10:00` and `16:00`, then rate information is only needed between these times before it can be calculated.
+
+If you are an agile user, then agile prices are available from [11pm to 11pm UK time](https://developer.octopus.energy/docs/api/#agile-octopus) and published at `16:00` UK time. Therefore, you cannot specify a time period that starts before `16:00` and ends after `23:00` because the target rate(s) will not be able to be calculated until part way through the specified time frame as this is when the full set will become available. We recommend you set your time frames to `16:00`/`16:00` or `23:00`/`23:00`.
+
+This is not automatically done by the integration as I didn't want to cause confusion for users when they didn't set anything nor did I want behaviour to implicitly change when users switch tariffs.
 
 See the examples below for how this can be used and how rates will be selected.
 

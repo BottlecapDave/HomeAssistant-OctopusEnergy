@@ -38,7 +38,7 @@
       "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol",
       "invalid_hours_time_frame": "The target hours do not fit in the elected target time frame",
       "invalid_mpan": "Meter not found in account with an active tariff",
-      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult documentation"
+      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information."
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment."
@@ -81,7 +81,7 @@
       "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol",
       "invalid_hours_time_frame": "The target hours do not fit in the elected target time frame",
       "invalid_mpan": "Meter not found in account with an active tariff",
-      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult documentation"
+      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information."
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment."
