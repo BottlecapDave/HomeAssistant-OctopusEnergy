@@ -97,7 +97,8 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumptionPeak(CoordinatorEnti
       rate_data,
       standing_charge,
       None, # We want to always recalculate
-      self._tariff_code
+      self._tariff_code,
+      0
     )
 
     if (consumption_and_cost is not None):
