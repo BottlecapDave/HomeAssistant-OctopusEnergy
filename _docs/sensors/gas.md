@@ -182,11 +182,18 @@ The total cost for the current day, including the standing charge.
 
 ## Tariff Overrides
 
-You may be on an existing tariff but want to know if the grass is greener (or cheaper) on the other side. The following entities are available in a disabled state, which when enabled can give you an indication what you'd be paying if you were on a different tariff and didn't change your energy habits. 
+You may be on an existing tariff but want to know if the grass is greener (or cheaper) on the other side. The following entities are available in a disabled state, which when enabled can give you an indication what you'd be paying if you were on a different tariff and didn't change your energy habits.
 
 Instructions on how to find tariffs can be found in the [faq](../faq.md#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff).
 
 > Please note: When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
+
+Once enabled, you can set the tariff you wish to use for the override in the device controls
+
+1. Navigate to [your devices](https://my.home-assistant.io/redirect/devices/)
+2. Search for "Octopus Energy"
+3. Click on one of the meters
+4. Enter the tariff code in the Controls field for the override sensor.
 
 ### Previous Accumulative Cost Override Tariff (Gas)
 

@@ -305,6 +305,13 @@ Instructions on how to find tariffs can be found in the [faq](../faq.md#i-want-t
 
 > Please note: When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
 
+Once enabled, you can set the tariff you wish to use for the override in the device controls
+
+1. Navigate to [your devices](https://my.home-assistant.io/redirect/devices/)
+2. Search for "Octopus Energy"
+3. Click on one of the meters
+4. Enter the tariff code in the Controls field for the override sensor.
+
 ### Previous Accumulative Cost Override Tariff (Electricity)
 
 `text.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_override_tariff`
