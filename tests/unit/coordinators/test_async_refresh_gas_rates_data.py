@@ -33,8 +33,8 @@ def get_account_info(is_active_agreement = True):
         ],
         "agreements": [
           {
-            "valid_from": "2023-07-01T00:00:00+01:00" if is_active_agreement else "2023-08-01T00:00:00+01:00",
-            "valid_to": "2023-08-01T00:00:00+01:00" if is_active_agreement else "2023-09-01T00:00:00+01:00",
+            "valid_from": "2023-07-01T00:00:00+01:00" if is_active_agreement else "2022-08-01T00:00:00+01:00",
+            "valid_to": "2023-08-01T00:00:00+01:00" if is_active_agreement else "2022-09-01T00:00:00+01:00",
             "tariff_code": tariff_code,
             "product": "SUPER-GREEN-24M-21-07-30"
           }

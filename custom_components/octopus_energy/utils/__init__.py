@@ -36,6 +36,7 @@ def get_tariff_parts(tariff_code) -> TariffParts:
 def get_active_tariff_code(utcnow: datetime, agreements):
   latest_agreement = None
   latest_valid_from = None
+  next_agreement = None
 
   # Find our latest agreement
   for agreement in agreements:
@@ -43,6 +44,11 @@ def get_active_tariff_code(utcnow: datetime, agreements):
       continue
 
     valid_from = as_utc(parse_datetime(agreement["valid_from"]))
+
+    # Keep track of the next agreement in case we can't find an active one
+    next_valid_from = as_utc(parse_datetime(next_agreement["valid_from"])) if next_agreement is not None else None
+    if (utcnow < valid_from and (next_valid_from is None or valid_from < next_valid_from)):
+      next_agreement = agreement
 
     if utcnow >= valid_from and (latest_valid_from is None or valid_from > latest_valid_from):
 
@@ -56,6 +62,8 @@ def get_active_tariff_code(utcnow: datetime, agreements):
 
   if latest_agreement is not None:
     return latest_agreement["tariff_code"]
+  elif next_agreement is not None:
+    return next_agreement["tariff_code"]
   
   return None
 

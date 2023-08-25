@@ -83,7 +83,7 @@ async def test_when_agreements_ended_then_get_active_tariff_code_returns_none():
   assert result is None
 
 @pytest.mark.asyncio
-async def test_when_agreements_not_started_then_get_active_tariff_code_returns_none():
+async def test_when_agreements_not_started_then_next_agreement_returned():
   # Arrange
   now = datetime.strptime("2018-01-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
@@ -119,7 +119,8 @@ async def test_when_agreements_not_started_then_get_active_tariff_code_returns_n
   result = get_active_tariff_code(now, agreements)
 
   # Assert
-  assert result is None
+  assert result is not None
+  assert result == 'G-1R-FIX-12M-18-02-14-G'
 
 @pytest.mark.asyncio
 async def test_when_agreement_has_no_end_date_then_get_active_tariff_code_returns_code():
