@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
 import math
 import re
+import logging
 
 from homeassistant.util.dt import (as_utc, parse_datetime)
 
 from ..const import REGEX_OFFSET_PARTS
-import logging
 
 _LOGGER = logging.getLogger(__name__)
 

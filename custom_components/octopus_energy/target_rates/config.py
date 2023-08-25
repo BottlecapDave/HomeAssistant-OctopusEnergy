@@ -61,11 +61,14 @@ def validate_target_rate_config(data, account_info, now):
     errors[CONFIG_TARGET_NAME] = "invalid_target_name"
 
   # For some reason float type isn't working properly - reporting user input malformed
-  matches = re.search(REGEX_HOURS, data[CONFIG_TARGET_HOURS])
-  if matches is None:
-    errors[CONFIG_TARGET_HOURS] = "invalid_target_hours"
-  else:
-    data[CONFIG_TARGET_HOURS] = float(data[CONFIG_TARGET_HOURS])
+  if isinstance(data[CONFIG_TARGET_HOURS], float) == False:
+    matches = re.search(REGEX_HOURS, data[CONFIG_TARGET_HOURS])
+    if matches is None:
+      errors[CONFIG_TARGET_HOURS] = "invalid_target_hours"
+    else:
+      data[CONFIG_TARGET_HOURS] = float(data[CONFIG_TARGET_HOURS])
+  
+  if CONFIG_TARGET_HOURS not in errors:
     if data[CONFIG_TARGET_HOURS] % 0.5 != 0:
       errors[CONFIG_TARGET_HOURS] = "invalid_target_hours"
 

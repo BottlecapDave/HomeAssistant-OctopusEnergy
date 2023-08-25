@@ -7,7 +7,7 @@ from homeassistant.config_entries import (ConfigFlow, OptionsFlow)
 from homeassistant.core import callback
 import homeassistant.helpers.config_validation as cv
 
-from .config_flow_utils.target_rates import validate_target_rate_config
+from .target_rates.config import validate_target_rate_config
 from .const import (
   DOMAIN,
   

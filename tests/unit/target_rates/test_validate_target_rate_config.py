@@ -1,7 +1,7 @@
 import pytest
 
 from homeassistant.util.dt import (as_utc, parse_datetime)
-from custom_components.octopus_energy.config_flow_utils.target_rates import validate_target_rate_config
+from custom_components.octopus_energy.target_rates.config import validate_target_rate_config
 from custom_components.octopus_energy.const import CONFIG_TARGET_END_TIME, CONFIG_TARGET_HOURS, CONFIG_TARGET_MPAN, CONFIG_TARGET_NAME, CONFIG_TARGET_OFFSET, CONFIG_TARGET_START_TIME
 
 now = as_utc(parse_datetime("2023-08-20T10:00:00Z"))
