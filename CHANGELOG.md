@@ -1,3 +1,18 @@
+# [8.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.1.0...v8.2.0) (2023-08-26)
+
+
+### Bug Fixes
+
+* Fixed accumulative consumption sensors not starting until 1am ([dd2997b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/dd2997b2f85f38d2730c034d32eca43b3ca7a6dd))
+* Fixed retrieving standing charges that have no end date ([41b913d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/41b913d3032d3db6ac721567d8a92d71a60a9997))
+* Removed unused/undocumented attribute from intelligent dispatching sensor ([56657a2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/56657a23f8c9cfc9f319056d822e9a6d3da6f404))
+
+
+### Features
+
+* Added repair notification when target rate sensor becomes invalid ([fd52777](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fd527774f1e71185affa0ab7e72d30b674723696))
+* **config:** Added more validation around target rates, including around agile tariffs ([8a00c1c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8a00c1c2341550e4e8b5e154ddb6fe4d3c45b5eb))
+
 # [8.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.0.0...v8.1.0) (2023-08-12)
 
 
