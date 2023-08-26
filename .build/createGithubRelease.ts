@@ -17,6 +17,16 @@ async function createGithubRelease(githubToken: string, githubOwnerRepo: string,
     throw new Error('Notes not specified');
   }
 
+  console.log(`Publishing ${tag} release to ${githubOwnerRepo}`);
+
+  const body = JSON.stringify({
+    tag_name: tag,
+    name: tag,
+    body: notes,
+    draft: false,
+    prerelease:false
+  });
+
   const response = await fetch(
     `https://api.github.com/repos/${githubOwnerRepo}/releases`,
     { 
@@ -26,9 +36,13 @@ async function createGithubRelease(githubToken: string, githubOwnerRepo: string,
         "Authorization": `Bearer ${githubToken}`,
         "X-GitHub-Api-Version": "2022-11-28" 
       },
-      body: `{"tag_name":"${tag}","name":"${tag}","body":"${notes}","draft":false,"prerelease":false}`
+      body
     }
   );
+
+  if (response.status >= 300) {
+    throw new Error(response.statusText);
+  }
 }
 
 createGithubRelease(
