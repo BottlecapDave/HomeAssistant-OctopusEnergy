@@ -1,7 +1,3 @@
-from ..api_client import OctopusEnergyApiClient
-
-minimum_consumption_records = 2
-
 def __get_interval_end(item):
     return item["interval_end"]
 
@@ -29,9 +25,10 @@ def calculate_gas_consumption_and_cost(
     last_reset,
     tariff_code,
     consumption_units,
-    calorific_value
+    calorific_value,
+    minimum_consumption_records = 0
   ):
-  if (consumption_data is not None and len(consumption_data) > minimum_consumption_records and rate_data is not None and len(rate_data) > 0 and standing_charge is not None):
+  if (consumption_data is not None and len(consumption_data) >= minimum_consumption_records and rate_data is not None and len(rate_data) > 0 and standing_charge is not None):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
 

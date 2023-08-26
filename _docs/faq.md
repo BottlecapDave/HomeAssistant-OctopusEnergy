@@ -6,6 +6,7 @@
   - [Why is my gas sensor reporting m3 when Octopus Energy reports it as kWh?](#why-is-my-gas-sensor-reporting-m3-when-octopus-energy-reports-it-as-kwh)
   - [I have sensors that are missing](#i-have-sensors-that-are-missing)
   - [I have data missing, is this an issue with the integration](#i-have-data-missing-is-this-an-issue-with-the-integration)
+  - [I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?](#im-an-agile-user-and-having-trouble-setting-up-a-target-rate-sensor-what-am-i-doing-wrong)
   - [My gas consumption/costs seem out](#my-gas-consumptioncosts-seem-out)
   - [I've been asked for my meter information in a bug request, how do I obtain this?](#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this)
   - [I want to use the tariff overrides, but how do I find an available tariff?](#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff)
@@ -38,6 +39,10 @@ The identifiers of the sensors should then be checked against your Octopus Energ
 ## I have data missing, is this an issue with the integration
 
 Data can not appear for a variety of reasons. Before raising any issues, check if the data is available within the app. If it's not available within the app, then unfortunately there is nothing I can do. Data might also not appear if you lose internet connection of the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs. If none of this is applicable, then please raise an issue so we can try and solve the problem.
+
+## I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?
+
+Rate data for agile tariffs are not available in full for the next day, which can cause issues with target rate sensors in their default state. We prevent you from setting up target rate sensors in this form. More information around this can be found in the [target rate documentation](./setup_target_rate.md#fromto-times).
 
 ## My gas consumption/costs seem out
 

@@ -39,7 +39,7 @@ async def async_refresh_electricity_standing_charges_data(
       if ((current.minute % 30) == 0 or 
           existing_standing_charges is None or
           key not in existing_standing_charges or
-          existing_standing_charges[key]["valid_from"] < period_from):
+          (existing_standing_charges[key]["valid_from"] is not None and existing_standing_charges[key]["valid_from"] < period_from)):
         try:
           new_standing_charges = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
           _LOGGER.debug(f'Electricity standing charges retrieved for {tariff_code}')

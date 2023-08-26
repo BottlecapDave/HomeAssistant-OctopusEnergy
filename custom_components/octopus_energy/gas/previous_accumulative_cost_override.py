@@ -127,7 +127,9 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
         None if has_tariff_changed else self._last_reset,
         tariff_override,
         self._native_consumption_units,
-        self._calorific_value
+        self._calorific_value,
+        # During BST, two records are returned before the rest of the data is available
+        3
       )
 
       self._tariff_code = tariff_override

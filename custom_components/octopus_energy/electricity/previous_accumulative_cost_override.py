@@ -125,7 +125,9 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
         rate_data,
         standing_charge["value_inc_vat"] if standing_charge is not None else None,
         None if has_tariff_changed else self._last_reset,
-        tariff_override
+        tariff_override,
+        # During BST, two records are returned before the rest of the data is available
+        3
       )
 
       self._tariff_code = tariff_override

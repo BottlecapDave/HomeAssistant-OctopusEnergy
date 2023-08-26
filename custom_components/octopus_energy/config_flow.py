@@ -1,4 +1,4 @@
-import re
+
 import voluptuous as vol
 import logging
 
@@ -7,6 +7,7 @@ from homeassistant.config_entries import (ConfigFlow, OptionsFlow)
 from homeassistant.core import callback
 import homeassistant.helpers.config_validation as cv
 
+from .target_rates.config import validate_target_rate_config
 from .const import (
   DOMAIN,
   
@@ -34,11 +35,6 @@ from .const import (
   DATA_SCHEMA_ACCOUNT,
   DATA_CLIENT,
   DATA_ACCOUNT_ID,
-
-  REGEX_TIME,
-  REGEX_ENTITY_NAME,
-  REGEX_HOURS,
-  REGEX_OFFSET_PARTS,
 )
 
 from .api_client import OctopusEnergyApiClient
@@ -46,39 +42,6 @@ from .api_client import OctopusEnergyApiClient
 from .utils import get_active_tariff_code
 
 _LOGGER = logging.getLogger(__name__)
-
-def validate_target_rate_sensor(data):
-  errors = {}
-
-  matches = re.search(REGEX_ENTITY_NAME, data[CONFIG_TARGET_NAME])
-  if matches is None:
-    errors[CONFIG_TARGET_NAME] = "invalid_target_name"
-
-  # For some reason float type isn't working properly - reporting user input malformed
-  matches = re.search(REGEX_HOURS, data[CONFIG_TARGET_HOURS])
-  if matches is None:
-    errors[CONFIG_TARGET_HOURS] = "invalid_target_hours"
-  else:
-    data[CONFIG_TARGET_HOURS] = float(data[CONFIG_TARGET_HOURS])
-    if data[CONFIG_TARGET_HOURS] % 0.5 != 0:
-      errors[CONFIG_TARGET_HOURS] = "invalid_target_hours"
-
-  if CONFIG_TARGET_START_TIME in data:
-    matches = re.search(REGEX_TIME, data[CONFIG_TARGET_START_TIME])
-    if matches is None:
-      errors[CONFIG_TARGET_START_TIME] = "invalid_target_time"
-
-  if CONFIG_TARGET_END_TIME in data:
-    matches = re.search(REGEX_TIME, data[CONFIG_TARGET_END_TIME])
-    if matches is None:
-      errors[CONFIG_TARGET_END_TIME] = "invalid_target_time"
-
-  if CONFIG_TARGET_OFFSET in data:
-    matches = re.search(REGEX_OFFSET_PARTS, data[CONFIG_TARGET_OFFSET])
-    if matches is None:
-      errors[CONFIG_TARGET_OFFSET] = "invalid_offset"
-
-  return errors
 
 def get_target_rate_meters(account_info, now):
   meters = {}
@@ -155,8 +118,11 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
   async def async_step_target_rate(self, user_input):
     """Setup a target based on the provided user input"""
-    
-    errors = validate_target_rate_sensor(user_input)
+    client = self.hass.data[DOMAIN][DATA_CLIENT]
+    account_info = await client.async_get_account(self.hass.data[DOMAIN][DATA_ACCOUNT_ID])
+
+    now = utcnow()
+    errors = validate_target_rate_config(user_input, account_info, now)
 
     if len(errors) < 1:
       # Setup our targets sensor
@@ -238,10 +204,6 @@ class OptionsFlowHandler(OptionsFlow):
     is_rolling_target = True
     if (CONFIG_TARGET_ROLLING_TARGET in config):
       is_rolling_target = config[CONFIG_TARGET_ROLLING_TARGET]
-
-    find_last_rates = False
-    if (CONFIG_TARGET_LAST_RATES in config):
-      find_last_rates = config[CONFIG_TARGET_LAST_RATES]
 
     find_last_rates = False
     if (CONFIG_TARGET_LAST_RATES in config):
@@ -346,7 +308,11 @@ class OptionsFlowHandler(OptionsFlow):
       config = dict(self._entry.data)
       config.update(user_input)
 
-      errors = validate_target_rate_sensor(config)
+      client = self.hass.data[DOMAIN][DATA_CLIENT]
+      account_info = await client.async_get_account(self.hass.data[DOMAIN][DATA_ACCOUNT_ID])
+
+      now = utcnow()
+      errors = validate_target_rate_config(user_input, account_info, now)
 
       if (len(errors) > 0):
         return await self.__async_setup_target_rate_schema(config, errors)

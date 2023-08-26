@@ -8,16 +8,15 @@ def __sort_consumption(consumption_data):
   sorted.sort(key=__get_interval_end)
   return sorted
 
-minimum_consumption_records = 2
-
 def calculate_electricity_consumption_and_cost(
     consumption_data,
     rate_data,
     standing_charge,
     last_reset,
-    tariff_code
+    tariff_code,
+    minimum_consumption_records = 0
   ):
-  if (consumption_data is not None and len(consumption_data) > minimum_consumption_records and rate_data is not None and len(rate_data) > 0 and standing_charge is not None):
+  if (consumption_data is not None and len(consumption_data) >= minimum_consumption_records and rate_data is not None and len(rate_data) > 0 and standing_charge is not None):
 
     sorted_consumption_data = __sort_consumption(consumption_data)
 

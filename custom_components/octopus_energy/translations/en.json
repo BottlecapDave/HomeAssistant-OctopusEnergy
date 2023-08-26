@@ -15,7 +15,7 @@
         }
       },
       "target_rate": {
-        "description": "Setup a target rate period. Continuous target will find the cheapest continuous period for your target hours. While intermittent will find the cheapest periods with potential gaps, which when combined will meet your target hours.",
+        "description": "Setup a target rate period. Continuous target will find the cheapest continuous period for your target hours. While intermittent will find the cheapest periods with potential gaps, which when combined will meet your target hours. Full documentation can be found at https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/setup_target_rate.md",
         "data": {
           "entity_id": "The name of your target",
           "Hours": "The hours you require in decimal format.",
@@ -35,7 +35,10 @@
       "invalid_target_hours": "Target hours must be in half hour increments (e.g. 0.5 = 30 minutes; 1 = 60 minutes).",
       "invalid_target_name": "Name must only include lower case alpha characters and underscore (e.g. my_target)",
       "invalid_target_time": "Must be in the format HH:MM",
-      "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol"
+      "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol",
+      "invalid_hours_time_frame": "The target hours do not fit in the elected target time frame",
+      "invalid_mpan": "Meter not found in account with an active tariff",
+      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information."
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment."
@@ -59,7 +62,7 @@
       },
       "target_rate": {
         "title": "Update Target Rate",
-        "description": "Update the settings for your target rate sensor, which can be used to help you save energy and money.",
+        "description": "Update the settings for your target rate sensor, which can be used to help you save energy and money. Full documentation can be found at https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/setup_target_rate.md",
         "data": {
           "Hours": "The hours you require in decimal format.",
           "MPAN": "The MPAN number of the meter to apply the target to",
@@ -75,7 +78,10 @@
     "error": {
       "invalid_target_hours": "Target hours must be in half hour increments (e.g. 0.5 = 30 minutes; 1 = 60 minutes).",
       "invalid_target_time": "Must be in the format HH:MM",
-      "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol"
+      "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol",
+      "invalid_hours_time_frame": "The target hours do not fit in the elected target time frame",
+      "invalid_mpan": "Meter not found in account with an active tariff",
+      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information."
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment."
@@ -93,6 +99,10 @@
     "unknown_tariff": {
       "title": "Unknown tariff - {type} - {tariff_code}",
       "description": "The tariff \"{tariff_code}\" associated with your {type} meter has not been found. Click on 'Learn More' with instructions on what to do next."
+    },
+    "invalid_target_rate": {
+      "title": "Invalid target rate \"{name}\"",
+      "description": "The target rate \"{name}\" has become invalid. Click on 'Learn More' with instructions on what to do next."
     }
   }
 }
