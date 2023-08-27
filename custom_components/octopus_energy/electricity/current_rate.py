@@ -9,8 +9,10 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.components.sensor import (
     SensorDeviceClass,
-    SensorStateClass
+    SensorStateClass,
+    SensorEntity,
 )
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base import (OctopusEnergyElectricitySensor)
 
@@ -18,7 +20,7 @@ from ..utils.rate_information import (get_current_rate_information)
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectricitySensor):
+class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectricitySensor, SensorEntity, RestoreEntity):
   """Sensor for displaying the current rate."""
 
   def __init__(self, hass: HomeAssistant, coordinator, meter, point, tariff_code, electricity_price_cap):

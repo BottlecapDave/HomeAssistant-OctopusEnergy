@@ -9,15 +9,17 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.components.sensor import (
     SensorDeviceClass,
-    SensorStateClass
+    SensorStateClass,
+    SensorEntity,
 )
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.rate_information import (get_next_rate_information)
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectricitySensor):
+class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectricitySensor, SensorEntity, RestoreEntity):
   """Sensor for displaying the next rate."""
 
   def __init__(self, hass: HomeAssistant, coordinator, meter, point):

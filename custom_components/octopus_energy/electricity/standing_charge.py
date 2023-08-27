@@ -3,8 +3,10 @@ import logging
 from homeassistant.core import HomeAssistant
 
 from homeassistant.components.sensor import (
-    SensorDeviceClass
+    SensorDeviceClass,
+    SensorEntity,
 )
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -13,7 +15,7 @@ from .base import (OctopusEnergyElectricitySensor)
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEnergyElectricitySensor):
+class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEnergyElectricitySensor, SensorEntity, RestoreEntity):
   """Sensor for displaying the current standing charge."""
 
   def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point):

@@ -8,8 +8,10 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.components.sensor import (
     SensorDeviceClass,
-    SensorStateClass
+    SensorStateClass,
+    SensorEntity,
 )
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from . import (
   calculate_electricity_consumption_and_cost,
@@ -25,7 +27,7 @@ from . import get_electricity_tariff_override_key
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity, OctopusEnergyElectricitySensor):
+class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity, OctopusEnergyElectricitySensor, SensorEntity, RestoreEntity):
   """Sensor for displaying the previous days accumulative electricity cost for a different tariff."""
 
   def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, tariff_code, meter, point):
