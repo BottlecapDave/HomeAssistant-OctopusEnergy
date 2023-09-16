@@ -74,8 +74,11 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
 
   account_info = hass.data[DOMAIN][DATA_ACCOUNT]
 
+  electricity_rate_coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR]
+
   now = utcnow()
   has_intelligent_tariff = False
+  intelligent_mpan = None
   entities = [OctopusEnergySavingSessions(hass, saving_session_coordinator)]
   if len(account_info["electricity_meter_points"]) > 0:
     electricity_rate_coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR]
@@ -87,6 +90,8 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
       if tariff_code is not None:
         for meter in point["meters"]:
           entities.append(OctopusEnergyElectricityOffPeak(hass, electricity_rate_coordinator, meter, point))
+          if meter["is_export"] == False:
+            intelligent_mpan = point["mpan"]
 
       if is_intelligent_tariff(tariff_code):
         has_intelligent_tariff = True
@@ -103,7 +108,7 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
     else:
       device = await client.async_get_intelligent_device(account_id)
 
-    entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, device))
+    entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, device))
 
   if len(entities) > 0:
     async_add_entities(entities, True)

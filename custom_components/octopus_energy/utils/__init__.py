@@ -1,11 +1,14 @@
-from datetime import datetime, timedelta
-from homeassistant.util.dt import (as_utc, parse_datetime)
 
 import re
+from datetime import datetime, timedelta
+
+from homeassistant.util.dt import (as_utc, parse_datetime)
 
 from ..const import (
   REGEX_TARIFF_PARTS,
 )
+
+from .rate_information import get_current_rate_information
 
 class TariffParts:
   energy: str
@@ -70,3 +73,10 @@ def get_off_peak_cost(rates):
       off_peak_cost = rate["value_inc_vat"]
 
   return off_peak_cost if len(rate_charges) == 2 else None
+
+def is_off_peak(current: datetime, rates):
+  off_peak_value = get_off_peak_cost(rates)
+
+  rate_information = get_current_rate_information(rates, current)
+
+  return off_peak_value is not None and rate_information is not None and off_peak_value == rate_information["current_rate"]["value_inc_vat"]

@@ -13,8 +13,7 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.helpers.restore_state import RestoreEntity
 
-from ..utils import get_off_peak_cost
-from ..utils.rate_information import get_current_rate_information
+from ..utils import is_off_peak
 
 from .base import OctopusEnergyElectricitySensor
 
@@ -62,11 +61,8 @@ class OctopusEnergyElectricityOffPeak(CoordinatorEntity, OctopusEnergyElectricit
     rates = self.coordinator.data[self._mpan] if self.coordinator is not None and self._mpan in self.coordinator.data else None
     if (rates is not None and (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0)):
       _LOGGER.debug(f"Updating OctopusEnergyElectricityOffPeak for '{self._mpan}/{self._serial_number}'")
-      off_peak_value = get_off_peak_cost(rates)
 
-      rate_information = get_current_rate_information(rates, current)
-
-      self._state = off_peak_value is not None and rate_information is not None and off_peak_value == rate_information["current_rate"]["value_inc_vat"]
+      self._state = is_off_peak(current, rates)
 
       self._last_updated = current
     
