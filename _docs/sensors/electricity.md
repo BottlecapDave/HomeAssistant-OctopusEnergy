@@ -26,6 +26,7 @@ You'll get the following sensors for each electricity meter with an active agree
     - [Current Accumulative Cost (Off Peak Rate)](#current-accumulative-cost-off-peak-rate)
   - [Tariff Overrides](#tariff-overrides)
     - [Previous Accumulative Cost Override Tariff (Electricity)](#previous-accumulative-cost-override-tariff-electricity)
+      - [How To Use](#how-to-use)
     - [Previous Accumulative Cost Override (Electricity)](#previous-accumulative-cost-override-electricity)
 
 ## Current Rate
@@ -308,22 +309,26 @@ The total cost for the current day that applied during off peak hours. This is d
 
 You may be on an existing tariff but want to know if the grass is greener (or cheaper) on the other side. The following entities are available in a disabled state, which when enabled can give you an indication what you'd be paying if you were on a different tariff and didn't change your energy habits.
 
-Instructions on how to find tariffs can be found in the [faq](../faq.md#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff).
+See [below](#previous-accumulative-cost-override-tariff-electricity) for instructions on how to set up.
 
 > Please note: When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
-
-Once enabled, you can set the tariff you wish to use for the override in the device controls
-
-1. Navigate to [your devices](https://my.home-assistant.io/redirect/devices/)
-2. Search for "Octopus Energy"
-3. Click on one of the meters
-4. Enter the tariff code in the Controls field for the override sensor.
 
 ### Previous Accumulative Cost Override Tariff (Electricity)
 
 `text.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_override_tariff`
 
-This is used to define the electricity tariff you want to compare
+This is used to define the electricity tariff you want to compare.
+
+#### How To Use
+
+Instructions on how to find tariffs can be found in the [faq](../faq.md#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff).
+
+Once you have found your target tariff
+
+1. Click on this entity to open the info dialog.
+2. Enter your tariff in the text box, and hit `enter` on your keyboard to confirm
+
+> Please note: When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
 
 ### Previous Accumulative Cost Override (Electricity)
 
