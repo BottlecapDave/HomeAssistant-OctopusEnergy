@@ -71,7 +71,7 @@ async def async_setup_entry(hass, entry):
     )
   elif CONFIG_TARGET_NAME in config:
     if DOMAIN not in hass.data or DATA_ELECTRICITY_RATES_COORDINATOR not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN]:
-      raise ConfigEntryNotReady
+      raise ConfigEntryNotReady("Electricity rates have not been setup")
 
     # Forward our entry to setup our target rate sensors
     hass.async_create_task(
@@ -101,6 +101,8 @@ async def async_setup_dependencies(hass, config):
   hass.data[DOMAIN][DATA_ACCOUNT_ID] = config[CONFIG_MAIN_ACCOUNT_ID]
 
   account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
+  if (account_info is None):
+    raise ConfigEntryNotReady(f"Failed to retrieve account information")
 
   hass.data[DOMAIN][DATA_ACCOUNT] = account_info
 

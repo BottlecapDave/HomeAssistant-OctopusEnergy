@@ -1,6 +1,5 @@
 import logging
 
-import re
 import voluptuous as vol
 
 from homeassistant.core import HomeAssistant, callback
@@ -29,10 +28,6 @@ from ..const import (
   CONFIG_TARGET_OFFSET,
   DATA_ACCOUNT,
   DOMAIN,
-  
-  REGEX_HOURS,
-  REGEX_TIME,
-  REGEX_OFFSET_PARTS,
 )
 
 from . import (
