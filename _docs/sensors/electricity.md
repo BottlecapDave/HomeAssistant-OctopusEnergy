@@ -6,6 +6,7 @@ You'll get the following sensors for each electricity meter with an active agree
   - [Current Rate](#current-rate)
   - [Previous Rate](#previous-rate)
   - [Next rate](#next-rate)
+  - [Off Peak](#off-peak)
   - [Smart Meter Sensors](#smart-meter-sensors)
     - [Previous Accumulative Consumption](#previous-accumulative-consumption)
     - [Previous Accumulative Consumptions (Peak Rate)](#previous-accumulative-consumptions-peak-rate)
@@ -82,6 +83,12 @@ The next/upcoming rate that energy consumption will be charged at (including VAT
 | `applicable_rates` | `array` | Collection of rates where the next rate applies, in case it spans multiple time periods. |
 | `valid_from` | `datetime` | The date/time when the rate is valid from |
 | `valid_to` | `datetime` | The date/time when the rate is valid to |
+
+## Off Peak
+
+`binary_sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_off_peak`
+
+This is `on` when you're within your tariff's off peak period, and `off` at all other times. This is disabled by default. This will only be work if you're on a tariff with an off peak period.
 
 ## Smart Meter Sensors
 
