@@ -59,6 +59,7 @@ REGEX_ENTITY_NAME = "^[a-z0-9_]+$"
 # However it looks like there are some tariffs that don't fit this mold
 REGEX_TARIFF_PARTS = "^((?P<energy>[A-Z])-(?P<rate>[0-9A-Z]+)-)?(?P<product_code>[A-Z0-9-]+)-(?P<region>[A-Z])$"
 REGEX_OFFSET_PARTS = "^(-)?([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
+REGEX_DATE = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
 
 DATA_SCHEMA_ACCOUNT = vol.Schema({
   vol.Required(CONFIG_MAIN_API_KEY): str,
