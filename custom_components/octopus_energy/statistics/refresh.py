@@ -33,7 +33,7 @@ async def async_refresh_previous_electricity_consumption_data(
   
   period_from = parse_datetime(f'{trimmed_date}T00:00:00Z')
   while period_from < now():
-    period_to = period_from + timedelta(days=7)
+    period_to = period_from + timedelta(days=2)
 
     consumption_data = await client.async_get_electricity_consumption(mpan, serial_number, period_from, period_to)
     rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
