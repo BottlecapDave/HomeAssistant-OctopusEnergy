@@ -36,7 +36,7 @@ from . import (
   get_target_rate_info
 )
 
-from .config import validate_target_rate_config
+from ..config.target_rates import validate_target_rate_config
 from ..target_rates.repairs import check_for_errors
 
 _LOGGER = logging.getLogger(__name__)

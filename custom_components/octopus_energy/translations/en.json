@@ -31,7 +31,8 @@
       }
     },
     "error": {
-      "account_not_found": "Account information was not found",
+      "account_not_found": "Invalid API key or account id specified",
+      "value_greater_than_zero": "Value must be greater or equal to 1",
       "invalid_target_hours": "Target hours must be in half hour increments (e.g. 0.5 = 30 minutes; 1 = 60 minutes).",
       "invalid_target_name": "Name must only include lower case alpha characters and underscore (e.g. my_target)",
       "invalid_target_time": "Must be in the format HH:MM",
@@ -76,6 +77,8 @@
       }
     },
     "error": {
+      "account_not_found": "Invalid API key or account id specified",
+      "value_greater_than_zero": "Value must be greater or equal to 1",
       "invalid_target_hours": "Target hours must be in half hour increments (e.g. 0.5 = 30 minutes; 1 = 60 minutes).",
       "invalid_target_time": "Must be in the format HH:MM",
       "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol",

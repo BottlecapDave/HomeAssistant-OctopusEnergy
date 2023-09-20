@@ -3,7 +3,7 @@ from datetime import datetime
 from homeassistant.helpers import issue_registry as ir
 
 from ..const import CONFIG_TARGET_NAME, DOMAIN
-from .config import validate_target_rate_config
+from ..config.target_rates import validate_target_rate_config
 
 def check_for_errors(hass, config, account_info, now: datetime):
   if account_info is not None:
