@@ -9,6 +9,8 @@
           "Account Id": "Your account Id (e.g. A-AAAA1111)",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
           "live_consumption_refresh_in_minutes": "Home Mini refresh rate in minutes",
+          "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
+          "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
           "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time.",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence"
@@ -53,7 +55,8 @@
         "data": {
           "Api key": "Api key",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
-          "live_consumption_refresh_in_minutes": "Home Mini refresh rate in minutes",
+          "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
+          "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
           "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time.",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "clear_electricity_price_cap": "Clear electricity price cap",

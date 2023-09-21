@@ -14,10 +14,13 @@ from .coordinators.saving_sessions import async_setup_saving_sessions_coordinato
 from .const import (
   DOMAIN,
 
+  CONFIG_KIND,
   CONFIG_MAIN_API_KEY,
   CONFIG_MAIN_ACCOUNT_ID,
   CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
   CONFIG_MAIN_GAS_PRICE_CAP,
+  CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
+  CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   
   CONFIG_TARGET_NAME,
 
@@ -32,6 +35,31 @@ from .api_client import OctopusEnergyApiClient
 _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(minutes=1)
+
+async def async_migrate_entry(hass, config_entry):
+  """Migrate old entry."""
+  _LOGGER.debug("Migrating from version %s", config_entry.version)
+
+  if config_entry.version == 1:
+
+    new = {**config_entry.data}
+
+    if CONFIG_MAIN_ACCOUNT_ID in config_entry.data:
+      new[CONFIG_KIND] = "account"
+
+      if "live_consumption_refresh_in_minutes" in new:
+
+        new[CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES] = new["live_consumption_refresh_in_minutes"]
+        new[CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES] = new["live_consumption_refresh_in_minutes"]
+    else:
+      new[CONFIG_KIND] = "target_rate"
+
+    config_entry.version = 2
+    hass.config_entries.async_update_entry(config_entry, data=new)
+
+  _LOGGER.debug("Migration to version %s successful", config_entry.version)
+
+  return True
 
 async def async_setup_entry(hass, entry):
   """This is called from the config flow."""

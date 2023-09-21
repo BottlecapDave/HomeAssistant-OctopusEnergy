@@ -14,7 +14,6 @@ from .const import (
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
-  CONFIG_MAIN_ACCOUNT_ID,
   CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
   CONFIG_MAIN_CALORIFIC_VALUE,
   CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
@@ -37,8 +36,6 @@ from .const import (
   DATA_CLIENT,
   DATA_ACCOUNT_ID,
 )
-
-from .api_client import OctopusEnergyApiClient
 
 from .utils import get_active_tariff_code
 
@@ -65,27 +62,6 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
   """Config flow."""
 
   VERSION = 2
-
-  async def async_migrate_entry(hass, config_entry):
-    """Migrate old entry."""
-    _LOGGER.debug("Migrating from version %s", config_entry.version)
-
-    if config_entry.version == 1:
-
-      new = {**config_entry.data}
-
-      if CONFIG_MAIN_ACCOUNT_ID in config_entry.data:
-        if "live_consumption_refresh_in_minutes" in new:
-
-          new[CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES] = new["live_consumption_refresh_in_minutes"]
-          new[CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES] = new["live_consumption_refresh_in_minutes"]
-
-      config_entry.version = 2
-      hass.config_entries.async_update_entry(config_entry, data=new)
-
-    _LOGGER.debug("Migration to version %s successful", config_entry.version)
-
-    return True
 
   async def async_setup_initial_account(self, user_input):
     """Setup the initial account based on the provided user input"""

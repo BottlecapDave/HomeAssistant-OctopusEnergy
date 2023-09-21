@@ -3,6 +3,7 @@ import homeassistant.helpers.config_validation as cv
 
 DOMAIN = "octopus_energy"
 
+CONFIG_KIND = "kind"
 CONFIG_MAIN_API_KEY = "Api key"
 CONFIG_MAIN_ACCOUNT_ID = "Account Id"
 CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION = "supports_live_consumption"
