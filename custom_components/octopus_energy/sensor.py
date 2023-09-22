@@ -43,11 +43,14 @@ from .saving_sessions.points import OctopusEnergySavingSessionPoints
 
 from .utils import (get_active_tariff_code)
 from .const import (
+  CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
+  CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
+  CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
+  CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
   CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
-  CONFIG_MAIN_LIVE_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_CALORIFIC_VALUE,
   CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
   CONFIG_MAIN_GAS_PRICE_CAP,
@@ -123,9 +126,9 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
           entities.append(OctopusEnergyPreviousAccumulativeElectricityCostOverride(hass, previous_consumption_coordinator, client, electricity_tariff_code, meter, point))
 
           if meter["is_export"] == False and CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True:
-            live_consumption_refresh_in_minutes = 1
-            if CONFIG_MAIN_LIVE_CONSUMPTION_REFRESH_IN_MINUTES in config:
-              live_consumption_refresh_in_minutes = config[CONFIG_MAIN_LIVE_CONSUMPTION_REFRESH_IN_MINUTES]
+            live_consumption_refresh_in_minutes = CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES
+            if CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES in config:
+              live_consumption_refresh_in_minutes = config[CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES]
 
             consumption_coordinator = await async_create_current_consumption_coordinator(hass, client, meter["device_id"], True, live_consumption_refresh_in_minutes)
             entities.append(OctopusEnergyCurrentElectricityConsumption(hass, consumption_coordinator, meter, point))
@@ -182,9 +185,9 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
           entities.append(OctopusEnergyPreviousAccumulativeGasCostOverride(hass, previous_consumption_coordinator, client, gas_tariff_code, meter, point, calorific_value))
 
           if CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True:
-            live_consumption_refresh_in_minutes = 1
-            if CONFIG_MAIN_LIVE_CONSUMPTION_REFRESH_IN_MINUTES in config:
-              live_consumption_refresh_in_minutes = config[CONFIG_MAIN_LIVE_CONSUMPTION_REFRESH_IN_MINUTES]
+            live_consumption_refresh_in_minutes = CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES
+            if CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES in config:
+              live_consumption_refresh_in_minutes = config[CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES]
             
             consumption_coordinator = await async_create_current_consumption_coordinator(hass, client, meter["device_id"], False, live_consumption_refresh_in_minutes)
             entities.append(OctopusEnergyCurrentGasConsumption(hass, consumption_coordinator, meter, point))
