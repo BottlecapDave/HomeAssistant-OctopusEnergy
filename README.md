@@ -10,6 +10,7 @@
   - [Energy Dashboard](#energy-dashboard)
   - [Community Contributions](#community-contributions)
   - [FAQ](#faq)
+  - [Sponsorship](#sponsorship)
 
 Custom component built from the ground up to bring your Octopus Energy details into Home Assistant to help you towards a more energy efficient (and or cheaper) home. This integration is built against the API provided by Octopus Energy UK and has not been tested for any other countries. 
 
@@ -59,3 +60,7 @@ A collection of community contributions can be found [here](./_docs/community.md
 ## FAQ
 
 Before raising anything, please read through the [faq](./_docs/faq.md). If you have questions, then you can raise a [discussion](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions). If you have found a bug or have a feature request please [raise it](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues) using the appropriate report template.
+
+## Sponsorship
+
+If you are enjoying the integration, why not use my [referral link](https://share.octopus.energy/gray-jade-372) if you're not already a part of Octopus Energy, or if possible, make a one off or monthly [GitHub sponsorship](https://github.com/sponsors/bottlecapdave).
