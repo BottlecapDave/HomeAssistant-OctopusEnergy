@@ -10,6 +10,8 @@
   - [Previous Consumption Days Offset](#previous-consumption-days-offset)
   - [Calorific Value](#calorific-value)
   - [Government Pricing Caps](#government-pricing-caps)
+  - [Services](#services)
+    - [Service octopus\_energy.purge\_invalid\_external\_statistic\_ids](#service-octopus_energypurge_invalid_external_statistic_ids)
 
 
 Setup is done entirely via the [integration UI](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
@@ -63,3 +65,9 @@ When calculating gas costs, a calorific value is included in the calculation. Un
 ## Government Pricing Caps
 
 There has been inconsistencies across tariffs on whether government pricing caps are included or not. Therefore the ability to configure pricing caps has been added within you account. Please note that while rates are reflected straight away, consumption based sensors may take up to 24 hours to reflect. This is due to how they look at data and cannot be changed.
+
+## Services
+
+### Service octopus_energy.purge_invalid_external_statistic_ids
+
+Service for removing all external statistics that are associated with meters that don't have an active tariff. This is useful if you've been using the integration and obtained new smart meters.

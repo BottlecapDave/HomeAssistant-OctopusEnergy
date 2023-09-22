@@ -4,12 +4,15 @@ from datetime import timedelta
 
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
+from homeassistant.components.recorder import get_instance
+from homeassistant.util.dt import (utcnow)
 
 from .coordinators.account import async_setup_account_info_coordinator
 from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatches_coordinator
 from .coordinators.intelligent_settings import async_setup_intelligent_settings_coordinator
 from .coordinators.electricity_rates import async_setup_electricity_rates_coordinator
 from .coordinators.saving_sessions import async_setup_saving_sessions_coordinators
+from .statistics import get_statistic_ids_to_remove
 
 from .const import (
   DOMAIN,
@@ -184,3 +187,22 @@ async def async_unload_entry(hass, entry):
       )
 
     return unload_ok
+
+def setup(hass, config):
+  """Set up is called when Home Assistant is loading our component."""
+
+  def purge_invalid_external_statistic_ids(call):
+    """Handle the service call."""
+      
+    account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+    
+    external_statistic_ids_to_remove = get_statistic_ids_to_remove(utcnow(), account_info)
+
+    if len(external_statistic_ids_to_remove) > 0:
+      get_instance(hass).async_clear_statistics(external_statistic_ids_to_remove)
+      _LOGGER.debug(f'Removing the following external statistics: {external_statistic_ids_to_remove}')
+
+  hass.services.register(DOMAIN, "purge_invalid_external_statistic_ids", purge_invalid_external_statistic_ids)
+
+  # Return boolean to indicate that initialization was successful.
+  return True
