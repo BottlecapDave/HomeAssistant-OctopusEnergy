@@ -5,8 +5,9 @@
   - [Gas Sensors](#gas-sensors)
   - [Saving Sessions](#saving-sessions)
   - [Home Mini](#home-mini)
+    - [Refresh Rate In Minutes](#refresh-rate-in-minutes)
   - [Intelligent Tariff](#intelligent-tariff)
-  - [Refresh Rate In Minutes](#refresh-rate-in-minutes)
+  - [Previous Consumption Days Offset](#previous-consumption-days-offset)
   - [Calorific Value](#calorific-value)
   - [Government Pricing Caps](#government-pricing-caps)
 
@@ -37,6 +38,12 @@ For electricity sensors, see [here](./sensors/electricity.md#home-mini-sensors).
 
 For gas sensors, see [here](./sensors/gas.md#home-mini-sensors)
 
+### Refresh Rate In Minutes
+
+This determines how often data related to your Home Mini is retrieved from Octopus Energy. The Octopus Energy APIs have a rate limit of 100 calls per hour, which is shared among all calls including through the app. This is usually enough for one meter's data to be retrieved once a minute. However, if you are using other integrations, have more than one meter (e.g. gas) or want the app to not be effected you may want to increase this rate. 
+
+You can adjust these independently between gas and electricity.
+
 ## Intelligent Tariff
 
 If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-octopus/), then you'll get a few additional sensors when you install the integration. 
@@ -45,9 +52,9 @@ A full list of intelligent sensors can be found [here](./sensors/intelligent.md)
 
 > Please note: If you switch to the intelligent tariff after you have installed the integration, you will need to reload the integration or restart your Home Assistant instance.
 
-## Refresh Rate In Minutes
+## Previous Consumption Days Offset
 
-This determines how often data related to your Home Mini is retrieved from Octopus Energy. The Octopus Energy APIs have a rate limit of 100 calls per hour, which is shared among all calls including through the app. This is usually enough for one meter's data to be retrieved once a minute. However, if you are using other integrations, have more than one meter (e.g. gas) or want the app to not be effected you may want to increase this rate.
+By default, the previous consumptions sensors are set up to pull and record the last days worth of data, to be as up-to-date as possible via the default available data. However, some people may find that Octopus Energy are delayed in being able to retrieve data from their smart meters, typically their gas smart meters. Therefore you can adjust the number of days the previous consumption sensors pull data from. This defaults to the previous day, but increasing to `2` would look at 48 hours behind, and so on. You can adjust this independently between gas and electricity.
 
 ## Calorific Value
 
