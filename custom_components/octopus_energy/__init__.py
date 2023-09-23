@@ -100,6 +100,10 @@ async def async_setup_entry(hass, entry):
     hass.async_create_task(
       hass.config_entries.async_forward_entry_setup(entry, "time")
     )
+
+    hass.async_create_task(
+      hass.config_entries.async_forward_entry_setup(entry, "event")
+    )
   elif CONFIG_TARGET_NAME in config:
     if DOMAIN not in hass.data or DATA_ELECTRICITY_RATES_COORDINATOR not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN]:
       raise ConfigEntryNotReady("Electricity rates have not been setup")

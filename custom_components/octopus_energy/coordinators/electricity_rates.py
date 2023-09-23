@@ -23,6 +23,7 @@ from ..intelligent import adjust_intelligent_rates
 _LOGGER = logging.getLogger(__name__)
 
 async def async_refresh_electricity_rates_data(
+    hass,
     current: datetime,
     client: OctopusEnergyApiClient,
     account_info,
@@ -65,6 +66,8 @@ async def async_refresh_electricity_rates_data(
         _LOGGER.debug(f"Failed to retrieve new electricity rates for {tariff_code}, so using cached rates")
         rates[key] = existing_rates[key]
 
+      hass.bus.async_fire(f'octopus_energy_electricity_{meter_point}_rates', rates[key])
+
     return rates
   
   return existing_rates
@@ -82,6 +85,7 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
     rates = hass.data[DOMAIN][DATA_ELECTRICITY_RATES] if DATA_ELECTRICITY_RATES in hass.data[DOMAIN] else {}
 
     hass.data[DOMAIN][DATA_ELECTRICITY_RATES] = await async_refresh_electricity_rates_data(
+      hass,
       current,
       client,
       account_info,
