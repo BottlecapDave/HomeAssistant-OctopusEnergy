@@ -1,3 +1,21 @@
+# [8.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.2.1...v8.3.0) (2023-09-23)
+
+
+### Bug Fixes
+
+* Added service for removing custom external statistics for meters with no active tariff ([2fe1d19](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2fe1d193d71caf23f51c4f74353bb5629e230951))
+* **binary-sensor:** Fixed intelligent dispatching sensor not turning on during off peak times ([0901bfd](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0901bfdd4177acba3a09e91228a75f2bf4b7dd69))
+* Fixed target rate sensor not restoring state between restarts ([75bcc8f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/75bcc8fffda8534bc61b75f2516e5bbd2a236ddb))
+* Raise error on startup if account information is not available, which will cause HA to retry ([4799400](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/47994001c979796eef16dd752d99c36d4ac8136d))
+
+
+### Features
+
+* Added location data to intelligent dispatches ([4e1a9bd](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4e1a9bd2e1d3903d85fe2d73d8d1567b670a38b4))
+* Added support to adjust the day offset for previous consumption sensors beyond the previous day ([062ec3f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/062ec3f66d59e335f30c65d00ab3735f4ebcb7fa))
+* **sensor:** Added sensor for indicating if rate is currently off peak ([94a5151](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/94a5151f15fc4c07ccf5243825972ca32bcdd7f3))
+* Separated Home mini electricity and gas refresh rates ([6651ebf](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6651ebfe5ebe7ef789aeabfad65c6d81f9f5e345))
+
 # [8.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.1.0...v8.2.0) (2023-08-26)
 
 
