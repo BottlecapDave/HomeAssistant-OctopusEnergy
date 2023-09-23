@@ -1,5 +1,6 @@
 import logging
 from datetime import (datetime, timedelta)
+from custom_components.octopus_energy.const import DOMAIN
 from homeassistant.core import HomeAssistant
 from homeassistant.components.recorder import get_instance
 from homeassistant.components.recorder.models import StatisticData
@@ -7,7 +8,7 @@ from homeassistant.components.recorder.statistics import (
     statistics_during_period
 )
 
-from ..utils import get_off_peak_cost
+from ..utils import get_active_tariff_code, get_off_peak_cost
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -179,3 +180,36 @@ async def async_get_last_sum(hass: HomeAssistant, latest_date: datetime, statist
   total_sum = last_total_stat[statistic_id][-1]["sum"] if statistic_id in last_total_stat and len(last_total_stat[statistic_id]) > 0 else 0
 
   return total_sum
+
+def get_statistic_ids_to_remove(now, account_info):
+  external_statistic_ids_to_remove = []
+
+  if (account_info is None):
+    return external_statistic_ids_to_remove
+
+  if len(account_info["electricity_meter_points"]) > 0:
+    for point in account_info["electricity_meter_points"]:
+      # We only care about points that have active agreements
+      electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
+      if electricity_tariff_code is None:
+        for meter in point["meters"]:
+          external_statistic_ids_to_remove.append(f"{DOMAIN}:electricity_{meter['serial_number']}_{point['mpan']}{'_export' if meter['is_export'] == True else ''}_previous_accumulative_consumption")
+          external_statistic_ids_to_remove.append(f"{DOMAIN}:electricity_{meter['serial_number']}_{point['mpan']}{'_export' if meter['is_export'] == True else ''}_previous_accumulative_cost")
+          external_statistic_ids_to_remove.append(f"{DOMAIN}:electricity_{meter['serial_number']}_{point['mpan']}_previous_accumulative_cost")
+          _LOGGER.info(f'Skipping electricity meter due to no active agreement; mpan: {point["mpan"]}; serial number: {meter["serial_number"]}')
+  else:
+    _LOGGER.info('No electricity meters available')
+
+  if len(account_info["gas_meter_points"]) > 0:
+    for point in account_info["gas_meter_points"]:
+      # We only care about points that have active agreements
+      gas_tariff_code = get_active_tariff_code(now, point["agreements"])
+      if gas_tariff_code is None:
+        for meter in point["meters"]:
+          external_statistic_ids_to_remove.append(f"{DOMAIN}:gas_{meter['serial_number']}_{point['mprn']}_previous_accumulative_consumption")
+          external_statistic_ids_to_remove.append(f"{DOMAIN}:gas_{meter['serial_number']}_{point['mprn']}_previous_accumulative_cost")
+          _LOGGER.info(f'Skipping gas meter due to no active agreement; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
+  else:
+    _LOGGER.info('No gas meters available')
+
+  return external_statistic_ids_to_remove

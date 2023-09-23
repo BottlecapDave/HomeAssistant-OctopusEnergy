@@ -8,8 +8,10 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.components.sensor import (
     SensorDeviceClass,
-    SensorStateClass
+    SensorStateClass,
+    SensorEntity,
 )
+from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR
 )
@@ -20,7 +22,7 @@ from ..utils.consumption import (get_current_consumption_delta, get_total_consum
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnergyElectricitySensor):
+class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnergyElectricitySensor, SensorEntity, RestoreEntity):
   """Sensor for displaying the current electricity consumption."""
 
   def __init__(self, hass: HomeAssistant, coordinator, meter, point):

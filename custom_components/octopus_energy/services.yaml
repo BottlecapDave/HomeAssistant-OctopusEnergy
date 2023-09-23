@@ -30,3 +30,7 @@ update_target_config:
         The optional offset to apply to the target rate when it starts
       selector:
         text:
+
+purge_invalid_external_statistic_ids:
+  name: Purge invalid external statistics
+  description: Removes external statistics for all meters that don't have an active tariff

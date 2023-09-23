@@ -134,6 +134,7 @@ intelligent_dispatches_query = '''query {{
     delta
     meta {{
 			source
+      location
 		}}
 	}}
 	completedDispatches(accountNumber: "{account_id}") {{
@@ -142,6 +143,7 @@ intelligent_dispatches_query = '''query {{
     delta
     meta {{
 			source
+      location
 		}}
 	}}
 }}'''
@@ -695,6 +697,7 @@ class OctopusEnergyApiClient:
                 "end": as_utc(parse_datetime(ev["endDt"])),
                 "charge_in_kwh": float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
                 "source": ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
+                "location": ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
               }, response_body["data"]["plannedDispatches"]
               if "plannedDispatches" in response_body["data"] and response_body["data"]["plannedDispatches"] is not None
               else [])
@@ -704,6 +707,7 @@ class OctopusEnergyApiClient:
                 "end": as_utc(parse_datetime(ev["endDt"])),
                 "charge_in_kwh": float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
                 "source": ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
+                "location": ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
               }, response_body["data"]["completedDispatches"]
               if "completedDispatches" in response_body["data"] and response_body["data"]["completedDispatches"] is not None
               else [])

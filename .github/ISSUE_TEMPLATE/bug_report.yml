@@ -66,6 +66,6 @@ body:
     id: ha-logs
     attributes:
       label: Home Assistant Logs
-      description: Paste any related Home Assistant logs here. Please follow the instructions as outlined in the [readme](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy#increase-home-assistant-logs)
+      description: Paste any related Home Assistant logs here. Please follow the instructions as outlined in the [readme](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/faq.md#how-do-i-increase-the-logs-for-the-integration)
     validations:
       required: true

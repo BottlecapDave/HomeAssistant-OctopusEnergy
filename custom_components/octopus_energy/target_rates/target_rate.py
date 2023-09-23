@@ -1,6 +1,5 @@
 import logging
 
-import re
 import voluptuous as vol
 
 from homeassistant.core import HomeAssistant, callback
@@ -13,6 +12,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from homeassistant.helpers import translation
 
@@ -29,10 +29,6 @@ from ..const import (
   CONFIG_TARGET_OFFSET,
   DATA_ACCOUNT,
   DOMAIN,
-  
-  REGEX_HOURS,
-  REGEX_TIME,
-  REGEX_OFFSET_PARTS,
 )
 
 from . import (
@@ -41,12 +37,12 @@ from . import (
   get_target_rate_info
 )
 
-from .config import validate_target_rate_config
+from ..config.target_rates import validate_target_rate_config
 from ..target_rates.repairs import check_for_errors
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
+class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
   """Sensor for calculating when a target should be turned on or off."""
 
   def __init__(self, hass: HomeAssistant, coordinator, config, is_export):
@@ -207,6 +203,20 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity):
     self._state = active_result["is_active"]
 
     return self._state
+  
+  async def async_added_to_hass(self):
+    """Call when entity about to be added to hass."""
+    # If not None, we got an initial value.
+    await super().async_added_to_hass()
+    state = await self.async_get_last_state()
+    
+    if state is not None and self._state is None:
+      self._state = state.state
+      self._attributes = {}
+      for x in state.attributes.keys():
+        self._attributes[x] = state.attributes[x]
+    
+      _LOGGER.debug(f'Restored OctopusEnergyTargetRate state: {self._state}')
 
   @callback
   async def async_update_config(self, target_start_time=None, target_end_time=None, target_hours=None, target_offset=None):

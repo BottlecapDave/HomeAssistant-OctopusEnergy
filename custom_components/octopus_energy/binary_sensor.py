@@ -6,6 +6,7 @@ import voluptuous as vol
 from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.util.dt import (utcnow)
 
+from .electricity.off_peak import OctopusEnergyElectricityOffPeak
 from .saving_sessions.saving_sessions import OctopusEnergySavingSessions
 from .target_rates.target_rate import OctopusEnergyTargetRate
 from .intelligent.dispatching import OctopusEnergyIntelligentDispatching
@@ -34,8 +35,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
 
   if CONFIG_MAIN_API_KEY in entry.data:
-    await async_setup_saving_session_sensors(hass, entry, async_add_entities)
-    await async_setup_intelligent_sensors(hass, async_add_entities)
+    await async_setup_main_sensors(hass, entry, async_add_entities)
   elif CONFIG_TARGET_NAME in entry.data:
     await async_setup_target_sensors(hass, entry, async_add_entities)
 
@@ -61,8 +61,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
   return True
 
-async def async_setup_saving_session_sensors(hass, entry, async_add_entities):
-  _LOGGER.debug('Setting up Saving Session entities')
+async def async_setup_main_sensors(hass, entry, async_add_entities):
+  _LOGGER.debug('Setting up main sensors')
   config = dict(entry.data)
 
   if entry.options:
@@ -72,20 +72,27 @@ async def async_setup_saving_session_sensors(hass, entry, async_add_entities):
 
   await saving_session_coordinator.async_config_entry_first_refresh()
 
-  async_add_entities([OctopusEnergySavingSessions(hass, saving_session_coordinator)], True)
-
-async def async_setup_intelligent_sensors(hass, async_add_entities):
-  _LOGGER.debug('Setting up intelligent sensors')
-
   account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+
+  electricity_rate_coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR]
 
   now = utcnow()
   has_intelligent_tariff = False
+  intelligent_mpan = None
+  entities = [OctopusEnergySavingSessions(hass, saving_session_coordinator)]
   if len(account_info["electricity_meter_points"]) > 0:
+    electricity_rate_coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR]
+    await electricity_rate_coordinator.async_config_entry_first_refresh()
 
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
       tariff_code = get_active_tariff_code(now, point["agreements"])
+      if tariff_code is not None:
+        for meter in point["meters"]:
+          entities.append(OctopusEnergyElectricityOffPeak(hass, electricity_rate_coordinator, meter, point))
+          if meter["is_export"] == False:
+            intelligent_mpan = point["mpan"]
+
       if is_intelligent_tariff(tariff_code):
         has_intelligent_tariff = True
         break
@@ -101,7 +108,10 @@ async def async_setup_intelligent_sensors(hass, async_add_entities):
     else:
       device = await client.async_get_intelligent_device(account_id)
 
-    async_add_entities([OctopusEnergyIntelligentDispatching(hass, coordinator, device)], True)
+    entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, device))
+
+  if len(entities) > 0:
+    async_add_entities(entities, True)
 
 async def async_setup_target_sensors(hass, entry, async_add_entities):
   config = dict(entry.data)

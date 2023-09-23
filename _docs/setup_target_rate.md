@@ -2,7 +2,8 @@
 
 - [Setup Target Rate Sensor(s)](#setup-target-rate-sensors)
   - [Setup](#setup)
-    - [From/To Times](#fromto-times)
+    - [Target Timeframe](#target-timeframe)
+      - [Agile Users](#agile-users)
     - [Hours](#hours)
     - [Offset](#offset)
     - [Rolling Target](#rolling-target)
@@ -25,17 +26,21 @@ Each sensor will be in the form `binary_sensor.octopus_energy_target_{{TARGET_RA
 
 ## Setup
 
-### From/To Times
+### Target Timeframe
 
-If you're wanting your devices to come on during a certain period, for example while you're at work, you can set the minimum and/or maximum times for your target rate sensor. These are specified in 24 hour clock format and will attempt to find the optimum discovered period during these times.
+If you're wanting your devices to come on during a certain timeframe, for example while you're at work, you can set the minimum and/or maximum times for your target rate sensor. These are specified in 24 hour clock format and will attempt to find the optimum discovered period during these times.
 
-If not specified, these default from `00:00:00` to `00:00:00` the following day. However you can use this feature to change this evaluation period. 
+The `from/start` time can be set in the field `The minimum time to start the device` and the `to/end` time can be set in the field `The maximum time to stop the device`.
 
-If for example you want to look at prices overnight you could set your from time to something like `20:00` and your `to` time to something like `05:00`. If the to time is "before" the from time, then it is assumed it is for the following day.
+If not specified, these default from `00:00:00` to `00:00:00` the following day.
 
-> Please note: The target rate will not be evaluated until **all rates** are available for the specified time period. Therefore if we're looking between `00:00` and `00:00`, full rate information must exist between this time. Whereas if times are between `10:00` and `16:00`, then rate information is only needed between these times before it can be calculated.
+If for example you want to look at prices overnight you could set the minimum time to something like `20:00` and your maximum time to something like `05:00`. If the minimum time is "before" the maximum time, then it will treat the maximum time as the time for the following day.
 
-If you are an agile user, then agile prices are available from [11pm to 11pm UK time](https://developer.octopus.energy/docs/api/#agile-octopus) and published at `16:00` UK time. Therefore, you cannot specify a time period that starts before `16:00` and ends after `23:00` because the target rate(s) will not be able to be calculated until part way through the specified time frame as this is when the full set will become available. We recommend you set your time frames to `16:00`/`16:00` or `23:00`/`23:00`.
+> Please note: The target rate will not be evaluated until **all rates** are available for the specified timeframe. Therefore if we're looking between `00:00` and `00:00`, full rate information must exist between this time. Whereas if times are between `10:00` and `16:00`, then rate information is only needed between these times before it can be calculated.
+
+#### Agile Users
+
+If you are an agile user, then agile prices are available from [11pm to 11pm UK time](https://developer.octopus.energy/docs/api/#agile-octopus) and published at `16:00` UK time. Therefore, you cannot specify a timeframe that starts before `16:00` and ends after `23:00` because the target rate(s) will not be able to be calculated until part way through the specified timeframe as this is when the full set will become available. We recommend you set your timeframes to `16:00`/`16:00` or `23:00`/`23:00` if you're wanting to target a full 24 hours.
 
 This is not automatically done by the integration as I didn't want to cause confusion for users when they didn't set anything nor did I want behaviour to implicitly change when users switch tariffs.
 
@@ -51,23 +56,21 @@ You may want your target rate sensors to turn on a period of time before the opt
 
 ### Rolling Target
 
-Depending on how you're going to use the sensor, you might want the best period to be found throughout the day so it's always applicable. For example, you might be using the sensor to turn on a washing machine which you might want to come on at the best time regardless of when you use the washing machine.
+Depending on how you're going to use the sensor, you might want the best period to be found throughout the day so it's always available. For example, you might be using the sensor to turn on a washing machine which you might want to come on at the best time regardless of when you use the washing machine. This can result in the sensor coming on more than the target hours, and therefore should be used in conjuction with other sensors. You can activate this behaviour by setting the `Re-evaluate multiple times a day` checkbox.
 
-However, you might also only want the target time to occur once a day so once the best time for that day has passed it won't turn on again. For example, you might be using the sensor to turn on something that isn't time critical and could wait till the next day like a charger.
-
-This feature is toggled on by the `Re-evaluate multiple times a day` checkbox.
+However, you might also only want the target time to occur once a day so once the best time for that day has passed it won't turn on again. For example, you might be using the sensor to turn on something that isn't time critical and could wait till the next day like a charger. This is the default behaviour and is done by not setting the `Re-evaluate multiple times a day` checkbox.
 
 ### Latest Period
 
-Depending on how you're going to use the sensor, you might want the best period at the latest possible time. For example, you might be using the sensor to turn on an emersion heater which you'll want to come on at the end of the cheap period. 
+Depending on how you're going to use the sensor, you might want the best period at the latest possible time. For example, you might be using the sensor to turn on an emersion heater which you'll want to come on at the end of the cheapest found period. 
 
-For instance if you turn this on, the cheapest period is between `2023-01-01T00:30` and `2023-01-01T05:00` and your target rate is for 1 hour, then it will come on between `2023-01-01T04:00` and `2023-01-01T05:00` instead of `2023-01-01T00:30` and `2023-01-01T01:30`.
+For instance if you turn this on and the cheapest period is between `2023-01-01T00:30` and `2023-01-01T05:00` and your target rate is for 1 hour, then it will come on between `2023-01-01T04:00` and `2023-01-01T05:00` instead of `2023-01-01T00:30` and `2023-01-01T01:30`.
 
 This feature is toggled on by the `Find last applicable rates` checkbox.
 
 ### Invert Target Rates
 
-If this is checked, then the normal behaviour of the sensor will be revered. This means if you target an **import** sensor, it will normally look for the cheapest rates. But with this checked it will find the most expensive rates. Similarly if you target an **export** meter, normally it will look for the most expensive rates. But with this checked it will find the cheapest rates.
+If this is checked, then the normal behaviour of the sensor will be reversed. This means if you target an **import** sensor, with this checked it will find the most expensive rates. Similarly if you target an **export** meter, with this checked it will find the cheapest rates.
 
 ## Attributes
 
