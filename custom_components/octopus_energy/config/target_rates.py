@@ -41,7 +41,6 @@ def is_time_frame_long_enough(hours, start_time, end_time):
 
   return available_minutes >= target_minutes
 
-
 agile_start = parse_datetime(f"2023-08-01T16:00:00Z")
 agile_end = parse_datetime(f"2023-08-01T23:00:00Z")
 

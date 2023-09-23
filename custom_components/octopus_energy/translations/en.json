@@ -9,6 +9,10 @@
           "Account Id": "Your account Id (e.g. A-AAAA1111)",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
           "live_consumption_refresh_in_minutes": "Home Mini refresh rate in minutes",
+          "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
+          "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
+          "previous_electricity_consumption_days_offset": "Previous consumption electricity days offset",
+          "previous_gas_consumption_days_offset": "Previous consumption gas days offset",
           "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time.",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence"
@@ -31,7 +35,8 @@
       }
     },
     "error": {
-      "account_not_found": "Account information was not found",
+      "account_not_found": "Invalid API key or account id specified",
+      "value_greater_than_zero": "Value must be greater or equal to 1",
       "invalid_target_hours": "Target hours must be in half hour increments (e.g. 0.5 = 30 minutes; 1 = 60 minutes).",
       "invalid_target_name": "Name must only include lower case alpha characters and underscore (e.g. my_target)",
       "invalid_target_time": "Must be in the format HH:MM",
@@ -52,7 +57,10 @@
         "data": {
           "Api key": "Api key",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
-          "live_consumption_refresh_in_minutes": "Home Mini refresh rate in minutes",
+          "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
+          "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
+          "previous_electricity_consumption_days_offset": "Previous consumption electricity days offset",
+          "previous_gas_consumption_days_offset": "Previous consumption gas days offset",
           "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time.",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "clear_electricity_price_cap": "Clear electricity price cap",
@@ -76,6 +84,8 @@
       }
     },
     "error": {
+      "account_not_found": "Invalid API key or account id specified",
+      "value_greater_than_zero": "Value must be greater or equal to 1",
       "invalid_target_hours": "Target hours must be in half hour increments (e.g. 0.5 = 30 minutes; 1 = 60 minutes).",
       "invalid_target_time": "Must be in the format HH:MM",
       "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol",
