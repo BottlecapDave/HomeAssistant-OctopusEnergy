@@ -72,7 +72,7 @@ def get_off_peak_cost(rates):
     if off_peak_cost is None or off_peak_cost > rate["value_inc_vat"]:
       off_peak_cost = rate["value_inc_vat"]
 
-  return off_peak_cost if len(rate_charges) == 2 else None
+  return off_peak_cost if len(rate_charges) == 2 or len(rate_charges) == 3 else None
 
 def is_off_peak(current: datetime, rates):
   off_peak_value = get_off_peak_cost(rates)

@@ -108,9 +108,9 @@ async def test_when_two_rates_available_then_total_peak_and_off_peak_available()
 @pytest.mark.asyncio
 @pytest.mark.parametrize("expected_rates",[
   ([2]),
-  ([2, 4, 6])
+  ([2, 4, 6, 8])
 ])
-async def test_when_more_or_less_than_two_rates_available_then_off_peak_not_available(expected_rates):
+async def test_when_more_or_less_than_three_rates_available_then_off_peak_not_available(expected_rates):
   # Arrange
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
