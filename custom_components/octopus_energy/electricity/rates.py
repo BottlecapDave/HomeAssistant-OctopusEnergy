@@ -19,6 +19,7 @@ class OctopusEnergyElectricityRates(OctopusEnergyElectricitySensor, EventEntity,
     # Pass coordinator to base class
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
+    self._hass = hass
     self._state = None
     self._last_updated = None
 
@@ -50,10 +51,9 @@ class OctopusEnergyElectricityRates(OctopusEnergyElectricitySensor, EventEntity,
 
   async def async_added_to_hass(self) -> None:
     """Register callbacks."""
-    self.hass.bus.async_listen(self._attr_event_types[0], self._async_handle_event)
+    self._hass.bus.async_listen(self._attr_event_types[0], self._async_handle_event)
 
   @callback
-  def _async_handle_event(self, _) -> None:
-    """Handle the demo button event."""
-    self._trigger_event(self._attr_event_types[0])
+  def _async_handle_event(self, event) -> None:
+    self._trigger_event(event.event_type, event.data)
     self.async_write_ha_state()
