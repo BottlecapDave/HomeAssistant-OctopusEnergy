@@ -17,6 +17,12 @@ def get_electricity_cost_statistic_unique_id(serial_number: str, mpan: str, is_e
 def get_electricity_cost_statistic_name(serial_number: str, mpan: str, is_export: bool):
   return f"Electricity {serial_number} {mpan}{' Export' if is_export == True else ''} Previous Accumulative Cost"
 
+def get_gas_cost_statistic_unique_id(serial_number: str, mpan: str):
+  return f"gas_{serial_number}_{mpan}_previous_accumulative_cost"
+
+def get_gas_cost_statistic_name(serial_number: str, mpan: str):
+  return f"Gas {serial_number} {mpan} Previous Accumulative Cost"
+
 async def async_import_external_statistics_from_cost(
     hass: HomeAssistant,
     unique_id: str,

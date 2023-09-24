@@ -17,7 +17,7 @@ from . import (
 
 from .base import (OctopusEnergyGasSensor)
 
-from ..statistics.cost import async_import_external_statistics_from_cost
+from ..statistics.cost import async_import_external_statistics_from_cost, get_gas_cost_statistic_unique_id
 
 _LOGGER = logging.getLogger(__name__)
   
@@ -121,7 +121,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
 
       await async_import_external_statistics_from_cost(
         self._hass,
-        f"gas_{self._serial_number}_{self._mprn}_previous_accumulative_cost",
+        get_gas_cost_statistic_unique_id(self._serial_number, self._mprn),
         self.name,
         consumption_and_cost["charges"],
         rate_data,

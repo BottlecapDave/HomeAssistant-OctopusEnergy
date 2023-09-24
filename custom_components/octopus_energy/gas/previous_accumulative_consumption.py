@@ -1,8 +1,7 @@
 import logging
 from datetime import datetime
-from ..statistics.consumption import async_import_external_statistics_from_consumption
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -21,17 +20,22 @@ from . import (
 
 from .base import (OctopusEnergyGasSensor)
 
+from ..api_client import OctopusEnergyApiClient
+from ..statistics.consumption import async_import_external_statistics_from_consumption, get_gas_consumption_statistic_unique_id
+from ..statistics.refresh import async_refresh_previous_gas_consumption_data
+
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyPreviousAccumulativeGasConsumption(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative gas reading."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point, calorific_value):
+  def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, coordinator, tariff_code, meter, point, calorific_value):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
 
     self._hass = hass
+    self._client = client
     self._tariff_code = tariff_code
     self._native_consumption_units = meter["consumption_units"]
     self._state = None
@@ -122,7 +126,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumption(CoordinatorEntity, Octopus
 
       await async_import_external_statistics_from_consumption(
         self._hass,
-        f"gas_{self._serial_number}_{self._mprn}_previous_accumulative_consumption",
+        get_gas_consumption_statistic_unique_id(self._serial_number, self._mprn),
         self.name,
         consumption_and_cost["charges"],
         rate_data,
@@ -166,3 +170,18 @@ class OctopusEnergyPreviousAccumulativeGasConsumption(CoordinatorEntity, Octopus
           self._last_reset = datetime.strptime(state.attributes[x], "%Y-%m-%dT%H:%M:%S%z")
     
       _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeGasConsumption state: {self._state}')
+
+  @callback
+  async def async_refresh_previous_consumption_data(self, start_date):
+    """Update sensors config"""
+
+    await async_refresh_previous_gas_consumption_data(
+      self._hass,
+      self._client,
+      start_date,
+      self._mprn,
+      self._serial_number,
+      self._tariff_code,
+      self._native_consumption_units,
+      self._calorific_value,
+    )
