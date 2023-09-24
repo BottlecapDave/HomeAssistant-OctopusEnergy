@@ -7,8 +7,9 @@ from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorStateClass
+  RestoreSensor,
+  SensorDeviceClass,
+  SensorStateClass
 )
 from homeassistant.const import (
     VOLUME_CUBIC_METERS
@@ -22,12 +23,12 @@ from .base import (OctopusEnergyGasSensor)
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyPreviousAccumulativeGasConsumption(CoordinatorEntity, OctopusEnergyGasSensor):
+class OctopusEnergyPreviousAccumulativeGasConsumption(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative gas reading."""
 
   def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point, calorific_value):
     """Init sensor."""
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
 
     self._hass = hass

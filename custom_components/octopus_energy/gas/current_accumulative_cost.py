@@ -7,8 +7,9 @@ from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorStateClass
+  RestoreSensor,
+  SensorDeviceClass,
+  SensorStateClass
 )
 from . import (
   calculate_gas_consumption_and_cost,
@@ -20,12 +21,12 @@ from ..statistics.cost import async_import_external_statistics_from_cost
 
 _LOGGER = logging.getLogger(__name__)
   
-class OctopusEnergyCurrentAccumulativeGasCost(CoordinatorEntity, OctopusEnergyGasSensor):
+class OctopusEnergyCurrentAccumulativeGasCost(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the current days accumulative gas cost."""
 
   def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, standing_charge_coordinator, tariff_code, meter, point, calorific_value):
     """Init sensor."""
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
     
     self._hass = hass

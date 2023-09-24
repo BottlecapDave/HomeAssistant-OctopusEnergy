@@ -20,7 +20,7 @@ class OctopusEnergyIntelligentSmartCharge(CoordinatorEntity, SwitchEntity, Octop
   def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, device, account_id: str):
     """Init sensor."""
     # Pass coordinator to base class
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyIntelligentSensor.__init__(self, device)
 
     self._state = False
