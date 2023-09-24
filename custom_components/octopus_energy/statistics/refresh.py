@@ -34,6 +34,12 @@ async def async_refresh_previous_electricity_consumption_data(
   if matches is None:
     raise vol.Invalid(f"Date '{trimmed_date}' must match format of YYYY-MM-DD.")
   
+  persistent_notification.async_create(
+    hass,
+    title="Consumption data refreshing started",
+    message=f"Consumption data from {start_date} for electricity meter {serial_number}/{mpan} has started"
+  )
+
   period_from = parse_datetime(f'{trimmed_date}T00:00:00Z')
   while period_from < now():
     period_to = period_from + timedelta(days=2)
@@ -76,7 +82,7 @@ async def async_refresh_previous_electricity_consumption_data(
 
   persistent_notification.async_create(
     hass,
-    title="Consumption data imported",
+    title="Consumption data refreshed",
     message=f"Consumption data from {start_date} for electricity meter {serial_number}/{mpan} has finished"
   )
 
@@ -95,6 +101,12 @@ async def async_refresh_previous_gas_consumption_data(
   matches = re.search(REGEX_DATE, trimmed_date)
   if matches is None:
     raise vol.Invalid(f"Date '{trimmed_date}' must match format of YYYY-MM-DD.")
+  
+  persistent_notification.async_create(
+    hass,
+    title="Consumption data refreshing started",
+    message=f"Consumption data from {start_date} for gas meter {serial_number}/{mprn} has started"
+  )
   
   period_from = parse_datetime(f'{trimmed_date}T00:00:00Z')
   while period_from < now():
@@ -142,6 +154,6 @@ async def async_refresh_previous_gas_consumption_data(
 
   persistent_notification.async_create(
     hass,
-    title="Consumption data imported",
+    title="Consumption data refreshed",
     message=f"Consumption data from {start_date} for gas meter {serial_number}/{mprn} has finished"
   )
