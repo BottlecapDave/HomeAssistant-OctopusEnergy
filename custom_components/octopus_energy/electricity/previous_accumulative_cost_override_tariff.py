@@ -16,32 +16,18 @@ from ..utils.tariff_check import check_tariff_override_valid
 
 from ..api_client import OctopusEnergyApiClient
 
+from .base import (OctopusEnergyElectricitySensor)
+
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(TextEntity, RestoreEntity):
+class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(OctopusEnergyElectricitySensor, TextEntity, RestoreEntity):
   """Sensor for the tariff for the previous days accumulative electricity cost looking at a different tariff."""
 
   _attr_pattern = REGEX_TARIFF_PARTS
 
   def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, tariff_code, meter, point):
     """Init sensor."""
-    
-    self._point = point
-    self._meter = meter
-
-    self._mpan = point["mpan"]
-    self._serial_number = meter["serial_number"]
-    self._is_export = meter["is_export"]
-    self._is_smart_meter = meter["is_smart_meter"]
-    self._export_id_addition = "_export" if self._is_export == True else ""
-    self._export_name_addition = " Export" if self._is_export == True else ""
-
-    self._attributes = {
-      "mpan": self._mpan,
-      "serial_number": self._serial_number,
-      "is_export": self._is_export,
-      "is_smart_meter": self._is_smart_meter
-    }
+    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self.entity_id = generate_entity_id("text.{}", self.unique_id, hass=hass)
 
@@ -50,15 +36,6 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(TextEntity,
     self._client = client
     self._tariff_code = tariff_code
     self._attr_native_value = tariff_code
-
-    self._attr_device_info = DeviceInfo(
-      identifiers={(DOMAIN, f"electricity_{self._serial_number}_{self._mpan}")},
-      name=f"Electricity Meter{self._export_name_addition}",
-      connections=set(),
-      manufacturer=self._meter["manufacturer"],
-      model=self._meter["model"],
-      sw_version=self._meter["firmware"]
-    )
   
   @property
   def entity_registry_enabled_default(self) -> bool:

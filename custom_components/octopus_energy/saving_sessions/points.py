@@ -7,20 +7,19 @@ from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
 from homeassistant.components.sensor import (
-    SensorEntity,
-    SensorStateClass
+  RestoreSensor,
+  SensorStateClass
 )
-from homeassistant.helpers.restore_state import RestoreEntity
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergySavingSessionPoints(CoordinatorEntity, SensorEntity, RestoreEntity):
+class OctopusEnergySavingSessionPoints(CoordinatorEntity, RestoreSensor):
   """Sensor for determining saving session points"""
 
   def __init__(self, hass: HomeAssistant, coordinator):
     """Init sensor."""
 
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
   
     self._state = None
     self._attributes = {}

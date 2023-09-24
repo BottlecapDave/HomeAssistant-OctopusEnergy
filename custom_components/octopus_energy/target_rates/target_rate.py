@@ -48,7 +48,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
   def __init__(self, hass: HomeAssistant, coordinator, config, is_export):
     """Init sensor."""
     # Pass coordinator to base class
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
 
     self._state = None
     self._config = config

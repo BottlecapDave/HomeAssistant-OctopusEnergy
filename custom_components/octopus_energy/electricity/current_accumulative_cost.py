@@ -7,11 +7,10 @@ from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorStateClass,
-    SensorEntity,
+  RestoreSensor,
+  SensorDeviceClass,
+  SensorStateClass,
 )
-from homeassistant.helpers.restore_state import RestoreEntity
 from . import (
   calculate_electricity_consumption_and_cost,
 )
@@ -20,12 +19,12 @@ from .base import (OctopusEnergyElectricitySensor)
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyCurrentAccumulativeElectricityCost(CoordinatorEntity, OctopusEnergyElectricitySensor, SensorEntity, RestoreEntity):
+class OctopusEnergyCurrentAccumulativeElectricityCost(CoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
   """Sensor for displaying the current days accumulative electricity cost."""
 
   def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, standing_charge_coordinator, tariff_code, meter, point):
     """Init sensor."""
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._hass = hass

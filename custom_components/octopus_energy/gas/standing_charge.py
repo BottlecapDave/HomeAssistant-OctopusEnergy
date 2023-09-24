@@ -6,20 +6,21 @@ from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorStateClass
+  RestoreSensor,
+  SensorDeviceClass,
+  SensorStateClass
 )
 
 from .base import (OctopusEnergyGasSensor)
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyGasCurrentStandingCharge(CoordinatorEntity, OctopusEnergyGasSensor):
+class OctopusEnergyGasCurrentStandingCharge(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the current standing charge."""
 
   def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point):
     """Init sensor."""
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
 
     self._tariff_code = tariff_code

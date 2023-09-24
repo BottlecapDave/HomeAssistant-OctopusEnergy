@@ -29,7 +29,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
   def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, mpan, device):
     """Init sensor."""
 
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyIntelligentSensor.__init__(self, device)
   
     self._rates_coordinator = rates_coordinator

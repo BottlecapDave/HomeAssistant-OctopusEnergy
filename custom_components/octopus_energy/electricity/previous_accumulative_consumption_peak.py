@@ -7,11 +7,10 @@ from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorStateClass,
-    SensorEntity,
+  RestoreSensor,
+  SensorDeviceClass,
+  SensorStateClass,
 )
-from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR
 )
@@ -24,12 +23,12 @@ from .base import (OctopusEnergyElectricitySensor)
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyPreviousAccumulativeElectricityConsumptionPeak(CoordinatorEntity, OctopusEnergyElectricitySensor, SensorEntity, RestoreEntity):
+class OctopusEnergyPreviousAccumulativeElectricityConsumptionPeak(CoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative electricity reading during peak hours."""
 
   def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point):
     """Init sensor."""
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._state = None
