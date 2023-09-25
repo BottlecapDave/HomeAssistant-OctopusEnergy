@@ -30,7 +30,20 @@ update_target_config:
         The optional offset to apply to the target rate when it starts
       selector:
         text:
-
 purge_invalid_external_statistic_ids:
   name: Purge invalid external statistics
   description: Removes external statistics for all meters that don't have an active tariff
+refresh_previous_consumption_data:
+  name: Refresh previous consumption data
+  description: Refreshes the previous consumption data for a given entity from a given date.
+  target:
+    entity:
+      integration: octopus_energy
+      domain: sensor
+  fields:
+    start_date:
+      name: Date
+      description: The date the data should be loaded from.
+      required: true
+      selector:
+        date:

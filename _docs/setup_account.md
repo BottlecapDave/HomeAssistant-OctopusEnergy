@@ -12,6 +12,7 @@
   - [Government Pricing Caps](#government-pricing-caps)
   - [Services](#services)
     - [Service octopus\_energy.purge\_invalid\_external\_statistic\_ids](#service-octopus_energypurge_invalid_external_statistic_ids)
+    - [Service octopus\_energy.refresh\_previous\_consumption\_data](#service-octopus_energyrefresh_previous_consumption_data)
 
 
 Setup is done entirely via the [integration UI](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
@@ -71,3 +72,12 @@ There has been inconsistencies across tariffs on whether government pricing caps
 ### Service octopus_energy.purge_invalid_external_statistic_ids
 
 Service for removing all external statistics that are associated with meters that don't have an active tariff. This is useful if you've been using the integration and obtained new smart meters.
+
+### Service octopus_energy.refresh_previous_consumption_data
+
+Service for refreshing the consumption/cost information for a given previous consumption entity. This is useful when you've just installed the integration and want old data brought in or a previous consumption sensor fails to import (e.g. data becomes available outside of the configured offset). The service will raise a notification when the refreshing starts and finishes.
+
+This service is only available for the following sensors
+
+- `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption`
+- `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption`

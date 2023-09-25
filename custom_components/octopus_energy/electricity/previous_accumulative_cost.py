@@ -17,7 +17,7 @@ from . import (
 
 from .base import (OctopusEnergyElectricitySensor)
 
-from ..statistics.cost import async_import_external_statistics_from_cost
+from ..statistics.cost import async_import_external_statistics_from_cost, get_electricity_cost_statistic_unique_id
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -116,7 +116,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
       _LOGGER.debug(f"Calculated previous electricity consumption cost for '{self._mpan}/{self._serial_number}'...")
       await async_import_external_statistics_from_cost(
         self._hass,
-        f"electricity_{self._serial_number}_{self._mpan}_previous_accumulative_cost",
+        get_electricity_cost_statistic_unique_id(self._serial_number, self._mpan, self._is_export),
         self.name,
         consumption_and_cost["charges"],
         rate_data,

@@ -1,6 +1,9 @@
+import voluptuous as vol
 import logging
+
 from homeassistant.util.dt import (utcnow)
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers import config_validation as cv, entity_platform
 
 from .electricity.current_consumption import OctopusEnergyCurrentElectricityConsumption
 from .electricity.current_accumulative_consumption import OctopusEnergyCurrentAccumulativeElectricityConsumption
@@ -73,6 +76,20 @@ async def async_setup_entry(hass, entry, async_add_entities):
   if CONFIG_MAIN_API_KEY in entry.data:
     await async_setup_default_sensors(hass, entry, async_add_entities)
 
+  platform = entity_platform.async_get_current_platform()
+  platform.async_register_entity_service(
+    "refresh_previous_consumption_data",
+    vol.All(
+      vol.Schema(
+        {
+          vol.Optional("start_time"): str,
+        },
+        extra=vol.ALLOW_EXTRA,
+      ),
+    ),
+    "async_refresh_previous_consumption_data",
+  )
+
 async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_entities):
   config = dict(entry.data)
 
@@ -125,7 +142,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
             meter["is_smart_meter"],
             previous_electricity_consumption_days_offset
           )
-          entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumption(hass, previous_consumption_coordinator, electricity_tariff_code, meter, point))
+          entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumption(hass, client, previous_consumption_coordinator, electricity_tariff_code, meter, point))
           entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumptionPeak(hass, previous_consumption_coordinator, electricity_tariff_code, meter, point))
           entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumptionOffPeak(hass, previous_consumption_coordinator, electricity_tariff_code, meter, point))
           entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(hass, previous_consumption_coordinator, electricity_tariff_code, meter, point))
@@ -192,7 +209,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
             None,
             previous_gas_consumption_days_offset
           )
-          entities.append(OctopusEnergyPreviousAccumulativeGasConsumption(hass, previous_consumption_coordinator, gas_tariff_code, meter, point, calorific_value))
+          entities.append(OctopusEnergyPreviousAccumulativeGasConsumption(hass, client, previous_consumption_coordinator, gas_tariff_code, meter, point, calorific_value))
           entities.append(OctopusEnergyPreviousAccumulativeGasConsumptionKwh(hass, previous_consumption_coordinator, gas_tariff_code, meter, point, calorific_value))
           entities.append(OctopusEnergyPreviousAccumulativeGasCost(hass, previous_consumption_coordinator, gas_tariff_code, meter, point, calorific_value))
           entities.append(OctopusEnergyPreviousAccumulativeGasCostOverride(hass, previous_consumption_coordinator, client, gas_tariff_code, meter, point, calorific_value))
