@@ -2,9 +2,10 @@ import logging
 
 from homeassistant.util.dt import (utcnow)
 
-from .saving_sessions.saving_sessions import OctopusEnergySavingSessions
 from .utils import get_active_tariff_code
-from .electricity.rates import OctopusEnergyElectricityRates
+from .electricity.rates_previous_day import OctopusEnergyElectricityPreviousDayRates
+from .electricity.rates_current_day import OctopusEnergyElectricityCurrentDayRates
+from .electricity.rates_next_day import OctopusEnergyElectricityNextDayRates
 
 from .const import (
   DOMAIN,
@@ -40,7 +41,9 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
       tariff_code = get_active_tariff_code(now, point["agreements"])
       if tariff_code is not None:
         for meter in point["meters"]:
-          entities.append(OctopusEnergyElectricityRates(hass, meter, point))
+          entities.append(OctopusEnergyElectricityPreviousDayRates(hass, meter, point))
+          entities.append(OctopusEnergyElectricityCurrentDayRates(hass, meter, point))
+          entities.append(OctopusEnergyElectricityNextDayRates(hass, meter, point))
 
   if len(entities) > 0:
     async_add_entities(entities, True)

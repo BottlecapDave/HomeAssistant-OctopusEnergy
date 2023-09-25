@@ -8,11 +8,12 @@ from homeassistant.components.event import (
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base import (OctopusEnergyElectricitySensor)
+from ..const import EVENT_ELECTRICITY_NEXT_DAY_RATES
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyElectricityRates(OctopusEnergyElectricitySensor, EventEntity, RestoreEntity):
-  """Sensor for displaying the current rate."""
+class OctopusEnergyElectricityNextDayRates(OctopusEnergyElectricitySensor, EventEntity, RestoreEntity):
+  """Sensor for displaying the next day's rates."""
 
   def __init__(self, hass: HomeAssistant, meter, point):
     """Init sensor."""
@@ -23,17 +24,17 @@ class OctopusEnergyElectricityRates(OctopusEnergyElectricitySensor, EventEntity,
     self._state = None
     self._last_updated = None
 
-    self._attr_event_types = [f'octopus_energy_electricity_{self._mpan}_rates']
+    self._attr_event_types = [EVENT_ELECTRICITY_NEXT_DAY_RATES]
 
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_rates"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_next_day_rates"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Rates"
+    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Next Day Rates"
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
@@ -47,7 +48,7 @@ class OctopusEnergyElectricityRates(OctopusEnergyElectricitySensor, EventEntity,
       for x in state.attributes.keys():
         self._attributes[x] = state.attributes[x]
     
-      _LOGGER.debug(f'Restored OctopusEnergyElectricityRates state: {self._state}')
+      _LOGGER.debug(f'Restored OctopusEnergyElectricityNextDayRates state: {self._state}')
 
   async def async_added_to_hass(self) -> None:
     """Register callbacks."""
@@ -55,5 +56,6 @@ class OctopusEnergyElectricityRates(OctopusEnergyElectricitySensor, EventEntity,
 
   @callback
   def _async_handle_event(self, event) -> None:
-    self._trigger_event(event.event_type, event.data)
-    self.async_write_ha_state()
+    if (event.data is not None and "mpan" in event.data and event.data["mpan"] == self._mpan):
+      self._trigger_event(event.event_type, event.data)
+      self.async_write_ha_state()

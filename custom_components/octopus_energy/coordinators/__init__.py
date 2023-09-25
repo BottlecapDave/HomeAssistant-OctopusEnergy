@@ -1,13 +1,12 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
+from typing import Callable, Any
 
 from homeassistant.helpers import issue_registry as ir
-
-from homeassistant.util.dt import (now)
+from homeassistant.util.dt import (as_utc)
 
 from ..const import (
   DOMAIN,
-  DATA_ACCOUNT,
 )
 
 from ..api_client import OctopusEnergyApiClient
@@ -90,3 +89,38 @@ def get_current_gas_agreement_tariff_codes(current: datetime, account_info):
             tariff_codes[(point["mprn"], is_smart_meter)] = active_tariff_code
   
   return tariff_codes
+
+def raise_rate_events(now: datetime,
+                      rates: list, 
+                      additional_attributes: "dict[str, Any]",
+                      fire_event: Callable[[str, "dict[str, Any]"], None],
+                      previous_event_key: str,
+                      current_event_key: str,
+                      next_event_key: str):
+  
+  today_start = as_utc(now.replace(hour=0, minute=0, second=0, microsecond=0))
+  today_end = today_start + timedelta(days=1)
+
+  previous_rates = []
+  current_rates = []
+  next_rates = []
+
+  for rate in rates:
+    if (rate["valid_from"] < today_start):
+      previous_rates.append(rate)
+    elif (rate["valid_from"] >= today_end):
+      next_rates.append(rate)
+    else:
+      current_rates.append(rate)
+
+  event_data = { "rates": previous_rates }
+  event_data.update(additional_attributes)
+  fire_event(previous_event_key, event_data)
+  
+  event_data = { "rates": current_rates }
+  event_data.update(additional_attributes)
+  fire_event(current_event_key, event_data)
+  
+  event_data = { "rates": next_rates }
+  event_data.update(additional_attributes)
+  fire_event(next_event_key, event_data)

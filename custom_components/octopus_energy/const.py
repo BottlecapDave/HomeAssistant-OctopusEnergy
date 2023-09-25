@@ -81,3 +81,11 @@ DATA_SCHEMA_ACCOUNT = vol.Schema({
   vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP): cv.positive_float,
   vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float
 })
+
+EVENT_ELECTRICITY_PREVIOUS_DAY_RATES = "octopus_energy_electricity_previous_day_rates"
+EVENT_ELECTRICITY_CURRENT_DAY_RATES = "octopus_energy_electricity_current_day_rates"
+EVENT_ELECTRICITY_NEXT_DAY_RATES = "octopus_energy_electricity_next_day_rates"
+
+EVENT_GAS_PREVIOUS_DAY_RATES = "octopus_energy_gas_previous_day_rates"
+EVENT_GAS_CURRENT_DAY_RATES = "octopus_energy_gas_current_day_rates"
+EVENT_GAS_NEXT_DAY_RATES = "octopus_energy_gas_next_day_rates"
