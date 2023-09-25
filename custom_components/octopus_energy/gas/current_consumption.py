@@ -7,8 +7,9 @@ from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorStateClass
+  RestoreSensor,
+  SensorDeviceClass,
+  SensorStateClass
 )
 from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR
@@ -20,12 +21,12 @@ from ..utils.consumption import (get_current_consumption_delta, get_total_consum
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSensor):
+class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the current gas consumption."""
 
   def __init__(self, hass: HomeAssistant, coordinator, meter, point):
     """Init sensor."""
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
 
     self._state = None

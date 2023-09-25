@@ -11,7 +11,7 @@ async def test_when_off_peak_not_available_then_false_returned():
   period_to = datetime.strptime("2022-02-01T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   current = datetime.strptime("2022-02-01T00:00:01Z", "%Y-%m-%dT%H:%M:%S%z")
   
-  rate_data = create_rate_data(period_from, period_to, [10, 20, 30, 30])
+  rate_data = create_rate_data(period_from, period_to, [10, 20, 30, 40, 40])
 
   # Act
   assert is_off_peak(current, rate_data) == False

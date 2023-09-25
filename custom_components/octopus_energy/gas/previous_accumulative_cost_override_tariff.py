@@ -16,43 +16,26 @@ from ..utils.tariff_check import check_tariff_override_valid
 
 from ..api_client import OctopusEnergyApiClient
 
+from .base import (OctopusEnergyGasSensor)
+
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyPreviousAccumulativeGasCostTariffOverride(TextEntity, RestoreEntity):
+class OctopusEnergyPreviousAccumulativeGasCostTariffOverride(OctopusEnergyGasSensor, TextEntity, RestoreEntity):
   """Sensor for the tariff for the previous days accumulative gas cost looking at a different tariff."""
 
   _attr_pattern = REGEX_TARIFF_PARTS
 
   def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, tariff_code, meter, point):
     """Init sensor."""
-    
-    self._point = point
-    self._meter = meter
-    
-    self._mprn = point["mprn"]
-    self._serial_number = meter["serial_number"]
+    OctopusEnergyGasSensor.__init__(self, hass, meter, point)
 
-    self._attributes = {
-      "mprn": self._mprn,
-      "serial_number": self._serial_number
-    }
-
-    self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
+    self.entity_id = generate_entity_id("text.{}", self.unique_id, hass=hass)
 
     self._hass = hass
 
     self._client = client
     self._tariff_code = tariff_code
     self._attr_native_value = tariff_code
-
-    self._attr_device_info = DeviceInfo(
-      identifiers={(DOMAIN, f"gas_{self._serial_number}_{self._mprn}")},
-      name="Gas Meter",
-      connections=set(),
-      manufacturer=self._meter["manufacturer"],
-      model=self._meter["model"],
-      sw_version=self._meter["firmware"]
-    )
   
   @property
   def entity_registry_enabled_default(self) -> bool:

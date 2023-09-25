@@ -7,8 +7,9 @@ from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorStateClass
+  RestoreSensor,
+  SensorDeviceClass,
+  SensorStateClass
 )
 
 from . import (
@@ -24,12 +25,12 @@ from ..const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
   
-class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, OctopusEnergyGasSensor):
+class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative gas cost for a different tariff."""
 
   def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, tariff_code, meter, point, calorific_value):
     """Init sensor."""
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
     
     self._hass = hass
