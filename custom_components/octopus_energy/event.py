@@ -6,6 +6,9 @@ from .utils import get_active_tariff_code
 from .electricity.rates_previous_day import OctopusEnergyElectricityPreviousDayRates
 from .electricity.rates_current_day import OctopusEnergyElectricityCurrentDayRates
 from .electricity.rates_next_day import OctopusEnergyElectricityNextDayRates
+from .gas.rates_current_day import OctopusEnergyGasCurrentDayRates
+from .gas.rates_next_day import OctopusEnergyGasNextDayRates
+from .gas.rates_previous_day import OctopusEnergyGasPreviousDayRates
 
 from .const import (
   DOMAIN,
@@ -44,6 +47,16 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
           entities.append(OctopusEnergyElectricityPreviousDayRates(hass, meter, point))
           entities.append(OctopusEnergyElectricityCurrentDayRates(hass, meter, point))
           entities.append(OctopusEnergyElectricityNextDayRates(hass, meter, point))
+
+  if len(account_info["gas_meter_points"]) > 0:
+    for point in account_info["gas_meter_points"]:
+      # We only care about points that have active agreements
+      tariff_code = get_active_tariff_code(now, point["agreements"])
+      if tariff_code is not None:
+        for meter in point["meters"]:
+          entities.append(OctopusEnergyGasPreviousDayRates(hass, meter, point))
+          entities.append(OctopusEnergyGasCurrentDayRates(hass, meter, point))
+          entities.append(OctopusEnergyGasNextDayRates(hass, meter, point))
 
   if len(entities) > 0:
     async_add_entities(entities, True)

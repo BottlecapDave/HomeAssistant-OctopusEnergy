@@ -29,7 +29,7 @@ class OctopusEnergyElectricityCurrentDayRates(OctopusEnergyElectricitySensor, Ev
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_current_day_rates"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_current_day_rates"
     
   @property
   def name(self):

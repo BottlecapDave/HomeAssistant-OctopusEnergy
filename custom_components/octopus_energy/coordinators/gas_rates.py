@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 import logging
+from typing import Callable, Any
 
 from homeassistant.util.dt import (now, as_utc)
 from homeassistant.helpers.update_coordinator import (
@@ -9,12 +10,15 @@ from homeassistant.helpers.update_coordinator import (
 from ..const import (
   DATA_ACCOUNT,
   DOMAIN,
-  DATA_GAS_RATES
+  DATA_GAS_RATES,
+  EVENT_GAS_CURRENT_DAY_RATES,
+  EVENT_GAS_NEXT_DAY_RATES,
+  EVENT_GAS_PREVIOUS_DAY_RATES
 )
 
 from ..api_client import (OctopusEnergyApiClient)
 
-from . import get_current_gas_agreement_tariff_codes
+from . import get_current_gas_agreement_tariff_codes, raise_rate_events
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -22,7 +26,8 @@ async def async_refresh_gas_rates_data(
     current: datetime,
     client: OctopusEnergyApiClient,
     account_info,
-    existing_rates: list
+    existing_rates: list,
+    fire_event: Callable[[str, "dict[str, Any]"], None],
   ):
   if (account_info is not None):
     tariff_codes = get_current_gas_agreement_tariff_codes(current, account_info)
@@ -44,11 +49,17 @@ async def async_refresh_gas_rates_data(
           _LOGGER.debug(f'Gas rates retrieved for {tariff_code}')
         except:
           _LOGGER.debug('Failed to retrieve gas rates')
-      else:
-          new_rates = existing_rates[key]
         
       if new_rates is not None:
         rates[key] = new_rates
+
+        raise_rate_events(current,
+                          rates[key],
+                          { "mprn": meter_point },
+                          fire_event,
+                          EVENT_GAS_PREVIOUS_DAY_RATES,
+                          EVENT_GAS_CURRENT_DAY_RATES,
+                          EVENT_GAS_NEXT_DAY_RATES)
       elif (existing_rates is not None and key in existing_rates):
         _LOGGER.debug(f"Failed to retrieve new gas rates for {tariff_code}, so using cached rates")
         rates[key] = existing_rates[key]
@@ -72,7 +83,8 @@ async def async_create_gas_rate_coordinator(hass, client: OctopusEnergyApiClient
       current,
       client,
       account_info,
-      rates
+      rates,
+      hass.bus.async_fire
     )
 
     return hass.data[DOMAIN][DATA_GAS_RATES]

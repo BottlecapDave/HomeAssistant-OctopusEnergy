@@ -54,8 +54,6 @@ async def async_refresh_electricity_rates_data(
           _LOGGER.debug(f'Electricity rates retrieved for {tariff_code}')
         except:
           _LOGGER.debug('Failed to retrieve electricity rates')
-      else:
-          new_rates = existing_rates[key]
         
       if new_rates is not None:
         if dispatches is not None:
@@ -74,6 +72,7 @@ async def async_refresh_electricity_rates_data(
                           EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
                           EVENT_ELECTRICITY_CURRENT_DAY_RATES,
                           EVENT_ELECTRICITY_NEXT_DAY_RATES)
+
       elif (existing_rates is not None and key in existing_rates):
         _LOGGER.debug(f"Failed to retrieve new electricity rates for {tariff_code}, so using cached rates")
         rates[key] = existing_rates[key]
@@ -95,7 +94,6 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
     rates = hass.data[DOMAIN][DATA_ELECTRICITY_RATES] if DATA_ELECTRICITY_RATES in hass.data[DOMAIN] else {}
 
     hass.data[DOMAIN][DATA_ELECTRICITY_RATES] = await async_refresh_electricity_rates_data(
-      hass,
       current,
       client,
       account_info,
