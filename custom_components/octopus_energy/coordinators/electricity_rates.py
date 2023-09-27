@@ -1,11 +1,11 @@
 import logging
 from datetime import datetime, timedelta
+from typing import Callable, Any
 
 from homeassistant.util.dt import (now, as_utc)
 from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
 )
-from typing import Callable, Any
 
 from ..const import (
   DOMAIN,

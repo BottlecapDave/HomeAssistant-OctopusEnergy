@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from custom_components.octopus_energy.const import EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, EVENT_GAS_PREVIOUS_CONSUMPTION_RATES
 import pytest
 import mock
 
@@ -6,6 +7,24 @@ from unit import (create_consumption_data, create_rate_data)
 
 from custom_components.octopus_energy.coordinators.previous_consumption_and_rates import async_fetch_consumption_and_rates
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
+
+def assert_raised_events(
+  raised_events: dict,
+  expected_event_name: str,
+  expected_valid_from: datetime,
+  expected_valid_to: datetime,
+  expected_identifier: str,
+  expected_identifier_value: str
+):
+  assert expected_event_name in raised_events
+  assert expected_identifier in raised_events[expected_event_name]
+  assert raised_events[expected_event_name][expected_identifier] == expected_identifier_value
+  assert "rates" in raised_events[expected_event_name]
+  assert len(raised_events[expected_event_name]["rates"]) > 2
+  assert "valid_from" in raised_events[expected_event_name]["rates"][0]
+  assert raised_events[expected_event_name]["rates"][0]["valid_from"] == expected_valid_from
+  assert "valid_to" in raised_events[expected_event_name]["rates"][-1]
+  assert raised_events[expected_event_name]["rates"][-1]["valid_to"] == expected_valid_to
 
 @pytest.mark.asyncio
 async def test_when_now_is_not_at_30_minute_mark_and_previous_data_is_available_then_previous_data_returned():
@@ -29,6 +48,12 @@ async def test_when_now_is_not_at_30_minute_mark_and_previous_data_is_available_
   for minute in range(0, 59):
     if (minute == 0 or minute == 30):
       continue
+
+    actual_fired_events = {}
+    def fire_event(name, metadata):
+      nonlocal actual_fired_events
+      actual_fired_events[name] = metadata
+      return None
     
     minuteStr = f'{minute}'.zfill(2)
     current_utc_timestamp = datetime.strptime(f'2022-02-12T00:{minuteStr}:00Z', "%Y-%m-%dT%H:%M:%S%z")
@@ -44,11 +69,14 @@ async def test_when_now_is_not_at_30_minute_mark_and_previous_data_is_available_
       sensor_serial_number,
       is_electricity,
       tariff_code,
-      is_smart_meter
+      is_smart_meter,
+      fire_event
     )
 
     # Assert
     assert result == previous_data
+
+    assert len(actual_fired_events) == 0
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("minutes",[
@@ -76,6 +104,12 @@ async def test_when_now_is_at_30_minute_mark_and_previous_data_is_in_requested_p
   minutesStr = f'{minutes}'.zfill(2)
   current_utc_timestamp = datetime.strptime(f'2022-02-12T00:{minutesStr}:00Z', "%Y-%m-%dT%H:%M:%S%z")
 
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
+
   # Act
   result = await async_fetch_consumption_and_rates(
     previous_data,
@@ -87,11 +121,14 @@ async def test_when_now_is_at_30_minute_mark_and_previous_data_is_in_requested_p
     sensor_serial_number,
     is_electricity,
     tariff_code,
-    is_smart_meter
+    is_smart_meter,
+    fire_event
   )
 
   # Assert
   assert result == previous_data
+
+  assert len(actual_fired_events) == 0
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("minutes,previous_data_available",[
@@ -117,6 +154,12 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_then_requested_data_
     return {
       "value_inc_vat": expected_standing_charge
     }
+  
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_consumption=async_mocked_get_gas_consumption, async_get_gas_rates=async_mocked_get_gas_rates, async_get_gas_standing_charge=async_mocked_get_gas_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -157,7 +200,8 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_then_requested_data_
       sensor_serial_number,
       is_electricity,
       tariff_code,
-      is_smart_meter
+      is_smart_meter,
+      fire_event
     )
 
     # Assert
@@ -184,6 +228,14 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_then_requested_data_
     assert "standing_charge" in result
     assert result["standing_charge"] == expected_standing_charge
 
+  assert len(actual_fired_events) == 1
+  assert_raised_events(actual_fired_events,
+                       EVENT_GAS_PREVIOUS_CONSUMPTION_RATES,
+                       period_from,
+                       period_to,
+                       "mprn",
+                       sensor_identifier)
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("minutes,previous_data_available",[
   (0, True),
@@ -208,6 +260,12 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
     return {
       "value_inc_vat": expected_standing_charge
     }
+  
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_consumption=async_mocked_get_electricity_consumption, async_get_electricity_rates=async_mocked_get_electricity_rates, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -250,7 +308,8 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
       sensor_serial_number,
       is_electricity,
       tariff_code,
-      is_smart_meter
+      is_smart_meter,
+      fire_event
     )
 
     # Assert
@@ -277,6 +336,14 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
     assert "standing_charge" in result
     assert result["standing_charge"] == expected_standing_charge
 
+    assert len(actual_fired_events) == 1
+    assert_raised_events(actual_fired_events,
+                         EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES,
+                         period_from,
+                         period_to,
+                         "mpan",
+                         sensor_identifier)
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("minutes",[
   (0),
@@ -288,6 +355,12 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_and_returned_data_is
     return []
   
   async def async_mocked_get_gas_standing_charge(*args, **kwargs):
+    return None
+  
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
     return None
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_consumption=async_mocked_get_gas_consumption, async_get_gas_standing_charge=async_mocked_get_gas_standing_charge):
@@ -331,11 +404,14 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_and_returned_data_is
       sensor_serial_number,
       is_electricity,
       tariff_code,
-      is_smart_meter
+      is_smart_meter,
+      fire_event
     )
 
     # Assert
     assert result == previous_data
+
+    assert len(actual_fired_events) == 0
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("minutes",[
@@ -348,6 +424,12 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_and_returned
     return []
   
   async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
+    return None
+  
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
     return None
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_consumption=async_mocked_get_electricity_consumption, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
@@ -395,8 +477,11 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_and_returned
       sensor_serial_number,
       is_electricity,
       tariff_code,
-      is_smart_meter
+      is_smart_meter,
+      fire_event
     )
 
     # Assert
     assert result == previous_data
+
+    assert len(actual_fired_events) == 0

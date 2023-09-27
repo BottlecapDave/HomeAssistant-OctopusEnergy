@@ -1,5 +1,6 @@
 from datetime import timedelta
 import logging
+from typing import Callable, Any
 
 from homeassistant.util.dt import (utcnow, now, as_utc)
 from homeassistant.helpers.update_coordinator import (
@@ -8,7 +9,9 @@ from homeassistant.helpers.update_coordinator import (
 
 from ..const import (
   DOMAIN,
-  DATA_INTELLIGENT_DISPATCHES
+  DATA_INTELLIGENT_DISPATCHES,
+  EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES,
+  EVENT_GAS_PREVIOUS_CONSUMPTION_RATES
 )
 
 from ..api_client import (OctopusEnergyApiClient)
@@ -36,6 +39,7 @@ async def async_fetch_consumption_and_rates(
   is_electricity: bool,
   tariff_code: str,
   is_smart_meter: bool,
+  fire_event: Callable[[str, "dict[str, Any]"], None],
   intelligent_dispatches = None
 
 ):
@@ -68,6 +72,11 @@ async def async_fetch_consumption_and_rates(
       
       if consumption_data is not None and len(consumption_data) > 0 and rate_data is not None and len(rate_data) > 0 and standing_charge is not None:
         consumption_data = __sort_consumption(consumption_data)
+
+        if (is_electricity == True):
+          fire_event(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, { "mpan": identifier, "rates": rate_data })
+        else:
+          fire_event(EVENT_GAS_PREVIOUS_CONSUMPTION_RATES, { "mprn": identifier, "rates": rate_data })
 
         return {
           "consumption": consumption_data,
@@ -112,7 +121,8 @@ async def async_create_previous_consumption_and_rates_coordinator(
       is_electricity,
       tariff_code,
       is_smart_meter,
-      hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] else None
+      hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] else None,
+      hass.bus.async_fire
     )
 
     if (result is not None):

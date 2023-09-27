@@ -85,7 +85,9 @@ DATA_SCHEMA_ACCOUNT = vol.Schema({
 EVENT_ELECTRICITY_PREVIOUS_DAY_RATES = "octopus_energy_electricity_previous_day_rates"
 EVENT_ELECTRICITY_CURRENT_DAY_RATES = "octopus_energy_electricity_current_day_rates"
 EVENT_ELECTRICITY_NEXT_DAY_RATES = "octopus_energy_electricity_next_day_rates"
+EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES = "octopus_energy_electricity_previous_consumption_rates"
 
 EVENT_GAS_PREVIOUS_DAY_RATES = "octopus_energy_gas_previous_day_rates"
 EVENT_GAS_CURRENT_DAY_RATES = "octopus_energy_gas_current_day_rates"
 EVENT_GAS_NEXT_DAY_RATES = "octopus_energy_gas_next_day_rates"
+EVENT_GAS_PREVIOUS_CONSUMPTION_RATES = "octopus_energy_gas_previous_consumption_rates"
