@@ -50,6 +50,8 @@ async def async_fetch_consumption_and_rates(
       previous_data["consumption"][-1]["interval_end"] < period_to) and 
       utc_now.minute % 30 == 0)):
     
+    _LOGGER.debug(f"Retrieving previous consumption and rate data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}...")
+    
     try:
       if (is_electricity == True):
         consumption_data = await client.async_get_electricity_consumption(identifier, serial_number, period_from, period_to)
@@ -61,22 +63,21 @@ async def async_fetch_consumption_and_rates(
           
           _LOGGER.debug(f"Tariff: {tariff_code}; dispatches: {intelligent_dispatches}")
         standing_charge = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
-        
-        _LOGGER.debug(f'Previous Electricity consumption, rates and standing charges retrieved for {tariff_code}')
       else:
         consumption_data = await client.async_get_gas_consumption(identifier, serial_number, period_from, period_to)
         rate_data = await client.async_get_gas_rates(tariff_code, period_from, period_to)
         standing_charge = await client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
-
-        _LOGGER.debug(f'Previous Gas consumption, rates and standing charges retrieved for {tariff_code}')
       
       if consumption_data is not None and len(consumption_data) > 0 and rate_data is not None and len(rate_data) > 0 and standing_charge is not None:
+        _LOGGER.debug(f"Discovered previous consumption and rate data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
         consumption_data = __sort_consumption(consumption_data)
 
         if (is_electricity == True):
-          fire_event(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, { "mpan": identifier, "rates": rate_data })
+          fire_event(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, { "mpan": identifier, "tariff_code": tariff_code, "rates": rate_data })
         else:
-          fire_event(EVENT_GAS_PREVIOUS_CONSUMPTION_RATES, { "mprn": identifier, "rates": rate_data })
+          fire_event(EVENT_GAS_PREVIOUS_CONSUMPTION_RATES, { "mprn": identifier, "tariff_code": tariff_code, "rates": rate_data })
+
+        _LOGGER.debug(f"Fired event for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
 
         return {
           "consumption": consumption_data,
@@ -84,7 +85,7 @@ async def async_fetch_consumption_and_rates(
           "standing_charge": standing_charge["value_inc_vat"]
         }
     except:
-      _LOGGER.debug(f"Failed to retrieve {'electricity' if is_electricity else 'gas'} previous consumption and rate data")
+      _LOGGER.debug(f"Failed to retrieve previous consumption and rate data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
 
   return previous_data 
 
@@ -121,8 +122,8 @@ async def async_create_previous_consumption_and_rates_coordinator(
       is_electricity,
       tariff_code,
       is_smart_meter,
-      hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] else None,
-      hass.bus.async_fire
+      hass.bus.async_fire,
+      hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] else None
     )
 
     if (result is not None):

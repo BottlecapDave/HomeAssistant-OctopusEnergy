@@ -55,7 +55,7 @@ async def async_refresh_gas_rates_data(
 
         raise_rate_events(current,
                           rates[key],
-                          { "mprn": meter_point },
+                          { "mprn": meter_point, "tariff_code": tariff_code },
                           fire_event,
                           EVENT_GAS_PREVIOUS_DAY_RATES,
                           EVENT_GAS_CURRENT_DAY_RATES,

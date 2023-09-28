@@ -67,7 +67,7 @@ async def async_refresh_electricity_rates_data(
 
         raise_rate_events(current,
                           rates[key],
-                          { "mpan": meter_point },
+                          { "mpan": meter_point, "tariff_code": tariff_code },
                           fire_event,
                           EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
                           EVENT_ELECTRICITY_CURRENT_DAY_RATES,
