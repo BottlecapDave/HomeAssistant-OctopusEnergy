@@ -7,34 +7,34 @@ from homeassistant.components.event import (
 )
 from homeassistant.helpers.restore_state import RestoreEntity
 
-from .base import (OctopusEnergyGasSensor)
-from ..const import EVENT_GAS_PREVIOUS_CONSUMPTION_RATES
+from .base import (OctopusEnergyElectricitySensor)
+from ..const import EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyGasPreviousConsumptionRates(OctopusEnergyGasSensor, EventEntity, RestoreEntity):
-  """Sensor for displaying the previous consumption's rates."""
+class OctopusEnergyElectricityPreviousConsumptionOverrideRates(OctopusEnergyElectricitySensor, EventEntity, RestoreEntity):
+  """Sensor for displaying the previous consumption override's rates."""
 
   def __init__(self, hass: HomeAssistant, meter, point):
     """Init sensor."""
     # Pass coordinator to base class
-    OctopusEnergyGasSensor.__init__(self, hass, meter, point)
+    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._hass = hass
     self._state = None
     self._last_updated = None
 
-    self._attr_event_types = [EVENT_GAS_PREVIOUS_CONSUMPTION_RATES]
+    self._attr_event_types = [EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES]
 
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_gas_{self._serial_number}_{self._mprn}_previous_consumption_rates"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_previous_consumption_override_rates"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Gas {self._serial_number} {self._mprn} Previous Consumption Rates"
+    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Consumption Override Rates"
   
   @property
   def entity_registry_enabled_default(self) -> bool:
@@ -56,7 +56,7 @@ class OctopusEnergyGasPreviousConsumptionRates(OctopusEnergyGasSensor, EventEnti
       for x in state.attributes.keys():
         self._attributes[x] = state.attributes[x]
     
-      _LOGGER.debug(f'Restored OctopusEnergyGasPreviousConsumptionRates state: {self._state}')
+      _LOGGER.debug(f'Restored OctopusEnergyElectricityPreviousConsumptionOverrideRates state: {self._state}')
 
   async def async_added_to_hass(self) -> None:
     """Register callbacks."""
@@ -64,6 +64,6 @@ class OctopusEnergyGasPreviousConsumptionRates(OctopusEnergyGasSensor, EventEnti
 
   @callback
   def _async_handle_event(self, event) -> None:
-    if (event.data is not None and "mprn" in event.data and event.data["mprn"] == self._mprn):
+    if (event.data is not None and "mpan" in event.data and event.data["mpan"] == self._mpan):
       self._trigger_event(event.event_type, event.data)
       self.async_write_ha_state()

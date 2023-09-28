@@ -7,10 +7,12 @@ from .electricity.rates_previous_day import OctopusEnergyElectricityPreviousDayR
 from .electricity.rates_current_day import OctopusEnergyElectricityCurrentDayRates
 from .electricity.rates_next_day import OctopusEnergyElectricityNextDayRates
 from .electricity.rates_previous_consumption import OctopusEnergyElectricityPreviousConsumptionRates
+from .electricity.rates_previous_consumption_override import OctopusEnergyElectricityPreviousConsumptionOverrideRates
 from .gas.rates_current_day import OctopusEnergyGasCurrentDayRates
 from .gas.rates_next_day import OctopusEnergyGasNextDayRates
 from .gas.rates_previous_day import OctopusEnergyGasPreviousDayRates
 from .gas.rates_previous_consumption import OctopusEnergyGasPreviousConsumptionRates
+from .gas.rates_previous_consumption_override import OctopusEnergyGasPreviousConsumptionOverrideRates
 
 from .const import (
   DOMAIN,
@@ -50,6 +52,7 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
           entities.append(OctopusEnergyElectricityCurrentDayRates(hass, meter, point))
           entities.append(OctopusEnergyElectricityNextDayRates(hass, meter, point))
           entities.append(OctopusEnergyElectricityPreviousConsumptionRates(hass, meter, point))
+          entities.append(OctopusEnergyElectricityPreviousConsumptionOverrideRates(hass, meter, point))
 
   if len(account_info["gas_meter_points"]) > 0:
     for point in account_info["gas_meter_points"]:
@@ -61,6 +64,7 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
           entities.append(OctopusEnergyGasCurrentDayRates(hass, meter, point))
           entities.append(OctopusEnergyGasNextDayRates(hass, meter, point))
           entities.append(OctopusEnergyGasPreviousConsumptionRates(hass, meter, point))
+          entities.append(OctopusEnergyGasPreviousConsumptionOverrideRates(hass, meter, point))
 
   if len(entities) > 0:
     async_add_entities(entities, True)

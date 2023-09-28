@@ -20,7 +20,7 @@ from .base import (OctopusEnergyElectricitySensor)
 
 from ..api_client import (OctopusEnergyApiClient)
 
-from ..const import (DOMAIN)
+from ..const import (DOMAIN, EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES)
 
 from . import get_electricity_tariff_override_key
 
@@ -157,6 +157,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
             "cost": charge["cost"]
           }, consumption_and_cost["charges"]))
         }
+
+        self._hass.bus.async_fire(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mpan": self._mpan, "tariff_code": self._tariff_code, "rates": rate_data })
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

@@ -21,7 +21,7 @@ from ..api_client import (OctopusEnergyApiClient)
 
 from .base import (OctopusEnergyGasSensor)
 
-from ..const import DOMAIN
+from ..const import DOMAIN, EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES
 
 _LOGGER = logging.getLogger(__name__)
   
@@ -158,6 +158,8 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
           }, consumption_and_cost["charges"])),
           "calorific_value": self._calorific_value
         }
+        
+        self._hass.bus.async_fire(EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mprn": self._mprn, "tariff_code": self._tariff_code, "rates": rate_data })
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
