@@ -93,3 +93,6 @@ EVENT_GAS_CURRENT_DAY_RATES = "octopus_energy_gas_current_day_rates"
 EVENT_GAS_NEXT_DAY_RATES = "octopus_energy_gas_next_day_rates"
 EVENT_GAS_PREVIOUS_CONSUMPTION_RATES = "octopus_energy_gas_previous_consumption_rates"
 EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES = "octopus_energy_gas_previous_consumption_override_rates"
+
+# During BST, two records are returned before the rest of the data is available
+MINIMUM_CONSUMPTION_DATA_LENGTH = 3

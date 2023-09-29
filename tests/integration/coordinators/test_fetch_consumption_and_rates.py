@@ -45,6 +45,12 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
   minutesStr = f'{minutes}'.zfill(2)
   current_utc_timestamp = datetime.strptime(f'2022-02-12T00:{minutesStr}:00Z', "%Y-%m-%dT%H:%M:%S%z")
 
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
+
   # Act
   result = await async_fetch_consumption_and_rates(
     previous_data,
@@ -56,7 +62,8 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
     sensor_serial_number,
     is_electricity,
     tariff_code,
-    is_smart_meter
+    is_smart_meter,
+    fire_event
   )
 
   # Assert

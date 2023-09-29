@@ -11,7 +11,8 @@ from ..const import (
   DOMAIN,
   DATA_INTELLIGENT_DISPATCHES,
   EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES,
-  EVENT_GAS_PREVIOUS_CONSUMPTION_RATES
+  EVENT_GAS_PREVIOUS_CONSUMPTION_RATES,
+  MINIMUM_CONSUMPTION_DATA_LENGTH
 )
 
 from ..api_client import (OctopusEnergyApiClient)
@@ -50,7 +51,7 @@ async def async_fetch_consumption_and_rates(
       previous_data["consumption"][-1]["interval_end"] < period_to) and 
       utc_now.minute % 30 == 0)):
     
-    _LOGGER.debug(f"Retrieving previous consumption and rate data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}...")
+    _LOGGER.debug(f"Retrieving previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}...")
     
     try:
       if (is_electricity == True):
@@ -68,8 +69,8 @@ async def async_fetch_consumption_and_rates(
         rate_data = await client.async_get_gas_rates(tariff_code, period_from, period_to)
         standing_charge = await client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
       
-      if consumption_data is not None and len(consumption_data) > 0 and rate_data is not None and len(rate_data) > 0 and standing_charge is not None:
-        _LOGGER.debug(f"Discovered previous consumption and rate data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
+      if consumption_data is not None and len(consumption_data) >= MINIMUM_CONSUMPTION_DATA_LENGTH and rate_data is not None and len(rate_data) > 0 and standing_charge is not None:
+        _LOGGER.debug(f"Discovered previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
         consumption_data = __sort_consumption(consumption_data)
 
         if (is_electricity == True):
@@ -84,8 +85,10 @@ async def async_fetch_consumption_and_rates(
           "rates": rate_data,
           "standing_charge": standing_charge["value_inc_vat"]
         }
+      else:
+        _LOGGER.debug(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}; consumptions: {len(consumption_data)}; rates: {len(rate_data)}; standing_charge: {standing_charge is not None};")
     except:
-      _LOGGER.debug(f"Failed to retrieve previous consumption and rate data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
+      _LOGGER.debug(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
 
   return previous_data 
 

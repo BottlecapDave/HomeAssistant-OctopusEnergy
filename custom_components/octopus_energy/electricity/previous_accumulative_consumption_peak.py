@@ -96,9 +96,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumptionPeak(CoordinatorEnt
       rate_data,
       standing_charge,
       self._last_reset,
-      self._tariff_code,
-      # During BST, two records are returned before the rest of the data is available
-      3
+      self._tariff_code
     )
 
     if (consumption_and_cost is not None):

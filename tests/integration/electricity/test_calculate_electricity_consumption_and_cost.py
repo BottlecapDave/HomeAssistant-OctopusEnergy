@@ -18,6 +18,12 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
   latest_date = None
   is_smart_meter = True
+
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
   
   # Retrieve real consumption data so we can make sure our calculation works with the result
   current_utc_timestamp = datetime.strptime(f'2022-03-02T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
@@ -34,7 +40,8 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
     sensor_serial_number,
     is_electricity,
     tariff_code,
-    is_smart_meter
+    is_smart_meter,
+    fire_event
   )
 
   assert consumption_and_rates_result is not None

@@ -485,3 +485,76 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_and_returned
     assert result == previous_data
 
     assert len(actual_fired_events) == 0
+
+@pytest.mark.asyncio
+async def test_when_not_enough_consumption_returned_then_previous_data_returned():
+  # Arrange
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+
+  async def async_mocked_get_electricity_consumption(*args, **kwargs):
+    return create_consumption_data(period_from, period_to)[:2]
+  
+  expected_rates = create_rate_data(period_from, period_to, [1, 2])
+  async def async_mocked_get_electricity_rates(*args, **kwargs):
+    return expected_rates
+  
+  expected_standing_charge = 100.2
+  async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
+    return {
+      "value_inc_vat": expected_standing_charge
+    }
+  
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_consumption=async_mocked_get_electricity_consumption, async_get_electricity_rates=async_mocked_get_electricity_rates, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
+    client = OctopusEnergyApiClient("NOT_REAL")
+
+    sensor_identifier = "ABC123"
+    sensor_serial_number = "123456"
+    is_electricity = True
+    tariff_code = "AB-123"
+    is_smart_meter = True
+
+    period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    previous_data = None
+    # Make our previous data for the previous period
+    previous_data = {
+      "consumption": create_consumption_data(
+        datetime.strptime("2022-02-27T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+      ),
+      "rates": create_rate_data(
+        datetime.strptime("2022-02-27T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        [1, 2]
+      ),
+      "standing_charge": 10.1
+    }
+    
+    current_utc_timestamp = datetime.strptime(f'2022-02-12T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
+
+    # Act
+    result = await async_fetch_consumption_and_rates(
+      previous_data,
+      current_utc_timestamp,
+      client,
+      period_from,
+      period_to,
+      sensor_identifier,
+      sensor_serial_number,
+      is_electricity,
+      tariff_code,
+      is_smart_meter,
+      fire_event
+    )
+
+    # Assert
+    assert result == previous_data
+
+    assert len(actual_fired_events) == 0
