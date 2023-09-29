@@ -20,7 +20,7 @@ from .base import (OctopusEnergyElectricitySensor)
 
 from ..api_client import (OctopusEnergyApiClient)
 
-from ..const import (DOMAIN)
+from ..const import (DOMAIN, EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, MINIMUM_CONSUMPTION_DATA_LENGTH)
 
 from . import get_electricity_tariff_override_key
 
@@ -112,7 +112,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     is_tariff_present = tariff_override_key in self._hass.data[DOMAIN]
     has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][tariff_override_key] != self._tariff_code
 
-    if (consumption_data is not None and len(consumption_data) > 0 and is_tariff_present and (is_old_data or has_tariff_changed)):
+    if (consumption_data is not None and len(consumption_data) >= MINIMUM_CONSUMPTION_DATA_LENGTH and is_tariff_present and (is_old_data or has_tariff_changed)):
       _LOGGER.debug(f"Calculating previous electricity consumption cost override for '{self._mpan}/{self._serial_number}'...")
       
       tariff_override = self._hass.data[DOMAIN][tariff_override_key]
@@ -126,9 +126,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
         rate_data,
         standing_charge["value_inc_vat"] if standing_charge is not None else None,
         None if has_tariff_changed else self._last_reset,
-        tariff_override,
-        # During BST, two records are returned before the rest of the data is available
-        3
+        tariff_override
       )
 
       self._tariff_code = tariff_override
@@ -157,6 +155,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
             "cost": charge["cost"]
           }, consumption_and_cost["charges"]))
         }
+
+        self._hass.bus.async_fire(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mpan": self._mpan, "tariff_code": self._tariff_code, "rates": rate_data })
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

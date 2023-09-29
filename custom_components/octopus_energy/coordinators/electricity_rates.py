@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from typing import Callable, Any
 
 from homeassistant.util.dt import (now, as_utc)
 from homeassistant.helpers.update_coordinator import (
@@ -13,11 +14,14 @@ from ..const import (
   DATA_ELECTRICITY_RATES,
   DATA_ACCOUNT,
   DATA_INTELLIGENT_DISPATCHES,
+  EVENT_ELECTRICITY_CURRENT_DAY_RATES,
+  EVENT_ELECTRICITY_NEXT_DAY_RATES,
+  EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
 )
 
 from ..api_client import OctopusEnergyApiClient
 
-from . import get_current_electricity_agreement_tariff_codes
+from . import get_current_electricity_agreement_tariff_codes, raise_rate_events
 from ..intelligent import adjust_intelligent_rates
 
 _LOGGER = logging.getLogger(__name__)
@@ -27,7 +31,8 @@ async def async_refresh_electricity_rates_data(
     client: OctopusEnergyApiClient,
     account_info,
     existing_rates: list,
-    dispatches: list
+    dispatches: list,
+    fire_event: Callable[[str, "dict[str, Any]"], None],
   ):
   if (account_info is not None):
     tariff_codes = get_current_electricity_agreement_tariff_codes(current, account_info)
@@ -49,8 +54,6 @@ async def async_refresh_electricity_rates_data(
           _LOGGER.debug(f'Electricity rates retrieved for {tariff_code}')
         except:
           _LOGGER.debug('Failed to retrieve electricity rates')
-      else:
-          new_rates = existing_rates[key]
         
       if new_rates is not None:
         if dispatches is not None:
@@ -61,6 +64,15 @@ async def async_refresh_electricity_rates_data(
           _LOGGER.debug(f"Rates adjusted: {rates[key]}; dispatches: {dispatches}")
         else:
           rates[key] = new_rates
+
+        raise_rate_events(current,
+                          rates[key],
+                          { "mpan": meter_point, "tariff_code": tariff_code },
+                          fire_event,
+                          EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
+                          EVENT_ELECTRICITY_CURRENT_DAY_RATES,
+                          EVENT_ELECTRICITY_NEXT_DAY_RATES)
+
       elif (existing_rates is not None and key in existing_rates):
         _LOGGER.debug(f"Failed to retrieve new electricity rates for {tariff_code}, so using cached rates")
         rates[key] = existing_rates[key]
@@ -86,7 +98,8 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str):
       client,
       account_info,
       rates,
-      dispatches
+      dispatches,
+      hass.bus.async_fire
     )
 
     return hass.data[DOMAIN][DATA_ELECTRICITY_RATES]

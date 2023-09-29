@@ -112,9 +112,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
       self._last_reset,
       self._tariff_code,
       self._native_consumption_units,
-      self._calorific_value,
-      # During BST, two records are returned before the rest of the data is available
-      3
+      self._calorific_value
     )
 
     if (consumption_and_cost is not None):

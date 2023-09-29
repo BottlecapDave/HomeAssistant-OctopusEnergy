@@ -60,37 +60,6 @@ async def test_when_gas_rates_is_none_then_no_calculation_is_returned():
   assert consumption_cost is None
 
 @pytest.mark.asyncio
-async def test_when_gas_consumption_is_less_than_three_records_then_no_calculation_is_returned():
-  # Arrange
-  latest_date = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
-  consumption_data = create_consumption_data(
-    datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), 
-    datetime.strptime("2022-02-28T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  )
-  rates_data = create_rate_data(
-    datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), 
-    datetime.strptime("2022-02-28T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-    [1, 2]
-  )
-  standing_charge = 27.0
-
-  # Act
-  consumption_cost = calculate_gas_consumption_and_cost(
-    consumption_data,
-    rates_data,
-    standing_charge,
-    latest_date,
-    tariff_code,
-    "m³",
-    40,
-    3
-  )
-
-  # Assert
-  assert consumption_cost is None
-
-@pytest.mark.asyncio
 async def test_when_gas_consumption_is_before_latest_date_then_no_calculation_is_returned():
   # Arrange
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")

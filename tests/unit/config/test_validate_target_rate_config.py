@@ -324,6 +324,8 @@ async def test_when_config_is_valid_and_not_agile_then_no_errors_returned(start_
 @pytest.mark.asyncio
 @pytest.mark.parametrize("start_time,end_time,offset",[
   ("00:00","23:00","00:00:00"),
+  ("00:00","16:00","00:00:00"),
+  ("23:00","16:00","00:00:00"),
   ("16:00","16:00","00:00:00"),
   ("16:00","00:00","00:00:00"),
   (None, "23:00", None),

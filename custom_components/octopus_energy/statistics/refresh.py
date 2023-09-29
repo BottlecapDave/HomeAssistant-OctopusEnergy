@@ -52,9 +52,7 @@ async def async_refresh_previous_electricity_consumption_data(
       rates,
       0,
       None,
-      tariff_code,
-      # During BST, two records are returned before the rest of the data is available
-      3
+      tariff_code
     )
   
     if consumption_and_cost is not None:
@@ -122,9 +120,7 @@ async def async_refresh_previous_gas_consumption_data(
       None,
       tariff_code,
       consumption_units,
-      calorific_value,
-      # During BST, two records are returned before the rest of the data is available
-      3
+      calorific_value
     )
   
     if consumption_and_cost is not None:
