@@ -6,6 +6,9 @@ You'll get the following sensors for each electricity meter with an active agree
   - [Current Rate](#current-rate)
   - [Previous Rate](#previous-rate)
   - [Next rate](#next-rate)
+  - [Current Day Rates](#current-day-rates)
+  - [Previous Day Rates](#previous-day-rates)
+  - [Next Day Rates](#next-day-rates)
   - [Off Peak](#off-peak)
   - [Smart Meter Sensors](#smart-meter-sensors)
     - [Previous Accumulative Consumption](#previous-accumulative-consumption)
@@ -14,6 +17,7 @@ You'll get the following sensors for each electricity meter with an active agree
     - [Previous Accumulative Cost](#previous-accumulative-cost)
     - [Previous Accumulative Cost (Peak Rate)](#previous-accumulative-cost-peak-rate)
     - [Previous Accumulative Cost (Off Peak Rate)](#previous-accumulative-cost-off-peak-rate)
+  - [Previous Consumption Day Rates](#previous-consumption-day-rates)
   - [Export Sensors](#export-sensors)
   - [Home Mini Sensors](#home-mini-sensors)
     - [Current Consumption](#current-consumption)
@@ -25,9 +29,10 @@ You'll get the following sensors for each electricity meter with an active agree
     - [Current Accumulative Cost (Peak Rate)](#current-accumulative-cost-peak-rate)
     - [Current Accumulative Cost (Off Peak Rate)](#current-accumulative-cost-off-peak-rate)
   - [Tariff Overrides](#tariff-overrides)
-    - [Previous Accumulative Cost Override Tariff (Electricity)](#previous-accumulative-cost-override-tariff-electricity)
+    - [Previous Accumulative Cost Override Tariff](#previous-accumulative-cost-override-tariff)
       - [How To Use](#how-to-use)
-    - [Previous Accumulative Cost Override (Electricity)](#previous-accumulative-cost-override-electricity)
+    - [Previous Accumulative Cost Override](#previous-accumulative-cost-override)
+  - [Previous Consumption Override Day Rates](#previous-consumption-override-day-rates)
 
 ## Current Rate
 
@@ -84,6 +89,39 @@ The next/upcoming rate that energy consumption will be charged at (including VAT
 | `applicable_rates` | `array` | Collection of rates where the next rate applies, in case it spans multiple time periods. |
 | `valid_from` | `datetime` | The date/time when the rate is valid from |
 | `valid_to` | `datetime` | The date/time when the rate is valid to |
+
+## Current Day Rates
+
+`event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_day_rates`
+
+The state of this sensor states when the current day's rates were last updated. The attributes of this sensor exposes the current day's rates. This is disabled by default. 
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `rates` | `list` | The list of rates applicable for the current day |
+| `tariff_code` | `string` | The tariff code associated with current day's rates |
+
+## Previous Day Rates
+
+`event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_day_rates`
+
+The state of this sensor states when the previous day's rates were last updated. The attributes of this sensor exposes the previous day's rates. This is disabled by default. 
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `rates` | `list` | The list of rates applicable for the previous day |
+| `tariff_code` | `string` | The tariff code associated with previous day's rates |
+
+## Next Day Rates
+
+`event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_next_day_rates`
+
+The state of this sensor states when the next day's rates were last updated. The attributes of this sensor exposes the next day's rates. This is disabled by default. 
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `rates` | `list` | The list of rates applicable for the next day |
+| `tariff_code` | `string` | The tariff code associated with today's rates |
 
 ## Off Peak
 
@@ -184,6 +222,17 @@ The total cost for the previous day that applied during off peak hours. This is 
 | `serial_number` | `string` | The serial for the associated meter |
 | `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+
+## Previous Consumption Day Rates
+
+`event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_consumption_rates`
+
+The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous day's rates, but could differ if the default offset is changed. The attributes of this sensor exposes the previous consumption's rates. This is disabled by default. 
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `rates` | `list` | The list of rates applicable for the previous consumption |
+| `tariff_code` | `string` | The tariff code associated with previous consumption's rates |
 
 ## Export Sensors
 
@@ -313,7 +362,7 @@ See [below](#previous-accumulative-cost-override-tariff-electricity) for instruc
 
 > Please note: When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
 
-### Previous Accumulative Cost Override Tariff (Electricity)
+### Previous Accumulative Cost Override Tariff
 
 `text.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_override_tariff`
 
@@ -330,10 +379,21 @@ Once you have found your target tariff
 
 > Please note: When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
 
-### Previous Accumulative Cost Override (Electricity)
+### Previous Accumulative Cost Override
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_override`
 
 This is the cost of the previous electricity accumulation based on the specified tariff override.
 
 For attributes, see [Previous Accumulative Cost](#previous-accumulative-cost).
+
+## Previous Consumption Override Day Rates
+
+`event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_consumption_override_rates`
+
+The state of this sensor states when the previous consumption override's rates were last updated. The attributes of this sensor exposes the previous consumption override's rates. This is disabled by default. 
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `rates` | `list` | The list of rates applicable for the previous consumption override |
+| `tariff_code` | `string` | The tariff code associated with previous consumption override's rates |
