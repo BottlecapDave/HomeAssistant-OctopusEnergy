@@ -19,7 +19,7 @@ class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEn
 
   def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point):
     """Init sensor."""
-    CoordinatorEntity.__init__(self, coordinator)
+    super().__init__(coordinator)
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._tariff_code = tariff_code

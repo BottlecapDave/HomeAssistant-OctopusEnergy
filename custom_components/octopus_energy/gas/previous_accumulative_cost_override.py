@@ -1,5 +1,6 @@
 import logging
 from datetime import (datetime)
+import asyncio
 
 from homeassistant.core import HomeAssistant
 
@@ -118,8 +119,11 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
       tariff_override = self._hass.data[DOMAIN][tariff_override_key]
       period_from = consumption_data[0]["interval_start"]
       period_to = consumption_data[-1]["interval_end"]
-      rate_data = await self._client.async_get_gas_rates(tariff_override, period_from, period_to)
-      standing_charge = await self._client.async_get_gas_standing_charge(tariff_override, period_from, period_to)
+
+      [rate_data, standing_charge] = await asyncio.gather(
+        self._client.async_get_gas_rates(tariff_override, period_from, period_to),
+        self._client.async_get_gas_standing_charge(tariff_override, period_from, period_to)
+      )
 
       consumption_and_cost = calculate_gas_consumption_and_cost(
         consumption_data,

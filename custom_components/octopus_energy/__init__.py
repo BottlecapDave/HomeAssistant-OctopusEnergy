@@ -1,6 +1,7 @@
 import logging
 import asyncio
 from datetime import timedelta
+from custom_components.octopus_energy.utils import get_active_tariff_code
 
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
@@ -28,7 +29,7 @@ from .const import (
   CONFIG_TARGET_NAME,
 
   DATA_CLIENT,
-  DATA_ELECTRICITY_RATES_COORDINATOR,
+  DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
   DATA_ACCOUNT_ID,
   DATA_ACCOUNT
 )
@@ -105,8 +106,21 @@ async def async_setup_entry(hass, entry):
       hass.config_entries.async_forward_entry_setup(entry, "event")
     )
   elif CONFIG_TARGET_NAME in config:
-    if DOMAIN not in hass.data or DATA_ELECTRICITY_RATES_COORDINATOR not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN]:
-      raise ConfigEntryNotReady("Electricity rates have not been setup")
+    if DOMAIN not in hass.data or DATA_ACCOUNT not in hass.data[DOMAIN]:
+      raise ConfigEntryNotReady("Account has not been setup")
+    
+    now = utcnow()
+    account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+    for point in account_info["electricity_meter_points"]:
+      # We only care about points that have active agreements
+      electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
+      if electricity_tariff_code is not None:
+        for meter in point["meters"]:
+          mpan = point["mpan"]
+          serial_number = meter["serial_number"]
+          electricity_rates_coordinator_key = DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)
+          if electricity_rates_coordinator_key not in hass.data[DOMAIN]:
+            raise ConfigEntryNotReady(f"Electricity rates have not been setup for {mpan}/{serial_number}")
 
     # Forward our entry to setup our target rate sensors
     hass.async_create_task(
@@ -152,14 +166,23 @@ async def async_setup_dependencies(hass, config):
         if device is not None:
           device_registry.async_remove_device(device.id)
 
+  now = utcnow()
+  account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+  for point in account_info["electricity_meter_points"]:
+    # We only care about points that have active agreements
+    electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
+    if electricity_tariff_code is not None:
+      for meter in point["meters"]:
+        mpan = point["mpan"]
+        serial_number = meter["serial_number"]
+        await async_setup_electricity_rates_coordinator(hass, mpan, serial_number)
+
   await async_setup_account_info_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
 
   await async_setup_intelligent_dispatches_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
 
   await async_setup_intelligent_settings_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
   
-  await async_setup_electricity_rates_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
-
   await async_setup_saving_sessions_coordinators(hass)
 
 async def options_update_listener(hass, entry):

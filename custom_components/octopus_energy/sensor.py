@@ -62,7 +62,7 @@ from .const import (
   CONFIG_MAIN_GAS_PRICE_CAP,
   CONFIG_MAIN_ACCOUNT_ID,
 
-  DATA_ELECTRICITY_RATES_COORDINATOR,
+  DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
   DATA_SAVING_SESSIONS_COORDINATOR,
   DATA_CLIENT,
   DATA_ACCOUNT
@@ -108,11 +108,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
   now = utcnow()
 
   if len(account_info["electricity_meter_points"]) > 0:
-    electricity_rate_coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR]
-    await electricity_rate_coordinator.async_config_entry_first_refresh()
-
     electricity_standing_charges_coordinator = await async_setup_electricity_standing_charges_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
-
     electricity_price_cap = None
     if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config:
       electricity_price_cap = config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
@@ -127,6 +123,10 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
       if electricity_tariff_code is not None:
         for meter in point["meters"]:
           _LOGGER.info(f'Adding electricity meter; mpan: {point["mpan"]}; serial number: {meter["serial_number"]}')
+          mpan = point["mpan"]
+          serial_number = meter["serial_number"]
+          electricity_rate_coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)]
+
           entities.append(OctopusEnergyElectricityCurrentRate(hass, electricity_rate_coordinator, meter, point, electricity_tariff_code, electricity_price_cap))
           entities.append(OctopusEnergyElectricityPreviousRate(hass, electricity_rate_coordinator, meter, point))
           entities.append(OctopusEnergyElectricityNextRate(hass, electricity_rate_coordinator, meter, point))

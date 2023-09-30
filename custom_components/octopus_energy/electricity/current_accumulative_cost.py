@@ -87,7 +87,7 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(CoordinatorEntity, Octopus
   def state(self):
     """Retrieve the currently calculated state"""
     consumption_data = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
-    rate_data = self._rates_coordinator.data[self._mpan] if self._rates_coordinator is not None and self._rates_coordinator.data is not None and self._mpan in self._rates_coordinator.data else None
+    rate_data = self._rates_coordinator.data.rates if self._rates_coordinator is not None and self._rates_coordinator.data is not None else None
     standing_charge = self._standing_charge_coordinator.data[self._mpan]["value_inc_vat"] if self._standing_charge_coordinator is not None and self._standing_charge_coordinator.data is not None and self._mpan in self._standing_charge_coordinator.data and "value_inc_vat" in self._standing_charge_coordinator.data[self._mpan] else None
 
     consumption_and_cost = calculate_electricity_consumption_and_cost(
