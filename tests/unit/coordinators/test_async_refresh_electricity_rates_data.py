@@ -48,6 +48,8 @@ def assert_raised_events(raised_events: dict, expected_event_name: str, expected
   assert expected_event_name in raised_events
   assert "mpan" in raised_events[expected_event_name]
   assert raised_events[expected_event_name]["mpan"] == mpan
+  assert "serial_number" in raised_events[expected_event_name]
+  assert raised_events[expected_event_name]["serial_number"] == serial_number
   assert "rates" in raised_events[expected_event_name]
   assert len(raised_events[expected_event_name]["rates"]) > 2
   assert "valid_from" in raised_events[expected_event_name]["rates"][0]
