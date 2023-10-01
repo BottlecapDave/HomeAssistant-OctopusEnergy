@@ -183,8 +183,6 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
     if CONFIG_MAIN_GAS_PRICE_CAP in config:
       gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
     
-    gas_standing_charges_coordinator = await async_setup_gas_standing_charges_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
-
     previous_gas_consumption_days_offset = CONFIG_DEFAULT_PREVIOUS_CONSUMPTION_OFFSET_IN_DAYS
     if CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET in config:
       previous_gas_consumption_days_offset = config[CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET]
@@ -200,6 +198,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
           _LOGGER.info(f'Adding gas meter; mprn: {mprn}; serial number: {serial_number}')
 
           gas_rate_coordinator = await async_setup_gas_rates_coordinator(hass, client, mprn, serial_number)
+          gas_standing_charges_coordinator = await async_setup_gas_standing_charges_coordinator(hass, mprn, serial_number)
 
           entities.append(OctopusEnergyGasCurrentRate(hass, gas_rate_coordinator, gas_tariff_code, meter, point, gas_price_cap))
           entities.append(OctopusEnergyGasPreviousRate(hass, gas_rate_coordinator, meter, point))

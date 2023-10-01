@@ -17,8 +17,6 @@ from ..const import (
 
 from ..api_client import OctopusEnergyApiClient
 
-from . import get_current_electricity_agreement_tariff_codes
-
 _LOGGER = logging.getLogger(__name__)
 
 class ElectricityStandingChargeCoordinatorResult:

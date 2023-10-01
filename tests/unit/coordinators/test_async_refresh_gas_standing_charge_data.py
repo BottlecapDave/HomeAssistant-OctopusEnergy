@@ -5,21 +5,21 @@ import mock
 from unit import (create_rate_data)
 
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
-from custom_components.octopus_energy.coordinators.electricity_standing_charges import ElectricityStandingChargeCoordinatorResult, async_refresh_electricity_standing_charges_data
+from custom_components.octopus_energy.coordinators.gas_standing_charges import GasStandingChargeCoordinatorResult, async_refresh_gas_standing_charges_data
 
 current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
 period_from = datetime.strptime("2023-07-14T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
 period_to = datetime.strptime("2023-07-15T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
 
 tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
-mpan = "1234567890"
+mprn = "1234567890"
 serial_number = "abcdefgh"
 
 def get_account_info(is_active_agreement = True):
   return {
-    "electricity_meter_points": [
+    "gas_meter_points": [
       {
-        "mpan": mpan,
+        "mprn": mprn,
         "meters": [
           {
             "serial_number": serial_number,
@@ -51,21 +51,21 @@ async def test_when_account_info_is_none_then_existing_standing_charge_returned(
     "value_inc_vat": 0.30
   }
   standing_charge_returned = False
-  async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
+  async def async_mocked_get_gas_standing_charge(*args, **kwargs):
     nonlocal standing_charge_returned
     standing_charge_returned = True
     return expected_standing_charge
   
   account_info = None
-  existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_from, create_rate_data(period_from, period_to, [2, 4]))
+  existing_standing_charge = GasStandingChargeCoordinatorResult(period_from, create_rate_data(period_from, period_to, [2, 4]))
   
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_standing_charge=async_mocked_get_gas_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
-    retrieved_standing_charge: ElectricityStandingChargeCoordinatorResult = await async_refresh_electricity_standing_charges_data(
+    retrieved_standing_charge: GasStandingChargeCoordinatorResult = await async_refresh_gas_standing_charges_data(
       current,
       client,
       account_info,
-      mpan,
+      mprn,
       serial_number,
       existing_standing_charge
     )
@@ -81,21 +81,21 @@ async def test_when_no_active_standing_charge_then_none_returned():
     "value_inc_vat": 0.30
   }
   standing_charge_returned = False
-  async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
+  async def async_mocked_get_gas_standing_charge(*args, **kwargs):
     nonlocal standing_charge_returned
     standing_charge_returned = True
     return expected_standing_charge
   
   account_info = get_account_info(False)
-  existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_from, create_rate_data(period_from, period_to, [2, 4]))
+  existing_standing_charge = GasStandingChargeCoordinatorResult(period_from, create_rate_data(period_from, period_to, [2, 4]))
   
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_standing_charge=async_mocked_get_gas_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
-    retrieved_standing_charge: ElectricityStandingChargeCoordinatorResult = await async_refresh_electricity_standing_charges_data(
+    retrieved_standing_charge: GasStandingChargeCoordinatorResult = await async_refresh_gas_standing_charges_data(
       current,
       client,
       account_info,
-      mpan,
+      mprn,
       serial_number,
       existing_standing_charge
     )
@@ -116,25 +116,25 @@ async def test_when_current_is_not_thirty_minutes_then_existing_standing_charge_
       "value_inc_vat": 0.30
     }
     standing_charge_returned = False
-    async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
+    async def async_mocked_get_gas_standing_charge(*args, **kwargs):
       nonlocal standing_charge_returned
       standing_charge_returned = True
       return expected_standing_charge
     
     account_info = get_account_info()
-    existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_from, {
+    existing_standing_charge = GasStandingChargeCoordinatorResult(period_from, {
       "valid_from": period_from,
       "valid_to": period_to,
       "value_inc_vat": 0.10
     })
     
-    with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
+    with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_standing_charge=async_mocked_get_gas_standing_charge):
       client = OctopusEnergyApiClient("NOT_REAL")
-      retrieved_standing_charge: ElectricityStandingChargeCoordinatorResult = await async_refresh_electricity_standing_charges_data(
+      retrieved_standing_charge: GasStandingChargeCoordinatorResult = await async_refresh_gas_standing_charges_data(
         current,
         client,
         account_info,
-        mpan,
+        mprn,
         serial_number,
         existing_standing_charge
       )
@@ -155,7 +155,7 @@ async def test_when_existing_standing_charge_is_none_then_standing_charge_retrie
   standing_charge_returned = False
   requested_period_from = None
   requested_period_to = None
-  async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
+  async def async_mocked_get_gas_standing_charge(*args, **kwargs):
     nonlocal requested_period_from, requested_period_to, standing_charge_returned, expected_standing_charge
 
     requested_client, requested_tariff_code, requested_period_from, requested_period_to = args
@@ -164,15 +164,15 @@ async def test_when_existing_standing_charge_is_none_then_standing_charge_retrie
   
   account_info = get_account_info()
   existing_standing_charge = None
-  expected_retrieved_standing_charge = ElectricityStandingChargeCoordinatorResult(current, expected_standing_charge)
+  expected_retrieved_standing_charge = GasStandingChargeCoordinatorResult(current, expected_standing_charge)
   
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_standing_charge=async_mocked_get_gas_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
-    retrieved_standing_charge: ElectricityStandingChargeCoordinatorResult = await async_refresh_electricity_standing_charges_data(
+    retrieved_standing_charge: GasStandingChargeCoordinatorResult = await async_refresh_gas_standing_charges_data(
       current,
       client,
       account_info,
-      mpan,
+      mprn,
       serial_number,
       existing_standing_charge
     )
@@ -192,22 +192,22 @@ async def test_when_existing_standing_charge_is_old_then_standing_charge_retriev
     "value_inc_vat": 0.30
   }
   standing_charge_returned = False
-  async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
+  async def async_mocked_get_gas_standing_charge(*args, **kwargs):
     nonlocal standing_charge_returned
     standing_charge_returned = True
     return expected_standing_charge
   
   account_info = get_account_info()
-  existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_to - timedelta(days=60), create_rate_data(period_from - timedelta(days=60), period_to - timedelta(days=60), [2, 4]))
-  expected_retrieved_standing_charge = ElectricityStandingChargeCoordinatorResult(current, expected_standing_charge)
+  existing_standing_charge = GasStandingChargeCoordinatorResult(period_to - timedelta(days=60), create_rate_data(period_from - timedelta(days=60), period_to - timedelta(days=60), [2, 4]))
+  expected_retrieved_standing_charge = GasStandingChargeCoordinatorResult(current, expected_standing_charge)
   
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_standing_charge=async_mocked_get_gas_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
-    retrieved_standing_charge: ElectricityStandingChargeCoordinatorResult = await async_refresh_electricity_standing_charges_data(
+    retrieved_standing_charge: GasStandingChargeCoordinatorResult = await async_refresh_gas_standing_charges_data(
       current,
       client,
       account_info,
-      mpan,
+      mprn,
       serial_number,
       existing_standing_charge
     )
@@ -221,21 +221,21 @@ async def test_when_existing_standing_charge_is_old_then_standing_charge_retriev
 async def test_when_standing_charge_not_retrieved_then_existing_standing_charge_returned():
   expected_standing_charge = create_rate_data(period_from, period_to, [1, 2, 3, 4])
   standing_charge_returned = False
-  async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
+  async def async_mocked_get_gas_standing_charge(*args, **kwargs):
     nonlocal standing_charge_returned
     standing_charge_returned = True
     return None
   
   account_info = get_account_info()
-  existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_from, expected_standing_charge)
+  existing_standing_charge = GasStandingChargeCoordinatorResult(period_from, expected_standing_charge)
   
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_standing_charge=async_mocked_get_gas_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
-    retrieved_standing_charge: ElectricityStandingChargeCoordinatorResult = await async_refresh_electricity_standing_charges_data(
+    retrieved_standing_charge: GasStandingChargeCoordinatorResult = await async_refresh_gas_standing_charges_data(
       current,
       client,
       account_info,
-      mpan,
+      mprn,
       serial_number,
       existing_standing_charge
     )
