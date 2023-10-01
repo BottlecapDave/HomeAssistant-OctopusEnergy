@@ -35,7 +35,7 @@ class GasRatesCoordinatorResult:
     self.last_retrieved = last_retrieved
     self.rates = rates
 
-def get_tariff_code_and_is_smart_meter(current: datetime, account_info, target_mprn: str, target_serial_number: str):
+def get_tariff_code(current: datetime, account_info, target_mprn: str, target_serial_number: str):
   if len(account_info["gas_meter_points"]) > 0:
     for point in account_info["gas_meter_points"]:
       active_tariff_code = get_active_tariff_code(current, point["agreements"])
@@ -60,7 +60,7 @@ async def async_refresh_gas_rates_data(
     period_from = as_utc((current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
     period_to = as_utc((current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0))
 
-    tariff_code = get_tariff_code_and_is_smart_meter(current, account_info, target_mprn, target_serial_number)
+    tariff_code = get_tariff_code(current, account_info, target_mprn, target_serial_number)
     if tariff_code is None:
       return None
 

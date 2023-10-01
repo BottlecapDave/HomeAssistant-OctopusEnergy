@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from custom_components.octopus_energy.utils import get_active_tariff_code
 
 from homeassistant.util.dt import (now, as_utc)
 from homeassistant.helpers.update_coordinator import (
@@ -7,9 +8,10 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from ..const import (
+  COORDINATOR_REFRESH_IN_SECONDS,
+  DATA_ELECTRICITY_STANDING_CHARGE_KEY,
   DOMAIN,
   DATA_CLIENT,
-  DATA_ELECTRICITY_STANDING_CHARGES,
   DATA_ACCOUNT,
 )
 
@@ -19,73 +21,89 @@ from . import get_current_electricity_agreement_tariff_codes
 
 _LOGGER = logging.getLogger(__name__)
 
+class ElectricityStandingChargeCoordinatorResult:
+  last_retrieved: datetime
+  standing_charge: {}
+
+  def __init__(self, last_retrieved: datetime, standing_charge: {}):
+    self.last_retrieved = last_retrieved
+    self.standing_charge = standing_charge
+
+def get_tariff_code(current: datetime, account_info, target_mpan: str, target_serial_number: str):
+  if len(account_info["electricity_meter_points"]) > 0:
+    for point in account_info["electricity_meter_points"]:
+      active_tariff_code = get_active_tariff_code(current, point["agreements"])
+      # The type of meter (ie smart vs dumb) can change the tariff behaviour, so we
+      # have to enumerate the different meters being used for each tariff as well.
+      for meter in point["meters"]:
+        if active_tariff_code is not None and point["mpan"] == target_mpan and meter["serial_number"] == target_serial_number:
+           return active_tariff_code
+
 async def async_refresh_electricity_standing_charges_data(
     current: datetime,
     client: OctopusEnergyApiClient,
     account_info,
-    existing_standing_charges: list
+    target_mpan: str,
+    target_serial_number: str,
+    existing_standing_charges_result: ElectricityStandingChargeCoordinatorResult
   ):
+  period_from = as_utc(current.replace(hour=0, minute=0, second=0, microsecond=0))
+  period_to = period_from + timedelta(days=1)
+
   if (account_info is not None):
-    tariff_codes = get_current_electricity_agreement_tariff_codes(current, account_info)
-
-    period_from = as_utc(current.replace(hour=0, minute=0, second=0, microsecond=0))
-    period_to = period_from + timedelta(days=1)
-
-    standing_charges = {}
-    for ((meter_point, is_smart_meter), tariff_code) in tariff_codes.items():
-      key = meter_point
-
-      new_standing_charges = None
-      if ((current.minute % 30) == 0 or 
-          existing_standing_charges is None or
-          key not in existing_standing_charges or
-          (existing_standing_charges[key]["valid_from"] is not None and existing_standing_charges[key]["valid_from"] < period_from)):
-        try:
-          new_standing_charges = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
-          _LOGGER.debug(f'Electricity standing charges retrieved for {tariff_code}')
-        except:
-          _LOGGER.debug(f'Failed to retrieve electricity standing charges for {tariff_code}')
-      else:
-          new_standing_charges = existing_standing_charges[key]
-        
-      if new_standing_charges is not None:
-        standing_charges[key] = new_standing_charges
-      elif (existing_standing_charges is not None and key in existing_standing_charges):
-        _LOGGER.debug(f"Failed to retrieve new electricity standing charges for {tariff_code}, so using cached standing charges")
-        standing_charges[key] = existing_standing_charges[key]
-
-    return standing_charges
+    tariff_code = get_tariff_code(current, account_info, target_mpan, target_serial_number)
+    if tariff_code is None:
+      return None
+    
+    new_standing_charge = None
+    if ((current.minute % 30) == 0 or 
+        existing_standing_charges_result is None or
+        (existing_standing_charges_result.standing_charge["valid_from"] is not None and existing_standing_charges_result.standing_charge["valid_from"] < period_from)):
+      try:
+        new_standing_charge = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
+        _LOGGER.debug(f'Electricity standing charges retrieved for {target_mpan}/{target_serial_number} ({tariff_code})')
+      except:
+        _LOGGER.debug(f'Failed to retrieve electricity standing charges for {target_mpan}/{target_serial_number} ({tariff_code})')
+      
+    if new_standing_charge is not None:
+      return ElectricityStandingChargeCoordinatorResult(current, new_standing_charge)
+    elif (existing_standing_charges_result is not None):
+      _LOGGER.debug(f"Failed to retrieve new electricity standing charges for {target_mpan}/{target_serial_number} ({tariff_code}), so using cached standing charges")
   
-  return existing_standing_charges
+  return existing_standing_charges_result
 
-async def async_setup_electricity_standing_charges_coordinator(hass, account_id: str):
+async def async_setup_electricity_standing_charges_coordinator(hass, target_mpan: str, target_serial_number: str):
+  key = DATA_ELECTRICITY_STANDING_CHARGE_KEY.format(target_mpan, target_serial_number)
+  
   # Reset data rates as we might have new information
-  hass.data[DOMAIN][DATA_ELECTRICITY_STANDING_CHARGES] = []
+  hass.data[DOMAIN][key] = None
   
   async def async_update_electricity_standing_charges_data():
     """Fetch data from API endpoint."""
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     account_info = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
-    standing_charges = hass.data[DOMAIN][DATA_ELECTRICITY_STANDING_CHARGES] if DATA_ELECTRICITY_STANDING_CHARGES in hass.data[DOMAIN] else {}
+    standing_charges: ElectricityStandingChargeCoordinatorResult = hass.data[DOMAIN][key] if key in hass.data[DOMAIN] else None
 
-    hass.data[DOMAIN][DATA_ELECTRICITY_STANDING_CHARGES] = await async_refresh_electricity_standing_charges_data(
+    hass.data[DOMAIN][key] = await async_refresh_electricity_standing_charges_data(
       current,
       client,
       account_info,
+      target_mpan,
+      target_serial_number,
       standing_charges,
     )
 
-    return hass.data[DOMAIN][DATA_ELECTRICITY_STANDING_CHARGES]
+    return hass.data[DOMAIN][key]
 
   coordinator = DataUpdateCoordinator(
     hass,
     _LOGGER,
-    name="electricity_standing_charges",
+    name=key,
     update_method=async_update_electricity_standing_charges_data,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes
-    update_interval=timedelta(minutes=1),
+    update_interval=timedelta(minutes=COORDINATOR_REFRESH_IN_SECONDS),
   )
 
   await coordinator.async_config_entry_first_refresh()

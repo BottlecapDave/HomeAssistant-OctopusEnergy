@@ -97,7 +97,6 @@ async def async_refresh_electricity_rates_data(
 
     elif (existing_rates_result is not None):
       _LOGGER.debug(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number}, so using cached rates")
-      return existing_rates_result
   
   return existing_rates_result
 
