@@ -5,7 +5,7 @@ from homeassistant.util.dt import (utcnow, parse_datetime)
 
 from homeassistant.helpers import storage
 
-from ..utils import get_tariff_parts
+from ..utils import get_active_tariff_code, get_tariff_parts
 
 from ..const import DOMAIN
 
@@ -83,6 +83,15 @@ def is_intelligent_tariff(tariff_code: str):
   parts = get_tariff_parts(tariff_code.upper())
 
   return parts is not None and "INTELLI" in parts.product_code
+
+def has_intelligent_tariff(current: datetime, account_info):
+  if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
+    for point in account_info["electricity_meter_points"]:
+      tariff_code = get_active_tariff_code(current, point["agreements"])
+      if tariff_code is not None and is_intelligent_tariff(tariff_code):
+        return True
+
+  return False
 
 def __get_dispatch(rate, dispatches, expected_source: str):
   for dispatch in dispatches:

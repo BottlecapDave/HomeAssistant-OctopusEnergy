@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime, timedelta
 from typing import Callable, Any
-from custom_components.octopus_energy.utils import get_active_tariff_code
 
 from homeassistant.util.dt import (now, as_utc)
 from homeassistant.helpers.update_coordinator import (
@@ -23,7 +22,7 @@ from ..const import (
 
 from ..api_client import OctopusEnergyApiClient
 
-from . import raise_rate_events
+from . import get_electricity_meter_tariff_code_and_is_smart_meter, raise_rate_events
 from ..intelligent import adjust_intelligent_rates
 
 _LOGGER = logging.getLogger(__name__)
@@ -35,18 +34,6 @@ class ElectricityRatesCoordinatorResult:
   def __init__(self, last_retrieved: datetime, rates: list):
     self.last_retrieved = last_retrieved
     self.rates = rates
-
-def get_tariff_code_and_is_smart_meter(current: datetime, account_info, target_mpan: str, target_serial_number: str):
-  if len(account_info["electricity_meter_points"]) > 0:
-    for point in account_info["electricity_meter_points"]:
-      active_tariff_code = get_active_tariff_code(current, point["agreements"])
-      # The type of meter (ie smart vs dumb) can change the tariff behaviour, so we
-      # have to enumerate the different meters being used for each tariff as well.
-      for meter in point["meters"]:
-        if active_tariff_code is not None and point["mpan"] == target_mpan and meter["serial_number"] == target_serial_number:
-           return (active_tariff_code, meter["is_smart_meter"])
-           
-  return None
 
 async def async_refresh_electricity_rates_data(
     current: datetime,
@@ -62,21 +49,24 @@ async def async_refresh_electricity_rates_data(
     period_from = as_utc((current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
     period_to = as_utc((current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0))
 
-    result = get_tariff_code_and_is_smart_meter(current, account_info, target_mpan, target_serial_number)
+    result = get_electricity_meter_tariff_code_and_is_smart_meter(current, account_info, target_mpan, target_serial_number)
     if result is None:
       return None
+    
+    tariff_code: str = result[0]
+    is_smart_meter: bool = result[1]
 
     new_rates: list = None
     if ((current.minute % 30) == 0 or 
         existing_rates_result is None or
         existing_rates_result.rates[-1]["valid_from"] < period_from):
       try:
-        new_rates = await client.async_get_electricity_rates(result[0], result[1], period_from, period_to)
+        new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
       except:
-        _LOGGER.debug(f'Failed to retrieve electricity rates for {target_mpan}/{target_serial_number} ({result[0]})')
+        _LOGGER.debug(f'Failed to retrieve electricity rates for {target_mpan}/{target_serial_number} ({tariff_code})')
       
     if new_rates is not None:
-      _LOGGER.debug(f'Electricity rates retrieved for {target_mpan}/{target_serial_number} ({result[0]});')
+      _LOGGER.debug(f'Electricity rates retrieved for {target_mpan}/{target_serial_number} ({tariff_code});')
       
       if dispatches is not None:
         new_rates = adjust_intelligent_rates(new_rates, 
@@ -87,7 +77,7 @@ async def async_refresh_electricity_rates_data(
 
       raise_rate_events(current,
                         new_rates,
-                        { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": result[0] },
+                        { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": tariff_code },
                         fire_event,
                         EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
                         EVENT_ELECTRICITY_CURRENT_DAY_RATES,

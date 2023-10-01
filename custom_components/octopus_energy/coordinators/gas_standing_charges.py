@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta
-from custom_components.octopus_energy.utils import get_active_tariff_code
+from custom_components.octopus_energy.coordinators import get_gas_meter_tariff_code
 
 from homeassistant.util.dt import (now, as_utc)
 from homeassistant.helpers.update_coordinator import (
@@ -27,16 +27,6 @@ class GasStandingChargeCoordinatorResult:
     self.last_retrieved = last_retrieved
     self.standing_charge = standing_charge
 
-def get_tariff_code(current: datetime, account_info, target_mprn: str, target_serial_number: str):
-  if len(account_info["gas_meter_points"]) > 0:
-    for point in account_info["gas_meter_points"]:
-      active_tariff_code = get_active_tariff_code(current, point["agreements"])
-      # The type of meter (ie smart vs dumb) can change the tariff behaviour, so we
-      # have to enumerate the different meters being used for each tariff as well.
-      for meter in point["meters"]:
-        if active_tariff_code is not None and point["mprn"] == target_mprn and meter["serial_number"] == target_serial_number:
-           return active_tariff_code
-
 async def async_refresh_gas_standing_charges_data(
     current: datetime,
     client: OctopusEnergyApiClient,
@@ -49,7 +39,7 @@ async def async_refresh_gas_standing_charges_data(
   period_to = period_from + timedelta(days=1)
 
   if (account_info is not None):
-    tariff_code = get_tariff_code(current, account_info, target_mprn, target_serial_number)
+    tariff_code = get_gas_meter_tariff_code(current, account_info, target_mprn, target_serial_number)
     if tariff_code is None:
       return None
     
