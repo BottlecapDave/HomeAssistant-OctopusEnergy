@@ -535,7 +535,7 @@ class OctopusEnergyApiClient:
 
     return results
 
-  async def async_get_electricity_rates(self, tariff_code, is_smart_meter, period_from, period_to):
+  async def async_get_electricity_rates(self, tariff_code: str, is_smart_meter: bool, period_from: datetime, period_to: datetime):
     """Get the current rates"""
 
     tariff_parts = get_tariff_parts(tariff_code)

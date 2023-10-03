@@ -5,7 +5,7 @@ import mock
 from unit import (create_rate_data)
 
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
-from custom_components.octopus_energy.coordinators.gas_rates import async_refresh_gas_rates_data
+from custom_components.octopus_energy.coordinators.gas_rates import GasRatesCoordinatorResult, async_refresh_gas_rates_data
 from custom_components.octopus_energy.const import EVENT_GAS_CURRENT_DAY_RATES, EVENT_GAS_NEXT_DAY_RATES, EVENT_GAS_PREVIOUS_DAY_RATES
 
 current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
@@ -48,6 +48,8 @@ def assert_raised_events(raised_events: dict, expected_event_name: str, expected
   assert expected_event_name in raised_events
   assert "mprn" in raised_events[expected_event_name]
   assert raised_events[expected_event_name]["mprn"] == mprn
+  assert "serial_number" in raised_events[expected_event_name]
+  assert raised_events[expected_event_name]["serial_number"] == serial_number
   assert "rates" in raised_events[expected_event_name]
   assert len(raised_events[expected_event_name]["rates"]) > 2
   assert "valid_from" in raised_events[expected_event_name]["rates"][0]
@@ -71,9 +73,7 @@ async def test_when_account_info_is_none_then_existing_rates_returned():
     return None
   
   account_info = None
-  existing_rates = {
-    mprn: create_rate_data(period_from, period_to, [2, 4])
-  }
+  existing_rates = GasRatesCoordinatorResult(period_from, create_rate_data(period_from, period_to, [2, 4]))
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -81,6 +81,8 @@ async def test_when_account_info_is_none_then_existing_rates_returned():
       current,
       client,
       account_info,
+      mprn,
+      serial_number,
       existing_rates,
       fire_event
     )
@@ -90,7 +92,7 @@ async def test_when_account_info_is_none_then_existing_rates_returned():
     assert len(actual_fired_events.keys()) == 0
 
 @pytest.mark.asyncio
-async def test_when_no_active_rates_then_empty_rates_returned():
+async def test_when_no_active_rates_then_none_returned():
   expected_rates = create_rate_data(period_from, period_to, [1, 2])
   rates_returned = False
   async def async_mocked_get_gas_rates(*args, **kwargs):
@@ -105,9 +107,7 @@ async def test_when_no_active_rates_then_empty_rates_returned():
     return None
   
   account_info = get_account_info(False)
-  existing_rates = {
-    mprn: create_rate_data(period_from, period_to, [2, 4])
-  }
+  existing_rates = GasRatesCoordinatorResult(period_from, create_rate_data(period_from, period_to, [2, 4]))
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -115,11 +115,13 @@ async def test_when_no_active_rates_then_empty_rates_returned():
       current,
       client,
       account_info,
+      mprn,
+      serial_number,
       existing_rates,
       fire_event
     )
 
-    assert retrieved_rates == {}
+    assert retrieved_rates == None
     assert rates_returned == False
     assert len(actual_fired_events.keys()) == 0
 
@@ -144,9 +146,7 @@ async def test_when_current_is_not_thirty_minutes_then_existing_rates_returned()
       return None
     
     account_info = get_account_info()
-    existing_rates = {
-      mprn: create_rate_data(period_from, period_to, [2, 4])
-    }
+    existing_rates = GasRatesCoordinatorResult(period_from, create_rate_data(period_from, period_to, [2, 4]))
 
     with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
       client = OctopusEnergyApiClient("NOT_REAL")
@@ -154,6 +154,8 @@ async def test_when_current_is_not_thirty_minutes_then_existing_rates_returned()
         current,
         client,
         account_info,
+        mprn,
+        serial_number,
         existing_rates,
         fire_event
       )
@@ -185,9 +187,7 @@ async def test_when_existing_rates_is_none_then_rates_retrieved():
   
   account_info = get_account_info()
   existing_rates = None
-  expected_retrieved_rates = {
-    mprn: expected_rates
-  }
+  expected_retrieved_rates = GasRatesCoordinatorResult(current, expected_rates)
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -195,11 +195,15 @@ async def test_when_existing_rates_is_none_then_rates_retrieved():
       current,
       client,
       account_info,
+      mprn,
+      serial_number,
       existing_rates,
       fire_event
     )
 
-    assert retrieved_rates == expected_retrieved_rates
+    assert retrieved_rates is not None
+    assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
+    assert retrieved_rates.rates == expected_retrieved_rates.rates
     assert rates_returned == True
     assert requested_period_from == expected_period_from
     assert requested_period_to == expected_period_to
@@ -209,46 +213,6 @@ async def test_when_existing_rates_is_none_then_rates_retrieved():
     assert_raised_events(actual_fired_events, EVENT_GAS_CURRENT_DAY_RATES, requested_period_from + timedelta(days=1), requested_period_from + timedelta(days=2))
     assert_raised_events(actual_fired_events, EVENT_GAS_NEXT_DAY_RATES, requested_period_from + timedelta(days=2), requested_period_from + timedelta(days=3))
   
-@pytest.mark.asyncio
-async def test_when_key_not_in_existing_rates_is_none_then_rates_retrieved():
-  expected_period_from = (current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-  expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
-  expected_rates = create_rate_data(expected_period_from, expected_period_to, [1, 2])
-  rates_returned = False
-  async def async_mocked_get_gas_rates(*args, **kwargs):
-    nonlocal rates_returned
-    rates_returned = True
-    return expected_rates
-  
-  actual_fired_events = {}
-  def fire_event(name, metadata):
-    nonlocal actual_fired_events
-    actual_fired_events[name] = metadata
-    return None
-  
-  account_info = get_account_info()
-  existing_rates = {}
-  expected_retrieved_rates = {
-    mprn: expected_rates
-  }
-
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
-    client = OctopusEnergyApiClient("NOT_REAL")
-    retrieved_rates = await async_refresh_gas_rates_data(
-      current,
-      client,
-      account_info,
-      existing_rates,
-      fire_event
-    )
-
-    assert retrieved_rates == expected_retrieved_rates
-    assert rates_returned == True
-    
-    assert len(actual_fired_events.keys()) == 3
-    assert_raised_events(actual_fired_events, EVENT_GAS_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
-    assert_raised_events(actual_fired_events, EVENT_GAS_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
-    assert_raised_events(actual_fired_events, EVENT_GAS_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
 
 @pytest.mark.asyncio
 async def test_when_existing_rates_is_old_then_rates_retrieved():
@@ -268,12 +232,8 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
     return None
   
   account_info = get_account_info()
-  existing_rates = {
-    mprn: create_rate_data(period_from - timedelta(days=60), period_to - timedelta(days=60), [2, 4])
-  }
-  expected_retrieved_rates = {
-    mprn: expected_rates
-  }
+  existing_rates = GasRatesCoordinatorResult(period_from, create_rate_data(period_from - timedelta(days=60), period_to - timedelta(days=60), [2, 4]))
+  expected_retrieved_rates = GasRatesCoordinatorResult(current, expected_rates)
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -281,11 +241,15 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
       current,
       client,
       account_info,
+      mprn,
+      serial_number,
       existing_rates,
       fire_event
     )
 
-    assert retrieved_rates == expected_retrieved_rates
+    assert retrieved_rates is not None
+    assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
+    assert retrieved_rates.rates == expected_retrieved_rates.rates
     assert rates_returned == True
     
     assert len(actual_fired_events.keys()) == 3
@@ -309,9 +273,7 @@ async def test_when_rates_not_retrieved_then_existing_rates_returned():
     return None
   
   account_info = get_account_info()
-  existing_rates = {
-    mprn: expected_rates
-  }
+  existing_rates = GasRatesCoordinatorResult(period_from, expected_rates)
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -319,12 +281,14 @@ async def test_when_rates_not_retrieved_then_existing_rates_returned():
       current,
       client,
       account_info,
+      mprn,
+      serial_number,
       existing_rates,
       fire_event
     )
 
     assert retrieved_rates is not None
-    assert mprn in retrieved_rates
-    assert retrieved_rates[mprn] == expected_rates
+    assert retrieved_rates.last_retrieved == existing_rates.last_retrieved
+    assert retrieved_rates.rates == existing_rates.rates
     assert rates_returned == True
     assert len(actual_fired_events.keys()) == 0

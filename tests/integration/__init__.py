@@ -84,16 +84,3 @@ def create_rate_data(period_from, period_to, expected_rates: list):
       rate_index = 0
 
   return rates
-
-async def async_get_tracker_tariff(api_key, tariff_code, target_date):
-  async with aiohttp.ClientSession() as client:
-    auth = aiohttp.BasicAuth(api_key, '')
-    url = f'https://octopus.energy/api/v1/tracker/{tariff_code}/daily/past/1/0'
-    async with client.get(url, auth=auth) as response:
-      text = await response.text()
-      data = json.loads(text)
-      for period in data["periods"]:
-        valid_from = parse_datetime(f'{period["date"]}T00:00:00Z')
-        valid_to = parse_datetime(f'{period["date"]}T00:00:00Z') + timedelta(days=1)
-        if (valid_from <= target_date and valid_to >= target_date):
-          return period

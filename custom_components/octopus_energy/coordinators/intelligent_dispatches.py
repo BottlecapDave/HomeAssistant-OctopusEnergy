@@ -1,8 +1,7 @@
 import logging
 from datetime import timedelta
 
-from ..coordinators import get_current_electricity_agreement_tariff_codes
-from ..intelligent import async_mock_intelligent_data, clean_previous_dispatches, is_intelligent_tariff, mock_intelligent_dispatches
+from ..intelligent import async_mock_intelligent_data, clean_previous_dispatches, has_intelligent_tariff, mock_intelligent_dispatches
 
 from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
@@ -53,17 +52,13 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     if (DATA_ACCOUNT in hass.data[DOMAIN]):
 
-      tariff_codes = get_current_electricity_agreement_tariff_codes(current, hass.data[DOMAIN][DATA_ACCOUNT])
-
       dispatches = None
-      for ((meter_point), tariff_code) in tariff_codes.items():
-        if is_intelligent_tariff(tariff_code):
-          try:
-            dispatches = await client.async_get_intelligent_dispatches(account_id)
-            _LOGGER.debug(f'Intelligent dispatches retrieved for {tariff_code}')
-          except:
-            _LOGGER.debug('Failed to retrieve intelligent dispatches')
-          break
+      if has_intelligent_tariff(current, hass.data[DOMAIN][DATA_ACCOUNT]):
+        try:
+          dispatches = await client.async_get_intelligent_dispatches(account_id)
+          _LOGGER.debug(f'Intelligent dispatches retrieved for account {account_id}')
+        except:
+          _LOGGER.debug('Failed to retrieve intelligent dispatches for account {account_id}')
 
       if await async_mock_intelligent_data(hass):
         dispatches = mock_intelligent_dispatches()
