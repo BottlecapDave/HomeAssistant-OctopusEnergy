@@ -10,6 +10,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.helpers import storage
 
 from ..const import (
+  COORDINATOR_REFRESH_IN_SECONDS,
   DOMAIN,
 
   DATA_CLIENT,
@@ -61,7 +62,8 @@ async def async_setup_intelligent_settings_coordinator(hass, account_id: str):
     _LOGGER,
     name="intelligent_settings",
     update_method=async_update_intelligent_settings_data,
-    update_interval=timedelta(minutes=1),
+    update_interval=timedelta(minutes=COORDINATOR_REFRESH_IN_SECONDS),
+    always_update=True
   )
 
   await hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS_COORDINATOR].async_config_entry_first_refresh()

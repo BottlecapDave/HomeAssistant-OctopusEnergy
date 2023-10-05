@@ -8,6 +8,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from ..const import (
+  COORDINATOR_REFRESH_IN_SECONDS,
   DOMAIN,
   DATA_INTELLIGENT_DISPATCHES,
   EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES,
@@ -144,7 +145,8 @@ async def async_create_previous_consumption_and_rates_coordinator(
     update_method=async_update_data,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes
-    update_interval=timedelta(minutes=1),
+    update_interval=timedelta(minutes=COORDINATOR_REFRESH_IN_SECONDS),
+    always_update=True
   )
 
   hass.data[DOMAIN][f'{identifier}_{serial_number}_previous_consumption_and_cost_coordinator'] = coordinator

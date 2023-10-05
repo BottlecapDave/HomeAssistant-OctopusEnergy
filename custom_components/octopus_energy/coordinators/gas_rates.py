@@ -10,8 +10,6 @@ from homeassistant.helpers.update_coordinator import (
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
   DOMAIN,
-  DATA_CLIENT,
-  DATA_GAS_RATES_COORDINATOR_KEY,
   DATA_GAS_RATES_KEY,
   DATA_ACCOUNT,
   EVENT_GAS_CURRENT_DAY_RATES,
@@ -53,6 +51,8 @@ async def async_refresh_gas_rates_data(
     new_rates: list = None
     if ((current.minute % 30) == 0 or 
         existing_rates_result is None or
+        existing_rates_result.rates is None or
+        len(existing_rates_result.rates) < 1 or
         existing_rates_result.rates[-1]["valid_from"] < period_from):
       try:
         new_rates = await client.async_get_gas_rates(tariff_code, period_from, period_to)
@@ -110,6 +110,7 @@ async def async_setup_gas_rates_coordinator(hass, client: OctopusEnergyApiClient
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes
     update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),
+    always_update=True
   )
 
   await coordinator.async_config_entry_first_refresh()

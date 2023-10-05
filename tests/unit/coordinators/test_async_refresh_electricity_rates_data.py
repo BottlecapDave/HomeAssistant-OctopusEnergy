@@ -171,7 +171,12 @@ async def test_when_current_is_not_thirty_minutes_then_existing_rates_returned()
       assert len(actual_fired_events.keys()) == 0
 
 @pytest.mark.asyncio
-async def test_when_existing_rates_is_none_then_rates_retrieved():
+@pytest.mark.parametrize("existing_rates",[
+  (None),
+  (ElectricityRatesCoordinatorResult(period_from, [])),
+  (ElectricityRatesCoordinatorResult(period_from, None)),
+])
+async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
   expected_period_from = (current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_rates = create_rate_data(expected_period_from, expected_period_to, [1, 2])
@@ -192,7 +197,6 @@ async def test_when_existing_rates_is_none_then_rates_retrieved():
     return None
   
   account_info = get_account_info()
-  existing_rates = None
   expected_retrieved_rates = ElectricityRatesCoordinatorResult(current, expected_rates)
   dispatches = { "planned": [], "completed": [] }
 

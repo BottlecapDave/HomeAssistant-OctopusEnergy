@@ -48,6 +48,7 @@ async def async_refresh_electricity_standing_charges_data(
     new_standing_charge = None
     if ((current.minute % 30) == 0 or 
         existing_standing_charges_result is None or
+        existing_standing_charges_result.standing_charge is None or
         (existing_standing_charges_result.standing_charge["valid_from"] is not None and existing_standing_charges_result.standing_charge["valid_from"] < period_from)):
       try:
         new_standing_charge = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
@@ -94,6 +95,7 @@ async def async_setup_electricity_standing_charges_coordinator(hass, target_mpan
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes
     update_interval=timedelta(minutes=COORDINATOR_REFRESH_IN_SECONDS),
+    always_update=True
   )
 
   await coordinator.async_config_entry_first_refresh()

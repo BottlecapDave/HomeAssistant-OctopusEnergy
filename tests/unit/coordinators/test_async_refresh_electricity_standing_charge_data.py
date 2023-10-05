@@ -144,7 +144,12 @@ async def test_when_current_is_not_thirty_minutes_then_existing_standing_charge_
 
 
 @pytest.mark.asyncio
-async def test_when_existing_standing_charge_is_none_then_standing_charge_retrieved():
+@pytest.mark.parametrize("existing_standing_charge",[
+  (None),
+  (ElectricityStandingChargeCoordinatorResult(period_from, [])),
+  (ElectricityStandingChargeCoordinatorResult(period_from, None)),
+])
+async def test_when_existing_standing_charge_is_none_then_standing_charge_retrieved(existing_standing_charge):
   expected_period_from = current.replace(hour=0, minute=0, second=0, microsecond=0)
   expected_period_to = expected_period_from + timedelta(days=1)
   expected_standing_charge = {
@@ -163,7 +168,6 @@ async def test_when_existing_standing_charge_is_none_then_standing_charge_retrie
     return expected_standing_charge
   
   account_info = get_account_info()
-  existing_standing_charge = None
   expected_retrieved_standing_charge = ElectricityStandingChargeCoordinatorResult(current, expected_standing_charge)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):

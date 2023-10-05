@@ -59,6 +59,8 @@ async def async_refresh_electricity_rates_data(
     new_rates: list = None
     if ((current.minute % 30) == 0 or 
         existing_rates_result is None or
+        existing_rates_result.rates is None or
+        len(existing_rates_result.rates) < 1 or
         existing_rates_result.rates[-1]["valid_from"] < period_from):
       try:
         new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
@@ -126,6 +128,7 @@ async def async_setup_electricity_rates_coordinator(hass, target_mpan: str, targ
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes
     update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),
+    always_update=True
   )
 
   await hass.data[DOMAIN][coordinator_key].async_config_entry_first_refresh()

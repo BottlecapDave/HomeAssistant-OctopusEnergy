@@ -42,6 +42,7 @@ async def async_create_current_consumption_coordinator(hass, client: OctopusEner
     name=f"current_consumption_{device_id}",
     update_method=async_update_data,
     update_interval=timedelta(minutes=refresh_rate_in_minutes),
+    always_update=True
   )
   
   await coordinator.async_config_entry_first_refresh()
