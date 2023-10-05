@@ -1,6 +1,7 @@
 from datetime import timedelta
 import logging
 from typing import Callable, Any
+import asyncio
 
 from homeassistant.util.dt import (utcnow, now, as_utc)
 from homeassistant.helpers.update_coordinator import (
@@ -56,19 +57,25 @@ async def async_fetch_consumption_and_rates(
     
     try:
       if (is_electricity == True):
-        consumption_data = await client.async_get_electricity_consumption(identifier, serial_number, period_from, period_to)
-        rate_data = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
+
+        [consumption_data, rate_data, standing_charge] = await asyncio.gather(
+          client.async_get_electricity_consumption(identifier, serial_number, period_from, period_to),
+          client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to),
+          client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
+        )
+
         if intelligent_dispatches is not None:
           rate_data = adjust_intelligent_rates(rate_data,
                                                 intelligent_dispatches["planned"] if "planned" in intelligent_dispatches else [],
                                                 intelligent_dispatches["completed"] if "completed" in intelligent_dispatches else [])
           
           _LOGGER.debug(f"Tariff: {tariff_code}; dispatches: {intelligent_dispatches}")
-        standing_charge = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
       else:
-        consumption_data = await client.async_get_gas_consumption(identifier, serial_number, period_from, period_to)
-        rate_data = await client.async_get_gas_rates(tariff_code, period_from, period_to)
-        standing_charge = await client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
+        [consumption_data, rate_data, standing_charge] = await asyncio.gather(
+          client.async_get_gas_consumption(identifier, serial_number, period_from, period_to),
+          client.async_get_gas_rates(tariff_code, period_from, period_to),
+          client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
+        )
       
       if consumption_data is not None and len(consumption_data) >= MINIMUM_CONSUMPTION_DATA_LENGTH and rate_data is not None and len(rate_data) > 0 and standing_charge is not None:
         _LOGGER.debug(f"Discovered previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
