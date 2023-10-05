@@ -202,7 +202,8 @@ async def async_unload_entry(hass, entry):
               hass.config_entries.async_forward_entry_unload(entry, "text"),
               hass.config_entries.async_forward_entry_unload(entry, "number"),
               hass.config_entries.async_forward_entry_unload(entry, "switch"),
-              hass.config_entries.async_forward_entry_unload(entry, "time")
+              hass.config_entries.async_forward_entry_unload(entry, "time"),
+              hass.config_entries.async_forward_entry_unload(entry, "event")
              ]
         )
       )
