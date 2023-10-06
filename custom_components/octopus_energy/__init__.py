@@ -34,6 +34,9 @@ from .const import (
   DATA_ACCOUNT
 )
 
+ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "text", "number", "switch", "time", "event"]
+TARGET_RATE_PLATFORMS = ["binary_sensor"]
+
 from .api_client import OctopusEnergyApiClient
 
 _LOGGER = logging.getLogger(__name__)
@@ -77,34 +80,7 @@ async def async_setup_entry(hass, entry):
   if CONFIG_MAIN_API_KEY in config:
     await async_setup_dependencies(hass, config)
 
-    # Forward our entry to setup our default sensors
-    hass.async_create_task(
-      hass.config_entries.async_forward_entry_setup(entry, "sensor")
-    )
-
-    hass.async_create_task(
-      hass.config_entries.async_forward_entry_setup(entry, "binary_sensor")
-    )
-
-    hass.async_create_task(
-      hass.config_entries.async_forward_entry_setup(entry, "text")
-    )
-
-    hass.async_create_task(
-      hass.config_entries.async_forward_entry_setup(entry, "number")
-    )
-
-    hass.async_create_task(
-      hass.config_entries.async_forward_entry_setup(entry, "switch")
-    )
-
-    hass.async_create_task(
-      hass.config_entries.async_forward_entry_setup(entry, "time")
-    )
-
-    hass.async_create_task(
-      hass.config_entries.async_forward_entry_setup(entry, "event")
-    )
+    await hass.config_entries.async_forward_entry_setups(entry, ACCOUNT_PLATFORMS)
   elif CONFIG_TARGET_NAME in config:
     if DOMAIN not in hass.data or DATA_ACCOUNT not in hass.data[DOMAIN]:
       raise ConfigEntryNotReady("Account has not been setup")
@@ -122,10 +98,7 @@ async def async_setup_entry(hass, entry):
           if electricity_rates_coordinator_key not in hass.data[DOMAIN]:
             raise ConfigEntryNotReady(f"Electricity rates have not been setup for {mpan}/{serial_number}")
 
-    # Forward our entry to setup our target rate sensors
-    hass.async_create_task(
-      hass.config_entries.async_forward_entry_setup(entry, "binary_sensor")
-    )
+    await hass.config_entries.async_forward_entry_setups(entry, TARGET_RATE_PLATFORMS)
   
   entry.async_on_unload(entry.add_update_listener(options_update_listener))
 
@@ -194,25 +167,9 @@ async def async_unload_entry(hass, entry):
 
     unload_ok = False
     if CONFIG_MAIN_API_KEY in entry.data:
-      unload_ok = all(
-        await asyncio.gather(
-            *[
-              hass.config_entries.async_forward_entry_unload(entry, "sensor"),
-              hass.config_entries.async_forward_entry_unload(entry, "binary_sensor"),
-              hass.config_entries.async_forward_entry_unload(entry, "text"),
-              hass.config_entries.async_forward_entry_unload(entry, "number"),
-              hass.config_entries.async_forward_entry_unload(entry, "switch"),
-              hass.config_entries.async_forward_entry_unload(entry, "time"),
-              hass.config_entries.async_forward_entry_unload(entry, "event")
-             ]
-        )
-      )
+      unload_ok = await hass.config_entries.async_unload_platforms(entry, ACCOUNT_PLATFORMS)
     elif CONFIG_TARGET_NAME in entry.data:
-      unload_ok = all(
-        await asyncio.gather(
-            *[hass.config_entries.async_forward_entry_unload(entry, "binary_sensor")]
-        )
-      )
+      unload_ok = await hass.config_entries.async_unload_platforms(entry, TARGET_RATE_PLATFORMS)
 
     return unload_ok
 
