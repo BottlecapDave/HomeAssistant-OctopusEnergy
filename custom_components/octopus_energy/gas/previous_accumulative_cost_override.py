@@ -161,7 +161,7 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
           "calorific_value": self._calorific_value
         }
         
-        self._hass.bus.async_fire(EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mprn": self._mprn, "tariff_code": self._tariff_code, "rates": rate_data })
+        self._hass.bus.async_fire(EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mprn": self._mprn, "serial_number": self._serial_number, "tariff_code": self._tariff_code, "rates": rate_data })
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

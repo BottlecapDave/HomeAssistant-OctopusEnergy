@@ -8,6 +8,8 @@ from unit import (create_consumption_data, create_rate_data)
 from custom_components.octopus_energy.coordinators.previous_consumption_and_rates import async_fetch_consumption_and_rates
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
+sensor_serial_number = "123456"
+
 def assert_raised_events(
   raised_events: dict,
   expected_event_name: str,
@@ -19,6 +21,8 @@ def assert_raised_events(
   assert expected_event_name in raised_events
   assert expected_identifier in raised_events[expected_event_name]
   assert raised_events[expected_event_name][expected_identifier] == expected_identifier_value
+  assert "serial_number" in raised_events[expected_event_name]
+  assert raised_events[expected_event_name]["serial_number"] == sensor_serial_number
   assert "rates" in raised_events[expected_event_name]
   assert len(raised_events[expected_event_name]["rates"]) > 2
   assert "valid_from" in raised_events[expected_event_name]["rates"][0]
@@ -32,7 +36,6 @@ async def test_when_now_is_not_at_30_minute_mark_and_previous_data_is_available_
   client = OctopusEnergyApiClient("NOT_REAL")
 
   sensor_identifier = "ABC123"
-  sensor_serial_number = "123456"
   is_electricity = False
   tariff_code = "AB-123"
   is_smart_meter = True
@@ -88,7 +91,6 @@ async def test_when_now_is_at_30_minute_mark_and_previous_data_is_in_requested_p
   client = OctopusEnergyApiClient("NOT_REAL")
 
   sensor_identifier = "ABC123"
-  sensor_serial_number = "123456"
   is_electricity = False
   tariff_code = "AB-123"
   is_smart_meter = True
@@ -165,7 +167,6 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_then_requested_data_
     client = OctopusEnergyApiClient("NOT_REAL")
 
     sensor_identifier = "ABC123"
-    sensor_serial_number = "123456"
     is_electricity = False
     tariff_code = "AB-123"
     is_smart_meter = True
@@ -271,7 +272,6 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
     client = OctopusEnergyApiClient("NOT_REAL")
 
     sensor_identifier = "ABC123"
-    sensor_serial_number = "123456"
     is_electricity = True
     tariff_code = "AB-123"
     is_smart_meter = True
@@ -367,7 +367,6 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_and_returned_data_is
     client = OctopusEnergyApiClient("NOT_REAL")
 
     sensor_identifier = "ABC123"
-    sensor_serial_number = "123456"
     is_electricity = False
     tariff_code = "AB-123"
     is_smart_meter = True
@@ -436,7 +435,6 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_and_returned
     client = OctopusEnergyApiClient("NOT_REAL")
 
     sensor_identifier = "ABC123"
-    sensor_serial_number = "123456"
     is_electricity = True
     tariff_code = "AB-123"
     is_smart_meter = True
@@ -515,7 +513,6 @@ async def test_when_not_enough_consumption_returned_then_previous_data_returned(
     client = OctopusEnergyApiClient("NOT_REAL")
 
     sensor_identifier = "ABC123"
-    sensor_serial_number = "123456"
     is_electricity = True
     tariff_code = "AB-123"
     is_smart_meter = True

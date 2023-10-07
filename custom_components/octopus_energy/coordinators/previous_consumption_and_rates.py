@@ -82,9 +82,9 @@ async def async_fetch_consumption_and_rates(
         consumption_data = __sort_consumption(consumption_data)
 
         if (is_electricity == True):
-          fire_event(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, { "mpan": identifier, "tariff_code": tariff_code, "rates": rate_data })
+          fire_event(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, { "mpan": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": rate_data })
         else:
-          fire_event(EVENT_GAS_PREVIOUS_CONSUMPTION_RATES, { "mprn": identifier, "tariff_code": tariff_code, "rates": rate_data })
+          fire_event(EVENT_GAS_PREVIOUS_CONSUMPTION_RATES, { "mprn": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": rate_data })
 
         _LOGGER.debug(f"Fired event for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
 

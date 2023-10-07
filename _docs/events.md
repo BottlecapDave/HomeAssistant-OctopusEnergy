@@ -42,6 +42,7 @@ This is fired when the current day rates are updated.
 | `rates` | `list` | The list of rates applicable for the current day |
 | `tariff_code` | `string` | The tariff code associated with current day's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
+| `serial_number` | `string` | The serial number of the meter associated with these rates |
 
 ## Electricity Previous Day Rates
 
@@ -54,6 +55,7 @@ This is fired when the previous day rates are updated.
 | `rates` | `list` | The list of rates applicable for the previous day |
 | `tariff_code` | `string` | The tariff code associated with previous day's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
+| `serial_number` | `string` | The serial number of the meter associated with these rates |
 
 ## Electricity Next Day Rates
 
@@ -66,6 +68,7 @@ This is fired when the next day rates are updated.
 | `rates` | `list` | The list of rates applicable for the next day |
 | `tariff_code` | `string` | The tariff code associated with next day's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
+| `serial_number` | `string` | The serial number of the meter associated with these rates |
 
 ## Electricity Previous Consumption Rates
 
@@ -78,6 +81,7 @@ This is fired when the [previous consumption's](./sensors/electricity.md#previou
 | `rates` | `list` | The list of rates applicable for the previous consumption |
 | `tariff_code` | `string` | The tariff code associated with previous consumption's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
+| `serial_number` | `string` | The serial number of the meter associated with these rates |
 
 ## Electricity Previous Consumption Override Rates
 
@@ -90,6 +94,7 @@ This is fired when the [previous consumption override's](./sensors/electricity.m
 | `rates` | `list` | The list of rates applicable for the previous consumption override |
 | `tariff_code` | `string` | The tariff code associated with previous consumption override's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
+| `serial_number` | `string` | The serial number of the meter associated with these rates |
 
 ## Gas Current Day Rates
 
@@ -102,6 +107,7 @@ This is fired when the current day rates are updated.
 | `rates` | `list` | The list of rates applicable for the current day |
 | `tariff_code` | `string` | The tariff code associated with current day's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
+| `serial_number` | `string` | The serial number of the meter associated with these rates |
 
 ## Gas Previous Day Rates
 
@@ -114,6 +120,7 @@ This is fired when the previous day rates are updated.
 | `rates` | `list` | The list of rates applicable for the previous day |
 | `tariff_code` | `string` | The tariff code associated with previous day's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
+| `serial_number` | `string` | The serial number of the meter associated with these rates |
 
 ## Gas Next Day Rates
 
@@ -126,6 +133,7 @@ This is fired when the next day rates are updated.
 | `rates` | `list` | The list of rates applicable for the next day |
 | `tariff_code` | `string` | The tariff code associated with next day's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
+| `serial_number` | `string` | The serial number of the meter associated with these rates |
 
 ## Gas Previous Consumption Rates
 
@@ -138,6 +146,7 @@ This is fired when the [previous consumption's](./sensors/gas.md#previous-accumu
 | `rates` | `list` | The list of rates applicable for the previous consumption |
 | `tariff_code` | `string` | The tariff code associated with previous consumption's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
+| `serial_number` | `string` | The serial number of the meter associated with these rates |
 
 ## Gas Previous Consumption Override Rates
 
@@ -150,3 +159,4 @@ This is fired when the [previous consumption override's](./sensors/gas.md#tariff
 | `rates` | `list` | The list of rates applicable for the previous consumption override |
 | `tariff_code` | `string` | The tariff code associated with previous consumption override's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
+| `serial_number` | `string` | The serial number of the meter associated with these rates |

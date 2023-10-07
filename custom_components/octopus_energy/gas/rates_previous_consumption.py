@@ -64,6 +64,6 @@ class OctopusEnergyGasPreviousConsumptionRates(OctopusEnergyGasSensor, EventEnti
 
   @callback
   def _async_handle_event(self, event) -> None:
-    if (event.data is not None and "mprn" in event.data and event.data["mprn"] == self._mprn):
+    if (event.data is not None and "mprn" in event.data and event.data["mprn"] == self._mprn and "serial_number" in event.data and event.data["serial_number"] == self._serial_number):
       self._trigger_event(event.event_type, event.data)
       self.async_write_ha_state()
