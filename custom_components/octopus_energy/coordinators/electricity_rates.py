@@ -22,7 +22,7 @@ from ..const import (
 
 from ..api_client import OctopusEnergyApiClient
 
-from . import get_electricity_meter_tariff_code_and_is_smart_meter, raise_rate_events
+from . import get_electricity_meter_tariff_code, raise_rate_events
 from ..intelligent import adjust_intelligent_rates
 
 _LOGGER = logging.getLogger(__name__)
@@ -41,6 +41,8 @@ async def async_refresh_electricity_rates_data(
     account_info,
     target_mpan: str,
     target_serial_number: str,
+    is_smart_meter: bool,
+    is_export_meter: bool,
     existing_rates_result: ElectricityRatesCoordinatorResult,
     dispatches: list,
     fire_event: Callable[[str, "dict[str, Any]"], None],
@@ -49,12 +51,9 @@ async def async_refresh_electricity_rates_data(
     period_from = as_utc((current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
     period_to = as_utc((current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0))
 
-    result = get_electricity_meter_tariff_code_and_is_smart_meter(current, account_info, target_mpan, target_serial_number)
-    if result is None:
+    tariff_code = get_electricity_meter_tariff_code(current, account_info, target_mpan, target_serial_number)
+    if tariff_code is None:
       return None
-    
-    tariff_code: str = result[0]
-    is_smart_meter: bool = result[1]
 
     new_rates: list = None
     if ((current.minute % 30) == 0 or 
@@ -70,7 +69,7 @@ async def async_refresh_electricity_rates_data(
     if new_rates is not None:
       _LOGGER.debug(f'Electricity rates retrieved for {target_mpan}/{target_serial_number} ({tariff_code});')
       
-      if dispatches is not None:
+      if dispatches is not None and is_export_meter == False:
         new_rates = adjust_intelligent_rates(new_rates, 
                                              dispatches["planned"] if "planned" in dispatches else [],
                                              dispatches["completed"] if "completed" in dispatches else [])
@@ -92,7 +91,7 @@ async def async_refresh_electricity_rates_data(
   
   return existing_rates_result
 
-async def async_setup_electricity_rates_coordinator(hass, target_mpan: str, target_serial_number: str):
+async def async_setup_electricity_rates_coordinator(hass, target_mpan: str, target_serial_number: str, is_smart_meter: bool, is_export_meter: bool):
   key = DATA_ELECTRICITY_RATES_KEY.format(target_mpan, target_serial_number)
 
   # Reset data rates as we might have new information
@@ -112,6 +111,8 @@ async def async_setup_electricity_rates_coordinator(hass, target_mpan: str, targ
       account_info,
       target_mpan,
       target_serial_number,
+      is_smart_meter,
+      is_export_meter,
       rates,
       dispatches,
       hass.bus.async_fire

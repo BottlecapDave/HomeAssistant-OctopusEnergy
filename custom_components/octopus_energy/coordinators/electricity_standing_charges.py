@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime, timedelta
-from custom_components.octopus_energy.coordinators import get_electricity_meter_tariff_code_and_is_smart_meter
+from custom_components.octopus_energy.coordinators import get_electricity_meter_tariff_code
 
 from homeassistant.util.dt import (now, as_utc)
 from homeassistant.helpers.update_coordinator import (
@@ -39,11 +39,9 @@ async def async_refresh_electricity_standing_charges_data(
   period_to = period_from + timedelta(days=1)
 
   if (account_info is not None):
-    result = get_electricity_meter_tariff_code_and_is_smart_meter(current, account_info, target_mpan, target_serial_number)
-    if result is None:
+    tariff_code = get_electricity_meter_tariff_code(current, account_info, target_mpan, target_serial_number)
+    if tariff_code is None:
       return None
-    
-    tariff_code: str = result[0]
     
     new_standing_charge = None
     if ((current.minute % 30) == 0 or 

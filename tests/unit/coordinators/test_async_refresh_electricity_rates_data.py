@@ -84,6 +84,8 @@ async def test_when_account_info_is_none_then_existing_rates_returned():
       account_info,
       mpan,
       serial_number,
+      True,
+      False,
       existing_rates,
       dispatches,
       fire_event
@@ -120,6 +122,8 @@ async def test_when_no_active_rates_then_none_returned():
       account_info,
       mpan,
       serial_number,
+      True,
+      False,
       existing_rates,
       dispatches,
       fire_event
@@ -160,7 +164,9 @@ async def test_when_current_is_not_thirty_minutes_then_existing_rates_returned()
         client,
         account_info,
         mpan,
-      serial_number,
+        serial_number,
+        True,
+        False,
         existing_rates,
         dispatches,
         fire_event
@@ -208,6 +214,8 @@ async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
       account_info,
       mpan,
       serial_number,
+      True,
+      False,
       existing_rates,
       dispatches,
       fire_event
@@ -255,6 +263,8 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
       account_info,
       mpan,
       serial_number,
+      True,
+      False,
       existing_rates,
       dispatches,
       fire_event
@@ -271,7 +281,11 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
 
 @pytest.mark.asyncio
-async def test_when_dispatched_rates_provided_then_rates_are_adjusted():
+@pytest.mark.parametrize("is_export_meter",[
+  (True),
+  (False),
+])
+async def test_when_dispatched_rates_provided_then_rates_are_adjusted_if_meter_is_export(is_export_meter: bool):
   expected_period_from = (current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_rates = create_rate_data(expected_period_from, expected_period_to, [1, 2, 3, 4])
@@ -291,13 +305,16 @@ async def test_when_dispatched_rates_provided_then_rates_are_adjusted():
   existing_rates = None
   expected_retrieved_rates = ElectricityRatesCoordinatorResult(current, expected_rates)
 
-  expected_dispatch_start = datetime.strptime("2023-07-14T02:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  expected_dispatch_end = datetime.strptime("2023-07-14T02:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  dispatches = { "planned": [{
-    "start": expected_dispatch_start,
-    "end": expected_dispatch_end,
-    "source": "smart-charge"
-  }], "completed": [] }
+  expected_dispatch_start = (current + timedelta(hours=2)).replace(second=0, microsecond=0)
+  expected_dispatch_end = expected_dispatch_start + timedelta(minutes=90)
+  dispatches = { 
+    "planned": [{
+      "start": expected_dispatch_start,
+      "end": expected_dispatch_end,
+      "source": "smart-charge"
+    }],
+    "completed": [] 
+  }
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_rates=async_mocked_get_electricity_rates):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -307,6 +324,8 @@ async def test_when_dispatched_rates_provided_then_rates_are_adjusted():
       account_info,
       mpan,
       serial_number,
+      True,
+      is_export_meter,
       existing_rates,
       dispatches,
       fire_event
@@ -317,19 +336,23 @@ async def test_when_dispatched_rates_provided_then_rates_are_adjusted():
 
     assert len(retrieved_rates.rates) == len(expected_retrieved_rates.rates)
 
+    number_of_intelligent_rates = 0
+    expected_number_of_intelligent_rates = 0 if is_export_meter else 3
     for index in range(len(retrieved_rates.rates)):
       expected_rate = expected_retrieved_rates.rates[index]
       actual_rate = retrieved_rates.rates[index]
 
-      if actual_rate["valid_from"] >= expected_dispatch_start and actual_rate["valid_to"] <= expected_dispatch_end:
+      if is_export_meter == False and actual_rate["valid_from"] >= expected_dispatch_start and actual_rate["valid_to"] <= expected_dispatch_end:
         assert "is_intelligent_adjusted" in actual_rate
         assert actual_rate["is_intelligent_adjusted"] == True
         assert actual_rate["value_inc_vat"] == 1
+        number_of_intelligent_rates = number_of_intelligent_rates + 1
       else:
         assert "is_intelligent_adjusted" not in actual_rate
         assert expected_rate == actual_rate
 
     assert rates_returned == True
+    assert number_of_intelligent_rates == expected_number_of_intelligent_rates
     
     assert len(actual_fired_events.keys()) == 3
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
@@ -363,6 +386,8 @@ async def test_when_rates_not_retrieved_then_existing_rates_returned():
       account_info,
       mpan,
       serial_number,
+      True,
+      False,
       existing_rates,
       dispatches,
       fire_event

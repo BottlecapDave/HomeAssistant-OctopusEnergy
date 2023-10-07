@@ -148,7 +148,9 @@ async def async_setup_dependencies(hass, config):
       for meter in point["meters"]:
         mpan = point["mpan"]
         serial_number = meter["serial_number"]
-        await async_setup_electricity_rates_coordinator(hass, mpan, serial_number)
+        is_export_meter = meter["is_export"]
+        is_smart_meter = meter["is_smart_meter"]
+        await async_setup_electricity_rates_coordinator(hass, mpan, serial_number, is_smart_meter, is_export_meter)
 
   await async_setup_account_info_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
 

@@ -93,7 +93,7 @@ def raise_rate_events(now: datetime,
   event_data.update(additional_attributes)
   fire_event(next_event_key, event_data)
 
-def get_electricity_meter_tariff_code_and_is_smart_meter(current: datetime, account_info, target_mpan: str, target_serial_number: str):
+def get_electricity_meter_tariff_code(current: datetime, account_info, target_mpan: str, target_serial_number: str):
   if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
       active_tariff_code = get_active_tariff_code(current, point["agreements"])
@@ -101,7 +101,7 @@ def get_electricity_meter_tariff_code_and_is_smart_meter(current: datetime, acco
       # have to enumerate the different meters being used for each tariff as well.
       for meter in point["meters"]:
         if active_tariff_code is not None and point["mpan"] == target_mpan and meter["serial_number"] == target_serial_number:
-           return (active_tariff_code, meter["is_smart_meter"])
+           return active_tariff_code
            
   return None
 
