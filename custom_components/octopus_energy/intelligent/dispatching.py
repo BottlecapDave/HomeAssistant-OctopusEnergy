@@ -69,7 +69,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
   def is_on(self):
     """Determine if OE is currently dispatching energy."""
     dispatches = self.coordinator.data if self.coordinator is not None else None
-    rates = self.coordinator.data.rates if self.coordinator is not None and self.coordinator.data is not None else None
+    rates = self._rates_coordinator.data.rates if self._rates_coordinator is not None and self._rates_coordinator.data is not None else None
     if (dispatches is not None):
       self._attributes["planned_dispatches"] = self.coordinator.data["planned"]
       self._attributes["completed_dispatches"] = self.coordinator.data["completed"]
