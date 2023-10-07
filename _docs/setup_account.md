@@ -1,35 +1,14 @@
 # Setup Account
 
 - [Setup Account](#setup-account)
-  - [Electricity Sensors](#electricity-sensors)
-  - [Gas Sensors](#gas-sensors)
-  - [Saving Sessions](#saving-sessions)
   - [Home Mini](#home-mini)
     - [Refresh Rate In Minutes](#refresh-rate-in-minutes)
-  - [Intelligent Tariff](#intelligent-tariff)
   - [Previous Consumption Days Offset](#previous-consumption-days-offset)
   - [Calorific Value](#calorific-value)
   - [Government Pricing Caps](#government-pricing-caps)
-  - [Services](#services)
-    - [Service octopus\_energy.purge\_invalid\_external\_statistic\_ids](#service-octopus_energypurge_invalid_external_statistic_ids)
-    - [Service octopus\_energy.refresh\_previous\_consumption\_data](#service-octopus_energyrefresh_previous_consumption_data)
 
 
 Setup is done entirely via the [integration UI](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
-
-When you setup your account, you will get a few sensors.
-
-## Electricity Sensors
-
-A full list of electricity sensors can be found [here](./sensors/electricity.md).
-
-## Gas Sensors
-
-A full list of gas sensors can be found [here](./sensors/gas.md).
-
-## Saving Sessions
-
-To support Octopus Energy's [saving sessions](https://octopus.energy/saving-sessions/). A full list of  sensors can be found [here](./sensors/saving_sessions.md).
 
 ## Home Mini
 
@@ -47,14 +26,6 @@ This determines how often data related to your Home Mini is retrieved from Octop
 
 You can adjust these independently between gas and electricity.
 
-## Intelligent Tariff
-
-If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-octopus/), then you'll get a few additional sensors when you install the integration. 
-
-A full list of intelligent sensors can be found [here](./sensors/intelligent.md)
-
-> Please note: If you switch to the intelligent tariff after you have installed the integration, you will need to reload the integration or restart your Home Assistant instance.
-
 ## Previous Consumption Days Offset
 
 By default, the previous consumptions sensors are set up to pull and record the last days worth of data, to be as up-to-date as possible via the default available data. However, some people may find that Octopus Energy are delayed in being able to retrieve data from their smart meters, typically their gas smart meters. Therefore you can adjust the number of days the previous consumption sensors pull data from. This defaults to the previous day, but increasing to `2` would look at 48 hours behind, and so on. You can adjust this independently between gas and electricity.
@@ -66,18 +37,3 @@ When calculating gas costs, a calorific value is included in the calculation. Un
 ## Government Pricing Caps
 
 There has been inconsistencies across tariffs on whether government pricing caps are included or not. Therefore the ability to configure pricing caps has been added within you account. Please note that while rates are reflected straight away, consumption based sensors may take up to 24 hours to reflect. This is due to how they look at data and cannot be changed.
-
-## Services
-
-### Service octopus_energy.purge_invalid_external_statistic_ids
-
-Service for removing all external statistics that are associated with meters that don't have an active tariff. This is useful if you've been using the integration and obtained new smart meters.
-
-### Service octopus_energy.refresh_previous_consumption_data
-
-Service for refreshing the consumption/cost information for a given previous consumption entity. This is useful when you've just installed the integration and want old data brought in or a previous consumption sensor fails to import (e.g. data becomes available outside of the configured offset). The service will raise a notification when the refreshing starts and finishes.
-
-This service is only available for the following sensors
-
-- `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption`
-- `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption`

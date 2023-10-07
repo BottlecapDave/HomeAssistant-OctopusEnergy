@@ -6,10 +6,7 @@
     - [HACS](#hacs)
     - [Manual](#manual)
   - [How to setup](#how-to-setup)
-  - [Target Rate Sensors](#target-rate-sensors)
-  - [Events](#events)
-  - [Energy Dashboard](#energy-dashboard)
-  - [Community Contributions](#community-contributions)
+  - [Docs](#docs)
   - [FAQ](#faq)
   - [Sponsorship](#sponsorship)
 
@@ -42,29 +39,13 @@ To install, place the contents of `custom_components` into the `<config director
 
 Please follow the [setup guide](./_docs/setup_account.md) to setup your initial account. This guide details the configuration, along with the sensors that will be available to you.
 
-## Target Rate Sensors
+## Docs
 
-These sensors calculate the lowest continuous or intermittent rates **within a 24 hour period** and turn on when these periods are active. If you are targeting an export meter, then the sensors will calculate the highest continuous or intermittent rates **within a 24 hour period** and turn on when these periods are active.
-
-These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money. You can go through this flow as many times as you need target rate sensors.
-
-Please follow the [setup guide](./_docs/setup_target_rate.md) to setup.
-
-## Events
-
-This integration raises several events, which can be used for various tasks like automations. For more information, please see the [events docs](./_docs/events.md).
-
-## Energy Dashboard
-
-The core sensors have been designed to work with the energy dashboard. Please see the [guide](./_docs/energy_dashboard.md) for instructions on how to set this up.
-
-## Community Contributions
-
-A collection of community contributions can be found [here](./_docs/community.md).
+To get full use of the integration, please visit the [docs](./_docs/readme.md).
 
 ## FAQ
 
-Before raising anything, please read through the [faq](./_docs/faq.md). If you have questions, then you can raise a [discussion](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions). If you have found a bug or have a feature request please [raise it](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues) using the appropriate report template.
+Before raising anything, please read through the [faq](./faq.md). If you have questions, then you can raise a [discussion](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions). If you have found a bug or have a feature request please [raise it](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues) using the appropriate report template.
 
 ## Sponsorship
 
