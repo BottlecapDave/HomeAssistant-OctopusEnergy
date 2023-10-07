@@ -1,3 +1,20 @@
+# [8.4.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.3.0...v8.4.0) (2023-10-07)
+
+
+### Bug Fixes
+
+* Added additional checks in cost override sensors ([ba41e73](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ba41e7338491b5eceea0780fd343b5106dd16acf))
+* Fixed entry already configured error ([6be5ea6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6be5ea6769a3a8f330a5de4892abdf300871e05c))
+* Fixed issue where export rates were adjusted during intelligent hours ([df74d13](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/df74d1305a547a88ac7c07230b58a850f24c4528))
+* Fixed previous consumption to run calls in parallel ([e621af1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e621af154257ea2285657d16624d025fc292b927))
+* Removed tracker tariff potentially looking at wrong API for standing charges ([82fecf1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/82fecf1adde75547b2f9d475291e9bb546dc74ad))
+
+
+### Features
+
+* Added new sensors and events to expose various rate information ([1e0315e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1e0315e2d585a5d93544dae38b966d15c56b8296))
+* Added service to support manually refreshing previous consumption data/costs ([a84a91d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a84a91d96e79bf91520e0329800a8f1372c5a512))
+
 # [8.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.2.1...v8.3.0) (2023-09-23)
 
 
