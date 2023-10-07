@@ -25,7 +25,7 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
   def __init__(self, hass: HomeAssistant, coordinator):
     """Init sensor."""
 
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
   
     self._state = None
     self._events = []

@@ -7,8 +7,9 @@ from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorStateClass
+  RestoreSensor,
+  SensorDeviceClass,
+  SensorStateClass
 )
 from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR
@@ -22,12 +23,12 @@ from .base import (OctopusEnergyGasSensor)
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, OctopusEnergyGasSensor):
+class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative gas consumption in kwh."""
 
   def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point, calorific_value):
     """Init sensor."""
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
 
     self._hass = hass
@@ -111,9 +112,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
       self._last_reset,
       self._tariff_code,
       self._native_consumption_units,
-      self._calorific_value,
-      # During BST, two records are returned before the rest of the data is available
-      3
+      self._calorific_value
     )
 
     if (consumption_and_cost is not None):

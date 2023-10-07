@@ -48,7 +48,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
   def __init__(self, hass: HomeAssistant, coordinator, config, is_export):
     """Init sensor."""
     # Pass coordinator to base class
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
 
     self._state = None
     self._config = config
@@ -116,15 +116,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       
       if all_rates_in_past:
         if self.coordinator is not None and self.coordinator.data is not None:
-          all_rates = self.coordinator.data
-          
-          # Retrieve our rates. For backwards compatibility, if CONFIG_TARGET_MPAN is not set, then pick the first set
-          if CONFIG_TARGET_MPAN not in self._config:
-            _LOGGER.debug(f"'CONFIG_TARGET_MPAN' not set.'{len(all_rates)}' rates available. Retrieving the first rate.")
-            all_rates = next(iter(all_rates.values()))
-          else:
-            _LOGGER.debug(f"Retrieving rates for '{self._config[CONFIG_TARGET_MPAN]}'")
-            all_rates = all_rates.get(self._config[CONFIG_TARGET_MPAN])
+          all_rates = self.coordinator.data.rates
         else:
           _LOGGER.debug(f"Rate data missing. Setting to empty array")
           all_rates = []

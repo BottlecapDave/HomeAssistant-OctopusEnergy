@@ -1,13 +1,12 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
+from typing import Callable, Any
 
 from homeassistant.helpers import issue_registry as ir
-
-from homeassistant.util.dt import (now)
+from homeassistant.util.dt import (as_utc)
 
 from ..const import (
   DOMAIN,
-  DATA_ACCOUNT,
 )
 
 from ..api_client import OctopusEnergyApiClient
@@ -59,34 +58,59 @@ async def async_check_valid_tariff(hass, client: OctopusEnergyApiClient, tariff_
       except:
         _LOGGER.debug(f"Failed to retrieve product info for '{tariff_parts.product_code}'")
 
-def get_current_electricity_agreement_tariff_codes(current: datetime, account_info):
-  tariff_codes = {}
-  if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
+def raise_rate_events(now: datetime,
+                      rates: list, 
+                      additional_attributes: "dict[str, Any]",
+                      fire_event: Callable[[str, "dict[str, Any]"], None],
+                      previous_event_key: str,
+                      current_event_key: str,
+                      next_event_key: str):
+  
+  today_start = as_utc(now.replace(hour=0, minute=0, second=0, microsecond=0))
+  today_end = today_start + timedelta(days=1)
+
+  previous_rates = []
+  current_rates = []
+  next_rates = []
+
+  for rate in rates:
+    if (rate["valid_from"] < today_start):
+      previous_rates.append(rate)
+    elif (rate["valid_from"] >= today_end):
+      next_rates.append(rate)
+    else:
+      current_rates.append(rate)
+
+  event_data = { "rates": previous_rates }
+  event_data.update(additional_attributes)
+  fire_event(previous_event_key, event_data)
+  
+  event_data = { "rates": current_rates }
+  event_data.update(additional_attributes)
+  fire_event(current_event_key, event_data)
+  
+  event_data = { "rates": next_rates }
+  event_data.update(additional_attributes)
+  fire_event(next_event_key, event_data)
+
+def get_electricity_meter_tariff_code(current: datetime, account_info, target_mpan: str, target_serial_number: str):
+  if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
       active_tariff_code = get_active_tariff_code(current, point["agreements"])
       # The type of meter (ie smart vs dumb) can change the tariff behaviour, so we
       # have to enumerate the different meters being used for each tariff as well.
       for meter in point["meters"]:
-        is_smart_meter = meter["is_smart_meter"]
-        if active_tariff_code is not None:
-          key = (point["mpan"], is_smart_meter)
-          if key not in tariff_codes:
-            tariff_codes[(point["mpan"], is_smart_meter)] = active_tariff_code
-  
-  return tariff_codes
+        if active_tariff_code is not None and point["mpan"] == target_mpan and meter["serial_number"] == target_serial_number:
+           return active_tariff_code
+           
+  return None
 
-def get_current_gas_agreement_tariff_codes(current: datetime, account_info):
-  tariff_codes = {}
-  if account_info is not None and len(account_info["gas_meter_points"]) > 0:
+def get_gas_meter_tariff_code(current: datetime, account_info, target_mprn: str, target_serial_number: str):
+  if len(account_info["gas_meter_points"]) > 0:
     for point in account_info["gas_meter_points"]:
       active_tariff_code = get_active_tariff_code(current, point["agreements"])
-      # The type of meter (ie smart vs dumb) can change the tariff behaviour, so we
-      # have to enumerate the different meters being used for each tariff as well.
       for meter in point["meters"]:
-        is_smart_meter = meter["is_smart_meter"]
-        if active_tariff_code is not None:
-          key = (point["mprn"], is_smart_meter)
-          if key not in tariff_codes:
-            tariff_codes[(point["mprn"], is_smart_meter)] = active_tariff_code
-  
-  return tariff_codes
+        if active_tariff_code is not None and point["mprn"] == target_mprn and meter["serial_number"] == target_serial_number:
+           return active_tariff_code
+           
+  return None

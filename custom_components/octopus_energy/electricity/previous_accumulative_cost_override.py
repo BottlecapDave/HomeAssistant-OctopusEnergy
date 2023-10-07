@@ -1,5 +1,6 @@
 import logging
 from datetime import (datetime)
+import asyncio
 
 from homeassistant.core import HomeAssistant
 
@@ -7,11 +8,10 @@ from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorStateClass,
-    SensorEntity,
+  RestoreSensor,
+  SensorDeviceClass,
+  SensorStateClass,
 )
-from homeassistant.helpers.restore_state import RestoreEntity
 
 from . import (
   calculate_electricity_consumption_and_cost,
@@ -21,18 +21,18 @@ from .base import (OctopusEnergyElectricitySensor)
 
 from ..api_client import (OctopusEnergyApiClient)
 
-from ..const import (DOMAIN)
+from ..const import (DOMAIN, EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, MINIMUM_CONSUMPTION_DATA_LENGTH)
 
 from . import get_electricity_tariff_override_key
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity, OctopusEnergyElectricitySensor, SensorEntity, RestoreEntity):
+class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative electricity cost for a different tariff."""
 
   def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, tariff_code, meter, point):
     """Init sensor."""
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._hass = hass
@@ -109,27 +109,28 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
 
     tariff_override_key = get_electricity_tariff_override_key(self._serial_number, self._mpan)
 
-    is_old_data = self._last_reset is None or self._last_reset < consumption_data[-1]["interval_end"]
+    is_old_data = self._last_reset is None or (consumption_data is not None and self._last_reset < consumption_data[-1]["interval_end"])
     is_tariff_present = tariff_override_key in self._hass.data[DOMAIN]
     has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][tariff_override_key] != self._tariff_code
 
-    if (consumption_data is not None and len(consumption_data) > 0 and is_tariff_present and (is_old_data or has_tariff_changed)):
+    if (consumption_data is not None and len(consumption_data) >= MINIMUM_CONSUMPTION_DATA_LENGTH and is_tariff_present and (is_old_data or has_tariff_changed)):
       _LOGGER.debug(f"Calculating previous electricity consumption cost override for '{self._mpan}/{self._serial_number}'...")
       
       tariff_override = self._hass.data[DOMAIN][tariff_override_key]
       period_from = consumption_data[0]["interval_start"]
       period_to = consumption_data[-1]["interval_end"]
-      rate_data = await self._client.async_get_electricity_rates(tariff_override, self._is_smart_meter, period_from, period_to)
-      standing_charge = await self._client.async_get_electricity_standing_charge(tariff_override, period_from, period_to)
+
+      [rate_data, standing_charge] = await asyncio.gather(
+        self._client.async_get_electricity_rates(tariff_override, self._is_smart_meter, period_from, period_to),
+        self._client.async_get_electricity_standing_charge(tariff_override, period_from, period_to)
+      )
 
       consumption_and_cost = calculate_electricity_consumption_and_cost(
         consumption_data,
         rate_data,
         standing_charge["value_inc_vat"] if standing_charge is not None else None,
         None if has_tariff_changed else self._last_reset,
-        tariff_override,
-        # During BST, two records are returned before the rest of the data is available
-        3
+        tariff_override
       )
 
       self._tariff_code = tariff_override
@@ -158,6 +159,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
             "cost": charge["cost"]
           }, consumption_and_cost["charges"]))
         }
+
+        self._hass.bus.async_fire(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mpan": self._mpan, "serial_number": self._serial_number, "tariff_code": self._tariff_code, "rates": rate_data })
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

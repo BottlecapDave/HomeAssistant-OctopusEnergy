@@ -7,6 +7,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from ..const import (
+  COORDINATOR_REFRESH_IN_SECONDS,
   DOMAIN,
   DATA_CLIENT,
   DATA_ACCOUNT_ID,
@@ -41,7 +42,8 @@ async def async_setup_saving_sessions_coordinators(hass):
     update_method=async_update_saving_sessions,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes
-    update_interval=timedelta(minutes=1),
+    update_interval=timedelta(minutes=COORDINATOR_REFRESH_IN_SECONDS),
+    always_update=True
   )
   
   await hass.data[DOMAIN][DATA_SAVING_SESSIONS_COORDINATOR].async_config_entry_first_refresh()

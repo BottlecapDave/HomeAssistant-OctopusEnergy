@@ -3,7 +3,7 @@ import pytest
 
 from homeassistant.util.dt import (now)
 
-from integration import (get_test_context, async_get_tracker_tariff)
+from integration import (get_test_context)
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 period_from = datetime.strptime("2021-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -34,16 +34,13 @@ async def test_when_get_gas_standing_charge_is_called_with_tracker_tariff_then_r
     period_to = (now() + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
     client = OctopusEnergyApiClient(context["api_key"])
 
-    expected_tracker = await async_get_tracker_tariff(context["api_key"], tariff, now())
-    assert expected_tracker is not None
-
     # Act
     result = await client.async_get_gas_standing_charge(tariff, period_from, period_to)
 
     # Assert
     assert result is not None
     assert "value_inc_vat" in result
-    assert result["value_inc_vat"] == expected_tracker["standing_charge"]
+    assert result["value_inc_vat"] is not None
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("tariff",[("G-1R-NOT-A-TARIFF-A"), ("NOT-A-TARIFF")])

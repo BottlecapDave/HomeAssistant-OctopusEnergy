@@ -29,7 +29,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
   def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, mpan, device):
     """Init sensor."""
 
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyIntelligentSensor.__init__(self, device)
   
     self._rates_coordinator = rates_coordinator
@@ -69,6 +69,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
   def is_on(self):
     """Determine if OE is currently dispatching energy."""
     dispatches = self.coordinator.data if self.coordinator is not None else None
+    rates = self.coordinator.data.rates if self.coordinator is not None and self.coordinator.data is not None else None
     if (dispatches is not None):
       self._attributes["planned_dispatches"] = self.coordinator.data["planned"]
       self._attributes["completed_dispatches"] = self.coordinator.data["completed"]
@@ -80,7 +81,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
       self._attributes["completed_dispatches"] = []
 
     current_date = now()
-    self._state = is_in_planned_dispatch(current_date, self._attributes["planned_dispatches"]) or is_off_peak(current_date, self._rates_coordinator.data[self._mpan] if self._rates_coordinator is not None and self._mpan in self._rates_coordinator.data else None)
+    self._state = is_in_planned_dispatch(current_date, self._attributes["planned_dispatches"]) or is_off_peak(current_date, rates)
     
     return self._state
 

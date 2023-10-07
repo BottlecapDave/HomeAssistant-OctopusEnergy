@@ -1,19 +1,15 @@
 import logging
 from datetime import datetime
-from ..statistics.consumption import async_import_external_statistics_from_consumption
-
-from homeassistant.core import HomeAssistant
-from homeassistant.util.dt import (utcnow)
+from homeassistant.core import HomeAssistant, callback
 
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorStateClass,
-    SensorEntity,
+  RestoreSensor,
+  SensorDeviceClass,
+  SensorStateClass,
 )
-from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR
 )
@@ -24,16 +20,21 @@ from . import (
 
 from .base import (OctopusEnergyElectricitySensor)
 
+from ..statistics.consumption import async_import_external_statistics_from_consumption, get_electricity_consumption_statistic_unique_id
+from ..statistics.refresh import async_refresh_previous_electricity_consumption_data
+from ..api_client import OctopusEnergyApiClient
+
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity, OctopusEnergyElectricitySensor, SensorEntity, RestoreEntity):
+class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative electricity reading."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point):
+  def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, coordinator, tariff_code, meter, point):
     """Init sensor."""
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
+    self._client = client
     self._state = None
     self._tariff_code = tariff_code
     self._last_reset = None
@@ -111,9 +112,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
       rate_data,
       standing_charge,
       self._last_reset,
-      self._tariff_code,
-      # During BST, two records are returned before the rest of the data is available
-      3
+      self._tariff_code
     )
 
     if (consumption_and_cost is not None):
@@ -121,7 +120,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
 
       await async_import_external_statistics_from_consumption(
         self._hass,
-        f"electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_previous_accumulative_consumption",
+        get_electricity_consumption_statistic_unique_id(self._serial_number, self._mpan, self._is_export),
         self.name,
         consumption_and_cost["charges"],
         rate_data,
@@ -162,3 +161,18 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
           self._last_reset = datetime.strptime(state.attributes[x], "%Y-%m-%dT%H:%M:%S%z")
 
       _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeElectricityConsumption state: {self._state}')
+
+  @callback
+  async def async_refresh_previous_consumption_data(self, start_date):
+    """Update sensors config"""
+
+    await async_refresh_previous_electricity_consumption_data(
+      self._hass,
+      self._client,
+      start_date,
+      self._mpan,
+      self._serial_number,
+      self._tariff_code,
+      self._is_smart_meter,
+      self._is_export
+    )

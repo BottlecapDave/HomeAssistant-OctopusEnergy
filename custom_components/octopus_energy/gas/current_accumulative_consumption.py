@@ -6,8 +6,9 @@ from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorStateClass
+  RestoreSensor,
+  SensorDeviceClass,
+  SensorStateClass
 )
 from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR
@@ -19,12 +20,12 @@ from ..gas import calculate_gas_consumption_and_cost
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyCurrentAccumulativeGasConsumption(CoordinatorEntity, OctopusEnergyGasSensor):
+class OctopusEnergyCurrentAccumulativeGasConsumption(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the current accumulative gas consumption."""
 
   def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, standing_charge_coordinator, tariff_code, meter, point, calorific_value):
     """Init sensor."""
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
     
     self._hass = hass
@@ -80,9 +81,9 @@ class OctopusEnergyCurrentAccumulativeGasConsumption(CoordinatorEntity, OctopusE
   def state(self):
     """Retrieve the current days accumulative consumption"""
     consumption_data = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
-    rate_data = self._rates_coordinator.data[self._mprn] if self._rates_coordinator is not None and self._rates_coordinator.data is not None and self._mprn in self._rates_coordinator.data else None
-    standing_charge = self._standing_charge_coordinator.data[self._mprn]["value_inc_vat"] if self._standing_charge_coordinator is not None and self._standing_charge_coordinator.data is not None and self._mprn in self._standing_charge_coordinator.data and "value_inc_vat" in self._standing_charge_coordinator.data[self._mprn] else None
-
+    rate_data = self._rates_coordinator.data.rates if self._rates_coordinator is not None and self._rates_coordinator.data is not None else None
+    standing_charge = self._standing_charge_coordinator.data.standing_charge["value_inc_vat"] if self._standing_charge_coordinator is not None and self._standing_charge_coordinator.data is not None else None
+    
     consumption_and_cost = calculate_gas_consumption_and_cost(
       consumption_data,
       rate_data,

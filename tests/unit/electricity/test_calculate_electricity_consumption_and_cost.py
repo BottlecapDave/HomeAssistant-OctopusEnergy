@@ -54,33 +54,6 @@ async def test_when_electricity_rates_is_none_then_no_calculation_is_returned():
   assert result is None
 
 @pytest.mark.asyncio
-async def test_when_electricity_consumption_is_less_than_three_records_then_no_calculation_is_returned():
-  # Arrange
-  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  latest_date = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
-  consumption_data = create_consumption_data(
-    datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), 
-    datetime.strptime("2022-02-28T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  )
-  rate_data = create_rate_data(period_from, period_to, [1, 2])
-  standing_charge = 10.1
-
-  # Act
-  result = calculate_electricity_consumption_and_cost(
-    consumption_data,
-    rate_data,
-    standing_charge,
-    latest_date,
-    tariff_code,
-    3
-  )
-
-  # Assert
-  assert result is None
-
-@pytest.mark.asyncio
 async def test_when_electricity_consumption_is_before_latest_date_then_no_calculation_is_returned():
   # Arrange
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")

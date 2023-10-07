@@ -7,6 +7,7 @@
     - [Manual](#manual)
   - [How to setup](#how-to-setup)
   - [Target Rate Sensors](#target-rate-sensors)
+  - [Events](#events)
   - [Energy Dashboard](#energy-dashboard)
   - [Community Contributions](#community-contributions)
   - [FAQ](#faq)
@@ -39,7 +40,7 @@ To install, place the contents of `custom_components` into the `<config director
 
 ## How to setup
 
-Please follow the [setup guide](./_docs/setup_account.md) to setup your initial account. This will include a few sensors be default depending on your account.
+Please follow the [setup guide](./_docs/setup_account.md) to setup your initial account. This guide details the configuration, along with the sensors that will be available to you.
 
 ## Target Rate Sensors
 
@@ -48,6 +49,10 @@ These sensors calculate the lowest continuous or intermittent rates **within a 2
 These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money. You can go through this flow as many times as you need target rate sensors.
 
 Please follow the [setup guide](./_docs/setup_target_rate.md) to setup.
+
+## Events
+
+This integration raises several events, which can be used for various tasks like automations. For more information, please see the [events docs](./_docs/events.md).
 
 ## Energy Dashboard
 

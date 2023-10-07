@@ -34,7 +34,7 @@ type: custom:apexcharts-card
       decimals: 1
   series:
     - entity: >-
-        sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_rate
+        event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_day_rates
       type: column
       name: ''
       color: yellow
@@ -45,7 +45,23 @@ type: custom:apexcharts-card
         in_header: false
         legend_value: false
       data_generator: |
-        return entity.attributes.all_rates.map((entry) => {
+        return entity.attributes.rates.map((entry) => {
+           return [new Date(entry.valid_from), entry.value_inc_vat];
+         });
+      offset: '-15min'
+    - entity: >-
+        event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_next_day_rates
+      type: column
+      name: ''
+      color: yellow
+      opacity: 1
+      stroke_width: 0
+      unit: W
+      show:
+        in_header: false
+        legend_value: false
+      data_generator: |
+        return entity.attributes.rates.map((entry) => {
            return [new Date(entry.valid_from), entry.value_inc_vat];
          });
       offset: '-15min'
@@ -138,9 +154,12 @@ If you're looking to combine import and export rates then create a card with the
 ```yaml
 type: custom:config-template-card
 entities:
-  - sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_rate
+  - event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_day_rates
+  - event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_next_day_rates
   - >-
-    sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_rate
+    event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_day_rates
+  - >-
+    event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_next_day_rates
 card:
   card_mod:
     style: |
@@ -169,19 +188,34 @@ card:
     stroke_width: 2
     fill_raw: 'null'
   series:
-    - entity: sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_rate
-      name: Import
+    - entity: event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_day_rates
+      name: Import today
       curve: stepline
       data_generator: |
-        return entity.attributes.all_rates.map((entry) => {
+        return entity.attributes.rates.map((entry) => {
+          return [new Date(entry.valid_from), entry.value_inc_vat/100];
+        });
+    - entity: event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_next_day_rates
+      name: Import tomorrow
+      curve: stepline
+      data_generator: |
+        return entity.attributes.rates.map((entry) => {
           return [new Date(entry.valid_from), entry.value_inc_vat/100];
         });
     - entity: >-
-        sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_rate
+        event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_day_rates
       name: Export
       curve: stepline
       data_generator: |
-        return entity.attributes.all_rates.map((entry) => {
+        return entity.attributes.rates.map((entry) => {
+          return [new Date(entry.valid_from), entry.value_inc_vat/100];
+        });
+    - entity: >-
+        sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_next_day_rates
+      name: Export
+      curve: stepline
+      data_generator: |
+        return entity.attributes.rates.map((entry) => {
           return [new Date(entry.valid_from), entry.value_inc_vat/100];
         });
   apex_config:

@@ -6,17 +6,23 @@ You'll get the following sensors for each gas meter with an active agreement:
   - [Current Rate](#current-rate)
   - [Previous Rate](#previous-rate)
   - [Next rate](#next-rate)
+  - [Current Day Rates](#current-day-rates)
+  - [Previous Day Rates](#previous-day-rates)
+  - [Next Day Rates](#next-day-rates)
   - [Smart Meter Sensors](#smart-meter-sensors)
     - [Previous Accumulative Consumption](#previous-accumulative-consumption)
     - [Previous Accumulative Consumption (kWH)](#previous-accumulative-consumption-kwh)
     - [Previous Accumulative Cost](#previous-accumulative-cost)
+  - [Previous Consumption Day Rates](#previous-consumption-day-rates)
   - [Home Mini Sensors](#home-mini-sensors)
     - [Current Consumption](#current-consumption)
     - [Current Accumulative Consumption](#current-accumulative-consumption)
     - [Current Accumulative Cost](#current-accumulative-cost)
   - [Tariff Overrides](#tariff-overrides)
-    - [Previous Accumulative Cost Override Tariff (Gas)](#previous-accumulative-cost-override-tariff-gas)
-    - [Previous Accumulative Cost Override (Gas)](#previous-accumulative-cost-override-gas)
+    - [Previous Accumulative Cost Override Tariff](#previous-accumulative-cost-override-tariff)
+      - [How To Use](#how-to-use)
+    - [Previous Accumulative Cost Override](#previous-accumulative-cost-override)
+  - [Previous Consumption Override Day Rates](#previous-consumption-override-day-rates)
 
 ## Current Rate
 
@@ -66,6 +72,39 @@ The next/upcoming rate that energy consumption will be charged at (including VAT
 | `applicable_rates` | `array` | Collection of rates where the next rate applies, in case it spans multiple time periods. |
 | `valid_from` | `datetime` | The date/time when the rate is valid from |
 | `valid_to` | `datetime` | The date/time when the rate is valid to |
+
+## Current Day Rates
+
+`event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_day_rates`
+
+The state of this sensor states when the current day's rates were last updated. The attributes of this sensor exposes the current day's rates. This is disabled by default. 
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `rates` | `list` | The list of rates applicable for the current day |
+| `tariff_code` | `string` | The tariff code associated with current day's rates |
+
+## Previous Day Rates
+
+`event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_day_rates`
+
+The state of this sensor states when the previous day's rates were last updated. The attributes of this sensor exposes the previous day's rates. This is disabled by default. 
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `rates` | `list` | The list of rates applicable for the previous day |
+| `tariff_code` | `string` | The tariff code associated with previous day's rates |
+
+## Next Day Rates
+
+`event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_next_day_rates`
+
+The state of this sensor states when the next day's rates were last updated. The attributes of this sensor exposes the next day's rates. This is disabled by default. 
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `rates` | `list` | The list of rates applicable for the next day |
+| `tariff_code` | `string` | The tariff code associated with today's rates |
 
 ## Smart Meter Sensors
 
@@ -131,6 +170,17 @@ The total cost for the previous day, including the standing charge.
 | `last_calculated_timestamp` | `datetime` | The timestamp determining when the cost was last calculated. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup_account.md#calorific-value). |
 
+## Previous Consumption Day Rates
+
+`event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_consumption_rates`
+
+The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous day's rates, but could differ if the default offset is changed. The attributes of this sensor exposes the previous consumption's rates. This is disabled by default. 
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `rates` | `list` | The list of rates applicable for the previous consumption |
+| `tariff_code` | `string` | The tariff code associated with previous consumption's rates |
+
 ## Home Mini Sensors
 
 ### Current Consumption
@@ -188,23 +238,38 @@ Instructions on how to find tariffs can be found in the [faq](../faq.md#i-want-t
 
 > Please note: When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
 
-Once enabled, you can set the tariff you wish to use for the override in the device controls
-
-1. Navigate to [your devices](https://my.home-assistant.io/redirect/devices/)
-2. Search for "Octopus Energy"
-3. Click on one of the meters
-4. Enter the tariff code in the Controls field for the override sensor.
-
-### Previous Accumulative Cost Override Tariff (Gas)
+### Previous Accumulative Cost Override Tariff
 
 `text.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost_override_tariff`
 
 This is used to define the gas tariff you want to compare
 
-### Previous Accumulative Cost Override (Gas)
+#### How To Use
+
+Instructions on how to find tariffs can be found in the [faq](../faq.md#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff).
+
+Once you have found your target tariff
+
+1. Click on this entity to open the info dialog.
+2. Enter your tariff in the text box, and hit `enter` on your keyboard to confirm
+
+> Please note: When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
+
+### Previous Accumulative Cost Override
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost_override`
 
 This is the cost of the previous gas accumulation based on the specified tariff override.
 
 For attributes, see [Previous Accumulative Cost](#previous-accumulative-cost).
+
+## Previous Consumption Override Day Rates
+
+`event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_consumption_override_rates`
+
+The state of this sensor states when the previous consumption override's rates were last updated. The attributes of this sensor exposes the previous consumption override's rates. This is disabled by default. 
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `rates` | `list` | The list of rates applicable for the previous consumption override |
+| `tariff_code` | `string` | The tariff code associated with previous consumption override's rates |

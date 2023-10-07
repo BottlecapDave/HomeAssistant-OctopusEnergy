@@ -535,7 +535,7 @@ class OctopusEnergyApiClient:
 
     return results
 
-  async def async_get_electricity_rates(self, tariff_code, is_smart_meter, period_from, period_to):
+  async def async_get_electricity_rates(self, tariff_code: str, is_smart_meter: bool, period_from: datetime, period_to: datetime):
     """Get the current rates"""
 
     tariff_parts = get_tariff_parts(tariff_code)
@@ -632,9 +632,6 @@ class OctopusEnergyApiClient:
       return None
     
     product_code = tariff_parts.product_code
-
-    if self.__is_tracker_tariff__(tariff_code):
-      return await self.__async_get_tracker_standing_charge__(tariff_code, period_from, period_to)
     
     result = None
     async with aiohttp.ClientSession() as client:
@@ -658,9 +655,6 @@ class OctopusEnergyApiClient:
       return None
     
     product_code = tariff_parts.product_code
-
-    if self.__is_tracker_tariff__(tariff_code):
-      return await self.__async_get_tracker_standing_charge__(tariff_code, period_from, period_to)
 
     result = None
     async with aiohttp.ClientSession() as client:
@@ -887,18 +881,6 @@ class OctopusEnergyApiClient:
           _LOGGER.error("Failed to retrieve intelligent device")
     
     return None
-
-  def __is_tracker_tariff__(self, tariff_code):
-    tariff_parts = get_tariff_parts(tariff_code)
-    if tariff_parts is None:
-      return None
-    
-    product_code = tariff_parts.product_code
-
-    if product_code in self._product_tracker_cache:
-      return self._product_tracker_cache[product_code]
-    
-    return False
 
   def __get_interval_end(self, item):
     return item["interval_end"]

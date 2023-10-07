@@ -7,10 +7,10 @@ from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
 from homeassistant.components.sensor import (
-    SensorDeviceClass,
-    SensorStateClass,SensorEntity,
+  RestoreSensor,
+  SensorDeviceClass,
+  SensorStateClass,
 )
-from homeassistant.helpers.restore_state import RestoreEntity
 from . import (
   calculate_electricity_consumption_and_cost,
 )
@@ -19,12 +19,12 @@ from .base import (OctopusEnergyElectricitySensor)
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyPreviousAccumulativeElectricityCostPeak(CoordinatorEntity, OctopusEnergyElectricitySensor, SensorEntity, RestoreEntity):
+class OctopusEnergyPreviousAccumulativeElectricityCostPeak(CoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative electricity cost during peak hours."""
 
   def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point):
     """Init sensor."""
-    super().__init__(coordinator)
+    CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._hass = hass
@@ -93,9 +93,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostPeak(CoordinatorEntity, Oc
       rate_data,
       standing_charge,
       self._last_reset,
-      self._tariff_code,
-      # During BST, two records are returned before the rest of the data is available
-      3
+      self._tariff_code
     )
 
     if (consumption_and_cost is not None):
