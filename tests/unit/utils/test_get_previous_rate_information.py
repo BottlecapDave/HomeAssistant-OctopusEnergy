@@ -1,4 +1,5 @@
 from datetime import (datetime, timedelta)
+from custom_components.octopus_energy.api_client import rates_to_thirty_minute_increments
 import pytest
 
 from unit import (create_rate_data)
@@ -164,3 +165,75 @@ async def test_when_all_rates_different_then_rate_information_is_returned():
   assert rate_information["applicable_rates"][0]["value_inc_vat"] == 20
   assert rate_information["applicable_rates"][0]["valid_from"] == datetime.strptime("2022-02-27T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert rate_information["applicable_rates"][0]["valid_to"] == datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+
+# Covering https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/441
+@pytest.mark.asyncio
+@pytest.mark.parametrize("now",[
+  (datetime.strptime("2023-10-06T10:50:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
+  (datetime.strptime("2023-10-06T09:50:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+])
+async def test_when_agile_rates_then_rate_information_is_returned(now: datetime):
+  # Arrange
+  rate_data = rates_to_thirty_minute_increments(
+    {
+      "results": [
+        {
+          "value_inc_vat": 2.0,
+          "valid_from": "2023-10-06T11:30:00Z",
+          "valid_to": "2023-10-06T12:00:00Z"
+        },
+        {
+          "value_inc_vat": 3.02,
+          "valid_from": "2023-10-06T11:00:00Z",
+          "valid_to": "2023-10-06T11:30:00Z"
+        },
+        {
+          "value_inc_vat": 3.43,
+          "valid_from": "2023-10-06T10:30:00Z",
+          "valid_to": "2023-10-06T11:00:00Z"
+        },
+        {
+          "value_inc_vat": 4.18,
+          "valid_from": "2023-10-06T10:00:00Z",
+          "valid_to": "2023-10-06T10:30:00Z"
+        },
+        {
+          "value_inc_vat": 6.19,
+          "valid_from": "2023-10-06T09:30:00Z",
+          "valid_to": "2023-10-06T10:00:00Z"
+        },
+        {
+          "value_inc_vat": 6.74,
+          "valid_from": "2023-10-06T09:00:00Z",
+          "valid_to": "2023-10-06T09:30:00Z"
+        },
+        {
+          "value_inc_vat": 7.6,
+          "valid_from": "2023-10-06T08:30:00Z",
+          "valid_to": "2023-10-06T09:00:00Z"
+        },
+      ]
+    },
+    datetime.strptime("2023-10-06T09:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2023-10-06T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    "test"
+  )
+  expected_current_rate = 6.74
+
+  # Act
+  rate_information = get_previous_rate_information(rate_data, now)
+
+  # Assert
+  assert rate_information is not None
+  
+  assert "previous_rate" in rate_information
+  assert rate_information["previous_rate"]["value_inc_vat"] == expected_current_rate
+  assert rate_information["previous_rate"]["valid_from"] == datetime.strptime("2023-10-06T09:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["previous_rate"]["valid_to"] == datetime.strptime("2023-10-06T09:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+
+  assert "applicable_rates" in rate_information
+  assert len(rate_information["applicable_rates"]) == 1
+
+  assert rate_information["applicable_rates"][0]["value_inc_vat"] == expected_current_rate
+  assert rate_information["applicable_rates"][0]["valid_from"] == datetime.strptime("2023-10-06T09:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["valid_to"] == datetime.strptime("2023-10-06T09:30:00Z", "%Y-%m-%dT%H:%M:%S%z")

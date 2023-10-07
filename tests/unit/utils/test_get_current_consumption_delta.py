@@ -1,7 +1,6 @@
 from datetime import (datetime)
 import pytest
 
-from unit import (create_rate_data)
 from custom_components.octopus_energy.utils.consumption import get_current_consumption_delta
 
 @pytest.mark.asyncio
