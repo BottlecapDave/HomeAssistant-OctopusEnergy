@@ -32,7 +32,7 @@ You'll get the following sensors for each electricity meter with an active agree
     - [Previous Accumulative Cost Override Tariff](#previous-accumulative-cost-override-tariff)
       - [How To Use](#how-to-use)
     - [Previous Accumulative Cost Override](#previous-accumulative-cost-override)
-  - [Previous Consumption Override Day Rates](#previous-consumption-override-day-rates)
+    - [Previous Consumption Override Day Rates](#previous-consumption-override-day-rates)
 
 ## Current Rate
 
@@ -387,7 +387,7 @@ This is the cost of the previous electricity accumulation based on the specified
 
 For attributes, see [Previous Accumulative Cost](#previous-accumulative-cost).
 
-## Previous Consumption Override Day Rates
+### Previous Consumption Override Day Rates
 
 `event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_consumption_override_rates`
 
