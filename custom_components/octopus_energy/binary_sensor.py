@@ -98,6 +98,16 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
               has_intelligent_tariff = True
 
   should_mock_intelligent_data = await async_mock_intelligent_data(hass)
+  if should_mock_intelligent_data:
+    # Pick the first meter if we're mocking our intelligent data
+    for point in account_info["electricity_meter_points"]:
+      tariff_code = get_active_tariff_code(now, point["agreements"])
+      if tariff_code is not None:
+        for meter in point["meters"]:
+          intelligent_mpan = point["mpan"]
+          intelligent_serial_number = meter["serial_number"]
+          break
+
   if has_intelligent_tariff or should_mock_intelligent_data:
     coordinator = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES_COORDINATOR]
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
