@@ -1,3 +1,10 @@
+## [8.4.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.4.0...v8.4.1) (2023-10-07)
+
+
+### Bug Fixes
+
+* Fixed error in dispatching sensor ([0799002](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/079900299ce2500b440d32d6e309e03fb2da60cf))
+
 # [8.4.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.3.0...v8.4.0) (2023-10-07)
 
 
