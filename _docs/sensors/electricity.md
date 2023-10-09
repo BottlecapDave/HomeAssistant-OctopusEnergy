@@ -94,7 +94,7 @@ The next/upcoming rate that energy consumption will be charged at (including VAT
 
 `event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_day_rates`
 
-The state of this sensor states when the current day's rates were last updated. The attributes of this sensor exposes the current day's rates. This is disabled by default. 
+The state of this sensor states when the current day's rates were last updated. The attributes of this sensor exposes the current day's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -105,7 +105,7 @@ The state of this sensor states when the current day's rates were last updated. 
 
 `event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_day_rates`
 
-The state of this sensor states when the previous day's rates were last updated. The attributes of this sensor exposes the previous day's rates. This is disabled by default. 
+The state of this sensor states when the previous day's rates were last updated. The attributes of this sensor exposes the previous day's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -116,7 +116,7 @@ The state of this sensor states when the previous day's rates were last updated.
 
 `event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_next_day_rates`
 
-The state of this sensor states when the next day's rates were last updated. The attributes of this sensor exposes the next day's rates. This is disabled by default. 
+The state of this sensor states when the next day's rates were last updated. The attributes of this sensor exposes the next day's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -127,7 +127,7 @@ The state of this sensor states when the next day's rates were last updated. The
 
 `binary_sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_off_peak`
 
-This is `on` when you're within your tariff's off peak period, and `off` at all other times. This is disabled by default. This will only be work if you're on a tariff with an off peak period.
+This is `on` when you're within your tariff's off peak period, and `off` at all other times. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be work if you're on a tariff with an off peak period.
 
 ## Smart Meter Sensors
 
@@ -156,7 +156,7 @@ The total consumption reported by the meter for the previous day.
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_peak`
 
-The total consumption reported by the meter for the previous day that applied during peak hours. This is disabled by default. This will only be populated if you're on a tariff with two available rates.
+The total consumption reported by the meter for the previous day that applied during peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -169,7 +169,7 @@ The total consumption reported by the meter for the previous day that applied du
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_off_peak`
 
-The total consumption reported by the meter for the previous day that applied during off peak hours. This is disabled by default. This will only be populated if you're on a tariff with two available rates.
+The total consumption reported by the meter for the previous day that applied during off peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -201,7 +201,7 @@ The total cost for the previous day, including the standing charge.
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_peak`
 
-The total cost for the previous day that applied during peak hours. This is disabled by default. This will only be populated if you're on a tariff with two available rates.
+The total cost for the previous day that applied during peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -214,7 +214,7 @@ The total cost for the previous day that applied during peak hours. This is disa
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_off_peak`
 
-The total cost for the previous day that applied during off peak hours. This is disabled by default. This will only be populated if you're on a tariff with two available rates.
+The total cost for the previous day that applied during off peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -227,7 +227,7 @@ The total cost for the previous day that applied during off peak hours. This is 
 
 `event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_consumption_rates`
 
-The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous day's rates, but could differ if the default offset is changed. The attributes of this sensor exposes the previous consumption's rates. This is disabled by default. 
+The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous day's rates, but could differ if the default offset is changed. The attributes of this sensor exposes the previous consumption's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -288,7 +288,7 @@ The total consumption reported by the meter for the current day.
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption_peak`
 
-The total consumption reported by the meter for the current day that applied during peak hours. This is disabled by default. This will only be populated if you're on a tariff with two available rates.
+The total consumption reported by the meter for the current day that applied during peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -301,7 +301,7 @@ The total consumption reported by the meter for the current day that applied dur
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption_off_peak`
 
-The total consumption reported by the meter for the current day that applied during off peak hours. This is disabled by default. This will only be populated if you're on a tariff with two available rates.
+The total consumption reported by the meter for the current day that applied during off peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -332,7 +332,7 @@ The total cost for the current day, including the standing charge.
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost_peak`
 
-The total cost for the current day that applied during peak hours. This is disabled by default. This will only be populated if you're on a tariff with two available rates.
+The total cost for the current day that applied during peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -345,7 +345,7 @@ The total cost for the current day that applied during peak hours. This is disab
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost_off_peak`
 
-The total cost for the current day that applied during off peak hours. This is disabled by default. This will only be populated if you're on a tariff with two available rates.
+The total cost for the current day that applied during off peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -391,7 +391,7 @@ For attributes, see [Previous Accumulative Cost](#previous-accumulative-cost).
 
 `event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_consumption_override_rates`
 
-The state of this sensor states when the previous consumption override's rates were last updated. The attributes of this sensor exposes the previous consumption override's rates. This is disabled by default. 
+The state of this sensor states when the previous consumption override's rates were last updated. The attributes of this sensor exposes the previous consumption override's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|

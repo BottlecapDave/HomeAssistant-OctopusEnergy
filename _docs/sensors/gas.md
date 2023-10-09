@@ -77,7 +77,7 @@ The next/upcoming rate that energy consumption will be charged at (including VAT
 
 `event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_day_rates`
 
-The state of this sensor states when the current day's rates were last updated. The attributes of this sensor exposes the current day's rates. This is disabled by default. 
+The state of this sensor states when the current day's rates were last updated. The attributes of this sensor exposes the current day's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -88,7 +88,7 @@ The state of this sensor states when the current day's rates were last updated. 
 
 `event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_day_rates`
 
-The state of this sensor states when the previous day's rates were last updated. The attributes of this sensor exposes the previous day's rates. This is disabled by default. 
+The state of this sensor states when the previous day's rates were last updated. The attributes of this sensor exposes the previous day's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -99,7 +99,7 @@ The state of this sensor states when the previous day's rates were last updated.
 
 `event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_next_day_rates`
 
-The state of this sensor states when the next day's rates were last updated. The attributes of this sensor exposes the next day's rates. This is disabled by default. 
+The state of this sensor states when the next day's rates were last updated. The attributes of this sensor exposes the next day's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -174,7 +174,7 @@ The total cost for the previous day, including the standing charge.
 
 `event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_consumption_rates`
 
-The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous day's rates, but could differ if the default offset is changed. The attributes of this sensor exposes the previous consumption's rates. This is disabled by default. 
+The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous day's rates, but could differ if the default offset is changed. The attributes of this sensor exposes the previous consumption's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -267,7 +267,7 @@ For attributes, see [Previous Accumulative Cost](#previous-accumulative-cost).
 
 `event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_consumption_override_rates`
 
-The state of this sensor states when the previous consumption override's rates were last updated. The attributes of this sensor exposes the previous consumption override's rates. This is disabled by default. 
+The state of this sensor states when the previous consumption override's rates were last updated. The attributes of this sensor exposes the previous consumption override's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
