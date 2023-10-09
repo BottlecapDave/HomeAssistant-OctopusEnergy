@@ -1,20 +1,20 @@
-# Gas Sensors
+# Gas Entities
 
-You'll get the following sensors for each gas meter with an active agreement:
+You'll get the following entities for each gas meter with an active agreement:
 
-- [Gas Sensors](#gas-sensors)
+- [Gas Entities](#gas-entities)
   - [Current Rate](#current-rate)
   - [Previous Rate](#previous-rate)
   - [Next rate](#next-rate)
   - [Current Day Rates](#current-day-rates)
   - [Previous Day Rates](#previous-day-rates)
   - [Next Day Rates](#next-day-rates)
-  - [Smart Meter Sensors](#smart-meter-sensors)
+  - [Smart Meter Entities](#smart-meter-entities)
     - [Previous Accumulative Consumption](#previous-accumulative-consumption)
     - [Previous Accumulative Consumption (kWH)](#previous-accumulative-consumption-kwh)
     - [Previous Accumulative Cost](#previous-accumulative-cost)
   - [Previous Consumption Day Rates](#previous-consumption-day-rates)
-  - [Home Mini Sensors](#home-mini-sensors)
+  - [Home Mini Entities](#home-mini-entities)
     - [Current Consumption](#current-consumption)
     - [Current Accumulative Consumption](#current-accumulative-consumption)
     - [Current Accumulative Cost](#current-accumulative-cost)
@@ -77,7 +77,7 @@ The next/upcoming rate that energy consumption will be charged at (including VAT
 
 `event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_day_rates`
 
-The state of this sensor states when the current day's rates were last updated. The attributes of this sensor exposes the current day's rates. This is disabled by default. 
+The state of this sensor states when the current day's rates were last updated. The attributes of this sensor exposes the current day's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -88,7 +88,7 @@ The state of this sensor states when the current day's rates were last updated. 
 
 `event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_day_rates`
 
-The state of this sensor states when the previous day's rates were last updated. The attributes of this sensor exposes the previous day's rates. This is disabled by default. 
+The state of this sensor states when the previous day's rates were last updated. The attributes of this sensor exposes the previous day's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -99,16 +99,16 @@ The state of this sensor states when the previous day's rates were last updated.
 
 `event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_next_day_rates`
 
-The state of this sensor states when the next day's rates were last updated. The attributes of this sensor exposes the next day's rates. This is disabled by default. 
+The state of this sensor states when the next day's rates were last updated. The attributes of this sensor exposes the next day's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `rates` | `list` | The list of rates applicable for the next day |
 | `tariff_code` | `string` | The tariff code associated with today's rates |
 
-## Smart Meter Sensors
+## Smart Meter Entities
 
-If your account information doesn't determine you have a smart meter, then you will have the following sensors in a disabled state. If you enable these sensors, they might not work correctly in this scenario. 
+If your account information doesn't determine you have a smart meter, then you will have the following entities in a disabled state. If you enable these entities, they might not work correctly in this scenario. 
 
 If you are wishing to use these sensors with the Energy Dashboard, then you can follow this [guide](../energy_dashboard.md).
 
@@ -174,14 +174,14 @@ The total cost for the previous day, including the standing charge.
 
 `event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_consumption_rates`
 
-The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous day's rates, but could differ if the default offset is changed. The attributes of this sensor exposes the previous consumption's rates. This is disabled by default. 
+The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous day's rates, but could differ if the default offset is changed. The attributes of this sensor exposes the previous consumption's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `rates` | `list` | The list of rates applicable for the previous consumption |
 | `tariff_code` | `string` | The tariff code associated with previous consumption's rates |
 
-## Home Mini Sensors
+## Home Mini Entities
 
 ### Current Consumption
 
@@ -267,7 +267,7 @@ For attributes, see [Previous Accumulative Cost](#previous-accumulative-cost).
 
 `event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_consumption_override_rates`
 
-The state of this sensor states when the previous consumption override's rates were last updated. The attributes of this sensor exposes the previous consumption override's rates. This is disabled by default. 
+The state of this sensor states when the previous consumption override's rates were last updated. The attributes of this sensor exposes the previous consumption override's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|

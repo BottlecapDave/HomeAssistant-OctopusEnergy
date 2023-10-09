@@ -4,7 +4,8 @@
   - [Data in my Home Assistant energy dashboard reported by Octopus Home Mini differs to Octopus Energy dashboard. Why is this?](#data-in-my-home-assistant-energy-dashboard-reported-by-octopus-home-mini-differs-to-octopus-energy-dashboard-why-is-this)
   - [Can I add the sensors to the Energy dashboard?](#can-i-add-the-sensors-to-the-energy-dashboard)
   - [Why is my gas sensor reporting m3 when Octopus Energy reports it as kWh?](#why-is-my-gas-sensor-reporting-m3-when-octopus-energy-reports-it-as-kwh)
-  - [I have sensors that are missing](#i-have-sensors-that-are-missing)
+  - [There are entities that are disabled. Why are they disabled and how do I enable them?](#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them)
+  - [I have entities that are missing](#i-have-entities-that-are-missing)
   - [I have data missing, is this an issue with the integration](#i-have-data-missing-is-this-an-issue-with-the-integration)
   - [I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?](#im-an-agile-user-and-having-trouble-setting-up-a-target-rate-sensor-what-am-i-doing-wrong)
   - [My gas consumption/costs seem out](#my-gas-consumptioncosts-seem-out)
@@ -28,21 +29,34 @@ See the [guide](./energy_dashboard.md) for instructions on how to add these sens
 
 The sensor was setup when Home Assistant only supported gas sensors in m3 format. While this has been changed since, the reporting of the sensor can't be changed because this would be a breaking change for existing users. However a `kwh` sensor has been added to provide this data.
 
-## I have sensors that are missing
+## There are entities that are disabled. Why are they disabled and how do I enable them?
 
-The integration only looks at the first property associated with your account that doesn't have a moved out date attached to it. If you are still missing sensors, follow the instructions to increase the logs (see above).
+Some entities are disabled by default. This is usually because the entities are not applicable for all tariffs or are for niche scenarios. By having these entities disabled, it also doesn't overwhelm new users when they install the integration otherwise most users will be presented with over 40 different entities.
 
-You should then see entries associated with this component stating either sensors were added, skipped or no sensors were available at all.
+Enabling entities is easy. All you need to do is
 
-The identifiers of the sensors should then be checked against your Octopus Energy dashboard to verify the correct sensors are being picked up. If this is producing unexpected results, then you should raise an issue.
+1. Go to the [Octopus Energy](https://my.home-assistant.io/redirect/integration/?domain=octopus_energy) integration.
+2. Click on `entities`
+3. Find and click on the entity you want to enable. This is usually indicated by a "no entry" sign in the `status`.
+4. Click on the settings/cog button
+5. Click on the `enable` button or toggle the `Enabled` toggle to on
+6. Click on `update`
+
+## I have entities that are missing
+
+The integration only looks at the first property associated with your account that doesn't have a moved out date attached to it. If you are still missing entities, follow the instructions to [increase the logs](#how-do-i-increase-the-logs-for-the-integration).
+
+You should then see entries associated with this component stating either entities were added, skipped or no entities were available at all.
+
+The identifiers of the entities should then be checked against your Octopus Energy dashboard to verify the correct entities are being picked up. If this is producing unexpected results, then you should raise an issue.
 
 ## I have data missing, is this an issue with the integration
 
-Data can not appear for a variety of reasons. Before raising any issues, check if the data is available within the app. If it's not available within the app, then unfortunately there is nothing I can do. Data might also not appear if you lose internet connection of the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs. If none of this is applicable, then please raise an issue so we can try and solve the problem.
+Data can not appear for a variety of reasons. Before raising any issues, check if the data is available within the app. If it's not available within the app, then unfortunately there is nothing I can do. Data might also not appear if you lose internet connection or the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs. If none of this is applicable, then please raise an issue so we can try and solve the problem.
 
 ## I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?
 
-Rate data for agile tariffs are not available in full for the next day, which can cause issues with target rate sensors in their default state. We prevent you from setting up target rate sensors in this form. More information around this can be found in the [target rate documentation](./setup_target_rate.md#fromto-times).
+Rate data for agile tariffs are not available in full for the next day, which can cause issues with target rate sensors in their default state. We prevent you from setting up target rate sensors in this form. More information around this can be found in the [target rate documentation](./setup_target_rate.md#agile-users).
 
 ## My gas consumption/costs seem out
 
@@ -66,7 +80,7 @@ For example if I was on the tariff `E-1R-SUPER-GREEN-24M-21-07-30-A` and I wante
 
 ![All products example](./assets/product_lookup.png)
 
-In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https://api.octopus.energy/v1/products/VAR-22-11-01](https://api.octopus.energy/v1/products/VAR-22-11-01). From this list, I would then look up the tariff for my region (e.g. `A` defined at the end of my current tariff) which is defined in the `code` field. It is this value that you add to the `cost_override_tariff` sensors. In this example, I want the duel electricity tariff version, so will pick `E-2R-VAR-22-11-01-A`.
+In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https://api.octopus.energy/v1/products/VAR-22-11-01](https://api.octopus.energy/v1/products/VAR-22-11-01). From this list, I would then look up the tariff for my region (e.g. `A` defined at the end of my current tariff) which is defined in the `code` field. It is this value that you add to the `cost_override_tariff` entity. In this example, I want the duel electricity tariff version, so will pick `E-2R-VAR-22-11-01-A`.
 
 ![Target product example](./assets/product_tariff_lookup.png)
 

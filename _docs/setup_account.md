@@ -12,13 +12,13 @@ Setup is done entirely via the [integration UI](https://my.home-assistant.io/red
 
 ## Home Mini
 
-If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to check the box next to `I have a Home Mini`. This will gain the following sensors which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/):
+If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to check the box next to `I have a Home Mini`. This will gain the following entities which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/):
 
-> Please note, you will only have the same data exposed in the integration that is available within the app. There has been reports of gas not appearing within the app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the app, if you reload the integration (or restart Home Assistant) then the sensors should become available.
+> Please note, you will only have the same data exposed in the integration that is available within the app. There has been reports of gas not appearing within the app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the app, if you reload the integration (or restart Home Assistant) then the entities should become available.
 
-For electricity sensors, see [here](./sensors/electricity.md#home-mini-sensors).
+For electricity entities, see [here](./entities/electricity.md#home-mini-entities).
 
-For gas sensors, see [here](./sensors/gas.md#home-mini-sensors)
+For gas entities, see [here](./entities/gas.md#home-mini-entities)
 
 ### Refresh Rate In Minutes
 

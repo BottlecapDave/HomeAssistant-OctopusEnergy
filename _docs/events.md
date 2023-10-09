@@ -12,7 +12,7 @@
   - [Gas Previous Consumption Rates](#gas-previous-consumption-rates)
   - [Gas Previous Consumption Override Rates](#gas-previous-consumption-override-rates)
 
-The following events are raised by the integration. These events power various sensors mentioned above. They can also be used to trigger automations. An example automation might look like the following
+The following events are raised by the integration. These events power various entities mentioned above. They can also be used to trigger automations. An example automation might look like the following
 
 ```yaml
 - alias: OE rates change
@@ -74,7 +74,7 @@ This is fired when the next day rates are updated.
 
 `octopus_energy_electricity_previous_consumption_rates`
 
-This is fired when the [previous consumption's](./sensors/electricity.md#previous-accumulative-consumption) rates are updated.
+This is fired when the [previous consumption's](./entities/electricity.md#previous-accumulative-consumption) rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -87,7 +87,7 @@ This is fired when the [previous consumption's](./sensors/electricity.md#previou
 
 `octopus_energy_electricity_previous_consumption_override_rates`
 
-This is fired when the [previous consumption override's](./sensors/electricity.md#tariff-overrides) rates are updated.
+This is fired when the [previous consumption override's](./entities/electricity.md#tariff-overrides) rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -139,7 +139,7 @@ This is fired when the next day rates are updated.
 
 `octopus_energy_gas_previous_consumption_rates`
 
-This is fired when the [previous consumption's](./sensors/gas.md#previous-accumulative-consumption) rates are updated.
+This is fired when the [previous consumption's](./entities/gas.md#previous-accumulative-consumption) rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -152,7 +152,7 @@ This is fired when the [previous consumption's](./sensors/gas.md#previous-accumu
 
 `octopus_energy_gas_previous_consumption_override_rates`
 
-This is fired when the [previous consumption override's](./sensors/gas.md#tariff-overrides) rates are updated.
+This is fired when the [previous consumption override's](./entities/gas.md#tariff-overrides) rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|

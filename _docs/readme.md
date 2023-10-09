@@ -2,9 +2,9 @@
 
 - [Home Assistant Octopus Energy Docs](#home-assistant-octopus-energy-docs)
   - [How to setup](#how-to-setup)
-  - [Sensors](#sensors)
-    - [Electricity Sensors](#electricity-sensors)
-    - [Gas Sensors](#gas-sensors)
+  - [Entities](#entities)
+    - [Electricity Entities](#electricity-entities)
+    - [Gas Entities](#gas-entities)
     - [Home Mini](#home-mini)
     - [Intelligent](#intelligent)
     - [Saving Sessions](#saving-sessions)
@@ -17,39 +17,39 @@
 
 ## How to setup
 
-Please follow the [setup guide](./setup_account.md) to setup your initial account. This guide details the configuration, along with the sensors that will be available to you.
+Please follow the [setup guide](./setup_account.md) to setup your initial account. This guide details the configuration, along with the entities that will be available to you.
 
-## Sensors
+## Entities
 
-### Electricity Sensors
+### Electricity Entities
 
-A full list of electricity sensors can be found [here](./sensors/electricity.md).
+A full list of electricity entities can be found [here](./entities/electricity.md).
 
-### Gas Sensors
+### Gas Entities
 
-A full list of gas sensors can be found [here](./sensors/gas.md).
+A full list of gas entities can be found [here](./entities/gas.md).
 
 ### Home Mini
 
-If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to check the box next to `I have a Home Mini`. This will gain the following sensors which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/):
+If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to check the box next to `I have a Home Mini`. This will gain the following entities which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/):
 
-> Please note, you will only have the same data exposed in the integration that is available within the app. There has been reports of gas not appearing within the app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the app, if you reload the integration (or restart Home Assistant) then the sensors should become available.
+> Please note, you will only have the same data exposed in the integration that is available within the app. There has been reports of gas not appearing within the app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the app, if you reload the integration (or restart Home Assistant) then the entities should become available.
 
-For electricity sensors, see [here](./sensors/electricity.md#home-mini-sensors).
+For electricity entities, see [here](./entities/electricity.md#home-mini-entities).
 
-For gas sensors, see [here](./sensors/gas.md#home-mini-sensors)
+For gas entities, see [here](./entities/gas.md#home-mini-entities)
 
 ### Intelligent
 
-If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-octopus/), then you'll get a few additional sensors when you install the integration. 
+If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-octopus/), then you'll get a few additional entities when you install the integration. 
 
-A full list of intelligent sensors can be found [here](./sensors/intelligent.md)
+A full list of intelligent entities can be found [here](./entities/intelligent.md)
 
 > Please note: If you switch to the intelligent tariff after you have installed the integration, you will need to reload the integration or restart your Home Assistant instance.
 
 ### Saving Sessions
 
-To support Octopus Energy's [saving sessions](https://octopus.energy/saving-sessions/). A full list of  sensors can be found [here](./sensors/saving_sessions.md).
+To support Octopus Energy's [saving sessions](https://octopus.energy/saving-sessions/). A full list of entities can be found [here](./entities/saving_sessions.md).
 
 ## Target Rate Sensors
 
