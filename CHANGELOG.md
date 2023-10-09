@@ -1,3 +1,10 @@
+## [8.4.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.4.1...v8.4.2) (2023-10-09)
+
+
+### Bug Fixes
+
+* Updated minimum version of Home Assistant to 2023.09 ([30157c0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/30157c0a7af8b6c519800393329413a2298e8272))
+
 ## [8.4.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.4.0...v8.4.1) (2023-10-07)
 
 
