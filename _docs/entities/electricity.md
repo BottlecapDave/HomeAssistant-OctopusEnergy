@@ -1,8 +1,8 @@
-# Electricity Sensors
+# Electricity Entities
 
-You'll get the following sensors for each electricity meter with an active agreement.
+You'll get the following entities for each electricity meter with an active agreement.
 
-- [Electricity Sensors](#electricity-sensors)
+- [Electricity Entities](#electricity-entities)
   - [Current Rate](#current-rate)
   - [Previous Rate](#previous-rate)
   - [Next rate](#next-rate)
@@ -10,7 +10,7 @@ You'll get the following sensors for each electricity meter with an active agree
   - [Previous Day Rates](#previous-day-rates)
   - [Next Day Rates](#next-day-rates)
   - [Off Peak](#off-peak)
-  - [Smart Meter Sensors](#smart-meter-sensors)
+  - [Smart Meter Entities](#smart-meter-entities)
     - [Previous Accumulative Consumption](#previous-accumulative-consumption)
     - [Previous Accumulative Consumptions (Peak Rate)](#previous-accumulative-consumptions-peak-rate)
     - [Previous Accumulative Consumption (Off Peak Rate)](#previous-accumulative-consumption-off-peak-rate)
@@ -18,8 +18,8 @@ You'll get the following sensors for each electricity meter with an active agree
     - [Previous Accumulative Cost (Peak Rate)](#previous-accumulative-cost-peak-rate)
     - [Previous Accumulative Cost (Off Peak Rate)](#previous-accumulative-cost-off-peak-rate)
   - [Previous Consumption Day Rates](#previous-consumption-day-rates)
-  - [Export Sensors](#export-sensors)
-  - [Home Mini Sensors](#home-mini-sensors)
+  - [Export Entities](#export-entities)
+  - [Home Mini Entities](#home-mini-entities)
     - [Current Consumption](#current-consumption)
     - [Current Demand](#current-demand)
     - [Current Accumulative Consumption](#current-accumulative-consumption)
@@ -129,9 +129,9 @@ The state of this sensor states when the next day's rates were last updated. The
 
 This is `on` when you're within your tariff's off peak period, and `off` at all other times. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be work if you're on a tariff with an off peak period.
 
-## Smart Meter Sensors
+## Smart Meter Entities
 
-If your account information doesn't determine you have a smart meter, then you will have the following sensors in a disabled state. If you enable these sensors, they might not work correctly in this scenario.
+If your account information doesn't determine you have a smart meter, then you will have the following entities in a disabled state. If you enable these entities, they might not work correctly in this scenario.
 
 If you are wishing to use these sensors with the Energy Dashboard, then you can follow this [guide](../energy_dashboard.md).
 
@@ -234,11 +234,11 @@ The state of this sensor states when the previous consumption's rates were last 
 | `rates` | `list` | The list of rates applicable for the previous consumption |
 | `tariff_code` | `string` | The tariff code associated with previous consumption's rates |
 
-## Export Sensors
+## Export Entities
 
-If you export energy, then in addition you'll gain the above sensors with the name `export` present. E.g. `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_rate`.
+If you export energy, then in addition you'll gain the above entities with the name `export` present. E.g. `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_rate`.
 
-## Home Mini Sensors
+## Home Mini Entities
 
 ### Current Consumption
 

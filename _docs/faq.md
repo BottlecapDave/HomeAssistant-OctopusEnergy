@@ -5,7 +5,7 @@
   - [Can I add the sensors to the Energy dashboard?](#can-i-add-the-sensors-to-the-energy-dashboard)
   - [Why is my gas sensor reporting m3 when Octopus Energy reports it as kWh?](#why-is-my-gas-sensor-reporting-m3-when-octopus-energy-reports-it-as-kwh)
   - [There are entities that are disabled. Why are they disabled and how do I enable them?](#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them)
-  - [I have sensors that are missing](#i-have-sensors-that-are-missing)
+  - [I have entities that are missing](#i-have-entities-that-are-missing)
   - [I have data missing, is this an issue with the integration](#i-have-data-missing-is-this-an-issue-with-the-integration)
   - [I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?](#im-an-agile-user-and-having-trouble-setting-up-a-target-rate-sensor-what-am-i-doing-wrong)
   - [My gas consumption/costs seem out](#my-gas-consumptioncosts-seem-out)
@@ -33,7 +33,7 @@ The sensor was setup when Home Assistant only supported gas sensors in m3 format
 
 Some entities are disabled by default. This is usually because the entities are not applicable for all tariffs or are for niche scenarios. By having these entities disabled, it also doesn't overwhelm new users when they install the integration otherwise most users will be presented with over 40 different entities.
 
-Enabling sensors is easy. All you need to do is
+Enabling entities is easy. All you need to do is
 
 1. Go to the [Octopus Energy](https://my.home-assistant.io/redirect/integration/?domain=octopus_energy) integration.
 2. Click on `entities`
@@ -42,13 +42,13 @@ Enabling sensors is easy. All you need to do is
 5. Click on the `enable` button or toggle the `Enabled` toggle to on
 6. Click on `update`
 
-## I have sensors that are missing
+## I have entities that are missing
 
-The integration only looks at the first property associated with your account that doesn't have a moved out date attached to it. If you are still missing sensors, follow the instructions to [increase the logs](#how-do-i-increase-the-logs-for-the-integration).
+The integration only looks at the first property associated with your account that doesn't have a moved out date attached to it. If you are still missing entities, follow the instructions to [increase the logs](#how-do-i-increase-the-logs-for-the-integration).
 
-You should then see entries associated with this component stating either sensors were added, skipped or no sensors were available at all.
+You should then see entries associated with this component stating either entities were added, skipped or no entities were available at all.
 
-The identifiers of the sensors should then be checked against your Octopus Energy dashboard to verify the correct sensors are being picked up. If this is producing unexpected results, then you should raise an issue.
+The identifiers of the entities should then be checked against your Octopus Energy dashboard to verify the correct entities are being picked up. If this is producing unexpected results, then you should raise an issue.
 
 ## I have data missing, is this an issue with the integration
 
@@ -80,7 +80,7 @@ For example if I was on the tariff `E-1R-SUPER-GREEN-24M-21-07-30-A` and I wante
 
 ![All products example](./assets/product_lookup.png)
 
-In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https://api.octopus.energy/v1/products/VAR-22-11-01](https://api.octopus.energy/v1/products/VAR-22-11-01). From this list, I would then look up the tariff for my region (e.g. `A` defined at the end of my current tariff) which is defined in the `code` field. It is this value that you add to the `cost_override_tariff` sensors. In this example, I want the duel electricity tariff version, so will pick `E-2R-VAR-22-11-01-A`.
+In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https://api.octopus.energy/v1/products/VAR-22-11-01](https://api.octopus.energy/v1/products/VAR-22-11-01). From this list, I would then look up the tariff for my region (e.g. `A` defined at the end of my current tariff) which is defined in the `code` field. It is this value that you add to the `cost_override_tariff` entity. In this example, I want the duel electricity tariff version, so will pick `E-2R-VAR-22-11-01-A`.
 
 ![Target product example](./assets/product_tariff_lookup.png)
 
