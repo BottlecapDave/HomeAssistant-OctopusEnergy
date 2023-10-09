@@ -39,7 +39,14 @@ If for example you want to look at prices overnight you could set the minimum ti
 
 #### Agile Users
 
-If you are an agile user, then agile prices are available from [11pm to 11pm UK time](https://developer.octopus.energy/docs/api/#agile-octopus) and published at `16:00` UK time. Therefore, you cannot specify a timeframe that starts before `16:00` and ends after `23:00` because the target rate(s) will not be able to be calculated until part way through the specified timeframe as this is when the full set will become available. We recommend you set your timeframes to `16:00`/`16:00` or `23:00`/`23:00` if you're wanting to target a full 24 hours.
+If you are an agile user, then agile prices are available from [11pm to 11pm UK time](https://developer.octopus.energy/docs/api/#agile-octopus) and published at `16:00` UK time. Therefore, you cannot specify a timeframe that starts before `16:00` and ends after `23:00` because the target rate(s) will not be able to be calculated until part way through the specified timeframe as this is when the full set will become available. We recommend you set your timeframes to `16:00`/`16:00` or `23:00`/`23:00` if you're wanting to target a full 24 hours, but other valid times might include
+
+
+| from/start | to/end | Notes |
+|-|-|-|
+| `10:00` | `23:00` | our start time is before 4pm, but our end time is not after 11pm |
+| `16:30` | `23:30` | our start time is after 4pm, so our end time can be after 11pm |
+| `17:00` | `14:00` | our start time is after 4pm and our end time is before our start time so therefore for the next day. Doing this might delay when the target rate sensor is calculated depending on when the rates are made available for the next day (e.g. if they're late for publishing). |
 
 This is not automatically done by the integration as I didn't want to cause confusion for users when they didn't set anything nor did I want behaviour to implicitly change when users switch tariffs.
 

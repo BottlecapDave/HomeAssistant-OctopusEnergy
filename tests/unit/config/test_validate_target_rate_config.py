@@ -330,6 +330,9 @@ async def test_when_config_is_valid_and_not_agile_then_no_errors_returned(start_
   ("16:00","00:00","00:00:00"),
   (None, "23:00", None),
   ("16:00", None, None),
+  ("10:00","23:00","00:00:00"),
+  ("16:30","23:30","00:00:00"),
+  ("17:00","14:00","00:00:00"),
 ])
 async def test_when_config_is_valid_and_agile_then_no_errors_returned(start_time, end_time, offset):
   # Arrange
