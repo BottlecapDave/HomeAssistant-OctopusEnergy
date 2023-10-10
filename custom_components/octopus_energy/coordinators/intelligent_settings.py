@@ -1,7 +1,5 @@
 import logging
-from datetime import timedelta
-
-from ..intelligent import async_mock_intelligent_data, clean_previous_dispatches, has_intelligent_tariff, mock_intelligent_settings
+from datetime import datetime, timedelta
 
 from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
@@ -21,8 +19,19 @@ from ..const import (
 )
 
 from ..api_client import OctopusEnergyApiClient
+from ..api_client.intelligent_settings import IntelligentSettings
+
+from ..intelligent import async_mock_intelligent_data, has_intelligent_tariff, mock_intelligent_settings
 
 _LOGGER = logging.getLogger(__name__)
+
+class IntelligentCoordinatorResult:
+  last_retrieved: datetime
+  settings: IntelligentSettings
+
+  def __init__(self, last_retrieved: datetime, settings: IntelligentSettings):
+    self.last_retrieved = last_retrieved
+    self.settings = settings
 
 async def async_setup_intelligent_settings_coordinator(hass, account_id: str):
   # Reset data rates as we might have new information
@@ -51,8 +60,7 @@ async def async_setup_intelligent_settings_coordinator(hass, account_id: str):
         settings = mock_intelligent_settings()
 
       if settings is not None:
-        hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS] = settings
-        hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS]["last_updated"] = utcnow()
+        hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS] = IntelligentCoordinatorResult(utcnow(), settings)
       elif (DATA_INTELLIGENT_SETTINGS in hass.data[DOMAIN]):
         _LOGGER.debug(f"Failed to retrieve intelligent settings, so using cached settings")
     

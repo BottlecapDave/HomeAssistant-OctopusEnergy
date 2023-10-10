@@ -13,6 +13,7 @@ from homeassistant.util.dt import (utcnow)
 
 from .base import OctopusEnergyIntelligentSensor
 from ..api_client import OctopusEnergyApiClient
+from ..coordinators.intelligent_settings import IntelligentCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -65,23 +66,21 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
   @property
   def native_value(self) -> float:
     """The value of the charge limit."""
-    if self.coordinator is None or self.coordinator.data is None or (self._last_updated is not None and "last_updated" in self.coordinator.data and self._last_updated > self.coordinator.data["last_updated"]):
+    settings_result: IntelligentCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    if settings_result is None or (self._last_updated is not None and self._last_updated > settings_result.last_retrieved):
       self._attributes["last_updated_timestamp"] = self._last_updated
       return self._state
     
-    self._attributes["last_updated_timestamp"] = self.coordinator.data["last_updated"]
-    self._state = self.coordinator.data["charge_limit_weekday"]
+    self._attributes["last_updated_timestamp"] = settings_result.last_retrieved
+    self._state = settings_result.settings.charge_limit_weekday
     
     return self._state
 
   async def async_set_native_value(self, value: float) -> None:
     """Set new value."""
-    await self._client.async_update_intelligent_car_preferences(
+    await self._client.async_update_intelligent_car_target_percentage(
       self._account_id,
-      int(value),
-      int(value),
-      self.coordinator.data["ready_time_weekday"] if self.coordinator is not None and self.coordinator.data is not None else time(9,0),
-      self.coordinator.data["ready_time_weekend"] if self.coordinator is not None and self.coordinator.data is not None else time(9,0),
+      int(value)
     )
     self._state = value
     self._last_updated = utcnow()
