@@ -1,6 +1,9 @@
 # Services
 
 - [Services](#services)
+  - [Service octopus\_energy.purge\_invalid\_external\_statistic\_ids](#service-octopus_energypurge_invalid_external_statistic_ids)
+  - [Service octopus\_energy.refresh\_previous\_consumption\_data](#service-octopus_energyrefresh_previous_consumption_data)
+  - [Service octopus\_energy.update\_target\_config](#service-octopus_energyupdate_target_config)
 
 There are a few services available within this integration, which are detailed here.
 

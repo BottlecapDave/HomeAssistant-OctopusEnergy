@@ -10,6 +10,7 @@
     - [Saving Sessions](#saving-sessions)
   - [Target Rate Sensors](#target-rate-sensors)
   - [Events](#events)
+  - [Services](#services)
   - [Energy Dashboard](#energy-dashboard)
   - [Community Contributions](#community-contributions)
   - [FAQ](#faq)
@@ -62,6 +63,10 @@ Please follow the [setup guide](./setup_target_rate.md) to setup.
 ## Events
 
 This integration raises several events, which can be used for various tasks like automations. For more information, please see the [events docs](./events.md).
+
+## Services
+
+This integration includes several services. Please review them in the [services doc](./services.md).
 
 ## Energy Dashboard
 
