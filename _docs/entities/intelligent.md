@@ -19,23 +19,23 @@ This sensor is used to determine if you're currently in a planned dispatch perio
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `planned_dispatches` | `array` | An array of the dispatches that are currently planned by Octopus Energy |
+| `planned_dispatches` | `array` | An array of the dispatches that are currently planned by Octopus Energy. |
 | `completed_dispatches` | `array` | An array of the dispatches that have been completed by Octopus Energy. This will only store up to the last 3 days worth of completed dispatches. |
 | `last_updated_timestamp` | `datetime` | The date/time the dispatching information was last retrieved from Octopus Energy. |
-| `vehicle_battery_size_in_kwh` | `float` | The size of the target vehicle battery in kwh |
-| `charge_point_power_in_kw` | `float` | The power of the charge point battery in kw |
+| `vehicle_battery_size_in_kwh` | `float` | The size of the target vehicle battery in kWh. |
+| `charge_point_power_in_kw` | `float` | The power of the charge point battery in kW. |
 
 ### Bump Charge
 
 `switch.octopus_energy_intelligent_bump_charge`
 
-This sensor is used to turn on/off bump charging
+This sensor is used to turn on/off bump ("on-demand") charging.
 
 ### Smart Charge
 
 `switch.octopus_energy_intelligent_smart_charge`
 
-This sensor is used to turn on/off intelligent smart charging
+This sensor is used to turn on/off intelligent smart charging.
 
 ### Charge Limit
 
