@@ -1,9 +1,11 @@
+from datetime import time
+
 class IntelligentSettings:
   smart_charge: str
   charge_limit_weekday: int
   charge_limit_weekend: int
-  ready_time_weekday: str
-  ready_time_weekend: str
+  ready_time_weekday: time
+  ready_time_weekend: time
 
   def __init__(
     self,

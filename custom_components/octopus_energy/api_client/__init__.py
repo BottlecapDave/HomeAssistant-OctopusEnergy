@@ -777,8 +777,8 @@ class OctopusEnergyApiClient:
         account_id=account_id,
         weekday_target_percentage=target_percentage,
         weekend_target_percentage=target_percentage,
-        weekday_target_time=settings.ready_time_weekday,
-        weekend_target_time=settings.ready_time_weekend
+        weekday_target_time=settings.ready_time_weekday.strftime("%H:%M"),
+        weekend_target_time=settings.ready_time_weekend.strftime("%H:%M")
       ) }
 
       headers = { "Authorization": f"JWT {self._graphql_token}" }
