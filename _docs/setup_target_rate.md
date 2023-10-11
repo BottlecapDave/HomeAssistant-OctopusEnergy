@@ -68,7 +68,7 @@ However, you might also only want the target time to occur once a day so once th
 
 ### Latest Period
 
-Depending on how you're going to use the sensor, you might want the best period at the latest possible time. For example, you might be using the sensor to turn on an emersion heater which you'll want to come on at the end of the cheapest found period. 
+Depending on how you're going to use the sensor, you might want the best period at the latest possible time. For example, you might be using the sensor to turn on an immersion heater which you'll want to come on at the end of the cheapest found period. 
 
 For instance if you turn this on and the cheapest period is between `2023-01-01T00:30` and `2023-01-01T05:00` and your target rate is for 1 hour, then it will come on between `2023-01-01T04:00` and `2023-01-01T05:00` instead of `2023-01-01T00:30` and `2023-01-01T01:30`.
 
@@ -114,7 +114,7 @@ There are services available associated with target rate sensors. Please review 
 
 ## Examples
 
-Lets look at a few examples. Lets say we have the the following (unrealistic) set of rates
+Let's look at a few examples. Let's say we have the the following (unrealistic) set of rates:
 
 | start | end | value |
 | ----- | --- | ----- |
@@ -140,7 +140,7 @@ The following table shows what this would be like.
 
 | current date/time  | period                                | `Re-evaluate multiple times a day` | reasoning |
 | ------------------ | ------------------------------------- | ---------------------------------- | --------- |
-| `2023-01-01T00:00` | `2023-01-01T00:00` - `2023-01-01T01:00` | `false`                            | while 5 is our lowest rate within the current 24 hour period, it doesn't cover our whole 1 hour and is next to a high 34 rate. A rate of 6 is the next available rate with a low following rate. |
+| `2023-01-01T00:00` | `2023-01-01T00:00` - `2023-01-01T01:00` | `false`                            | While 5 is our lowest rate within the current 24 hour period, it doesn't cover our whole 1 hour and is next to a high 34 rate. A rate of 6 is the next available rate with a low following rate. |
 | `2023-01-01T01:00` | `2023-01-02T00:00` - `2023-01-02T01:00` | `false`                            | Our lowest period is in the past, so we have to wait until our target period has passed to look at the next evaluation period. |
 | `2023-01-01T01:00` | `2023-01-01T04:30` - `2023-01-01T05:30` | `true`                             | The rate of 6 is in the past, so 7 is our next lowest rate. 12 is smaller rate than 20 so we start in the rate period before to fill our desired hour. |
 | `2023-01-01T23:30` | None | `true`                             | There is no longer enough time available in the current 24 hour period, so we have to wait until our target period has passed to look at the next evaluation period. |
