@@ -16,9 +16,7 @@ If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blo
 
 > Please note, you will only have the same data exposed in the integration that is available within the app. There has been reports of gas not appearing within the app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the app, if you reload the integration (or restart Home Assistant) then the entities should become available.
 
-For electricity entities, see [here](./entities/electricity.md#home-mini-entities).
-
-For gas entities, see [here](./entities/gas.md#home-mini-entities)
+See [electricity entities](./entities/electricity.md#home-mini-entities) and [gas entities](./entities/gas.md#home-mini-entities) for more information.
 
 ### Refresh Rate In Minutes
 
