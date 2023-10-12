@@ -9,6 +9,8 @@ from ..utils import get_active_tariff_code, get_tariff_parts
 
 from ..const import DOMAIN
 
+from ..api_client.intelligent_settings import IntelligentSettings
+
 mock_intelligent_data_key = "MOCK_INTELLIGENT_DATA"
 
 _LOGGER = logging.getLogger(__name__)
@@ -60,13 +62,13 @@ def mock_intelligent_dispatches():
   }
 
 def mock_intelligent_settings():
-  return {
-    "smart_charge": True,
-    "charge_limit_weekday": 90,
-    "charge_limit_weekend": 80,
-    "ready_time_weekday": time(7,30),
-    "ready_time_weekend": time(9,10), 
-  }
+  return IntelligentSettings(
+    True,
+    90,
+    80,
+    time(7,30),
+    time(9,10),
+  )
 
 def mock_intelligent_device():
   return {

@@ -5,9 +5,11 @@ from datetime import (datetime, timedelta, time)
 
 from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime)
 
-from .utils import (
+from ..utils import (
   get_tariff_parts,
 )
+
+from .intelligent_settings import IntelligentSettings
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -727,23 +729,23 @@ class OctopusEnergyApiClient:
         _LOGGER.debug(f'Intelligent Settings: {response_body}')
         if (response_body is not None and "data" in response_body):
 
-          return {
-            "smart_charge": response_body["data"]["registeredKrakenflexDevice"]["suspended"] == False
-                            if "registeredKrakenflexDevice" in response_body["data"] and "suspended" in response_body["data"]["registeredKrakenflexDevice"]
-                            else None,
-            "charge_limit_weekday": int(response_body["data"]["vehicleChargingPreferences"]["weekdayTargetSoc"])
-                                    if "vehicleChargingPreferences" in response_body["data"] and "weekdayTargetSoc" in response_body["data"]["vehicleChargingPreferences"]
-                                    else None,
-            "charge_limit_weekend": int(response_body["data"]["vehicleChargingPreferences"]["weekendTargetSoc"])
-                                    if "vehicleChargingPreferences" in response_body["data"] and "weekendTargetSoc" in response_body["data"]["vehicleChargingPreferences"]
-                                    else None,
-            "ready_time_weekday": self.__ready_time_to_time__(response_body["data"]["vehicleChargingPreferences"]["weekdayTargetTime"])
-                                  if "vehicleChargingPreferences" in response_body["data"] and "weekdayTargetTime" in response_body["data"]["vehicleChargingPreferences"]
-                                  else None,
-            "ready_time_weekend": self.__ready_time_to_time__(response_body["data"]["vehicleChargingPreferences"]["weekendTargetTime"])
-                                  if "vehicleChargingPreferences" in response_body["data"] and "weekendTargetTime" in response_body["data"]["vehicleChargingPreferences"]
-                                  else None, 
-          }
+          return IntelligentSettings(
+            response_body["data"]["registeredKrakenflexDevice"]["suspended"] == False
+            if "registeredKrakenflexDevice" in response_body["data"] and "suspended" in response_body["data"]["registeredKrakenflexDevice"]
+            else None,
+            int(response_body["data"]["vehicleChargingPreferences"]["weekdayTargetSoc"])
+            if "vehicleChargingPreferences" in response_body["data"] and "weekdayTargetSoc" in response_body["data"]["vehicleChargingPreferences"]
+            else None,
+            int(response_body["data"]["vehicleChargingPreferences"]["weekendTargetSoc"])
+            if "vehicleChargingPreferences" in response_body["data"] and "weekendTargetSoc" in response_body["data"]["vehicleChargingPreferences"]
+            else None,
+            self.__ready_time_to_time__(response_body["data"]["vehicleChargingPreferences"]["weekdayTargetTime"])
+            if "vehicleChargingPreferences" in response_body["data"] and "weekdayTargetTime" in response_body["data"]["vehicleChargingPreferences"]
+            else None,
+            self.__ready_time_to_time__(response_body["data"]["vehicleChargingPreferences"]["weekendTargetTime"])
+            if "vehicleChargingPreferences" in response_body["data"] and "weekendTargetTime" in response_body["data"]["vehicleChargingPreferences"]
+            else None
+          )
         else:
           _LOGGER.error("Failed to retrieve intelligent settings")
     
@@ -759,30 +761,54 @@ class OctopusEnergyApiClient:
 
     return None
   
-  async def async_update_intelligent_car_preferences(
-      self, account_id: str,
-      weekday_target_percentage: int,
-      weekend_target_percentage: int,
-      weekday_target_time: time,
-      weekend_target_time: time,
+  async def async_update_intelligent_car_target_percentage(
+      self, 
+      account_id: str,
+      target_percentage: int
     ):
-    """Update a user's intelligent car preferences"""
+    """Update a user's intelligent car target percentage"""
     await self.async_refresh_token()
+
+    settings = await self.async_get_intelligent_settings(account_id)
 
     async with aiohttp.ClientSession() as client:
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": intelligent_settings_mutation.format(
         account_id=account_id,
-        weekday_target_percentage=weekday_target_percentage,
-        weekend_target_percentage=weekend_target_percentage,
-        weekday_target_time=weekday_target_time.strftime("%H:%M"),
-        weekend_target_time=weekend_target_time.strftime("%H:%M")
+        weekday_target_percentage=target_percentage,
+        weekend_target_percentage=target_percentage,
+        weekday_target_time=settings.ready_time_weekday.strftime("%H:%M"),
+        weekend_target_time=settings.ready_time_weekend.strftime("%H:%M")
       ) }
 
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
-        _LOGGER.debug(f'async_update_intelligent_car_preferences: {response_body}')
+        _LOGGER.debug(f'async_update_intelligent_car_target_percentage: {response_body}')
+
+  async def async_update_intelligent_car_target_time(
+      self, account_id: str,
+      target_time: time,
+    ):
+    """Update a user's intelligent car target time"""
+    await self.async_refresh_token()
+    
+    settings = await self.async_get_intelligent_settings(account_id)
+
+    async with aiohttp.ClientSession() as client:
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": intelligent_settings_mutation.format(
+        account_id=account_id,
+        weekday_target_percentage=settings.charge_limit_weekday,
+        weekend_target_percentage=settings.charge_limit_weekend,
+        weekday_target_time=target_time.strftime("%H:%M"),
+        weekend_target_time=target_time.strftime("%H:%M")
+      ) }
+
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_update_intelligent_car_target_time: {response_body}')
 
   async def async_turn_on_intelligent_bump_charge(
       self, account_id: str,

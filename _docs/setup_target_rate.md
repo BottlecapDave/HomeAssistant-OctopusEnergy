@@ -39,7 +39,14 @@ If for example you want to look at prices overnight you could set the minimum ti
 
 #### Agile Users
 
-If you are an agile user, then agile prices are available from [11pm to 11pm UK time](https://developer.octopus.energy/docs/api/#agile-octopus) and published at `16:00` UK time. Therefore, you cannot specify a timeframe that starts before `16:00` and ends after `23:00` because the target rate(s) will not be able to be calculated until part way through the specified timeframe as this is when the full set will become available. We recommend you set your timeframes to `16:00`/`16:00` or `23:00`/`23:00` if you're wanting to target a full 24 hours.
+If you are an agile user, then agile prices are available from [11pm to 11pm UK time](https://developer.octopus.energy/docs/api/#agile-octopus) and published at `16:00` UK time. Therefore, you cannot specify a timeframe that starts before `16:00` and ends after `23:00` because the target rate(s) will not be able to be calculated until part way through the specified timeframe as this is when the full set will become available. We recommend you set your timeframes to `16:00`/`16:00` or `23:00`/`23:00` if you're wanting to target a full 24 hours, but other valid times might include
+
+
+| from/start | to/end | Notes |
+|-|-|-|
+| `10:00` | `23:00` | our start time is before 4pm, but our end time is not after 11pm. |
+| `16:30` | `23:30` | our start time is after 4pm, so our end time can be after 11pm. |
+| `17:00` | `14:00` | our start time is after 4pm and our end time is before our start time so therefore for the next day. Doing this might delay when the target rate sensor is calculated depending on when the rates are made available for the next day (e.g. if they're late for publishing). |
 
 This is not automatically done by the integration as I didn't want to cause confusion for users when they didn't set anything nor did I want behaviour to implicitly change when users switch tariffs.
 
@@ -61,7 +68,7 @@ However, you might also only want the target time to occur once a day so once th
 
 ### Latest Period
 
-Depending on how you're going to use the sensor, you might want the best period at the latest possible time. For example, you might be using the sensor to turn on an emersion heater which you'll want to come on at the end of the cheapest found period. 
+Depending on how you're going to use the sensor, you might want the best period at the latest possible time. For example, you might be using the sensor to turn on an immersion heater which you'll want to come on at the end of the cheapest found period. 
 
 For instance if you turn this on and the cheapest period is between `2023-01-01T00:30` and `2023-01-01T05:00` and your target rate is for 1 hour, then it will come on between `2023-01-01T04:00` and `2023-01-01T05:00` instead of `2023-01-01T00:30` and `2023-01-01T01:30`.
 
@@ -77,20 +84,20 @@ The following attributes are available on each sensor
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `name` | `string` | The name of the sensor |
-| `hours` | `string` | The total hours are being discovered  |
-| `type` | `string` | The type/mode for the target rate sensor. This will be either `continuous` or `intermittent` |
-| `mpan` | `string` | The `mpan` of the meter being used to determine the rates |
+| `name` | `string` | The name of the sensor. |
+| `hours` | `string` | The total hours are being discovered.  |
+| `type` | `string` | The type/mode for the target rate sensor. This will be either `continuous` or `intermittent`. |
+| `mpan` | `string` | The `mpan` of the meter being used to determine the rates. |
 | `rolling_target` | `boolean` | Determines if `Re-evaluate multiple times a day` is turned on for the sensor. |
-| `last_rates` | `boolean` | Determines if `Find last applicable rates` is turned off for the sensor |
-| `offset` | `string` | The offset configured for the sensor |
-| `start_time` | `string` | The start time configured for the sensor |
-| `end_time` | `string` | The end time configured for the sensor |
+| `last_rates` | `boolean` | Determines if `Find last applicable rates` is turned off for the sensor. |
+| `offset` | `string` | The offset configured for the sensor. |
+| `start_time` | `string` | The start time configured for the sensor. |
+| `end_time` | `string` | The end time configured for the sensor. |
 | `is_target_export` | `boolean` | Determines if the meter being targeted is exporting energy. This will change the behaviour of the sensor to look for the highest rates. |
 | `target_times` | `list` | The discovered times and rates the sensor will come on for. |
-| `overall_average_cost` | `float` | The average cost/rate of all discovered times during the current **24 hour period** |
-| `overall_min_cost` | `float` | The minimum cost/rate of all discovered times during the current **24 hour period** |
-| `overall_max_cost` | `float` | The maximum cost/rate of all discovered times during the current **24 hour period** |
+| `overall_average_cost` | `float` | The average cost/rate of all discovered times during the current **24 hour period**. |
+| `overall_min_cost` | `float` | The minimum cost/rate of all discovered times during the current **24 hour period**. |
+| `overall_max_cost` | `float` | The maximum cost/rate of all discovered times during the current **24 hour period**. |
 | `current_duration_in_hours` | `float` | The duration the sensor will be on for, for the current continuous discovered period. For `continuous` sensors, this will be the entire period. For `intermittent` sensors, this could be the entire period or a portion of it, depending on the discovered times. This could be `none`/`unknown` if the sensor is not currently in a discovered period. |
 | `current_average_cost` | `float` | The average cost/rate for the current continuous discovered period. This could be `none`/`unknown` if the sensor is not currently in a discovered period. |
 | `current_min_cost` | `float` | The min cost/rate for the current continuous discovered period. This could be `none`/`unknown` if the sensor is not currently in a discovered period. |
@@ -107,7 +114,7 @@ There are services available associated with target rate sensors. Please review 
 
 ## Examples
 
-Lets look at a few examples. Lets say we have the the following (unrealistic) set of rates
+Let's look at a few examples. Let's say we have the the following (unrealistic) set of rates:
 
 | start | end | value |
 | ----- | --- | ----- |
@@ -133,7 +140,7 @@ The following table shows what this would be like.
 
 | current date/time  | period                                | `Re-evaluate multiple times a day` | reasoning |
 | ------------------ | ------------------------------------- | ---------------------------------- | --------- |
-| `2023-01-01T00:00` | `2023-01-01T00:00` - `2023-01-01T01:00` | `false`                            | while 5 is our lowest rate within the current 24 hour period, it doesn't cover our whole 1 hour and is next to a high 34 rate. A rate of 6 is the next available rate with a low following rate. |
+| `2023-01-01T00:00` | `2023-01-01T00:00` - `2023-01-01T01:00` | `false`                            | While 5 is our lowest rate within the current 24 hour period, it doesn't cover our whole 1 hour and is next to a high 34 rate. A rate of 6 is the next available rate with a low following rate. |
 | `2023-01-01T01:00` | `2023-01-02T00:00` - `2023-01-02T01:00` | `false`                            | Our lowest period is in the past, so we have to wait until our target period has passed to look at the next evaluation period. |
 | `2023-01-01T01:00` | `2023-01-01T04:30` - `2023-01-01T05:30` | `true`                             | The rate of 6 is in the past, so 7 is our next lowest rate. 12 is smaller rate than 20 so we start in the rate period before to fill our desired hour. |
 | `2023-01-01T23:30` | None | `true`                             | There is no longer enough time available in the current 24 hour period, so we have to wait until our target period has passed to look at the next evaluation period. |
@@ -144,17 +151,17 @@ If we set our from/to times for `05:00` to `19:00`, we then limit the period tha
 | ------------------ | ------------------------------------- | ---------------------------------- | --------- |
 | `2023-01-01T00:00` | `2023-01-01T05:00` - `2023-01-01T06:00` | `false`                            | The rate of 12 is no longer available as it's outside of our `from` time. |
 | `2023-01-01T06:30` | `2023-01-02T05:00` - `2023-01-02T06:00` | `false`                            | Our lowest period is in the past, so we have to wait until our target period has passed to look at the next evaluation period. |
-| `2023-01-01T06:30` | `2023-01-01T06:30` - `2023-01-01T07:30` | `true`                             | The rate of 7 is in the past, so we must look for the next lowest combined rate |
-| `2023-01-01T18:00` | `2023-01-01T18:00` - `2023-01-01T19:00` | `true`                             | The rate of 20 is in the past, so we must look for the next lowest combined rate which is 34 |
+| `2023-01-01T06:30` | `2023-01-01T06:30` - `2023-01-01T07:30` | `true`                             | The rate of 7 is in the past, so we must look for the next lowest combined rate. |
+| `2023-01-01T18:00` | `2023-01-01T18:00` - `2023-01-01T19:00` | `true`                             | The rate of 20 is in the past, so we must look for the next lowest combined rate which is 34. |
 | `2023-01-01T18:30` | None | `true`                            | There is no longer enough time available within our restricted time, so we have to wait until our target period has passed to look at the next evaluation period. |
 
 If we set our from/to times to look over two days, from `20:00` to `06:00`, we then limit the period that we look at to overnight. The following table shows what this would be like.
 
 | current date/time  | period                                | `Re-evaluate multiple times a day` | reasoning |
 | ------------------ | ------------------------------------- | ---------------------------------- | --------- |
-| `2023-01-01T20:00` | `2023-01-01T23:30` - `2023-01-02T01:30` | `false`                            | Our lowest rate of 5 now falls between our overnight time period so is available |
+| `2023-01-01T20:00` | `2023-01-01T23:30` - `2023-01-02T01:30` | `false`                            | Our lowest rate of 5 now falls between our overnight time period so is available. |
 | `2023-01-02T02:00` | `2023-01-01T23:30` - `2023-01-02T01:30` | `false`                            | Our lowest period is in the past, so we have to wait until our target period has passed to look at the next evaluation period. |
-| `2023-01-02T02:00` | `2023-01-02T04:30` - `2023-01-02T05:30` | `true`                             | The rate of 5 is in the past, so we must look for the next lowest combined rate, which includes our half hour rate at 7 |
+| `2023-01-02T02:00` | `2023-01-02T04:30` - `2023-01-02T05:30` | `true`                             | The rate of 5 is in the past, so we must look for the next lowest combined rate, which includes our half hour rate at 7. |
 | `2023-01-02T05:30` | None | `true`                             | There is no longer enough time available within our restricted time, so we have to wait until our target period has passed to look at the next evaluation period. |
 
 If we set an offset of `-00:30:00`, then while the times might be the same, the target rate sensor will turn on 30 minutes before the select rate period starts. Any set time restrictions **will not** include the offset.
@@ -180,16 +187,16 @@ If we set our from/to times for `05:00` to `19:00`, we then limit the period tha
 | ------------------ | ------------------------------------- | ---------------------------------- | --------- |
 | `2023-01-01T00:00` | `2023-01-01T05:00` - `2023-01-01T05:30`, `2023-01-01T05:30` - `2023-01-01T06:00` | `false`                            | Our cheapest rates are outside our target range, so we need to look at the next cheapest. Luckily on our scenario the two cheapest rates are next to each other. |
 | `2023-01-01T06:30` | `2023-01-01T05:00` - `2023-01-01T05:30`, `2023-01-01T05:30` - `2023-01-01T06:00` | `false`                            | Both of our cheapest rates in the target range are in the past. |
-| `2023-01-01T06:30` | `2023-01-01T06:30` - `2023-01-01T07:00`, `2023-01-01T07:00` - `2023-01-01T07:30` | `true`                             | Both of our cheapest rates in the target range are in the past, so we must look for the next lowest combined rate |
+| `2023-01-01T06:30` | `2023-01-01T06:30` - `2023-01-01T07:00`, `2023-01-01T07:00` - `2023-01-01T07:30` | `true`                             | Both of our cheapest rates in the target range are in the past, so we must look for the next lowest combined rate. |
 | `2023-01-01T18:30` | None | `true`                            | There is no longer enough time available within our restricted time, so we have to wait until our target period has passed to look at the next evaluation period. |
 
 If we set our from/to times to look over two days, from `20:00` to `06:00`, we then limit the period that we look at to overnight. The following table shows what this would be like.
 
 | current date/time  | period                                | `Re-evaluate multiple times a day` | reasoning |
 | ------------------ | ------------------------------------- | ---------------------------------- | --------- |
-| `2023-01-01T20:00` | `2023-01-01T23:30` - `2023-01-02T00:30`, `2023-01-02T05:00` - `2023-01-02T05:30` | `false`                            | Our lowest rate of 5 now falls between our overnight time period so is available |
+| `2023-01-01T20:00` | `2023-01-01T23:30` - `2023-01-02T00:30`, `2023-01-02T05:00` - `2023-01-02T05:30` | `false`                            | Our lowest rate of 5 now falls between our overnight time period so is available. |
 | `2023-01-02T02:00` | `2023-01-01T23:30` - `2023-01-02T00:30`, `2023-01-02T05:00` - `2023-01-02T05:30` | `false`                            | Our lowest period is in the past, but we still have a rate in the future so our sensor will only come on once. |
-| `2023-01-02T02:00` | `2023-01-02T02:00` - `2023-01-02T02:30`, `2023-01-02T05:00` - `2023-01-02T05:30` | `true`                             | The rate of 5 is in the past, so we must look for the next lowest combined rate, which includes our half hour rate at 7 |
+| `2023-01-02T02:00` | `2023-01-02T02:00` - `2023-01-02T02:30`, `2023-01-02T05:00` - `2023-01-02T05:30` | `true`                             | The rate of 5 is in the past, so we must look for the next lowest combined rate, which includes our half hour rate at 7. |
 | `2023-01-02T05:30` | None | `true`                             | There is no longer enough time available within our restricted time, so we have to wait until our target period has passed to look at the next evaluation period. |
 
 If we set an offset of `-00:30:00`, then while the times might be the same, the target rate sensor will turn on 30 minutes before the select rate period starts. Any set time restrictions **will not** include the offset.

@@ -10,6 +10,7 @@
     - [Saving Sessions](#saving-sessions)
   - [Target Rate Sensors](#target-rate-sensors)
   - [Events](#events)
+  - [Services](#services)
   - [Energy Dashboard](#energy-dashboard)
   - [Community Contributions](#community-contributions)
   - [FAQ](#faq)
@@ -23,33 +24,31 @@ Please follow the [setup guide](./setup_account.md) to setup your initial accoun
 
 ### Electricity Entities
 
-A full list of electricity entities can be found [here](./entities/electricity.md).
+[Full list of electricity entities](./entities/electricity.md).
 
 ### Gas Entities
 
-A full list of gas entities can be found [here](./entities/gas.md).
+[Full list of gas entities](./entities/gas.md).
 
 ### Home Mini
 
 If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to check the box next to `I have a Home Mini`. This will gain the following entities which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/):
 
-> Please note, you will only have the same data exposed in the integration that is available within the app. There has been reports of gas not appearing within the app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the app, if you reload the integration (or restart Home Assistant) then the entities should become available.
+> Please note, you will only have the same data exposed in the integration that is available within the Octopus app. There has been reports of gas not appearing within the Octopus app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the Octopus app, if you reload the integration (or restart Home Assistant) then the entities should become available.
 
-For electricity entities, see [here](./entities/electricity.md#home-mini-entities).
-
-For gas entities, see [here](./entities/gas.md#home-mini-entities)
+See [electricity entities](./entities/electricity.md#home-mini-entities) and [gas entities](./entities/gas.md#home-mini-entities) for more information.
 
 ### Intelligent
 
 If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-octopus/), then you'll get a few additional entities when you install the integration. 
 
-A full list of intelligent entities can be found [here](./entities/intelligent.md)
+[List of intelligent entities](./entities/intelligent.md).
 
 > Please note: If you switch to the intelligent tariff after you have installed the integration, you will need to reload the integration or restart your Home Assistant instance.
 
 ### Saving Sessions
 
-To support Octopus Energy's [saving sessions](https://octopus.energy/saving-sessions/). A full list of entities can be found [here](./entities/saving_sessions.md).
+To support Octopus Energy's [saving sessions](https://octopus.energy/saving-sessions/). [Full list of saving session entites](./entities/saving_sessions.md).
 
 ## Target Rate Sensors
 
@@ -57,19 +56,23 @@ These sensors calculate the lowest continuous or intermittent rates **within a 2
 
 These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money. You can go through this flow as many times as you need target rate sensors.
 
-Please follow the [setup guide](./setup_target_rate.md) to setup.
+Please follow the [setup guide](./setup_target_rate.md).
 
 ## Events
 
 This integration raises several events, which can be used for various tasks like automations. For more information, please see the [events docs](./events.md).
 
+## Services
+
+This integration includes several services. Please review them in the [services doc](./services.md).
+
 ## Energy Dashboard
 
-The core sensors have been designed to work with the energy dashboard. Please see the [guide](./energy_dashboard.md) for instructions on how to set this up.
+The core sensors have been designed to work with the energy dashboard. Please see the [energy dashboard guide](./energy_dashboard.md) for instructions on how to set this up.
 
 ## Community Contributions
 
-A collection of community contributions can be found [here](./community.md).
+A collection of community contributions can be found on the [community contributions](./community.md) page.
 
 ## FAQ
 
