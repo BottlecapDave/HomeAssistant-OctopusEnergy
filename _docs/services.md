@@ -28,11 +28,11 @@ Service for updating a given [target rate's](./setup_target_rate.md) config. Thi
 
 | Attribute                | Optional | Description                                                                                                           |
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
-| `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated                                                    |
+| `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated.                                                   |
 | `data.target_hours`      | `yes`    | The optional number of hours the target rate sensor should come on during a 24 hour period. Must be divisible by 0.5. |
 | `data.target_start_time` | `yes`    | The optional time the evaluation period should start. Must be in the format of `HH:MM`.                               |
 | `data.target_end_time`   | `yes`    | The optional time the evaluation period should end. Must be in the format of `HH:MM`.                                 |
-| `data.target_offset`     | `yes`    | The optional offset to apply to the target rate when it starts. Must be in the format `(+/-)HH:MM:SS`                 |
+| `data.target_offset`     | `yes`    | The optional offset to apply to the target rate when it starts. Must be in the format `(+/-)HH:MM:SS`.                |
 
 This can be used via automations in the following way. Assuming we have the following inputs.
 
