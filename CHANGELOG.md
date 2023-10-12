@@ -1,3 +1,10 @@
+## [8.4.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.4.2...v8.4.3) (2023-10-12)
+
+
+### Bug Fixes
+
+* Fixed intelligent settings reverting if multiple changed in quick succession ([0a4c95b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0a4c95badbc29dbe3adf6c65cf480702b819b46f))
+
 ## [8.4.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.4.1...v8.4.2) (2023-10-09)
 
 
