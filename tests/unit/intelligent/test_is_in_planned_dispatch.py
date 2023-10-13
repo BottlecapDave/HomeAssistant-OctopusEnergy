@@ -3,6 +3,7 @@ import datetime
 
 from homeassistant.util.dt import (as_utc, parse_datetime)
 from custom_components.octopus_energy.intelligent import is_in_planned_dispatch
+from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatchItem
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("current_date,expected_result",[
@@ -38,19 +39,28 @@ from custom_components.octopus_energy.intelligent import is_in_planned_dispatch
 ])
 async def test_when_dispatch_is_now_then_is_in_planned_dispatch_returns_correctly(current_date: datetime.datetime, expected_result: bool):
   # Arrange
-  dispatches = [
-    {
-      "start": as_utc(parse_datetime("2023-06-07T10:00:00Z")),
-      "end": as_utc(parse_datetime("2023-06-07T11:00:00Z")),
-    },
-    {
-      "start": as_utc(parse_datetime("2023-06-07T13:00:00Z")),
-      "end": as_utc(parse_datetime("2023-06-07T14:00:00Z")),
-    },
-    {
-      "start": as_utc(parse_datetime("2023-06-07T16:00:00Z")),
-      "end": as_utc(parse_datetime("2023-06-07T17:00:00Z")),
-    }
+  dispatches: list[IntelligentDispatchItem] = [
+    IntelligentDispatchItem(
+      as_utc(parse_datetime("2023-06-07T10:00:00Z")),
+      as_utc(parse_datetime("2023-06-07T11:00:00Z")),
+      1,
+      "smart-charge",
+      "home"
+    ),
+    IntelligentDispatchItem(
+      as_utc(parse_datetime("2023-06-07T13:00:00Z")),
+      as_utc(parse_datetime("2023-06-07T14:00:00Z")),
+      1,
+      "smart-charge",
+      "home"
+    ),
+    IntelligentDispatchItem(
+      as_utc(parse_datetime("2023-06-07T16:00:00Z")),
+      as_utc(parse_datetime("2023-06-07T17:00:00Z")),
+      1,
+      "smart-charge",
+      "home"
+    )
   ]
 
   # Act

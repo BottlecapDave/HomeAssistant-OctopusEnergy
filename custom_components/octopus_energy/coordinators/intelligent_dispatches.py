@@ -1,7 +1,5 @@
 import logging
-from datetime import timedelta
-
-from ..intelligent import async_mock_intelligent_data, clean_previous_dispatches, has_intelligent_tariff, mock_intelligent_dispatches
+from datetime import datetime, timedelta
 
 from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
@@ -23,8 +21,19 @@ from ..const import (
 )
 
 from ..api_client import OctopusEnergyApiClient
+from ..api_client.intelligent_dispatches import IntelligentDispatches
+
+from ..intelligent import async_mock_intelligent_data, clean_previous_dispatches, has_intelligent_tariff, mock_intelligent_dispatches
 
 _LOGGER = logging.getLogger(__name__)
+
+class IntelligentDispatchesCoordinatorResult:
+  last_retrieved: datetime
+  dispatches: IntelligentDispatches
+
+  def __init__(self, last_retrieved: datetime, dispatches: IntelligentDispatches):
+    self.last_retrieved = last_retrieved
+    self.dispatches = dispatches
 
 async def async_merge_dispatch_data(hass, account_id: str, completed_dispatches):
   storage_key = STORAGE_COMPLETED_DISPATCHES_NAME.format(account_id)
@@ -65,9 +74,8 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
         dispatches = mock_intelligent_dispatches()
 
       if dispatches is not None:
-        dispatches["completed"] = await async_merge_dispatch_data(hass, account_id, dispatches["completed"])
-        hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] = dispatches
-        hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]["last_updated"] = utcnow()
+        dispatches.completed = await async_merge_dispatch_data(hass, account_id, dispatches.completed)
+        hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] = IntelligentDispatchesCoordinatorResult(utcnow(), dispatches)
       elif (DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN]):
         _LOGGER.debug(f"Failed to retrieve new dispatches, so using cached dispatches")
     

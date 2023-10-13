@@ -20,6 +20,7 @@ from ..intelligent import (
 from ..utils import is_off_peak
 
 from .base import OctopusEnergyIntelligentSensor
+from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -68,14 +69,12 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
   @property
   def is_on(self):
     """Determine if OE is currently dispatching energy."""
-    dispatches = self.coordinator.data if self.coordinator is not None else None
+    result: IntelligentDispatchesCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
     rates = self._rates_coordinator.data.rates if self._rates_coordinator is not None and self._rates_coordinator.data is not None else None
-    if (dispatches is not None):
-      self._attributes["planned_dispatches"] = self.coordinator.data["planned"]
-      self._attributes["completed_dispatches"] = self.coordinator.data["completed"]
-
-      if "last_updated" in self.coordinator.data:
-        self._attributes["last_updated_timestamp"] = self.coordinator.data["last_updated"]
+    if (result is not None):
+      self._attributes["planned_dispatches"] = result.dispatches.planned
+      self._attributes["completed_dispatches"] = result.dispatches.completed
+      self._attributes["last_updated_timestamp"] = result.last_retrieved
     else:
       self._attributes["planned_dispatches"] = []
       self._attributes["completed_dispatches"] = []
