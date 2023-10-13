@@ -42,7 +42,7 @@ async def async_setup_saving_sessions_coordinators(hass):
     update_method=async_update_saving_sessions,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes
-    update_interval=timedelta(minutes=COORDINATOR_REFRESH_IN_SECONDS),
+    update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),
     always_update=True
   )
   
