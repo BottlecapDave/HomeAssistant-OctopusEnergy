@@ -145,8 +145,12 @@ def clean_previous_dispatches(time: datetime, dispatches: list[IntelligentDispat
   new_dispatches = {}
   for dispatch in dispatches:
     # Some of our dispatches will be strings when loaded from cache, so convert
-    start = parse_datetime(dispatch.start) if type(dispatch.start) == str else dispatch.start
-    end = parse_datetime(dispatch.end) if type(dispatch.end) == str else dispatch.end
+    start = dispatch["start"] if "start" in dispatch else dispatch.start
+    start = parse_datetime(start) if type(start) == str else start
+    
+    end = dispatch["end"] if "end" in dispatch else dispatch.end
+    end = parse_datetime(end) if type(end) == str else end
+    
     if (start >= min_time):
       new_dispatches[(start, end)] = dispatch
       new_dispatches[(start, end)].start = start
