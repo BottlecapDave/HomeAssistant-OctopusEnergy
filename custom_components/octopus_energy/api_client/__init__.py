@@ -300,7 +300,7 @@ class RequestError(Exception): ...
 
 class OctopusEnergyApiClient:
 
-  def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None):
+  def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None, timeout_in_seconds = 15):
     if (api_key is None):
       raise Exception('API KEY is not set')
 
@@ -315,12 +315,14 @@ class OctopusEnergyApiClient:
     self._electricity_price_cap = electricity_price_cap
     self._gas_price_cap = gas_price_cap
 
+    self.timeout_in_seconds = timeout_in_seconds
+
   async def async_refresh_token(self):
     """Get the user's refresh token"""
     if (self._graphql_expiration is not None and (self._graphql_expiration - timedelta(minutes=5)) > now()):
       return
 
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": api_token_query.format(api_key=self._api_key) }
       async with client.post(url, json=payload) as token_response:
@@ -340,7 +342,7 @@ class OctopusEnergyApiClient:
     """Get the user's account"""
     await self.async_refresh_token()
 
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       url = f'{self._base_url}/v1/graphql/'
       # Get account response
       payload = { "query": account_query.format(account_id=account_id) }
@@ -443,7 +445,7 @@ class OctopusEnergyApiClient:
     """Get the user's seasons savings"""
     await self.async_refresh_token()
 
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       url = f'{self._base_url}/v1/graphql/'
       # Get account response
       payload = { "query": saving_session_query.format(account_id=account_id) }
@@ -468,7 +470,7 @@ class OctopusEnergyApiClient:
     """Get the user's smart meter consumption"""
     await self.async_refresh_token()
 
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       url = f'{self._base_url}/v1/graphql/'
 
       payload = { "query": live_consumption_query.format(device_id=device_id, period_from=period_from.strftime("%Y-%m-%dT%H:%M:%S%z"), period_to=period_to.strftime("%Y-%m-%dT%H:%M:%S%z")) }
@@ -491,7 +493,7 @@ class OctopusEnergyApiClient:
   async def async_get_electricity_standard_rates(self, product_code, tariff_code, period_from, period_to): 
     """Get the current standard rates"""
     results = []
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
       url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
@@ -506,7 +508,7 @@ class OctopusEnergyApiClient:
   async def async_get_electricity_day_night_rates(self, product_code, tariff_code, is_smart_meter, period_from, period_to):
     """Get the current day and night rates"""
     results = []
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
       url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/day-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
@@ -553,7 +555,7 @@ class OctopusEnergyApiClient:
 
   async def async_get_electricity_consumption(self, mpan, serial_number, period_from, period_to):
     """Get the current electricity consumption"""
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
       url = f'{self._base_url}/v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
@@ -584,7 +586,7 @@ class OctopusEnergyApiClient:
     product_code = tariff_parts.product_code
 
     results = []
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
       url = f'{self._base_url}/v1/products/{product_code}/gas-tariffs/{tariff_code}/standard-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
@@ -598,7 +600,7 @@ class OctopusEnergyApiClient:
 
   async def async_get_gas_consumption(self, mprn, serial_number, period_from, period_to):
     """Get the current gas rates"""
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
       url = f'{self._base_url}/v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
@@ -621,7 +623,7 @@ class OctopusEnergyApiClient:
 
   async def async_get_product(self, product_code):
     """Get all products"""
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
       url = f'{self._base_url}/v1/products/{product_code}'
       async with client.get(url, auth=auth) as response:
@@ -636,7 +638,7 @@ class OctopusEnergyApiClient:
     product_code = tariff_parts.product_code
     
     result = None
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
       url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standing-charges?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
@@ -659,7 +661,7 @@ class OctopusEnergyApiClient:
     product_code = tariff_parts.product_code
 
     result = None
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
       url = f'{self._base_url}/v1/products/{product_code}/gas-tariffs/{tariff_code}/standing-charges?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
@@ -677,7 +679,7 @@ class OctopusEnergyApiClient:
     """Get the user's intelligent dispatches"""
     await self.async_refresh_token()
 
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       url = f'{self._base_url}/v1/graphql/'
       # Get account response
       payload = { "query": intelligent_dispatches_query.format(account_id=account_id) }
@@ -718,7 +720,7 @@ class OctopusEnergyApiClient:
     """Get the user's intelligent settings"""
     await self.async_refresh_token()
 
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": intelligent_settings_query.format(account_id=account_id) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
@@ -771,7 +773,7 @@ class OctopusEnergyApiClient:
 
     settings = await self.async_get_intelligent_settings(account_id)
 
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": intelligent_settings_mutation.format(
         account_id=account_id,
@@ -795,7 +797,7 @@ class OctopusEnergyApiClient:
     
     settings = await self.async_get_intelligent_settings(account_id)
 
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": intelligent_settings_mutation.format(
         account_id=account_id,
@@ -816,7 +818,7 @@ class OctopusEnergyApiClient:
     """Turn on an intelligent bump charge"""
     await self.async_refresh_token()
 
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": intelligent_turn_on_bump_charge_mutation.format(
         account_id=account_id,
@@ -833,7 +835,7 @@ class OctopusEnergyApiClient:
     """Turn off an intelligent bump charge"""
     await self.async_refresh_token()
 
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": intelligent_turn_off_bump_charge_mutation.format(
         account_id=account_id,
@@ -850,7 +852,7 @@ class OctopusEnergyApiClient:
     """Turn on an intelligent bump charge"""
     await self.async_refresh_token()
 
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": intelligent_turn_on_smart_charge_mutation.format(
         account_id=account_id,
@@ -867,7 +869,7 @@ class OctopusEnergyApiClient:
     """Turn off an intelligent bump charge"""
     await self.async_refresh_token()
 
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": intelligent_turn_off_smart_charge_mutation.format(
         account_id=account_id,
@@ -882,7 +884,7 @@ class OctopusEnergyApiClient:
     """Get the user's intelligent dispatches"""
     await self.async_refresh_token()
 
-    async with aiohttp.ClientSession() as client:
+    async with aiohttp.ClientSession(timeout=self.timeout_in_seconds) as client:
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": intelligent_device_query.format(account_id=account_id) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
