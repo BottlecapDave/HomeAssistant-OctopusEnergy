@@ -116,7 +116,7 @@ async def async_setup_electricity_rates_coordinator(hass, target_mpan: str, targ
       is_smart_meter,
       is_export_meter,
       rates,
-      dispatches.dispatches,
+      dispatches.dispatches if dispatches is not None else None,
       hass.bus.async_fire
     )
 
