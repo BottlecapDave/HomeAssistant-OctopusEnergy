@@ -71,7 +71,7 @@ async def async_setup_intelligent_settings_coordinator(hass, account_id: str):
     _LOGGER,
     name="intelligent_settings",
     update_method=async_update_intelligent_settings_data,
-    update_interval=timedelta(minutes=COORDINATOR_REFRESH_IN_SECONDS),
+    update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),
     always_update=True
   )
 
