@@ -1,3 +1,12 @@
+## [8.4.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.4.3...v8.4.4) (2023-10-14)
+
+
+### Bug Fixes
+
+* Added explicit timeout to OE server requests ([b516e4a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b516e4a54774f393d55a46921c2fa511505d5c6d))
+* Fixed intelligent coordinator update frequency (thanks @Pixel-Gavin) ([8e1f80c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8e1f80c104405c7adf7b2992256dc87408619d45))
+* Fixed update interval for data coordinators to be minutes not hours ([830604d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/830604d3347c56b93fe42e30e0bb875ca025e2e4))
+
 ## [8.4.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.4.2...v8.4.3) (2023-10-12)
 
 
