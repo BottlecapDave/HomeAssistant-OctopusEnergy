@@ -13,6 +13,7 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from ..intelligent import (
+  dispatches_to_dictionary_list,
   is_in_planned_dispatch
 )
 
@@ -72,15 +73,15 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
     result: IntelligentDispatchesCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
     rates = self._rates_coordinator.data.rates if self._rates_coordinator is not None and self._rates_coordinator.data is not None else None
     if (result is not None):
-      self._attributes["planned_dispatches"] = result.dispatches.planned
-      self._attributes["completed_dispatches"] = result.dispatches.completed
+      self._attributes["planned_dispatches"] = dispatches_to_dictionary_list(result.dispatches.planned)
+      self._attributes["completed_dispatches"] = dispatches_to_dictionary_list(result.dispatches.completed)
       self._attributes["last_updated_timestamp"] = result.last_retrieved
     else:
       self._attributes["planned_dispatches"] = []
       self._attributes["completed_dispatches"] = []
 
     current_date = now()
-    self._state = is_in_planned_dispatch(current_date, self._attributes["planned_dispatches"]) or is_off_peak(current_date, rates)
+    self._state = is_in_planned_dispatch(current_date, result.dispatches.planned) or is_off_peak(current_date, rates)
     
     return self._state
 

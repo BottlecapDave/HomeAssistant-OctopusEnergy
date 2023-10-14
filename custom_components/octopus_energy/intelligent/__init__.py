@@ -139,21 +139,42 @@ def is_in_bump_charge(current_date: datetime, dispatches: list[IntelligentDispat
   
   return False
 
-def clean_previous_dispatches(time: datetime, dispatches: list[IntelligentDispatchItem]):
+def clean_previous_dispatches(time: datetime, dispatches: list[IntelligentDispatchItem]) -> list[IntelligentDispatchItem]:
   min_time = (time - timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
 
   new_dispatches = {}
   for dispatch in dispatches:
-    # Some of our dispatches will be strings when loaded from cache, so convert
-    start = dispatch["start"] if "start" in dispatch else dispatch.start
-    start = parse_datetime(start) if type(start) == str else start
-    
-    end = dispatch["end"] if "end" in dispatch else dispatch.end
-    end = parse_datetime(end) if type(end) == str else end
-    
-    if (start >= min_time):
-      new_dispatches[(start, end)] = dispatch
-      new_dispatches[(start, end)].start = start
-      new_dispatches[(start, end)].end = end
+    if (dispatch.start >= min_time):
+      new_dispatches[(dispatch.start, dispatch.end)] = dispatch
 
   return list(new_dispatches.values())
+
+def dictionary_list_to_dispatches(dispatches: list):
+  items = []
+  if (dispatches is not None):
+    for dispatch in dispatches:
+      items.append(
+        IntelligentDispatchItem(
+          parse_datetime(dispatch["start"]),
+          parse_datetime(dispatch["end"]),
+          int(dispatch["charge_in_kwh"]),
+          dispatch["source"] if "source" in dispatch else "",
+          dispatch["location"] if "location" in dispatch else ""
+        )
+      )
+
+  return items
+
+def dispatches_to_dictionary_list(dispatches: list[IntelligentDispatchItem]):
+  items = []
+  if (dispatches is not None):
+    for dispatch in dispatches:
+      items.append({
+        "start": dispatch.start,
+        "end": dispatch.end,
+        "charge_in_kwh": dispatch.charge_in_kwh,
+        "source": dispatch.source,
+        "location": dispatch.location
+      })
+
+  return items
