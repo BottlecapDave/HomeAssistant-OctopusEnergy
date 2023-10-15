@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 import pytest
-import mock
 
 from unit import (create_consumption_data, create_rate_data)
 from custom_components.octopus_energy.electricity import calculate_electricity_consumption_and_cost
@@ -11,6 +10,7 @@ async def test_when_electricity_consumption_is_none_then_no_calculation_is_retur
   # Arrange
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  current = datetime.strptime("2022-02-28T00:00:01Z", "%Y-%m-%dT%H:%M:%S%z")
   latest_date = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
   consumption_data = None
@@ -19,6 +19,7 @@ async def test_when_electricity_consumption_is_none_then_no_calculation_is_retur
 
   # Act
   result = calculate_electricity_consumption_and_cost(
+    current,
     consumption_data,
     rate_data,
     standing_charge,
@@ -32,6 +33,7 @@ async def test_when_electricity_consumption_is_none_then_no_calculation_is_retur
 @pytest.mark.asyncio
 async def test_when_electricity_rates_is_none_then_no_calculation_is_returned():
   # Arrange
+  current = datetime.strptime("2022-02-28T00:00:01Z", "%Y-%m-%dT%H:%M:%S%z")
   latest_date = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
   consumption_data = create_consumption_data(
@@ -43,6 +45,7 @@ async def test_when_electricity_rates_is_none_then_no_calculation_is_returned():
 
   # Act
   result = calculate_electricity_consumption_and_cost(
+    current,
     consumption_data,
     rate_data,
     standing_charge,
@@ -56,6 +59,7 @@ async def test_when_electricity_rates_is_none_then_no_calculation_is_returned():
 @pytest.mark.asyncio
 async def test_when_electricity_consumption_is_before_latest_date_then_no_calculation_is_returned():
   # Arrange
+  current = datetime.strptime("2022-02-28T00:00:01Z", "%Y-%m-%dT%H:%M:%S%z")
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   latest_date = datetime.strptime("2022-03-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -70,6 +74,7 @@ async def test_when_electricity_consumption_is_before_latest_date_then_no_calcul
 
   # Act
   result = calculate_electricity_consumption_and_cost(
+    current,
     consumption_data,
     rate_data,
     standing_charge,
@@ -85,6 +90,7 @@ async def test_when_electricity_consumption_is_before_latest_date_then_no_calcul
 async def test_when_electricity_consumption_available_then_calculation_returned(latest_date):
   # Arrange
   
+  current = datetime.strptime("2022-02-28T00:00:01Z", "%Y-%m-%dT%H:%M:%S%z")
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
@@ -108,6 +114,7 @@ async def test_when_electricity_consumption_available_then_calculation_returned(
 
   # Act
   result = calculate_electricity_consumption_and_cost(
+    current,
     consumption_data,
     rate_data,
     standing_charge,
@@ -149,6 +156,7 @@ async def test_when_electricity_consumption_available_then_calculation_returned(
 @pytest.mark.asyncio
 async def test_when_electricity_consumption_starting_at_latest_date_then_calculation_returned():
   # Arrange
+  current = datetime.strptime("2022-02-28T00:00:01Z", "%Y-%m-%dT%H:%M:%S%z")
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
@@ -174,6 +182,7 @@ async def test_when_electricity_consumption_starting_at_latest_date_then_calcula
 
   # Act
   result = calculate_electricity_consumption_and_cost(
+    current,
     consumption_data,
     rate_data,
     standing_charge,
@@ -223,6 +232,7 @@ async def test_when_electricity_consumption_starting_at_latest_date_then_calcula
 @pytest.mark.asyncio
 async def test_when_electricity_consumption_available_and_two_peaks_available_then_peak_off_peak_calculation_returned():
   # Arrange
+  current = datetime.strptime("2022-02-28T00:00:01Z", "%Y-%m-%dT%H:%M:%S%z")
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   peak_from =  datetime.strptime("2022-02-28T05:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-02-28T06:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -245,6 +255,7 @@ async def test_when_electricity_consumption_available_and_two_peaks_available_th
 
   # Act
   result = calculate_electricity_consumption_and_cost(
+    current,
     consumption_data,
     rate_data,
     standing_charge,

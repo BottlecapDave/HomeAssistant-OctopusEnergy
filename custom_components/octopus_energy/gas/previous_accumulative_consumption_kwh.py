@@ -15,6 +15,8 @@ from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR
 )
 
+from homeassistant.util.dt import (now)
+
 from . import (
   calculate_gas_consumption_and_cost,
 )
@@ -119,6 +121,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
       _LOGGER.debug(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
 
       await async_import_external_statistics_from_consumption(
+        now(),
         self._hass,
         f"gas_{self._serial_number}_{self._mprn}_previous_accumulative_consumption_kwh",
         self.name,

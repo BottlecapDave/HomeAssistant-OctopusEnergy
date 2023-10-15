@@ -14,6 +14,8 @@ from homeassistant.const import (
     VOLUME_CUBIC_METERS
 )
 
+from homeassistant.util.dt import (now)
+
 from . import (
   calculate_gas_consumption_and_cost,
 )
@@ -123,6 +125,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumption(CoordinatorEntity, Octopus
       _LOGGER.debug(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
 
       await async_import_external_statistics_from_consumption(
+        now(),
         self._hass,
         get_gas_consumption_statistic_unique_id(self._serial_number, self._mprn),
         self.name,
