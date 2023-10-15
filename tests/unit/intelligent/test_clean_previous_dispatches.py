@@ -2,35 +2,35 @@ import pytest
 
 from homeassistant.util.dt import (as_utc, parse_datetime)
 
-from custom_components.octopus_energy.intelligent import clean_previous_dispatches
+from custom_components.octopus_energy.intelligent import clean_previous_dispatches, dictionary_list_to_dispatches
 from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatchItem
 
 @pytest.mark.asyncio
 async def test_when_clean_previous_dispatches_called_then_old_dispatches_removed():
   # Arrange
-  old_dispatches: list[IntelligentDispatchItem] = [
-    IntelligentDispatchItem(
-      "2023-06-04T10:00:00Z",
-      "2023-06-04T11:00:00Z",
-      1,
-      "smart-charge",
-      "home"
-    ),
-    IntelligentDispatchItem(
-      "2023-06-05T13:00:00Z",
-      "2023-06-05T14:00:00Z",
-      1,
-      "smart-charge",
-      "home"
-    ),
-    IntelligentDispatchItem(
-      "2023-06-05T16:00:00Z",
-      "2023-06-05T17:00:00Z",
-      1,
-      "smart-charge",
-      "home"
-    )
-  ]
+  old_dispatches = dictionary_list_to_dispatches([
+    {
+      "start": "2023-06-04T10:00:00Z",
+      "end": "2023-06-04T11:00:00Z",
+      "charge_in_kwh": 1.1,
+      "source": "smart-charge",
+      "location": "home"
+    },
+    {
+      "start": "2023-06-05T13:00:00Z",
+      "end": "2023-06-05T14:00:00Z",
+      "charge_in_kwh": 1.1,
+      "source": "smart-charge",
+      "location": "home"
+    },
+    {
+      "start": "2023-06-05T16:00:00Z",
+      "end": "2023-06-05T17:00:00Z",
+      "charge_in_kwh": 1.1,
+      "source": "smart-charge",
+      "location": "home"
+    }
+  ])
 
   new_dispatches = [
     # Make sure duplicates get removed
