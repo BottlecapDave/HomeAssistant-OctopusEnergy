@@ -18,6 +18,7 @@ from ..const import (
 )
 
 from ..api_client import (OctopusEnergyApiClient)
+from ..api_client.intelligent_dispatches import IntelligentDispatches
 
 from ..intelligent import adjust_intelligent_rates
 
@@ -43,7 +44,7 @@ async def async_fetch_consumption_and_rates(
   tariff_code: str,
   is_smart_meter: bool,
   fire_event: Callable[[str, "dict[str, Any]"], None],
-  intelligent_dispatches = None
+  intelligent_dispatches: IntelligentDispatches = None
 
 ):
   """Fetch the previous consumption and rates"""
@@ -66,8 +67,8 @@ async def async_fetch_consumption_and_rates(
 
         if intelligent_dispatches is not None:
           rate_data = adjust_intelligent_rates(rate_data,
-                                                intelligent_dispatches["planned"] if "planned" in intelligent_dispatches else [],
-                                                intelligent_dispatches["completed"] if "completed" in intelligent_dispatches else [])
+                                                intelligent_dispatches.planned,
+                                                intelligent_dispatches.completed)
           
           _LOGGER.debug(f"Tariff: {tariff_code}; dispatches: {intelligent_dispatches}")
       else:

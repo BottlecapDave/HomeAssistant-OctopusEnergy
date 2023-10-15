@@ -12,6 +12,7 @@ from homeassistant.util.dt import (utcnow)
 from .base import OctopusEnergyIntelligentSensor
 from ..api_client import OctopusEnergyApiClient
 from . import is_in_bump_charge
+from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -54,10 +55,11 @@ class OctopusEnergyIntelligentBumpCharge(CoordinatorEntity, SwitchEntity, Octopu
   @property
   def is_on(self):
     """Determine if the bump charge is on."""
-    if self.coordinator is None or self.coordinator.data is None or (self._last_updated is not None and "last_updated" in self.coordinator.data and self._last_updated > self.coordinator.data["last_updated"]):
+    result: IntelligentDispatchesCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
+    if result is None or (self._last_updated is not None and self._last_updated > result.last_retrieved):
       return self._state
 
-    self._state = is_in_bump_charge(utcnow(), self.coordinator.data["planned"])
+    self._state = is_in_bump_charge(utcnow(), result.dispatches.planned)
     
     return self._state
 

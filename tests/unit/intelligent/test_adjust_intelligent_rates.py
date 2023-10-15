@@ -2,6 +2,7 @@ import pytest
 
 from homeassistant.util.dt import (as_utc, parse_datetime)
 from custom_components.octopus_energy.intelligent import adjust_intelligent_rates
+from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatchItem
 
 def create_rates():
   return [
@@ -49,12 +50,15 @@ async def test_when_planned_smart_charge_dispatch_present_in_rate_then_rates_adj
   # Arrange
   rates = create_rates()
   off_peak = rates[0]["value_inc_vat"]
-  planned_dispatches = [{
-    "start": as_utc(parse_datetime("2022-10-10T05:00:00Z")),
-    "end": as_utc(parse_datetime("2022-10-10T06:00:00Z")),
-    "source": "smart-charge"
-  }]
-  complete_dispatches = []
+  planned_dispatches: list[IntelligentDispatchItem] = [
+    IntelligentDispatchItem(
+      as_utc(parse_datetime("2022-10-10T05:00:00Z")),
+      as_utc(parse_datetime("2022-10-10T06:00:00Z")),
+      1,
+      "smart-charge",
+      "home"
+  )]
+  complete_dispatches: list[IntelligentDispatchItem] = []
 
   # Act
   adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches)
@@ -75,12 +79,15 @@ async def test_when_planned_smart_charge_dispatch_present_in_rate_then_rates_adj
 async def test_when_planned_non_smart_charge_dispatch_present_in_rate_then_rates_not_adjusted():
   # Arrange
   rates = create_rates()
-  planned_dispatches = [{
-    "start": as_utc(parse_datetime("2022-10-10T05:00:00Z")),
-    "end": as_utc(parse_datetime("2022-10-10T06:00:00Z")),
-    "source": "not-mart-charge"
-  }]
-  complete_dispatches = []
+  planned_dispatches: list[IntelligentDispatchItem] = [
+    IntelligentDispatchItem(
+      as_utc(parse_datetime("2022-10-10T05:00:00Z")),
+      as_utc(parse_datetime("2022-10-10T06:00:00Z")),
+      1,
+      "non-smart-charge",
+      "home"
+  )]
+  complete_dispatches: list[IntelligentDispatchItem] = []
 
   # Act
   adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches)
@@ -93,12 +100,15 @@ async def test_when_complete_smart_charge_dispatch_present_in_rate_then_rates_ad
   # Arrange
   rates = create_rates()
   off_peak = rates[0]["value_inc_vat"]
-  complete_dispatches = [{
-    "start": as_utc(parse_datetime("2022-10-10T05:00:00Z")),
-    "end": as_utc(parse_datetime("2022-10-10T06:00:00Z")),
-    "source": "smart-charge"
-  }]
-  planned_dispatches = []
+  complete_dispatches: list[IntelligentDispatchItem] = [
+    IntelligentDispatchItem(
+      as_utc(parse_datetime("2022-10-10T05:00:00Z")),
+      as_utc(parse_datetime("2022-10-10T06:00:00Z")),
+      1,
+      "smart-charge",
+      "home"
+  )]
+  planned_dispatches: list[IntelligentDispatchItem] = []
 
   # Act
   adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches)
@@ -120,12 +130,15 @@ async def test_when_complete_non_smart_charge_dispatch_present_in_rate_then_rate
   # Arrange
   rates = create_rates()
   off_peak = rates[0]["value_inc_vat"]
-  complete_dispatches = [{
-    "start": as_utc(parse_datetime("2022-10-10T05:00:00Z")),
-    "end": as_utc(parse_datetime("2022-10-10T06:00:00Z")),
-    "source": "not-mart-charge"
-  }]
-  planned_dispatches = []
+  complete_dispatches: list[IntelligentDispatchItem] = [
+    IntelligentDispatchItem(
+      as_utc(parse_datetime("2022-10-10T05:00:00Z")),
+      as_utc(parse_datetime("2022-10-10T06:00:00Z")),
+      1,
+      "smart-charge",
+      "home"
+  )]
+  planned_dispatches: list[IntelligentDispatchItem] = []
 
   # Act
   adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches)
