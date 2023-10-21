@@ -18,8 +18,10 @@ async def async_assert_electricity_data(tariff, is_smart_meter, price_cap, perio
     # Act
     data = await client.async_get_electricity_rates(tariff, is_smart_meter, period_from, period_to)
 
+    diff = period_to - period_from
+
     # Assert
-    assert len(data) == 48
+    assert len(data) == diff.days * 48
 
     # Make sure our data is returned in 30 minute increments
     expected_valid_from = period_from
@@ -173,3 +175,38 @@ async def test_when_get_electricity_rates_is_called_for_non_existent_tariff_then
 
     # Assert
     assert data is None
+
+@pytest.mark.asyncio
+async def test_when_get_electricity_rates_is_called_with_cosy_tariff_then_data_is_returned_in_thirty_minute_increments():
+    # Arrange
+    tariff = "E-1R-COSY-22-12-08-H"
+    period_from = datetime.strptime("2023-10-15T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    period_to = datetime.strptime("2023-10-17T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    
+    # Act
+    data = await async_assert_electricity_data(tariff, False, None, period_from, period_to)
+
+    # Assert
+    cheapest_rate = None
+    for item in data:
+        if cheapest_rate is None or cheapest_rate > item["value_inc_vat"]:
+            cheapest_rate = item["value_inc_vat"]
+
+    expensive_rate = None
+    for item in data:
+        if expensive_rate is None or expensive_rate < item["value_inc_vat"]:
+            expensive_rate = item["value_inc_vat"]
+
+    # Make sure all periods within the expected cheapest/expensive period have our cheapest/expensive rate
+    for item in data:
+        if (item["valid_from"].hour >= 3 and item["valid_from"].hour < 6):
+            assert item["value_inc_vat"] == cheapest_rate
+        elif (item["valid_from"].hour >= 12 and item["valid_from"].hour < 15):
+            assert item["value_inc_vat"] == cheapest_rate
+        elif (item["valid_from"].hour >= 15 and item["valid_from"].hour < 18):
+            assert item["value_inc_vat"] == expensive_rate
+        else:
+            assert item["value_inc_vat"] != cheapest_rate
+            assert item["value_inc_vat"] != expensive_rate
+
+    
