@@ -15,7 +15,9 @@ If you're wanting to display upcoming prices in a nice readable format, then mig
 
 ## Export Rates Chart
 
-Thanks to @fboundy you can use [ApexCharts Card](https://github.com/RomRider/apexcharts-card) to plot the rates for the current day using the following configuration. Replace `{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}` with your information:
+Thanks to @fboundy you can use [ApexCharts Card](https://github.com/RomRider/apexcharts-card) to plot the rates for the current day using the following configuration. 
+Remember that the current_day_rates and next_day_rates will be [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them) and you will have to enable them and wait for the next update of Octopus agile rates at 4pm before you can add this card to your dashboard.
+Replace `{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}` with your information:
 
 ```yaml
 type: custom:apexcharts-card
