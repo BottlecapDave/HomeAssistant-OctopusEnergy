@@ -21,52 +21,52 @@ Replace `{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}` with your informatio
 
 ```yaml
 type: custom:apexcharts-card
-  header:
-    show: true
-    show_states: true
-    colorize_states: true
-    title: Agile {{Export}} Rates
-  graph_span: 1d
-  stacked: false
-  span:
-    start: day
-  yaxis:
-    - min: ~0
-      max: ~35
-      decimals: 1
-  series:
-    - entity: >-
-        event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}}_current_day_rates
-      type: column
-      name: ''
-      color: yellow
-      opacity: 1
-      stroke_width: 0
-      unit: W
-      show:
-        in_header: false
-        legend_value: false
-      data_generator: |
-        return entity.attributes.rates.map((entry) => {
-           return [new Date(entry.valid_from), entry.value_inc_vat];
-         });
-      offset: '-15min'
-    - entity: >-
-        event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}}_next_day_rates
-      type: column
-      name: ''
-      color: yellow
-      opacity: 1
-      stroke_width: 0
-      unit: W
-      show:
-        in_header: false
-        legend_value: false
-      data_generator: |
-        return entity.attributes.rates.map((entry) => {
-           return [new Date(entry.valid_from), entry.value_inc_vat];
-         });
-      offset: '-15min'
+header:
+  show: true
+  show_states: true
+  colorize_states: true
+  title: Agile {{Export}} Rates
+graph_span: 1d
+stacked: false
+span:
+  start: day
+yaxis:
+  - min: ~0
+    max: ~35
+    decimals: 1
+series:
+  - entity: >-
+      event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}}_current_day_rates
+    type: column
+    name: ''
+    color: yellow
+    opacity: 1
+    stroke_width: 0
+    unit: W
+    show:
+      in_header: false
+      legend_value: false
+    data_generator: |
+      return entity.attributes.rates.map((entry) => {
+      return [new Date(entry.valid_from), entry.value_inc_vat];
+      });
+    offset: '-15min'
+  - entity: >-
+      event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}}_next_day_rates
+    type: column
+    name: ''
+    color: yellow
+    opacity: 1
+    stroke_width: 0
+    unit: W
+    show:
+      in_header: false
+      legend_value: false
+    data_generator: |
+      return entity.attributes.rates.map((entry) => {
+      return [new Date(entry.valid_from), entry.value_inc_vat];
+      });
+    offset: '-15min'
 ```
 
 which will produce something like the following...
