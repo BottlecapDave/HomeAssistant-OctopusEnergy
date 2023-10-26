@@ -30,6 +30,9 @@ graph_span: 1d
 stacked: false
 span:
   start: day
+apex_config:
+  legend:
+    show: false
 yaxis:
   - min: ~0
     max: ~35
