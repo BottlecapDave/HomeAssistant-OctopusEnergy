@@ -73,3 +73,21 @@ async def test_when_get_account_is_called_and_not_found_then_none_returned():
 
     # Assert
     assert exception_raised == True
+
+@pytest.mark.asyncio
+async def test_when_get_account_is_called_and_api_key_is_invalid_then_none_returned():
+    # Arrange
+    context = get_test_context()
+
+    client = OctopusEnergyApiClient("invalid_api_key")
+    account_id = context["account_id"]
+
+    # Act
+    exception_raised = False
+    try:
+        await client.async_get_account(account_id)
+    except RequestError:
+        exception_raised = True
+
+    # Assert
+    assert exception_raised == True
