@@ -9,7 +9,7 @@ These are a few contributions by the community.
 
 ## Agile Price Table
 
-If you're wanting to display upcoming prices in a nice readable format, then might I suggest you utilise the [Octopus Engergy Rates card](https://github.com/lozzd/octopus-energy-rates-card) developed by @lozzd.
+If you're wanting to display upcoming prices in a nice readable format, then might I suggest you utilise the [Octopus Energy Rates card](https://github.com/lozzd/octopus-energy-rates-card) developed by @lozzd.
 
 <img src="https://github.com/lozzd/octopus-energy-rates-card/raw/main/assets/screenshot_1.png" height="300"/>
 
