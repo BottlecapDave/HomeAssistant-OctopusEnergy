@@ -1,4 +1,5 @@
 import logging
+from datetime import timedelta
 
 import voluptuous as vol
 
@@ -56,6 +57,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     self._attributes = self._config.copy()
     self._is_export = is_export
     self._attributes["is_target_export"] = is_export
+    self._last_evaluated = None
     
     is_rolling_target = True
     if CONFIG_TARGET_ROLLING_TARGET in self._config:
@@ -104,8 +106,10 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
 
     # Find the current rate. Rates change a maximum of once every 30 minutes.
     current_date = utcnow()
-    if (current_date.minute % 30) == 0 or len(self._target_rates) == 0:
+
+    if (current_date.minute % 30) == 0 or len(self._target_rates) == 0 or self._last_evaluated is None or self._last_evaluated + timedelta(minutes=30) < current_date:
       _LOGGER.debug(f'Updating OctopusEnergyTargetRate {self._config[CONFIG_TARGET_NAME]}')
+      self._last_evaluated = current_date
 
       # If all of our target times have passed, it's time to recalculate the next set
       all_rates_in_past = True
@@ -123,57 +127,60 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
 
         _LOGGER.debug(f'{len(all_rates) if all_rates is not None else None} rate periods found')
 
-        start_time = None
-        if CONFIG_TARGET_START_TIME in self._config:
-          start_time = self._config[CONFIG_TARGET_START_TIME]
+        if len(all_rates) > 0:
+          start_time = None
+          if CONFIG_TARGET_START_TIME in self._config:
+            start_time = self._config[CONFIG_TARGET_START_TIME]
 
-        end_time = None
-        if CONFIG_TARGET_END_TIME in self._config:
-          end_time = self._config[CONFIG_TARGET_END_TIME]
+          end_time = None
+          if CONFIG_TARGET_END_TIME in self._config:
+            end_time = self._config[CONFIG_TARGET_END_TIME]
 
-        # True by default for backwards compatibility
-        is_rolling_target = True
-        if CONFIG_TARGET_ROLLING_TARGET in self._config:
-          is_rolling_target = self._config[CONFIG_TARGET_ROLLING_TARGET]
+          # True by default for backwards compatibility
+          is_rolling_target = True
+          if CONFIG_TARGET_ROLLING_TARGET in self._config:
+            is_rolling_target = self._config[CONFIG_TARGET_ROLLING_TARGET]
 
-        find_last_rates = False
-        if CONFIG_TARGET_LAST_RATES in self._config:
-          find_last_rates = self._config[CONFIG_TARGET_LAST_RATES]     
+          find_last_rates = False
+          if CONFIG_TARGET_LAST_RATES in self._config:
+            find_last_rates = self._config[CONFIG_TARGET_LAST_RATES]     
 
-        target_hours = float(self._config[CONFIG_TARGET_HOURS])
+          target_hours = float(self._config[CONFIG_TARGET_HOURS])
 
-        invert_target_rates = False
-        if (CONFIG_TARGET_INVERT_TARGET_RATES in self._config):
-          invert_target_rates = self._config[CONFIG_TARGET_INVERT_TARGET_RATES]
+          invert_target_rates = False
+          if (CONFIG_TARGET_INVERT_TARGET_RATES in self._config):
+            invert_target_rates = self._config[CONFIG_TARGET_INVERT_TARGET_RATES]
 
-        find_highest_rates = (self._is_export and invert_target_rates == False) or (self._is_export == False and invert_target_rates)
+          find_highest_rates = (self._is_export and invert_target_rates == False) or (self._is_export == False and invert_target_rates)
 
-        if (self._config[CONFIG_TARGET_TYPE] == "Continuous"):
-          self._target_rates = calculate_continuous_times(
-            now(),
-            start_time,
-            end_time,
-            target_hours,
-            all_rates,
-            is_rolling_target,
-            find_highest_rates,
-            find_last_rates
-          )
-        elif (self._config[CONFIG_TARGET_TYPE] == "Intermittent"):
-          self._target_rates = calculate_intermittent_times(
-            now(),
-            start_time,
-            end_time,
-            target_hours,
-            all_rates,
-            is_rolling_target,
-            find_highest_rates,
-            find_last_rates
-          )
-        else:
-          _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")
+          if (self._config[CONFIG_TARGET_TYPE] == "Continuous"):
+            self._target_rates = calculate_continuous_times(
+              now(),
+              start_time,
+              end_time,
+              target_hours,
+              all_rates,
+              is_rolling_target,
+              find_highest_rates,
+              find_last_rates
+            )
+          elif (self._config[CONFIG_TARGET_TYPE] == "Intermittent"):
+            self._target_rates = calculate_intermittent_times(
+              now(),
+              start_time,
+              end_time,
+              target_hours,
+              all_rates,
+              is_rolling_target,
+              find_highest_rates,
+              find_last_rates
+            )
+          else:
+            _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")
 
-        self._attributes["target_times"] = self._target_rates
+          self._attributes["target_times"] = self._target_rates
+          self._attributes["target_times_last_evaluated"] = current_date
+          _LOGGER.debug(f"calculated rates: {self._target_rates}")
 
     active_result = get_target_rate_info(current_date, self._target_rates, offset)
 
@@ -191,9 +198,11 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     self._attributes["next_average_cost"] = f'{active_result["next_average_cost"]}p' if active_result["next_average_cost"] is not None else None
     self._attributes["next_min_cost"] = f'{active_result["next_min_cost"]}p' if active_result["next_min_cost"] is not None else None
     self._attributes["next_max_cost"] = f'{active_result["next_max_cost"]}p' if active_result["next_max_cost"] is not None else None
-
+    
+    self._attributes["last_evaluated"] = current_date
     self._state = active_result["is_active"]
 
+    _LOGGER.debug(f"calculated: {self._state}")
     return self._state
   
   async def async_added_to_hass(self):
