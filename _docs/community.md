@@ -13,58 +13,63 @@ If you're wanting to display upcoming prices in a nice readable format, then mig
 
 <img src="https://github.com/lozzd/octopus-energy-rates-card/raw/main/assets/screenshot_1.png" height="300"/>
 
-## Export Rates Chart
+## Import and Export Rates Charts
 
-Thanks to @fboundy you can use [ApexCharts Card](https://github.com/RomRider/apexcharts-card) to plot the rates for the current day using the following configuration. Replace `{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}` with your information:
+Thanks to @fboundy you can use [ApexCharts Card](https://github.com/RomRider/apexcharts-card) to plot the import and export rates for the current day using the following configuration. 
+Remember that the import and export current_day_rates and next_day_rates will be [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them) and you will have to enable them and wait for the next update of Octopus agile rates at 4pm before you can add this card to your dashboard.
+Replace `{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}` with your information and whether you want the import or export rate chart:
 
 ```yaml
 type: custom:apexcharts-card
-  header:
-    show: true
-    show_states: true
-    colorize_states: true
-    title: Agile Export Rates
-  graph_span: 1d
-  stacked: false
-  span:
-    start: day
-  yaxis:
-    - min: ~0
-      max: ~35
-      decimals: 1
-  series:
-    - entity: >-
-        event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_day_rates
-      type: column
-      name: ''
-      color: yellow
-      opacity: 1
-      stroke_width: 0
-      unit: W
-      show:
-        in_header: false
-        legend_value: false
-      data_generator: |
-        return entity.attributes.rates.map((entry) => {
-           return [new Date(entry.valid_from), entry.value_inc_vat];
-         });
-      offset: '-15min'
-    - entity: >-
-        event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_next_day_rates
-      type: column
-      name: ''
-      color: yellow
-      opacity: 1
-      stroke_width: 0
-      unit: W
-      show:
-        in_header: false
-        legend_value: false
-      data_generator: |
-        return entity.attributes.rates.map((entry) => {
-           return [new Date(entry.valid_from), entry.value_inc_vat];
-         });
-      offset: '-15min'
+header:
+  show: true
+  show_states: true
+  colorize_states: true
+  title: Agile {{Export}} Rates
+graph_span: 1d
+stacked: false
+span:
+  start: day
+apex_config:
+  legend:
+    show: false
+yaxis:
+  - min: ~0
+    max: ~35
+    decimals: 1
+series:
+  - entity: >-
+      event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}}_current_day_rates
+    type: column
+    name: ''
+    color: yellow
+    opacity: 1
+    stroke_width: 0
+    unit: W
+    show:
+      in_header: false
+      legend_value: false
+    data_generator: |
+      return entity.attributes.rates.map((entry) => {
+      return [new Date(entry.valid_from), entry.value_inc_vat];
+      });
+    offset: '-15min'
+  - entity: >-
+      event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}}_next_day_rates
+    type: column
+    name: ''
+    color: yellow
+    opacity: 1
+    stroke_width: 0
+    unit: W
+    show:
+      in_header: false
+      legend_value: false
+    data_generator: |
+      return entity.attributes.rates.map((entry) => {
+      return [new Date(entry.valid_from), entry.value_inc_vat];
+      });
+    offset: '-15min'
 ```
 
 which will produce something like the following...
