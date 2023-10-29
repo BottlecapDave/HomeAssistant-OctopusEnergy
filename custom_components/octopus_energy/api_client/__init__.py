@@ -358,6 +358,7 @@ class OctopusEnergyApiClient:
             "account" in account_response_body["data"] and 
             account_response_body["data"]["account"] is not None):
           return {
+            "id": account_id,
             "electricity_meter_points": list(map(lambda mp: {
                 "mpan": mp["meterPoint"]["mpan"],
                 "meters": list(map(lambda m: {
@@ -400,7 +401,7 @@ class OctopusEnergyApiClient:
             if "electricityAgreements" in account_response_body["data"]["account"] and account_response_body["data"]["account"]["electricityAgreements"] is not None
             else []
           )),
-          "gas_meter_points": list(map(lambda mp: {
+            "gas_meter_points": list(map(lambda mp: {
               "mprn": mp["meterPoint"]["mprn"],
               "meters": list(map(lambda m: {
                   "serial_number": m["serialNumber"],

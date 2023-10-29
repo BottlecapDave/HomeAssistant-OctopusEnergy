@@ -117,6 +117,10 @@
     "invalid_target_rate": {
       "title": "Invalid target rate \"{name}\"",
       "description": "The target rate \"{name}\" has become invalid. Click on 'Learn More' with instructions on what to do next."
+    },
+    "octopus_mini_not_valid": {
+      "title": "Octopus Mini not valid for {type} meter",
+      "description": "Octopus Mini has been configured for account '{account_id}', but it's not available for {type} meter {mpan_mprn}/{serial_number}. If this is expected, you can ignore this notice, otherwise click 'Learn More' with instructions on what to do next."
     }
   }
 }

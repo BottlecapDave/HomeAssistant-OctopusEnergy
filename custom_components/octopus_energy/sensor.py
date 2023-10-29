@@ -3,7 +3,7 @@ import logging
 
 from homeassistant.util.dt import (utcnow)
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import config_validation as cv, entity_platform
+from homeassistant.helpers import config_validation as cv, entity_platform, issue_registry as ir
 
 from .electricity.current_consumption import OctopusEnergyCurrentElectricityConsumption
 from .electricity.current_accumulative_consumption import OctopusEnergyCurrentAccumulativeElectricityConsumption
@@ -166,6 +166,19 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
               entities.append(OctopusEnergyCurrentAccumulativeElectricityCostPeak(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, electricity_tariff_code, meter, point))
               entities.append(OctopusEnergyCurrentAccumulativeElectricityCostOffPeak(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, electricity_tariff_code, meter, point))
               entities.append(OctopusEnergyCurrentElectricityDemand(hass, consumption_coordinator, meter, point))
+
+              ir.async_delete_issue(hass, DOMAIN, f"octopus_mini_not_valid_electricity_{mpan}_{serial_number}")
+            else:
+              ir.async_create_issue(
+                hass,
+                DOMAIN,
+                f"octopus_mini_not_valid_electricity_{mpan}_{serial_number}",
+                is_fixable=False,
+                severity=ir.IssueSeverity.ERROR,
+                learn_more_url="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/repairs/octopus_mini_not_valid.md",
+                translation_key="octopus_mini_not_valid",
+                translation_placeholders={ "type": "electricity", "account_id": account_info["id"], "mpan_mprn": mpan, "serial_number": serial_number },
+              )
       else:
         for meter in point["meters"]:
           _LOGGER.info(f'Skipping electricity meter due to no active agreement; mpan: {point["mpan"]}; serial number: {meter["serial_number"]}')
@@ -230,6 +243,19 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
               entities.append(OctopusEnergyCurrentGasConsumption(hass, consumption_coordinator, meter, point))
               entities.append(OctopusEnergyCurrentAccumulativeGasConsumption(hass, consumption_coordinator, gas_rate_coordinator, gas_standing_charges_coordinator, gas_tariff_code, meter, point, calorific_value))
               entities.append(OctopusEnergyCurrentAccumulativeGasCost(hass, consumption_coordinator, gas_rate_coordinator, gas_standing_charges_coordinator, gas_tariff_code, meter, point, calorific_value))
+              
+              ir.async_delete_issue(hass, DOMAIN, f"octopus_mini_not_valid_gas_{mprn}_{serial_number}")
+            else:
+              ir.async_create_issue(
+                hass,
+                DOMAIN,
+                f"octopus_mini_not_valid_gas_{mprn}_{serial_number}",
+                is_fixable=False,
+                severity=ir.IssueSeverity.ERROR,
+                learn_more_url="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/repairs/octopus_mini_not_valid.md",
+                translation_key="octopus_mini_not_valid",
+                translation_placeholders={ "type": "gas", "account_id": account_info["id"], "mpan_mprn": mprn, "serial_number": serial_number },
+              )
       else:
         for meter in point["meters"]:
           _LOGGER.info(f'Skipping gas meter due to no active agreement; mprn: {point["mprn"]}; serial number: {meter["serial_number"]}')
