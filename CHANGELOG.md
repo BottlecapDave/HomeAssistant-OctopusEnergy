@@ -1,3 +1,17 @@
+# [8.5.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.4.4...v8.5.0) (2023-10-29)
+
+
+### Bug Fixes
+
+* Added check when configuring home mini, to make sure home mini support is actually available ([770edc4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/770edc470b2ce0ae675a99598d3985fd3f0beb49))
+* Fixed clearing of price caps without needing checkbox ([f5fbc0c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f5fbc0cea9b4f65692a2998c3a3f340ebe65f909))
+* Fixed off peak detection for octopus flex (should never be applicable) ([912efd7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/912efd7f7fc4f7d50af665b07c2f80a55b6b7a2a))
+
+
+### Features
+
+* Added last evaluated attribute to target rate sensor for more clarity ([fd5395d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fd5395da9901740983e8d2093396bdbc17c1f6ad))
+
 ## [8.4.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.4.3...v8.4.4) (2023-10-14)
 
 
