@@ -10,6 +10,7 @@ from ..utils import (
 )
 
 from .intelligent_settings import IntelligentSettings
+from .intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -357,6 +358,7 @@ class OctopusEnergyApiClient:
             "account" in account_response_body["data"] and 
             account_response_body["data"]["account"] is not None):
           return {
+            "id": account_id,
             "electricity_meter_points": list(map(lambda mp: {
                 "mpan": mp["meterPoint"]["mpan"],
                 "meters": list(map(lambda m: {
@@ -399,7 +401,7 @@ class OctopusEnergyApiClient:
             if "electricityAgreements" in account_response_body["data"]["account"] and account_response_body["data"]["account"]["electricityAgreements"] is not None
             else []
           )),
-          "gas_meter_points": list(map(lambda mp: {
+            "gas_meter_points": list(map(lambda mp: {
               "mprn": mp["meterPoint"]["mprn"],
               "meters": list(map(lambda m: {
                   "serial_number": m["serialNumber"],
@@ -689,28 +691,28 @@ class OctopusEnergyApiClient:
         _LOGGER.debug(f'async_get_intelligent_dispatches: {response_body}')
 
         if (response_body is not None and "data" in response_body):
-          return {
-            "planned": list(map(lambda ev: {
-                "start": as_utc(parse_datetime(ev["startDt"])),
-                "end": as_utc(parse_datetime(ev["endDt"])),
-                "charge_in_kwh": float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
-                "source": ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
-                "location": ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
-              }, response_body["data"]["plannedDispatches"]
+          return IntelligentDispatches(
+            list(map(lambda ev: IntelligentDispatchItem(
+                as_utc(parse_datetime(ev["startDt"])),
+                as_utc(parse_datetime(ev["endDt"])),
+                float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
+                ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
+                ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
+              ), response_body["data"]["plannedDispatches"]
               if "plannedDispatches" in response_body["data"] and response_body["data"]["plannedDispatches"] is not None
               else [])
             ),
-            "completed": list(map(lambda ev: {
-                "start": as_utc(parse_datetime(ev["startDt"])),
-                "end": as_utc(parse_datetime(ev["endDt"])),
-                "charge_in_kwh": float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
-                "source": ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
-                "location": ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
-              }, response_body["data"]["completedDispatches"]
+            list(map(lambda ev: IntelligentDispatchItem(
+                as_utc(parse_datetime(ev["startDt"])),
+                as_utc(parse_datetime(ev["endDt"])),
+                float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
+                ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
+                ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
+              ), response_body["data"]["completedDispatches"]
               if "completedDispatches" in response_body["data"] and response_body["data"]["completedDispatches"] is not None
               else [])
             )
-          }
+          )
         else:
           _LOGGER.error("Failed to retrieve intelligent dispatches")
     

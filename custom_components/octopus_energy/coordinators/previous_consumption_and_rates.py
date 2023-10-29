@@ -18,6 +18,7 @@ from ..const import (
 )
 
 from ..api_client import (OctopusEnergyApiClient)
+from ..api_client.intelligent_dispatches import IntelligentDispatches
 
 from ..intelligent import adjust_intelligent_rates
 
@@ -43,7 +44,7 @@ async def async_fetch_consumption_and_rates(
   tariff_code: str,
   is_smart_meter: bool,
   fire_event: Callable[[str, "dict[str, Any]"], None],
-  intelligent_dispatches = None
+  intelligent_dispatches: IntelligentDispatches = None
 
 ):
   """Fetch the previous consumption and rates"""
@@ -66,8 +67,8 @@ async def async_fetch_consumption_and_rates(
 
         if intelligent_dispatches is not None:
           rate_data = adjust_intelligent_rates(rate_data,
-                                                intelligent_dispatches["planned"] if "planned" in intelligent_dispatches else [],
-                                                intelligent_dispatches["completed"] if "completed" in intelligent_dispatches else [])
+                                                intelligent_dispatches.planned,
+                                                intelligent_dispatches.completed)
           
           _LOGGER.debug(f"Tariff: {tariff_code}; dispatches: {intelligent_dispatches}")
       else:
@@ -110,11 +111,10 @@ async def async_create_previous_consumption_and_rates_coordinator(
     is_smart_meter: bool,
     days_offset: int):
   """Create reading coordinator"""
+  previous_consumption_key = f'{identifier}_{serial_number}_previous_consumption_and_rates'
 
   async def async_update_data():
     """Fetch data from API endpoint."""
-
-    previous_consumption_key = f'{identifier}_{serial_number}_previous_consumption_and_rates'
     period_from = as_utc((now() - timedelta(days=days_offset)).replace(hour=0, minute=0, second=0, microsecond=0))
     period_to = period_from + timedelta(days=1)
     result = await async_fetch_consumption_and_rates(
@@ -148,7 +148,7 @@ async def async_create_previous_consumption_and_rates_coordinator(
   coordinator = DataUpdateCoordinator(
     hass,
     _LOGGER,
-    name=f"rates_{identifier}_{serial_number}",
+    name=previous_consumption_key,
     update_method=async_update_data,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes

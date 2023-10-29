@@ -11,6 +11,9 @@ from homeassistant.components.sensor import (
   SensorDeviceClass,
   SensorStateClass
 )
+
+from homeassistant.util.dt import (now)
+
 from . import (
   calculate_gas_consumption_and_cost,
 )
@@ -103,6 +106,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
     consumption_data = self.coordinator.data["consumption"] if self.coordinator is not None and self.coordinator.data is not None and "consumption" in self.coordinator.data else None
     rate_data = self.coordinator.data["rates"] if self.coordinator is not None and self.coordinator.data is not None and "rates" in self.coordinator.data else None
     standing_charge = self.coordinator.data["standing_charge"] if self.coordinator is not None and self.coordinator.data is not None and "standing_charge" in self.coordinator.data else None
+    current = now()
 
     consumption_and_cost = calculate_gas_consumption_and_cost(
       consumption_data,
@@ -118,6 +122,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
       _LOGGER.debug(f"Calculated previous gas consumption cost for '{self._mprn}/{self._serial_number}'...")
 
       await async_import_external_statistics_from_cost(
+        current,
         self._hass,
         get_gas_cost_statistic_unique_id(self._serial_number, self._mprn),
         self.name,

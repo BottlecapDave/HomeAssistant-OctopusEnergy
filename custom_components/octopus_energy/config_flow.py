@@ -6,8 +6,8 @@ from homeassistant.config_entries import (ConfigFlow, OptionsFlow)
 from homeassistant.core import callback
 import homeassistant.helpers.config_validation as cv
 
-from .config.target_rates import validate_target_rate_config
-from .config.main import async_validate_main_config
+from .config.target_rates import merge_target_rate_config, validate_target_rate_config
+from .config.main import async_validate_main_config, merge_main_config
 from .const import (
   CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
@@ -22,9 +22,7 @@ from .const import (
   CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
   CONFIG_MAIN_CALORIFIC_VALUE,
   CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
-  CONFIG_MAIN_CLEAR_ELECTRICITY_PRICE_CAP,
   CONFIG_MAIN_GAS_PRICE_CAP,
-  CONFIG_MAIN_CLEAR_GAS_PRICE_CAP,
   
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_HOURS,
@@ -207,23 +205,34 @@ class OptionsFlowHandler(OptionsFlow):
     
     return self.async_show_form(
       step_id="target_rate",
-      data_schema=vol.Schema({
-        vol.Required(CONFIG_TARGET_NAME, default=config[CONFIG_TARGET_NAME]): str,
-        vol.Required(CONFIG_TARGET_HOURS, default=f'{config[CONFIG_TARGET_HOURS]}'): str,
-        vol.Required(CONFIG_TARGET_TYPE, default=config[CONFIG_TARGET_TYPE]): vol.In({
-          "Continuous": "Continuous",
-          "Intermittent": "Intermittent"
-        }),
-        vol.Required(CONFIG_TARGET_MPAN, default=config[CONFIG_TARGET_MPAN]): vol.In(
-          meters
-        ),
-        start_time_key: str,
-        end_time_key: str,
-        offset_key: str,
-        vol.Optional(CONFIG_TARGET_ROLLING_TARGET, default=is_rolling_target): bool,
-        vol.Optional(CONFIG_TARGET_LAST_RATES, default=find_last_rates): bool,
-        vol.Optional(CONFIG_TARGET_INVERT_TARGET_RATES, default=invert_target_rates): bool,
-      }),
+      data_schema=self.add_suggested_values_to_schema(
+          vol.Schema({
+            vol.Required(CONFIG_TARGET_NAME): str,
+            vol.Required(CONFIG_TARGET_HOURS): str,
+            vol.Required(CONFIG_TARGET_TYPE): vol.In({
+              "Continuous": "Continuous",
+              "Intermittent": "Intermittent"
+            }),
+            vol.Required(CONFIG_TARGET_MPAN): vol.In(
+              meters
+            ),
+            start_time_key: str,
+            end_time_key: str,
+            offset_key: str,
+            vol.Optional(CONFIG_TARGET_ROLLING_TARGET): bool,
+            vol.Optional(CONFIG_TARGET_LAST_RATES): bool,
+            vol.Optional(CONFIG_TARGET_INVERT_TARGET_RATES): bool,
+          }),
+          {
+            CONFIG_TARGET_NAME: config[CONFIG_TARGET_NAME],
+            CONFIG_TARGET_HOURS: f'{config[CONFIG_TARGET_HOURS]}',
+            CONFIG_TARGET_TYPE: config[CONFIG_TARGET_TYPE],
+            CONFIG_TARGET_MPAN: config[CONFIG_TARGET_MPAN],
+            CONFIG_TARGET_ROLLING_TARGET: is_rolling_target,
+            CONFIG_TARGET_LAST_RATES: find_last_rates,
+            CONFIG_TARGET_INVERT_TARGET_RATES: invert_target_rates,
+          }
+      ),
       errors=errors
     )
   
@@ -251,29 +260,33 @@ class OptionsFlowHandler(OptionsFlow):
     calorific_value = 40
     if CONFIG_MAIN_CALORIFIC_VALUE in config:
       calorific_value = config[CONFIG_MAIN_CALORIFIC_VALUE]
-
-    electricity_price_cap_key = vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP)
-    if (CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config):
-      electricity_price_cap_key = vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP, default=config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP])
-
-    gas_price_cap_key = vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP)
-    if (CONFIG_MAIN_GAS_PRICE_CAP in config):
-      gas_price_cap_key = vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP, default=config[CONFIG_MAIN_GAS_PRICE_CAP])
     
     return self.async_show_form(
-      step_id="user", data_schema=vol.Schema({
-        vol.Required(CONFIG_MAIN_API_KEY, default=config[CONFIG_MAIN_API_KEY]): str,
-        vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION, default=supports_live_consumption): bool,
-        vol.Required(CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES, default=live_electricity_consumption_refresh_in_minutes): cv.positive_int,
-        vol.Required(CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES, default=live_gas_consumption_refresh_in_minutes): cv.positive_int,
-        vol.Required(CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET, default=previous_electricity_consumption_days_offset): cv.positive_int,
-        vol.Required(CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET, default=previous_gas_consumption_days_offset): cv.positive_int,
-        vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=calorific_value): cv.positive_float,
-        electricity_price_cap_key: cv.positive_float,
-        vol.Required(CONFIG_MAIN_CLEAR_ELECTRICITY_PRICE_CAP): bool,
-        gas_price_cap_key: cv.positive_float,
-        vol.Required(CONFIG_MAIN_CLEAR_GAS_PRICE_CAP): bool,
-      }),
+      step_id="user",
+      data_schema=self.add_suggested_values_to_schema(
+        vol.Schema({
+          vol.Required(CONFIG_MAIN_API_KEY): str,
+          vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION): bool,
+          vol.Required(CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
+          vol.Required(CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
+          vol.Required(CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET): cv.positive_int,
+          vol.Required(CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET): cv.positive_int,
+          vol.Required(CONFIG_MAIN_CALORIFIC_VALUE): cv.positive_float,
+          vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP): cv.positive_float,
+          vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float,
+        }),
+        {
+          CONFIG_MAIN_API_KEY: config[CONFIG_MAIN_API_KEY],
+          CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: supports_live_consumption,
+          CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: live_electricity_consumption_refresh_in_minutes,
+          CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: live_gas_consumption_refresh_in_minutes,
+          CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET: previous_electricity_consumption_days_offset,
+          CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET: previous_gas_consumption_days_offset,
+          CONFIG_MAIN_CALORIFIC_VALUE: calorific_value,
+          CONFIG_MAIN_ELECTRICITY_PRICE_CAP: config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP] if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config else None,
+          CONFIG_MAIN_GAS_PRICE_CAP: config[CONFIG_MAIN_GAS_PRICE_CAP] if CONFIG_MAIN_GAS_PRICE_CAP in config else None,
+        }
+      ),
       errors=errors
     )
 
@@ -281,15 +294,10 @@ class OptionsFlowHandler(OptionsFlow):
     """Manage the options for the custom component."""
 
     if CONFIG_MAIN_API_KEY in self._entry.data:
-      config = dict(self._entry.data)
-      if self._entry.options is not None:
-        config.update(self._entry.options)
-
+      config = merge_main_config(self._entry.data, self._entry.options, user_input)
       return await self.__async_setup_main_schema(config, {})
     elif CONFIG_TARGET_TYPE in self._entry.data:
-      config = dict(self._entry.data)
-      if self._entry.options is not None:
-        config.update(self._entry.options)
+      config = merge_target_rate_config(self._entry.data, self._entry.options, user_input)
       
       return await self.__async_setup_target_rate_schema(config, {})
 
@@ -298,41 +306,27 @@ class OptionsFlowHandler(OptionsFlow):
   async def async_step_user(self, user_input):
     """Manage the options for the custom component."""
 
-    if user_input is not None:
-      config = dict(self._entry.data)
-      config.update(user_input)
+    config = merge_main_config(self._entry.data, self._entry.options, user_input)
 
-      if config[CONFIG_MAIN_CLEAR_ELECTRICITY_PRICE_CAP] == True:
-        del config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
+    errors = await async_validate_main_config(config)
+    
+    if (len(errors) > 0):
+      return await self.__async_setup_target_rate_schema(config, errors)
 
-      if config[CONFIG_MAIN_CLEAR_GAS_PRICE_CAP] == True:
-        del config[CONFIG_MAIN_GAS_PRICE_CAP]
-
-      errors = await async_validate_main_config(config)
-      
-      if (len(errors) > 0):
-        return await self.__async_setup_target_rate_schema(config, errors)
-
-      return self.async_create_entry(title="", data=config)
-
-    return self.async_abort(reason="not_supported")
+    return self.async_create_entry(title="", data=config)
 
   async def async_step_target_rate(self, user_input):
     """Manage the options for the custom component."""
 
-    if user_input is not None:
-      config = dict(self._entry.data)
-      config.update(user_input)
+    config = merge_target_rate_config(self._entry.data, self._entry.options, user_input)
 
-      client = self.hass.data[DOMAIN][DATA_CLIENT]
-      account_info = await client.async_get_account(self.hass.data[DOMAIN][DATA_ACCOUNT_ID])
+    client = self.hass.data[DOMAIN][DATA_CLIENT]
+    account_info = await client.async_get_account(self.hass.data[DOMAIN][DATA_ACCOUNT_ID])
 
-      now = utcnow()
-      errors = validate_target_rate_config(user_input, account_info, now)
+    now = utcnow()
+    errors = validate_target_rate_config(user_input, account_info, now)
 
-      if (len(errors) > 0):
-        return await self.__async_setup_main_schema(config, errors)
+    if (len(errors) > 0):
+      return await self.__async_setup_main_schema(config, errors)
 
-      return self.async_create_entry(title="", data=config)
-
-    return self.async_abort(reason="not_supported")
+    return self.async_create_entry(title="", data=config)

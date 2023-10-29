@@ -12,7 +12,7 @@ from ..utils import get_active_tariff_code, get_off_peak_cost
 
 _LOGGER = logging.getLogger(__name__)
 
-def build_consumption_statistics(consumptions, rates, consumption_key: str, latest_total_sum: float, latest_peak_sum: float, latest_off_peak_sum: float):
+def build_consumption_statistics(current: datetime, consumptions, rates, consumption_key: str, latest_total_sum: float, latest_peak_sum: float, latest_off_peak_sum: float):
   last_reset = consumptions[0]["from"].replace(minute=0, second=0, microsecond=0)
   sums = {
     "total": latest_total_sum,
@@ -28,7 +28,7 @@ def build_consumption_statistics(consumptions, rates, consumption_key: str, late
   total_statistics = []
   off_peak_statistics = []
   peak_statistics = []
-  off_peak_cost = get_off_peak_cost(rates)
+  off_peak_cost = get_off_peak_cost(current, rates)
 
   _LOGGER.debug(f'total_sum: {latest_total_sum}; latest_peak_sum: {latest_peak_sum}; latest_off_peak_sum: {latest_off_peak_sum}; last_reset: {last_reset}; off_peak_cost: {off_peak_cost}')
 
@@ -89,7 +89,7 @@ def build_consumption_statistics(consumptions, rates, consumption_key: str, late
     "off_peak": off_peak_statistics
   }
 
-def build_cost_statistics(consumptions, rates, consumption_key: str, latest_total_sum: float, latest_peak_sum: float, latest_off_peak_sum: float):
+def build_cost_statistics(current: datetime, consumptions, rates, consumption_key: str, latest_total_sum: float, latest_peak_sum: float, latest_off_peak_sum: float):
   last_reset = consumptions[0]["from"].replace(minute=0, second=0, microsecond=0)
   sums = {
     "total": latest_total_sum,
@@ -105,7 +105,7 @@ def build_cost_statistics(consumptions, rates, consumption_key: str, latest_tota
   total_statistics = []
   off_peak_statistics = []
   peak_statistics = []
-  off_peak_cost = get_off_peak_cost(rates)
+  off_peak_cost = get_off_peak_cost(current, rates)
 
   _LOGGER.debug(f'total_sum: {latest_total_sum}; latest_peak_sum: {latest_peak_sum}; latest_off_peak_sum: {latest_off_peak_sum}; last_reset: {last_reset}; off_peak_cost: {off_peak_cost}')
 

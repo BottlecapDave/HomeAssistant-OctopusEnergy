@@ -13,9 +13,12 @@
           "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
           "previous_electricity_consumption_days_offset": "Previous consumption electricity days offset",
           "previous_gas_consumption_days_offset": "Previous consumption gas days offset",
-          "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time.",
+          "calorific_value": "Gas calorific value.",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence"
+        },
+        "data_description": {
+          "calorific_value": "This can be found on your gas statement and can change from time to time"
         }
       },
       "target_rate": {
@@ -61,11 +64,12 @@
           "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
           "previous_electricity_consumption_days_offset": "Previous consumption electricity days offset",
           "previous_gas_consumption_days_offset": "Previous consumption gas days offset",
-          "calorific_value": "Gas calorific value. This can be found on your gas statement and can change from time to time.",
+          "calorific_value": "Gas calorific value",
           "electricity_price_cap": "Optional electricity price cap in pence",
-          "clear_electricity_price_cap": "Clear electricity price cap",
-          "gas_price_cap": "Optional gas price cap in pence",
-          "clear_gas_price_cap": "Clear Gas price cap"
+          "gas_price_cap": "Optional gas price cap in pence"
+        },
+        "data_description": {
+          "calorific_value": "This can be found on your gas statement and can change from time to time"
         }
       },
       "target_rate": {
@@ -113,6 +117,10 @@
     "invalid_target_rate": {
       "title": "Invalid target rate \"{name}\"",
       "description": "The target rate \"{name}\" has become invalid. Click on 'Learn More' with instructions on what to do next."
+    },
+    "octopus_mini_not_valid": {
+      "title": "Octopus Mini not valid for {type} meter",
+      "description": "Octopus Mini has been configured for account '{account_id}', but it's not available for {type} meter {mpan_mprn}/{serial_number}. If this is expected, you can ignore this notice, otherwise click 'Learn More' with instructions on what to do next."
     }
   }
 }

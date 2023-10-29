@@ -13,6 +13,8 @@ from homeassistant.components.sensor import (
   SensorStateClass,
 )
 
+from homeassistant.util.dt import (now)
+
 from . import (
   calculate_electricity_consumption_and_cost,
 )
@@ -105,6 +107,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     if not self.enabled:
       return
     
+    current = now()
     consumption_data = self.coordinator.data["consumption"] if self.coordinator is not None and self.coordinator.data is not None and "consumption" in self.coordinator.data else None
 
     tariff_override_key = get_electricity_tariff_override_key(self._serial_number, self._mpan)
@@ -126,6 +129,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
       )
 
       consumption_and_cost = calculate_electricity_consumption_and_cost(
+        current,
         consumption_data,
         rate_data,
         standing_charge["value_inc_vat"] if standing_charge is not None else None,

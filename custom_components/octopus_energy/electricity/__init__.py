@@ -1,3 +1,5 @@
+import datetime
+
 from ..utils import get_off_peak_cost
 
 def __get_interval_end(item):
@@ -9,6 +11,7 @@ def __sort_consumption(consumption_data):
   return sorted
 
 def calculate_electricity_consumption_and_cost(
+    current: datetime,
     consumption_data,
     rate_data,
     standing_charge,
@@ -27,7 +30,7 @@ def calculate_electricity_consumption_and_cost(
       total_cost_in_pence = 0
       total_consumption = 0
 
-      off_peak_cost = get_off_peak_cost(rate_data)
+      off_peak_cost = get_off_peak_cost(current, rate_data)
       total_cost_off_peak = 0
       total_cost_peak = 0
       total_consumption_off_peak = 0

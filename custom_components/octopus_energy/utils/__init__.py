@@ -62,20 +62,23 @@ def get_active_tariff_code(utcnow: datetime, agreements):
   
   return None
 
-def get_off_peak_cost(rates):
+def get_off_peak_cost(current: datetime, rates: list):
+  today_start = as_utc(current.replace(hour=0, minute=0, second=0, microsecond=0))
+  today_end = today_start + timedelta(days=1)
   off_peak_cost = None
 
   rate_charges = {}
   for rate in rates:
-    value = rate["value_inc_vat"]
-    rate_charges[value] = (rate_charges[value] if value in rate_charges else value)
-    if off_peak_cost is None or off_peak_cost > rate["value_inc_vat"]:
-      off_peak_cost = rate["value_inc_vat"]
+    if rate["valid_from"] >= today_start and rate["valid_to"] <= today_end:
+      value = rate["value_inc_vat"]
+      rate_charges[value] = (rate_charges[value] if value in rate_charges else value)
+      if off_peak_cost is None or off_peak_cost > rate["value_inc_vat"]:
+        off_peak_cost = rate["value_inc_vat"]
 
   return off_peak_cost if len(rate_charges) == 2 or len(rate_charges) == 3 else None
 
 def is_off_peak(current: datetime, rates):
-  off_peak_value = get_off_peak_cost(rates)
+  off_peak_value = get_off_peak_cost(current, rates)
 
   rate_information = get_current_rate_information(rates, current)
 

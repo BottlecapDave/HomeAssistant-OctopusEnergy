@@ -10,6 +10,7 @@ async def test_when_two_rates_available_then_total_peak_and_off_peak_available()
   # Arrange
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  current = datetime.strptime("2022-02-28T00:00:01Z", "%Y-%m-%dT%H:%M:%S%z")
   consumptions = create_consumption_data(period_from, period_to, False, "from", "to")
   rates = create_rate_data(period_from, period_to, [2, 4])
   consumption_key = 'consumption'
@@ -19,6 +20,7 @@ async def test_when_two_rates_available_then_total_peak_and_off_peak_available()
 
   # Act
   result = build_cost_statistics(
+    current,
     consumptions,
     rates,
     consumption_key,
@@ -109,6 +111,7 @@ async def test_when_three_rates_available_then_total_peak_and_off_peak_available
   # Arrange
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  current = datetime.strptime("2022-02-28T00:00:01Z", "%Y-%m-%dT%H:%M:%S%z")
   consumptions = create_consumption_data(period_from, period_to, False, "from", "to")
   rates = create_rate_data(period_from, period_to, [2, 4, 6])
   consumption_key = 'consumption'
@@ -118,6 +121,7 @@ async def test_when_three_rates_available_then_total_peak_and_off_peak_available
 
   # Act
   result = build_cost_statistics(
+    current,
     consumptions,
     rates,
     consumption_key,
@@ -211,6 +215,7 @@ async def test_when_more_or_less_than_three_rates_available_then_off_peak_not_av
   # Arrange
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  current = datetime.strptime("2022-02-28T00:00:01Z", "%Y-%m-%dT%H:%M:%S%z")
   consumptions = create_consumption_data(period_from, period_to, False, "from", "to")
   rates = create_rate_data(period_from, period_to, expected_rates)
   consumption_key = 'consumption'
@@ -220,6 +225,7 @@ async def test_when_more_or_less_than_three_rates_available_then_off_peak_not_av
 
   # Act
   result = build_cost_statistics(
+    current,
     consumptions,
     rates,
     consumption_key,

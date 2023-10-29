@@ -1,9 +1,7 @@
 import logging
-from datetime import timedelta
+from datetime import datetime, timedelta
 
-from ..intelligent import async_mock_intelligent_data, clean_previous_dispatches, has_intelligent_tariff, mock_intelligent_dispatches
-
-from homeassistant.util.dt import (utcnow)
+from homeassistant.util.dt import (utcnow, parse_datetime)
 from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
 )
@@ -23,18 +21,30 @@ from ..const import (
 )
 
 from ..api_client import OctopusEnergyApiClient
+from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
+
+from ..intelligent import async_mock_intelligent_data, clean_previous_dispatches, dictionary_list_to_dispatches, dispatches_to_dictionary_list, has_intelligent_tariff, mock_intelligent_dispatches
 
 _LOGGER = logging.getLogger(__name__)
+
+class IntelligentDispatchesCoordinatorResult:
+  last_retrieved: datetime
+  dispatches: IntelligentDispatches
+
+  def __init__(self, last_retrieved: datetime, dispatches: IntelligentDispatches):
+    self.last_retrieved = last_retrieved
+    self.dispatches = dispatches
 
 async def async_merge_dispatch_data(hass, account_id: str, completed_dispatches):
   storage_key = STORAGE_COMPLETED_DISPATCHES_NAME.format(account_id)
   store = storage.Store(hass, "1", storage_key)
 
-  saved_completed_dispatches = await store.async_load()
+  saved_dispatches = await store.async_load()
+  saved_completed_dispatches = dictionary_list_to_dispatches(saved_dispatches)
 
   new_data = clean_previous_dispatches(utcnow(), (saved_completed_dispatches if saved_completed_dispatches is not None else []) + completed_dispatches)
 
-  await store.async_save(new_data)
+  await store.async_save(dispatches_to_dictionary_list(new_data))
   return new_data
 
 async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
@@ -65,9 +75,8 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
         dispatches = mock_intelligent_dispatches()
 
       if dispatches is not None:
-        dispatches["completed"] = await async_merge_dispatch_data(hass, account_id, dispatches["completed"])
-        hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] = dispatches
-        hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]["last_updated"] = utcnow()
+        dispatches.completed = await async_merge_dispatch_data(hass, account_id, dispatches.completed)
+        hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] = IntelligentDispatchesCoordinatorResult(utcnow(), dispatches)
       elif (DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN]):
         _LOGGER.debug(f"Failed to retrieve new dispatches, so using cached dispatches")
     

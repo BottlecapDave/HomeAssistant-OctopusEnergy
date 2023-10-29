@@ -19,6 +19,16 @@ from ..const import (
 from ..utils import get_active_tariff_code
 from ..utils.tariff_check import is_agile_tariff
 
+def merge_target_rate_config(data: dict, options: dict, updated_config: dict = None):
+  config = dict(data)
+  if options is not None:
+    config.update(options)
+
+  if updated_config is not None:
+    config.update(updated_config)
+
+  return config
+
 def get_meter_tariffs(account_info, now):
   meters = {}
   if account_info is not None and len(account_info["electricity_meter_points"]) > 0:

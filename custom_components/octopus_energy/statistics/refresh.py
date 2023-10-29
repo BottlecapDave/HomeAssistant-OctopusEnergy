@@ -42,12 +42,13 @@ async def async_refresh_previous_electricity_consumption_data(
 
   period_from = parse_datetime(f'{trimmed_date}T00:00:00Z')
   while period_from < now():
-    period_to = period_from + timedelta(days=2)
+    period_to = period_from + timedelta(days=1)
 
     consumption_data = await client.async_get_electricity_consumption(mpan, serial_number, period_from, period_to)
     rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
 
     consumption_and_cost = calculate_electricity_consumption_and_cost(
+      period_from,
       consumption_data,
       rates,
       0,
@@ -57,6 +58,7 @@ async def async_refresh_previous_electricity_consumption_data(
   
     if consumption_and_cost is not None:
       await async_import_external_statistics_from_consumption(
+        period_from,
         hass,
         get_electricity_consumption_statistic_unique_id(serial_number, mpan, is_export),
         get_electricity_consumption_statistic_name(serial_number, mpan, is_export),
@@ -67,6 +69,7 @@ async def async_refresh_previous_electricity_consumption_data(
       )
 
       await async_import_external_statistics_from_cost(
+        period_from,
         hass,
         get_electricity_cost_statistic_unique_id(serial_number, mpan, is_export),
         get_electricity_cost_statistic_name(serial_number, mpan, is_export),
@@ -108,7 +111,7 @@ async def async_refresh_previous_gas_consumption_data(
   
   period_from = parse_datetime(f'{trimmed_date}T00:00:00Z')
   while period_from < now():
-    period_to = period_from + timedelta(days=2)
+    period_to = period_from + timedelta(days=1)
 
     consumption_data = await client.async_get_gas_consumption(mprn, serial_number, period_from, period_to)
     rates = await client.async_get_gas_rates(tariff_code, period_from, period_to)
@@ -125,6 +128,7 @@ async def async_refresh_previous_gas_consumption_data(
   
     if consumption_and_cost is not None:
       await async_import_external_statistics_from_consumption(
+        period_from,
         hass,
         get_gas_consumption_statistic_unique_id(serial_number, mprn),
         get_gas_consumption_statistic_name(serial_number, mprn),
@@ -136,6 +140,7 @@ async def async_refresh_previous_gas_consumption_data(
       )
 
       await async_import_external_statistics_from_cost(
+        period_from,
         hass,
         get_gas_cost_statistic_unique_id(serial_number, mprn),
         get_gas_cost_statistic_name(serial_number, mprn),

@@ -21,6 +21,8 @@ from ..const import (
 )
 
 from ..api_client import OctopusEnergyApiClient
+from ..api_client.intelligent_dispatches import IntelligentDispatches
+from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 
 from . import get_electricity_meter_tariff_code, raise_rate_events
 from ..intelligent import adjust_intelligent_rates
@@ -44,7 +46,7 @@ async def async_refresh_electricity_rates_data(
     is_smart_meter: bool,
     is_export_meter: bool,
     existing_rates_result: ElectricityRatesCoordinatorResult,
-    dispatches: list,
+    dispatches: IntelligentDispatches,
     fire_event: Callable[[str, "dict[str, Any]"], None],
   ) -> ElectricityRatesCoordinatorResult: 
   if (account_info is not None):
@@ -71,8 +73,8 @@ async def async_refresh_electricity_rates_data(
       
       if dispatches is not None and is_export_meter == False:
         new_rates = adjust_intelligent_rates(new_rates, 
-                                             dispatches["planned"] if "planned" in dispatches else [],
-                                             dispatches["completed"] if "completed" in dispatches else [])
+                                             dispatches.planned,
+                                             dispatches.completed)
         
         _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches}")
 
@@ -102,7 +104,7 @@ async def async_setup_electricity_rates_coordinator(hass, target_mpan: str, targ
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     account_info = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
-    dispatches = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] else None
+    dispatches: IntelligentDispatchesCoordinatorResult = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] else None
     rates = hass.data[DOMAIN][key] if key in hass.data[DOMAIN] else None
 
     hass.data[DOMAIN][key] = await async_refresh_electricity_rates_data(
@@ -114,7 +116,7 @@ async def async_setup_electricity_rates_coordinator(hass, target_mpan: str, targ
       is_smart_meter,
       is_export_meter,
       rates,
-      dispatches,
+      dispatches.dispatches if dispatches is not None else None,
       hass.bus.async_fire
     )
 

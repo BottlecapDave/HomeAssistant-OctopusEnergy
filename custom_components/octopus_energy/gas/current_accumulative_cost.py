@@ -17,8 +17,6 @@ from . import (
 
 from .base import (OctopusEnergyGasSensor)
 
-from ..statistics.cost import async_import_external_statistics_from_cost
-
 _LOGGER = logging.getLogger(__name__)
   
 class OctopusEnergyCurrentAccumulativeGasCost(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
