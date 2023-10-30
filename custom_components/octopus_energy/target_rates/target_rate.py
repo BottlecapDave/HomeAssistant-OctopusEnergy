@@ -184,20 +184,20 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
 
     active_result = get_target_rate_info(current_date, self._target_rates, offset)
 
-    self._attributes["overall_average_cost"] = f'{active_result["overall_average_cost"]}p' if active_result["overall_average_cost"] is not None else None
-    self._attributes["overall_min_cost"] = f'{active_result["overall_min_cost"]}p' if active_result["overall_min_cost"] is not None else None
-    self._attributes["overall_max_cost"] = f'{active_result["overall_max_cost"]}p' if active_result["overall_max_cost"] is not None else None
+    self._attributes["overall_average_cost"] = active_result["overall_average_cost"]
+    self._attributes["overall_min_cost"] = active_result["overall_min_cost"]
+    self._attributes["overall_max_cost"] = active_result["overall_max_cost"]
 
     self._attributes["current_duration_in_hours"] = active_result["current_duration_in_hours"]
-    self._attributes["current_average_cost"] = f'{active_result["current_average_cost"]}p' if active_result["current_average_cost"] is not None else None
-    self._attributes["current_min_cost"] = f'{active_result["current_min_cost"]}p' if active_result["current_min_cost"] is not None else None
-    self._attributes["current_max_cost"] = f'{active_result["current_max_cost"]}p' if active_result["current_max_cost"] is not None else None
+    self._attributes["current_average_cost"] = active_result["current_average_cost"]
+    self._attributes["current_min_cost"] = active_result["current_min_cost"]
+    self._attributes["current_max_cost"] = active_result["current_max_cost"]
 
     self._attributes["next_time"] = active_result["next_time"]
     self._attributes["next_duration_in_hours"] = active_result["next_duration_in_hours"]
-    self._attributes["next_average_cost"] = f'{active_result["next_average_cost"]}p' if active_result["next_average_cost"] is not None else None
-    self._attributes["next_min_cost"] = f'{active_result["next_min_cost"]}p' if active_result["next_min_cost"] is not None else None
-    self._attributes["next_max_cost"] = f'{active_result["next_max_cost"]}p' if active_result["next_max_cost"] is not None else None
+    self._attributes["next_average_cost"] = active_result["next_average_cost"]
+    self._attributes["next_min_cost"] = active_result["next_min_cost"]
+    self._attributes["next_max_cost"] = active_result["next_max_cost"]
     
     self._attributes["last_evaluated"] = current_date
     self._state = active_result["is_active"]

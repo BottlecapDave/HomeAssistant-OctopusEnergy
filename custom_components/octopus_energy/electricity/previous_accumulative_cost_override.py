@@ -151,15 +151,15 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
           "tariff_code": self._tariff_code,
-          "standing_charge": f'{consumption_and_cost["standing_charge"]}p',
-          "total_without_standing_charge": f'£{consumption_and_cost["total_cost_without_standing_charge"]}',
-          "total": f'£{consumption_and_cost["total_cost"]}',
+          "standing_charge": consumption_and_cost["standing_charge"],
+          "total_without_standing_charge": consumption_and_cost["total_cost_without_standing_charge"],
+          "total": consumption_and_cost["total_cost"],
           "last_calculated_timestamp": consumption_and_cost["last_calculated_timestamp"],
           "charges": list(map(lambda charge: {
             "from": charge["from"],
             "to": charge["to"],
-            "rate": f'{charge["rate"]}p',
-            "consumption": f'{charge["consumption"]} kWh',
+            "rate": charge["rate"],
+            "consumption": charge["consumption"],
             "cost": charge["cost"]
           }, consumption_and_cost["charges"]))
         }
