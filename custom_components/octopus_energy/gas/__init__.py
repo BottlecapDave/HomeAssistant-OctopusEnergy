@@ -81,7 +81,7 @@ def calculate_gas_consumption_and_cost(
       last_calculated_timestamp = sorted_consumption_data[-1]["interval_end"]
 
       return {
-        "standing_charge": standing_charge,
+        "standing_charge": round(standing_charge / 100, 2),
         "total_cost_without_standing_charge": total_cost,
         "total_cost": total_cost_plus_standing_charge,
         "total_consumption_m3": total_consumption_m3,

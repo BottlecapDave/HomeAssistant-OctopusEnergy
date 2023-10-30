@@ -149,7 +149,7 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
           "tariff_code": self._tariff_code,
           "standing_charge": consumption_and_cost["standing_charge"],
           "total_without_standing_charge": consumption_and_cost["total_cost_without_standing_charge"],
-          "total": f'£{consumption_and_cost["total_cost"]}',
+          "total": consumption_and_cost["total_cost"],
           "last_calculated_timestamp": consumption_and_cost["last_calculated_timestamp"],
           "charges": list(map(lambda charge: {
             "from": charge["from"],

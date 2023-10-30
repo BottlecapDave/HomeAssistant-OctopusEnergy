@@ -125,7 +125,7 @@ async def test_when_electricity_consumption_available_then_calculation_returned(
   # Assert
   assert result is not None
 
-  assert result["standing_charge"] == standing_charge
+  assert result["standing_charge"] == round(standing_charge / 100, 2)
   assert result["total_cost_without_standing_charge"] == round((48 * expected_rate_price) / 100, 2)
   assert result["total_cost"] == round(((48 * expected_rate_price) + standing_charge) / 100, 2)
   assert result["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
@@ -193,7 +193,7 @@ async def test_when_electricity_consumption_starting_at_latest_date_then_calcula
   # Assert
   assert result is not None
 
-  assert result["standing_charge"] == standing_charge
+  assert result["standing_charge"] == round(standing_charge / 100, 2)
 
   # Total is reported in pounds and pence, but rate prices are in pence, so we need to calculate our expected value
   assert result["total_cost_without_standing_charge"] == round((48 * expected_rate_price) / 100, 2)
