@@ -5,6 +5,7 @@ import logging
 
 from homeassistant.util.dt import (as_utc, parse_datetime)
 
+from ..utils.conversions import value_inc_vat_to_pounds
 from ..const import REGEX_OFFSET_PARTS
 
 _LOGGER = logging.getLogger(__name__)
@@ -62,7 +63,10 @@ def __get_applicable_rates(current_date: datetime, target_start_time: str, targe
   if rates is not None:
     for rate in rates:
       if rate["valid_from"] >= target_start and (target_end is None or rate["valid_to"] <= target_end):
-        applicable_rates.append(rate)
+        new_rate = dict(rate)
+        new_rate["value_inc_vat"] = value_inc_vat_to_pounds(rate["value_inc_vat"])
+        
+        applicable_rates.append(new_rate)
 
   # Make sure that we have enough rates that meet our target period
   date_diff = target_end - target_start

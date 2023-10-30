@@ -114,7 +114,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
           "applicable_rates": rate_information["applicable_rates"],
         }
 
-        self._state = rate_information["current_rate"]["value_inc_vat"] / 100
+        self._state = rate_information["current_rate"]["value_inc_vat"]
       else:
         self._attributes = {
           "mpan": self._mpan,

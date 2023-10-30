@@ -1,5 +1,7 @@
 from datetime import (datetime, timedelta)
 
+from ..utils.conversions import value_inc_vat_to_pounds
+
 def get_current_rate_information(rates, now: datetime):
   min_target = now.replace(hour=0, minute=0, second=0, microsecond=0)
   max_target = min_target + timedelta(days=1)
@@ -41,27 +43,27 @@ def get_current_rate_information(rates, now: datetime):
       "all_rates": list(map(lambda x: {
         "valid_from": x["valid_from"],
         "valid_to":   x["valid_to"],
-        "value_inc_vat": x["value_inc_vat"],
+        "value_inc_vat": value_inc_vat_to_pounds(x["value_inc_vat"]),
         "is_capped": x["is_capped"],
         "is_intelligent_adjusted": x["is_intelligent_adjusted"] if "is_intelligent_adjusted" in x else False
       }, rates)),
       "applicable_rates": list(map(lambda x: {
         "valid_from": x["valid_from"],
         "valid_to":   x["valid_to"],
-        "value_inc_vat": x["value_inc_vat"],
+        "value_inc_vat": value_inc_vat_to_pounds(x["value_inc_vat"]),
         "is_capped": x["is_capped"],
         "is_intelligent_adjusted": x["is_intelligent_adjusted"] if "is_intelligent_adjusted" in x else False
       }, applicable_rates)),
       "current_rate": {
         "valid_from": applicable_rates[0]["valid_from"],
         "valid_to": applicable_rates[-1]["valid_to"],
-        "value_inc_vat": applicable_rates[0]["value_inc_vat"],
+        "value_inc_vat": value_inc_vat_to_pounds(applicable_rates[0]["value_inc_vat"]),
         "is_capped": current_rate["is_capped"],
         "is_intelligent_adjusted": current_rate["is_intelligent_adjusted"] if "is_intelligent_adjusted" in current_rate else False
       },
-      "min_rate_today": min_rate_value,
-      "max_rate_today": max_rate_value,
-      "average_rate_today": total_rate_value / total_rates
+      "min_rate_today": value_inc_vat_to_pounds(min_rate_value),
+      "max_rate_today": value_inc_vat_to_pounds(max_rate_value),
+      "average_rate_today": value_inc_vat_to_pounds(total_rate_value / total_rates)
     }
 
   return None
@@ -91,14 +93,14 @@ def get_previous_rate_information(rates, now: datetime):
       "applicable_rates": list(map(lambda x: {
         "valid_from": x["valid_from"],
         "valid_to":   x["valid_to"],
-        "value_inc_vat": x["value_inc_vat"],
+        "value_inc_vat": value_inc_vat_to_pounds(x["value_inc_vat"]),
         "is_capped": x["is_capped"],
         "is_intelligent_adjusted": x["is_intelligent_adjusted"] if "is_intelligent_adjusted" in x else False
       }, applicable_rates)),
       "previous_rate": {
         "valid_from": applicable_rates[0]["valid_from"],
         "valid_to": applicable_rates[-1]["valid_to"],
-        "value_inc_vat": applicable_rates[0]["value_inc_vat"],
+        "value_inc_vat": value_inc_vat_to_pounds(applicable_rates[0]["value_inc_vat"]),
       }
     }
 
@@ -124,14 +126,14 @@ def get_next_rate_information(rates, now: datetime):
       "applicable_rates": list(map(lambda x: {
         "valid_from": x["valid_from"],
         "valid_to":   x["valid_to"],
-        "value_inc_vat": x["value_inc_vat"],
+        "value_inc_vat": value_inc_vat_to_pounds(x["value_inc_vat"]),
         "is_capped": x["is_capped"],
         "is_intelligent_adjusted": x["is_intelligent_adjusted"] if "is_intelligent_adjusted" in x else False
       }, applicable_rates)),
       "next_rate": {
         "valid_from": applicable_rates[0]["valid_from"],
         "valid_to": applicable_rates[-1]["valid_to"],
-        "value_inc_vat": applicable_rates[0]["value_inc_vat"],
+        "value_inc_vat": value_inc_vat_to_pounds(applicable_rates[0]["value_inc_vat"]),
       }
     }
 

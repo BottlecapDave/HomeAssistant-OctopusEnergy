@@ -87,11 +87,11 @@ async def test_when_continuous_times_present_then_next_continuous_times_returned
   assert len(result) == 2
   assert result[0]["valid_from"] == expected_first_valid_from
   assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[0]["value_inc_vat"] == 0.1
+  assert result[0]["value_inc_vat"] == 0.001
 
   assert result[1]["valid_from"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[1]["valid_to"] == expected_first_valid_from + timedelta(hours=1)
-  assert result[1]["value_inc_vat"] == 0.1
+  assert result[1]["value_inc_vat"] == 0.001
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("current_date,target_start_time,target_end_time,expected_first_valid_from,is_rolling_target,find_last_rates",[
@@ -175,11 +175,11 @@ async def test_when_continuous_times_present_and_highest_price_required_then_nex
   assert len(result) == 2
   assert result[0]["valid_from"] == expected_first_valid_from
   assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[0]["value_inc_vat"] == 0.2
+  assert result[0]["value_inc_vat"] == 0.002
 
   assert result[1]["valid_from"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[1]["valid_to"] == expected_first_valid_from + timedelta(hours=1)
-  assert result[1]["value_inc_vat"] == 0.3
+  assert result[1]["value_inc_vat"] == 0.003
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("current_date,target_start_time,target_end_time,expected_first_valid_from,is_rolling_target",[
@@ -444,7 +444,7 @@ async def test_when_go_rates_supplied_once_a_day_set_and_cheapest_period_past_th
     end_time = start_time + timedelta(minutes=30)
     assert result[index]["valid_from"] == start_time
     assert result[index]["valid_to"] == end_time
-    assert result[index]["value_inc_vat"] == rates[1]["value_inc_vat"]
+    assert result[index]["value_inc_vat"] == round(rates[1]["value_inc_vat"] / 100, 6)
 
     assert result[index]["tariff_code"] == tariff_code
 
@@ -479,7 +479,7 @@ async def test_when_last_rate_is_currently_active_and_target_is_rolling_then_rat
   assert len(result) == 1
   assert result[0]["valid_from"] == expected_first_valid_from
   assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[0]["value_inc_vat"] == 18.081
+  assert result[0]["value_inc_vat"] == 0.18081
 
 @pytest.mark.asyncio
 async def test_when_start_time_is_after_end_time_then_rates_are_overnight():
@@ -508,11 +508,11 @@ async def test_when_start_time_is_after_end_time_then_rates_are_overnight():
   assert len(result) == 2
   assert result[0]["valid_from"] == expected_first_valid_from
   assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[0]["value_inc_vat"] == 14.123
+  assert result[0]["value_inc_vat"] == 0.14123
 
   assert result[1]["valid_from"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[1]["valid_to"] == expected_first_valid_from + timedelta(minutes=60)
-  assert result[1]["value_inc_vat"] == 14.123
+  assert result[1]["value_inc_vat"] == 0.14123
 
 @pytest.mark.asyncio
 async def test_when_start_time_and_end_time_is_same_then_rates_are_shifted():
@@ -541,11 +541,11 @@ async def test_when_start_time_and_end_time_is_same_then_rates_are_shifted():
   assert len(result) == 2
   assert result[0]["valid_from"] == expected_first_valid_from
   assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[0]["value_inc_vat"] == 14.123
+  assert result[0]["value_inc_vat"] == 0.14123
 
   assert result[1]["valid_from"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[1]["valid_to"] == expected_first_valid_from + timedelta(minutes=60)
-  assert result[1]["value_inc_vat"] == 14.123
+  assert result[1]["value_inc_vat"] == 0.14123
 
 
 @pytest.mark.asyncio
@@ -604,11 +604,11 @@ async def test_when_start_time_is_after_end_time_and_rolling_target_then_rates_a
   assert len(result) == 2
   assert result[0]["valid_from"] == expected_first_valid_from
   assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[0]["value_inc_vat"] == 16.1
+  assert result[0]["value_inc_vat"] == 0.161
 
   assert result[1]["valid_from"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[1]["valid_to"] == expected_first_valid_from + timedelta(minutes=60)
-  assert result[1]["value_inc_vat"] == 16.1
+  assert result[1]["value_inc_vat"] == 0.161
 
 @pytest.mark.asyncio
 async def test_when_start_time_and_end_time_is_same_and_rolling_target_then_rates_are_shifted():
@@ -672,7 +672,7 @@ async def test_when_start_time_and_end_time_is_same_and_rolling_target_then_rate
   assert len(result) == 2
   assert result[0]["valid_from"] == expected_first_valid_from
   assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[0]["value_inc_vat"] == 15.1
+  assert result[0]["value_inc_vat"] == 0.151
 
 @pytest.mark.asyncio
 async def test_when_available_rates_are_too_low_then_no_times_are_returned():

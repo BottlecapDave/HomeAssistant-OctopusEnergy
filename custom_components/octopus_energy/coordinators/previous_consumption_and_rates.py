@@ -19,6 +19,7 @@ from ..const import (
 
 from ..api_client import (OctopusEnergyApiClient)
 from ..api_client.intelligent_dispatches import IntelligentDispatches
+from ..utils import private_rates_to_public_rates
 
 from ..intelligent import adjust_intelligent_rates
 
@@ -83,9 +84,9 @@ async def async_fetch_consumption_and_rates(
         consumption_data = __sort_consumption(consumption_data)
 
         if (is_electricity == True):
-          fire_event(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, { "mpan": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": rate_data })
+          fire_event(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, { "mpan": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": private_rates_to_public_rates(rate_data) })
         else:
-          fire_event(EVENT_GAS_PREVIOUS_CONSUMPTION_RATES, { "mprn": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": rate_data })
+          fire_event(EVENT_GAS_PREVIOUS_CONSUMPTION_RATES, { "mprn": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": private_rates_to_public_rates(rate_data) })
 
         _LOGGER.debug(f"Fired event for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
 

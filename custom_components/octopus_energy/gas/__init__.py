@@ -1,3 +1,5 @@
+from ..utils.conversions import value_inc_vat_to_pounds
+
 def __get_interval_end(item):
     return item["interval_end"]
 
@@ -69,7 +71,7 @@ def calculate_gas_consumption_and_cost(
         charges.append({
           "from": rate["valid_from"],
           "to": rate["valid_to"],
-          "rate": value,
+          "rate": value_inc_vat_to_pounds(value),
           "consumption_m3": current_consumption_m3,
           "consumption_kwh": current_consumption_kwh,
           "cost": round(cost / 100, 2)

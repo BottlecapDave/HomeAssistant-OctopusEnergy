@@ -2,12 +2,13 @@
 import re
 from datetime import datetime, timedelta
 
+
 from homeassistant.util.dt import (as_utc, parse_datetime)
 
 from ..const import (
   REGEX_TARIFF_PARTS,
 )
-
+from ..utils.conversions import value_inc_vat_to_pounds
 from .rate_information import get_current_rate_information
 
 class TariffParts:
@@ -82,4 +83,24 @@ def is_off_peak(current: datetime, rates):
 
   rate_information = get_current_rate_information(rates, current)
 
-  return off_peak_value is not None and rate_information is not None and off_peak_value == rate_information["current_rate"]["value_inc_vat"]
+  return off_peak_value is not None and rate_information is not None and value_inc_vat_to_pounds(off_peak_value) == rate_information["current_rate"]["value_inc_vat"]
+
+def private_rates_to_public_rates(rates: list):
+  new_rates = []
+
+  for rate in rates:
+    new_rate = {
+      "valid_from": rate["valid_from"],
+      "valid_to": rate["valid_to"],
+      "value_inc_vat": value_inc_vat_to_pounds(rate["value_inc_vat"])
+    }
+
+    if "is_capped" in rate:
+      new_rate["is_capped"] = rate["is_capped"]
+      
+    if "is_intelligent_adjusted" in rate:
+      new_rate["is_intelligent_adjusted"] = rate["is_intelligent_adjusted"]
+
+    new_rates.append(new_rate)
+
+  return new_rates

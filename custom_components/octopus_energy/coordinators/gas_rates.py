@@ -18,7 +18,7 @@ from ..const import (
 )
 
 from ..api_client import OctopusEnergyApiClient
-
+from ..utils import private_rates_to_public_rates
 from . import get_gas_meter_tariff_code, raise_rate_events
 
 _LOGGER = logging.getLogger(__name__)
@@ -63,7 +63,7 @@ async def async_refresh_gas_rates_data(
       _LOGGER.debug(f'Gas rates retrieved for {target_mprn}/{target_serial_number} ({tariff_code});')
 
       raise_rate_events(current,
-                        new_rates,
+                        private_rates_to_public_rates(new_rates),
                         { "mprn": target_mprn, "serial_number": target_serial_number, "tariff_code": tariff_code },
                         fire_event,
                         EVENT_GAS_PREVIOUS_DAY_RATES,

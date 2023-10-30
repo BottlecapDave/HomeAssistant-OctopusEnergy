@@ -162,6 +162,9 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
     assert "to" in item
     assert item["to"] == expected_valid_to
 
+    assert "rate" in item
+    assert item["rate"] == round(expected_rate_price / 100, 6)
+
     assert "consumption_m3" in item
     if consumption_units == "m³":
       assert item["consumption_m3"] == 1
@@ -242,6 +245,9 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
     assert item["from"] == expected_valid_from
     assert "to" in item
     assert item["to"] == expected_valid_to
+
+    assert "rate" in item
+    assert item["rate"] == round(expected_rate_price / 100, 6)
 
     assert "consumption_m3" in item
     if consumption_units == "m³":

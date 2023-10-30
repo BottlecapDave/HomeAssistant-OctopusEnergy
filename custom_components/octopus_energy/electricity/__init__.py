@@ -1,5 +1,6 @@
 import datetime
 
+from ..utils.conversions import value_inc_vat_to_pounds
 from ..utils import get_off_peak_cost
 
 def __get_interval_end(item):
@@ -61,7 +62,7 @@ def calculate_electricity_consumption_and_cost(
         charges.append({
           "from": rate["valid_from"],
           "to": rate["valid_to"],
-          "rate": value,
+          "rate": value_inc_vat_to_pounds(value),
           "consumption": consumption_value,
           "cost": round(cost / 100, 2)
         })
