@@ -69,12 +69,13 @@ def get_off_peak_cost(current: datetime, rates: list):
   off_peak_cost = None
 
   rate_charges = {}
-  for rate in rates:
-    if rate["valid_from"] >= today_start and rate["valid_to"] <= today_end:
-      value = rate["value_inc_vat"]
-      rate_charges[value] = (rate_charges[value] if value in rate_charges else value)
-      if off_peak_cost is None or off_peak_cost > rate["value_inc_vat"]:
-        off_peak_cost = rate["value_inc_vat"]
+  if rates is not None:
+    for rate in rates:
+      if rate["valid_from"] >= today_start and rate["valid_to"] <= today_end:
+        value = rate["value_inc_vat"]
+        rate_charges[value] = (rate_charges[value] if value in rate_charges else value)
+        if off_peak_cost is None or off_peak_cost > rate["value_inc_vat"]:
+          off_peak_cost = rate["value_inc_vat"]
 
   return off_peak_cost if len(rate_charges) == 2 or len(rate_charges) == 3 else None
 
@@ -86,6 +87,9 @@ def is_off_peak(current: datetime, rates):
   return off_peak_value is not None and rate_information is not None and value_inc_vat_to_pounds(off_peak_value) == rate_information["current_rate"]["value_inc_vat"]
 
 def private_rates_to_public_rates(rates: list):
+  if rates is None:
+    return None
+
   new_rates = []
 
   for rate in rates:
