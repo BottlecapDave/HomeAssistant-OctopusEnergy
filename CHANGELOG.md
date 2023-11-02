@@ -1,3 +1,11 @@
+## [8.5.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.5.0...v8.5.1) (2023-11-02)
+
+
+### Bug Fixes
+
+* Fixed retrieving previous electricity consumption for intelligent tariffs ([40651a2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/40651a245dc3b40d84ea0d01ba2df39115f2826a))
+* Fixed target rate sensor restoring old settings ([ec40fe2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ec40fe2503d7776c1c9ef6b8ec867aee4011887a))
+
 # [8.5.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.4.4...v8.5.0) (2023-10-29)
 
 
