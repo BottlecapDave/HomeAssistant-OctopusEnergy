@@ -216,6 +216,9 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       self._attributes = {}
       for x in state.attributes.keys():
         self._attributes[x] = state.attributes[x]
+
+      # Make sure our attributes don't override any changed settings
+      self._attributes.update(self._config)
     
       _LOGGER.debug(f'Restored OctopusEnergyTargetRate state: {self._state}')
 
