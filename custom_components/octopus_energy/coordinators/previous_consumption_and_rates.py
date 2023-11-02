@@ -21,6 +21,7 @@ from ..api_client import (OctopusEnergyApiClient)
 from ..api_client.intelligent_dispatches import IntelligentDispatches
 
 from ..intelligent import adjust_intelligent_rates
+from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -58,7 +59,6 @@ async def async_fetch_consumption_and_rates(
     
     try:
       if (is_electricity == True):
-
         [consumption_data, rate_data, standing_charge] = await asyncio.gather(
           client.async_get_electricity_consumption(identifier, serial_number, period_from, period_to),
           client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to),
@@ -66,11 +66,10 @@ async def async_fetch_consumption_and_rates(
         )
 
         if intelligent_dispatches is not None:
+          _LOGGER.debug(f"Adjusting rate data based on intelligent tariff; dispatches: {intelligent_dispatches}")
           rate_data = adjust_intelligent_rates(rate_data,
                                                 intelligent_dispatches.planned,
                                                 intelligent_dispatches.completed)
-          
-          _LOGGER.debug(f"Tariff: {tariff_code}; dispatches: {intelligent_dispatches}")
       else:
         [consumption_data, rate_data, standing_charge] = await asyncio.gather(
           client.async_get_gas_consumption(identifier, serial_number, period_from, period_to),
@@ -117,6 +116,8 @@ async def async_create_previous_consumption_and_rates_coordinator(
     """Fetch data from API endpoint."""
     period_from = as_utc((now() - timedelta(days=days_offset)).replace(hour=0, minute=0, second=0, microsecond=0))
     period_to = period_from + timedelta(days=1)
+    dispatches: IntelligentDispatchesCoordinatorResult = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] else None
+    
     result = await async_fetch_consumption_and_rates(
       hass.data[DOMAIN][previous_consumption_key] 
       if previous_consumption_key in hass.data[DOMAIN] and 
@@ -134,7 +135,7 @@ async def async_create_previous_consumption_and_rates_coordinator(
       tariff_code,
       is_smart_meter,
       hass.bus.async_fire,
-      hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] else None
+      dispatches.dispatches if dispatches is not None else None
     )
 
     if (result is not None):
