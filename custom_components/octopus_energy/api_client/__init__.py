@@ -110,11 +110,6 @@ saving_session_query = '''query {{
 			}}
 		}}
 	}}
-  octoPoints {{
-		account(accountNumber: "{account_id}") {{
-			currentPointsInWallet
-    }}
-  }}
 }}'''
 
 live_consumption_query = '''query {{
@@ -238,6 +233,12 @@ intelligent_turn_off_smart_charge_mutation = '''mutation {{
 		}}
 	}}
 }}'''
+
+octoplus_points_query = '''query octoplus_points {
+	loyaltyPointLedgers {
+		balanceCarriedForward
+  }
+}'''
 
 def get_valid_from(rate):
   return rate["valid_from"]
@@ -457,7 +458,6 @@ class OctopusEnergyApiClient:
 
         if (response_body is not None and "data" in response_body):
           return {
-            "points": int(response_body["data"]["octoPoints"]["account"]["currentPointsInWallet"]),
             "events": list(map(lambda ev: {
               "start": as_utc(parse_datetime(ev["startAt"])),
               "end": as_utc(parse_datetime(ev["endAt"]))
@@ -465,6 +465,25 @@ class OctopusEnergyApiClient:
           }
         else:
           _LOGGER.error("Failed to retrieve account")
+    
+    return None
+
+  async def async_get_octoplus_points(self):
+    """Get the user's octoplus points"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession(timeout=self.timeout) as client:
+      url = f'{self._base_url}/v1/graphql/'
+      # Get account response
+      payload = { "query": octoplus_points_query }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as account_response:
+        response_body = await self.__async_read_response__(account_response, url)
+
+        if (response_body is not None and "data" in response_body and "loyaltyPointLedgers" in response_body["data"] and len(response_body["data"]["loyaltyPointLedgers"]) > 0):
+          return int(response_body["data"]["loyaltyPointLedgers"][0]["balanceCarriedForward"])
+        else:
+          _LOGGER.error("Failed to retrieve octopoints")
     
     return None
 

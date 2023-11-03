@@ -42,7 +42,7 @@ from .coordinators.previous_consumption_and_rates import async_create_previous_c
 from .coordinators.electricity_standing_charges import async_setup_electricity_standing_charges_coordinator
 from .coordinators.gas_standing_charges import async_setup_gas_standing_charges_coordinator
 
-from .saving_sessions.points import OctopusEnergySavingSessionPoints
+from .octoplus.points import OctopusEnergyOctoplusPoints
 
 from .utils import (get_active_tariff_code)
 from .const import (
@@ -99,10 +99,10 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
 
   saving_session_coordinator = hass.data[DOMAIN][DATA_SAVING_SESSIONS_COORDINATOR]
   await saving_session_coordinator.async_config_entry_first_refresh()
-
-  entities = [OctopusEnergySavingSessionPoints(hass, saving_session_coordinator)]
   
   account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+  
+  entities = [OctopusEnergyOctoplusPoints(hass, client, account_info["id"])]
 
   now = utcnow()
 

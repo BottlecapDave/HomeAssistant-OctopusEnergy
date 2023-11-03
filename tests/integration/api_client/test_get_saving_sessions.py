@@ -21,6 +21,3 @@ async def test_when_get_saving_sessions_is_called_then_events_are_returned():
     for event in savings["events"]:
         assert "start" in event
         assert "end" in event
-
-    assert "points" in savings
-    assert savings["points"] >= 0
