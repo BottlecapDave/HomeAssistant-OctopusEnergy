@@ -108,3 +108,6 @@ def private_rates_to_public_rates(rates: list):
     new_rates.append(new_rate)
 
   return new_rates
+
+def account_id_to_unique_key(account_id: str):
+  return account_id.replace('-', '_')

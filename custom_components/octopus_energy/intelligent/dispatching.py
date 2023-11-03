@@ -22,13 +22,14 @@ from ..utils import is_off_peak
 
 from .base import OctopusEnergyIntelligentSensor
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
+from ..utils import account_id_to_unique_key
 
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
   """Sensor for determining if an intelligent is dispatching."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, mpan, device):
+  def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, mpan: str, device, account_id: str):
     """Init sensor."""
 
     CoordinatorEntity.__init__(self, coordinator)
@@ -36,6 +37,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
   
     self._rates_coordinator = rates_coordinator
     self._mpan = mpan
+    self._account_id = account_id
     self._state = None
     self._attributes = {
       "planned_dispatches": [],
@@ -50,12 +52,12 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_intelligent_dispatching"
+    return f"octopus_energy_{account_id_to_unique_key(self._account_id)}_intelligent_dispatching"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Intelligent Dispatching"
+    return f"Octopus Energy {self._account_id} Intelligent Dispatching"
 
   @property
   def icon(self):

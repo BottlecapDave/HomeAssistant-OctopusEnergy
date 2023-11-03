@@ -119,7 +119,7 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
       device = await client.async_get_intelligent_device(account_id)
 
     electricity_rate_coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(intelligent_mpan, intelligent_serial_number)]
-    entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, device))
+    entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, device, account_id))
 
   if len(entities) > 0:
     async_add_entities(entities, True)

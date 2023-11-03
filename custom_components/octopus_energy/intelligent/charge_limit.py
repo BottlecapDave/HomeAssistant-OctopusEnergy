@@ -14,6 +14,7 @@ from homeassistant.util.dt import (utcnow)
 from .base import OctopusEnergyIntelligentSensor
 from ..api_client import OctopusEnergyApiClient
 from ..coordinators.intelligent_settings import IntelligentCoordinatorResult
+from ..utils import account_id_to_unique_key
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -36,12 +37,12 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_intelligent_charge_limit"
+    return f"octopus_energy_{account_id_to_unique_key(self._account_id)}_intelligent_charge_limit"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Intelligent Charge Limit"
+    return f"Octopus Energy {self._account_id} Intelligent Charge Limit"
 
   @property
   def icon(self):
