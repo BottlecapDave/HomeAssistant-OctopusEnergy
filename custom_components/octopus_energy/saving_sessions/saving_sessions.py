@@ -16,17 +16,19 @@ from . import (
   current_saving_sessions_event,
   get_next_saving_sessions_event
 )
+from ..utils import account_id_to_unique_key
 
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
   """Sensor for determining if a saving session is active."""
 
-  def __init__(self, hass: HomeAssistant, coordinator):
+  def __init__(self, hass: HomeAssistant, coordinator, account_id: str):
     """Init sensor."""
 
     CoordinatorEntity.__init__(self, coordinator)
   
+    self._account_id = account_id
     self._state = None
     self._events = []
     self._attributes = {
@@ -39,12 +41,12 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_saving_sessions"
+    return f"octopus_energy_{account_id_to_unique_key(self._account_id)}_saving_sessions"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Saving Session"
+    return f"Octopus Energy {self._account_id} Saving Session"
 
   @property
   def icon(self):
