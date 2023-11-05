@@ -1,7 +1,7 @@
 from datetime import datetime
 import pytest
 
-from custom_components.octopus_energy.saving_sessions import get_next_saving_sessions_event
+from custom_components.octopus_energy.octoplus import get_next_saving_sessions_event
 
 @pytest.mark.asyncio
 async def test_when_future_events_present_then_next_event_returned():

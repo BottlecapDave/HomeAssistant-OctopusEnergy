@@ -1,7 +1,7 @@
 from datetime import datetime
 import pytest
 
-from custom_components.octopus_energy.saving_sessions import current_saving_sessions_event
+from custom_components.octopus_energy.octoplus import current_saving_sessions_event
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("current_date",[

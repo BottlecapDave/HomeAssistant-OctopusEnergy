@@ -6,7 +6,7 @@ from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.util.dt import (utcnow)
 
 from .electricity.off_peak import OctopusEnergyElectricityOffPeak
-from .saving_sessions.saving_sessions import OctopusEnergySavingSessions
+from .octoplus import OctopusEnergySavingSessions
 from .target_rates.target_rate import OctopusEnergyTargetRate
 from .intelligent.dispatching import OctopusEnergyIntelligentDispatching
 from .api_client import OctopusEnergyApiClient
