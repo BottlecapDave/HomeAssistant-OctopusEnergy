@@ -128,7 +128,7 @@ async def test_when_electricity_consumption_available_then_calculation_returned(
   assert result["standing_charge"] == round(standing_charge / 100, 2)
   assert result["total_cost_without_standing_charge"] == round((48 * expected_rate_price) / 100, 2)
   assert result["total_cost"] == round(((48 * expected_rate_price) + standing_charge) / 100, 2)
-  assert result["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
+  assert result["last_evaluated"] == consumption_data[-1]["interval_end"]
   assert result["total_consumption"] == expected_consumption_total
 
   # Make sure our data is returned in 30 minute increments
@@ -199,7 +199,7 @@ async def test_when_electricity_consumption_starting_at_latest_date_then_calcula
   assert result["total_cost_without_standing_charge"] == round((48 * expected_rate_price) / 100, 2)
   assert result["total_cost"] == round(((48 * expected_rate_price) + standing_charge) / 100, 2)
   
-  assert result["last_calculated_timestamp"] == consumption_data[0]["interval_end"]
+  assert result["last_evaluated"] == consumption_data[0]["interval_end"]
   assert result["total_consumption"] == expected_consumption_total
 
   # Make sure our data is returned in 30 minute increments

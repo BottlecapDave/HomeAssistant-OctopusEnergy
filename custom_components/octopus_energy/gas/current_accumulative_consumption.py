@@ -104,7 +104,7 @@ class OctopusEnergyCurrentAccumulativeGasConsumption(CoordinatorEntity, OctopusE
         "mprn": self._mprn,
         "serial_number": self._serial_number,
         "total": consumption_and_cost["total_consumption_kwh"],
-        "last_calculated_timestamp": consumption_and_cost["last_calculated_timestamp"],
+        "last_evaluated": consumption_and_cost["last_evaluated"],
         "charges": list(map(lambda charge: {
           "from": charge["from"],
           "to": charge["to"],

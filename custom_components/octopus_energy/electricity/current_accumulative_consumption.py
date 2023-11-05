@@ -106,7 +106,7 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(CoordinatorEntity, 
         "is_export": self._is_export,
         "is_smart_meter": self._is_smart_meter,
         "total": consumption_and_cost["total_consumption"],
-        "last_calculated_timestamp": consumption_and_cost["last_calculated_timestamp"],
+        "last_evaluated": consumption_and_cost["last_evaluated"],
         "charges": list(map(lambda charge: {
           "from": charge["from"],
           "to": charge["to"],

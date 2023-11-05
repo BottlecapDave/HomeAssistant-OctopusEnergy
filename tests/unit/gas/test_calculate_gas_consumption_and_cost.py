@@ -137,7 +137,7 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
 
   assert result["standing_charge"] == round(standing_charge / 100, 2)
   
-  assert result["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
+  assert result["last_evaluated"] == consumption_data[-1]["interval_end"]
   
   # Total is reported in pounds and pence, but rate prices are in pence, so we need to calculate our expected value
   if consumption_units == "m³":
@@ -220,7 +220,7 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
   assert result is not None
   assert len(result["charges"]) == 48
 
-  assert result["last_calculated_timestamp"] == consumption_data[0]["interval_end"]
+  assert result["last_evaluated"] == consumption_data[0]["interval_end"]
   assert result["standing_charge"] == round(standing_charge / 100, 2)
 
   # Total is reported in pounds and pence, but rate prices are in pence, so we need to calculate our expected value

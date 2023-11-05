@@ -89,7 +89,7 @@ def calculate_gas_consumption_and_cost(
         "total_consumption_m3": total_consumption_m3,
         "total_consumption_kwh": total_consumption_kwh,
         "last_reset": last_reset,
-        "last_calculated_timestamp": last_calculated_timestamp,
+        "last_evaluated": last_calculated_timestamp,
         "charges": charges
       }
     

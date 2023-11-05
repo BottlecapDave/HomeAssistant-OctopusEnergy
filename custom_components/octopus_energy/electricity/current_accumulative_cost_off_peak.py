@@ -108,7 +108,7 @@ class OctopusEnergyCurrentAccumulativeElectricityCostOffPeak(CoordinatorEntity, 
       self._last_reset = consumption_and_cost["last_reset"]
       self._state = consumption_and_cost["total_cost_off_peak"] if "total_cost_off_peak" in consumption_and_cost else 0
 
-      self._attributes["last_calculated_timestamp"] = consumption_and_cost["last_calculated_timestamp"]
+      self._attributes["last_evaluated"] = consumption_and_cost["last_evaluated"]
 
     return self._state
 

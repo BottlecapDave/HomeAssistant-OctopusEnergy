@@ -139,7 +139,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
         "mprn": self._mprn,
         "serial_number": self._serial_number,
         "is_estimated": self._native_consumption_units == "m³",
-        "last_calculated_timestamp": consumption_and_cost["last_calculated_timestamp"],
+        "last_evaluated": consumption_and_cost["last_evaluated"],
         "charges": list(map(lambda charge: {
           "from": charge["from"],
           "to": charge["to"],

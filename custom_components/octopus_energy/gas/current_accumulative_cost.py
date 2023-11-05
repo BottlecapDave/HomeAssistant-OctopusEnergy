@@ -113,7 +113,7 @@ class OctopusEnergyCurrentAccumulativeGasCost(CoordinatorEntity, OctopusEnergyGa
         "standing_charge": consumption_and_cost["standing_charge"],
         "total_without_standing_charge": consumption_and_cost["total_cost_without_standing_charge"],
         "total": consumption_and_cost["total_cost"],
-        "last_calculated_timestamp": consumption_and_cost["last_calculated_timestamp"],
+        "last_evaluated": consumption_and_cost["last_evaluated"],
         "charges": list(map(lambda charge: {
           "from": charge["from"],
           "to": charge["to"],

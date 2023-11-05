@@ -68,7 +68,7 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
 
   # Assert
   assert result is not None
-  assert result["last_calculated_timestamp"] == consumption_and_rates_result["consumption"][-1]["interval_end"]
+  assert result["last_evaluated"] == consumption_and_rates_result["consumption"][-1]["interval_end"]
   assert result["standing_charge"] == round(standard_charge_result["value_inc_vat"] / 100, 2)
   
   if consumption_units == "m³":

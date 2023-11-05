@@ -112,7 +112,7 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumptionOffPeak(CoordinatorE
       self._state = consumption_and_cost["total_consumption_off_peak"] if "total_consumption_off_peak" in consumption_and_cost else 0
       self._last_reset = consumption_and_cost["last_reset"]
 
-      self._attributes["last_calculated_timestamp"] = consumption_and_cost["last_calculated_timestamp"]
+      self._attributes["last_evaluated"] = consumption_and_cost["last_evaluated"]
 
     return self._state
 

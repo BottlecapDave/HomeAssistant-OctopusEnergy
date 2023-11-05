@@ -79,7 +79,7 @@ def calculate_electricity_consumption_and_cost(
         "total_cost": total_cost_plus_standing_charge,
         "total_consumption": total_consumption,
         "last_reset": last_reset,
-        "last_calculated_timestamp": last_calculated_timestamp,
+        "last_evaluated": last_calculated_timestamp,
         "charges": charges
       }
 
