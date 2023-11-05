@@ -11,6 +11,7 @@ from ..utils import (
 
 from .intelligent_settings import IntelligentSettings
 from .intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
+from .saving_sessions import JoinSavingSessionResponse
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -97,19 +98,6 @@ account_query = '''query {{
 			}}
     }}
   }}
-}}'''
-
-saving_session_query = '''query {{
-	savingSessions {{
-		account(accountNumber: "{account_id}") {{
-			hasJoinedCampaign
-			joinedEvents {{
-				eventId
-				startAt
-				endAt
-			}}
-		}}
-	}}
 }}'''
 
 live_consumption_query = '''query {{
@@ -240,6 +228,31 @@ octoplus_points_query = '''query octoplus_points {
   }
 }'''
 
+octoplus_saving_session_join_mutation = '''mutation {{
+	joinSavingSessionsEvent(input: {{
+		accountNumber: "{account_id}"
+		eventCode: "{event_code}"
+	}}) {{
+		possibleErrors {{
+			message
+		}}
+	}}
+}}
+'''
+
+octoplus_saving_session_query = '''query {{
+	savingSessions {{
+		account(accountNumber: "{account_id}") {{
+			hasJoinedCampaign
+			joinedEvents {{
+				eventId
+				startAt
+				endAt
+			}}
+		}}
+	}}
+}}'''
+
 def get_valid_from(rate):
   return rate["valid_from"]
     
@@ -298,7 +311,12 @@ def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: da
 
 class ServerError(Exception): ...
 
-class RequestError(Exception): ...
+class RequestError(Exception):
+  errors: list[str]
+
+  def __init__(self, message: str, errors: list[str]):
+    super().__init__(message)
+    self.errors = errors
 
 class OctopusEnergyApiClient:
 
@@ -444,14 +462,14 @@ class OctopusEnergyApiClient:
     
     return None
 
-  async def async_get_saving_sessions(self, account_id):
+  async def async_get_saving_sessions(self, account_id: str):
     """Get the user's seasons savings"""
     await self.async_refresh_token()
 
     async with aiohttp.ClientSession(timeout=self.timeout) as client:
       url = f'{self._base_url}/v1/graphql/'
       # Get account response
-      payload = { "query": saving_session_query.format(account_id=account_id) }
+      payload = { "query": octoplus_saving_session_query.format(account_id=account_id) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as account_response:
         response_body = await self.__async_read_response__(account_response, url)
@@ -486,6 +504,23 @@ class OctopusEnergyApiClient:
           _LOGGER.error("Failed to retrieve octopoints")
     
     return None
+  
+  async def async_join_octoplus_saving_session(self, account_id: str, event_code: str) -> JoinSavingSessionResponse:
+    """Get the user's octoplus points"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession(timeout=self.timeout) as client:
+      url = f'{self._base_url}/v1/graphql/'
+      # Get account response
+      payload = { "query": octoplus_saving_session_join_mutation.format(account_id=account_id, event_code=event_code) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as account_response:
+
+        try:
+          await self.__async_read_response__(account_response, url)
+          return JoinSavingSessionResponse(True, [])
+        except RequestError as e:
+          return JoinSavingSessionResponse(False, e.errors)
 
   async def async_get_smart_meter_consumption(self, device_id: str, period_from: datetime, period_to: datetime):
     """Get the user's smart meter consumption"""
@@ -996,7 +1031,8 @@ class OctopusEnergyApiClient:
     
     if ("graphql" in url and "errors" in data_as_json):
       msg = f'Errors in request ({url}): {data_as_json["errors"]}'
+      errors = list(map(lambda error: error["message"], data_as_json["errors"]))
       _LOGGER.debug(msg)
-      raise RequestError(msg)
+      raise RequestError(msg, errors)
     
     return data_as_json
