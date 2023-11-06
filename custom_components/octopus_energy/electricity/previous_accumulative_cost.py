@@ -101,11 +101,10 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     if not self.enabled:
       return
     
-    current = now()
     consumption_data = self.coordinator.data["consumption"] if self.coordinator is not None and self.coordinator.data is not None and "consumption" in self.coordinator.data else None
     rate_data = self.coordinator.data["rates"] if self.coordinator is not None and self.coordinator.data is not None and "rates" in self.coordinator.data else None
     standing_charge = self.coordinator.data["standing_charge"] if self.coordinator is not None and self.coordinator.data is not None and "standing_charge" in self.coordinator.data else None
-    current = now()
+    current = consumption_data[0]["interval_start"] if consumption_data is not None and len(consumption_data) > 0 else None
 
     consumption_and_cost = calculate_electricity_consumption_and_cost(
       current,
