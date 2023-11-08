@@ -14,7 +14,7 @@
 
 You can only record current (i.e. today's) consumption in the Energy dashboard if you have a way of measuring live consumption in your home.
 
-There are 4 possible ways to obtain this data:
+There are 4 possible ways to obtain this consumption data:
 
 #### 1. Octopus Home Mini
 
