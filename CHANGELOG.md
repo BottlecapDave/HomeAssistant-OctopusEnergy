@@ -1,3 +1,10 @@
+## [8.5.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.5.1...v8.5.2) (2023-11-08)
+
+
+### Bug Fixes
+
+* Fixed previous consumption peak/off peak sensors ([b3d4f6f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b3d4f6f876f0d3630bedec350e20c7c7c9f541f5))
+
 ## [8.5.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.5.0...v8.5.1) (2023-11-02)
 
 
