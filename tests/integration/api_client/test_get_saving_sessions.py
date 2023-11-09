@@ -12,12 +12,21 @@ async def test_when_get_saving_sessions_is_called_then_events_are_returned():
     account_id = context["account_id"]
 
     # Act
-    savings = await client.async_get_saving_sessions(account_id)
+    result = await client.async_get_saving_sessions(account_id)
 
     # Assert
-    assert savings is not None
+    assert result is not None
+
+    assert result.upcoming_events is not None
+    for event in result.upcoming_events:
+        assert event.id is not None
+        assert event.start is not None
+        assert event.end is not None
+        assert event.octopoints >= 0
     
-    assert "events" in savings
-    for event in savings["events"]:
-        assert "start" in event
-        assert "end" in event
+    assert result.joined_events is not None
+    for event in result.joined_events:
+        assert event.id is not None
+        assert event.start is not None
+        assert event.end is not None
+        assert event.octopoints >= 0

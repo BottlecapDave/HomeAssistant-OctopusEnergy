@@ -11,7 +11,7 @@ from ..utils import (
 
 from .intelligent_settings import IntelligentSettings
 from .intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
-from .saving_sessions import JoinSavingSessionResponse
+from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSessionsResponse
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -242,12 +242,19 @@ octoplus_saving_session_join_mutation = '''mutation {{
 
 octoplus_saving_session_query = '''query {{
 	savingSessions {{
+    events {{
+			id
+			rewardPerKwhInOctoPoints
+			startAt
+			endAt
+		}}
 		account(accountNumber: "{account_id}") {{
 			hasJoinedCampaign
 			joinedEvents {{
 				eventId
 				startAt
 				endAt
+        rewardGivenInOctoPoints
 			}}
 		}}
 	}}
@@ -462,7 +469,7 @@ class OctopusEnergyApiClient:
     
     return None
 
-  async def async_get_saving_sessions(self, account_id: str):
+  async def async_get_saving_sessions(self, account_id: str) -> SavingSessionsResponse:
     """Get the user's seasons savings"""
     await self.async_refresh_token()
 
@@ -475,14 +482,18 @@ class OctopusEnergyApiClient:
         response_body = await self.__async_read_response__(account_response, url)
 
         if (response_body is not None and "data" in response_body):
-          return {
-            "events": list(map(lambda ev: {
-              "start": as_utc(parse_datetime(ev["startAt"])),
-              "end": as_utc(parse_datetime(ev["endAt"]))
-            }, response_body["data"]["savingSessions"]["account"]["joinedEvents"]))
-          }
+          return SavingSessionsResponse(list(map(lambda ev: SavingSession(ev["id"],
+                                                                          as_utc(parse_datetime(ev["startAt"])),
+                                                                          as_utc(parse_datetime(ev["endAt"])),
+                                                                          ev["rewardPerKwhInOctoPoints"]),
+                                        response_body["data"]["savingSessions"]["events"])), 
+                                        list(map(lambda ev: SavingSession(ev["eventId"],
+                                                                          as_utc(parse_datetime(ev["startAt"])),
+                                                                          as_utc(parse_datetime(ev["endAt"])),
+                                                                          ev["rewardGivenInOctoPoints"]),
+                                        response_body["data"]["savingSessions"]["account"]["joinedEvents"])))
         else:
-          _LOGGER.error("Failed to retrieve account")
+          _LOGGER.error("Failed to retrieve saving sessions")
     
     return None
 
@@ -1020,7 +1031,7 @@ class OctopusEnergyApiClient:
       elif response.status not in [401, 403, 404]:
         msg = f'Failed to send request ({url}): {response.status}; {text}'
         _LOGGER.debug(msg)
-        raise RequestError(msg)
+        raise RequestError(msg, [])
       return None
 
     data_as_json = None
