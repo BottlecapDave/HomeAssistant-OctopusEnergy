@@ -14,6 +14,7 @@ class JoinSavingSessionResponse:
 
 class SavingSession:
   id: str
+  code: str
   start: datetime
   end: datetime
   octopoints: int
@@ -22,24 +23,26 @@ class SavingSession:
   def __init__(
     self,
     id: str,
+    code: str,
     start: datetime,
     end: datetime,
     octopoints: int
   ):
     self.id = id
+    self.code = code
     self.start = start
     self.end = end
     self.octopoints = octopoints
     self.duration_in_minutes = (end - start).total_seconds() / 60
 
 class SavingSessionsResponse:
-  upcoming_events: list[SavingSession]
+  available_events: list[SavingSession]
   joined_events: list[SavingSession]
 
   def __init__(
     self,
-    upcoming_events: list[SavingSession],
+    available_events: list[SavingSession],
     joined_events: list[SavingSession]
   ):
-    self.upcoming_events = upcoming_events
+    self.available_events = available_events
     self.joined_events = joined_events

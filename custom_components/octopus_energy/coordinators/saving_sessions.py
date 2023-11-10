@@ -25,18 +25,17 @@ _LOGGER = logging.getLogger(__name__)
 
 class SavingSessionsCoordinatorResult:
   last_retrieved: datetime
-  nonjoined_events: list[SavingSession]
+  available_events: list[SavingSession]
   joined_events: list[SavingSession]
 
-  def __init__(self, last_retrieved: datetime, nonjoined_events: list[SavingSession], joined_events: list[SavingSession]):
+  def __init__(self, last_retrieved: datetime, available_events: list[SavingSession], joined_events: list[SavingSession]):
     self.last_retrieved = last_retrieved
-    self.nonjoined_events = nonjoined_events
+    self.available_events = available_events
     self.joined_events = joined_events
 
-def filter_nonjoined_events(current: datetime, upcoming_events: list[SavingSession], joined_events: list[SavingSession]) -> list[SavingSession]:
+def filter_available_events(current: datetime, available_events: list[SavingSession], joined_events: list[SavingSession]) -> list[SavingSession]:
   filtered_events = []
-  for upcoming_event in upcoming_events:
-
+  for upcoming_event in available_events:
     is_joined = False
     for joined_event in joined_events:
       if joined_event.id == upcoming_event.id:
@@ -58,43 +57,45 @@ async def async_refresh_saving_sessions(
   if existing_saving_sessions_result is None or current.minute % 30 == 0:
     try:
       result = await client.async_get_saving_sessions(account_id)
-      nonjoined_events = filter_nonjoined_events(current, result.upcoming_events, result.joined_events)
+      available_events = filter_available_events(current, result.available_events, result.joined_events)
 
-      for nonjoined_event in nonjoined_events:
+      for available_event in available_events:
         is_new = True
 
         if existing_saving_sessions_result is not None:
-          for existing_nonjoined_event in existing_saving_sessions_result.nonjoined_events:
-            if existing_nonjoined_event.id == nonjoined_event.id:
+          for existing_available_event in existing_saving_sessions_result.available_events:
+            if existing_available_event.id == available_event.id:
               is_new = False
               break
 
         if is_new:
           fire_event(EVENT_NEW_SAVING_SESSION, { 
             "account_id": account_id,
-            "event_id": nonjoined_event.id,
-            "event_start": nonjoined_event.start,
-            "event_end": nonjoined_event.end,
-            "event_octopoints": nonjoined_event.octopoints
+            "event_code": available_event.code,
+            "event_id": available_event.id,
+            "event_start": available_event.start,
+            "event_end": available_event.end,
+            "event_octopoints_per_kwh": available_event.octopoints
           })
 
       fire_event(EVENT_ALL_SAVING_SESSIONS, { 
         "account_id": account_id,
-        "nonjoined_events": list(map(lambda ev: {
+        "available_events": list(map(lambda ev: {
           "id": ev.id,
+          "code": ev.code,
           "start": ev.start,
           "end": ev.end,
-          "octopoints": ev.octopoints
-        }, nonjoined_events)),
+          "octopoints_per_kwh": ev.octopoints
+        }, available_events)),
         "joined_events": list(map(lambda ev: {
           "id": ev.id,
           "start": ev.start,
           "end": ev.end,
-          "octopoints": ev.octopoints
+          "rewarded_octopoints": ev.octopoints
         }, result.joined_events)), 
       })
 
-      return SavingSessionsCoordinatorResult(current, nonjoined_events, result.joined_events)
+      return SavingSessionsCoordinatorResult(current, available_events, result.joined_events)
     except:
       _LOGGER.debug('Failed to retrieve saving session information')
   

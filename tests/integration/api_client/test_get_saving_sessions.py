@@ -17,9 +17,10 @@ async def test_when_get_saving_sessions_is_called_then_events_are_returned():
     # Assert
     assert result is not None
 
-    assert result.upcoming_events is not None
-    for event in result.upcoming_events:
+    assert result.available_events is not None
+    for event in result.available_events:
         assert event.id is not None
+        assert event.code is not None
         assert event.start is not None
         assert event.end is not None
         assert event.octopoints >= 0
@@ -27,6 +28,7 @@ async def test_when_get_saving_sessions_is_called_then_events_are_returned():
     assert result.joined_events is not None
     for event in result.joined_events:
         assert event.id is not None
+        assert event.code is None
         assert event.start is not None
         assert event.end is not None
         assert event.octopoints >= 0

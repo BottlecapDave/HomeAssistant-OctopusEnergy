@@ -13,6 +13,7 @@ from .gas.rates_next_day import OctopusEnergyGasNextDayRates
 from .gas.rates_previous_day import OctopusEnergyGasPreviousDayRates
 from .gas.rates_previous_consumption import OctopusEnergyGasPreviousConsumptionRates
 from .gas.rates_previous_consumption_override import OctopusEnergyGasPreviousConsumptionOverrideRates
+from .octoplus.saving_sessions_events import OctopusEnergyOctoplusSavingSessionEvents
 
 from .const import (
   DOMAIN,
@@ -41,7 +42,7 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
   account_info = hass.data[DOMAIN][DATA_ACCOUNT]
 
   now = utcnow()
-  entities = []
+  entities = [OctopusEnergyOctoplusSavingSessionEvents(hass, account_info["id"])]
   if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements

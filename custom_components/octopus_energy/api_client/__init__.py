@@ -244,6 +244,7 @@ octoplus_saving_session_query = '''query {{
 	savingSessions {{
     events {{
 			id
+      code
 			rewardPerKwhInOctoPoints
 			startAt
 			endAt
@@ -483,11 +484,13 @@ class OctopusEnergyApiClient:
 
         if (response_body is not None and "data" in response_body):
           return SavingSessionsResponse(list(map(lambda ev: SavingSession(ev["id"],
+                                                                          ev["code"],
                                                                           as_utc(parse_datetime(ev["startAt"])),
                                                                           as_utc(parse_datetime(ev["endAt"])),
                                                                           ev["rewardPerKwhInOctoPoints"]),
                                         response_body["data"]["savingSessions"]["events"])), 
                                         list(map(lambda ev: SavingSession(ev["eventId"],
+                                                                          None,
                                                                           as_utc(parse_datetime(ev["startAt"])),
                                                                           as_utc(parse_datetime(ev["endAt"])),
                                                                           ev["rewardGivenInOctoPoints"]),

@@ -18,30 +18,36 @@ def assert_raised_new_saving_session_event(
   assert "event_id" in raised_event
   assert raised_event["event_id"] == expected_event.id
 
+  assert "event_code" in raised_event
+  assert raised_event["event_code"] == expected_event.code
+
   assert "event_start" in raised_event
   assert raised_event["event_start"] == expected_event.start
 
   assert "event_end" in raised_event
   assert raised_event["event_end"] == expected_event.end
   
-  assert "event_octopoints" in raised_event
-  assert raised_event["event_octopoints"] == expected_event.octopoints
+  assert "event_octopoints_per_kwh" in raised_event
+  assert raised_event["event_octopoints_per_kwh"] == expected_event.octopoints
 
 def assert_raised_all_saving_session_event(
   raised_event: dict,
   account_id: str,
-  nonjoined_events: list[SavingSession],
+  available_events: list[SavingSession],
   joined_events: list[SavingSession]
 ):
   assert "account_id" in raised_event
   assert raised_event["account_id"] == account_id
 
-  assert "nonjoined_events" in raised_event
-  for idx, actual_event in enumerate(raised_event["nonjoined_events"]):
-    expected_event = nonjoined_events[idx]
+  assert "available_events" in raised_event
+  for idx, actual_event in enumerate(raised_event["available_events"]):
+    expected_event = available_events[idx]
 
     assert "id" in actual_event
     assert actual_event["id"] == expected_event.id
+
+    assert "code" in actual_event
+    assert actual_event["code"] == expected_event.code
 
     assert "start" in actual_event
     assert actual_event["start"] == expected_event.start
@@ -49,8 +55,8 @@ def assert_raised_all_saving_session_event(
     assert "end" in actual_event
     assert actual_event["end"] == expected_event.end
     
-    assert "octopoints" in actual_event
-    assert actual_event["octopoints"] == expected_event.octopoints
+    assert "octopoints_per_kwh" in actual_event
+    assert actual_event["octopoints_per_kwh"] == expected_event.octopoints
 
   for idx, actual_event in enumerate(raised_event["joined_events"]):
     expected_event = joined_events[idx]
@@ -64,8 +70,8 @@ def assert_raised_all_saving_session_event(
     assert "end" in actual_event
     assert actual_event["end"] == expected_event.end
     
-    assert "octopoints" in actual_event
-    assert actual_event["octopoints"] == expected_event.octopoints
+    assert "rewarded_octopoints" in actual_event
+    assert actual_event["rewarded_octopoints"] == expected_event.octopoints
 
 @pytest.mark.asyncio
 async def test_when_now_is_not_at_30_minute_mark_and_previous_data_is_available_then_previous_data_returned():
@@ -120,7 +126,7 @@ async def test_when_upcoming_events_contains_events_in_past_then_events_filtered
     actual_fired_events[name] = metadata
     return None
   
-  expected_saving_session = SavingSession("1", current_utc_timestamp - timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
+  expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp - timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
     return SavingSessionsResponse([expected_saving_session], [])
 
@@ -161,7 +167,7 @@ async def test_when_upcoming_events_contains_joined_events_then_events_filtered_
     actual_fired_events[name] = metadata
     return None
   
-  expected_saving_session = SavingSession("1", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
+  expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
     return SavingSessionsResponse([expected_saving_session], [expected_saving_session])
 
@@ -202,7 +208,7 @@ async def test_when_upcoming_events_present_and_no_previous_data_then_new_event_
     actual_fired_events[name] = metadata
     return None
   
-  expected_saving_session = SavingSession("1", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
+  expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
     return SavingSessionsResponse([expected_saving_session], [])
 
@@ -244,7 +250,7 @@ async def test_when_upcoming_events_present_and_not_in_previous_data_then_new_ev
     actual_fired_events[name] = metadata
     return None
   
-  expected_saving_session = SavingSession("1", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
+  expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
     return SavingSessionsResponse([expected_saving_session], [])
 
@@ -285,7 +291,7 @@ async def test_when_upcoming_events_present_and_in_previous_data_then_new_event_
     actual_fired_events[name] = metadata
     return None
   
-  expected_saving_session = SavingSession("1", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
+  expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
     return SavingSessionsResponse([], [expected_saving_session])
   
