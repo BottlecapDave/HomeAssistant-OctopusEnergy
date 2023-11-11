@@ -14,9 +14,7 @@
 
 You can only record current (i.e. today's) consumption in the Energy dashboard if you have a way of measuring live consumption in your home.
 
-There are 4 possible ways to obtain this consumption data:
-
-#### 1. Octopus Home Mini
+#### Octopus Home Mini
 
 If you have an Octopus Home Mini and a smart electricity meter you can obtain live meter reading data into Home Assistant:
 
@@ -29,37 +27,15 @@ If you have an Octopus Home Mini and a smart electricity meter you can obtain li
 
 > Please note that data will only appear in the energy dashboard from the point you configure the Home Mini within the integration. It doesn't backport any data.
 
-#### 2. Hildebrand Glow In Home Display
+#### Alternative methods to measure current Home Consumption
 
-If you have a [Hildebrand Glow In Home Display](https://shop.glowmarkt.com/) and a smart meter you can retrieve live meter reading information in Home Assistant via local MQTT access - see this [Speak to the Geek article](https://www.speaktothegeek.co.uk/2022/06/hildebrand-glow-update-local-mqtt-and-home-assistant/) for setup instructions.
-
-Setup in the Energy dashboard is very similar to that for the Octopus Home Mini, except that:
-
-3. For `consumed energy` you want the name of the sensor you created to store the Hildebrand MQTT reading in, e.g. `sensor.smart_meter_electricity_energy_import`
-
-#### 3. Hildebrand Glow DCC Integration
-
-If you don't have a Hildebrand Glow IHD but do have a smart meter, you can still retrieve your daily consumption information from the central DCC smart meter database using the Hildebrand Glow API and the [Hildebrand Glow DCC Home Assistant integration](https://github.com/HandyHat/ha-hildebrandglow-dcc).  The data in the central DCC database is said to be delayed by 30 minutes but in practice has been seen to quite "lumpy" with big jumps in consumption throughout the day as meter reading updates feed through periodically into the central database.  Only a single daily consumption figure is provided so unless you are on a single daily flat rate consumption tariff this integration is not likely to be suitable for calculating daily costs.
-
-3. The daily consumption is provided by `sensor.dcc_sourced_smart_electricity_meter_usage_today`
-
-#### 4. Use an Energy Clamp or Inverter to measure Home Consumption
-
-If you use an Energy CT Clamp such as the Shelly EM on the incoming supply cable you can feed live import and export energy information into Home Assistant. Or if you have an existing Solar/Battery inverter integrated into Home Assistant the inverter could well also have a sensor that provides Grid import information that you can use in the Energy dashboard.
-
-Either of these approaches will also work regardless of whether you have a smart meter or not.
+If you don't have an Octopus Home mini you may have another way to get live or near-live daily consumption into Home Assistant such as a Hildebrand Glow In Home Display, an Energy CT Clamp such as the Shelly EM on the incoming supply cable, or your existing Solar/Battery inverter may have a sensor that provides Grid import information that you can use in the Energy dashboard.
 
 Do be aware that as you are not directly capturing the smart meter readings in Home Assistant there will always be a small measurement difference from what Octopus energy say you have used, but in practice the difference is likely to be quite small.
 
-1. Create a utility meter to store the sensor information in.  Go to [Integrations dashboard](https://my.home-assistant.io/redirect/integrations/)
-2. Click `Helpers` tab
-3. Click `Create Helper` at the bottom right-hand corner
-4. Choose `Utility Meter`
-5. Enter a name for it, e.g. `Grid Import Today`
-6. Choose the name of the sensor that is measuring your grid import. e.g. for a Shelly EM it will be `sensor.<EM channel name>_energy_total`; for a GivEnergy inverter using the GivTCP integration it will be `sensor.givtcp_XXyywwXnnn_import_energy_today_kwh`
-7. For `Meter reset cycle` chose `Daily`
-8. Click `Submit`
-9. Then add the consumption information to the Energy dashboard as per the steps for Octopus Home Mini above.  For step 3, `consumed energy`, you want the utility meter you have just created above, e.g. `sensor.grid_import_today`
+1. Create a utility meter that resets daily to store the consumption sensor information in, e.g. called `Grid Import Today`
+2. The utility meter should point to the sensor that is measuring your grid import. e.g. for a Hildebrand Glow it could be `sensor.smart_meter_electricity_energy_import`; a Shelly EM will be `sensor.<EM channel name>_energy_total`; for a GivEnergy inverter using the GivTCP integration it will be `sensor.givtcp_XXyywwXnnn_import_energy_today_kwh`
+3. Then add the consumption information to the Energy dashboard as per the steps for Octopus Home Mini above.  For step 3, `consumed energy`, you want the utility meter you have just created above, e.g. `sensor.grid_import_today`
 
 ### For Gas
 
