@@ -17,7 +17,6 @@ from . import (
   get_next_saving_sessions_event
 )
 from ..utils import account_id_to_unique_key
-from ..api_client import OctopusEnergyApiClient
 from ..coordinators.saving_sessions import SavingSessionsCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
@@ -25,12 +24,11 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
   """Sensor for determining if a saving session is active."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient,account_id: str):
+  def __init__(self, hass: HomeAssistant, coordinator, account_id: str):
     """Init sensor."""
 
     CoordinatorEntity.__init__(self, coordinator)
   
-    self._client = client
     self._account_id = account_id
     self._state = None
     self._events = []
@@ -114,11 +112,3 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
       self._state = False
     
     _LOGGER.debug(f'Restored state: {self._state}')
-
-  @callback
-  async def async_join_saving_session_event(self, event_code: str):
-    """Update sensors config"""
-
-    result = await self._client.async_join_octoplus_saving_session(self._account_id, event_code)
-    if (result.is_successful == False):
-      raise Exception(result.errors[0])

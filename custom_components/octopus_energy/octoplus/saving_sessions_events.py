@@ -9,15 +9,17 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from ..const import EVENT_ALL_SAVING_SESSIONS
 from ..utils import account_id_to_unique_key
+from ..api_client import OctopusEnergyApiClient
 
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyOctoplusSavingSessionEvents(EventEntity, RestoreEntity):
   """Sensor for displaying the upcoming saving sessions."""
 
-  def __init__(self, hass: HomeAssistant, account_id: str):
+  def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, account_id: str):
     """Init sensor."""
 
+    self._client = client
     self._account_id = account_id
     self._hass = hass
     self._state = None
@@ -58,3 +60,25 @@ class OctopusEnergyOctoplusSavingSessionEvents(EventEntity, RestoreEntity):
     if (event.data is not None and "account_id" in event.data and event.data["account_id"] == self._account_id):
       self._trigger_event(event.event_type, event.data)
       self.async_write_ha_state()
+
+  @callback
+  async def async_join_saving_session_event(self, event_code: str):
+    """Join saving session event"""
+
+    result = await self._client.async_join_octoplus_saving_session(self._account_id, event_code)
+    if (result.is_successful == False):
+      raise Exception(result.errors[0])
+    else:
+      attributes = self.state_attributes()
+      if ("available_events" in attributes and attributes["available_events"] is not None):
+        new_available_events = []
+        for available_event in attributes["available_events"]:
+          if (available_event["code"] != event_code):
+            new_available_events.append(available_event)
+
+        attributes["available_events"] = new_available_events
+        self._trigger_event(
+          EVENT_ALL_SAVING_SESSIONS,
+          attributes
+        )
+        self.async_write_ha_state()

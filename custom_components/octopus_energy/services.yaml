@@ -53,7 +53,7 @@ join_octoplus_saving_session_event:
   target:
     entity:
       integration: octopus_energy
-      domain: binary_sensor
+      domain: event
   fields:
     event_code:
       name: Event code
