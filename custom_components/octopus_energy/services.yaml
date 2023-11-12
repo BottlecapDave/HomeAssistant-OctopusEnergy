@@ -60,3 +60,10 @@ join_octoplus_saving_session_event:
       description: The code of the event that is to be joined.
       selector:
         text:
+spin_wheel_of_fortune:
+  name: Spin wheel of fortune
+  description: Spins the wheel of fortune for a given energy type
+  target:
+    entity:
+      integration: octopus_energy
+      domain: sensor

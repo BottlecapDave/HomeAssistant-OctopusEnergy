@@ -273,6 +273,14 @@ wheel_of_fortune_query = '''query {{
   }}
 }}'''
 
+wheel_of_fortune_mutation = '''mutation {{
+  spinWheelOfFortune(input: {{ accountNumber: "{account_id}", supplyType: {supply_type}, termsAccepted: true }}) {{
+    spinResult {{
+      prizeAmount
+    }}
+  }}
+}}'''
+
 def get_valid_from(rate):
   return rate["valid_from"]
     
@@ -1014,6 +1022,30 @@ class OctopusEnergyApiClient:
           )
         else:
           _LOGGER.error("Failed to retrieve wheel of fortune spins")
+    
+    return None
+  
+  async def async_spin_wheel_of_fortune(self, account_id: str, is_electricity: bool) -> int:
+    """Get the user's wheel of fortune spins"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession(timeout=self.timeout) as client:
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": wheel_of_fortune_mutation.format(account_id=account_id, supply_type="ELECTRICITY" if is_electricity == True else "GAS") }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_spin_wheel_of_fortune: {response_body}')
+
+        if (response_body is not None and 
+            "data" in response_body and
+            "spinWheelOfFortune" in response_body["data"] and
+            "spinResult" in response_body["data"]["spinWheelOfFortune"] and
+            "prizeAmount" in response_body["data"]["spinWheelOfFortune"]["spinResult"]):
+          
+          return int(response_body["data"]["spinWheelOfFortune"]["spinResult"]["prizeAmount"])
+        else:
+          _LOGGER.error("Failed to spin wheel of fortune")
     
     return None
 

@@ -3,8 +3,8 @@ import voluptuous as vol
 import logging
 
 from homeassistant.util.dt import (utcnow)
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers import config_validation as cv, entity_platform, issue_registry as ir
+from homeassistant.core import HomeAssistant, SupportsResponse
+from homeassistant.helpers import entity_platform, issue_registry as ir
 
 from .electricity.current_consumption import OctopusEnergyCurrentElectricityConsumption
 from .electricity.current_accumulative_consumption import OctopusEnergyCurrentAccumulativeElectricityConsumption
@@ -56,6 +56,7 @@ from .const import (
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET,
   CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET,
+  DATA_ACCOUNT_ID,
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
@@ -92,6 +93,18 @@ async def async_setup_entry(hass, entry, async_add_entities):
     "async_refresh_previous_consumption_data",
   )
 
+  platform.async_register_entity_service(
+    "spin_wheel_of_fortune",
+    vol.All(
+      vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+      ),
+    ),
+    "async_spin_wheel",
+    # supports_response=SupportsResponse.OPTIONAL
+  )
+
 async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_entities):
   config = dict(entry.data)
 
@@ -104,14 +117,14 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
   await saving_session_coordinator.async_config_entry_first_refresh()
   
   account_info = hass.data[DOMAIN][DATA_ACCOUNT]
-  account_id = account_info["id"]
+  account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]
 
   wheel_of_fortune_coordinator = await async_setup_wheel_of_fortune_spins_coordinator(hass, account_id)
   
   entities = [
     OctopusEnergyOctoplusPoints(hass, client, account_id),
-    OctopusEnergyWheelOfFortuneElectricitySpins(hass, wheel_of_fortune_coordinator, account_id),
-    OctopusEnergyWheelOfFortuneGasSpins(hass, wheel_of_fortune_coordinator, account_id)
+    OctopusEnergyWheelOfFortuneElectricitySpins(hass, wheel_of_fortune_coordinator, client, account_id),
+    OctopusEnergyWheelOfFortuneGasSpins(hass, wheel_of_fortune_coordinator, client, account_id)
   ]
 
   now = utcnow()

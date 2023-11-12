@@ -1,6 +1,6 @@
 import logging
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
@@ -11,17 +11,19 @@ from homeassistant.components.sensor import (
 )
 from ..utils import account_id_to_unique_key
 from ..coordinators.wheel_of_fortune import WheelOfFortuneSpinsCoordinatorResult
+from ..api_client import OctopusEnergyApiClient
 
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyWheelOfFortuneGasSpins(CoordinatorEntity, RestoreSensor):
   """Sensor for current wheel of fortune spins for gas"""
 
-  def __init__(self, hass: HomeAssistant, coordinator, account_id: str):
+  def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, account_id: str):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
   
     self._account_id = account_id
+    self._client = client
     self._state = None
     self._attributes = {
       "last_evaluated": None
@@ -77,3 +79,12 @@ class OctopusEnergyWheelOfFortuneGasSpins(CoordinatorEntity, RestoreSensor):
         self._attributes[x] = state.attributes[x]
     
       _LOGGER.debug(f'Restored OctopusEnergyWheelOfFortuneGasSpins state: {self._state}')
+
+  @callback
+  async def async_spin_wheel(self):
+    """Spin the wheel of fortune"""
+
+    result = await self._client.async_spin_wheel_of_fortune(self._account_id, False)
+    return {
+      "amount_won_in_pence": result
+    }
