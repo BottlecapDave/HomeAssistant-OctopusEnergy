@@ -8,7 +8,7 @@ from homeassistant.components.event import (
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from ..const import EVENT_ALL_SAVING_SESSIONS
-from ..utils import account_id_to_unique_key
+
 from ..api_client import OctopusEnergyApiClient
 
 _LOGGER = logging.getLogger(__name__)
@@ -30,7 +30,7 @@ class OctopusEnergyOctoplusSavingSessionEvents(EventEntity, RestoreEntity):
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_{account_id_to_unique_key(self._account_id)}_octoplus_saving_session_events"
+    return f"octopus_energy_{self._account_id}_octoplus_saving_session_events"
     
   @property
   def name(self):

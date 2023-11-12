@@ -9,7 +9,7 @@ from homeassistant.components.sensor import (
   RestoreSensor,
   SensorStateClass
 )
-from ..utils import account_id_to_unique_key
+
 from ..coordinators.wheel_of_fortune import WheelOfFortuneSpinsCoordinatorResult
 from ..api_client import OctopusEnergyApiClient
 
@@ -35,7 +35,7 @@ class OctopusEnergyWheelOfFortuneElectricitySpins(CoordinatorEntity, RestoreSens
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_{account_id_to_unique_key(self._account_id)}_wheel_of_fortune_spins_electricity"
+    return f"octopus_energy_{self._account_id}_wheel_of_fortune_spins_electricity"
     
   @property
   def name(self):

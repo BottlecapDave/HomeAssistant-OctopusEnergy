@@ -16,7 +16,7 @@ from . import (
   current_saving_sessions_event,
   get_next_saving_sessions_event
 )
-from ..utils import account_id_to_unique_key
+
 from ..coordinators.saving_sessions import SavingSessionsCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
@@ -46,7 +46,7 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_{account_id_to_unique_key(self._account_id)}_octoplus_saving_sessions"
+    return f"octopus_energy_{self._account_id}_octoplus_saving_sessions"
     
   @property
   def name(self):
