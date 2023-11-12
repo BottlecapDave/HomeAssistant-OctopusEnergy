@@ -12,6 +12,7 @@ from ..utils import (
 from .intelligent_settings import IntelligentSettings
 from .intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
 from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSessionsResponse
+from .wheel_of_fortune import WheelOfFortuneSpinsResponse
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -259,6 +260,17 @@ octoplus_saving_session_query = '''query {{
 			}}
 		}}
 	}}
+}}'''
+
+wheel_of_fortune_query = '''query {{
+  wheelOfFortuneSpins(accountNumber: "{account_id}") {{
+    electricity {{
+      remainingSpinsThisMonth
+    }}
+    gas {{
+      remainingSpinsThisMonth
+    }}
+  }}
 }}'''
 
 def get_valid_from(rate):
@@ -977,6 +989,31 @@ class OctopusEnergyApiClient:
           }
         else:
           _LOGGER.error("Failed to retrieve intelligent device")
+    
+    return None
+  
+  async def async_get_wheel_of_fortune_spins(self, account_id: str) -> WheelOfFortuneSpinsResponse:
+    """Get the user's wheel of fortune spins"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession(timeout=self.timeout) as client:
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": wheel_of_fortune_query.format(account_id=account_id) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_get_wheel_of_fortune_spins: {response_body}')
+
+        if (response_body is not None and "data" in response_body and
+            "wheelOfFortuneSpins" in response_body["data"]):
+          
+          spins = response_body["data"]["wheelOfFortuneSpins"]
+          return WheelOfFortuneSpinsResponse(
+            int(spins["electricity"]["remainingSpinsThisMonth"]) if "electricity" in spins and "remainingSpinsThisMonth" in spins["electricity"] else 0,
+            int(spins["gas"]["remainingSpinsThisMonth"]) if "gas" in spins and "remainingSpinsThisMonth" in spins["gas"] else 0
+          )
+        else:
+          _LOGGER.error("Failed to retrieve wheel of fortune spins")
     
     return None
 
