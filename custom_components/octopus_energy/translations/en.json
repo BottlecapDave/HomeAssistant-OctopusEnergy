@@ -38,6 +38,7 @@
       }
     },
     "error": {
+      "server_error": "Failed to connect to OE servers. Please try again later",
       "account_not_found": "Invalid API key or account id specified",
       "value_greater_than_zero": "Value must be greater or equal to 1",
       "invalid_target_hours": "Target hours must be in half hour increments (e.g. 0.5 = 30 minutes; 1 = 60 minutes).",
@@ -88,6 +89,7 @@
       }
     },
     "error": {
+      "server_error": "Failed to connect to OE servers. Please try again later",
       "account_not_found": "Invalid API key or account id specified",
       "value_greater_than_zero": "Value must be greater or equal to 1",
       "invalid_target_hours": "Target hours must be in half hour increments (e.g. 0.5 = 30 minutes; 1 = 60 minutes).",
