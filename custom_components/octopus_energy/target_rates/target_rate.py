@@ -20,6 +20,12 @@ from homeassistant.helpers import translation
 from ..const import (
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_HOURS,
+  CONFIG_TARGET_OLD_END_TIME,
+  CONFIG_TARGET_OLD_HOURS,
+  CONFIG_TARGET_OLD_MPAN,
+  CONFIG_TARGET_OLD_NAME,
+  CONFIG_TARGET_OLD_START_TIME,
+  CONFIG_TARGET_OLD_TYPE,
   CONFIG_TARGET_TYPE,
   CONFIG_TARGET_START_TIME,
   CONFIG_TARGET_END_TIME,
@@ -214,6 +220,9 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       self._state = state.state
       self._attributes = {}
       for x in state.attributes.keys():
+        if x in [CONFIG_TARGET_OLD_NAME, CONFIG_TARGET_OLD_HOURS, CONFIG_TARGET_OLD_TYPE, CONFIG_TARGET_OLD_START_TIME, CONFIG_TARGET_OLD_END_TIME, CONFIG_TARGET_OLD_MPAN]:
+          continue
+        
         self._attributes[x] = state.attributes[x]
 
       # Make sure our attributes don't override any changed settings
