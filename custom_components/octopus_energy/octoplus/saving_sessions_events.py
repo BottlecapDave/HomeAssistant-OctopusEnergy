@@ -69,7 +69,7 @@ class OctopusEnergyOctoplusSavingSessionEvents(EventEntity, RestoreEntity):
     if (result.is_successful == False):
       raise Exception(result.errors[0])
     else:
-      attributes = self.state_attributes()
+      attributes = self.state_attributes
       if ("available_events" in attributes and attributes["available_events"] is not None):
         new_available_events = []
         for available_event in attributes["available_events"]:
