@@ -54,7 +54,7 @@ async def async_refresh_saving_sessions(
     existing_saving_sessions_result: SavingSessionsCoordinatorResult,
     fire_event: Callable[[str, "dict[str, Any]"], None],
 ) -> SavingSessionsCoordinatorResult:
-  if existing_saving_sessions_result is None or current.minute % 30 == 0:
+  if existing_saving_sessions_result is None or (existing_saving_sessions_result.last_retrieved + timedelta(minutes=30)) < current or current.minute % 30 == 0:
     try:
       result = await client.async_get_saving_sessions(account_id)
       available_events = filter_available_events(current, result.available_events, result.joined_events)
