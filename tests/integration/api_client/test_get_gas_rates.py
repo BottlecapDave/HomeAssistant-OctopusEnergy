@@ -31,10 +31,10 @@ async def test_when_get_gas_rates_is_called_for_existent_tariff_then_rates_are_r
     for item in data:
         expected_valid_to = expected_valid_from + timedelta(minutes=30)
 
-        assert "valid_from" in item
-        assert item["valid_from"] == expected_valid_from
-        assert "valid_to" in item
-        assert item["valid_to"] == expected_valid_to
+        assert "start" in item
+        assert item["start"] == expected_valid_from
+        assert "end" in item
+        assert item["end"] == expected_valid_to
 
         assert "value_inc_vat" in item
         if price_cap is not None:

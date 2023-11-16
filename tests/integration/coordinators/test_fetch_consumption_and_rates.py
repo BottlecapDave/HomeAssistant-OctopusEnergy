@@ -77,10 +77,10 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
   for item in result["consumption"]:
     expected_valid_to = expected_valid_from + timedelta(minutes=30)
 
-    assert "interval_start" in item
-    assert item["interval_start"] == expected_valid_from
-    assert "interval_end" in item
-    assert item["interval_end"] == expected_valid_to
+    assert "start" in item
+    assert item["start"] == expected_valid_from
+    assert "end" in item
+    assert item["end"] == expected_valid_to
 
     expected_valid_from = expected_valid_to
 

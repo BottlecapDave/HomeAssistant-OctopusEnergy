@@ -106,8 +106,8 @@ class OctopusEnergyCurrentAccumulativeGasConsumption(CoordinatorEntity, OctopusE
         "total": consumption_and_cost["total_consumption_kwh"],
         "last_evaluated": consumption_and_cost["last_evaluated"],
         "charges": list(map(lambda charge: {
-          "from": charge["from"],
-          "to": charge["to"],
+          "start": charge["start"],
+          "end": charge["end"],
           "consumption": charge["consumption_kwh"]
         }, consumption_and_cost["charges"])),
         "calorific_value": self._calorific_value

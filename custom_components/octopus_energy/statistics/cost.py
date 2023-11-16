@@ -41,13 +41,13 @@ async def async_import_external_statistics_from_cost(
   statistic_id = f"{DOMAIN}:{unique_id}".lower()
 
   # Our sum needs to be based from the last total, so we need to grab the last record from the previous day
-  total_sum = await async_get_last_sum(hass, consumptions[0]["from"], statistic_id)
+  total_sum = await async_get_last_sum(hass, consumptions[0]["start"], statistic_id)
 
   peak_statistic_id = f'{statistic_id}_peak'
-  peak_sum = await async_get_last_sum(hass, consumptions[0]["from"], peak_statistic_id)
+  peak_sum = await async_get_last_sum(hass, consumptions[0]["start"], peak_statistic_id)
 
   off_peak_statistic_id = f'{statistic_id}_off_peak'
-  off_peak_sum = await async_get_last_sum(hass, consumptions[0]["from"], off_peak_statistic_id)
+  off_peak_sum = await async_get_last_sum(hass, consumptions[0]["start"], off_peak_statistic_id)
 
   statistics = build_cost_statistics(current, consumptions, rates, consumption_key, total_sum, peak_sum, off_peak_sum)
 

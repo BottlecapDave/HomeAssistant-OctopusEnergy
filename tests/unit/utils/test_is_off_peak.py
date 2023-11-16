@@ -2,7 +2,7 @@ from datetime import (datetime)
 import pytest
 
 from custom_components.octopus_energy.utils import is_off_peak
-from tests.integration import create_rate_data
+from tests.unit import create_rate_data
 
 @pytest.mark.asyncio
 async def test_when_off_peak_not_available_then_false_returned():

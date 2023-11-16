@@ -14,8 +14,8 @@ def get_account_info(tariff_code: str = "E-1R-SUPER-GREEN-24M-21-07-30-C", is_ac
         "mpan": mpan,
         "agreements": [
           {
-            "valid_from": "2023-08-01T00:00:00+01:00" if is_active_agreement else "2023-01-01T00:00:00+01:00",
-            "valid_to": "2023-09-01T00:00:00+01:00" if is_active_agreement else "2023-02-01T00:00:00+01:00",
+            "start": "2023-08-01T00:00:00+01:00" if is_active_agreement else "2023-01-01T00:00:00+01:00",
+            "end": "2023-09-01T00:00:00+01:00" if is_active_agreement else "2023-02-01T00:00:00+01:00",
             "tariff_code": tariff_code,
             "product": "SUPER-GREEN-24M-21-07-30"
           }

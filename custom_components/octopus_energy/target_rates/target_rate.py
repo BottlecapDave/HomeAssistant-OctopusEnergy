@@ -119,7 +119,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       # If all of our target times have passed, it's time to recalculate the next set
       all_rates_in_past = True
       for rate in self._target_rates:
-        if rate["valid_to"] > current_date:
+        if rate["end"] > current_date:
           all_rates_in_past = False
           break
       

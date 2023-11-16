@@ -68,7 +68,7 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
 
   # Assert
   assert result is not None
-  assert result["last_evaluated"] == consumption_and_rates_result["consumption"][-1]["interval_end"]
+  assert result["last_evaluated"] == consumption_and_rates_result["consumption"][-1]["end"]
   assert result["standing_charge"] == round(standard_charge_result["value_inc_vat"] / 100, 2)
   
   if consumption_units == "m³":
@@ -89,10 +89,10 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
   for item in result["charges"]:
     expected_valid_to = expected_valid_from + timedelta(minutes=30)
 
-    assert "from" in item
-    assert item["from"] == expected_valid_from
-    assert "to" in item
-    assert item["to"] == expected_valid_to
+    assert "start" in item
+    assert item["start"] == expected_valid_from
+    assert "end" in item
+    assert item["end"] == expected_valid_to
 
     expected_valid_from = expected_valid_to
 

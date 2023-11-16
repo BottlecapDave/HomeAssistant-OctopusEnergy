@@ -65,12 +65,12 @@ class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEn
     standard_charge_result = self.coordinator.data.standing_charge if self.coordinator is not None and self.coordinator.data is not None else None
     
     if standard_charge_result is not None:
-      self._latest_date = standard_charge_result["valid_from"]
+      self._latest_date = standard_charge_result["start"]
       self._state = standard_charge_result["value_inc_vat"] / 100
 
       # Adjust our period, as our gas only changes on a daily basis
-      self._attributes["valid_from"] = standard_charge_result["valid_from"]
-      self._attributes["valid_to"] = standard_charge_result["valid_to"]
+      self._attributes["start"] = standard_charge_result["start"]
+      self._attributes["end"] = standard_charge_result["end"]
     else:
       self._state = None
 

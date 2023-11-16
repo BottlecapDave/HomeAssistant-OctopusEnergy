@@ -112,7 +112,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
 
     tariff_override_key = get_electricity_tariff_override_key(self._serial_number, self._mpan)
 
-    is_old_data = self._last_reset is None or (consumption_data is not None and self._last_reset < consumption_data[-1]["interval_end"])
+    is_old_data = self._last_reset is None or (consumption_data is not None and self._last_reset < consumption_data[-1]["end"])
     is_tariff_present = tariff_override_key in self._hass.data[DOMAIN]
     has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][tariff_override_key] != self._tariff_code
 
@@ -120,8 +120,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
       _LOGGER.debug(f"Calculating previous electricity consumption cost override for '{self._mpan}/{self._serial_number}'...")
       
       tariff_override = self._hass.data[DOMAIN][tariff_override_key]
-      period_from = consumption_data[0]["interval_start"]
-      period_to = consumption_data[-1]["interval_end"]
+      period_from = consumption_data[0]["start"]
+      period_to = consumption_data[-1]["end"]
 
       [rate_data, standing_charge] = await asyncio.gather(
         self._client.async_get_electricity_rates(tariff_override, self._is_smart_meter, period_from, period_to),
@@ -156,8 +156,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
           "total": consumption_and_cost["total_cost"],
           "last_evaluated": consumption_and_cost["last_evaluated"],
           "charges": list(map(lambda charge: {
-            "from": charge["from"],
-            "to": charge["to"],
+            "start": charge["start"],
+            "end": charge["end"],
             "rate": charge["rate"],
             "consumption": charge["consumption"],
             "cost": charge["cost"]

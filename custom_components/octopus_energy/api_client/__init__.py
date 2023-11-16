@@ -283,6 +283,9 @@ wheel_of_fortune_mutation = '''mutation {{
 
 def get_valid_from(rate):
   return rate["valid_from"]
+
+def get_from(rate):
+  return rate["start"]
     
 def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: datetime, tariff_code: str, price_cap: float = None):
   """Process the collection of rates to ensure they're in 30 minute periods"""
@@ -326,8 +329,8 @@ def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: da
         valid_to = valid_from + timedelta(minutes=30)
         results.append({
           "value_inc_vat": value_inc_vat,
-          "valid_from": valid_from,
-          "valid_to": valid_to,
+          "start": valid_from,
+          "end": valid_to,
           "tariff_code": tariff_code,
           "is_capped": is_capped
         })
@@ -434,8 +437,8 @@ class OctopusEnergyApiClient:
                   else []
                 )),
                 "agreements": list(map(lambda a: {
-                  "valid_from": a["validFrom"],
-                  "valid_to": a["validTo"],
+                  "start": a["validFrom"],
+                  "end": a["validTo"],
                   "tariff_code": a["tariff"]["tariffCode"] if "tariff" in a and "tariffCode" in a["tariff"] else None,
                   "product_code": a["tariff"]["productCode"] if "tariff" in a and "productCode" in a["tariff"] else None,
                 }, 
@@ -470,8 +473,8 @@ class OctopusEnergyApiClient:
                 else []
               )),
               "agreements": list(map(lambda a: {
-                  "valid_from": a["validFrom"],
-                  "valid_to": a["validTo"],
+                  "start": a["validFrom"],
+                  "end": a["validTo"],
                   "tariff_code": a["tariff"]["tariffCode"] if "tariff" in a and "tariffCode" in a["tariff"] else None,
                   "product_code": a["tariff"]["productCode"] if "tariff" in a and "productCode" in a["tariff"] else None,
                 },
@@ -572,8 +575,8 @@ class OctopusEnergyApiClient:
           return list(map(lambda mp: {
             "consumption": float(mp["consumptionDelta"]) / 1000,
             "demand": float(mp["demand"]) if "demand" in mp and mp["demand"] is not None else None,
-            "interval_start": parse_datetime(mp["readAt"]),
-            "interval_end": parse_datetime(mp["readAt"]) + timedelta(minutes=30)
+            "start": parse_datetime(mp["readAt"]),
+            "end": parse_datetime(mp["readAt"]) + timedelta(minutes=30)
           }, response_body["data"]["smartMeterTelemetry"]))
         else:
           _LOGGER.debug(f"Failed to retrieve smart meter consumption data - device_id: {device_id}; period_from: {period_from}; period_to: {period_to}")
@@ -625,7 +628,7 @@ class OctopusEnergyApiClient:
             results.append(rate)
 
     # Because we retrieve our day and night periods separately over a 2 day period, we need to sort our rates 
-    results.sort(key=get_valid_from)
+    results.sort(key=get_from)
 
     return results
 
@@ -659,7 +662,7 @@ class OctopusEnergyApiClient:
 
             # For some reason, the end point returns slightly more data than we requested, so we need to filter out
             # the results
-            if as_utc(item["interval_start"]) >= period_from and as_utc(item["interval_end"]) <= period_to:
+            if as_utc(item["start"]) >= period_from and as_utc(item["end"]) <= period_to:
               results.append(item)
           
           results.sort(key=self.__get_interval_end)
@@ -703,7 +706,7 @@ class OctopusEnergyApiClient:
 
             # For some reason, the end point returns slightly more data than we requested, so we need to filter out
             # the results
-            if as_utc(item["interval_start"]) >= period_from and as_utc(item["interval_end"]) <= period_to:
+            if as_utc(item["start"]) >= period_from and as_utc(item["end"]) <= period_to:
               results.append(item)
           
           results.sort(key=self.__get_interval_end)
@@ -735,8 +738,8 @@ class OctopusEnergyApiClient:
         data = await self.__async_read_response__(response, url)
         if (data is not None and "results" in data and len(data["results"]) > 0):
           result = {
-            "valid_from": parse_datetime(data["results"][0]["valid_from"]) if "valid_from" in data["results"][0] and data["results"][0]["valid_from"] is not None else None,
-            "valid_to": parse_datetime(data["results"][0]["valid_to"]) if "valid_to" in data["results"][0] and data["results"][0]["valid_to"] is not None else None,
+            "start": parse_datetime(data["results"][0]["valid_from"]) if "valid_from" in data["results"][0] and data["results"][0]["valid_from"] is not None else None,
+            "end": parse_datetime(data["results"][0]["valid_to"]) if "valid_to" in data["results"][0] and data["results"][0]["valid_to"] is not None else None,
             "value_inc_vat": float(data["results"][0]["value_inc_vat"])
           }
 
@@ -758,8 +761,8 @@ class OctopusEnergyApiClient:
         data = await self.__async_read_response__(response, url)
         if (data is not None and "results" in data and len(data["results"]) > 0):
           result = {
-            "valid_from": parse_datetime(data["results"][0]["valid_from"]) if "valid_from" in data["results"][0] and data["results"][0]["valid_from"] is not None else None,
-            "valid_to": parse_datetime(data["results"][0]["valid_to"]) if "valid_to" in data["results"][0] and data["results"][0]["valid_to"] is not None else None,
+            "start": parse_datetime(data["results"][0]["valid_from"]) if "valid_from" in data["results"][0] and data["results"][0]["valid_from"] is not None else None,
+            "end": parse_datetime(data["results"][0]["valid_to"]) if "valid_to" in data["results"][0] and data["results"][0]["valid_to"] is not None else None,
             "value_inc_vat": float(data["results"][0]["value_inc_vat"])
           }
 
@@ -1050,7 +1053,7 @@ class OctopusEnergyApiClient:
     return None
 
   def __get_interval_end(self, item):
-    return item["interval_end"]
+    return item["end"]
 
   def __is_night_rate(self, rate, is_smart_meter):
     # Normally the economy seven night rate is between 12am and 7am UK time
@@ -1065,11 +1068,11 @@ class OctopusEnergyApiClient:
 
   def __is_between_times(self, rate, target_from_time, target_to_time, use_utc):
     """Determines if a current rate is between two times"""
-    rate_local_valid_from = as_local(rate["valid_from"])
-    rate_local_valid_to = as_local(rate["valid_to"])
+    rate_local_valid_from = as_local(rate["start"])
+    rate_local_valid_to = as_local(rate["end"])
 
     if use_utc:
-        rate_utc_valid_from = as_utc(rate["valid_from"])
+        rate_utc_valid_from = as_utc(rate["start"])
         # We need to convert our times into local time to account for BST to ensure that our rate is valid between the target times.
         from_date_time = as_local(parse_datetime(rate_utc_valid_from.strftime(f"%Y-%m-%dT{target_from_time}Z")))
         to_date_time = as_local(parse_datetime(rate_utc_valid_from.strftime(f"%Y-%m-%dT{target_to_time}Z")))
@@ -1086,8 +1089,8 @@ class OctopusEnergyApiClient:
   def __process_consumption(self, item):
     return {
       "consumption": float(item["consumption"]),
-      "interval_start": as_utc(parse_datetime(item["interval_start"])),
-      "interval_end": as_utc(parse_datetime(item["interval_end"]))
+      "start": as_utc(parse_datetime(item["interval_start"])),
+      "end": as_utc(parse_datetime(item["interval_end"]))
     }
 
   async def __async_read_response__(self, response, url):

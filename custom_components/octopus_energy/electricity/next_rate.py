@@ -36,8 +36,8 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
       "is_export": self._is_export,
       "is_smart_meter": self._is_smart_meter,
       "applicable_rates": [],
-      "valid_from": None,
-      "valid_to": None,
+      "start": None,
+      "end": None,
     }
 
   @property
@@ -93,8 +93,8 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
           "serial_number": self._serial_number,
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
-          "valid_from": rate_information["next_rate"]["valid_from"],
-          "valid_to": rate_information["next_rate"]["valid_to"],
+          "start": rate_information["next_rate"]["start"],
+          "end": rate_information["next_rate"]["end"],
           "applicable_rates": rate_information["applicable_rates"],
         }
 
@@ -105,8 +105,8 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
           "serial_number": self._serial_number,
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
-          "valid_from": None,
-          "valid_to": None,
+          "start": None,
+          "end": None,
           "applicable_rates": [],
         }
 
