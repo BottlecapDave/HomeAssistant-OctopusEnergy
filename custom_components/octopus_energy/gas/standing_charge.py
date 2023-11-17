@@ -91,6 +91,12 @@ class OctopusEnergyGasCurrentStandingCharge(CoordinatorEntity, OctopusEnergyGasS
     
     if state is not None and self._state is None:
       self._state = state.state
-      self._attributes = dict_to_typed_dict(state.attributes)
+      self._attributes = {}
+      temp_attributes = dict_to_typed_dict(state.attributes)
+      for x in temp_attributes.keys():
+        if x in ['valid_from', 'valid_to']:
+          continue
+        
+        self._attributes[x] = state.attributes[x]
     
       _LOGGER.debug(f'Restored OctopusEnergyGasCurrentStandingCharge state: {self._state}')
