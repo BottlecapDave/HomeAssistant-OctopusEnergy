@@ -38,8 +38,6 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, Res
       "serial_number": self._serial_number,
       "is_smart_meter": self._is_smart_meter,
       "tariff": self._tariff_code,
-      "all_rates": [],
-      "applicable_rates": [],
       "start": None,
       "end": None,
       "is_capped": None,
@@ -99,8 +97,6 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, Res
           "start": rate_information["current_rate"]["start"],
           "end": rate_information["current_rate"]["end"],
           "is_capped": rate_information["current_rate"]["is_capped"],
-          "all_rates": rate_information["all_rates"],
-          "applicable_rates": rate_information["applicable_rates"],
         }
 
         self._state = rate_information["current_rate"]["value_inc_vat"]
@@ -113,8 +109,6 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, Res
           "start": None,
           "end": None,
           "is_capped": None,
-          "all_rates": [],
-          "applicable_rates": [],
         }
 
         self._state = None
@@ -134,6 +128,12 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, Res
     
     if state is not None and self._state is None:
       self._state = state.state
-      self._attributes = dict_to_typed_dict(state.attributes)
+      self._attributes = {}
+      temp_attributes = dict_to_typed_dict(state.attributes)
+      for x in temp_attributes.keys():
+        if x in ['all_rates', 'applicable_rates']:
+          continue
+        
+        self._attributes[x] = state.attributes[x]
     
       _LOGGER.debug(f'Restored OctopusEnergyGasCurrentRate state: {self._state}')

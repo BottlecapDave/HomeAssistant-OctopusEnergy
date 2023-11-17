@@ -36,7 +36,6 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
       "serial_number": self._serial_number,
       "is_export": self._is_export,
       "is_smart_meter": self._is_smart_meter,
-      "applicable_rates": [],
       "start": None,
       "end": None,
     }
@@ -96,7 +95,6 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
           "is_smart_meter": self._is_smart_meter,
           "start": rate_information["next_rate"]["start"],
           "end": rate_information["next_rate"]["end"],
-          "applicable_rates": rate_information["applicable_rates"],
         }
 
         self._state = rate_information["next_rate"]["value_inc_vat"]
@@ -108,7 +106,6 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
           "is_smart_meter": self._is_smart_meter,
           "start": None,
           "end": None,
-          "applicable_rates": [],
         }
 
         self._state = None
@@ -125,6 +122,12 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
     
     if state is not None and self._state is None:
       self._state = state.state
-      self._attributes = dict_to_typed_dict(state.attributes)
+      self._attributes = {}
+      temp_attributes = dict_to_typed_dict(state.attributes)
+      for x in temp_attributes.keys():
+        if x in ['all_rates', 'applicable_rates']:
+          continue
+        
+        self._attributes[x] = state.attributes[x]
     
       _LOGGER.debug(f'Restored OctopusEnergyElectricityNextRate state: {self._state}')

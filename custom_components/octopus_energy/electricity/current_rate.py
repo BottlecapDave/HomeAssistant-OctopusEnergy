@@ -40,8 +40,6 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
       "is_export": self._is_export,
       "is_smart_meter": self._is_smart_meter,
       "tariff": self._tariff_code,
-      "all_rates": [],
-      "applicable_rates": [],
       "start": None,
       "end": None,
       "is_capped": None,
@@ -111,8 +109,6 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
           "current_day_min_rate": rate_information["min_rate_today"],
           "current_day_max_rate": rate_information["max_rate_today"],
           "current_day_average_rate": rate_information["average_rate_today"],
-          "all_rates": rate_information["all_rates"],
-          "applicable_rates": rate_information["applicable_rates"],
         }
 
         self._state = rate_information["current_rate"]["value_inc_vat"]
@@ -129,9 +125,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
           "is_intelligent_adjusted": None,
           "current_day_min_rate": None,
           "current_day_max_rate": None,
-          "current_day_average_rate": None,
-          "all_rates": [],
-          "applicable_rates": [],
+          "current_day_average_rate": None
         }
 
         self._state = None
@@ -151,6 +145,12 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
     
     if state is not None and self._state is None:
       self._state = state.state
-      self._attributes = dict_to_typed_dict(state.attributes)
+      self._attributes = {}
+      temp_attributes = dict_to_typed_dict(state.attributes)
+      for x in temp_attributes.keys():
+        if x in ['all_rates', 'applicable_rates']:
+          continue
+        
+        self._attributes[x] = state.attributes[x]
     
       _LOGGER.debug(f'Restored OctopusEnergyElectricityCurrentRate state: {self._state}')
