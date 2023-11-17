@@ -28,17 +28,17 @@ async def async_assert_electricity_data(tariff, is_smart_meter, price_cap, perio
     for item in data:
         expected_valid_to = expected_valid_from + timedelta(minutes=30)
 
-        assert "valid_from" in item
-        assert item["valid_from"] == expected_valid_from
-        assert "valid_to" in item
-        assert item["valid_to"] == expected_valid_to
+        assert "start" in item
+        assert item["start"] == expected_valid_from
+        assert "end" in item
+        assert item["end"] == expected_valid_to
 
         assert "value_inc_vat" in item
         
         expected_value = None
         if expected_rates is not None:
             for rate in expected_rates:
-                if rate["valid_from"] <= item["valid_from"] and rate["valid_to"] >= item["valid_to"]:
+                if rate["start"] <= item["start"] and rate["end"] >= item["end"]:
                     expected_value = rate["value_inc_vat"]
         
         if price_cap is not None:
@@ -77,32 +77,32 @@ async def test_when_get_electricity_rates_is_called_with_flux_tariff_then_data_i
     expected_flux_rates = [{
         "value_exc_vat": 32.1207,
         "value_inc_vat": 33.726735,
-        "valid_from": datetime.strptime("2023-03-27T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-        "valid_to": datetime.strptime("2023-03-28T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "start": datetime.strptime("2023-03-27T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2023-03-28T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
     },
     {
         "value_exc_vat": 44.969,
         "value_inc_vat": 47.21745,
-        "valid_from": datetime.strptime("2023-03-27T15:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-        "valid_to": datetime.strptime("2023-03-27T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "start": datetime.strptime("2023-03-27T15:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2023-03-27T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
     },
     {
         "value_exc_vat": 32.1207,
         "value_inc_vat": 33.726735,
-        "valid_from": datetime.strptime("2023-03-27T04:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-        "valid_to": datetime.strptime("2023-03-27T15:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "start": datetime.strptime("2023-03-27T04:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2023-03-27T15:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
     },
     {
         "value_exc_vat": 19.2724,
         "value_inc_vat": 20.23602,
-        "valid_from": datetime.strptime("2023-03-27T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-        "valid_to": datetime.strptime("2023-03-27T04:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "start": datetime.strptime("2023-03-27T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2023-03-27T04:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
     },
     {
         "value_exc_vat": 32.1207,
         "value_inc_vat": 33.726735,
-        "valid_from": datetime.strptime("2023-03-26T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-        "valid_to": datetime.strptime("2023-03-27T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "start": datetime.strptime("2023-03-26T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2023-03-27T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
     }]
 
     await async_assert_electricity_data(
@@ -130,7 +130,7 @@ async def test_when_get_electricity_rates_is_called_with_duel_rate_tariff_dumb_m
 
     # Make sure all periods within the expected cheapest period have our cheapest rate
     for item in data:
-        if item["valid_from"] >= cheapest_rate_from and item["valid_to"] <= cheapest_rate_to:
+        if item["start"] >= cheapest_rate_from and item["end"] <= cheapest_rate_to:
             if price_cap is not None and item["value_inc_vat"] > price_cap:
                 assert item["value_inc_vat"] == price_cap
             else:
@@ -154,7 +154,7 @@ async def test_when_get_electricity_rates_is_called_with_duel_rate_tariff_smart_
 
     # Make sure all periods within the expected cheapest period have our cheapest rate
     for item in data:
-        if item["valid_from"] >= cheapest_rate_from and item["valid_to"] <= cheapest_rate_to:
+        if item["start"] >= cheapest_rate_from and item["end"] <= cheapest_rate_to:
             if price_cap is not None and item["value_inc_vat"] > price_cap:
                 assert item["value_inc_vat"] == price_cap
             else:
@@ -199,11 +199,11 @@ async def test_when_get_electricity_rates_is_called_with_cosy_tariff_then_data_i
 
     # Make sure all periods within the expected cheapest/expensive period have our cheapest/expensive rate
     for item in data:
-        if (item["valid_from"].hour >= 3 and item["valid_from"].hour < 6):
+        if (item["start"].hour >= 3 and item["start"].hour < 6):
             assert item["value_inc_vat"] == cheapest_rate
-        elif (item["valid_from"].hour >= 12 and item["valid_from"].hour < 15):
+        elif (item["start"].hour >= 12 and item["start"].hour < 15):
             assert item["value_inc_vat"] == cheapest_rate
-        elif (item["valid_from"].hour >= 15 and item["valid_from"].hour < 18):
+        elif (item["start"].hour >= 15 and item["start"].hour < 18):
             assert item["value_inc_vat"] == expensive_rate
         else:
             assert item["value_inc_vat"] != cheapest_rate

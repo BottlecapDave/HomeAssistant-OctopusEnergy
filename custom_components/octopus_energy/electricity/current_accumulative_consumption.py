@@ -108,8 +108,8 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(CoordinatorEntity, 
         "total": consumption_and_cost["total_consumption"],
         "last_evaluated": consumption_and_cost["last_evaluated"],
         "charges": list(map(lambda charge: {
-          "from": charge["from"],
-          "to": charge["to"],
+          "start": charge["start"],
+          "end": charge["end"],
           "consumption": charge["consumption"]
         }, consumption_and_cost["charges"]))
       }

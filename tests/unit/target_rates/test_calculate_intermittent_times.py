@@ -86,12 +86,12 @@ async def test_when_intermittent_times_present_then_next_intermittent_times_retu
   # Assert
   assert result is not None
   assert len(result) == 2
-  assert result[0]["valid_from"] == expected_first_valid_from
-  assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
+  assert result[0]["start"] == expected_first_valid_from
+  assert result[0]["end"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[0]["value_inc_vat"] == 0.001
 
-  assert result[1]["valid_from"] == expected_first_valid_from + timedelta(hours=1, minutes=30)
-  assert result[1]["valid_to"] == expected_first_valid_from + timedelta(hours=2)
+  assert result[1]["start"] == expected_first_valid_from + timedelta(hours=1, minutes=30)
+  assert result[1]["end"] == expected_first_valid_from + timedelta(hours=2)
   assert result[1]["value_inc_vat"] == 0.001
 
 @pytest.mark.asyncio
@@ -174,12 +174,12 @@ async def test_when_intermittent_times_present_and_highest_prices_are_true_then_
   # Assert
   assert result is not None
   assert len(result) == 2
-  assert result[0]["valid_from"] == expected_first_valid_from
-  assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
+  assert result[0]["start"] == expected_first_valid_from
+  assert result[0]["end"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[0]["value_inc_vat"] == 0.003
 
-  assert result[1]["valid_from"] == expected_first_valid_from + timedelta(hours=1, minutes=30)
-  assert result[1]["valid_to"] == expected_first_valid_from + timedelta(hours=2)
+  assert result[1]["start"] == expected_first_valid_from + timedelta(hours=1, minutes=30)
+  assert result[1]["end"] == expected_first_valid_from + timedelta(hours=2)
   assert result[1]["value_inc_vat"] == 0.003
 
 @pytest.mark.asyncio
@@ -272,12 +272,12 @@ async def test_when_start_time_is_after_end_time_then_rates_are_overnight():
   # Assert
   assert result is not None
   assert len(result) == 2
-  assert result[0]["valid_from"] == datetime.strptime("2022-10-21T20:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[0]["valid_to"] == datetime.strptime("2022-10-21T20:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0]["start"] == datetime.strptime("2022-10-21T20:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0]["end"] == datetime.strptime("2022-10-21T20:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[0]["value_inc_vat"] == 0.151
 
-  assert result[1]["valid_from"] == datetime.strptime("2022-10-22T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[1]["valid_to"] == datetime.strptime("2022-10-22T02:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[1]["start"] == datetime.strptime("2022-10-22T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[1]["end"] == datetime.strptime("2022-10-22T02:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[1]["value_inc_vat"] == 0.141
 
 @pytest.mark.asyncio
@@ -350,12 +350,12 @@ async def test_when_start_time_and_end_time_is_same_then_rates_are_shifted():
   # Assert
   assert result is not None
   assert len(result) == 2
-  assert result[0]["valid_from"] == datetime.strptime("2022-10-21T22:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[0]["valid_to"] == datetime.strptime("2022-10-21T22:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0]["start"] == datetime.strptime("2022-10-21T22:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0]["end"] == datetime.strptime("2022-10-21T22:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[0]["value_inc_vat"] == 0.141
 
-  assert result[1]["valid_from"] == datetime.strptime("2022-10-22T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[1]["valid_to"] == datetime.strptime("2022-10-22T02:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[1]["start"] == datetime.strptime("2022-10-22T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[1]["end"] == datetime.strptime("2022-10-22T02:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[1]["value_inc_vat"] == 0.141
 
 @pytest.mark.asyncio
@@ -422,12 +422,12 @@ async def test_when_start_time_is_after_end_time_and_rolling_target_then_rates_a
   # Assert
   assert result is not None
   assert len(result) == 2
-  assert result[0]["valid_from"] == datetime.strptime("2022-10-21T21:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[0]["valid_to"] == datetime.strptime("2022-10-21T22:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0]["start"] == datetime.strptime("2022-10-21T21:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0]["end"] == datetime.strptime("2022-10-21T22:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[0]["value_inc_vat"] == 0.151
 
-  assert result[1]["valid_from"] == datetime.strptime("2022-10-22T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[1]["valid_to"] == datetime.strptime("2022-10-22T02:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[1]["start"] == datetime.strptime("2022-10-22T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[1]["end"] == datetime.strptime("2022-10-22T02:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[1]["value_inc_vat"] == 0.141
 
 @pytest.mark.asyncio
@@ -501,12 +501,12 @@ async def test_when_start_time_and_end_time_is_same_and_rolling_target_then_rate
   assert result is not None
   assert len(result) == 2
 
-  assert result[0]["valid_from"] == datetime.strptime("2022-10-22T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[0]["valid_to"] == datetime.strptime("2022-10-22T02:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0]["start"] == datetime.strptime("2022-10-22T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0]["end"] == datetime.strptime("2022-10-22T02:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[0]["value_inc_vat"] == 0.141
 
-  assert result[1]["valid_from"] == datetime.strptime("2022-10-22T02:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[1]["valid_to"] == datetime.strptime("2022-10-22T03:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[1]["start"] == datetime.strptime("2022-10-22T02:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[1]["end"] == datetime.strptime("2022-10-22T03:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[1]["value_inc_vat"] == 0.151
 
 @pytest.mark.asyncio
@@ -533,28 +533,28 @@ async def test_when_using_agile_times_then_lowest_rates_are_picked():
   assert result is not None
   assert len(result) == 6
 
-  assert result[0]["valid_from"] == datetime.strptime("2022-10-21T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[0]["valid_to"] == datetime.strptime("2022-10-22T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0]["start"] == datetime.strptime("2022-10-21T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0]["end"] == datetime.strptime("2022-10-22T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[0]["value_inc_vat"] == 0.14123
 
-  assert result[1]["valid_from"] == datetime.strptime("2022-10-22T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[1]["valid_to"] == datetime.strptime("2022-10-22T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[1]["start"] == datetime.strptime("2022-10-22T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[1]["end"] == datetime.strptime("2022-10-22T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[1]["value_inc_vat"] == 0.14123
 
-  assert result[2]["valid_from"] == datetime.strptime("2022-10-22T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[2]["valid_to"] == datetime.strptime("2022-10-22T05:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[2]["start"] == datetime.strptime("2022-10-22T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[2]["end"] == datetime.strptime("2022-10-22T05:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[2]["value_inc_vat"] == 0.179025
 
-  assert result[3]["valid_from"] == datetime.strptime("2022-10-22T05:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[3]["valid_to"] == datetime.strptime("2022-10-22T06:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[3]["start"] == datetime.strptime("2022-10-22T05:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[3]["end"] == datetime.strptime("2022-10-22T06:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[3]["value_inc_vat"] == 0.17136
 
-  assert result[4]["valid_from"] == datetime.strptime("2022-10-22T06:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[4]["valid_to"] == datetime.strptime("2022-10-22T06:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[4]["start"] == datetime.strptime("2022-10-22T06:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[4]["end"] == datetime.strptime("2022-10-22T06:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[4]["value_inc_vat"] == 0.17136
 
-  assert result[5]["valid_from"] == datetime.strptime("2022-10-22T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[5]["valid_to"] == datetime.strptime("2022-10-22T13:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[5]["start"] == datetime.strptime("2022-10-22T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[5]["end"] == datetime.strptime("2022-10-22T13:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert result[5]["value_inc_vat"] == 0.18081
 
 @pytest.mark.asyncio

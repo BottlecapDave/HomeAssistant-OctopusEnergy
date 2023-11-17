@@ -31,4 +31,4 @@ async def test_when_get_saving_sessions_is_called_then_events_are_returned():
         assert event.code is None
         assert event.start is not None
         assert event.end is not None
-        assert event.octopoints >= 0
+        assert event.octopoints is None or event.octopoints >= 0

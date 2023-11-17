@@ -85,12 +85,12 @@ async def test_when_continuous_times_present_then_next_continuous_times_returned
   # Assert
   assert result is not None
   assert len(result) == 2
-  assert result[0]["valid_from"] == expected_first_valid_from
-  assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
+  assert result[0]["start"] == expected_first_valid_from
+  assert result[0]["end"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[0]["value_inc_vat"] == 0.001
 
-  assert result[1]["valid_from"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[1]["valid_to"] == expected_first_valid_from + timedelta(hours=1)
+  assert result[1]["start"] == expected_first_valid_from + timedelta(minutes=30)
+  assert result[1]["end"] == expected_first_valid_from + timedelta(hours=1)
   assert result[1]["value_inc_vat"] == 0.001
 
 @pytest.mark.asyncio
@@ -173,12 +173,12 @@ async def test_when_continuous_times_present_and_highest_price_required_then_nex
   # Assert
   assert result is not None
   assert len(result) == 2
-  assert result[0]["valid_from"] == expected_first_valid_from
-  assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
+  assert result[0]["start"] == expected_first_valid_from
+  assert result[0]["end"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[0]["value_inc_vat"] == 0.002
 
-  assert result[1]["valid_from"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[1]["valid_to"] == expected_first_valid_from + timedelta(hours=1)
+  assert result[1]["start"] == expected_first_valid_from + timedelta(minutes=30)
+  assert result[1]["end"] == expected_first_valid_from + timedelta(hours=1)
   assert result[1]["value_inc_vat"] == 0.003
 
 @pytest.mark.asyncio
@@ -298,10 +298,10 @@ async def test_readme_examples(current_date, target_start_time, target_end_time,
     assert len(result) == 0
   else:
     assert len(result) == 2
-    assert result[0]["valid_from"] == expected_first_valid_from
-    assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
-    assert result[1]["valid_from"] == expected_first_valid_from + timedelta(minutes=30)
-    assert result[1]["valid_to"] == expected_first_valid_from + timedelta(minutes=60)
+    assert result[0]["start"] == expected_first_valid_from
+    assert result[0]["end"] == expected_first_valid_from + timedelta(minutes=30)
+    assert result[1]["start"] == expected_first_valid_from + timedelta(minutes=30)
+    assert result[1]["end"] == expected_first_valid_from + timedelta(minutes=60)
 
 @pytest.mark.asyncio
 async def test_when_current_time_has_not_enough_time_left_then_no_continuous_times_returned():
@@ -442,8 +442,8 @@ async def test_when_go_rates_supplied_once_a_day_set_and_cheapest_period_past_th
   start_time = datetime.strptime("2022-10-09T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
   for index in range(8):
     end_time = start_time + timedelta(minutes=30)
-    assert result[index]["valid_from"] == start_time
-    assert result[index]["valid_to"] == end_time
+    assert result[index]["start"] == start_time
+    assert result[index]["end"] == end_time
     assert result[index]["value_inc_vat"] == round(rates[1]["value_inc_vat"] / 100, 6)
 
     assert result[index]["tariff_code"] == tariff_code
@@ -477,8 +477,8 @@ async def test_when_last_rate_is_currently_active_and_target_is_rolling_then_rat
   # Assert
   assert result is not None
   assert len(result) == 1
-  assert result[0]["valid_from"] == expected_first_valid_from
-  assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
+  assert result[0]["start"] == expected_first_valid_from
+  assert result[0]["end"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[0]["value_inc_vat"] == 0.18081
 
 @pytest.mark.asyncio
@@ -506,12 +506,12 @@ async def test_when_start_time_is_after_end_time_then_rates_are_overnight():
   # Assert
   assert result is not None
   assert len(result) == 2
-  assert result[0]["valid_from"] == expected_first_valid_from
-  assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
+  assert result[0]["start"] == expected_first_valid_from
+  assert result[0]["end"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[0]["value_inc_vat"] == 0.14123
 
-  assert result[1]["valid_from"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[1]["valid_to"] == expected_first_valid_from + timedelta(minutes=60)
+  assert result[1]["start"] == expected_first_valid_from + timedelta(minutes=30)
+  assert result[1]["end"] == expected_first_valid_from + timedelta(minutes=60)
   assert result[1]["value_inc_vat"] == 0.14123
 
 @pytest.mark.asyncio
@@ -539,12 +539,12 @@ async def test_when_start_time_and_end_time_is_same_then_rates_are_shifted():
   # Assert
   assert result is not None
   assert len(result) == 2
-  assert result[0]["valid_from"] == expected_first_valid_from
-  assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
+  assert result[0]["start"] == expected_first_valid_from
+  assert result[0]["end"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[0]["value_inc_vat"] == 0.14123
 
-  assert result[1]["valid_from"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[1]["valid_to"] == expected_first_valid_from + timedelta(minutes=60)
+  assert result[1]["start"] == expected_first_valid_from + timedelta(minutes=30)
+  assert result[1]["end"] == expected_first_valid_from + timedelta(minutes=60)
   assert result[1]["value_inc_vat"] == 0.14123
 
 
@@ -602,12 +602,12 @@ async def test_when_start_time_is_after_end_time_and_rolling_target_then_rates_a
   # Assert
   assert result is not None
   assert len(result) == 2
-  assert result[0]["valid_from"] == expected_first_valid_from
-  assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
+  assert result[0]["start"] == expected_first_valid_from
+  assert result[0]["end"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[0]["value_inc_vat"] == 0.161
 
-  assert result[1]["valid_from"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[1]["valid_to"] == expected_first_valid_from + timedelta(minutes=60)
+  assert result[1]["start"] == expected_first_valid_from + timedelta(minutes=30)
+  assert result[1]["end"] == expected_first_valid_from + timedelta(minutes=60)
   assert result[1]["value_inc_vat"] == 0.161
 
 @pytest.mark.asyncio
@@ -670,8 +670,8 @@ async def test_when_start_time_and_end_time_is_same_and_rolling_target_then_rate
   # Assert
   assert result is not None
   assert len(result) == 2
-  assert result[0]["valid_from"] == expected_first_valid_from
-  assert result[0]["valid_to"] == expected_first_valid_from + timedelta(minutes=30)
+  assert result[0]["start"] == expected_first_valid_from
+  assert result[0]["end"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[0]["value_inc_vat"] == 0.151
 
 @pytest.mark.asyncio

@@ -27,7 +27,7 @@ from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinat
 _LOGGER = logging.getLogger(__name__)
 
 def __get_interval_end(item):
-    return item["interval_end"]
+    return item["end"]
 
 def __sort_consumption(consumption_data):
   sorted = consumption_data.copy()
@@ -53,7 +53,7 @@ async def async_fetch_consumption_and_rates(
 
   if (previous_data == None or 
       ((len(previous_data["consumption"]) < 1 or 
-      previous_data["consumption"][-1]["interval_end"] < period_to) and 
+      previous_data["consumption"][-1]["end"] < period_to) and 
       utc_now.minute % 30 == 0)):
     
     _LOGGER.debug(f"Retrieving previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}...")

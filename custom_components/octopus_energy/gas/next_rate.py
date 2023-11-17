@@ -35,8 +35,8 @@ class OctopusEnergyGasNextRate(CoordinatorEntity, OctopusEnergyGasSensor, Restor
       "is_smart_meter": self._is_smart_meter,
       "all_rates": [],
       "applicable_rates": [],
-      "valid_from": None,
-      "valid_to": None,
+      "start": None,
+      "end": None,
     }
 
   @property
@@ -89,8 +89,8 @@ class OctopusEnergyGasNextRate(CoordinatorEntity, OctopusEnergyGasSensor, Restor
           "mprn": self._mprn,
           "serial_number": self._serial_number,
           "is_smart_meter": self._is_smart_meter,
-          "valid_from": rate_information["next_rate"]["valid_from"],
-          "valid_to": rate_information["next_rate"]["valid_to"],
+          "start": rate_information["next_rate"]["start"],
+          "end": rate_information["next_rate"]["end"],
           "applicable_rates": rate_information["applicable_rates"],
         }
 
@@ -100,8 +100,8 @@ class OctopusEnergyGasNextRate(CoordinatorEntity, OctopusEnergyGasSensor, Restor
           "mprn": self._mprn,
           "serial_number": self._serial_number,
           "is_smart_meter": self._is_smart_meter,
-          "valid_from": None,
-          "valid_to": None,
+          "start": None,
+          "end": None,
           "applicable_rates": [],
         }
 

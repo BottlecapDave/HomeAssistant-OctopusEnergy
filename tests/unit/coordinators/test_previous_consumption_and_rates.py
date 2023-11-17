@@ -25,10 +25,10 @@ def assert_raised_events(
   assert raised_events[expected_event_name]["serial_number"] == sensor_serial_number
   assert "rates" in raised_events[expected_event_name]
   assert len(raised_events[expected_event_name]["rates"]) > 2
-  assert "valid_from" in raised_events[expected_event_name]["rates"][0]
-  assert raised_events[expected_event_name]["rates"][0]["valid_from"] == expected_valid_from
-  assert "valid_to" in raised_events[expected_event_name]["rates"][-1]
-  assert raised_events[expected_event_name]["rates"][-1]["valid_to"] == expected_valid_to
+  assert "start" in raised_events[expected_event_name]["rates"][0]
+  assert raised_events[expected_event_name]["rates"][0]["start"] == expected_valid_from
+  assert "end" in raised_events[expected_event_name]["rates"][-1]
+  assert raised_events[expected_event_name]["rates"][-1]["end"] == expected_valid_to
 
 @pytest.mark.asyncio
 async def test_when_now_is_not_at_30_minute_mark_and_previous_data_is_available_then_previous_data_returned():
@@ -216,10 +216,10 @@ async def test_when_now_is_at_30_minute_mark_and_gas_sensor_then_requested_data_
     for item in result["consumption"]:
       expected_valid_to = expected_valid_from + timedelta(minutes=30)
 
-      assert "interval_start" in item
-      assert item["interval_start"] == expected_valid_from
-      assert "interval_end" in item
-      assert item["interval_end"] == expected_valid_to
+      assert "start" in item
+      assert item["start"] == expected_valid_from
+      assert "end" in item
+      assert item["end"] == expected_valid_to
 
       expected_valid_from = expected_valid_to
 
@@ -323,10 +323,10 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
     for item in result["consumption"]:
       expected_valid_to = expected_valid_from + timedelta(minutes=30)
 
-      assert "interval_start" in item
-      assert item["interval_start"] == expected_valid_from
-      assert "interval_end" in item
-      assert item["interval_end"] == expected_valid_to
+      assert "start" in item
+      assert item["start"] == expected_valid_from
+      assert "end" in item
+      assert item["end"] == expected_valid_to
 
       expected_valid_from = expected_valid_to
 

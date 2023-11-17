@@ -10,8 +10,8 @@ def get_account_info():
         "mpan": 'elec-mpan',
         "agreements": [
           {
-            "valid_from": "2023-08-01T00:00:00+01:00",
-            "valid_to": "2023-08-14T00:00:00+01:00",
+            "start": "2023-08-01T00:00:00+01:00",
+            "end": "2023-08-14T00:00:00+01:00",
             "tariff_code": "E-1R-SUPER-GREEN-24M-21-07-30-C",
             "product": "SUPER-GREEN-24M-21-07-30"
           }
@@ -29,8 +29,8 @@ def get_account_info():
         "mprn": 'gas-mprn',
         "agreements": [
           {
-            "valid_from": "2023-08-13T00:00:00+01:00",
-            "valid_to": "2023-09-01T00:00:00+01:00",
+            "start": "2023-08-13T00:00:00+01:00",
+            "end": "2023-09-01T00:00:00+01:00",
             "tariff_code": "G-1R-SUPER-GREEN-24M-21-07-30-C",
             "product": "SUPER-GREEN-24M-21-07-30"
           }

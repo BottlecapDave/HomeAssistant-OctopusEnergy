@@ -98,7 +98,7 @@ def has_intelligent_tariff(current: datetime, account_info):
 
 def __get_dispatch(rate, dispatches: list[IntelligentDispatchItem], expected_source: str):
   for dispatch in dispatches:
-    if (expected_source is None or dispatch.source == expected_source) and dispatch.start <= rate["valid_from"] and dispatch.end >= rate["valid_to"]:
+    if (expected_source is None or dispatch.source == expected_source) and dispatch.start <= rate["start"] and dispatch.end >= rate["end"]:
       return dispatch
     
   return None
@@ -114,8 +114,8 @@ def adjust_intelligent_rates(rates, planned_dispatches: list[IntelligentDispatch
 
     if __get_dispatch(rate, planned_dispatches, "smart-charge") is not None or __get_dispatch(rate, completed_dispatches, None) is not None:
       adjusted_rates.append({
-        "valid_from": rate["valid_from"],
-        "valid_to": rate["valid_to"],
+        "start": rate["start"],
+        "end": rate["end"],
         "value_inc_vat": off_peak_rate["value_inc_vat"],
         "is_capped": rate["is_capped"] if "is_capped" in rate else False,
         "is_intelligent_adjusted": True

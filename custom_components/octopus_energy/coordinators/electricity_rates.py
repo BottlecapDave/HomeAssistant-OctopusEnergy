@@ -62,7 +62,7 @@ async def async_refresh_electricity_rates_data(
         existing_rates_result is None or
         existing_rates_result.rates is None or
         len(existing_rates_result.rates) < 1 or
-        existing_rates_result.rates[-1]["valid_from"] < period_from):
+        existing_rates_result.rates[-1]["start"] < period_from):
       try:
         new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
       except:

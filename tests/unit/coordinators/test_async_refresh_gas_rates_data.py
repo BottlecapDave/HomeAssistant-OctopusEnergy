@@ -34,8 +34,8 @@ def get_account_info(is_active_agreement = True):
         ],
         "agreements": [
           {
-            "valid_from": "2023-07-01T00:00:00+01:00" if is_active_agreement else "2023-08-01T00:00:00+01:00",
-            "valid_to": "2023-08-01T00:00:00+01:00" if is_active_agreement else "2023-09-01T00:00:00+01:00",
+            "start": "2023-07-01T00:00:00+01:00" if is_active_agreement else "2023-08-01T00:00:00+01:00",
+            "end": "2023-08-01T00:00:00+01:00" if is_active_agreement else "2023-09-01T00:00:00+01:00",
             "tariff_code": tariff_code,
             "product": "SUPER-GREEN-24M-21-07-30"
           }
@@ -52,10 +52,10 @@ def assert_raised_events(raised_events: dict, expected_event_name: str, expected
   assert raised_events[expected_event_name]["serial_number"] == serial_number
   assert "rates" in raised_events[expected_event_name]
   assert len(raised_events[expected_event_name]["rates"]) > 2
-  assert "valid_from" in raised_events[expected_event_name]["rates"][0]
-  assert raised_events[expected_event_name]["rates"][0]["valid_from"] == expected_valid_from
-  assert "valid_to" in raised_events[expected_event_name]["rates"][-1]
-  assert raised_events[expected_event_name]["rates"][-1]["valid_to"] == expected_valid_to
+  assert "start" in raised_events[expected_event_name]["rates"][0]
+  assert raised_events[expected_event_name]["rates"][0]["start"] == expected_valid_from
+  assert "end" in raised_events[expected_event_name]["rates"][-1]
+  assert raised_events[expected_event_name]["rates"][-1]["end"] == expected_valid_to
 
 @pytest.mark.asyncio
 async def test_when_account_info_is_none_then_existing_rates_returned():

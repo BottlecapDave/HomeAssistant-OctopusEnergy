@@ -45,44 +45,44 @@ async def test_bob():
     {
 			"value_exc_vat": 28.8068,
 			"value_inc_vat": 30.24714,
-			"valid_from": "2023-11-06T04:30:00Z",
-			"valid_to": "2023-11-07T00:30:00Z"
+			"start": "2023-11-06T04:30:00Z",
+			"end": "2023-11-07T00:30:00Z"
 		},
 		{
 			"value_exc_vat": 8.5714,
 			"value_inc_vat": 8.99997,
-			"valid_from": "2023-11-06T00:30:00Z",
-			"valid_to": "2023-11-06T04:30:00Z"
+			"start": "2023-11-06T00:30:00Z",
+			"end": "2023-11-06T04:30:00Z"
 		},
 		{
 			"value_exc_vat": 28.8068,
 			"value_inc_vat": 30.24714,
-			"valid_from": "2023-11-05T04:30:00Z",
-			"valid_to": "2023-11-06T00:30:00Z"
+			"start": "2023-11-05T04:30:00Z",
+			"end": "2023-11-06T00:30:00Z"
 		},
 		{
 			"value_exc_vat": 8.5714,
 			"value_inc_vat": 8.99997,
-			"valid_from": "2023-11-05T00:30:00Z",
-			"valid_to": "2023-11-05T04:30:00Z"
+			"start": "2023-11-05T00:30:00Z",
+			"end": "2023-11-05T04:30:00Z"
 		},
 		{
 			"value_exc_vat": 28.8068,
 			"value_inc_vat": 30.24714,
-			"valid_from": "2023-11-04T04:30:00Z",
-			"valid_to": "2023-11-05T00:30:00Z"
+			"start": "2023-11-04T04:30:00Z",
+			"end": "2023-11-05T00:30:00Z"
 		},
 		{
 			"value_exc_vat": 8.5714,
 			"value_inc_vat": 8.99997,
-			"valid_from": "2023-11-04T00:30:00Z",
-			"valid_to": "2023-11-04T04:30:00Z"
+			"start": "2023-11-04T00:30:00Z",
+			"end": "2023-11-04T04:30:00Z"
 		},
 		{
 			"value_exc_vat": 28.8068,
 			"value_inc_vat": 30.24714,
-			"valid_from": "2023-11-03T04:30:00Z",
-			"valid_to": "2023-11-04T00:30:00Z"
+			"start": "2023-11-03T04:30:00Z",
+			"end": "2023-11-04T00:30:00Z"
 		}
   ]
   rate_data = rates_to_thirty_minute_increments(data, period_from, period_to, 'tariff')

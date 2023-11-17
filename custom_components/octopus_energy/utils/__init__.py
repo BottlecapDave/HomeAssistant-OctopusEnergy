@@ -46,13 +46,13 @@ def get_active_tariff_code(utcnow: datetime, agreements):
     if agreement["tariff_code"] is None:
       continue
 
-    valid_from = as_utc(parse_datetime(agreement["valid_from"]))
+    valid_from = as_utc(parse_datetime(agreement["start"]))
 
     if utcnow >= valid_from and (latest_valid_from is None or valid_from > latest_valid_from):
 
       latest_valid_to = None
-      if "valid_to" in agreement and agreement["valid_to"] is not None:
-        latest_valid_to = as_utc(parse_datetime(agreement["valid_to"]))
+      if "end" in agreement and agreement["end"] is not None:
+        latest_valid_to = as_utc(parse_datetime(agreement["end"]))
 
       if latest_valid_to is None or latest_valid_to >= utcnow:
         latest_agreement = agreement
@@ -71,7 +71,7 @@ def get_off_peak_cost(current: datetime, rates: list):
   rate_charges = {}
   if rates is not None:
     for rate in rates:
-      if rate["valid_from"] >= today_start and rate["valid_to"] <= today_end:
+      if rate["start"] >= today_start and rate["end"] <= today_end:
         value = rate["value_inc_vat"]
         rate_charges[value] = (rate_charges[value] if value in rate_charges else value)
         if off_peak_cost is None or off_peak_cost > rate["value_inc_vat"]:
@@ -94,8 +94,8 @@ def private_rates_to_public_rates(rates: list):
 
   for rate in rates:
     new_rate = {
-      "valid_from": rate["valid_from"],
-      "valid_to": rate["valid_to"],
+      "start": rate["start"],
+      "end": rate["end"],
       "value_inc_vat": value_inc_vat_to_pounds(rate["value_inc_vat"])
     }
 

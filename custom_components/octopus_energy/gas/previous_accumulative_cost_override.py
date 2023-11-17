@@ -109,7 +109,7 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
     consumption_data = self.coordinator.data["consumption"] if self.coordinator is not None and self.coordinator.data is not None and "consumption" in self.coordinator.data else None
 
     tariff_override_key = get_gas_tariff_override_key(self._serial_number, self._mprn)
-    is_old_data = self._last_reset is None or (consumption_data is not None and self._last_reset < consumption_data[-1]["interval_end"])
+    is_old_data = self._last_reset is None or (consumption_data is not None and self._last_reset < consumption_data[-1]["end"])
     is_tariff_present = tariff_override_key in self._hass.data[DOMAIN]
     has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][tariff_override_key] != self._tariff_code
 
@@ -117,8 +117,8 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
       _LOGGER.debug(f"Calculating previous gas consumption cost override for '{self._mprn}/{self._serial_number}'...")
 
       tariff_override = self._hass.data[DOMAIN][tariff_override_key]
-      period_from = consumption_data[0]["interval_start"]
-      period_to = consumption_data[-1]["interval_end"]
+      period_from = consumption_data[0]["start"]
+      period_to = consumption_data[-1]["end"]
 
       [rate_data, standing_charge] = await asyncio.gather(
         self._client.async_get_gas_rates(tariff_override, period_from, period_to),
@@ -152,8 +152,8 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
           "total": consumption_and_cost["total_cost"],
           "last_evaluated": consumption_and_cost["last_evaluated"],
           "charges": list(map(lambda charge: {
-            "from": charge["from"],
-            "to": charge["to"],
+            "start": charge["start"],
+            "end": charge["end"],
             "rate": charge["rate"],
             "consumption": charge["consumption_kwh"],
             "cost": charge["cost"]

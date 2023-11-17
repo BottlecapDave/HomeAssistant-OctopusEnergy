@@ -33,8 +33,8 @@ def get_account_info(is_active_agreement = True):
         ],
         "agreements": [
           {
-            "valid_from": "2023-07-01T00:00:00+01:00" if is_active_agreement else "2023-08-01T00:00:00+01:00",
-            "valid_to": "2023-08-01T00:00:00+01:00" if is_active_agreement else "2023-09-01T00:00:00+01:00",
+            "start": "2023-07-01T00:00:00+01:00" if is_active_agreement else "2023-08-01T00:00:00+01:00",
+            "end": "2023-08-01T00:00:00+01:00" if is_active_agreement else "2023-09-01T00:00:00+01:00",
             "tariff_code": tariff_code,
             "product": "SUPER-GREEN-24M-21-07-30"
           }
@@ -46,8 +46,8 @@ def get_account_info(is_active_agreement = True):
 @pytest.mark.asyncio
 async def test_when_account_info_is_none_then_existing_standing_charge_returned():
   expected_standing_charge = {
-    "valid_from": period_from,
-    "valid_to": period_to,
+    "start": period_from,
+    "end": period_to,
     "value_inc_vat": 0.30
   }
   standing_charge_returned = False
@@ -76,8 +76,8 @@ async def test_when_account_info_is_none_then_existing_standing_charge_returned(
 @pytest.mark.asyncio
 async def test_when_no_active_standing_charge_then_none_returned():
   expected_standing_charge = {
-    "valid_from": period_from,
-    "valid_to": period_to,
+    "start": period_from,
+    "end": period_to,
     "value_inc_vat": 0.30
   }
   standing_charge_returned = False
@@ -111,8 +111,8 @@ async def test_when_current_is_not_thirty_minutes_then_existing_standing_charge_
 
     current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z").replace(minute=minute)
     expected_standing_charge = {
-      "valid_from": period_from,
-      "valid_to": period_to,
+      "start": period_from,
+      "end": period_to,
       "value_inc_vat": 0.30
     }
     standing_charge_returned = False
@@ -123,8 +123,8 @@ async def test_when_current_is_not_thirty_minutes_then_existing_standing_charge_
     
     account_info = get_account_info()
     existing_standing_charge = GasStandingChargeCoordinatorResult(period_from, {
-      "valid_from": period_from,
-      "valid_to": period_to,
+      "start": period_from,
+      "end": period_to,
       "value_inc_vat": 0.10
     })
     
@@ -152,8 +152,8 @@ async def test_when_existing_standing_charge_is_none_then_standing_charge_retrie
   expected_period_from = current.replace(hour=0, minute=0, second=0, microsecond=0)
   expected_period_to = expected_period_from + timedelta(days=1)
   expected_standing_charge = {
-    "valid_from": period_from,
-    "valid_to": period_to,
+    "start": period_from,
+    "end": period_to,
     "value_inc_vat": 0.30
   }
   standing_charge_returned = False
@@ -190,8 +190,8 @@ async def test_when_existing_standing_charge_is_none_then_standing_charge_retrie
 @pytest.mark.asyncio
 async def test_when_existing_standing_charge_is_old_then_standing_charge_retrieved():
   expected_standing_charge = {
-    "valid_from": period_from,
-    "valid_to": period_to,
+    "start": period_from,
+    "end": period_to,
     "value_inc_vat": 0.30
   }
   standing_charge_returned = False
