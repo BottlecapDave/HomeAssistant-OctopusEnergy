@@ -17,6 +17,7 @@ from ..utils.tariff_check import check_tariff_override_valid
 from ..api_client import OctopusEnergyApiClient
 
 from .base import (OctopusEnergyElectricitySensor)
+from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -82,8 +83,6 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(OctopusEner
         self._attr_state = state.state
         self._hass.data[DOMAIN][get_electricity_tariff_override_key(self._serial_number, self._mpan)] = self._attr_native_value
       
-      self._attributes = {}
-      for x in state.attributes.keys():
-        self._attributes[x] = state.attributes[x]
+      self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride state: {self._attr_state}')

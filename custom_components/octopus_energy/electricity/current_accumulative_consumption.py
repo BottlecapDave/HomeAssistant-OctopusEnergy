@@ -17,6 +17,7 @@ from homeassistant.const import (
 from homeassistant.util.dt import (now)
 
 from .base import (OctopusEnergyElectricitySensor)
+from ..utils.attributes import dict_to_typed_dict
 
 from . import calculate_electricity_consumption_and_cost
 
@@ -124,5 +125,6 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(CoordinatorEntity, 
     
     if state is not None and self._state is None:
       self._state = state.state
+      self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyCurrentAccumulativeElectricityConsumption state: {self._state}')

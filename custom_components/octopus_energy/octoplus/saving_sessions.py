@@ -18,6 +18,7 @@ from . import (
 )
 
 from ..coordinators.saving_sessions import SavingSessionsCoordinatorResult
+from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -107,6 +108,7 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
 
     if state is not None:
       self._state = state.state
+      self._attributes = dict_to_typed_dict(state.attributes)
     
     if (self._state is None):
       self._state = False

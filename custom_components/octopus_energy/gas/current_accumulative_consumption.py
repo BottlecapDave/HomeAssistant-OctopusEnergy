@@ -15,6 +15,7 @@ from homeassistant.const import (
 )
 
 from .base import (OctopusEnergyGasSensor)
+from ..utils.attributes import dict_to_typed_dict
 
 from ..gas import calculate_gas_consumption_and_cost
 
@@ -123,5 +124,6 @@ class OctopusEnergyCurrentAccumulativeGasConsumption(CoordinatorEntity, OctopusE
     
     if state is not None and self._state is None:
       self._state = state.state
+      self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyCurrentAccumulativeGasConsumption state: {self._state}')

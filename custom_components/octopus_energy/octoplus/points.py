@@ -10,7 +10,7 @@ from homeassistant.components.sensor import (
   SensorStateClass
 )
 from ..api_client import OctopusEnergyApiClient
-
+from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -75,8 +75,6 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
 
     if state is not None and self._state is None:
       self._state = state.state
-      self._attributes = {}
-      for x in state.attributes.keys():
-        self._attributes[x] = state.attributes[x]
+      self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyOctoplusPoints state: {self._state}')

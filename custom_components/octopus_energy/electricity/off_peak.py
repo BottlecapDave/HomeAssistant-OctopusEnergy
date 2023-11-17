@@ -16,6 +16,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from ..utils import is_off_peak
 
 from .base import OctopusEnergyElectricitySensor
+from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -76,6 +77,7 @@ class OctopusEnergyElectricityOffPeak(CoordinatorEntity, OctopusEnergyElectricit
 
     if state is not None:
       self._state = state.state
+      self._attributes = dict_to_typed_dict(state.attributes)
     
     if (self._state is None):
       self._state = False

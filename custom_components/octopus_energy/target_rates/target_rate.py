@@ -45,6 +45,7 @@ from . import (
 
 from ..config.target_rates import validate_target_rate_config
 from ..target_rates.repairs import check_for_errors
+from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -219,7 +220,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     if state is not None and self._state is None:
       self._state = state.state
       self._attributes = {}
-      for x in state.attributes.keys():
+      temp_attributes = dict_to_typed_dict(state.attributes)
+      for x in temp_attributes.keys():
         if x in [CONFIG_TARGET_OLD_NAME, CONFIG_TARGET_OLD_HOURS, CONFIG_TARGET_OLD_TYPE, CONFIG_TARGET_OLD_START_TIME, CONFIG_TARGET_OLD_END_TIME, CONFIG_TARGET_OLD_MPAN]:
           continue
         

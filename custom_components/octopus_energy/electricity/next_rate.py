@@ -14,6 +14,7 @@ from homeassistant.components.sensor import (
 )
 
 from .base import (OctopusEnergyElectricitySensor)
+from ..utils.attributes import dict_to_typed_dict
 from ..utils.rate_information import (get_next_rate_information)
 
 _LOGGER = logging.getLogger(__name__)
@@ -124,8 +125,6 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
     
     if state is not None and self._state is None:
       self._state = state.state
-      self._attributes = {}
-      for x in state.attributes.keys():
-        self._attributes[x] = state.attributes[x]
+      self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyElectricityNextRate state: {self._state}')

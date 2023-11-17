@@ -17,12 +17,11 @@ from ..intelligent import (
   is_in_planned_dispatch
 )
 
-
 from ..utils import is_off_peak
 
 from .base import OctopusEnergyIntelligentSensor
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
-
+from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -95,6 +94,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
 
     if state is not None:
       self._state = state.state
+      self._attributes = dict_to_typed_dict(state.attributes)
     
     if (self._state is None):
       self._state = False

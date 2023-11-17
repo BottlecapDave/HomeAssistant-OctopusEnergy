@@ -21,6 +21,7 @@ from . import (
 )
 
 from .base import (OctopusEnergyGasSensor)
+from ..utils.attributes import dict_to_typed_dict
 
 from ..api_client import OctopusEnergyApiClient
 from ..statistics.consumption import async_import_external_statistics_from_consumption, get_gas_consumption_statistic_unique_id
@@ -163,12 +164,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumption(CoordinatorEntity, Octopus
     
     if state is not None and self._state is None:
       self._state = state.state
-      self._attributes = {}
-      for x in state.attributes.keys():
-        self._attributes[x] = state.attributes[x]
-
-        if x == "last_reset":
-          self._last_reset = datetime.strptime(state.attributes[x], "%Y-%m-%dT%H:%M:%S%z")
+      self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeGasConsumption state: {self._state}')
 
