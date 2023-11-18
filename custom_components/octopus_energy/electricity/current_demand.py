@@ -28,7 +28,7 @@ class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElec
     self._state = None
     self._latest_date = None
     self._attributes = {
-      "last_updated_timestamp": None
+      "last_evaluated": None
     }
 
   @property
@@ -74,7 +74,7 @@ class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElec
 
     if (consumption_result is not None):
       self._state = consumption_result[-1]["demand"]
-      self._attributes["last_updated_timestamp"] = now()
+      self._attributes["last_evaluated"] = now()
 
     return self._state
 

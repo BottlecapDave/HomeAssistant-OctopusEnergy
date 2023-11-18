@@ -2,6 +2,7 @@ import logging
 
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
+from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -63,8 +64,9 @@ class OctopusEnergyWheelOfFortuneElectricitySpins(CoordinatorEntity, RestoreSens
     result: WheelOfFortuneSpinsCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     if result is not None:
       self._state = result.spins.electricity
-      self._attributes["last_evaluated"] = result.last_retrieved
-
+      self._attributes["data_last_retrieved"] = result.last_retrieved
+    
+    self._attributes["last_evaluated"] = utcnow()
     return self._state
 
   async def async_added_to_hass(self):

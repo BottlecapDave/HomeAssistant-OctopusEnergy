@@ -57,10 +57,13 @@ class OctopusEnergyIntelligentSmartCharge(CoordinatorEntity, SwitchEntity, Octop
     """Determines if smart charge is currently on."""
     settings_result: IntelligentCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     if settings_result is None or (self._last_updated is not None and self._last_updated > settings_result.last_retrieved):
-      self._attributes["last_updated_timestamp"] = self._last_updated
       return self._state
+    
+    if settings_result is not None:
+      self._attributes["data_last_retrieved"] = settings_result.last_retrieved
 
     self._state = settings_result.settings.smart_charge
+    self._attributes["last_evaluated"] = utcnow()
     
     return self._state
 

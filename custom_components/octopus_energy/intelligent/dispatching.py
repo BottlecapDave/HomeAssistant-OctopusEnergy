@@ -3,7 +3,7 @@ import logging
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import generate_entity_id
 
-from homeassistant.util.dt import (now)
+from homeassistant.util.dt import (now, utcnow)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
@@ -41,7 +41,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
     self._attributes = {
       "planned_dispatches": [],
       "completed_dispatches": [],
-      "last_updated_timestamp": None,
+      "last_evaluated": None,
       "vehicle_battery_size_in_kwh": device["vehicleBatterySizeInKwh"],
       "charge_point_power_in_kw": device["chargePointPowerInKw"]
     }
@@ -76,13 +76,14 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
     if (result is not None):
       self._attributes["planned_dispatches"] = dispatches_to_dictionary_list(result.dispatches.planned)
       self._attributes["completed_dispatches"] = dispatches_to_dictionary_list(result.dispatches.completed)
-      self._attributes["last_updated_timestamp"] = result.last_retrieved
+      self._attributes["data_last_retrieved"] = result.last_retrieved
     else:
       self._attributes["planned_dispatches"] = []
       self._attributes["completed_dispatches"] = []
 
-    current_date = now()
+    current_date = utcnow()
     self._state = is_in_planned_dispatch(current_date, result.dispatches.planned) or is_off_peak(current_date, rates)
+    self._attributes["last_evaluated"] = current_date
     
     return self._state
 

@@ -34,7 +34,7 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
     self._latest_date = None
     self._previous_total_consumption = None
     self._attributes = {
-      "last_updated_timestamp": None
+      "last_evaluated": None
     }
 
   @property
@@ -88,11 +88,11 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
       total_consumption = get_total_consumption(consumption_result)
       self._state = get_current_consumption_delta(current_date,
                                                   total_consumption,
-                                                  self._attributes["last_updated_timestamp"] if self._attributes["last_updated_timestamp"] is not None else current_date,
+                                                  self._attributes["last_evaluated"] if self._attributes["last_evaluated"] is not None else current_date,
                                                   self._previous_total_consumption)
       if (self._state is not None):
         self._latest_date = current_date
-        self._attributes["last_updated_timestamp"] = current_date
+        self._attributes["last_evaluated"] = current_date
 
       # Store the total consumption ready for the next run
       self._previous_total_consumption = total_consumption

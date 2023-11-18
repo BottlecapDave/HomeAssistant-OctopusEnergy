@@ -3,7 +3,7 @@ import logging
 
 from homeassistant.core import HomeAssistant
 
-from homeassistant.util.dt import (now)
+from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
@@ -16,6 +16,7 @@ from homeassistant.components.sensor import (
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..utils.rate_information import (get_next_rate_information)
+from ..coordinators.electricity_rates import ElectricityRatesCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -79,13 +80,13 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
   def state(self):
     """Retrieve the next rate for the sensor."""
     # Find the next rate. We only need to do this every half an hour
-    current = now()
-    rates = self.coordinator.data.rates if self.coordinator is not None and self.coordinator.data is not None else None
-    if (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0):
+    current = utcnow()
+    rates_result: ElectricityRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    if (rates_result is not None and (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0)):
       _LOGGER.debug(f"Updating OctopusEnergyElectricityNextRate for '{self._mpan}/{self._serial_number}'")
 
       target = current
-      rate_information = get_next_rate_information(rates, target)
+      rate_information = get_next_rate_information(rates_result.rates, target)
       
       if rate_information is not None:
         self._attributes = {
@@ -112,6 +113,11 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
 
       self._last_updated = current
     
+    if rates_result is not None:
+      self._attributes["data_last_retrieved"] = rates_result.last_retrieved
+
+    self._attributes["last_evaluated"] = current
+
     return self._state
 
   async def async_added_to_hass(self):
