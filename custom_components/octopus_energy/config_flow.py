@@ -88,7 +88,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     if len(errors) < 1:
       user_input[CONFIG_KIND] = CONFIG_KIND_ACCOUNT
       return self.async_create_entry(
-        title="Account", 
+        title=user_input[CONFIG_MAIN_ACCOUNT_ID], 
         data=user_input
       )
 

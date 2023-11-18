@@ -53,15 +53,17 @@ async def async_migrate_entry(hass, config_entry):
 
     new_data = None
     new_options = None
+    title = config_entry.title
     if CONFIG_MAIN_API_KEY in config_entry.data or CONFIG_MAIN_OLD_API_KEY in config_entry.data or (CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT):
       new_data = await async_migrate_main_config(config_entry.version, config_entry.data)
       new_options = await async_migrate_main_config(config_entry.version, config_entry.options)
+      title = new_data[CONFIG_MAIN_ACCOUNT_ID]
     else:
       new_data = await async_migrate_target_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
       new_options = await async_migrate_target_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
     
     config_entry.version = CONFIG_VERSION
-    hass.config_entries.async_update_entry(config_entry, data=new_data, options=new_options)
+    hass.config_entries.async_update_entry(config_entry, title=title, data=new_data, options=new_options)
 
     _LOGGER.debug("Migration to version %s successful", config_entry.version)
 
