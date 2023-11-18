@@ -88,7 +88,7 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
       total_consumption = get_total_consumption(consumption_result)
       self._state = get_current_consumption_delta(current_date,
                                                   total_consumption,
-                                                  self._attributes["last_evaluated"] if self._attributes["last_evaluated"] is not None else current_date,
+                                                  self._attributes["last_evaluated"] if "last_evaluated" in self._attributes and self._attributes["last_evaluated"] is not None else current_date,
                                                   self._previous_total_consumption)
       if (self._state is not None):
         self._latest_date = current_date
