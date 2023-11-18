@@ -59,8 +59,13 @@ class OctopusEnergyIntelligentBumpCharge(CoordinatorEntity, SwitchEntity, Octopu
     result: IntelligentDispatchesCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
     if result is None or (self._last_updated is not None and self._last_updated > result.last_retrieved):
       return self._state
+    
+    if result is not None:
+      self._attributes["data_last_retrieved"] = result.last_retrieved
 
-    self._state = is_in_bump_charge(utcnow(), result.dispatches.planned)
+    current_date = utcnow()
+    self._state = is_in_bump_charge(current_date, result.dispatches.planned)
+    self._attributes["last_evaluated"] = current_date
     
     return self._state
 

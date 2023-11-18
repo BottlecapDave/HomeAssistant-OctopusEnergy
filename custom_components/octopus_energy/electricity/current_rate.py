@@ -3,7 +3,7 @@ import logging
 
 from homeassistant.core import HomeAssistant
 
-from homeassistant.util.dt import (now)
+from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -15,6 +15,7 @@ from homeassistant.components.sensor import (
 
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
+from ..coordinators.electricity_rates import ElectricityRatesCoordinatorResult
 
 from ..utils.rate_information import (get_current_rate_information)
 
@@ -88,12 +89,12 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
   def state(self):
     """Retrieve the current rate for the sensor."""
     # Find the current rate. We only need to do this every half an hour
-    current = now()
-    rates = self.coordinator.data.rates if self.coordinator is not None and self.coordinator.data is not None else None
-    if (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0):
+    current = utcnow()
+    rates_result: ElectricityRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    if (rates_result is not None and (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0)):
       _LOGGER.debug(f"Updating OctopusEnergyElectricityCurrentRate for '{self._mpan}/{self._serial_number}'")
 
-      rate_information = get_current_rate_information(rates, current)
+      rate_information = get_current_rate_information(rates_result.rates, current)
 
       if rate_information is not None:
         self._attributes = {
@@ -134,6 +135,11 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
         self._attributes["price_cap"] = self._electricity_price_cap
 
       self._last_updated = current
+
+    if rates_result is not None:
+      self._attributes["data_last_retrieved"] = rates_result.last_retrieved
+
+    self._attributes["last_evaluated"] = current
 
     return self._state
 

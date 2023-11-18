@@ -64,7 +64,8 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
     if self._last_evaluated is None or self._last_evaluated + timedelta(minutes=30) < now:
       self._state = await self._client.async_get_octoplus_points()
       self._last_evaluated = now
-
+    
+    self._attributes["data_last_retrieved"] = self._last_evaluated
     self._attributes["last_evaluated"] = self._last_evaluated
 
   async def async_added_to_hass(self):

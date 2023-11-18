@@ -3,7 +3,7 @@ import logging
 
 from homeassistant.core import HomeAssistant
 
-from homeassistant.util.dt import (now)
+from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -16,6 +16,7 @@ from homeassistant.components.sensor import (
 from .base import (OctopusEnergyGasSensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..utils.rate_information import get_current_rate_information
+from ..coordinators.gas_rates import GasRatesCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -81,12 +82,12 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, Res
   @property
   def state(self):
     """Retrieve the current rate for the sensor."""
-    current = now()
-    rates = self.coordinator.data.rates if self.coordinator is not None and self.coordinator.data is not None else None
-    if (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0):
+    current = utcnow()
+    rates_result: GasRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    if (rates_result is not None and (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0)):
       _LOGGER.debug(f"Updating OctopusEnergyGasCurrentRate for '{self._mprn}/{self._serial_number}'")
 
-      rate_information = get_current_rate_information(rates, current)
+      rate_information = get_current_rate_information(rates_result.rates, current)
 
       if rate_information is not None:
         self._attributes = {
@@ -117,6 +118,11 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, Res
         self._attributes["price_cap"] = self._gas_price_cap
 
       self._last_updated = current
+
+    if rates_result is not None:
+      self._attributes["data_last_retrieved"] = rates_result.last_retrieved
+
+    self._attributes["last_evaluated"] = current
 
     return self._state
 
