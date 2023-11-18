@@ -8,6 +8,7 @@
     - [Home Mini](#home-mini)
     - [Intelligent](#intelligent)
     - [Saving Sessions](#saving-sessions)
+    - [Wheel of Fortune](#wheel-of-fortune)
   - [Target Rate Sensors](#target-rate-sensors)
   - [Events](#events)
   - [Services](#services)
@@ -48,7 +49,11 @@ If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-
 
 ### Saving Sessions
 
-To support Octopus Energy's [saving sessions](https://octopus.energy/saving-sessions/). [Full list of saving session entites](./entities/saving_sessions.md).
+To support Octopus Energy's [octoplus programme](https://octopus.energy/octoplus/). [Full list of octoplus entites](./entities/octoplus.md).
+
+### Wheel of Fortune
+
+To support the wheel of fortune that is awarded every month to customers.
 
 ## Target Rate Sensors
 
