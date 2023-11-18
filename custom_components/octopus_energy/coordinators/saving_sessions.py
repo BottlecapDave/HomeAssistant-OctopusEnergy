@@ -64,7 +64,8 @@ async def async_refresh_saving_sessions(
 
         if existing_saving_sessions_result is not None:
           for existing_available_event in existing_saving_sessions_result.available_events:
-            if existing_available_event.id == available_event.id:
+            # Look at code instead of id, in case the code changes but the id stays the same
+            if existing_available_event.code == available_event.code:
               is_new = False
               break
 
