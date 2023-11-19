@@ -1,12 +1,14 @@
 import re
 from datetime import datetime
 
+attribute_keys_to_skip = ['mpan', 'mprn']
+
 def dict_to_typed_dict(data: dict):
   if data is not None:
     new_data = data.copy()
     keys = new_data.keys()
     for key in keys:
-      if isinstance(new_data[key], str):
+      if isinstance(new_data[key], str) and key not in attribute_keys_to_skip:
         # Check for integers
         matches = re.search("^[0-9]+$", new_data[key])
         if (matches is not None):
