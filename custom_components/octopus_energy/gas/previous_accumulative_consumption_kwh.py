@@ -15,7 +15,7 @@ from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR
 )
 
-from homeassistant.util.dt import (now)
+from homeassistant.util.dt import (utcnow)
 
 from . import (
   calculate_gas_consumption_and_cost,
@@ -23,6 +23,7 @@ from . import (
 
 from .base import (OctopusEnergyGasSensor)
 from ..utils.attributes import dict_to_typed_dict
+from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -104,9 +105,10 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
     if not self.enabled:
       return
     
-    consumption_data = self.coordinator.data["consumption"] if self.coordinator is not None and self.coordinator.data is not None and "consumption" in self.coordinator.data else None
-    rate_data = self.coordinator.data["rates"] if self.coordinator is not None and self.coordinator.data is not None and "rates" in self.coordinator.data else None
-    standing_charge = self.coordinator.data["standing_charge"] if self.coordinator is not None and self.coordinator.data is not None and "standing_charge" in self.coordinator.data else None
+    result: PreviousConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    consumption_data = result.consumption if result is not None else None
+    rate_data = result.rates if result is not None else None
+    standing_charge = result.standing_charge if result is not None else None
 
     consumption_and_cost = calculate_gas_consumption_and_cost(
       consumption_data,
@@ -122,7 +124,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
       _LOGGER.debug(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
 
       await async_import_external_statistics_from_consumption(
-        now(),
+        utcnow(),
         self._hass,
         f"gas_{self._serial_number}_{self._mprn}_previous_accumulative_consumption_kwh",
         self.name,
@@ -140,7 +142,6 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
         "mprn": self._mprn,
         "serial_number": self._serial_number,
         "is_estimated": self._native_consumption_units == "m³",
-        "last_evaluated": consumption_and_cost["last_evaluated"],
         "charges": list(map(lambda charge: {
           "start": charge["start"],
           "end": charge["end"],
@@ -149,6 +150,11 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
         }, consumption_and_cost["charges"])),
         "calorific_value": self._calorific_value
       }
+
+      self._attributes["last_evaluated"] = utcnow()
+
+    if result is not None:
+      self._attributes["data_last_retrieved"] = result.last_retrieved
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

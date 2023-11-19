@@ -15,7 +15,7 @@ from homeassistant.const import (
     ENERGY_KILO_WATT_HOUR
 )
 
-from homeassistant.util.dt import (now)
+from homeassistant.util.dt import (utcnow)
 
 from . import (
   calculate_electricity_consumption_and_cost,
@@ -23,6 +23,7 @@ from . import (
 
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
+from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -90,9 +91,10 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumptionPeak(CoordinatorEnt
   @property
   def state(self):
     """Retrieve the previous days accumulative consumption"""
-    consumption_data = self.coordinator.data["consumption"] if self.coordinator is not None and self.coordinator.data is not None and "consumption" in self.coordinator.data else None
-    rate_data = self.coordinator.data["rates"] if self.coordinator is not None and self.coordinator.data is not None and "rates" in self.coordinator.data else None
-    standing_charge = self.coordinator.data["standing_charge"] if self.coordinator is not None and self.coordinator.data is not None and "standing_charge" in self.coordinator.data else None
+    result: PreviousConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    consumption_data = result.consumption if result is not None else None
+    rate_data = result.rates if result is not None else None
+    standing_charge = result.standing_charge if result is not None else None
     current = consumption_data[0]["start"] if consumption_data is not None and len(consumption_data) > 0 else None
 
     consumption_and_cost = calculate_electricity_consumption_and_cost(
@@ -110,7 +112,10 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumptionPeak(CoordinatorEnt
       self._state = consumption_and_cost["total_consumption_peak"] if "total_consumption_peak" in consumption_and_cost else 0
       self._last_reset = consumption_and_cost["last_reset"]
 
-      self._attributes["last_evaluated"] = consumption_and_cost["last_evaluated"]
+      self._attributes["last_evaluated"] = utcnow()
+
+    if result is not None:
+      self._attributes["data_last_retrieved"] = result.last_retrieved
 
     return self._state
 

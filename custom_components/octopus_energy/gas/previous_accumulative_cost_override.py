@@ -13,6 +13,8 @@ from homeassistant.components.sensor import (
   SensorStateClass
 )
 
+from homeassistant.util.dt import (utcnow)
+
 from . import (
   calculate_gas_consumption_and_cost,
   get_gas_tariff_override_key,
@@ -22,6 +24,7 @@ from ..api_client import (OctopusEnergyApiClient)
 
 from .base import (OctopusEnergyGasSensor)
 from ..utils.attributes import dict_to_typed_dict
+from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
 
 from ..const import DOMAIN, EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, MINIMUM_CONSUMPTION_DATA_LENGTH
 
@@ -107,7 +110,8 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
     if not self.enabled:
       return
     
-    consumption_data = self.coordinator.data["consumption"] if self.coordinator is not None and self.coordinator.data is not None and "consumption" in self.coordinator.data else None
+    result: PreviousConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    consumption_data = result.consumption if result is not None else None
 
     tariff_override_key = get_gas_tariff_override_key(self._serial_number, self._mprn)
     is_old_data = self._last_reset is None or (consumption_data is not None and self._last_reset < consumption_data[-1]["end"])
@@ -151,7 +155,6 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
           "standing_charge": consumption_and_cost["standing_charge"],
           "total_without_standing_charge": consumption_and_cost["total_cost_without_standing_charge"],
           "total": consumption_and_cost["total_cost"],
-          "last_evaluated": consumption_and_cost["last_evaluated"],
           "charges": list(map(lambda charge: {
             "start": charge["start"],
             "end": charge["end"],
@@ -163,6 +166,11 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
         }
         
         self._hass.bus.async_fire(EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mprn": self._mprn, "serial_number": self._serial_number, "tariff_code": self._tariff_code, "rates": rate_data })
+
+        self._attributes["last_evaluated"] = utcnow()
+
+    if result is not None:
+      self._attributes["data_last_retrieved"] = result.last_retrieved
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

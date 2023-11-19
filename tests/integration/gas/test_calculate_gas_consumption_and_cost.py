@@ -47,8 +47,6 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
   )
 
   assert consumption_and_rates_result is not None
-  assert "consumption" in consumption_and_rates_result
-  assert "rates" in consumption_and_rates_result
 
   # Make sure we have standing charges available
 
@@ -57,9 +55,9 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
 
   # Act
   result = calculate_gas_consumption_and_cost(
-    consumption_and_rates_result["consumption"],
-    consumption_and_rates_result["rates"],
-    consumption_and_rates_result["standing_charge"],
+    consumption_and_rates_result.consumption,
+    consumption_and_rates_result.rates,
+    consumption_and_rates_result.standing_charge,
     latest_date,
     tariff_code,
     consumption_units,
@@ -68,7 +66,7 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
 
   # Assert
   assert result is not None
-  assert result["last_evaluated"] == consumption_and_rates_result["consumption"][-1]["end"]
+  assert result["last_evaluated"] == consumption_and_rates_result.consumption[-1]["end"]
   assert result["standing_charge"] == round(standard_charge_result["value_inc_vat"] / 100, 2)
   
   if consumption_units == "m³":

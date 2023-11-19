@@ -13,7 +13,7 @@ from homeassistant.components.sensor import (
   SensorStateClass,
 )
 
-from homeassistant.util.dt import (now)
+from homeassistant.util.dt import (utcnow)
 
 from . import (
   calculate_electricity_consumption_and_cost,
@@ -21,6 +21,7 @@ from . import (
 
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
+from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
 
 from ..api_client import (OctopusEnergyApiClient)
 
@@ -108,8 +109,9 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     if not self.enabled:
       return
     
-    current = now()
-    consumption_data = self.coordinator.data["consumption"] if self.coordinator is not None and self.coordinator.data is not None and "consumption" in self.coordinator.data else None
+    current = utcnow()
+    result: PreviousConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    consumption_data = result.consumption if result is not None else None
 
     tariff_override_key = get_electricity_tariff_override_key(self._serial_number, self._mpan)
 
@@ -155,7 +157,6 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
           "standing_charge": consumption_and_cost["standing_charge"],
           "total_without_standing_charge": consumption_and_cost["total_cost_without_standing_charge"],
           "total": consumption_and_cost["total_cost"],
-          "last_evaluated": consumption_and_cost["last_evaluated"],
           "charges": list(map(lambda charge: {
             "start": charge["start"],
             "end": charge["end"],
@@ -166,6 +167,11 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
         }
 
         self._hass.bus.async_fire(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mpan": self._mpan, "serial_number": self._serial_number, "tariff_code": self._tariff_code, "rates": rate_data })
+
+        self._attributes["last_evaluated"] = current
+
+    if result is not None:
+      self._attributes["data_last_retrieved"] = result.last_retrieved
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

@@ -45,9 +45,6 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   )
 
   assert consumption_and_rates_result is not None
-  assert "consumption" in consumption_and_rates_result
-  assert "rates" in consumption_and_rates_result
-  assert "standing_charge" in consumption_and_rates_result
 
   # Make sure we have rates and standing charges available
   rates = await client.async_get_electricity_rates(tariff_code, False, period_from, period_to)
@@ -60,9 +57,9 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   # Act
   result = calculate_electricity_consumption_and_cost(
     current,
-    consumption_and_rates_result["consumption"],
-    consumption_and_rates_result["rates"],
-    consumption_and_rates_result["standing_charge"],
+    consumption_and_rates_result.consumption,
+    consumption_and_rates_result.rates,
+    consumption_and_rates_result.standing_charge,
     latest_date,
     tariff_code
   )
@@ -72,7 +69,7 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   assert result["standing_charge"] == round(standard_charge_result["value_inc_vat"] / 100, 2)
   assert result["total_cost_without_standing_charge"] == 1.63
   assert result["total_cost"] == 1.87
-  assert result["last_evaluated"] == consumption_and_rates_result["consumption"][-1]["end"]
+  assert result["last_evaluated"] == consumption_and_rates_result.consumption[-1]["end"]
 
   assert len(result["charges"]) == 48
 
