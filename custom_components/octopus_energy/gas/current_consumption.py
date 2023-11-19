@@ -58,7 +58,7 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
     return SensorStateClass.TOTAL
 
   @property
-  def unit_of_measurement(self):
+  def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
     return ENERGY_KILO_WATT_HOUR
 
@@ -78,7 +78,7 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
     return self._latest_date
   
   @property
-  def state(self):
+  def native_value(self):
     """The current consumption for the meter."""
     _LOGGER.debug('Updating OctopusEnergyCurrentGasConsumption')
     consumption_result = self.coordinator.data if self.coordinator is not None else None

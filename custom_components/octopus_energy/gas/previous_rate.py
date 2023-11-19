@@ -65,7 +65,7 @@ class OctopusEnergyGasPreviousRate(CoordinatorEntity, OctopusEnergyGasSensor, Re
     return "mdi:currency-gbp"
 
   @property
-  def unit_of_measurement(self):
+  def native_unit_of_measurement(self):
     """Unit of measurement of the sensor."""
     return "GBP/kWh"
 
@@ -75,7 +75,7 @@ class OctopusEnergyGasPreviousRate(CoordinatorEntity, OctopusEnergyGasSensor, Re
     return self._attributes
 
   @property
-  def state(self):
+  def native_value(self):
     """Retrieve the previous rate for the sensor."""
     current = utcnow()
     rates_result: GasRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None

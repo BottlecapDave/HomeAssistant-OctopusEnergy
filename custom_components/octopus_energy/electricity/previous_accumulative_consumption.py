@@ -73,7 +73,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
     return SensorStateClass.TOTAL
 
   @property
-  def unit_of_measurement(self):
+  def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
     return ENERGY_KILO_WATT_HOUR
 
@@ -93,7 +93,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
     return self._last_reset
 
   @property
-  def state(self):
+  def native_value(self):
     """Retrieve the previous days accumulative consumption"""
     return self._state
   

@@ -71,7 +71,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
     return SensorStateClass.TOTAL
 
   @property
-  def unit_of_measurement(self):
+  def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
     return "GBP"
 
@@ -91,7 +91,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
     return self._last_reset
 
   @property
-  def state(self):
+  def native_value(self):
     """Retrieve the previously calculated state"""
     return self._state
   

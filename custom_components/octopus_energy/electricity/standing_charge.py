@@ -49,7 +49,7 @@ class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEn
     return "mdi:currency-gbp"
 
   @property
-  def unit_of_measurement(self):
+  def native_unit_of_measurement(self):
     """Unit of measurement of the sensor."""
     return "GBP"
 
@@ -59,7 +59,7 @@ class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEn
     return self._attributes
 
   @property
-  def state(self):
+  def native_value(self):
     """Retrieve the latest electricity standing charge"""
     _LOGGER.debug('Updating OctopusEnergyElectricityCurrentStandingCharge')
 

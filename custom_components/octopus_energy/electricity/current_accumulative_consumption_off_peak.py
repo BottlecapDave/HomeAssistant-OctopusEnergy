@@ -71,7 +71,7 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumptionOffPeak(CoordinatorE
     return SensorStateClass.TOTAL
 
   @property
-  def unit_of_measurement(self):
+  def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
     return ENERGY_KILO_WATT_HOUR
 
@@ -91,7 +91,7 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumptionOffPeak(CoordinatorE
     return self._last_reset
 
   @property
-  def state(self):
+  def native_value(self):
     """Retrieve the current days accumulative consumption"""
     current = now()
     consumption_data = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None

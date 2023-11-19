@@ -67,7 +67,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
     return "mdi:currency-gbp"
 
   @property
-  def unit_of_measurement(self):
+  def native_unit_of_measurement(self):
     """Unit of measurement of the sensor."""
     return "GBP/kWh"
 
@@ -77,7 +77,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
     return self._attributes
   
   @property
-  def state(self):
+  def native_value(self):
     """Retrieve the previous rate."""
     # Find the previous rate. We only need to do this every half an hour
     current = utcnow()
