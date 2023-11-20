@@ -1,3 +1,61 @@
+# [9.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.5.2...v9.0.0) (2023-11-20)
+
+
+### Bug Fixes
+
+* **custom:** updated value_inc_vat and rates to be in pounds/pence for consistency ([439c081](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/439c08162ff1ac6e2d04572bfbde141c5f717a42))
+* Fixed issue calculating off peak costs when rate information isn't available ([fc155a1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fc155a1317fd0a078d45e11eb05b25ef6e9c4aa0))
+* Fixed issue when failing to retrieve account during setup ([c9d04fb](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c9d04fb9573114dc9c4c79846d3b65eac73a4302))
+* fixed issue where sensor attributes were always strings when restored after reload/restart ([53964ae](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/53964ae57e9420608651e8a1e3950608edd82c0a))
+* Fixed issue where unit of measurement couldn't be changed/converted within HA ([f07da9d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f07da9d47e2ce66534ff1451afb1c2c7d3b4bb54))
+* removed all_rates and applicable_rates attributes from rate sensors to fix statistics warning ([280e6d2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/280e6d25fcb18ce17df158734f9cba3cd7d92574))
+* updated standing charge attribute on cost sensors to be in pound/pence for consistency ([913336a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/913336a3ecb9e0a3fdccc01132db3e930968a016))
+
+
+### Features
+
+* Added new events for new and all saving sessions ([b2b44b5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b2b44b5697611e48b446a1066c4c7f8a41ef8a32))
+* added new sensor for octoplus points ([800fc85](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/800fc8597d981090b87b1f659f924893f7215662))
+* Added sensors for available wheel of fortune spins ([6273784](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6273784f03096a484105cb282439efae604d527c))
+* Added service for joining a saving session ([01342b5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/01342b58851214da6a3559f3d6385916f3f76365))
+* Added service for spinning wheel of fortune ([effcc21](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/effcc2147e5266491c3eacb25adeff0c7e673966))
+* Added two new attributes to various sensors determining when the underlying data was last retrieved and when the value was last evaluated. These will slowly be added to other entities. ([11f8878](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/11f887815eec47c3665e0bb36641ac36da036427))
+* created new event entity to capture available and joined octoplus saving session events ([b402c06](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b402c06e4ebe648aa0f4dd0d92da9a26809cdd2f))
+* standardised attributes around time periods across the integration ([89a6985](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/89a6985af4647ce4cd7954a7f8d77a60a3260c0d))
+* standardised attributes around time periods across the integration ([#535](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/535)) ([7f6712f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7f6712feb7312cbd7260293258435f7d3a1415ce))
+* Updated config entry for account to have the account id as the title ([02ef313](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/02ef3131c437fee345a39f8c2a73e5e75acbdeb9))
+* updated intelligent sensors to include account id. This is to support future functionality ([57e3d79](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/57e3d7929fddf863e47ba1c2408b3ac8e2acd8a8))
+* updated last_calculated_timestamp attributes to last_evaluated for consistency ([702eb4a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/702eb4a42893afe28caeccf4d3add1be99138a1c))
+* Updated saving session sensor to include account id. This is to support future functionality ([3136005](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/31360056bc8d95098a85fe6bc349c8a3bb84f415))
+* Updated underlying config with some missing fields ([82e4564](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/82e4564bbaf40926a827392f73dc8f08d3fe23b7))
+* updated various attributes to be their numberic value instead of strings with symbols ([727db53](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/727db53912eea34d4c778ee2337d4fe9388405d4))
+
+
+### BREAKING CHANGES
+
+* all_rates and applicable_rates attributes are no longer accessible in rate sensors. All rate
+information is available in the events attribute. See
+https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions/444 for more information
+* Any previous references to valid_from/valid_to,
+interval_start/interval_end or from/to have now been changed to
+start/end. This change may take a little while to propagate while old
+data is replaced. Any reliances on these attribute names will need to be
+updated.
+* Any previous references to valid_from/valid_to, interval_start/interval_end or from/to have now been changed to
+start/end. This change may take a little while to propagate while old data is replaced. Any reliances on these attribute names will need to be updated.
+* The joined events attribute has been removed from the saving session binary sensor in favour of this
+* Any references to last_calculated_timestamp attribute should be updated to last_evaluated
+* saving session points sensor has been removed in favour of octoplus points sensor
+* Any references to saving session entities will need to be updated based on name change
+* Any references to intelligent sensors will need to be updated based on name changes
+* **custom:** All references to value_inc_vat and rates should be in pounds/pence. If you are relying on this
+structure, you may need to update your logic
+* Standing charge attribute on cost sensors are now in pound/pence. If you are using this, then might
+need to adjust any calculations etc.
+* Various attributes will now be numeric instead of strings with symbols (e.g. £1.50 -\> 1.50). Any
+logic that was used to remove these symbols will now break. In addition, some attribibutes had raw
+representations, which have now been removed. Please review docs for more information.
+
 ## [8.5.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.5.1...v8.5.2) (2023-11-08)
 
 
