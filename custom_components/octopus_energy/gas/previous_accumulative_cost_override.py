@@ -111,7 +111,7 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
       return
     
     result: PreviousConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
-    consumption_data = result.consumption if result is not None else None
+    consumption_data = result.consumption if result is not None and len(result.consumption) > 0 else None
 
     tariff_override_key = get_gas_tariff_override_key(self._serial_number, self._mprn)
     is_old_data = self._last_reset is None or (consumption_data is not None and self._last_reset < consumption_data[-1]["end"])
