@@ -2,8 +2,8 @@ import logging
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import generate_entity_id
+from homeassistant.util.dt import (utcnow)
 
-from homeassistant.util.dt import (now)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
@@ -17,21 +17,31 @@ from . import (
   get_next_saving_sessions_event
 )
 
+from ..coordinators.saving_sessions import SavingSessionsCoordinatorResult
+from ..utils.attributes import dict_to_typed_dict
+
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
   """Sensor for determining if a saving session is active."""
 
-  def __init__(self, hass: HomeAssistant, coordinator):
+  def __init__(self, hass: HomeAssistant, coordinator, account_id: str):
     """Init sensor."""
 
     CoordinatorEntity.__init__(self, coordinator)
   
+    self._account_id = account_id
     self._state = None
     self._events = []
     self._attributes = {
-      "joined_events": [],
-      "next_joined_event_start": None
+      "current_joined_event_start": None,
+      "current_joined_event_end": None,
+      "current_joined_event_duration_in_minutes": None,
+      "next_joined_event_start": None,
+      "next_joined_event_end": None,
+      "next_joined_event_duration_in_minutes": None,
+      "data_last_retrieved": None,
+      "last_evaluated": None
     }
 
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
@@ -39,12 +49,12 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_saving_sessions"
+    return f"octopus_energy_{self._account_id}_octoplus_saving_sessions"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Saving Session"
+    return f"Octopus Energy {self._account_id} Octoplus Saving Session"
 
   @property
   def icon(self):
@@ -59,34 +69,41 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
   @property
   def is_on(self):
     """Determine if the user is in a saving session."""
-    saving_session = self.coordinator.data if self.coordinator is not None else None
-    if (saving_session is not None and "events" in saving_session):
-      self._events = saving_session["events"]
-    else:
-      self._events = []
-    
     self._attributes = {
-      "joined_events": self._events,
+      "current_joined_event_start": None,
+      "current_joined_event_end": None,
+      "current_joined_event_duration_in_minutes": None,
       "next_joined_event_start": None,
       "next_joined_event_end": None,
-      "next_joined_event_duration_in_minutes": None
+      "next_joined_event_duration_in_minutes": None,
+      "data_last_retrieved": None,
+      "last_evaluated": None
     }
 
-    current_date = now()
+    saving_session: SavingSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
+    if (saving_session is not None):
+      self._events = saving_session.joined_events
+      self._attributes["data_last_retrieved"] = saving_session.last_retrieved
+    else:
+      self._events = []
+
+    current_date = utcnow()
     current_event = current_saving_sessions_event(current_date, self._events)
     if (current_event is not None):
       self._state = True
-      self._attributes["current_joined_event_start"] = current_event["start"]
-      self._attributes["current_joined_event_end"] = current_event["end"]
-      self._attributes["current_joined_event_duration_in_minutes"] = current_event["duration_in_minutes"]
+      self._attributes["current_joined_event_start"] = current_event.start
+      self._attributes["current_joined_event_end"] = current_event.end
+      self._attributes["current_joined_event_duration_in_minutes"] = current_event.duration_in_minutes
     else:
       self._state = False
 
     next_event = get_next_saving_sessions_event(current_date, self._events)
     if (next_event is not None):
-      self._attributes["next_joined_event_start"] = next_event["start"]
-      self._attributes["next_joined_event_end"] = next_event["end"]
-      self._attributes["next_joined_event_duration_in_minutes"] = next_event["duration_in_minutes"]
+      self._attributes["next_joined_event_start"] = next_event.start
+      self._attributes["next_joined_event_end"] = next_event.end
+      self._attributes["next_joined_event_duration_in_minutes"] = next_event.duration_in_minutes
+
+    self._attributes["last_evaluated"] = current_date
 
     return self._state
 
@@ -98,6 +115,7 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
 
     if state is not None:
       self._state = state.state
+      self._attributes = dict_to_typed_dict(state.attributes)
     
     if (self._state is None):
       self._state = False

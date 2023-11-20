@@ -47,3 +47,23 @@ refresh_previous_consumption_data:
       required: true
       selector:
         date:
+join_octoplus_saving_session_event:
+  name: Join Octoplus saving session event
+  description: Joins a given Octoplus saving session event.
+  target:
+    entity:
+      integration: octopus_energy
+      domain: event
+  fields:
+    event_code:
+      name: Event code
+      description: The code of the event that is to be joined.
+      selector:
+        text:
+spin_wheel_of_fortune:
+  name: Spin wheel of fortune
+  description: Spins the wheel of fortune for a given energy type
+  target:
+    entity:
+      integration: octopus_energy
+      domain: sensor

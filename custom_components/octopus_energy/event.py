@@ -1,6 +1,8 @@
 import logging
+import voluptuous as vol
 
 from homeassistant.util.dt import (utcnow)
+from homeassistant.helpers import config_validation as cv, entity_platform
 
 from .utils import get_active_tariff_code
 from .electricity.rates_previous_day import OctopusEnergyElectricityPreviousDayRates
@@ -13,8 +15,11 @@ from .gas.rates_next_day import OctopusEnergyGasNextDayRates
 from .gas.rates_previous_day import OctopusEnergyGasPreviousDayRates
 from .gas.rates_previous_consumption import OctopusEnergyGasPreviousConsumptionRates
 from .gas.rates_previous_consumption_override import OctopusEnergyGasPreviousConsumptionOverrideRates
+from .octoplus.saving_sessions_events import OctopusEnergyOctoplusSavingSessionEvents
 
 from .const import (
+  DATA_ACCOUNT_ID,
+  DATA_CLIENT,
   DOMAIN,
 
   CONFIG_MAIN_API_KEY,
@@ -29,6 +34,20 @@ async def async_setup_entry(hass, entry, async_add_entities):
   if CONFIG_MAIN_API_KEY in entry.data:
     await async_setup_main_sensors(hass, entry, async_add_entities)
 
+  platform = entity_platform.async_get_current_platform()
+  platform.async_register_entity_service(
+    "join_octoplus_saving_session_event",
+    vol.All(
+      vol.Schema(
+        {
+          vol.Required("event_code"): str,
+        },
+        extra=vol.ALLOW_EXTRA,
+      ),
+    ),
+    "async_join_saving_session_event",
+  )
+
   return True
 
 async def async_setup_main_sensors(hass, entry, async_add_entities):
@@ -39,9 +58,11 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
     config.update(entry.options)
 
   account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]
+  client = hass.data[DOMAIN][DATA_CLIENT]
 
   now = utcnow()
-  entities = []
+  entities = [OctopusEnergyOctoplusSavingSessionEvents(hass, client, account_id)]
   if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements

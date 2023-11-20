@@ -74,9 +74,9 @@ def raise_rate_events(now: datetime,
   next_rates = []
 
   for rate in rates:
-    if (rate["valid_from"] < today_start):
+    if (rate["start"] < today_start):
       previous_rates.append(rate)
-    elif (rate["valid_from"] >= today_end):
+    elif (rate["start"] >= today_end):
       next_rates.append(rate)
     else:
       current_rates.append(rate)

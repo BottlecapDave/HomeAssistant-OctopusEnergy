@@ -13,13 +13,15 @@ from homeassistant.components.sensor import (
   SensorStateClass,
 )
 
-from homeassistant.util.dt import (now)
+from homeassistant.util.dt import (utcnow)
 
 from . import (
   calculate_electricity_consumption_and_cost,
 )
 
 from .base import (OctopusEnergyElectricitySensor)
+from ..utils.attributes import dict_to_typed_dict
+from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
 
 from ..api_client import (OctopusEnergyApiClient)
 
@@ -73,7 +75,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     return SensorStateClass.TOTAL
 
   @property
-  def unit_of_measurement(self):
+  def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
     return "GBP"
 
@@ -93,7 +95,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     return self._last_reset
 
   @property
-  def state(self):
+  def native_value(self):
     """Retrieve the previously calculated state"""
     return self._state
   
@@ -107,12 +109,13 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     if not self.enabled:
       return
     
-    current = now()
-    consumption_data = self.coordinator.data["consumption"] if self.coordinator is not None and self.coordinator.data is not None and "consumption" in self.coordinator.data else None
+    current = utcnow()
+    result: PreviousConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    consumption_data = result.consumption if result is not None and len(result.consumption) > 0 else None
 
     tariff_override_key = get_electricity_tariff_override_key(self._serial_number, self._mpan)
 
-    is_old_data = self._last_reset is None or (consumption_data is not None and self._last_reset < consumption_data[-1]["interval_end"])
+    is_old_data = self._last_reset is None or (consumption_data is not None and self._last_reset < consumption_data[-1]["end"])
     is_tariff_present = tariff_override_key in self._hass.data[DOMAIN]
     has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][tariff_override_key] != self._tariff_code
 
@@ -120,8 +123,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
       _LOGGER.debug(f"Calculating previous electricity consumption cost override for '{self._mpan}/{self._serial_number}'...")
       
       tariff_override = self._hass.data[DOMAIN][tariff_override_key]
-      period_from = consumption_data[0]["interval_start"]
-      period_to = consumption_data[-1]["interval_end"]
+      period_from = consumption_data[0]["start"]
+      period_to = consumption_data[-1]["end"]
 
       [rate_data, standing_charge] = await asyncio.gather(
         self._client.async_get_electricity_rates(tariff_override, self._is_smart_meter, period_from, period_to),
@@ -151,20 +154,24 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
           "tariff_code": self._tariff_code,
-          "standing_charge": f'{consumption_and_cost["standing_charge"]}p',
-          "total_without_standing_charge": f'£{consumption_and_cost["total_cost_without_standing_charge"]}',
-          "total": f'£{consumption_and_cost["total_cost"]}',
-          "last_calculated_timestamp": consumption_and_cost["last_calculated_timestamp"],
+          "standing_charge": consumption_and_cost["standing_charge"],
+          "total_without_standing_charge": consumption_and_cost["total_cost_without_standing_charge"],
+          "total": consumption_and_cost["total_cost"],
           "charges": list(map(lambda charge: {
-            "from": charge["from"],
-            "to": charge["to"],
-            "rate": f'{charge["rate"]}p',
-            "consumption": f'{charge["consumption"]} kWh',
+            "start": charge["start"],
+            "end": charge["end"],
+            "rate": charge["rate"],
+            "consumption": charge["consumption"],
             "cost": charge["cost"]
           }, consumption_and_cost["charges"]))
         }
 
         self._hass.bus.async_fire(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mpan": self._mpan, "serial_number": self._serial_number, "tariff_code": self._tariff_code, "rates": rate_data })
+
+        self._attributes["last_evaluated"] = current
+
+    if result is not None:
+      self._attributes["data_last_retrieved"] = result.last_retrieved
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
@@ -174,11 +181,6 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     
     if state is not None and self._state is None:
       self._state = state.state
-      self._attributes = {}
-      for x in state.attributes.keys():
-        self._attributes[x] = state.attributes[x]
-
-        if x == "last_reset":
-          self._last_reset = datetime.strptime(state.attributes[x], "%Y-%m-%dT%H:%M:%S%z")
+      self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeElectricityCostOverride state: {self._state}')

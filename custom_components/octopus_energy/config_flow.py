@@ -12,10 +12,16 @@ from .const import (
   CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_DEFAULT_PREVIOUS_CONSUMPTION_OFFSET_IN_DAYS,
+  CONFIG_KIND,
+  CONFIG_KIND_ACCOUNT,
+  CONFIG_KIND_TARGET_RATE,
+  CONFIG_MAIN_ACCOUNT_ID,
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET,
   CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET,
+  CONFIG_TARGET_ACCOUNT_ID,
+  CONFIG_VERSION,
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
@@ -64,16 +70,25 @@ def get_target_rate_meters(account_info, now):
 class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN): 
   """Config flow."""
 
-  VERSION = 2
+  VERSION = CONFIG_VERSION
+
+  def get_account_ids(self):
+    account_ids = {}
+    for entry in self.hass.config_entries.async_entries(DOMAIN):
+      if CONFIG_KIND in entry.data and entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
+        account_id = entry.data[CONFIG_MAIN_ACCOUNT_ID]
+        account_ids[account_id] = account_id
+
+    return account_ids
 
   async def async_setup_initial_account(self, user_input):
     """Setup the initial account based on the provided user input"""
     errors = await async_validate_main_config(user_input)
 
     if len(errors) < 1:
-      # Setup our basic sensors
+      user_input[CONFIG_KIND] = CONFIG_KIND_ACCOUNT
       return self.async_create_entry(
-        title="Account", 
+        title=user_input[CONFIG_MAIN_ACCOUNT_ID], 
         data=user_input
       )
 
@@ -113,8 +128,11 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
     now = utcnow()
     errors = validate_target_rate_config(user_input, account_info, now)
+    account_ids = self.get_account_ids()
 
     if len(errors) < 1:
+      user_input[CONFIG_KIND] = CONFIG_KIND_TARGET_RATE
+      user_input[CONFIG_TARGET_ACCOUNT_ID] = list(account_ids.keys())[0]
       # Setup our targets sensor
       return self.async_create_entry(
         title=f"{user_input[CONFIG_TARGET_NAME]} (target)", 

@@ -72,8 +72,8 @@ async def test_go_rates_bst():
   start_time = as_utc(parse_datetime("2022-10-09T00:00+01:00"))
   for index in range(48):
     end_time = start_time + timedelta(minutes=30)
-    assert result[index]["valid_from"] == start_time
-    assert result[index]["valid_to"] == end_time
+    assert result[index]["start"] == start_time
+    assert result[index]["end"] == end_time
 
     rates_index = 6
     if index < 1:

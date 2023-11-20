@@ -1,9 +1,10 @@
+from custom_components.octopus_energy.coordinators.wheel_of_fortune import async_setup_wheel_of_fortune_spins_coordinator
 import voluptuous as vol
 import logging
 
 from homeassistant.util.dt import (utcnow)
-from homeassistant.core import HomeAssistant
-from homeassistant.helpers import config_validation as cv, entity_platform, issue_registry as ir
+from homeassistant.core import HomeAssistant, SupportsResponse
+from homeassistant.helpers import entity_platform, issue_registry as ir
 
 from .electricity.current_consumption import OctopusEnergyCurrentElectricityConsumption
 from .electricity.current_accumulative_consumption import OctopusEnergyCurrentAccumulativeElectricityConsumption
@@ -35,6 +36,8 @@ from .gas.current_accumulative_consumption import OctopusEnergyCurrentAccumulati
 from .gas.current_accumulative_cost import OctopusEnergyCurrentAccumulativeGasCost
 from .gas.standing_charge import OctopusEnergyGasCurrentStandingCharge
 from .gas.previous_accumulative_cost_override import OctopusEnergyPreviousAccumulativeGasCostOverride
+from .wheel_of_fortune.electricity_spins import OctopusEnergyWheelOfFortuneElectricitySpins
+from .wheel_of_fortune.gas_spins import OctopusEnergyWheelOfFortuneGasSpins
 
 from .coordinators.current_consumption import async_create_current_consumption_coordinator
 from .coordinators.gas_rates import async_setup_gas_rates_coordinator
@@ -42,7 +45,7 @@ from .coordinators.previous_consumption_and_rates import async_create_previous_c
 from .coordinators.electricity_standing_charges import async_setup_electricity_standing_charges_coordinator
 from .coordinators.gas_standing_charges import async_setup_gas_standing_charges_coordinator
 
-from .saving_sessions.points import OctopusEnergySavingSessionPoints
+from .octoplus.points import OctopusEnergyOctoplusPoints
 
 from .utils import (get_active_tariff_code)
 from .const import (
@@ -53,6 +56,7 @@ from .const import (
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET,
   CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET,
+  DATA_ACCOUNT_ID,
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
@@ -89,6 +93,18 @@ async def async_setup_entry(hass, entry, async_add_entities):
     "async_refresh_previous_consumption_data",
   )
 
+  platform.async_register_entity_service(
+    "spin_wheel_of_fortune",
+    vol.All(
+      vol.Schema(
+        {},
+        extra=vol.ALLOW_EXTRA,
+      ),
+    ),
+    "async_spin_wheel",
+    # supports_response=SupportsResponse.OPTIONAL
+  )
+
 async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_entities):
   config = dict(entry.data)
 
@@ -99,10 +115,17 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
 
   saving_session_coordinator = hass.data[DOMAIN][DATA_SAVING_SESSIONS_COORDINATOR]
   await saving_session_coordinator.async_config_entry_first_refresh()
-
-  entities = [OctopusEnergySavingSessionPoints(hass, saving_session_coordinator)]
   
   account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]
+
+  wheel_of_fortune_coordinator = await async_setup_wheel_of_fortune_spins_coordinator(hass, account_id)
+  
+  entities = [
+    OctopusEnergyOctoplusPoints(hass, client, account_id),
+    OctopusEnergyWheelOfFortuneElectricitySpins(hass, wheel_of_fortune_coordinator, client, account_id),
+    OctopusEnergyWheelOfFortuneGasSpins(hass, wheel_of_fortune_coordinator, client, account_id)
+  ]
 
   now = utcnow()
 
@@ -177,7 +200,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
                 severity=ir.IssueSeverity.ERROR,
                 learn_more_url="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/repairs/octopus_mini_not_valid.md",
                 translation_key="octopus_mini_not_valid",
-                translation_placeholders={ "type": "electricity", "account_id": account_info["id"], "mpan_mprn": mpan, "serial_number": serial_number },
+                translation_placeholders={ "type": "electricity", "account_id": account_id, "mpan_mprn": mpan, "serial_number": serial_number },
               )
       else:
         for meter in point["meters"]:
@@ -254,7 +277,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
                 severity=ir.IssueSeverity.ERROR,
                 learn_more_url="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/repairs/octopus_mini_not_valid.md",
                 translation_key="octopus_mini_not_valid",
-                translation_placeholders={ "type": "gas", "account_id": account_info["id"], "mpan_mprn": mprn, "serial_number": serial_number },
+                translation_placeholders={ "type": "gas", "account_id": account_id, "mpan_mprn": mprn, "serial_number": serial_number },
               )
       else:
         for meter in point["meters"]:

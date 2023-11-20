@@ -47,7 +47,7 @@ async def async_refresh_gas_standing_charges_data(
     if ((current.minute % 30) == 0 or 
         existing_standing_charges_result is None or
         existing_standing_charges_result.standing_charge is None or
-        (existing_standing_charges_result.standing_charge["valid_from"] is not None and existing_standing_charges_result.standing_charge["valid_from"] < period_from)):
+        (existing_standing_charges_result.standing_charge["start"] is not None and existing_standing_charges_result.standing_charge["start"] < period_from)):
       try:
         new_standing_charge = await client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
         _LOGGER.debug(f'Gas standing charges retrieved for {target_mprn}/{target_serial_number} ({tariff_code})')

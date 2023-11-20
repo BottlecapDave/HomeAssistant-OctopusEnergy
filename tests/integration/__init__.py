@@ -46,8 +46,8 @@ def create_consumption_data(period_from, period_to, reverse = False):
     current_valid_to = current_valid_from + timedelta(minutes=30)
 
     consumption.append({
-      "interval_start": current_valid_from,
-      "interval_end": current_valid_to,
+      "start": current_valid_from,
+      "end": current_valid_to,
       "consumption": 1
     })
 
@@ -55,7 +55,7 @@ def create_consumption_data(period_from, period_to, reverse = False):
 
   if reverse == True:
     def get_interval_start(item):
-      return item["interval_start"]
+      return item["start"]
 
     consumption.sort(key=get_interval_start, reverse=True)
 
@@ -71,8 +71,8 @@ def create_rate_data(period_from, period_to, expected_rates: list):
     current_valid_to = current_valid_from + timedelta(minutes=30)
 
     rates.append({
-      "valid_from": current_valid_from,
-      "valid_to": current_valid_to,
+      "start": current_valid_from,
+      "end": current_valid_to,
       "value_inc_vat": expected_rates[rate_index],
       "is_capped": False
     })

@@ -36,10 +36,8 @@ The current rate that energy consumption is charged at (including VAT).
 | `serial_number` | `string` | The serial for the associated meter |
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
 | `tariff` | `string` | The tariff the meter/rates are associated with |
-| `all_rates` | `array` | Collection of latest rates for the previous day and next few days |
-| `applicable_rates` | `array` | Collection of rates where the current rate applies, in case it spans multiple time periods. |
-| `valid_from` | `datetime` | The date/time when the rate is valid from |
-| `valid_to` | `datetime` | The date/time when the rate is valid to |
+| `start` | `datetime` | The date/time when the rate started |
+| `end` | `datetime` | The date/time when the rate ends |
 | `is_capped` | `boolean` | Determines if the rate has been capped by the cap set when you setup your account |
 | `price_cap` | `float` | The price cap that has been configured for the account and is currently applied to all gas rates |
 
@@ -54,9 +52,8 @@ The previous rate that energy consumption was charged at (including VAT), that d
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
-| `applicable_rates` | `array` | Collection of rates where the previous rate applies, in case it spans multiple time periods. |
-| `valid_from` | `datetime` | The date/time when the rate is valid from |
-| `valid_to` | `datetime` | The date/time when the rate is valid to |
+| `start` | `datetime` | The date/time when the rate started |
+| `end` | `datetime` | The date/time when the rate ended |
 
 ## Next rate
 
@@ -69,9 +66,8 @@ The next/upcoming rate that energy consumption will be charged at (including VAT
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
-| `applicable_rates` | `array` | Collection of rates where the next rate applies, in case it spans multiple time periods. |
-| `valid_from` | `datetime` | The date/time when the rate is valid from |
-| `valid_to` | `datetime` | The date/time when the rate is valid to |
+| `start` | `datetime` | The date/time when the rate starts |
+| `end` | `datetime` | The date/time when the rate ends |
 
 ## Current Day Rates
 
@@ -84,6 +80,15 @@ The state of this sensor states when the current day's rates were last updated. 
 | `rates` | `list` | The list of rates applicable for the current day |
 | `tariff_code` | `string` | The tariff code associated with current day's rates |
 
+Each rate item has the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The date/time when the rate starts |
+| `end` | `datetime` | The date/time when the rate ends |
+| `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+
 ## Previous Day Rates
 
 `event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_day_rates`
@@ -95,6 +100,15 @@ The state of this sensor states when the previous day's rates were last updated.
 | `rates` | `list` | The list of rates applicable for the previous day |
 | `tariff_code` | `string` | The tariff code associated with previous day's rates |
 
+Each rate item has the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The date/time when the rate starts |
+| `end` | `datetime` | The date/time when the rate ends |
+| `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+
 ## Next Day Rates
 
 `event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_next_day_rates`
@@ -105,6 +119,15 @@ The state of this sensor states when the next day's rates were last updated. The
 |-----------|------|-------------|
 | `rates` | `list` | The list of rates applicable for the next day |
 | `tariff_code` | `string` | The tariff code associated with today's rates |
+
+Each rate item has the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The date/time when the rate starts |
+| `end` | `datetime` | The date/time when the rate ends |
+| `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
 
 ## Smart Meter Entities
 
@@ -129,9 +152,17 @@ The total consumption reported by the meter for the previous day in m3. If your 
 | `is_estimated` | `boolean` | Determines if the consumption was estimated. This can occur if your meter reports in `kwh`. |
 | `total_kwh` | `float` | The total energy value for the previous day in `kwh`. If your meter reports in `m3`, then this will be estimated using your set [calorific value](../setup_account.md#calorific-value) |
 | `total_m3` | `float` | The total energy value for the previous day in `m3`. If your meter reports in `kwh`, then this will be estimated using your set [calorific value](../setup_account.md#calorific-value) |
-| `last_calculated_timestamp` | `datetime` | The timestamp determining when the consumption was last calculated. |
+| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup_account.md#calorific-value). |
+
+Each charge item has the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The date/time when the consumption starts |
+| `end` | `datetime` | The date/time when the consumption ends |
+| `consumption` | `float` | The consumption value of the specified period |
 
 ### Previous Accumulative Consumption (kWH)
 
@@ -146,9 +177,17 @@ The total consumption reported by the meter for the previous day in kwh. If your
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
 | `is_estimated` | `boolean` | Determines if the consumption was estimated. This can occur if your meter reports in `m3`. |
-| `last_calculated_timestamp` | `datetime` | The timestamp determining when the consumption was last calculated. |
+| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup_account.md#calorific-value). |
+
+Each charge item has the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The date/time when the consumption starts |
+| `end` | `datetime` | The date/time when the consumption ends |
+| `consumption` | `float` | The consumption value of the specified period |
 
 ### Previous Accumulative Cost
 
@@ -163,12 +202,22 @@ The total cost for the previous day, including the standing charge.
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
 | `tariff_code` | `string` | The tariff that determined the cost |
-| `standing_charge` | `float` | The standing charge included in the cost |
-| `total_without_standing_charge` | `float` | The total cost of the previous day excluding the standing charge |
-| `total` | `float` | The total cost for the previous day |
+| `standing_charge` | `float` | The standing charge included in the cost. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `total_without_standing_charge` | `float` | The total cost of the previous day excluding the standing charge. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `total` | `float` | The total cost for the previous day. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `charges` | `array` | Collection of consumption periods and costs for the previous day broken down into 30 minute periods. |
-| `last_calculated_timestamp` | `datetime` | The timestamp determining when the cost was last calculated. |
+| `last_evaluated` | `datetime` | The timestamp determining when the cost was last calculated. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup_account.md#calorific-value). |
+
+Each charge item has the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The date/time when the consumption starts |
+| `end` | `datetime` | The date/time when the consumption ends |
+| `rate` | `float` | The rate the consumption is charged at. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `consumption` | `float` | The consumption value of the specified period |
+| `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
 
 ## Previous Consumption Day Rates
 
@@ -180,6 +229,15 @@ The state of this sensor states when the previous consumption's rates were last 
 |-----------|------|-------------|
 | `rates` | `list` | The list of rates applicable for the previous consumption |
 | `tariff_code` | `string` | The tariff code associated with previous consumption's rates |
+
+Each rate item has the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The date/time when the rate starts |
+| `end` | `datetime` | The date/time when the rate ends |
+| `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
 
 ## Home Mini Entities
 
@@ -210,9 +268,17 @@ The total consumption reported by the meter for the current day.
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
 | `total` | `float` | The total energy value for the previous day in `kwh`. If your meter reports in `m3`, then this will be estimated using your set [calorific value](../setup_account.md#calorific-value) |
-| `last_calculated_timestamp` | `datetime` | The timestamp determining when the consumption was last calculated. |
+| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup_account.md#calorific-value). |
+
+Each charge item has the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The date/time when the consumption starts |
+| `end` | `datetime` | The date/time when the consumption ends |
+| `consumption` | `float` | The consumption value of the specified period |
 
 ### Current Accumulative Cost
 
@@ -225,10 +291,20 @@ The total cost for the current day, including the standing charge.
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
 | `tariff_code` | `string` | The tariff that determined the cost |
-| `standing_charge` | `float` | The standing charge included in the cost |
-| `total_without_standing_charge` | `float` | The total cost of the current day excluding the standing charge |
-| `total` | `float` | The total cost for the current day |
+| `standing_charge` | `float` | The standing charge included in the cost. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `total_without_standing_charge` | `float` | The total cost of the current day excluding the standing charge. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `total` | `float` | The total cost for the current day. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `charges` | `array` | Collection of consumption periods and costs for the current day broken down into 30 minute periods. |
+
+Each charge item has the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The date/time when the consumption starts |
+| `end` | `datetime` | The date/time when the consumption ends |
+| `rate` | `float` | The rate the consumption is charged at. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `consumption` | `float` | The consumption value of the specified period |
+| `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
 
 ## Tariff Overrides
 
@@ -273,3 +349,12 @@ The state of this sensor states when the previous consumption override's rates w
 |-----------|------|-------------|
 | `rates` | `list` | The list of rates applicable for the previous consumption override |
 | `tariff_code` | `string` | The tariff code associated with previous consumption override's rates |
+
+Each rate item has the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The date/time when the rate starts |
+| `end` | `datetime` | The date/time when the rate ends |
+| `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |

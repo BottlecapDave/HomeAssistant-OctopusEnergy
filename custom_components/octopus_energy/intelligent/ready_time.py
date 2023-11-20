@@ -14,6 +14,7 @@ from .base import OctopusEnergyIntelligentSensor
 from ..api_client import OctopusEnergyApiClient
 from ..coordinators.intelligent_settings import IntelligentCoordinatorResult
 
+
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEnergyIntelligentSensor):
@@ -35,12 +36,12 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_intelligent_ready_time"
+    return f"octopus_energy_{self._account_id}_intelligent_ready_time"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Intelligent Ready Time"
+    return f"Octopus Energy {self._account_id} Intelligent Ready Time"
 
   @property
   def icon(self):
@@ -57,11 +58,13 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
     """The time that the car should be ready by."""
     settings_result: IntelligentCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     if settings_result is None or (self._last_updated is not None and self._last_updated > settings_result.last_retrieved):
-      self._attributes["last_updated_timestamp"] = self._last_updated
       return self._state
+    
+    if settings_result is not None:
+      self._attributes["data_last_retrieved"] = settings_result.last_retrieved
 
-    self._attributes["last_updated_timestamp"] = settings_result.last_retrieved
     self._state = settings_result.settings.ready_time_weekday
+    self._attributes["last_evaluated"] = utcnow()
 
     return self._state
 

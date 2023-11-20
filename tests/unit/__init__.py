@@ -5,7 +5,7 @@ from custom_components.octopus_energy.api_client import rates_to_thirty_minute_i
 
 logging.getLogger().setLevel(logging.DEBUG)
 
-def create_consumption_data(period_from, period_to, reverse = False, from_key = "interval_start", to_key = "interval_end"):
+def create_consumption_data(period_from, period_to, reverse = False, from_key = "start", to_key = "end"):
   consumption = []
   current_valid_from = period_from
   current_valid_to = None
@@ -38,8 +38,8 @@ def create_rate_data(period_from, period_to, expected_rates: list):
     current_valid_to = current_valid_from + timedelta(minutes=30)
 
     rates.append({
-      "valid_from": current_valid_from,
-      "valid_to": current_valid_to,
+      "start": current_valid_from,
+      "end": current_valid_to,
       "value_inc_vat": expected_rates[rate_index],
       "is_capped": False
     })

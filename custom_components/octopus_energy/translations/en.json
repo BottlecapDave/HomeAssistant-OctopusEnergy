@@ -5,8 +5,8 @@
       "user": {
         "description": "Setup your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
         "data": {
-          "Api key": "Api key",
-          "Account Id": "Your account Id (e.g. A-AAAA1111)",
+          "api_key": "Api key",
+          "account_id": "Your account Id (e.g. A-AAAA1111)",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
           "live_consumption_refresh_in_minutes": "Home Mini refresh rate in minutes",
           "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
@@ -25,11 +25,11 @@
         "description": "Setup a target rate period. Continuous target will find the cheapest continuous period for your target hours. While intermittent will find the cheapest periods with potential gaps, which when combined will meet your target hours. Full documentation can be found at https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/setup_target_rate.md",
         "data": {
           "entity_id": "The name of your target",
-          "Hours": "The hours you require in decimal format.",
-          "Type": "The type of target you're after",
-          "MPAN": "The MPAN number of the meter to apply the target to",
-          "Start time": "The minimum time to start the device",
-          "End time": "The maximum time to stop the device",
+          "hours": "The hours you require in decimal format.",
+          "type": "The type of target you're after",
+          "mpan": "The MPAN number of the meter to apply the target to",
+          "start_time": "The minimum time to start the device",
+          "end_time": "The maximum time to stop the device",
           "offset": "The offset to apply to the scheduled block to be considered active",
           "rolling_target": "Re-evaluate multiple times a day",
           "last_rates": "Find last applicable rates",
@@ -38,6 +38,7 @@
       }
     },
     "error": {
+      "server_error": "Failed to connect to OE servers. Please try again later",
       "account_not_found": "Invalid API key or account id specified",
       "value_greater_than_zero": "Value must be greater or equal to 1",
       "invalid_target_hours": "Target hours must be in half hour increments (e.g. 0.5 = 30 minutes; 1 = 60 minutes).",
@@ -58,7 +59,7 @@
         "title": "Update Account Info",
         "description": "Update your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
         "data": {
-          "Api key": "Api key",
+          "api_key": "Api key",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
           "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
           "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
@@ -76,10 +77,10 @@
         "title": "Update Target Rate",
         "description": "Update the settings for your target rate sensor, which can be used to help you save energy and money. Full documentation can be found at https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/setup_target_rate.md",
         "data": {
-          "Hours": "The hours you require in decimal format.",
-          "MPAN": "The MPAN number of the meter to apply the target to",
-          "Start time": "The minimum time to start the device",
-          "End time": "The maximum time to stop the device",
+          "hours": "The hours you require in decimal format.",
+          "mpan": "The MPAN number of the meter to apply the target to",
+          "start_time": "The minimum time to start the device",
+          "end_time": "The maximum time to stop the device",
           "offset": "The offset to apply to the scheduled block to be considered active",
           "rolling_target": "Re-evaluate multiple times a day",
           "last_rates": "Find last applicable rates",
@@ -88,6 +89,7 @@
       }
     },
     "error": {
+      "server_error": "Failed to connect to OE servers. Please try again later",
       "account_not_found": "Invalid API key or account id specified",
       "value_greater_than_zero": "Value must be greater or equal to 1",
       "invalid_target_hours": "Target hours must be in half hour increments (e.g. 0.5 = 30 minutes; 1 = 60 minutes).",

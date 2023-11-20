@@ -14,6 +14,7 @@ from ..api_client import OctopusEnergyApiClient
 from . import is_in_bump_charge
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 
+
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyIntelligentBumpCharge(CoordinatorEntity, SwitchEntity, OctopusEnergyIntelligentSensor):
@@ -35,12 +36,12 @@ class OctopusEnergyIntelligentBumpCharge(CoordinatorEntity, SwitchEntity, Octopu
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_intelligent_bump_charge"
+    return f"octopus_energy_{self._account_id}_intelligent_bump_charge"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Intelligent Bump Charge"
+    return f"Octopus Energy {self._account_id} Intelligent Bump Charge"
 
   @property
   def icon(self):
@@ -58,8 +59,13 @@ class OctopusEnergyIntelligentBumpCharge(CoordinatorEntity, SwitchEntity, Octopu
     result: IntelligentDispatchesCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
     if result is None or (self._last_updated is not None and self._last_updated > result.last_retrieved):
       return self._state
+    
+    if result is not None:
+      self._attributes["data_last_retrieved"] = result.last_retrieved
 
-    self._state = is_in_bump_charge(utcnow(), result.dispatches.planned)
+    current_date = utcnow()
+    self._state = is_in_bump_charge(current_date, result.dispatches.planned)
+    self._attributes["last_evaluated"] = current_date
     
     return self._state
 

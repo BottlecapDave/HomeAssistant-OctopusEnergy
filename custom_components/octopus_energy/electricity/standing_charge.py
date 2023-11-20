@@ -11,6 +11,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from .base import (OctopusEnergyElectricitySensor)
+from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -48,7 +49,7 @@ class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEn
     return "mdi:currency-gbp"
 
   @property
-  def unit_of_measurement(self):
+  def native_unit_of_measurement(self):
     """Unit of measurement of the sensor."""
     return "GBP"
 
@@ -58,19 +59,19 @@ class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEn
     return self._attributes
 
   @property
-  def state(self):
+  def native_value(self):
     """Retrieve the latest electricity standing charge"""
     _LOGGER.debug('Updating OctopusEnergyElectricityCurrentStandingCharge')
 
     standard_charge_result = self.coordinator.data.standing_charge if self.coordinator is not None and self.coordinator.data is not None else None
     
     if standard_charge_result is not None:
-      self._latest_date = standard_charge_result["valid_from"]
+      self._latest_date = standard_charge_result["start"]
       self._state = standard_charge_result["value_inc_vat"] / 100
 
       # Adjust our period, as our gas only changes on a daily basis
-      self._attributes["valid_from"] = standard_charge_result["valid_from"]
-      self._attributes["valid_to"] = standard_charge_result["valid_to"]
+      self._attributes["start"] = standard_charge_result["start"]
+      self._attributes["end"] = standard_charge_result["end"]
     else:
       self._state = None
 
@@ -85,7 +86,11 @@ class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEn
     if state is not None and self._state is None:
       self._state = state.state
       self._attributes = {}
-      for x in state.attributes.keys():
+      temp_attributes = dict_to_typed_dict(state.attributes)
+      for x in temp_attributes.keys():
+        if x in ['valid_from', 'valid_to']:
+          continue
+        
         self._attributes[x] = state.attributes[x]
     
       _LOGGER.debug(f'Restored OctopusEnergyElectricityCurrentStandingCharge state: {self._state}')

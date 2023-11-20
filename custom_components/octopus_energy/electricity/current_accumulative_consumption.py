@@ -17,6 +17,7 @@ from homeassistant.const import (
 from homeassistant.util.dt import (now)
 
 from .base import (OctopusEnergyElectricitySensor)
+from ..utils.attributes import dict_to_typed_dict
 
 from . import calculate_electricity_consumption_and_cost
 
@@ -58,7 +59,7 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(CoordinatorEntity, 
     return SensorStateClass.TOTAL
 
   @property
-  def unit_of_measurement(self):
+  def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
     return ENERGY_KILO_WATT_HOUR
 
@@ -78,7 +79,7 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(CoordinatorEntity, 
     return self._last_reset
   
   @property
-  def state(self):
+  def native_value(self):
     """Retrieve the current days accumulative consumption"""
     current = now()
     consumption_data = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
@@ -106,10 +107,10 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(CoordinatorEntity, 
         "is_export": self._is_export,
         "is_smart_meter": self._is_smart_meter,
         "total": consumption_and_cost["total_consumption"],
-        "last_calculated_timestamp": consumption_and_cost["last_calculated_timestamp"],
+        "last_evaluated": consumption_and_cost["last_evaluated"],
         "charges": list(map(lambda charge: {
-          "from": charge["from"],
-          "to": charge["to"],
+          "start": charge["start"],
+          "end": charge["end"],
           "consumption": charge["consumption"]
         }, consumption_and_cost["charges"]))
       }
@@ -124,5 +125,6 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(CoordinatorEntity, 
     
     if state is not None and self._state is None:
       self._state = state.state
+      self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyCurrentAccumulativeElectricityConsumption state: {self._state}')

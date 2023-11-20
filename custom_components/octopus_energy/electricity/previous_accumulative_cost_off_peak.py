@@ -12,13 +12,15 @@ from homeassistant.components.sensor import (
   SensorStateClass,
 )
 
-from homeassistant.util.dt import (now)
+from homeassistant.util.dt import (utcnow)
 
 from . import (
   calculate_electricity_consumption_and_cost,
 )
 
 from .base import (OctopusEnergyElectricitySensor)
+from ..utils.attributes import dict_to_typed_dict
+from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -65,7 +67,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOffPeak(CoordinatorEntity,
     return SensorStateClass.TOTAL
 
   @property
-  def unit_of_measurement(self):
+  def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
     return "GBP"
 
@@ -85,12 +87,13 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOffPeak(CoordinatorEntity,
     return self._last_reset
 
   @property
-  def state(self):
+  def native_value(self):
     """Retrieve the previously calculated state"""
-    consumption_data = self.coordinator.data["consumption"] if self.coordinator is not None and self.coordinator.data is not None and "consumption" in self.coordinator.data else None
-    rate_data = self.coordinator.data["rates"] if self.coordinator is not None and self.coordinator.data is not None and "rates" in self.coordinator.data else None
-    standing_charge = self.coordinator.data["standing_charge"] if self.coordinator is not None and self.coordinator.data is not None and "standing_charge" in self.coordinator.data else None
-    current = consumption_data[0]["interval_start"] if consumption_data is not None and len(consumption_data) > 0 else None
+    result: PreviousConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    consumption_data = result.consumption if result is not None else None
+    rate_data = result.rates if result is not None else None
+    standing_charge = result.standing_charge if result is not None else None
+    current = consumption_data[0]["start"] if consumption_data is not None and len(consumption_data) > 0 else None
 
     consumption_and_cost = calculate_electricity_consumption_and_cost(
       current,
@@ -107,7 +110,10 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOffPeak(CoordinatorEntity,
       self._last_reset = consumption_and_cost["last_reset"]
       self._state = consumption_and_cost["total_cost_off_peak"] if "total_cost_off_peak" in consumption_and_cost else 0
 
-      self._attributes["last_evaluated"] = consumption_and_cost["last_calculated_timestamp"]
+      self._attributes["last_evaluated"] = utcnow()
+
+    if result is not None:
+      self._attributes["data_last_retrieved"] = result.last_retrieved
 
     return self._state
 
@@ -119,11 +125,6 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOffPeak(CoordinatorEntity,
     
     if state is not None and self._state is None:
       self._state = state.state
-      self._attributes = {}
-      for x in state.attributes.keys():
-        self._attributes[x] = state.attributes[x]
-
-        if x == "last_reset":
-          self._last_reset = datetime.strptime(state.attributes[x], "%Y-%m-%dT%H:%M:%S%z")
+      self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeElectricityCostOffPeak state: {self._state}')

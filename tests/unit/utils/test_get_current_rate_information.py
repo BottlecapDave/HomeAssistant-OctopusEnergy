@@ -65,30 +65,30 @@ async def test_when_target_has_rates_and_gmt_then_rate_information_is_returned()
   max_target = min_target + timedelta(days=1)
   
   for index in range(len(rate_data)):
-    assert rate_information["all_rates"][index]["valid_from"] == expected_period_from
-    assert rate_information["all_rates"][index]["valid_to"] == expected_period_from + timedelta(minutes=30)
+    assert rate_information["all_rates"][index]["start"] == expected_period_from
+    assert rate_information["all_rates"][index]["end"] == expected_period_from + timedelta(minutes=30)
 
-    assert rate_information["all_rates"][index]["value_inc_vat"] == (expected_min_price if index % 4 == 0 else expected_max_price if index % 4 == 3 else expected_rate)
+    assert rate_information["all_rates"][index]["value_inc_vat"] == round((expected_min_price if index % 4 == 0 else expected_max_price if index % 4 == 3 else expected_rate) / 100, 6)
     assert rate_information["all_rates"][index]["is_capped"] == False
     expected_period_from = expected_period_from + timedelta(minutes=30)
 
-    if rate_information["all_rates"][index]["valid_from"] >= min_target and rate_information["all_rates"][index]["valid_to"] <= max_target:
-      total_rate_value = total_rate_value + rate_information["all_rates"][index]["value_inc_vat"]
+    if rate_data[index]["start"] >= min_target and rate_data[index]["end"] <= max_target:
+      total_rate_value = total_rate_value + rate_data[index]["value_inc_vat"]
 
   assert "current_rate" in rate_information
-  assert rate_information["current_rate"]["valid_from"] == datetime.strptime("2022-02-28T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["current_rate"]["valid_to"] == rate_information["current_rate"]["valid_from"] + timedelta(minutes=60)
+  assert rate_information["current_rate"]["start"] == datetime.strptime("2022-02-28T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["current_rate"]["end"] == rate_information["current_rate"]["start"] + timedelta(minutes=60)
 
-  assert rate_information["current_rate"]["value_inc_vat"] == expected_rate
+  assert rate_information["current_rate"]["value_inc_vat"] == round(expected_rate / 100, 6)
   
   assert "min_rate_today" in rate_information
-  assert rate_information["min_rate_today"] == expected_min_price
+  assert rate_information["min_rate_today"] == round(expected_min_price / 100, 6)
   
   assert "max_rate_today" in rate_information
-  assert rate_information["max_rate_today"] == expected_max_price
+  assert rate_information["max_rate_today"] == round(expected_max_price / 100, 6)
   
   assert "average_rate_today" in rate_information
-  assert rate_information["average_rate_today"] == total_rate_value / 48
+  assert rate_information["average_rate_today"] == round((total_rate_value / 48) / 100, 6)
 
 @pytest.mark.asyncio
 async def test_when_target_has_rates_and_bst_then_rate_information_is_returned():
@@ -116,30 +116,30 @@ async def test_when_target_has_rates_and_bst_then_rate_information_is_returned()
   max_target = min_target + timedelta(days=1)
   
   for index in range(len(rate_data)):
-    assert rate_information["all_rates"][index]["valid_from"] == expected_period_from
-    assert rate_information["all_rates"][index]["valid_to"] == expected_period_from + timedelta(minutes=30)
+    assert rate_information["all_rates"][index]["start"] == expected_period_from
+    assert rate_information["all_rates"][index]["end"] == expected_period_from + timedelta(minutes=30)
 
-    assert rate_information["all_rates"][index]["value_inc_vat"] == (expected_min_price if index % 4 == 0 else expected_max_price if index % 4 == 3 else expected_rate)
+    assert rate_information["all_rates"][index]["value_inc_vat"] == round((expected_min_price if index % 4 == 0 else expected_max_price if index % 4 == 3 else expected_rate) / 100, 6)
     assert rate_information["all_rates"][index]["is_capped"] == False
     expected_period_from = expected_period_from + timedelta(minutes=30)
 
-    if rate_information["all_rates"][index]["valid_from"] >= min_target and rate_information["all_rates"][index]["valid_to"] <= max_target:
-      total_rate_value = total_rate_value + rate_information["all_rates"][index]["value_inc_vat"]
+    if rate_information["all_rates"][index]["start"] >= min_target and rate_information["all_rates"][index]["end"] <= max_target:
+      total_rate_value = total_rate_value + rate_data[index]["value_inc_vat"]
 
   assert "current_rate" in rate_information
-  assert rate_information["current_rate"]["valid_from"] == datetime.strptime("2022-02-28T00:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["current_rate"]["valid_to"] == rate_information["current_rate"]["valid_from"] + timedelta(minutes=60)
+  assert rate_information["current_rate"]["start"] == datetime.strptime("2022-02-28T00:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["current_rate"]["end"] == rate_information["current_rate"]["start"] + timedelta(minutes=60)
 
-  assert rate_information["current_rate"]["value_inc_vat"] == expected_rate
+  assert rate_information["current_rate"]["value_inc_vat"] == round(expected_rate / 100, 6)
   
   assert "min_rate_today" in rate_information
-  assert rate_information["min_rate_today"] == expected_min_price
+  assert rate_information["min_rate_today"] == round(expected_min_price / 100, 6)
   
   assert "max_rate_today" in rate_information
-  assert rate_information["max_rate_today"] == expected_max_price
+  assert rate_information["max_rate_today"] == round(expected_max_price / 100, 6)
   
   assert "average_rate_today" in rate_information
-  assert rate_information["average_rate_today"] == total_rate_value / 48
+  assert rate_information["average_rate_today"] == round((total_rate_value / 48)  / 100, 6)
 
 @pytest.mark.asyncio
 async def test_when_all_rates_identical_costs_then_rate_information_is_returned():
@@ -165,30 +165,30 @@ async def test_when_all_rates_identical_costs_then_rate_information_is_returned(
   max_target = min_target + timedelta(days=1)
   
   for index in range(len(rate_data)):
-    assert rate_information["all_rates"][index]["valid_from"] == expected_period_from
-    assert rate_information["all_rates"][index]["valid_to"] == expected_period_from + timedelta(minutes=30)
+    assert rate_information["all_rates"][index]["start"] == expected_period_from
+    assert rate_information["all_rates"][index]["end"] == expected_period_from + timedelta(minutes=30)
 
-    assert rate_information["all_rates"][index]["value_inc_vat"] == expected_rate
+    assert rate_information["all_rates"][index]["value_inc_vat"] == round(expected_rate / 100, 6)
     assert rate_information["all_rates"][index]["is_capped"] == False
     expected_period_from = expected_period_from + timedelta(minutes=30)
 
-    if rate_information["all_rates"][index]["valid_from"] >= min_target and rate_information["all_rates"][index]["valid_to"] <= max_target:
-      total_rate_value = total_rate_value + rate_information["all_rates"][index]["value_inc_vat"]
+    if rate_information["all_rates"][index]["start"] >= min_target and rate_information["all_rates"][index]["end"] <= max_target:
+      total_rate_value = total_rate_value + rate_data[index]["value_inc_vat"]
 
   assert "current_rate" in rate_information
-  assert rate_information["current_rate"]["valid_from"] == period_from
-  assert rate_information["current_rate"]["valid_to"] == period_to
+  assert rate_information["current_rate"]["start"] == period_from
+  assert rate_information["current_rate"]["end"] == period_to
 
-  assert rate_information["current_rate"]["value_inc_vat"] == expected_rate
+  assert rate_information["current_rate"]["value_inc_vat"] == round(expected_rate / 100, 6)
   
   assert "min_rate_today" in rate_information
-  assert rate_information["min_rate_today"] == expected_rate
+  assert rate_information["min_rate_today"] == round(expected_rate / 100, 6)
   
   assert "max_rate_today" in rate_information
-  assert rate_information["max_rate_today"] == expected_rate
+  assert rate_information["max_rate_today"] == round(expected_rate / 100, 6)
   
   assert "average_rate_today" in rate_information
-  assert rate_information["average_rate_today"] == total_rate_value / 48
+  assert rate_information["average_rate_today"] == round((total_rate_value / 48) / 100, 6)
 
 # Covering https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/441
 @pytest.mark.asyncio
@@ -251,13 +251,13 @@ async def test_when_agile_rates_then_rate_information_is_returned(now: datetime)
   assert rate_information is not None
   
   assert "current_rate" in rate_information
-  assert rate_information["current_rate"]["value_inc_vat"] == expected_current_rate
-  assert rate_information["current_rate"]["valid_from"] == datetime.strptime("2023-10-06T09:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["current_rate"]["valid_to"] == datetime.strptime("2023-10-06T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["current_rate"]["value_inc_vat"] == round(expected_current_rate / 100, 6)
+  assert rate_information["current_rate"]["start"] == datetime.strptime("2023-10-06T09:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["current_rate"]["end"] == datetime.strptime("2023-10-06T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   assert "applicable_rates" in rate_information
   assert len(rate_information["applicable_rates"]) == 1
 
-  assert rate_information["applicable_rates"][0]["value_inc_vat"] == expected_current_rate
-  assert rate_information["applicable_rates"][0]["valid_from"] == datetime.strptime("2023-10-06T09:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["applicable_rates"][0]["valid_to"] == datetime.strptime("2023-10-06T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["value_inc_vat"] == round(expected_current_rate / 100, 6)
+  assert rate_information["applicable_rates"][0]["start"] == datetime.strptime("2023-10-06T09:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["end"] == datetime.strptime("2023-10-06T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z")

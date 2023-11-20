@@ -23,7 +23,7 @@ from ..const import (
 from ..api_client import OctopusEnergyApiClient
 from ..api_client.intelligent_dispatches import IntelligentDispatches
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
-
+from ..utils import private_rates_to_public_rates
 from . import get_electricity_meter_tariff_code, raise_rate_events
 from ..intelligent import adjust_intelligent_rates
 
@@ -62,7 +62,7 @@ async def async_refresh_electricity_rates_data(
         existing_rates_result is None or
         existing_rates_result.rates is None or
         len(existing_rates_result.rates) < 1 or
-        existing_rates_result.rates[-1]["valid_from"] < period_from):
+        existing_rates_result.rates[-1]["start"] < period_from):
       try:
         new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
       except:
@@ -79,7 +79,7 @@ async def async_refresh_electricity_rates_data(
         _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches}")
 
       raise_rate_events(current,
-                        new_rates,
+                        private_rates_to_public_rates(new_rates),
                         { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": tariff_code },
                         fire_event,
                         EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,

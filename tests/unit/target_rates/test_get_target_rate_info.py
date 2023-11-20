@@ -9,18 +9,18 @@ async def test_when_called_before_rates_then_not_active_returned():
   # Arrange
   rates = [
     {
-      "valid_from": datetime.strptime("2022-02-09T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-      "valid_to":  datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "start": datetime.strptime("2022-02-09T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "end":  datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       "value_inc_vat": 10
     },
     {
-      "valid_from": datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-      "valid_to":  datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "start": datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "end":  datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       "value_inc_vat": 5
     },
     {
-      "valid_from": datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-      "valid_to":  datetime.strptime("2022-02-09T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "start": datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "end":  datetime.strptime("2022-02-09T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       "value_inc_vat": 15
     }
   ]
@@ -46,7 +46,7 @@ async def test_when_called_before_rates_then_not_active_returned():
   assert result["current_min_cost"] == None
   assert result["current_max_cost"] == None
 
-  assert result["next_time"] == rates[0]["valid_from"]
+  assert result["next_time"] == rates[0]["start"]
   assert result["next_duration_in_hours"] == 1
   assert result["next_average_cost"] == 7.5
   assert result["next_min_cost"] == 5
@@ -95,33 +95,33 @@ async def test_when_called_during_rates_then_active_returned(test):
   # Arrange
   rates = [
     {
-      "valid_from": datetime.strptime("2022-02-09T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-      "valid_to":  datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "start": datetime.strptime("2022-02-09T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "end":  datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       "value_inc_vat": 10,
     },
     {
-      "valid_from": datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-      "valid_to":  datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "start": datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "end":  datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       "value_inc_vat": 15,
     },
     {
-      "valid_from": datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-      "valid_to":  datetime.strptime("2022-02-09T11:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "start": datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "end":  datetime.strptime("2022-02-09T11:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       "value_inc_vat": 15,
     },
     {
-      "valid_from": datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-      "valid_to":  datetime.strptime("2022-02-09T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "start": datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "end":  datetime.strptime("2022-02-09T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       "value_inc_vat": 5,
     },
     {
-      "valid_from": datetime.strptime("2022-02-09T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-      "valid_to":  datetime.strptime("2022-02-09T13:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "start": datetime.strptime("2022-02-09T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "end":  datetime.strptime("2022-02-09T13:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       "value_inc_vat": 20,
     },
     {
-      "valid_from": datetime.strptime("2022-02-09T14:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-      "valid_to":  datetime.strptime("2022-02-09T14:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "start": datetime.strptime("2022-02-09T14:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "end":  datetime.strptime("2022-02-09T14:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       "value_inc_vat": 10,
     }
   ]
@@ -195,24 +195,24 @@ async def test_when_offset_set_then_active_at_correct_current_time():
 
   rates = [
     {
-      "valid_from": datetime.strptime("2022-02-09T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-      "valid_to":  datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "start": datetime.strptime("2022-02-09T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "end":  datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       "value_inc_vat": 10,
     },
     {
-      "valid_from": datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-      "valid_to":  datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "start": datetime.strptime("2022-02-09T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "end":  datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       "value_inc_vat": 15,
     },
     {
-      "valid_from": datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-      "valid_to":  datetime.strptime("2022-02-09T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "start": datetime.strptime("2022-02-09T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+      "end":  datetime.strptime("2022-02-09T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       "value_inc_vat": 5,
     }
   ]
 
   # Check where we're before the offset
-  current_date = rates[0]["valid_from"] - timedelta(hours=1, minutes=1)
+  current_date = rates[0]["start"] - timedelta(hours=1, minutes=1)
 
   result = get_target_rate_info(
     current_date,
@@ -238,7 +238,7 @@ async def test_when_offset_set_then_active_at_correct_current_time():
 
   # Check where's within our rates and our offset
   for minutes_to_add in range(60):
-    current_date = rates[0]["valid_from"] - timedelta(hours=1) + timedelta(minutes=minutes_to_add)
+    current_date = rates[0]["start"] - timedelta(hours=1) + timedelta(minutes=minutes_to_add)
 
     result = get_target_rate_info(
       current_date,
@@ -263,7 +263,7 @@ async def test_when_offset_set_then_active_at_correct_current_time():
     assert result["next_max_cost"] == 5
 
   # Check when within rate but after offset
-  current_date = rates[0]["valid_from"] - timedelta(hours=1) + timedelta(minutes=61)
+  current_date = rates[0]["start"] - timedelta(hours=1) + timedelta(minutes=61)
 
   result = get_target_rate_info(
     current_date,

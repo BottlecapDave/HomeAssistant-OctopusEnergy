@@ -6,7 +6,7 @@ from homeassistant.helpers import config_validation as cv, entity_platform
 from homeassistant.util.dt import (utcnow)
 
 from .electricity.off_peak import OctopusEnergyElectricityOffPeak
-from .saving_sessions.saving_sessions import OctopusEnergySavingSessions
+from .octoplus.saving_sessions import OctopusEnergySavingSessions
 from .target_rates.target_rate import OctopusEnergyTargetRate
 from .intelligent.dispatching import OctopusEnergyIntelligentDispatching
 from .api_client import OctopusEnergyApiClient
@@ -72,12 +72,14 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
   await saving_session_coordinator.async_config_entry_first_refresh()
 
   account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]
+  client = hass.data[DOMAIN][DATA_CLIENT]
 
   now = utcnow()
   has_intelligent_tariff = False
   intelligent_mpan = None
   intelligent_serial_number = None
-  entities = [OctopusEnergySavingSessions(hass, saving_session_coordinator)]
+  entities = [OctopusEnergySavingSessions(hass, saving_session_coordinator, account_id)]
   if len(account_info["electricity_meter_points"]) > 0:
 
     for point in account_info["electricity_meter_points"]:
@@ -119,7 +121,7 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
       device = await client.async_get_intelligent_device(account_id)
 
     electricity_rate_coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(intelligent_mpan, intelligent_serial_number)]
-    entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, device))
+    entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, device, account_id))
 
   if len(entities) > 0:
     async_add_entities(entities, True)

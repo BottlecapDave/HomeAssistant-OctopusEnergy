@@ -20,10 +20,15 @@ from homeassistant.helpers import translation
 from ..const import (
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_HOURS,
+  CONFIG_TARGET_OLD_END_TIME,
+  CONFIG_TARGET_OLD_HOURS,
+  CONFIG_TARGET_OLD_MPAN,
+  CONFIG_TARGET_OLD_NAME,
+  CONFIG_TARGET_OLD_START_TIME,
+  CONFIG_TARGET_OLD_TYPE,
   CONFIG_TARGET_TYPE,
   CONFIG_TARGET_START_TIME,
   CONFIG_TARGET_END_TIME,
-  CONFIG_TARGET_MPAN,
   CONFIG_TARGET_ROLLING_TARGET,
   CONFIG_TARGET_LAST_RATES,
   CONFIG_TARGET_INVERT_TARGET_RATES,
@@ -40,6 +45,7 @@ from . import (
 
 from ..config.target_rates import validate_target_rate_config
 from ..target_rates.repairs import check_for_errors
+from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -114,7 +120,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       # If all of our target times have passed, it's time to recalculate the next set
       all_rates_in_past = True
       for rate in self._target_rates:
-        if rate["valid_to"] > current_date:
+        if rate["end"] > current_date:
           all_rates_in_past = False
           break
       
@@ -184,20 +190,20 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
 
     active_result = get_target_rate_info(current_date, self._target_rates, offset)
 
-    self._attributes["overall_average_cost"] = f'{active_result["overall_average_cost"]}p' if active_result["overall_average_cost"] is not None else None
-    self._attributes["overall_min_cost"] = f'{active_result["overall_min_cost"]}p' if active_result["overall_min_cost"] is not None else None
-    self._attributes["overall_max_cost"] = f'{active_result["overall_max_cost"]}p' if active_result["overall_max_cost"] is not None else None
+    self._attributes["overall_average_cost"] = active_result["overall_average_cost"]
+    self._attributes["overall_min_cost"] = active_result["overall_min_cost"]
+    self._attributes["overall_max_cost"] = active_result["overall_max_cost"]
 
     self._attributes["current_duration_in_hours"] = active_result["current_duration_in_hours"]
-    self._attributes["current_average_cost"] = f'{active_result["current_average_cost"]}p' if active_result["current_average_cost"] is not None else None
-    self._attributes["current_min_cost"] = f'{active_result["current_min_cost"]}p' if active_result["current_min_cost"] is not None else None
-    self._attributes["current_max_cost"] = f'{active_result["current_max_cost"]}p' if active_result["current_max_cost"] is not None else None
+    self._attributes["current_average_cost"] = active_result["current_average_cost"]
+    self._attributes["current_min_cost"] = active_result["current_min_cost"]
+    self._attributes["current_max_cost"] = active_result["current_max_cost"]
 
     self._attributes["next_time"] = active_result["next_time"]
     self._attributes["next_duration_in_hours"] = active_result["next_duration_in_hours"]
-    self._attributes["next_average_cost"] = f'{active_result["next_average_cost"]}p' if active_result["next_average_cost"] is not None else None
-    self._attributes["next_min_cost"] = f'{active_result["next_min_cost"]}p' if active_result["next_min_cost"] is not None else None
-    self._attributes["next_max_cost"] = f'{active_result["next_max_cost"]}p' if active_result["next_max_cost"] is not None else None
+    self._attributes["next_average_cost"] = active_result["next_average_cost"]
+    self._attributes["next_min_cost"] = active_result["next_min_cost"]
+    self._attributes["next_max_cost"] = active_result["next_max_cost"]
     
     self._attributes["last_evaluated"] = current_date
     self._state = active_result["is_active"]
@@ -214,7 +220,11 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     if state is not None and self._state is None:
       self._state = state.state
       self._attributes = {}
-      for x in state.attributes.keys():
+      temp_attributes = dict_to_typed_dict(state.attributes)
+      for x in temp_attributes.keys():
+        if x in [CONFIG_TARGET_OLD_NAME, CONFIG_TARGET_OLD_HOURS, CONFIG_TARGET_OLD_TYPE, CONFIG_TARGET_OLD_START_TIME, CONFIG_TARGET_OLD_END_TIME, CONFIG_TARGET_OLD_MPAN]:
+          continue
+        
         self._attributes[x] = state.attributes[x]
 
       # Make sure our attributes don't override any changed settings

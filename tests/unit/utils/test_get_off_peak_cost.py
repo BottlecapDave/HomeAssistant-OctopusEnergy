@@ -1,3 +1,4 @@
+from custom_components.octopus_energy.api_client import rates_to_thirty_minute_increments
 import pytest
 from datetime import datetime, timedelta
 
@@ -28,6 +29,63 @@ async def test_when_rates_spead_over_two_days_then_off_peak_cost_not_retrieved()
   period_from = datetime.strptime("2023-10-14T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   current = datetime.strptime("2023-10-14T00:00:01Z", "%Y-%m-%dT%H:%M:%S%z")
   rate_data = create_rate_data(period_from, period_from + timedelta(days=1), [1]) + create_rate_data(period_from + timedelta(days=1), period_from + timedelta(days=2), [2])
+  
+  # Act
+  result = get_off_peak_cost(current, rate_data)
+
+  # Assert
+  assert result is None
+
+@pytest.mark.asyncio
+async def test_bob():
+  period_from = datetime.strptime("2023-11-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2023-11-06T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  current = datetime.strptime("2023-11-05T10:00:01Z", "%Y-%m-%dT%H:%M:%S%z")
+  data = [
+    {
+			"value_exc_vat": 28.8068,
+			"value_inc_vat": 30.24714,
+			"start": "2023-11-06T04:30:00Z",
+			"end": "2023-11-07T00:30:00Z"
+		},
+		{
+			"value_exc_vat": 8.5714,
+			"value_inc_vat": 8.99997,
+			"start": "2023-11-06T00:30:00Z",
+			"end": "2023-11-06T04:30:00Z"
+		},
+		{
+			"value_exc_vat": 28.8068,
+			"value_inc_vat": 30.24714,
+			"start": "2023-11-05T04:30:00Z",
+			"end": "2023-11-06T00:30:00Z"
+		},
+		{
+			"value_exc_vat": 8.5714,
+			"value_inc_vat": 8.99997,
+			"start": "2023-11-05T00:30:00Z",
+			"end": "2023-11-05T04:30:00Z"
+		},
+		{
+			"value_exc_vat": 28.8068,
+			"value_inc_vat": 30.24714,
+			"start": "2023-11-04T04:30:00Z",
+			"end": "2023-11-05T00:30:00Z"
+		},
+		{
+			"value_exc_vat": 8.5714,
+			"value_inc_vat": 8.99997,
+			"start": "2023-11-04T00:30:00Z",
+			"end": "2023-11-04T04:30:00Z"
+		},
+		{
+			"value_exc_vat": 28.8068,
+			"value_inc_vat": 30.24714,
+			"start": "2023-11-03T04:30:00Z",
+			"end": "2023-11-04T00:30:00Z"
+		}
+  ]
+  rate_data = rates_to_thirty_minute_increments(data, period_from, period_to, 'tariff')
   
   # Act
   result = get_off_peak_cost(current, rate_data)

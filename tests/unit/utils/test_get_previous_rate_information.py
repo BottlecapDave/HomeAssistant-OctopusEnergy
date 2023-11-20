@@ -75,7 +75,7 @@ async def test_when_target_has_rates_and_gmt_then_rate_information_is_returned()
   rate_data = create_rate_data(period_from, period_to, [10, 10, 20, 30, 30])
   expected_current_rate = 10
   for rate in rate_data:
-    if now >= rate["valid_from"] and now <= rate["valid_to"]:
+    if now >= rate["start"] and now <= rate["end"]:
       assert expected_current_rate == rate["value_inc_vat"]
 
   # Act
@@ -85,20 +85,20 @@ async def test_when_target_has_rates_and_gmt_then_rate_information_is_returned()
   assert rate_information is not None
   
   assert "previous_rate" in rate_information
-  assert rate_information["previous_rate"]["value_inc_vat"] == 30
-  assert rate_information["previous_rate"]["valid_from"] == datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["previous_rate"]["valid_to"] == datetime.strptime("2022-02-28T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["previous_rate"]["value_inc_vat"] == round(30 / 100, 6)
+  assert rate_information["previous_rate"]["start"] == datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["previous_rate"]["end"] == datetime.strptime("2022-02-28T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   assert "applicable_rates" in rate_information
   assert len(rate_information["applicable_rates"]) == 2
 
-  assert rate_information["applicable_rates"][0]["value_inc_vat"] == 30
-  assert rate_information["applicable_rates"][0]["valid_from"] == datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["applicable_rates"][0]["valid_to"] == datetime.strptime("2022-02-28T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["value_inc_vat"] == round(30 / 100, 6)
+  assert rate_information["applicable_rates"][0]["start"] == datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["end"] == datetime.strptime("2022-02-28T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
-  assert rate_information["applicable_rates"][1]["value_inc_vat"] == 30
-  assert rate_information["applicable_rates"][1]["valid_from"] == datetime.strptime("2022-02-28T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["applicable_rates"][1]["valid_to"] == datetime.strptime("2022-02-28T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][1]["value_inc_vat"] == round(30 / 100, 6)
+  assert rate_information["applicable_rates"][1]["start"] == datetime.strptime("2022-02-28T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][1]["end"] == datetime.strptime("2022-02-28T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
 @pytest.mark.asyncio
 async def test_when_target_has_rates_and_bst_then_rate_information_is_returned():
@@ -110,7 +110,7 @@ async def test_when_target_has_rates_and_bst_then_rate_information_is_returned()
   rate_data = create_rate_data(period_from, period_to, [10, 10, 20, 30, 30])
   expected_current_rate = 20
   for rate in rate_data:
-    if now >= rate["valid_from"] and now <= rate["valid_to"]:
+    if now >= rate["start"] and now <= rate["end"]:
       assert expected_current_rate == rate["value_inc_vat"]
 
   # Act
@@ -120,20 +120,20 @@ async def test_when_target_has_rates_and_bst_then_rate_information_is_returned()
   assert rate_information is not None
   
   assert "previous_rate" in rate_information
-  assert rate_information["previous_rate"]["value_inc_vat"] == 10
-  assert rate_information["previous_rate"]["valid_from"] == datetime.strptime("2022-02-27T23:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["previous_rate"]["valid_to"] == datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["previous_rate"]["value_inc_vat"] == round(10 / 100, 6)
+  assert rate_information["previous_rate"]["start"] == datetime.strptime("2022-02-27T23:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["previous_rate"]["end"] == datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   assert "applicable_rates" in rate_information
   assert len(rate_information["applicable_rates"]) == 2
 
-  assert rate_information["applicable_rates"][0]["value_inc_vat"] == 10
-  assert rate_information["applicable_rates"][0]["valid_from"] == datetime.strptime("2022-02-27T23:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["applicable_rates"][0]["valid_to"] == datetime.strptime("2022-02-27T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["value_inc_vat"] == round(10 / 100, 6)
+  assert rate_information["applicable_rates"][0]["start"] == datetime.strptime("2022-02-27T23:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["end"] == datetime.strptime("2022-02-27T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
-  assert rate_information["applicable_rates"][1]["value_inc_vat"] == 10
-  assert rate_information["applicable_rates"][1]["valid_from"] == datetime.strptime("2022-02-27T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["applicable_rates"][1]["valid_to"] == datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][1]["value_inc_vat"] == round(10 / 100, 6)
+  assert rate_information["applicable_rates"][1]["start"] == datetime.strptime("2022-02-27T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][1]["end"] == datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
 @pytest.mark.asyncio
 async def test_when_all_rates_different_then_rate_information_is_returned():
@@ -145,7 +145,7 @@ async def test_when_all_rates_different_then_rate_information_is_returned():
   rate_data = create_rate_data(period_from, period_to, [10, 20, 30])
   expected_current_rate = 30
   for rate in rate_data:
-    if now >= rate["valid_from"] and now <= rate["valid_to"]:
+    if now >= rate["start"] and now <= rate["end"]:
       assert expected_current_rate == rate["value_inc_vat"]
 
   # Act
@@ -155,16 +155,16 @@ async def test_when_all_rates_different_then_rate_information_is_returned():
   assert rate_information is not None
   
   assert "previous_rate" in rate_information
-  assert rate_information["previous_rate"]["value_inc_vat"] == 20
-  assert rate_information["previous_rate"]["valid_from"] == datetime.strptime("2022-02-27T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["previous_rate"]["valid_to"] == datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["previous_rate"]["value_inc_vat"] == round(20 / 100, 6)
+  assert rate_information["previous_rate"]["start"] == datetime.strptime("2022-02-27T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["previous_rate"]["end"] == datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   assert "applicable_rates" in rate_information
   assert len(rate_information["applicable_rates"]) == 1
 
-  assert rate_information["applicable_rates"][0]["value_inc_vat"] == 20
-  assert rate_information["applicable_rates"][0]["valid_from"] == datetime.strptime("2022-02-27T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["applicable_rates"][0]["valid_to"] == datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["value_inc_vat"] == round(20 / 100, 6)
+  assert rate_information["applicable_rates"][0]["start"] == datetime.strptime("2022-02-27T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["end"] == datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
 # Covering https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/441
 @pytest.mark.asyncio
@@ -227,13 +227,13 @@ async def test_when_agile_rates_then_rate_information_is_returned(now: datetime)
   assert rate_information is not None
   
   assert "previous_rate" in rate_information
-  assert rate_information["previous_rate"]["value_inc_vat"] == expected_current_rate
-  assert rate_information["previous_rate"]["valid_from"] == datetime.strptime("2023-10-06T09:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["previous_rate"]["valid_to"] == datetime.strptime("2023-10-06T09:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["previous_rate"]["value_inc_vat"] == round(expected_current_rate / 100, 6)
+  assert rate_information["previous_rate"]["start"] == datetime.strptime("2023-10-06T09:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["previous_rate"]["end"] == datetime.strptime("2023-10-06T09:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   assert "applicable_rates" in rate_information
   assert len(rate_information["applicable_rates"]) == 1
 
-  assert rate_information["applicable_rates"][0]["value_inc_vat"] == expected_current_rate
-  assert rate_information["applicable_rates"][0]["valid_from"] == datetime.strptime("2023-10-06T09:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["applicable_rates"][0]["valid_to"] == datetime.strptime("2023-10-06T09:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["value_inc_vat"] == round(expected_current_rate / 100, 6)
+  assert rate_information["applicable_rates"][0]["start"] == datetime.strptime("2023-10-06T09:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["end"] == datetime.strptime("2023-10-06T09:30:00Z", "%Y-%m-%dT%H:%M:%S%z")

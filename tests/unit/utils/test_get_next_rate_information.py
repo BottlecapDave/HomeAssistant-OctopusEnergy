@@ -75,20 +75,20 @@ async def test_when_target_has_rates_and_gmt_then_rate_information_is_returned()
   assert rate_information is not None
   
   assert "next_rate" in rate_information
-  assert rate_information["next_rate"]["value_inc_vat"] == expected_current_rate
-  assert rate_information["next_rate"]["valid_from"] == datetime.strptime("2022-10-21T03:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["next_rate"]["valid_to"] == datetime.strptime("2022-10-21T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["next_rate"]["value_inc_vat"] == round(expected_current_rate / 100, 6)
+  assert rate_information["next_rate"]["start"] == datetime.strptime("2022-10-21T03:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["next_rate"]["end"] == datetime.strptime("2022-10-21T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   assert "applicable_rates" in rate_information
   assert len(rate_information["applicable_rates"]) == 2
 
-  assert rate_information["applicable_rates"][0]["value_inc_vat"] == expected_current_rate
-  assert rate_information["applicable_rates"][0]["valid_from"] == datetime.strptime("2022-10-21T03:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["applicable_rates"][0]["valid_to"] == datetime.strptime("2022-10-21T04:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["value_inc_vat"] == round(expected_current_rate / 100, 6)
+  assert rate_information["applicable_rates"][0]["start"] == datetime.strptime("2022-10-21T03:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["end"] == datetime.strptime("2022-10-21T04:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
-  assert rate_information["applicable_rates"][1]["value_inc_vat"] == expected_current_rate
-  assert rate_information["applicable_rates"][1]["valid_from"] == datetime.strptime("2022-10-21T04:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["applicable_rates"][1]["valid_to"] == datetime.strptime("2022-10-21T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][1]["value_inc_vat"] == round(expected_current_rate / 100, 6)
+  assert rate_information["applicable_rates"][1]["start"] == datetime.strptime("2022-10-21T04:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][1]["end"] == datetime.strptime("2022-10-21T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
 @pytest.mark.asyncio
 async def test_when_target_has_rates_and_bst_then_rate_information_is_returned():
@@ -105,20 +105,20 @@ async def test_when_target_has_rates_and_bst_then_rate_information_is_returned()
   assert rate_information is not None
   
   assert "next_rate" in rate_information
-  assert rate_information["next_rate"]["value_inc_vat"] == expected_current_rate
-  assert rate_information["next_rate"]["valid_from"] == datetime.strptime("2022-10-21T03:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["next_rate"]["valid_to"] == datetime.strptime("2022-10-21T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["next_rate"]["value_inc_vat"] == round(expected_current_rate / 100, 6)
+  assert rate_information["next_rate"]["start"] == datetime.strptime("2022-10-21T03:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["next_rate"]["end"] == datetime.strptime("2022-10-21T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   assert "applicable_rates" in rate_information
   assert len(rate_information["applicable_rates"]) == 2
 
-  assert rate_information["applicable_rates"][0]["value_inc_vat"] == expected_current_rate
-  assert rate_information["applicable_rates"][0]["valid_from"] == datetime.strptime("2022-10-21T03:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["applicable_rates"][0]["valid_to"] == datetime.strptime("2022-10-21T04:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["value_inc_vat"] == round(expected_current_rate / 100, 6)
+  assert rate_information["applicable_rates"][0]["start"] == datetime.strptime("2022-10-21T03:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["end"] == datetime.strptime("2022-10-21T04:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
-  assert rate_information["applicable_rates"][1]["value_inc_vat"] == expected_current_rate
-  assert rate_information["applicable_rates"][1]["valid_from"] == datetime.strptime("2022-10-21T04:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["applicable_rates"][1]["valid_to"] == datetime.strptime("2022-10-21T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][1]["value_inc_vat"] == round(expected_current_rate / 100, 6)
+  assert rate_information["applicable_rates"][1]["start"] == datetime.strptime("2022-10-21T04:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][1]["end"] == datetime.strptime("2022-10-21T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
 @pytest.mark.asyncio
 async def test_when_all_rates_different_then_rate_information_is_returned():
@@ -135,16 +135,16 @@ async def test_when_all_rates_different_then_rate_information_is_returned():
   assert rate_information is not None
   
   assert "next_rate" in rate_information
-  assert rate_information["next_rate"]["value_inc_vat"] == expected_current_rate
-  assert rate_information["next_rate"]["valid_from"] == datetime.strptime("2022-10-21T05:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["next_rate"]["valid_to"] == datetime.strptime("2022-10-21T05:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["next_rate"]["value_inc_vat"] == round(expected_current_rate / 100, 6)
+  assert rate_information["next_rate"]["start"] == datetime.strptime("2022-10-21T05:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["next_rate"]["end"] == datetime.strptime("2022-10-21T05:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   assert "applicable_rates" in rate_information
   assert len(rate_information["applicable_rates"]) == 1
 
-  assert rate_information["applicable_rates"][0]["value_inc_vat"] == expected_current_rate
-  assert rate_information["applicable_rates"][0]["valid_from"] == datetime.strptime("2022-10-21T05:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["applicable_rates"][0]["valid_to"] == datetime.strptime("2022-10-21T05:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["value_inc_vat"] == round(expected_current_rate / 100, 6)
+  assert rate_information["applicable_rates"][0]["start"] == datetime.strptime("2022-10-21T05:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["end"] == datetime.strptime("2022-10-21T05:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
 # Covering https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/441
 @pytest.mark.asyncio
@@ -207,13 +207,13 @@ async def test_when_agile_rates_then_rate_information_is_returned(now: datetime)
   assert rate_information is not None
   
   assert "next_rate" in rate_information
-  assert rate_information["next_rate"]["value_inc_vat"] == expected_current_rate
-  assert rate_information["next_rate"]["valid_from"] == datetime.strptime("2023-10-06T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["next_rate"]["valid_to"] == datetime.strptime("2023-10-06T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["next_rate"]["value_inc_vat"] == round(expected_current_rate / 100, 6)
+  assert rate_information["next_rate"]["start"] == datetime.strptime("2023-10-06T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["next_rate"]["end"] == datetime.strptime("2023-10-06T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   assert "applicable_rates" in rate_information
   assert len(rate_information["applicable_rates"]) == 1
 
-  assert rate_information["applicable_rates"][0]["value_inc_vat"] == expected_current_rate
-  assert rate_information["applicable_rates"][0]["valid_from"] == datetime.strptime("2023-10-06T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  assert rate_information["applicable_rates"][0]["valid_to"] == datetime.strptime("2023-10-06T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["value_inc_vat"] == round(expected_current_rate / 100, 6)
+  assert rate_information["applicable_rates"][0]["start"] == datetime.strptime("2023-10-06T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["applicable_rates"][0]["end"] == datetime.strptime("2023-10-06T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z")

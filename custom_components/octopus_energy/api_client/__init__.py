@@ -11,6 +11,8 @@ from ..utils import (
 
 from .intelligent_settings import IntelligentSettings
 from .intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
+from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSessionsResponse
+from .wheel_of_fortune import WheelOfFortuneSpinsResponse
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -95,24 +97,6 @@ account_query = '''query {{
 					}}
 				}}
 			}}
-    }}
-  }}
-}}'''
-
-saving_session_query = '''query {{
-	savingSessions {{
-		account(accountNumber: "{account_id}") {{
-			hasJoinedCampaign
-			joinedEvents {{
-				eventId
-				startAt
-				endAt
-			}}
-		}}
-	}}
-  octoPoints {{
-		account(accountNumber: "{account_id}") {{
-			currentPointsInWallet
     }}
   }}
 }}'''
@@ -239,8 +223,69 @@ intelligent_turn_off_smart_charge_mutation = '''mutation {{
 	}}
 }}'''
 
+octoplus_points_query = '''query octoplus_points {
+	loyaltyPointLedgers {
+		balanceCarriedForward
+  }
+}'''
+
+octoplus_saving_session_join_mutation = '''mutation {{
+	joinSavingSessionsEvent(input: {{
+		accountNumber: "{account_id}"
+		eventCode: "{event_code}"
+	}}) {{
+		possibleErrors {{
+			message
+		}}
+	}}
+}}
+'''
+
+octoplus_saving_session_query = '''query {{
+	savingSessions {{
+    events {{
+			id
+      code
+			rewardPerKwhInOctoPoints
+			startAt
+			endAt
+		}}
+		account(accountNumber: "{account_id}") {{
+			hasJoinedCampaign
+			joinedEvents {{
+				eventId
+				startAt
+				endAt
+        rewardGivenInOctoPoints
+			}}
+		}}
+	}}
+}}'''
+
+wheel_of_fortune_query = '''query {{
+  wheelOfFortuneSpins(accountNumber: "{account_id}") {{
+    electricity {{
+      remainingSpinsThisMonth
+    }}
+    gas {{
+      remainingSpinsThisMonth
+    }}
+  }}
+}}'''
+
+wheel_of_fortune_mutation = '''mutation {{
+  spinWheelOfFortune(input: {{ accountNumber: "{account_id}", supplyType: {supply_type}, termsAccepted: true }}) {{
+    spinResult {{
+      prizeAmount
+    }}
+  }}
+}}'''
+
 def get_valid_from(rate):
   return rate["valid_from"]
+
+def get_from(rate):
+  return rate["start"]
     
 def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: datetime, tariff_code: str, price_cap: float = None):
   """Process the collection of rates to ensure they're in 30 minute periods"""
@@ -284,8 +329,8 @@ def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: da
         valid_to = valid_from + timedelta(minutes=30)
         results.append({
           "value_inc_vat": value_inc_vat,
-          "valid_from": valid_from,
-          "valid_to": valid_to,
+          "start": valid_from,
+          "end": valid_to,
           "tariff_code": tariff_code,
           "is_capped": is_capped
         })
@@ -297,7 +342,12 @@ def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: da
 
 class ServerError(Exception): ...
 
-class RequestError(Exception): ...
+class RequestError(Exception):
+  errors: list[str]
+
+  def __init__(self, message: str, errors: list[str]):
+    super().__init__(message)
+    self.errors = errors
 
 class OctopusEnergyApiClient:
 
@@ -387,8 +437,8 @@ class OctopusEnergyApiClient:
                   else []
                 )),
                 "agreements": list(map(lambda a: {
-                  "valid_from": a["validFrom"],
-                  "valid_to": a["validTo"],
+                  "start": a["validFrom"],
+                  "end": a["validTo"],
                   "tariff_code": a["tariff"]["tariffCode"] if "tariff" in a and "tariffCode" in a["tariff"] else None,
                   "product_code": a["tariff"]["productCode"] if "tariff" in a and "productCode" in a["tariff"] else None,
                 }, 
@@ -423,8 +473,8 @@ class OctopusEnergyApiClient:
                 else []
               )),
               "agreements": list(map(lambda a: {
-                  "valid_from": a["validFrom"],
-                  "valid_to": a["validTo"],
+                  "start": a["validFrom"],
+                  "end": a["validTo"],
                   "tariff_code": a["tariff"]["tariffCode"] if "tariff" in a and "tariffCode" in a["tariff"] else None,
                   "product_code": a["tariff"]["productCode"] if "tariff" in a and "productCode" in a["tariff"] else None,
                 },
@@ -443,30 +493,71 @@ class OctopusEnergyApiClient:
     
     return None
 
-  async def async_get_saving_sessions(self, account_id):
+  async def async_get_saving_sessions(self, account_id: str) -> SavingSessionsResponse:
     """Get the user's seasons savings"""
     await self.async_refresh_token()
 
     async with aiohttp.ClientSession(timeout=self.timeout) as client:
       url = f'{self._base_url}/v1/graphql/'
       # Get account response
-      payload = { "query": saving_session_query.format(account_id=account_id) }
+      payload = { "query": octoplus_saving_session_query.format(account_id=account_id) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as account_response:
         response_body = await self.__async_read_response__(account_response, url)
 
         if (response_body is not None and "data" in response_body):
-          return {
-            "points": int(response_body["data"]["octoPoints"]["account"]["currentPointsInWallet"]),
-            "events": list(map(lambda ev: {
-              "start": as_utc(parse_datetime(ev["startAt"])),
-              "end": as_utc(parse_datetime(ev["endAt"]))
-            }, response_body["data"]["savingSessions"]["account"]["joinedEvents"]))
-          }
+          return SavingSessionsResponse(list(map(lambda ev: SavingSession(ev["id"],
+                                                                          ev["code"],
+                                                                          as_utc(parse_datetime(ev["startAt"])),
+                                                                          as_utc(parse_datetime(ev["endAt"])),
+                                                                          ev["rewardPerKwhInOctoPoints"]),
+                                        response_body["data"]["savingSessions"]["events"])), 
+                                        list(map(lambda ev: SavingSession(ev["eventId"],
+                                                                          None,
+                                                                          as_utc(parse_datetime(ev["startAt"])),
+                                                                          as_utc(parse_datetime(ev["endAt"])),
+                                                                          ev["rewardGivenInOctoPoints"]),
+                                        response_body["data"]["savingSessions"]["account"]["joinedEvents"])))
         else:
-          _LOGGER.error("Failed to retrieve account")
+          _LOGGER.error("Failed to retrieve saving sessions")
     
     return None
+
+  async def async_get_octoplus_points(self):
+    """Get the user's octoplus points"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession(timeout=self.timeout) as client:
+      url = f'{self._base_url}/v1/graphql/'
+      # Get account response
+      payload = { "query": octoplus_points_query }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as account_response:
+        response_body = await self.__async_read_response__(account_response, url)
+
+        if (response_body is not None and "data" in response_body and "loyaltyPointLedgers" in response_body["data"] and len(response_body["data"]["loyaltyPointLedgers"]) > 0):
+          return int(response_body["data"]["loyaltyPointLedgers"][0]["balanceCarriedForward"])
+        else:
+          _LOGGER.error("Failed to retrieve octopoints")
+    
+    return None
+  
+  async def async_join_octoplus_saving_session(self, account_id: str, event_code: str) -> JoinSavingSessionResponse:
+    """Get the user's octoplus points"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession(timeout=self.timeout) as client:
+      url = f'{self._base_url}/v1/graphql/'
+      # Get account response
+      payload = { "query": octoplus_saving_session_join_mutation.format(account_id=account_id, event_code=event_code) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as account_response:
+
+        try:
+          await self.__async_read_response__(account_response, url)
+          return JoinSavingSessionResponse(True, [])
+        except RequestError as e:
+          return JoinSavingSessionResponse(False, e.errors)
 
   async def async_get_smart_meter_consumption(self, device_id: str, period_from: datetime, period_to: datetime):
     """Get the user's smart meter consumption"""
@@ -484,8 +575,8 @@ class OctopusEnergyApiClient:
           return list(map(lambda mp: {
             "consumption": float(mp["consumptionDelta"]) / 1000,
             "demand": float(mp["demand"]) if "demand" in mp and mp["demand"] is not None else None,
-            "interval_start": parse_datetime(mp["readAt"]),
-            "interval_end": parse_datetime(mp["readAt"]) + timedelta(minutes=30)
+            "start": parse_datetime(mp["readAt"]),
+            "end": parse_datetime(mp["readAt"]) + timedelta(minutes=30)
           }, response_body["data"]["smartMeterTelemetry"]))
         else:
           _LOGGER.debug(f"Failed to retrieve smart meter consumption data - device_id: {device_id}; period_from: {period_from}; period_to: {period_to}")
@@ -537,7 +628,7 @@ class OctopusEnergyApiClient:
             results.append(rate)
 
     # Because we retrieve our day and night periods separately over a 2 day period, we need to sort our rates 
-    results.sort(key=get_valid_from)
+    results.sort(key=get_from)
 
     return results
 
@@ -571,7 +662,7 @@ class OctopusEnergyApiClient:
 
             # For some reason, the end point returns slightly more data than we requested, so we need to filter out
             # the results
-            if as_utc(item["interval_start"]) >= period_from and as_utc(item["interval_end"]) <= period_to:
+            if as_utc(item["start"]) >= period_from and as_utc(item["end"]) <= period_to:
               results.append(item)
           
           results.sort(key=self.__get_interval_end)
@@ -615,7 +706,7 @@ class OctopusEnergyApiClient:
 
             # For some reason, the end point returns slightly more data than we requested, so we need to filter out
             # the results
-            if as_utc(item["interval_start"]) >= period_from and as_utc(item["interval_end"]) <= period_to:
+            if as_utc(item["start"]) >= period_from and as_utc(item["end"]) <= period_to:
               results.append(item)
           
           results.sort(key=self.__get_interval_end)
@@ -647,8 +738,8 @@ class OctopusEnergyApiClient:
         data = await self.__async_read_response__(response, url)
         if (data is not None and "results" in data and len(data["results"]) > 0):
           result = {
-            "valid_from": parse_datetime(data["results"][0]["valid_from"]) if "valid_from" in data["results"][0] and data["results"][0]["valid_from"] is not None else None,
-            "valid_to": parse_datetime(data["results"][0]["valid_to"]) if "valid_to" in data["results"][0] and data["results"][0]["valid_to"] is not None else None,
+            "start": parse_datetime(data["results"][0]["valid_from"]) if "valid_from" in data["results"][0] and data["results"][0]["valid_from"] is not None else None,
+            "end": parse_datetime(data["results"][0]["valid_to"]) if "valid_to" in data["results"][0] and data["results"][0]["valid_to"] is not None else None,
             "value_inc_vat": float(data["results"][0]["value_inc_vat"])
           }
 
@@ -670,8 +761,8 @@ class OctopusEnergyApiClient:
         data = await self.__async_read_response__(response, url)
         if (data is not None and "results" in data and len(data["results"]) > 0):
           result = {
-            "valid_from": parse_datetime(data["results"][0]["valid_from"]) if "valid_from" in data["results"][0] and data["results"][0]["valid_from"] is not None else None,
-            "valid_to": parse_datetime(data["results"][0]["valid_to"]) if "valid_to" in data["results"][0] and data["results"][0]["valid_to"] is not None else None,
+            "start": parse_datetime(data["results"][0]["valid_from"]) if "valid_from" in data["results"][0] and data["results"][0]["valid_from"] is not None else None,
+            "end": parse_datetime(data["results"][0]["valid_to"]) if "valid_to" in data["results"][0] and data["results"][0]["valid_to"] is not None else None,
             "value_inc_vat": float(data["results"][0]["value_inc_vat"])
           }
 
@@ -911,9 +1002,58 @@ class OctopusEnergyApiClient:
           _LOGGER.error("Failed to retrieve intelligent device")
     
     return None
+  
+  async def async_get_wheel_of_fortune_spins(self, account_id: str) -> WheelOfFortuneSpinsResponse:
+    """Get the user's wheel of fortune spins"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession(timeout=self.timeout) as client:
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": wheel_of_fortune_query.format(account_id=account_id) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_get_wheel_of_fortune_spins: {response_body}')
+
+        if (response_body is not None and "data" in response_body and
+            "wheelOfFortuneSpins" in response_body["data"]):
+          
+          spins = response_body["data"]["wheelOfFortuneSpins"]
+          return WheelOfFortuneSpinsResponse(
+            int(spins["electricity"]["remainingSpinsThisMonth"]) if "electricity" in spins and "remainingSpinsThisMonth" in spins["electricity"] else 0,
+            int(spins["gas"]["remainingSpinsThisMonth"]) if "gas" in spins and "remainingSpinsThisMonth" in spins["gas"] else 0
+          )
+        else:
+          _LOGGER.error("Failed to retrieve wheel of fortune spins")
+    
+    return None
+  
+  async def async_spin_wheel_of_fortune(self, account_id: str, is_electricity: bool) -> int:
+    """Get the user's wheel of fortune spins"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession(timeout=self.timeout) as client:
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": wheel_of_fortune_mutation.format(account_id=account_id, supply_type="ELECTRICITY" if is_electricity == True else "GAS") }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_spin_wheel_of_fortune: {response_body}')
+
+        if (response_body is not None and 
+            "data" in response_body and
+            "spinWheelOfFortune" in response_body["data"] and
+            "spinResult" in response_body["data"]["spinWheelOfFortune"] and
+            "prizeAmount" in response_body["data"]["spinWheelOfFortune"]["spinResult"]):
+          
+          return int(response_body["data"]["spinWheelOfFortune"]["spinResult"]["prizeAmount"])
+        else:
+          _LOGGER.error("Failed to spin wheel of fortune")
+    
+    return None
 
   def __get_interval_end(self, item):
-    return item["interval_end"]
+    return item["end"]
 
   def __is_night_rate(self, rate, is_smart_meter):
     # Normally the economy seven night rate is between 12am and 7am UK time
@@ -928,11 +1068,11 @@ class OctopusEnergyApiClient:
 
   def __is_between_times(self, rate, target_from_time, target_to_time, use_utc):
     """Determines if a current rate is between two times"""
-    rate_local_valid_from = as_local(rate["valid_from"])
-    rate_local_valid_to = as_local(rate["valid_to"])
+    rate_local_valid_from = as_local(rate["start"])
+    rate_local_valid_to = as_local(rate["end"])
 
     if use_utc:
-        rate_utc_valid_from = as_utc(rate["valid_from"])
+        rate_utc_valid_from = as_utc(rate["start"])
         # We need to convert our times into local time to account for BST to ensure that our rate is valid between the target times.
         from_date_time = as_local(parse_datetime(rate_utc_valid_from.strftime(f"%Y-%m-%dT{target_from_time}Z")))
         to_date_time = as_local(parse_datetime(rate_utc_valid_from.strftime(f"%Y-%m-%dT{target_to_time}Z")))
@@ -949,8 +1089,8 @@ class OctopusEnergyApiClient:
   def __process_consumption(self, item):
     return {
       "consumption": float(item["consumption"]),
-      "interval_start": as_utc(parse_datetime(item["interval_start"])),
-      "interval_end": as_utc(parse_datetime(item["interval_end"]))
+      "start": as_utc(parse_datetime(item["interval_start"])),
+      "end": as_utc(parse_datetime(item["interval_end"]))
     }
 
   async def __async_read_response__(self, response, url):
@@ -966,7 +1106,7 @@ class OctopusEnergyApiClient:
       elif response.status not in [401, 403, 404]:
         msg = f'Failed to send request ({url}): {response.status}; {text}'
         _LOGGER.debug(msg)
-        raise RequestError(msg)
+        raise RequestError(msg, [])
       return None
 
     data_as_json = None
@@ -977,7 +1117,8 @@ class OctopusEnergyApiClient:
     
     if ("graphql" in url and "errors" in data_as_json):
       msg = f'Errors in request ({url}): {data_as_json["errors"]}'
+      errors = list(map(lambda error: error["message"], data_as_json["errors"]))
       _LOGGER.debug(msg)
-      raise RequestError(msg)
+      raise RequestError(msg, errors)
     
     return data_as_json

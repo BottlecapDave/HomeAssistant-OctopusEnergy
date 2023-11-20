@@ -117,8 +117,8 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
   consumption_data = create_consumption_data(period_from, period_to)
   assert consumption_data is not None
   assert len(consumption_data) > 0
-  assert consumption_data[-1]["interval_end"] == period_to
-  assert consumption_data[0]["interval_start"] == period_from
+  assert consumption_data[-1]["end"] == period_to
+  assert consumption_data[0]["start"] == period_from
 
   # Act
   result = calculate_gas_consumption_and_cost(
@@ -135,9 +135,9 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
   assert result is not None
   assert len(result["charges"]) == 48
 
-  assert result["standing_charge"] == standing_charge
+  assert result["standing_charge"] == round(standing_charge / 100, 2)
   
-  assert result["last_calculated_timestamp"] == consumption_data[-1]["interval_end"]
+  assert result["last_evaluated"] == consumption_data[-1]["end"]
   
   # Total is reported in pounds and pence, but rate prices are in pence, so we need to calculate our expected value
   if consumption_units == "m³":
@@ -157,10 +157,13 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
   for item in result["charges"]:
     expected_valid_to = expected_valid_from + timedelta(minutes=30)
 
-    assert "from" in item
-    assert item["from"] == expected_valid_from
-    assert "to" in item
-    assert item["to"] == expected_valid_to
+    assert "start" in item
+    assert item["start"] == expected_valid_from
+    assert "end" in item
+    assert item["end"] == expected_valid_to
+
+    assert "rate" in item
+    assert item["rate"] == round(expected_rate_price / 100, 6)
 
     assert "consumption_m3" in item
     if consumption_units == "m³":
@@ -199,8 +202,8 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
   consumption_data = create_consumption_data(period_from, period_to, True)
   assert consumption_data is not None
   assert len(consumption_data) > 0
-  assert consumption_data[0]["interval_end"] == period_to
-  assert consumption_data[-1]["interval_start"] == period_from
+  assert consumption_data[0]["end"] == period_to
+  assert consumption_data[-1]["start"] == period_from
 
   # Act
   result = calculate_gas_consumption_and_cost(
@@ -217,8 +220,8 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
   assert result is not None
   assert len(result["charges"]) == 48
 
-  assert result["last_calculated_timestamp"] == consumption_data[0]["interval_end"]
-  assert result["standing_charge"] == standing_charge
+  assert result["last_evaluated"] == consumption_data[0]["end"]
+  assert result["standing_charge"] == round(standing_charge / 100, 2)
 
   # Total is reported in pounds and pence, but rate prices are in pence, so we need to calculate our expected value
   if consumption_units == "m³":
@@ -238,10 +241,13 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
   for item in result["charges"]:
     expected_valid_to = expected_valid_from + timedelta(minutes=30)
 
-    assert "from" in item
-    assert item["from"] == expected_valid_from
-    assert "to" in item
-    assert item["to"] == expected_valid_to
+    assert "start" in item
+    assert item["start"] == expected_valid_from
+    assert "end" in item
+    assert item["end"] == expected_valid_to
+
+    assert "rate" in item
+    assert item["rate"] == round(expected_rate_price / 100, 6)
 
     assert "consumption_m3" in item
     if consumption_units == "m³":

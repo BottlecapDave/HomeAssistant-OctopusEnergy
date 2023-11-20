@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 import logging
 from typing import Callable, Any
 import asyncio
@@ -19,6 +19,7 @@ from ..const import (
 
 from ..api_client import (OctopusEnergyApiClient)
 from ..api_client.intelligent_dispatches import IntelligentDispatches
+from ..utils import private_rates_to_public_rates
 
 from ..intelligent import adjust_intelligent_rates
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
@@ -26,15 +27,27 @@ from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinat
 _LOGGER = logging.getLogger(__name__)
 
 def __get_interval_end(item):
-    return item["interval_end"]
+    return item["end"]
 
 def __sort_consumption(consumption_data):
   sorted = consumption_data.copy()
   sorted.sort(key=__get_interval_end)
   return sorted
 
+class PreviousConsumptionCoordinatorResult:
+  last_retrieved: datetime
+  consumption: list
+  rates: list
+  standing_charge: float
+
+  def __init__(self, last_retrieved: datetime, consumption: list, rates: list, standing_charge):
+    self.last_retrieved = last_retrieved
+    self.consumption = consumption
+    self.rates = rates
+    self.standing_charge = standing_charge
+
 async def async_fetch_consumption_and_rates(
-  previous_data,
+  previous_data: PreviousConsumptionCoordinatorResult,
   utc_now,
   client: OctopusEnergyApiClient,
   period_from,
@@ -51,9 +64,8 @@ async def async_fetch_consumption_and_rates(
   """Fetch the previous consumption and rates"""
 
   if (previous_data == None or 
-      ((len(previous_data["consumption"]) < 1 or 
-      previous_data["consumption"][-1]["interval_end"] < period_to) and 
-      utc_now.minute % 30 == 0)):
+      previous_data.last_retrieved < (utc_now - timedelta(minutes=30)) or
+      utc_now.minute % 30 == 0):
     
     _LOGGER.debug(f"Retrieving previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}...")
     
@@ -82,19 +94,25 @@ async def async_fetch_consumption_and_rates(
         consumption_data = __sort_consumption(consumption_data)
 
         if (is_electricity == True):
-          fire_event(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, { "mpan": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": rate_data })
+          fire_event(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, { "mpan": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": private_rates_to_public_rates(rate_data) })
         else:
-          fire_event(EVENT_GAS_PREVIOUS_CONSUMPTION_RATES, { "mprn": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": rate_data })
+          fire_event(EVENT_GAS_PREVIOUS_CONSUMPTION_RATES, { "mprn": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": private_rates_to_public_rates(rate_data) })
 
         _LOGGER.debug(f"Fired event for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
 
-        return {
-          "consumption": consumption_data,
-          "rates": rate_data,
-          "standing_charge": standing_charge["value_inc_vat"]
-        }
-      else:
-        _LOGGER.debug(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}; consumptions: {len(consumption_data)}; rates: {len(rate_data)}; standing_charge: {standing_charge is not None};")
+        return PreviousConsumptionCoordinatorResult(
+          utc_now,
+          consumption_data,
+          rate_data,
+          standing_charge["value_inc_vat"]
+        )
+
+      return PreviousConsumptionCoordinatorResult(
+        utc_now,
+        [],
+        [],
+        None
+      )
     except:
       _LOGGER.debug(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
 
@@ -120,10 +138,7 @@ async def async_create_previous_consumption_and_rates_coordinator(
     
     result = await async_fetch_consumption_and_rates(
       hass.data[DOMAIN][previous_consumption_key] 
-      if previous_consumption_key in hass.data[DOMAIN] and 
-      "rates" in hass.data[DOMAIN][previous_consumption_key] and 
-      "consumption" in hass.data[DOMAIN][previous_consumption_key] and 
-      "standing_charge" in hass.data[DOMAIN][previous_consumption_key] 
+      if previous_consumption_key in hass.data[DOMAIN]
       else None,
       utcnow(),
       client,
@@ -141,7 +156,7 @@ async def async_create_previous_consumption_and_rates_coordinator(
     if (result is not None):
       hass.data[DOMAIN][previous_consumption_key] = result
 
-    if previous_consumption_key in hass.data[DOMAIN] and "rates" in hass.data[DOMAIN][previous_consumption_key] and "consumption" in hass.data[DOMAIN][previous_consumption_key] and "standing_charge" in hass.data[DOMAIN][previous_consumption_key]:
+    if previous_consumption_key in hass.data[DOMAIN]:
       return hass.data[DOMAIN][previous_consumption_key] 
     else:
       return None

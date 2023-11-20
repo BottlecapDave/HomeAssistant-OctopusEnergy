@@ -22,6 +22,7 @@ from . import (
 )
 
 from .base import (OctopusEnergyElectricitySensor)
+from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -69,7 +70,7 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumptionPeak(CoordinatorEnti
     return SensorStateClass.TOTAL
 
   @property
-  def unit_of_measurement(self):
+  def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
     return ENERGY_KILO_WATT_HOUR
 
@@ -89,7 +90,7 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumptionPeak(CoordinatorEnti
     return self._last_reset
 
   @property
-  def state(self):
+  def native_value(self):
     """Retrieve the current days accumulative consumption"""
     current = now()
     consumption_data = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
@@ -111,7 +112,7 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumptionPeak(CoordinatorEnti
       self._state = consumption_and_cost["total_consumption_peak"] if "total_consumption_peak" in consumption_and_cost else 0
       self._last_reset = consumption_and_cost["last_reset"]
 
-      self._attributes["last_calculated_timestamp"] = consumption_and_cost["last_calculated_timestamp"]
+      self._attributes["last_evaluated"] = consumption_and_cost["last_evaluated"]
 
     return self._state
 
@@ -123,11 +124,6 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumptionPeak(CoordinatorEnti
     
     if state is not None and self._state is None:
       self._state = state.state
-      self._attributes = {}
-      for x in state.attributes.keys():
-        self._attributes[x] = state.attributes[x]
-
-        if x == "last_reset":
-          self._last_reset = datetime.strptime(state.attributes[x], "%Y-%m-%dT%H:%M:%S%z")
+      self._attributes = dict_to_typed_dict(state.attributes)
 
       _LOGGER.debug(f'Restored OctopusEnergyCurrentAccumulativeElectricityConsumptionPeak state: {self._state}')

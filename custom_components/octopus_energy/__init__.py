@@ -1,6 +1,8 @@
 import logging
 import asyncio
 from datetime import timedelta
+from custom_components.octopus_energy.config.main import async_migrate_main_config
+from custom_components.octopus_energy.config.target_rates import async_migrate_target_config
 from custom_components.octopus_energy.utils import get_active_tariff_code
 
 from homeassistant.exceptions import ConfigEntryNotReady
@@ -16,15 +18,16 @@ from .coordinators.saving_sessions import async_setup_saving_sessions_coordinato
 from .statistics import get_statistic_ids_to_remove
 
 from .const import (
+  CONFIG_KIND,
+  CONFIG_KIND_ACCOUNT,
+  CONFIG_MAIN_OLD_API_KEY,
+  CONFIG_VERSION,
   DOMAIN,
 
-  CONFIG_KIND,
   CONFIG_MAIN_API_KEY,
   CONFIG_MAIN_ACCOUNT_ID,
   CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
   CONFIG_MAIN_GAS_PRICE_CAP,
-  CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
-  CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   
   CONFIG_TARGET_NAME,
 
@@ -45,26 +48,24 @@ SCAN_INTERVAL = timedelta(minutes=1)
 
 async def async_migrate_entry(hass, config_entry):
   """Migrate old entry."""
-  _LOGGER.debug("Migrating from version %s", config_entry.version)
+  if (config_entry.version < CONFIG_VERSION):
+    _LOGGER.debug("Migrating from version %s", config_entry.version)
 
-  if config_entry.version == 1:
-
-    new = {**config_entry.data}
-
-    if CONFIG_MAIN_ACCOUNT_ID in config_entry.data:
-      new[CONFIG_KIND] = "account"
-
-      if "live_consumption_refresh_in_minutes" in new:
-
-        new[CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES] = new["live_consumption_refresh_in_minutes"]
-        new[CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES] = new["live_consumption_refresh_in_minutes"]
+    new_data = None
+    new_options = None
+    title = config_entry.title
+    if CONFIG_MAIN_API_KEY in config_entry.data or CONFIG_MAIN_OLD_API_KEY in config_entry.data or (CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT):
+      new_data = await async_migrate_main_config(config_entry.version, config_entry.data)
+      new_options = await async_migrate_main_config(config_entry.version, config_entry.options)
+      title = new_data[CONFIG_MAIN_ACCOUNT_ID]
     else:
-      new[CONFIG_KIND] = "target_rate"
+      new_data = await async_migrate_target_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
+      new_options = await async_migrate_target_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
+    
+    config_entry.version = CONFIG_VERSION
+    hass.config_entries.async_update_entry(config_entry, title=title, data=new_data, options=new_options)
 
-    config_entry.version = 2
-    hass.config_entries.async_update_entry(config_entry, data=new)
-
-  _LOGGER.debug("Migration to version %s successful", config_entry.version)
+    _LOGGER.debug("Migration to version %s successful", config_entry.version)
 
   return True
 

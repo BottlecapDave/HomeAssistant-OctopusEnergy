@@ -16,6 +16,7 @@ from homeassistant.const import (
 )
 
 from .base import (OctopusEnergyGasSensor)
+from ..utils.attributes import dict_to_typed_dict
 
 from ..utils.consumption import (get_current_consumption_delta, get_total_consumption)
 
@@ -33,7 +34,7 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
     self._latest_date = None
     self._previous_total_consumption = None
     self._attributes = {
-      "last_updated_timestamp": None
+      "last_evaluated": None
     }
 
   @property
@@ -57,7 +58,7 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
     return SensorStateClass.TOTAL
 
   @property
-  def unit_of_measurement(self):
+  def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
     return ENERGY_KILO_WATT_HOUR
 
@@ -77,7 +78,7 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
     return self._latest_date
   
   @property
-  def state(self):
+  def native_value(self):
     """The current consumption for the meter."""
     _LOGGER.debug('Updating OctopusEnergyCurrentGasConsumption')
     consumption_result = self.coordinator.data if self.coordinator is not None else None
@@ -87,11 +88,11 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
       total_consumption = get_total_consumption(consumption_result)
       self._state = get_current_consumption_delta(current_date,
                                                   total_consumption,
-                                                  self._attributes["last_updated_timestamp"] if self._attributes["last_updated_timestamp"] is not None else current_date,
+                                                  self._attributes["last_evaluated"] if "last_evaluated" in self._attributes and self._attributes["last_evaluated"] is not None else current_date,
                                                   self._previous_total_consumption)
       if (self._state is not None):
         self._latest_date = current_date
-        self._attributes["last_updated_timestamp"] = current_date
+        self._attributes["last_evaluated"] = current_date
 
       # Store the total consumption ready for the next run
       self._previous_total_consumption = total_consumption
@@ -106,5 +107,6 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
     
     if state is not None and self._state is None:
       self._state = state.state
+      self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyCurrentGasConsumption state: {self._state}')

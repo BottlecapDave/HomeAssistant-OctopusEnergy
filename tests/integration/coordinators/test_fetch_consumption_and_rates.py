@@ -3,7 +3,7 @@ import pytest
 
 from integration import (create_consumption_data, create_rate_data, get_test_context)
 
-from custom_components.octopus_energy.coordinators.previous_consumption_and_rates import async_fetch_consumption_and_rates
+from custom_components.octopus_energy.coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult, async_fetch_consumption_and_rates
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 @pytest.mark.asyncio
@@ -26,24 +26,26 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
 
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  
+  minutesStr = f'{minutes}'.zfill(2)
+  current_utc_timestamp = datetime.strptime(f'2022-02-12T00:{minutesStr}:00Z', "%Y-%m-%dT%H:%M:%S%z")
+
   previous_data = None
   if previous_data_available == True:
     # Make our previous data for the previous period
-    previous_data = {
-      "consumption": create_consumption_data(
+    previous_data = PreviousConsumptionCoordinatorResult(
+      current_utc_timestamp,
+      create_consumption_data(
         datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
       ),
-      "rates": create_rate_data(
+      create_rate_data(
         datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         [1, 2]
       ),
-      "standing_charge": 10.1,
-    }
-  
-  minutesStr = f'{minutes}'.zfill(2)
-  current_utc_timestamp = datetime.strptime(f'2022-02-12T00:{minutesStr}:00Z', "%Y-%m-%dT%H:%M:%S%z")
+      10.1,
+    )
 
   actual_fired_events = {}
   def fire_event(name, metadata):
@@ -68,25 +70,23 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
 
   # Assert
   assert result is not None
+  assert result.last_retrieved == current_utc_timestamp
   
-  assert "consumption" in result
-  assert len(result["consumption"]) == 48
+  assert len(result.consumption) == 48
 
   # Make sure our data is returned in 30 minute increments
   expected_valid_from = period_from
-  for item in result["consumption"]:
+  for item in result.consumption:
     expected_valid_to = expected_valid_from + timedelta(minutes=30)
 
-    assert "interval_start" in item
-    assert item["interval_start"] == expected_valid_from
-    assert "interval_end" in item
-    assert item["interval_end"] == expected_valid_to
+    assert "start" in item
+    assert item["start"] == expected_valid_from
+    assert "end" in item
+    assert item["end"] == expected_valid_to
 
     expected_valid_from = expected_valid_to
 
-  assert "rates" in result
-  assert len(result["rates"]) == 48
+  assert len(result.rates) == 48
 
-  assert "standing_charge" in result
-  assert result["standing_charge"] is not None
+  assert result.standing_charge is not None
 

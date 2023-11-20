@@ -13,6 +13,7 @@ from homeassistant.components.sensor import (
 )
 
 from .base import (OctopusEnergyElectricitySensor)
+from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -27,7 +28,7 @@ class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElec
     self._state = None
     self._latest_date = None
     self._attributes = {
-      "last_updated_timestamp": None
+      "last_evaluated": None
     }
 
   @property
@@ -51,7 +52,7 @@ class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElec
     return SensorStateClass.MEASUREMENT
 
   @property
-  def unit_of_measurement(self):
+  def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
     return "W"
 
@@ -66,14 +67,14 @@ class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElec
     return self._attributes
   
   @property
-  def state(self):
+  def native_value(self):
     """Handle updated data from the coordinator."""
     _LOGGER.debug('Updating OctopusEnergyCurrentElectricityConsumption')
     consumption_result = self.coordinator.data if self.coordinator is not None else None
 
     if (consumption_result is not None):
       self._state = consumption_result[-1]["demand"]
-      self._attributes["last_updated_timestamp"] = now()
+      self._attributes["last_evaluated"] = now()
 
     return self._state
 
@@ -85,5 +86,6 @@ class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElec
     
     if state is not None and self._state is None:
       self._state = state.state
+      self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyCurrentElectricityDemand state: {self._state}')

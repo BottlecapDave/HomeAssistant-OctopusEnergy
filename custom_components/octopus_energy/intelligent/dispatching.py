@@ -3,7 +3,7 @@ import logging
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import generate_entity_id
 
-from homeassistant.util.dt import (now)
+from homeassistant.util.dt import (now, utcnow)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
@@ -17,18 +17,18 @@ from ..intelligent import (
   is_in_planned_dispatch
 )
 
-
 from ..utils import is_off_peak
 
 from .base import OctopusEnergyIntelligentSensor
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
+from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
   """Sensor for determining if an intelligent is dispatching."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, mpan, device):
+  def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, mpan: str, device, account_id: str):
     """Init sensor."""
 
     CoordinatorEntity.__init__(self, coordinator)
@@ -36,11 +36,12 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
   
     self._rates_coordinator = rates_coordinator
     self._mpan = mpan
+    self._account_id = account_id
     self._state = None
     self._attributes = {
       "planned_dispatches": [],
       "completed_dispatches": [],
-      "last_updated_timestamp": None,
+      "last_evaluated": None,
       "vehicle_battery_size_in_kwh": device["vehicleBatterySizeInKwh"],
       "charge_point_power_in_kw": device["chargePointPowerInKw"]
     }
@@ -50,12 +51,12 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_intelligent_dispatching"
+    return f"octopus_energy_{self._account_id}_intelligent_dispatching"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Intelligent Dispatching"
+    return f"Octopus Energy {self._account_id} Intelligent Dispatching"
 
   @property
   def icon(self):
@@ -75,13 +76,14 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
     if (result is not None):
       self._attributes["planned_dispatches"] = dispatches_to_dictionary_list(result.dispatches.planned)
       self._attributes["completed_dispatches"] = dispatches_to_dictionary_list(result.dispatches.completed)
-      self._attributes["last_updated_timestamp"] = result.last_retrieved
+      self._attributes["data_last_retrieved"] = result.last_retrieved
     else:
       self._attributes["planned_dispatches"] = []
       self._attributes["completed_dispatches"] = []
 
-    current_date = now()
+    current_date = utcnow()
     self._state = is_in_planned_dispatch(current_date, result.dispatches.planned) or is_off_peak(current_date, rates)
+    self._attributes["last_evaluated"] = current_date
     
     return self._state
 
@@ -93,6 +95,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
 
     if state is not None:
       self._state = state.state
+      self._attributes = dict_to_typed_dict(state.attributes)
     
     if (self._state is None):
       self._state = False

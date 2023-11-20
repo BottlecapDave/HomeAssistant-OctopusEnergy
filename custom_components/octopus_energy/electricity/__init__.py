@@ -1,13 +1,14 @@
 import datetime
 
+from ..utils.conversions import value_inc_vat_to_pounds
 from ..utils import get_off_peak_cost
 
-def __get_interval_end(item):
-    return item["interval_end"]
+def __get_to(item):
+    return item["end"]
 
 def __sort_consumption(consumption_data):
   sorted = consumption_data.copy()
-  sorted.sort(key=__get_interval_end)
+  sorted.sort(key=__get_to)
   return sorted
 
 def calculate_electricity_consumption_and_cost(
@@ -24,7 +25,7 @@ def calculate_electricity_consumption_and_cost(
     sorted_consumption_data = __sort_consumption(consumption_data)
 
     # Only calculate our consumption if our data has changed
-    if (last_reset is None or last_reset < sorted_consumption_data[0]["interval_start"]):
+    if (last_reset is None or last_reset < sorted_consumption_data[0]["start"]):
 
       charges = []
       total_cost_in_pence = 0
@@ -38,12 +39,12 @@ def calculate_electricity_consumption_and_cost(
 
       for consumption in sorted_consumption_data:
         consumption_value = consumption["consumption"]
-        consumption_from = consumption["interval_start"]
-        consumption_to = consumption["interval_end"]
+        consumption_from = consumption["start"]
+        consumption_to = consumption["end"]
         total_consumption = total_consumption + consumption_value
 
         try:
-          rate = next(r for r in rate_data if r["valid_from"] == consumption_from and r["valid_to"] == consumption_to)
+          rate = next(r for r in rate_data if r["start"] == consumption_from and r["end"] == consumption_to)
         except StopIteration:
           raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to} for tariff {tariff_code}")
 
@@ -59,9 +60,9 @@ def calculate_electricity_consumption_and_cost(
           total_cost_peak = total_cost_peak + cost
 
         charges.append({
-          "from": rate["valid_from"],
-          "to": rate["valid_to"],
-          "rate": value,
+          "start": rate["start"],
+          "end": rate["end"],
+          "rate": value_inc_vat_to_pounds(value),
           "consumption": consumption_value,
           "cost": round(cost / 100, 2)
         })
@@ -69,16 +70,16 @@ def calculate_electricity_consumption_and_cost(
       total_cost = round(total_cost_in_pence / 100, 2)
       total_cost_plus_standing_charge = round((total_cost_in_pence + standing_charge) / 100, 2)
 
-      last_reset = sorted_consumption_data[0]["interval_start"]
-      last_calculated_timestamp = sorted_consumption_data[-1]["interval_end"]
+      last_reset = sorted_consumption_data[0]["start"]
+      last_calculated_timestamp = sorted_consumption_data[-1]["end"]
 
       result = {
-        "standing_charge": standing_charge,
+        "standing_charge": round(standing_charge / 100, 2),
         "total_cost_without_standing_charge": total_cost,
         "total_cost": total_cost_plus_standing_charge,
         "total_consumption": total_consumption,
         "last_reset": last_reset,
-        "last_calculated_timestamp": last_calculated_timestamp,
+        "last_evaluated": last_calculated_timestamp,
         "charges": charges
       }
 

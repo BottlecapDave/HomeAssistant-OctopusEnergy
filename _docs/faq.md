@@ -12,6 +12,7 @@
   - [I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?](#im-an-agile-user-and-having-trouble-setting-up-a-target-rate-sensor-what-am-i-doing-wrong)
   - [My gas consumption/costs seem out](#my-gas-consumptioncosts-seem-out)
   - [I want to use the tariff overrides, but how do I find an available tariff?](#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff)
+  - [How do I know when there's any update available?](#how-do-i-know-when-theres-any-update-available)
   - [I've been asked for my meter information in a bug request, how do I obtain this?](#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this)
   - [How do I increase the logs for the integration?](#how-do-i-increase-the-logs-for-the-integration)
 
@@ -100,6 +101,12 @@ For example if I was on the tariff `E-1R-SUPER-GREEN-24M-21-07-30-A` and I wante
 In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https://api.octopus.energy/v1/products/VAR-22-11-01](https://api.octopus.energy/v1/products/VAR-22-11-01). From this list, I would then look up the tariff for my region (e.g. `A` defined at the end of my current tariff) which is defined in the `code` field. It is this value that you add to the `cost_override_tariff` entity. In this example, I want the duel electricity tariff version, so will pick `E-2R-VAR-22-11-01-A`.
 
 ![Target product example](./assets/product_tariff_lookup.png)
+
+## How do I know when there's any update available?
+
+If you've installed via HACS, then you can keep an eye on `sensor.hacs` to see the number of pending updates. This could be used with an automation or highlighted on your dashboard. This will include any HACS integration update, not just this one. If you're feeling a little more adventurous, then you can enable HACS' [experimental features](https://hacs.xyz/docs/configuration/options/). This will surface any available updates in the normal update location within Home Assistant.
+
+If you've installed the integration manually, then you should keep an eye on the [GitHub releases](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases). You could even subscribe to the [RSS feed](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases.atom).
 
 ## I've been asked for my meter information in a bug request, how do I obtain this?
 

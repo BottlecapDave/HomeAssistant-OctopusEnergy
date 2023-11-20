@@ -3,7 +3,7 @@ import logging
 
 from homeassistant.core import HomeAssistant
 
-from homeassistant.util.dt import (now)
+from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -14,7 +14,9 @@ from homeassistant.components.sensor import (
 )
 
 from .base import (OctopusEnergyGasSensor)
+from ..utils.attributes import dict_to_typed_dict
 from ..utils.rate_information import get_current_rate_information
+from ..coordinators.gas_rates import GasRatesCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -37,10 +39,8 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, Res
       "serial_number": self._serial_number,
       "is_smart_meter": self._is_smart_meter,
       "tariff": self._tariff_code,
-      "all_rates": [],
-      "applicable_rates": [],
-      "valid_from": None,
-      "valid_to": None,
+      "start": None,
+      "end": None,
       "is_capped": None,
     }
 
@@ -70,7 +70,7 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, Res
     return "mdi:currency-gbp"
 
   @property
-  def unit_of_measurement(self):
+  def native_unit_of_measurement(self):
     """Unit of measurement of the sensor."""
     return "GBP/kWh"
 
@@ -80,14 +80,14 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, Res
     return self._attributes
 
   @property
-  def state(self):
+  def native_value(self):
     """Retrieve the current rate for the sensor."""
-    current = now()
-    rates = self.coordinator.data.rates if self.coordinator is not None and self.coordinator.data is not None else None
-    if (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0):
+    current = utcnow()
+    rates_result: GasRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    if (rates_result is not None and (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0)):
       _LOGGER.debug(f"Updating OctopusEnergyGasCurrentRate for '{self._mprn}/{self._serial_number}'")
 
-      rate_information = get_current_rate_information(rates, current)
+      rate_information = get_current_rate_information(rates_result.rates, current)
 
       if rate_information is not None:
         self._attributes = {
@@ -95,25 +95,21 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, Res
           "serial_number": self._serial_number,
           "is_smart_meter": self._is_smart_meter,
           "tariff": self._tariff_code,
-          "valid_from": rate_information["current_rate"]["valid_from"],
-          "valid_to": rate_information["current_rate"]["valid_to"],
+          "start": rate_information["current_rate"]["start"],
+          "end": rate_information["current_rate"]["end"],
           "is_capped": rate_information["current_rate"]["is_capped"],
-          "all_rates": rate_information["all_rates"],
-          "applicable_rates": rate_information["applicable_rates"],
         }
 
-        self._state = rate_information["current_rate"]["value_inc_vat"] / 100
+        self._state = rate_information["current_rate"]["value_inc_vat"]
       else:
         self._attributes = {
           "mprn": self._mprn,
           "serial_number": self._serial_number,
           "is_smart_meter": self._is_smart_meter,
           "tariff": self._tariff_code,
-          "valid_from": None,
-          "valid_to": None,
+          "start": None,
+          "end": None,
           "is_capped": None,
-          "all_rates": [],
-          "applicable_rates": [],
         }
 
         self._state = None
@@ -122,6 +118,11 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, Res
         self._attributes["price_cap"] = self._gas_price_cap
 
       self._last_updated = current
+
+    if rates_result is not None:
+      self._attributes["data_last_retrieved"] = rates_result.last_retrieved
+
+    self._attributes["last_evaluated"] = current
 
     return self._state
 
@@ -134,7 +135,11 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, Res
     if state is not None and self._state is None:
       self._state = state.state
       self._attributes = {}
-      for x in state.attributes.keys():
+      temp_attributes = dict_to_typed_dict(state.attributes)
+      for x in temp_attributes.keys():
+        if x in ['all_rates', 'applicable_rates']:
+          continue
+        
         self._attributes[x] = state.attributes[x]
     
       _LOGGER.debug(f'Restored OctopusEnergyGasCurrentRate state: {self._state}')
