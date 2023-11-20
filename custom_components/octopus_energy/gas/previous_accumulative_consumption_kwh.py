@@ -1,6 +1,6 @@
 import logging
 from datetime import datetime
-from ..statistics.consumption import async_import_external_statistics_from_consumption
+from ..statistics.consumption import async_import_external_statistics_from_consumption, get_gas_consumption_statistic_unique_id
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import (
@@ -126,7 +126,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
       await async_import_external_statistics_from_consumption(
         utcnow(),
         self._hass,
-        f"gas_{self._serial_number}_{self._mprn}_previous_accumulative_consumption_kwh",
+        get_gas_consumption_statistic_unique_id(self._serial_number, self._mprn, True),
         self.name,
         consumption_and_cost["charges"],
         rate_data,

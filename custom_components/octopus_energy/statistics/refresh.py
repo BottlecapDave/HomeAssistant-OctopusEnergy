@@ -139,6 +139,18 @@ async def async_refresh_previous_gas_consumption_data(
         False
       )
 
+      await async_import_external_statistics_from_consumption(
+        period_from,
+        hass,
+        get_gas_consumption_statistic_unique_id(serial_number, mprn, True),
+        get_gas_consumption_statistic_name(serial_number, mprn, True),
+        consumption_and_cost["charges"],
+        rates,
+        ENERGY_KILO_WATT_HOUR,
+        "consumption_kwh",
+        False
+      )
+
       await async_import_external_statistics_from_cost(
         period_from,
         hass,
