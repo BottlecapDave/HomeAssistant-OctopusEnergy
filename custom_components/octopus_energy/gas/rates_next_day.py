@@ -36,14 +36,6 @@ class OctopusEnergyGasNextDayRates(OctopusEnergyGasSensor, EventEntity, RestoreE
   def name(self):
     """Name of the sensor."""
     return f"Gas {self._serial_number} {self._mprn} Next Day Rates"
-  
-  @property
-  def entity_registry_enabled_default(self) -> bool:
-    """Return if the entity should be enabled when first added.
-
-    This only applies when fist added to the entity registry.
-    """
-    return False
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

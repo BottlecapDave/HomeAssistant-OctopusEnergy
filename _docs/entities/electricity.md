@@ -96,7 +96,7 @@ This is in pounds and pence (e.g. 1.01 = £1.01).
 
 `event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_day_rates`
 
-The state of this sensor states when the current day's rates were last updated. The attributes of this sensor exposes the current day's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
+The state of this sensor states when the current day's rates were last updated. The attributes of this sensor exposes the current day's rates.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -118,7 +118,7 @@ Each rate item has the following attributes
 
 `event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_day_rates`
 
-The state of this sensor states when the previous day's rates were last updated. The attributes of this sensor exposes the previous day's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
+The state of this sensor states when the previous day's rates were last updated. The attributes of this sensor exposes the previous day's rates.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -140,7 +140,7 @@ Each rate item has the following attributes
 
 `event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_next_day_rates`
 
-The state of this sensor states when the next day's rates were last updated. The attributes of this sensor exposes the next day's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
+The state of this sensor states when the next day's rates were last updated. The attributes of this sensor exposes the next day's rates.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
