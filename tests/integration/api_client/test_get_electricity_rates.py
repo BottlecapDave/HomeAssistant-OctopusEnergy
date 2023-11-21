@@ -52,18 +52,18 @@ async def async_assert_electricity_data(tariff, is_smart_meter, price_cap, perio
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("tariff,price_cap,period_from,period_to",[
-    ("E-1R-SUPER-GREEN-24M-21-07-30-A", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-GO-18-06-12-A", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-VAR-21-09-29-A", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-AGILE-18-02-21-A", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-AGILE-FLEX-22-11-25-D", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("E-1R-SUPER-GREEN-24M-21-07-30-A", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("E-1R-GO-18-06-12-A", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("E-1R-VAR-21-09-29-A", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("E-1R-AGILE-18-02-21-A", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("E-1R-AGILE-FLEX-22-11-25-D", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
     ("E-1R-SILVER-FLEX-22-11-25-C", None, datetime.strptime("2023-07-01T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2023-07-02T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-SUPER-GREEN-24M-21-07-30-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-GO-18-06-12-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-VAR-21-09-29-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-AGILE-18-02-21-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-AGILE-FLEX-22-11-25-D", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-SILVER-FLEX-22-11-25-C", 10, datetime.strptime("2023-07-01T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2023-07-02T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
+    ("E-1R-SUPER-GREEN-24M-21-07-30-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("E-1R-GO-18-06-12-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("E-1R-VAR-21-09-29-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("E-1R-AGILE-18-02-21-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("E-1R-AGILE-FLEX-22-11-25-D", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("E-1R-SILVER-FLEX-22-11-25-C", 10, datetime.strptime("2023-07-01T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2023-07-04T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
 ])
 async def test_when_get_electricity_rates_is_called_with_tariff_then_data_is_returned_in_thirty_minute_increments(tariff, price_cap, period_from,period_to):
     await async_assert_electricity_data(tariff, False, price_cap, period_from, period_to)
