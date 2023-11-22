@@ -17,8 +17,8 @@ jobs:
         uses: "hacs/action@main"
         with:
           category: "integration"
-  test:
-    name: Test
+  unit_tests:
+    name: Unit Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,10 +30,23 @@ jobs:
       - name: Install Python modules
         run: |
           pip install -r requirements.test.txt
-      - name: Unit tests suite
+      - name: Run unit tests
         run: |
           python -m pytest tests/unit
-      - name: Integration tests suite
+  integration_tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: asdf_install
+        uses: asdf-vm/actions/install@v1
+      - name: Install Python modules
+        run: |
+          pip install -r requirements.test.txt
+      - name: Run integration tests
         run: |
           python -m pytest tests/integration
         env:
@@ -48,7 +61,8 @@ jobs:
     if: github.ref == 'refs/heads/main'
     needs: 
     - validate
-    - test
+    - unit_tests
+    - integration_tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
