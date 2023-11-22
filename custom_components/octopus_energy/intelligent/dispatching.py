@@ -73,17 +73,16 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
     """Determine if OE is currently dispatching energy."""
     result: IntelligentDispatchesCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
     rates = self._rates_coordinator.data.rates if self._rates_coordinator is not None and self._rates_coordinator.data is not None else None
-    if (result is not None):
-      self._attributes["planned_dispatches"] = dispatches_to_dictionary_list(result.dispatches.planned)
-      self._attributes["completed_dispatches"] = dispatches_to_dictionary_list(result.dispatches.completed)
-      self._attributes["data_last_retrieved"] = result.last_retrieved
-    else:
-      self._attributes["planned_dispatches"] = []
-      self._attributes["completed_dispatches"] = []
 
     current_date = utcnow()
     self._state = is_in_planned_dispatch(current_date, result.dispatches.planned) or is_off_peak(current_date, rates)
-    self._attributes["last_evaluated"] = current_date
+
+    self._attributes = {
+      "planned_dispatches": dispatches_to_dictionary_list(result.dispatches.planned) if result is not None else [],
+      "completed_dispatches": dispatches_to_dictionary_list(result.dispatches.completed) if result is not None else [],
+      "data_last_retrieved": result.last_retrieved if result is not None else None,
+      "last_evaluated": current_date 
+    }
     
     return self._state
 
@@ -94,7 +93,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
     state = await self.async_get_last_state()
 
     if state is not None:
-      self._state = state.state
+      self._state = None if state.state == "unknown" else state.state
       self._attributes = dict_to_typed_dict(state.attributes)
     
     if (self._state is None):

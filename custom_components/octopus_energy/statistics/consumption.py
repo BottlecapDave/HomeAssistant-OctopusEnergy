@@ -18,11 +18,11 @@ def get_electricity_consumption_statistic_unique_id(serial_number: str, mpan: st
 def get_electricity_consumption_statistic_name(serial_number: str, mpan: str, is_export: bool):
   return f"Electricity {serial_number} {mpan}{' Export' if is_export == True else ''} Previous Accumulative Consumption"
 
-def get_gas_consumption_statistic_unique_id(serial_number: str, mpan: str):
-  return f"gas_{serial_number}_{mpan}_previous_accumulative_consumption"
+def get_gas_consumption_statistic_unique_id(serial_number: str, mpan: str, is_kwh: bool = False):
+  return f"gas_{serial_number}_{mpan}_previous_accumulative_consumption{'_kwh' if is_kwh else ''}"
 
-def get_gas_consumption_statistic_name(serial_number: str, mpan: str):
-  return f"Gas {serial_number} {mpan} Previous Accumulative Consumption"
+def get_gas_consumption_statistic_name(serial_number: str, mpan: str, is_kwh: bool = False):
+  return f"Gas {serial_number} {mpan} Previous Accumulative Consumption{' (kWh)' if is_kwh else ''}"
 
 async def async_import_external_statistics_from_consumption(
     current: datetime,

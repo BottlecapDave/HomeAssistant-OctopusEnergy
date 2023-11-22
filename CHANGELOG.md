@@ -41,19 +41,17 @@ interval_start/interval_end or from/to have now been changed to
 start/end. This change may take a little while to propagate while old
 data is replaced. Any reliances on these attribute names will need to be
 updated.
-* Any previous references to valid_from/valid_to, interval_start/interval_end or from/to have now been changed to
-start/end. This change may take a little while to propagate while old data is replaced. Any reliances on these attribute names will need to be updated.
-* The joined events attribute has been removed from the saving session binary sensor in favour of this
+* The joined events attribute has been removed from the saving session binary sensor in favour of the event entity
 * Any references to last_calculated_timestamp attribute should be updated to last_evaluated
 * saving session points sensor has been removed in favour of octoplus points sensor
-* Any references to saving session entities will need to be updated based on name change
-* Any references to intelligent sensors will need to be updated based on name changes
-* **custom:** All references to value_inc_vat and rates should be in pounds/pence. If you are relying on this
+* Any references to saving session entities will need to be updated based on name change including account id
+* Any references to intelligent sensors will need to be updated based on name changes including account id
+* All references to value_inc_vat and rates are now in pounds/pence. If you are relying on this
 structure, you may need to update your logic
-* Standing charge attribute on cost sensors are now in pound/pence. If you are using this, then might
+* Standing charge attribute on cost sensors are now in pound/pence. If you are using this, then you may
 need to adjust any calculations etc.
-* Various attributes will now be numeric instead of strings with symbols (e.g. £1.50 -\> 1.50). Any
-logic that was used to remove these symbols will now break. In addition, some attribibutes had raw
+* Various attributes have been updated to be numeric instead of strings with symbols (e.g. £1.50 -> 1.50). Any
+logic that was used to remove these symbols will now break. In addition, some attributes had raw
 representations, which have now been removed. Please review docs for more information.
 
 ## [8.5.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.5.1...v8.5.2) (2023-11-08)

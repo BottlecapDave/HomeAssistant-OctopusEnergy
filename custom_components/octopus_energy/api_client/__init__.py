@@ -588,14 +588,21 @@ class OctopusEnergyApiClient:
     results = []
     async with aiohttp.ClientSession(timeout=self.timeout) as client:
       auth = aiohttp.BasicAuth(self._api_key, '')
-      url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
-      async with client.get(url, auth=auth) as response:
-        data = await self.__async_read_response__(response, url)
-        if data is None:
-          return None
-        else:
-          results = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap)
+      page = 1
+      has_more_rates = True
+      while has_more_rates:
+        url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}&page={page}'
+        async with client.get(url, auth=auth) as response:
+          data = await self.__async_read_response__(response, url)
+          if data is None:
+            return None
+          else:
+            results = results + rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap)
+            has_more_rates = "next" in data and data["next"] is not None
+            if has_more_rates:
+              page = page + 1
 
+    results.sort(key=get_from)
     return results
 
   async def async_get_electricity_day_night_rates(self, product_code, tariff_code, is_smart_meter, period_from, period_to):

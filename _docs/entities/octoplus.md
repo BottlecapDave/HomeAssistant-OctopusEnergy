@@ -27,9 +27,11 @@ Binary sensor to indicate if a saving session that the account has joined is act
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `joined_events` | `array` | The collection of saving sessions that you have joined |
+| `current_joined_event_start` | `datetime` | The datetime the current saving session started |
+| `current_joined_event_end` | `datetime` | The datetime the current saving session will end |
+| `current_joined_event_duration_in_minutes` | `float` | The duration in minutes of the current saving session |
 | `next_joined_event_start` | `datetime` | The datetime the next saving session will start |
-| `next_joined_event_end` | `boolean` | The datetime the next saving session will end |
+| `next_joined_event_end` | `datetime` | The datetime the next saving session will end |
 | `next_joined_event_duration_in_minutes` | `float` | The duration in minutes of the next saving session |
 | `last_evaluated` | `datetime` | The date/time the value was last evaluated |
 | `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
@@ -63,6 +65,7 @@ Each joined event item will include the following attributes
 | `start` | `datetime` | The date/time the event starts |
 | `end` | `datetime` | The date/time the event starts |
 | `rewarded_octopoints` | `integer` | The total number of octopoints that were awarded (if any or known) |
+| `octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event (if known) |
 
 ## Services
 

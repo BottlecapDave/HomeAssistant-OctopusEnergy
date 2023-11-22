@@ -36,14 +36,6 @@ class OctopusEnergyElectricityCurrentDayRates(OctopusEnergyElectricitySensor, Ev
   def name(self):
     """Name of the sensor."""
     return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Current Day Rates"
-  
-  @property
-  def entity_registry_enabled_default(self) -> bool:
-    """Return if the entity should be enabled when first added.
-
-    This only applies when fist added to the entity registry.
-    """
-    return False
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
@@ -52,7 +44,7 @@ class OctopusEnergyElectricityCurrentDayRates(OctopusEnergyElectricitySensor, Ev
     state = await self.async_get_last_state()
     
     if state is not None and self._state is None:
-      self._state = state.state
+      self._state = None if state.state == "unknown" else state.state
       self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyElectricityCurrentDayRates state: {self._state}')

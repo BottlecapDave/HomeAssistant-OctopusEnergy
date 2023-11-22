@@ -45,13 +45,13 @@ series:
     color: yellow
     opacity: 1
     stroke_width: 0
-    unit: W
+    unit: p
     show:
       in_header: false
       legend_value: false
     data_generator: |
       return entity.attributes.rates.map((entry) => {
-      return [new Date(entry.valid_from), entry.value_inc_vat];
+      return [new Date(entry.start), entry.value_inc_vat * 100];
       });
     offset: '-15min'
   - entity: >-
@@ -61,13 +61,13 @@ series:
     color: yellow
     opacity: 1
     stroke_width: 0
-    unit: W
+    unit: p
     show:
       in_header: false
       legend_value: false
     data_generator: |
       return entity.attributes.rates.map((entry) => {
-      return [new Date(entry.valid_from), entry.value_inc_vat];
+      return [new Date(entry.start), entry.value_inc_vat * 100];
       });
     offset: '-15min'
 ```
@@ -161,10 +161,8 @@ type: custom:config-template-card
 entities:
   - event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_day_rates
   - event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_next_day_rates
-  - >-
-    event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_day_rates
-  - >-
-    event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_next_day_rates
+  - event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_day_rates
+  - event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_next_day_rates
 card:
   card_mod:
     style: |
@@ -198,14 +196,14 @@ card:
       curve: stepline
       data_generator: |
         return entity.attributes.rates.map((entry) => {
-          return [new Date(entry.valid_from), entry.value_inc_vat/100];
+          return [new Date(entry.start), entry.value_inc_vat];
         });
     - entity: event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_next_day_rates
       name: Import tomorrow
       curve: stepline
       data_generator: |
         return entity.attributes.rates.map((entry) => {
-          return [new Date(entry.valid_from), entry.value_inc_vat/100];
+          return [new Date(entry.start), entry.value_inc_vat];
         });
     - entity: >-
         event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_day_rates
@@ -213,7 +211,7 @@ card:
       curve: stepline
       data_generator: |
         return entity.attributes.rates.map((entry) => {
-          return [new Date(entry.valid_from), entry.value_inc_vat/100];
+          return [new Date(entry.start), entry.value_inc_vat];
         });
     - entity: >-
         sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_next_day_rates
@@ -221,7 +219,7 @@ card:
       curve: stepline
       data_generator: |
         return entity.attributes.rates.map((entry) => {
-          return [new Date(entry.valid_from), entry.value_inc_vat/100];
+          return [new Date(entry.start), entry.value_inc_vat];
         });
   apex_config:
     tooltip:
