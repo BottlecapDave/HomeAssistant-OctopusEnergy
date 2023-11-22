@@ -1,3 +1,14 @@
+## [9.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v9.0.0...v9.0.1) (2023-11-22)
+
+
+### Bug Fixes
+
+* Fixed issue where all previous day rates are not retrieved for agile tariff ([1ff0ce9](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1ff0ce9cc0b641616756b1a4c3c26872966aa26f))
+* Fixed issue where restore state was set to invalid unknown value ([24c09d6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/24c09d66e42f8c0e4385e2020ef16fda33dd62ef))
+* Fixed refresh_previous_consumption_data for gas to populate kwh data ([e5b3a3e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e5b3a3ecf651eb8b88cfab5eb45bdf9504565c93))
+* Removed stale last_updated_timestamp attributes ([763842f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/763842fff41e5e5357acbd5a3d9267813130bc06))
+* Updated previous/current/next event rate sensors to not be disabled by default ([e10c6dd](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e10c6dd2e1a7753e70ed8dbddd35fb6515f77458))
+
 # [9.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v8.5.2...v9.0.0) (2023-11-20)
 
 
