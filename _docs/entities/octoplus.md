@@ -27,7 +27,9 @@ Binary sensor to indicate if a saving session that the account has joined is act
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `joined_events` | `array` | The collection of saving sessions that you have joined |
+| `current_joined_event_start` | `datetime` | The datetime the current saving session started |
+| `current_joined_event_end` | `boolean` | The datetime the current saving session will end |
+| `current_joined_event_duration_in_minutes` | `float` | The duration in minutes of the current saving session |
 | `next_joined_event_start` | `datetime` | The datetime the next saving session will start |
 | `next_joined_event_end` | `boolean` | The datetime the next saving session will end |
 | `next_joined_event_duration_in_minutes` | `float` | The duration in minutes of the next saving session |
