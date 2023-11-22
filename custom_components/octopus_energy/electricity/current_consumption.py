@@ -108,5 +108,8 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
     if state is not None and self._state is None:
       self._state = None if state.state == "unknown" else state.state
       self._attributes = dict_to_typed_dict(state.attributes)
+
+      if "last_updated_timestamp" in self._attributes:
+        del self._attributes["last_updated_timestamp"]
     
       _LOGGER.debug(f'Restored OctopusEnergyCurrentElectricityConsumption state: {self._state}')
