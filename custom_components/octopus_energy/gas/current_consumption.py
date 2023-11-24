@@ -1,7 +1,7 @@
-from homeassistant.util.dt import (now)
 import logging
 
 from homeassistant.core import HomeAssistant
+from homeassistant.util.dt import (now)
 
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
@@ -111,5 +111,9 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
 
       if "last_updated_timestamp" in self._attributes:
         del self._attributes["last_updated_timestamp"]
+        
+      # With this included, was causing issues with statistics. Why other sensors are not effected...
+      if "last_reset" in self._attributes:
+        del self._attributes["last_reset"]
     
       _LOGGER.debug(f'Restored OctopusEnergyCurrentGasConsumption state: {self._state}')
