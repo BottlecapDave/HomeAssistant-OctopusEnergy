@@ -329,7 +329,7 @@ class OptionsFlowHandler(OptionsFlow):
     errors = await async_validate_main_config(config)
     
     if (len(errors) > 0):
-      return await self.__async_setup_target_rate_schema(config, errors)
+      return await self.__async_setup_main_schema(config, errors)
 
     return self.async_create_entry(title="", data=config)
 
@@ -345,6 +345,6 @@ class OptionsFlowHandler(OptionsFlow):
     errors = validate_target_rate_config(user_input, account_info, now)
 
     if (len(errors) > 0):
-      return await self.__async_setup_main_schema(config, errors)
+      return await self.__async_setup_target_rate_schema(config, errors)
 
     return self.async_create_entry(title="", data=config)

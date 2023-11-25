@@ -28,10 +28,10 @@ Binary sensor to indicate if a saving session that the account has joined is act
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `current_joined_event_start` | `datetime` | The datetime the current saving session started |
-| `current_joined_event_end` | `boolean` | The datetime the current saving session will end |
+| `current_joined_event_end` | `datetime` | The datetime the current saving session will end |
 | `current_joined_event_duration_in_minutes` | `float` | The duration in minutes of the current saving session |
 | `next_joined_event_start` | `datetime` | The datetime the next saving session will start |
-| `next_joined_event_end` | `boolean` | The datetime the next saving session will end |
+| `next_joined_event_end` | `datetime` | The datetime the next saving session will end |
 | `next_joined_event_duration_in_minutes` | `float` | The duration in minutes of the next saving session |
 | `last_evaluated` | `datetime` | The date/time the value was last evaluated |
 | `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |

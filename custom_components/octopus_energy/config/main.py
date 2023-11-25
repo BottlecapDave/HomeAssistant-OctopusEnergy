@@ -46,11 +46,12 @@ def merge_main_config(data: dict, options: dict, updated_config: dict = None):
   if updated_config is not None:
     config.update(updated_config)
 
+    # This is the only way to set the unsetting of data
     if CONFIG_MAIN_ELECTRICITY_PRICE_CAP not in updated_config and CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config:
-      del config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
+      config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP] = None
 
     if CONFIG_MAIN_GAS_PRICE_CAP not in updated_config and CONFIG_MAIN_GAS_PRICE_CAP in config:
-      del config[CONFIG_MAIN_GAS_PRICE_CAP]
+      config[CONFIG_MAIN_GAS_PRICE_CAP] = None
 
   return config
 

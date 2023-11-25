@@ -3,6 +3,8 @@
 - [Energy Dashboard](#energy-dashboard)
   - [Current Consumption](#current-consumption)
     - [For Electricity](#for-electricity)
+      - [Octopus Home Mini](#octopus-home-mini)
+      - [Alternative methods to measure current Home Consumption](#alternative-methods-to-measure-current-home-consumption)
     - [For Gas](#for-gas)
   - [Previous Day Consumption](#previous-day-consumption)
     - [For Electricity](#for-electricity-1)
@@ -20,7 +22,7 @@ If you have an Octopus Home Mini and a smart electricity meter you can obtain li
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
 2. Click `Add Consumption` under `Electricity Grid`
-3. For `consumed energy` you want `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_consumption` or `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption`
+3. For `consumed energy` you want `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption`
 4. Choose the `Use an entity tracking the total costs` option and the entity is `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost`
 
 <img src="./assets/current_consumption_electricity.png" alt="HA modal electricity example" height="500">
@@ -45,7 +47,7 @@ This is only available if you have an Octopus Home Mini and a smart gas meter.
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
 2. Click `Add Gas Source` under `Gas Consumption`
-3. For `consumed energy` you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_consumption` or `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption`
+3. For `consumed energy` you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption`
 4. For `Use an entity tracking the total costs` option you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_cost` 
 
 > Please note that data will only appear in the energy dashboard from the point you configure the Home Mini within the integration. It doesn't backport any data.
