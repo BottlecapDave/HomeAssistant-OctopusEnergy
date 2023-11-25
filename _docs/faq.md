@@ -10,6 +10,7 @@
   - [I have entities that are missing](#i-have-entities-that-are-missing)
   - [I have data missing, is this an issue with the integration](#i-have-data-missing-is-this-an-issue-with-the-integration)
   - [I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?](#im-an-agile-user-and-having-trouble-setting-up-a-target-rate-sensor-what-am-i-doing-wrong)
+  - [Why won't my target rates update?](#why-wont-my-target-rates-update)
   - [My gas consumption/costs seem out](#my-gas-consumptioncosts-seem-out)
   - [I want to use the tariff overrides, but how do I find an available tariff?](#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff)
   - [How do I know when there's any update available?](#how-do-i-know-when-theres-any-update-available)
@@ -92,7 +93,9 @@ The target rate sensors are set to update every minute, which includes determini
 
 The `target_times` will evaluate once all rates are available for the specified time period and all existing target times are in the past. When this was last evaluated can be confirmed via the `target_times_last_evaluated` attribute. For example, if you are looking for target rates between 16:00 (today) and 16:00 (tomorrow), and you only have rates up to 23:00 (today), then target times will not be evaluated until rate information is available up to 16:00 (tomorrow).
 
-If there is a delay in retrieving rate information, there is chance that when it comes to evaluation, times are picked that are in the past because they were the lowest. This will result in your target rate sensor skipping a day and waiting to calculate new target times for the next scheduled time period.
+If there is a delay in retrieving rate information, there is chance that when it comes to evaluation, times are picked that are in the past because they were the lowest. This will result in your target rate sensor skipping a day and waiting to calculate new target times for the next scheduled time period. This can be confirmed by comparing the `target_times` and the `target_times_last_evaluated` attribute. If this happens frequently, then please adjust the target time periods of your target rate sensor to something that works for you.
+
+If the `last_evaluated` attribute is not updating, then please raise an issue.
 
 ## My gas consumption/costs seem out
 
