@@ -1,3 +1,12 @@
+## [9.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v9.0.1...v9.0.2) (2023-11-25)
+
+
+### Bug Fixes
+
+* Fixed issue with current consumption sensor not working properly in energy dashboard ([08af21b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/08af21b618d092c7a1e548193319dfdbbc9aac6e))
+* Fixed issue with not being able to unset price caps that were set when the integration was configured initially ([838f2e3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/838f2e30f6c63290935cd717c4fc21da0fc32f69))
+* When using the join saving session service, related data updates are forced in the next cycle ([626c1c1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/626c1c19ef908f45889ea62a108e6d44f8094f87))
+
 ## [9.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v9.0.0...v9.0.1) (2023-11-22)
 
 
