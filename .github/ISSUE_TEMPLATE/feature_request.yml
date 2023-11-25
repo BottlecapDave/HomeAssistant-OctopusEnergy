@@ -1,0 +1,35 @@
+name: Feature Request
+description: Request a new feature to help improve the integration
+labels: ["enhancement"]
+assignees:
+  - BottlecapDave
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the feature
+      description: Please provide a clear and concise description of what the feature is
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behaviour
+      description: Please provide a clear and concise description of what you expected to happen
+    validations:
+      required: true
+  - type: textarea
+    id: usecase
+    attributes:
+      label: Use Case
+      description: Please provide a use case for this new feature so that I can better understand the problem that is being solved
+    validations:
+      required: true
+  - type: checkboxes
+    id: docs
+    attributes:
+      label: Docs
+      description: By submitting this feature request, you agree that you have read the [documentation](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/tree/develop/_docs) and confirmed it does not already exist
+      options:
+        - label: I confirm that I have read the documentation
+          required: true
