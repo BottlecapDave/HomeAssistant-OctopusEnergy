@@ -149,3 +149,41 @@ We can use the following automation to automatically spin the wheel of fortune
             target:
               entity_id: '{{ trigger.entity_id }}'
 ```
+
+or you can split it up into two separate automations
+
+```yaml
+- mode: single
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity
+      above: 0
+  condition: []
+  action:
+    - repeat:
+        count: '{{ states('sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity') | int }}'
+        sequence:
+          - service: octopus_energy.spin_wheel_of_fortune
+            data: {}
+            target:
+              entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity
+```
+
+and
+
+```yaml
+- mode: single
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_gas
+      above: 0
+  condition: []
+  action:
+    - repeat:
+        count: '{{ states('sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_gas') | int }}'
+        sequence:
+          - service: octopus_energy.spin_wheel_of_fortune
+            data: {}
+            target:
+              entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_gas
+```
