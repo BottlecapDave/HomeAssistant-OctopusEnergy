@@ -7,7 +7,7 @@ from homeassistant.components.event import (
 )
 from homeassistant.helpers.restore_state import RestoreEntity
 
-from ..const import EVENT_ALL_SAVING_SESSIONS
+from ..const import DATA_SAVING_SESSIONS_FORCE_UPDATE, DOMAIN, EVENT_ALL_SAVING_SESSIONS
 
 from ..api_client import OctopusEnergyApiClient
 from ..utils.attributes import dict_to_typed_dict
@@ -68,16 +68,4 @@ class OctopusEnergyOctoplusSavingSessionEvents(EventEntity, RestoreEntity):
     if (result.is_successful == False):
       raise Exception(result.errors[0])
     else:
-      attributes = self.state_attributes
-      if ("available_events" in attributes and attributes["available_events"] is not None):
-        new_available_events = []
-        for available_event in attributes["available_events"]:
-          if (available_event["code"] != event_code):
-            new_available_events.append(available_event)
-
-        attributes["available_events"] = new_available_events
-        self._trigger_event(
-          EVENT_ALL_SAVING_SESSIONS,
-          attributes
-        )
-        self.async_write_ha_state()
+      self._hass.data[DOMAIN][DATA_SAVING_SESSIONS_FORCE_UPDATE] = True
