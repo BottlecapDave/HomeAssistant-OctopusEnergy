@@ -7,7 +7,7 @@
     - [Gas Entities](#gas-entities)
     - [Home Mini](#home-mini)
     - [Intelligent](#intelligent)
-    - [Saving Sessions](#saving-sessions)
+    - [Octoplus](#octoplus)
     - [Wheel of Fortune](#wheel-of-fortune)
   - [Target Rate Sensors](#target-rate-sensors)
   - [Events](#events)
@@ -47,7 +47,7 @@ If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-
 
 > Please note: If you switch to the intelligent tariff after you have installed the integration, you will need to reload the integration or restart your Home Assistant instance.
 
-### Saving Sessions
+### Octoplus
 
 To support Octopus Energy's [octoplus programme](https://octopus.energy/octoplus/). [Full list of octoplus entites](./entities/octoplus.md).
 

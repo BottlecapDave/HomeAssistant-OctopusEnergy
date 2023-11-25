@@ -93,7 +93,7 @@ automations:
 
 ## join_octoplus_saving_session_event
 
-Service for joining a new saving session event
+Service for joining a new saving session event. When used, it may take a couple of minutes for the other sensors to refresh the changes.
 
 | Attribute                | Optional | Description                                                                                                           |
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
