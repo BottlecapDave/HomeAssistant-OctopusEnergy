@@ -112,17 +112,20 @@ async def async_setup_saving_sessions_coordinators(hass):
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     force_update = hass.data[DOMAIN][DATA_SAVING_SESSIONS_FORCE_UPDATE] if DATA_SAVING_SESSIONS_FORCE_UPDATE in hass.data[DOMAIN] else False
+    previous_result = hass.data[DOMAIN][DATA_SAVING_SESSIONS] if DATA_SAVING_SESSIONS in hass.data[DOMAIN] else None
 
     result = await async_refresh_saving_sessions(
       current,
       client,
       account_id,
-      hass.data[DOMAIN][DATA_SAVING_SESSIONS] if DATA_SAVING_SESSIONS in hass.data[DOMAIN] and force_update == False else None,
+      previous_result if force_update == False else None,
       hass.bus.async_fire
     )
 
+    if result != previous_result:
+      hass.data[DOMAIN][DATA_SAVING_SESSIONS_FORCE_UPDATE] = False
+
     hass.data[DOMAIN][DATA_SAVING_SESSIONS] = result
-    hass.data[DOMAIN][DATA_SAVING_SESSIONS_FORCE_UPDATE] = False
     return hass.data[DOMAIN][DATA_SAVING_SESSIONS]
 
   hass.data[DOMAIN][DATA_SAVING_SESSIONS_COORDINATOR] = DataUpdateCoordinator(
