@@ -214,7 +214,7 @@ card:
           return [new Date(entry.start), entry.value_inc_vat];
         });
     - entity: >-
-        sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_next_day_rates
+        event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_next_day_rates
       name: Export
       curve: stepline
       data_generator: |
