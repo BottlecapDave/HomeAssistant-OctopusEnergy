@@ -296,3 +296,45 @@ async def test_when_rates_not_retrieved_then_existing_rates_returned():
     assert retrieved_rates.rates == existing_rates.rates
     assert rates_returned == True
     assert len(actual_fired_events.keys()) == 0
+
+@pytest.mark.asyncio
+async def test_when_negative_rates_present_then_rates_retrieved():
+  expected_period_from = (current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+  expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
+  expected_rates = create_rate_data(expected_period_from, expected_period_to, [1, 2])
+  expected_rates[0]["value_inc_vat"] = -0.01
+  
+  rates_returned = False
+  async def async_mocked_get_gas_rates(*args, **kwargs):
+    nonlocal rates_returned
+    rates_returned = True
+    return expected_rates
+  
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
+  
+  account_info = get_account_info()
+  existing_rates = GasRatesCoordinatorResult(period_from, create_rate_data(period_from - timedelta(days=60), period_to - timedelta(days=60), [2, 4]))
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_rates = await async_refresh_gas_rates_data(
+      current,
+      client,
+      account_info,
+      mprn,
+      serial_number,
+      existing_rates,
+      fire_event
+    )
+
+    assert retrieved_rates is not None
+    assert retrieved_rates.last_retrieved == existing_rates.last_retrieved
+    assert retrieved_rates.rates == existing_rates.rates
+    assert rates_returned == True
+    assert expected_rates[0]["value_inc_vat"] < 0
+    
+    assert len(actual_fired_events.keys()) == 0
