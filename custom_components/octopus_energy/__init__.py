@@ -22,6 +22,7 @@ from .const import (
   CONFIG_KIND_ACCOUNT,
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_VERSION,
+  DATA_OCTOPLUS_SUPPORTED,
   DOMAIN,
 
   CONFIG_MAIN_API_KEY,
@@ -128,6 +129,12 @@ async def async_setup_dependencies(hass, config):
     raise ConfigEntryNotReady(f"Failed to retrieve account information")
 
   hass.data[DOMAIN][DATA_ACCOUNT] = account_info
+
+  octoplus_status = await client.async_get_octoplus_enrollment(config[CONFIG_MAIN_ACCOUNT_ID])
+  if octoplus_status is None:
+    raise ConfigEntryNotReady(f"Failed to retrieve octoplus status")
+  
+  hass.data[DOMAIN][DATA_OCTOPLUS_SUPPORTED] = octoplus_status
 
   # Remove gas meter devices which had incorrect identifier
   if account_info is not None and len(account_info["gas_meter_points"]) > 0:

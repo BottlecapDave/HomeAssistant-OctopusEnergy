@@ -58,6 +58,15 @@ def assert_raised_events(raised_events: dict, expected_event_name: str, expected
   assert "end" in raised_events[expected_event_name]["rates"][-1]
   assert raised_events[expected_event_name]["rates"][-1]["end"] == expected_valid_to
 
+  # Make sure all rates are in order
+  expected_start = expected_valid_from
+  for rate in raised_events[expected_event_name]["rates"]:
+    assert rate["start"] == expected_start
+
+    expected_end = expected_start + timedelta(minutes=30)
+    assert rate["end"] == expected_end
+    expected_start = expected_end
+
 @pytest.mark.asyncio
 async def test_when_account_info_is_none_then_existing_rates_returned():
   expected_rates = create_rate_data(period_from, period_to, [1, 2])

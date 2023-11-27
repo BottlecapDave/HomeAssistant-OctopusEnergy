@@ -12,7 +12,7 @@ To support Octopus Energy's [octoplus programme](https://octopus.energy/octoplus
 
 `sensor.octopus_energy_{{ACCOUNT_ID}}_octoplus_points`
 
-Determines the current Octoplus points balance
+Determines the current Octoplus points balance. This sensor will only be available if you have enrolled on the octoplus programme. 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
