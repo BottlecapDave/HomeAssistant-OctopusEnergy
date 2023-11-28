@@ -1,3 +1,20 @@
+# [9.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v9.0.2...v9.1.0) (2023-11-28)
+
+
+### Bug Fixes
+
+* Added checks to ensure current gas consumptions were not negative ([b8418e1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b8418e13636c8a2fee2d960fd22fda8eabfe257c))
+* Added defensive logic around loading of local completed intelligent dispatch data ([4049c6d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4049c6d10eb563d2615cbf83ebf30a7303138c19))
+* Fixed expectation that charge_in_kwh is available in local intelligent dispatch data ([6e0c3ed](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6e0c3edff68d10fdf447025cb683937b57595721))
+* Fixed issue where event entities were not being restored properly ([00ec35c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/00ec35c18767243dd448d1f1f817cabe89bb13ed))
+* Fixed octoplus points sensor to not be available for users who have not enrolled on the programme ([3476fae](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3476fae9b88b0c235b49e65e871e8e395b4d3682))
+* Fixed restoring of attributes on target rate sensor ([7a384ef](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7a384efdbe348d828e8e14fd807fc83563ca2983))
+
+
+### Features
+
+* Added octopoints_per_kwh to joined saving session events (if known) ([350ad20](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/350ad20ccbae8c0e4360053d2af8bb4098e833d7))
+
 ## [9.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v9.0.1...v9.0.2) (2023-11-25)
 
 
