@@ -5,6 +5,10 @@ attribute_keys_to_skip = ['mpan', 'mprn']
 
 def dict_to_typed_dict(data: dict):
   if data is not None:
+
+    if isinstance(data, dict) == False:
+      return data
+
     new_data = data.copy()
     keys = new_data.keys()
     for key in keys:
