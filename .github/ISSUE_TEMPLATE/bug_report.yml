@@ -36,7 +36,7 @@ body:
       label: Tariff Code
       description: The tariff code that is located in your `current_rate` sensors. This might help identify issues that are related to specific tariffs
     validations:
-      required: false
+      required: true
   - type: input
     id: integration-version
     attributes:
@@ -69,3 +69,13 @@ body:
       description: Paste any related Home Assistant logs here. Please follow the instructions as outlined in the [readme](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/faq.md#how-do-i-increase-the-logs-for-the-integration)
     validations:
       required: true
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Confirmation
+      description: 
+      options:
+        - label: I confirm that I cannot find my solution within the [documentation](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/tree/develop/_docs)
+          required: true
+        - label: I confirm that I cannot find my solution within the [FAQ](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/tree/develop/_docs/faq.md)
+          required: true

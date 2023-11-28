@@ -225,7 +225,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
         if x in [CONFIG_TARGET_OLD_NAME, CONFIG_TARGET_OLD_HOURS, CONFIG_TARGET_OLD_TYPE, CONFIG_TARGET_OLD_START_TIME, CONFIG_TARGET_OLD_END_TIME, CONFIG_TARGET_OLD_MPAN]:
           continue
         
-        self._attributes[x] = state.attributes[x]
+        self._attributes[x] = temp_attributes[x]
 
       # Make sure our attributes don't override any changed settings
       self._attributes.update(self._config)

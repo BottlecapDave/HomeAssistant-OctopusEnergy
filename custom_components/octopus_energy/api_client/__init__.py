@@ -223,6 +223,12 @@ intelligent_turn_off_smart_charge_mutation = '''mutation {{
 	}}
 }}'''
 
+octoplus_enrollment_query = '''query octoplus_status {{
+	octoplusAccountInfo(accountNumber: "{account_id}") {{
+    isOctoplusEnrolled
+  }}
+}}'''
+
 octoplus_points_query = '''query octoplus_points {
 	loyaltyPointLedgers {
 		balanceCarriedForward
@@ -284,7 +290,7 @@ wheel_of_fortune_mutation = '''mutation {{
 def get_valid_from(rate):
   return rate["valid_from"]
 
-def get_from(rate):
+def get_start(rate):
   return rate["start"]
     
 def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: datetime, tariff_code: str, price_cap: float = None):
@@ -522,6 +528,24 @@ class OctopusEnergyApiClient:
           _LOGGER.error("Failed to retrieve saving sessions")
     
     return None
+  
+  async def async_get_octoplus_enrollment(self, account_id: str):
+    """Get the user's octoplus enrollment"""
+    await self.async_refresh_token()
+
+    async with aiohttp.ClientSession(timeout=self.timeout) as client:
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": octoplus_enrollment_query.format(account_id=account_id) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as enrollment_response:
+        response_body = await self.__async_read_response__(enrollment_response, url)
+
+        if (response_body is not None and "data" in response_body and "octoplusAccountInfo" in response_body["data"] and "isOctoplusEnrolled" in response_body["data"]["octoplusAccountInfo"]):
+          return response_body["data"]["octoplusAccountInfo"]["isOctoplusEnrolled"] == True
+        else:
+          _LOGGER.error("Failed to retrieve octoplus status")
+    
+    return None
 
   async def async_get_octoplus_points(self):
     """Get the user's octoplus points"""
@@ -602,7 +626,7 @@ class OctopusEnergyApiClient:
             if has_more_rates:
               page = page + 1
 
-    results.sort(key=get_from)
+    results.sort(key=get_start)
     return results
 
   async def async_get_electricity_day_night_rates(self, product_code, tariff_code, is_smart_meter, period_from, period_to):
@@ -635,7 +659,7 @@ class OctopusEnergyApiClient:
             results.append(rate)
 
     # Because we retrieve our day and night periods separately over a 2 day period, we need to sort our rates 
-    results.sort(key=get_from)
+    results.sort(key=get_start)
 
     return results
 
