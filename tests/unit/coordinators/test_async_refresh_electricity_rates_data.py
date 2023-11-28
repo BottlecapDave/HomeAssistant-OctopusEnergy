@@ -196,6 +196,14 @@ async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
   expected_period_from = (current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_rates = create_rate_data(expected_period_from, expected_period_to, [1, 2])
+  expected_rates_unsorted = expected_rates.copy()
+  
+  # Put rates into reverse order to make sure sorting works
+  expected_rates.sort(key=lambda rate: rate["start"], reverse=True)
+
+  assert expected_rates[-1]["start"] == expected_period_from
+  assert expected_rates[0]["end"] == expected_period_to
+  
   rates_returned = False
   requested_period_from = None
   requested_period_to = None
@@ -213,7 +221,7 @@ async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
     return None
   
   account_info = get_account_info()
-  expected_retrieved_rates = ElectricityRatesCoordinatorResult(current, expected_rates)
+  expected_retrieved_rates = ElectricityRatesCoordinatorResult(current, expected_rates_unsorted)
   dispatches = IntelligentDispatches([], [])
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_rates=async_mocked_get_electricity_rates):

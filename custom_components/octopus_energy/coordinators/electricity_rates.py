@@ -78,6 +78,9 @@ async def async_refresh_electricity_rates_data(
         
         _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches}")
 
+      # Sort our rates again _just in case_
+      new_rates.sort(key=lambda rate: rate["start"])
+      
       raise_rate_events(current,
                         private_rates_to_public_rates(new_rates),
                         { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": tariff_code },
