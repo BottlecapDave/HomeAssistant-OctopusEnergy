@@ -39,7 +39,12 @@ async def async_merge_dispatch_data(hass, account_id: str, completed_dispatches)
   storage_key = STORAGE_COMPLETED_DISPATCHES_NAME.format(account_id)
   store = storage.Store(hass, "1", storage_key)
 
-  saved_dispatches = await store.async_load()
+  try:
+    saved_dispatches = await store.async_load()
+  except:
+    saved_dispatches = []
+    _LOGGER.warn('Local intelligent dispatch data corrupted. Resetting...')
+
   saved_completed_dispatches = dictionary_list_to_dispatches(saved_dispatches)
 
   new_data = clean_previous_dispatches(utcnow(), (saved_completed_dispatches if saved_completed_dispatches is not None else []) + completed_dispatches)

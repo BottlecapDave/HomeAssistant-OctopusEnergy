@@ -80,6 +80,23 @@ async def async_refresh_saving_sessions(
             "event_octopoints_per_kwh": available_event.octopoints
           })
 
+      joined_events = []
+      for ev in result.joined_events:
+        # Find original event so we can retrieve the octopoints per kwh
+        original_event = None
+        for available_event in result.available_events:
+          if (available_event.id == ev.id):
+            original_event = available_event
+            break
+
+        joined_events.append({
+          "id": ev.id,
+          "start": ev.start,
+          "end": ev.end,
+          "rewarded_octopoints": ev.octopoints,
+          "octopoints_per_kwh": original_event.octopoints if original_event is not None else None
+        })
+
       fire_event(EVENT_ALL_SAVING_SESSIONS, { 
         "account_id": account_id,
         "available_events": list(map(lambda ev: {
@@ -89,12 +106,7 @@ async def async_refresh_saving_sessions(
           "end": ev.end,
           "octopoints_per_kwh": ev.octopoints
         }, available_events)),
-        "joined_events": list(map(lambda ev: {
-          "id": ev.id,
-          "start": ev.start,
-          "end": ev.end,
-          "rewarded_octopoints": ev.octopoints
-        }, result.joined_events)), 
+        "joined_events": joined_events, 
       })
 
       return SavingSessionsCoordinatorResult(current, available_events, result.joined_events)

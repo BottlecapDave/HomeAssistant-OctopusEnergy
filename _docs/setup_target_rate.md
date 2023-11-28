@@ -107,6 +107,8 @@ The following attributes are available on each sensor
 | `next_average_cost` | `float` | The average cost/rate for the next continuous discovered period. For `continuous` sensors, this will be the entire period. For `intermittent` sensors, this could be the entire period or a portion of it, depending on the discovered times. This could be `none`/`unknown` if there are no more periods for the current **24 hour period**. |
 | `next_min_cost` | `float` | The average cost/rate for the next continuous discovered period. This could be `none`/`unknown` if there are no more periods for the current **24 hour period**. |
 | `next_max_cost` | `float` | The average cost/rate for the next continuous discovered period. This could be `none`/`unknown` if there are no more periods for the current **24 hour period**. |
+| `target_times_last_evaluated` | datetime | The datetime the target times collection was last evaluated. This will occur if all previous target times are in the past and all rates are available for the requested future time period. For example, if you are targeting 16:00 (day 1) to 16:00 (day 2), and you only have rates up to 23:00 (day 1), then the target rates won't be calculated. |
+| `last_evaluated` | `datetime` | The datetime the state of the sensor was last evaluated based on the current specified target times. This should update every minute |
 
 ## Services
 

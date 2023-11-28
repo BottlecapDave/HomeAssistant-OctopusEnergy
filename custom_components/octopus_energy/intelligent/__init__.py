@@ -157,7 +157,7 @@ def dictionary_list_to_dispatches(dispatches: list):
         IntelligentDispatchItem(
           parse_datetime(dispatch["start"]),
           parse_datetime(dispatch["end"]),
-          int(dispatch["charge_in_kwh"]),
+          float(dispatch["charge_in_kwh"]) if "charge_in_kwh" in dispatch and dispatch["charge_in_kwh"] is not None else None,
           dispatch["source"] if "source" in dispatch else "",
           dispatch["location"] if "location" in dispatch else ""
         )

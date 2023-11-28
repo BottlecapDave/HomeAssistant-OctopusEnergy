@@ -4,11 +4,11 @@
   - [octopus\_energy.purge\_invalid\_external\_statistic\_ids](#octopus_energypurge_invalid_external_statistic_ids)
   - [octopus\_energy.refresh\_previous\_consumption\_data](#octopus_energyrefresh_previous_consumption_data)
   - [octopus\_energy.update\_target\_config](#octopus_energyupdate_target_config)
-  - [Automation Example](#automation-example)
+    - [Automation Example](#automation-example)
   - [join\_octoplus\_saving\_session\_event](#join_octoplus_saving_session_event)
-  - [Automation Example](#automation-example-1)
+    - [Automation Example](#automation-example-1)
   - [spin\_wheel\_of\_fortune](#spin_wheel_of_fortune)
-  - [Automation Example](#automation-example-2)
+    - [Automation Example](#automation-example-2)
 
 There are a few services available within this integration, which are detailed here.
 
@@ -39,7 +39,7 @@ for updating a given [target rate's](./setup_target_rate.md) config. This allows
 | `data.target_end_time`   | `yes`    | The optional time the evaluation period should end. Must be in the format of `HH:MM`.                                 |
 | `data.target_offset`     | `yes`    | The optional offset to apply to the target rate when it starts. Must be in the format `(+/-)HH:MM:SS`.                |
 
-## Automation Example
+### Automation Example
 
 This can be used via automations in the following way. Assuming we have the following inputs.
 
@@ -100,7 +100,7 @@ Service for joining a new saving session event. When used, it may take a couple 
 | `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated. This should always point at the [saving session events](./entities/octoplus.md#saving-session-events) entity. |
 | `data.event_code`      | `no`    | The code of the event to join |
 
-## Automation Example
+### Automation Example
 
 Using the [new saving session event](./events.md#new-saving-session), we can join new saving session events automatically in the following way
 
@@ -112,8 +112,7 @@ Using the [new saving session event](./events.md#new-saving-session), we can joi
   action:
   - service: octopus_energy.join_octoplus_saving_session_event
     data:
-      event_code: >
-        {{ trigger.event.data["event_code"] }}
+      event_code: '{{ trigger.event.data["event_code"] }}'
     target:
       entity_id: event.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_session_events
   - service: persistent_notification.create
@@ -127,7 +126,7 @@ Using the [new saving session event](./events.md#new-saving-session), we can joi
 
 This service allows the user to perform a spin on the [wheel of fortune](./entities/wheel_of_fortune.md) that is awarded to users every month. No point letting them go to waste :)
 
-## Automation Example
+### Automation Example
 
 We can use the following automation to automatically spin the wheel of fortune
 
@@ -143,12 +142,48 @@ We can use the following automation to automatically spin the wheel of fortune
   condition: []
   action:
     - repeat:
-        count: >
-          {{ states(trigger.entity_id) | int }}
+        count: '{{ states(trigger.entity_id) | int }}'
         sequence:
           - service: octopus_energy.spin_wheel_of_fortune
             data: {}
             target:
-              entity_id: >
-                {{ trigger.entity_id }}
+              entity_id: '{{ trigger.entity_id }}'
+```
+
+or you can split it up into two separate automations
+
+```yaml
+- mode: single
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity
+      above: 0
+  condition: []
+  action:
+    - repeat:
+        count: '{{ states('sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity') | int }}'
+        sequence:
+          - service: octopus_energy.spin_wheel_of_fortune
+            data: {}
+            target:
+              entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity
+```
+
+and
+
+```yaml
+- mode: single
+  trigger:
+    - platform: numeric_state
+      entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_gas
+      above: 0
+  condition: []
+  action:
+    - repeat:
+        count: '{{ states('sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_gas') | int }}'
+        sequence:
+          - service: octopus_energy.spin_wheel_of_fortune
+            data: {}
+            target:
+              entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_gas
 ```

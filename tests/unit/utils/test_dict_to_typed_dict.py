@@ -181,3 +181,31 @@ async def test_when_array_present_then_converted():
   assert "bar3" in result["foo"][0]
   assert result["foo"][0]["bar3"] == datetime.strptime(input["foo"][0]["bar3"], "%Y-%m-%dT%H:%M:%S%z")
   assert isinstance(result["foo"][0]["bar3"], datetime)
+
+@pytest.mark.asyncio
+async def test_when_array_does_not_contain_dict_then_not_converted():
+  # Arrange
+  input = {
+    "foo": [
+      "bar1",
+      "bar2",
+      "bar3"
+    ]
+  }
+
+  # Act
+  result = dict_to_typed_dict(input)
+
+  # Assert
+  assert input["foo"][0] == "bar1"
+  assert input["foo"][1] == "bar2"
+  assert input["foo"][2] == "bar3"
+
+  assert result is not None
+  assert "foo" in result
+
+  assert len(result["foo"]) == 3
+  
+  assert result["foo"][0] == "bar1"
+  assert result["foo"][1] == "bar2"
+  assert result["foo"][2] == "bar3"

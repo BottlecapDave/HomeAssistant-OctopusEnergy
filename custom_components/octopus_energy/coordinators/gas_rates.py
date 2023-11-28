@@ -58,6 +58,13 @@ async def async_refresh_gas_rates_data(
         new_rates = await client.async_get_gas_rates(tariff_code, period_from, period_to)
       except:
         _LOGGER.debug(f'Failed to retrieve gas rates for {target_mprn}/{target_serial_number} ({tariff_code})')
+
+    # Make sure our rate information doesn't contain any negative values https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/506
+    if new_rates is not None:
+      for rate in new_rates:
+        if rate["value_inc_vat"] < 0:
+          new_rates = None
+          break
       
     if new_rates is not None:
       _LOGGER.debug(f'Gas rates retrieved for {target_mprn}/{target_serial_number} ({tariff_code});')

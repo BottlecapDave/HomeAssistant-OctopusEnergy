@@ -57,6 +57,7 @@ from .const import (
   CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET,
   CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET,
   DATA_ACCOUNT_ID,
+  DATA_OCTOPLUS_SUPPORTED,
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
@@ -122,10 +123,12 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
   wheel_of_fortune_coordinator = await async_setup_wheel_of_fortune_spins_coordinator(hass, account_id)
   
   entities = [
-    OctopusEnergyOctoplusPoints(hass, client, account_id),
     OctopusEnergyWheelOfFortuneElectricitySpins(hass, wheel_of_fortune_coordinator, client, account_id),
     OctopusEnergyWheelOfFortuneGasSpins(hass, wheel_of_fortune_coordinator, client, account_id)
   ]
+
+  if hass.data[DOMAIN][DATA_OCTOPLUS_SUPPORTED]:
+    entities.append(OctopusEnergyOctoplusPoints(hass, client, account_id))
 
   now = utcnow()
 
