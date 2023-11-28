@@ -11,7 +11,7 @@ class IntelligentDispatchItem:
     self,
     start: datetime,
     end: datetime,
-    charge_in_kwh: int,
+    charge_in_kwh: float,
     source: str,
     location: str
   ):
