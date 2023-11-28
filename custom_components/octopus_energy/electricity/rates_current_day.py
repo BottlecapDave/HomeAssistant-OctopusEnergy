@@ -49,8 +49,6 @@ class OctopusEnergyElectricityCurrentDayRates(OctopusEnergyElectricitySensor, Ev
     
       _LOGGER.debug(f'Restored OctopusEnergyElectricityCurrentDayRates state: {self._state}')
 
-  async def async_added_to_hass(self) -> None:
-    """Register callbacks."""
     self._hass.bus.async_listen(self._attr_event_types[0], self._async_handle_event)
 
   @callback

@@ -56,9 +56,7 @@ class OctopusEnergyGasPreviousConsumptionRates(OctopusEnergyGasSensor, EventEnti
       self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyGasPreviousConsumptionRates state: {self._state}')
-
-  async def async_added_to_hass(self) -> None:
-    """Register callbacks."""
+      
     self._hass.bus.async_listen(self._attr_event_types[0], self._async_handle_event)
 
   @callback

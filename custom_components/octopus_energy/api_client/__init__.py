@@ -290,7 +290,7 @@ wheel_of_fortune_mutation = '''mutation {{
 def get_valid_from(rate):
   return rate["valid_from"]
 
-def get_from(rate):
+def get_start(rate):
   return rate["start"]
     
 def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: datetime, tariff_code: str, price_cap: float = None):
@@ -626,7 +626,7 @@ class OctopusEnergyApiClient:
             if has_more_rates:
               page = page + 1
 
-    results.sort(key=get_from)
+    results.sort(key=get_start)
     return results
 
   async def async_get_electricity_day_night_rates(self, product_code, tariff_code, is_smart_meter, period_from, period_to):
@@ -659,7 +659,7 @@ class OctopusEnergyApiClient:
             results.append(rate)
 
     # Because we retrieve our day and night periods separately over a 2 day period, we need to sort our rates 
-    results.sort(key=get_from)
+    results.sort(key=get_start)
 
     return results
 
