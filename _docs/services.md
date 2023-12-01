@@ -131,12 +131,13 @@ This service allows the user to perform a spin on the [wheel of fortune](./entit
 
 ### Automation Example
 
-We can use the following automation to automatically spin the wheel of fortune
+We can use the following automation to automatically spin the wheel of fortune. Mode should be queued or parallel to allow concurrent trigger from multiple meters.
 
 ```yaml
 alias: Octopus Wheel of Fortune spinner
 description: Spin the Octopus Wheel of Fortune automatically every month
-mode: single
+mode: queued
+max: 4
 trigger:
   - platform: numeric_state
     entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity
