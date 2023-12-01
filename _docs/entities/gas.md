@@ -38,7 +38,7 @@ The current rate that energy consumption is charged at (including VAT).
 | `tariff` | `string` | The tariff the meter/rates are associated with |
 | `start` | `datetime` | The date/time when the rate started |
 | `end` | `datetime` | The date/time when the rate ends |
-| `is_capped` | `boolean` | Determines if the rate has been capped by the cap set when you setup your account |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup_account.md#pricing-caps) |
 | `price_cap` | `float` | The price cap that has been configured for the account and is currently applied to all gas rates |
 
 ## Previous Rate
@@ -87,7 +87,7 @@ Each rate item has the following attributes
 | `start` | `datetime` | The date/time when the rate starts |
 | `end` | `datetime` | The date/time when the rate ends |
 | `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup_account.md#pricing-caps) |
 
 ## Previous Day Rates
 
@@ -107,7 +107,7 @@ Each rate item has the following attributes
 | `start` | `datetime` | The date/time when the rate starts |
 | `end` | `datetime` | The date/time when the rate ends |
 | `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup_account.md#pricing-caps) |
 
 ## Next Day Rates
 
@@ -127,7 +127,7 @@ Each rate item has the following attributes
 | `start` | `datetime` | The date/time when the rate starts |
 | `end` | `datetime` | The date/time when the rate ends |
 | `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup_account.md#pricing-caps) |
 
 ## Smart Meter Entities
 
@@ -237,7 +237,7 @@ Each rate item has the following attributes
 | `start` | `datetime` | The date/time when the rate starts |
 | `end` | `datetime` | The date/time when the rate ends |
 | `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup_account.md#pricing-caps) |
 
 ## Home Mini Entities
 
@@ -357,4 +357,4 @@ Each rate item has the following attributes
 | `start` | `datetime` | The date/time when the rate starts |
 | `end` | `datetime` | The date/time when the rate ends |
 | `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup_account.md#pricing-caps) |

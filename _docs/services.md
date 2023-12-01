@@ -102,7 +102,10 @@ Service for joining a new saving session event. When used, it may take a couple 
 
 ### Automation Example
 
-Using the [new saving session event](./events.md#new-saving-session), we can join new saving session events automatically in the following way
+Using the [new saving session event](./events.md#new-saving-session), we can join new saving session events automatically using the following integration.
+
+You'll need to update the following entities to match the names of your entities
+* `event.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_session_events`
 
 ```yaml
 alias: Octopus Saving Session joiner
@@ -131,7 +134,11 @@ This service allows the user to perform a spin on the [wheel of fortune](./entit
 
 ### Automation Example
 
-We can use the following automation to automatically spin the wheel of fortune. Mode should be queued or parallel to allow concurrent trigger from multiple meters.
+We can use the following automation to automatically spin the wheel of fortune. Mode should be queued or parallel to allow concurrent trigger from multiple meters. 
+
+You'll need to update the following entities to match the names of your entities
+* `sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity`
+* `sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_gas`
 
 ```yaml
 alias: Octopus Wheel of Fortune spinner

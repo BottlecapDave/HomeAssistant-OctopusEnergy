@@ -51,8 +51,8 @@ This is in pounds and pence (e.g. 1.01 = £1.01).
 | `tariff` | `string` | The tariff the meter/rates are associated with |
 | `start` | `datetime` | The date/time when the rate started |
 | `end` | `datetime` | The date/time when the rate ends |
-| `is_capped` | `boolean` | Determines if the rate has been capped by the cap set when you setup your account |
-| `is_intelligent_adjusted` | `boolean` | Determines if the rate is the result of being adjusted for intelligent dispatches. This is only applicable for intelligent tariffs |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup_account.md#pricing-caps) |
+| `is_intelligent_adjusted` | `boolean` | Indicates if the rate has been adjusted due to a dispatch organised by an intelligent tariff |
 | `current_day_min_rate` | `float` | The minimum rate available for the current day |
 | `current_day_max_rate` | `float` | The maximum rate available for the current day |
 | `current_day_average_rate` | `float` | The average rate for the current day |
@@ -112,7 +112,8 @@ Each rate item has the following attributes
 | `start` | `datetime` | The date/time when the rate starts |
 | `end` | `datetime` | The date/time when the rate ends |
 | `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup_account.md#pricing-caps) |
+| `is_intelligent_adjusted` | `boolean` | Indicates if the rate has been adjusted due to a dispatch organised by an intelligent tariff |
 
 ## Previous Day Rates
 
@@ -134,7 +135,8 @@ Each rate item has the following attributes
 | `start` | `datetime` | The date/time when the rate starts |
 | `end` | `datetime` | The date/time when the rate ends |
 | `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup_account.md#pricing-caps) |
+| `is_intelligent_adjusted` | `boolean` | Indicates if the rate has been adjusted due to a dispatch organised by an intelligent tariff |
 
 ## Next Day Rates
 
@@ -156,7 +158,8 @@ Each rate item has the following attributes
 | `start` | `datetime` | The date/time when the rate starts |
 | `end` | `datetime` | The date/time when the rate ends |
 | `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup_account.md#pricing-caps) |
+| `is_intelligent_adjusted` | `boolean` | Indicates if the rate has been adjusted due to a dispatch organised by an intelligent tariff |
 
 ## Off Peak
 
@@ -295,7 +298,8 @@ Each rate item has the following attributes
 | `start` | `datetime` | The date/time when the rate starts |
 | `end` | `datetime` | The date/time when the rate ends |
 | `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup_account.md#pricing-caps) |
+| `is_intelligent_adjusted` | `boolean` | Indicates if the rate has been adjusted due to a dispatch organised by an intelligent tariff |
 
 ## Export Entities
 
@@ -486,4 +490,5 @@ Each rate item has the following attributes
 | `start` | `datetime` | The date/time when the rate starts |
 | `end` | `datetime` | The date/time when the rate ends |
 | `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup_account.md#pricing-caps) |
+| `is_intelligent_adjusted` | `boolean` | Indicates if the rate has been adjusted due to a dispatch organised by an intelligent tariff |

@@ -5,7 +5,7 @@
     - [Refresh Rate In Minutes](#refresh-rate-in-minutes)
   - [Previous Consumption Days Offset](#previous-consumption-days-offset)
   - [Calorific Value](#calorific-value)
-  - [Government Pricing Caps](#government-pricing-caps)
+  - [Pricing Caps](#pricing-caps)
 
 
 Setup is done entirely via the [integration UI](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
@@ -32,6 +32,6 @@ By default, the previous consumptions sensors are set up to pull and record the 
 
 When calculating gas costs, a calorific value is included in the calculation. Unfortunately this changes from region to region and is not provided by the Octopus Energy API. The default value of this is `40`, but if you check your latest bill you should be able to find the value for you. This will give you a more accurate consumption and cost calculation when your meter reports in `m3`.
 
-## Government Pricing Caps
+## Pricing Caps
 
 There has been inconsistencies across tariffs on whether government pricing caps are included or not. Therefore the ability to configure pricing caps has been added within you account. Please note that while rates are reflected straight away, consumption based sensors may take up to 24 hours to reflect. This is due to how they look at data and cannot be changed.

@@ -367,6 +367,7 @@ Each joined event item will include the following attributes
 | `id` | `integer` | The id of the event |
 | `start` | `datetime` | The date/time the event starts |
 | `end` | `datetime` | The date/time the event starts |
+| `octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |
 | `rewarded_octopoints` | `integer` | The total number of octopoints that were awarded (if any or known) |
 
 ### Automation Example
