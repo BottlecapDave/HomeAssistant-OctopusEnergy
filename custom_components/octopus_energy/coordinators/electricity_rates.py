@@ -106,7 +106,8 @@ async def async_setup_electricity_rates_coordinator(hass, target_mpan: str, targ
     """Fetch data from API endpoint."""
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-    account_info = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
+    account_result = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
+    account_info = account_result.account if account_result is not None else None
     dispatches: IntelligentDispatchesCoordinatorResult = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] else None
     rates = hass.data[DOMAIN][key] if key in hass.data[DOMAIN] else None
 

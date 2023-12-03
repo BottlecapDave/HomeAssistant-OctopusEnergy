@@ -10,7 +10,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.components.recorder import get_instance
 from homeassistant.util.dt import (utcnow)
 
-from .coordinators.account import async_setup_account_info_coordinator
+from .coordinators.account import AccountCoordinatorResult, async_setup_account_info_coordinator
 from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatches_coordinator
 from .coordinators.intelligent_settings import async_setup_intelligent_settings_coordinator
 from .coordinators.electricity_rates import async_setup_electricity_rates_coordinator
@@ -88,7 +88,8 @@ async def async_setup_entry(hass, entry):
       raise ConfigEntryNotReady("Account has not been setup")
     
     now = utcnow()
-    account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+    account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+    account_info = account_result.account if account_result is not None else None
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
       electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
@@ -128,7 +129,7 @@ async def async_setup_dependencies(hass, config):
   if (account_info is None):
     raise ConfigEntryNotReady(f"Failed to retrieve account information")
 
-  hass.data[DOMAIN][DATA_ACCOUNT] = account_info
+  hass.data[DOMAIN][DATA_ACCOUNT] = AccountCoordinatorResult(utcnow(), 1, account_info)
 
   octoplus_status = await client.async_get_octoplus_enrollment(config[CONFIG_MAIN_ACCOUNT_ID])
   if octoplus_status is None:
@@ -148,7 +149,8 @@ async def async_setup_dependencies(hass, config):
           device_registry.async_remove_device(device.id)
 
   now = utcnow()
-  account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_info = account_result.account if account_result is not None else None
   for point in account_info["electricity_meter_points"]:
     # We only care about points that have active agreements
     electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
@@ -189,7 +191,8 @@ def setup(hass, config):
   def purge_invalid_external_statistic_ids(call):
     """Handle the service call."""
       
-    account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+    account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+    account_info = account_result.account if account_result is not None else None
     
     external_statistic_ids_to_remove = get_statistic_ids_to_remove(utcnow(), account_info)
 

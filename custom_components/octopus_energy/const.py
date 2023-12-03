@@ -1,6 +1,8 @@
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 
+DEFAULT_REFRESH_RATE_IN_MINUTES = 5
+
 DOMAIN = "octopus_energy"
 
 CONFIG_VERSION = 3

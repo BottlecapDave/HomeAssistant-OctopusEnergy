@@ -71,7 +71,8 @@ async def async_setup_gas_standing_charges_coordinator(hass, target_mprn: str, t
     """Fetch data from API endpoint."""
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-    account_info = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
+    account_result = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
+    account_info = account_result.account if account_result is not None else None
     standing_charges: GasStandingChargeCoordinatorResult = hass.data[DOMAIN][key] if key in hass.data[DOMAIN] else None
 
     hass.data[DOMAIN][key] = await async_refresh_gas_standing_charges_data(

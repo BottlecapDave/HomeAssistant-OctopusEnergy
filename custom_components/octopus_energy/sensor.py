@@ -117,7 +117,8 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
   saving_session_coordinator = hass.data[DOMAIN][DATA_SAVING_SESSIONS_COORDINATOR]
   await saving_session_coordinator.async_config_entry_first_refresh()
   
-  account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_info = account_result.account if account_result is not None else None
   account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]
 
   wheel_of_fortune_coordinator = await async_setup_wheel_of_fortune_spins_coordinator(hass, account_id)

@@ -68,8 +68,10 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     if (DATA_ACCOUNT in hass.data[DOMAIN]):
 
+      account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+      account_info = account_result.account if account_result is not None else None
       dispatches = None
-      if has_intelligent_tariff(current, hass.data[DOMAIN][DATA_ACCOUNT]):
+      if has_intelligent_tariff(current, account_info):
         try:
           dispatches = await client.async_get_intelligent_dispatches(account_id)
           _LOGGER.debug(f'Intelligent dispatches retrieved for account {account_id}')

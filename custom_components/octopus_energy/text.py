@@ -35,7 +35,8 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
 
   entities = []
   
-  account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_info = account_result.account if account_result is not None else None
 
   now = utcnow()
 

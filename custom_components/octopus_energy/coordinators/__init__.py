@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import logging
 from typing import Callable, Any
+from custom_components.octopus_energy.utils.requests import calculate_next_rate
 
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.util.dt import (as_utc)
@@ -22,6 +23,16 @@ from ..const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+class BaseCoordinatorResult:
+  last_retrieved: datetime
+  next_refresh: datetime
+  request_attempts: int
+
+  def __init__(self, last_retrieved: datetime, request_attempts: int):
+    self.last_retrieved = last_retrieved
+    self.request_attempts = request_attempts
+    self.next_refresh = calculate_next_rate(last_retrieved, request_attempts)
 
 async def async_check_valid_tariff(hass, client: OctopusEnergyApiClient, tariff_code: str, is_electricity: bool):
   tariff_key = f'{DATA_KNOWN_TARIFF}_{tariff_code}'

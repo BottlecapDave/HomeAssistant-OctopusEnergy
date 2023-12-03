@@ -71,7 +71,8 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
 
   await saving_session_coordinator.async_config_entry_first_refresh()
 
-  account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_info = account_result.account if account_result is not None else None
   account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]
   client = hass.data[DOMAIN][DATA_CLIENT]
 
@@ -132,7 +133,8 @@ async def async_setup_target_sensors(hass, entry, async_add_entities):
   if entry.options:
     config.update(entry.options)
 
-  account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_info = account_result.account if account_result is not None else None
 
   mpan = config[CONFIG_TARGET_MPAN]
 

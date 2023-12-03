@@ -48,8 +48,10 @@ async def async_setup_intelligent_settings_coordinator(hass, account_id: str):
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
     if (DATA_ACCOUNT in hass.data[DOMAIN]):
 
+      account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+      account_info = account_result.account if account_result is not None else None
       settings = None
-      if has_intelligent_tariff(current, hass.data[DOMAIN][DATA_ACCOUNT]):
+      if has_intelligent_tariff(current, account_info):
         try:
           settings = await client.async_get_intelligent_settings(account_id)
           _LOGGER.debug(f'Intelligent settings retrieved for account {account_id}')
