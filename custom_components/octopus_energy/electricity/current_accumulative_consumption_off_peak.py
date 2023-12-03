@@ -36,7 +36,7 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumptionOffPeak(CoordinatorE
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._state = None
-    self._latest_date = None
+    self._last_reset = None
     
     self._tariff_code = tariff_code
     self._rates_coordinator = rates_coordinator
