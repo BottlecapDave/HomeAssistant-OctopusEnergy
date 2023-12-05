@@ -149,8 +149,6 @@ async def async_setup_dependencies(hass, config):
           device_registry.async_remove_device(device.id)
 
   now = utcnow()
-  account_result = hass.data[DOMAIN][DATA_ACCOUNT]
-  account_info = account_result.account if account_result is not None else None
   for point in account_info["electricity_meter_points"]:
     # We only care about points that have active agreements
     electricity_tariff_code = get_active_tariff_code(now, point["agreements"])

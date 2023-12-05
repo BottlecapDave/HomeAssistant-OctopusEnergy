@@ -80,7 +80,7 @@ async def async_refresh_account(
         previous_request.account
       )
 
-    return previous_request
+  return previous_request
 
 async def async_setup_account_info_coordinator(hass, account_id: str):
   async def async_update_account_data():
@@ -89,14 +89,15 @@ async def async_setup_account_info_coordinator(hass, account_id: str):
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
 
-    if DATA_ACCOUNT not in hass.data[DOMAIN]:
+    if DATA_ACCOUNT not in hass.data[DOMAIN] or hass.data[DOMAIN][DATA_ACCOUNT] is None:
       raise Exception("Failed to find account information")
 
     hass.data[DOMAIN][DATA_ACCOUNT] = await async_refresh_account(
       hass,
       current,
       client,
-      hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
+      account_id,
+      hass.data[DOMAIN][DATA_ACCOUNT]
     )
     
     return hass.data[DOMAIN][DATA_ACCOUNT]
