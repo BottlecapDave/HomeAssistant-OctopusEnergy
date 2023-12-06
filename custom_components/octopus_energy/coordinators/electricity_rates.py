@@ -24,17 +24,17 @@ from ..api_client import OctopusEnergyApiClient
 from ..api_client.intelligent_dispatches import IntelligentDispatches
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 from ..utils import private_rates_to_public_rates
-from . import get_electricity_meter_tariff_code, raise_rate_events
+from . import BaseCoordinatorResult, get_electricity_meter_tariff_code, raise_rate_events
 from ..intelligent import adjust_intelligent_rates
 
 _LOGGER = logging.getLogger(__name__)
 
-class ElectricityRatesCoordinatorResult:
+class ElectricityRatesCoordinatorResult(BaseCoordinatorResult):
   last_retrieved: datetime
   rates: list
 
-  def __init__(self, last_retrieved: datetime, rates: list):
-    self.last_retrieved = last_retrieved
+  def __init__(self, last_retrieved: datetime, request_attempts: int, rates: list):
+    super().__init__(last_retrieved, request_attempts)
     self.rates = rates
 
 async def async_refresh_electricity_rates_data(
@@ -58,41 +58,41 @@ async def async_refresh_electricity_rates_data(
       return None
 
     new_rates: list = None
-    if ((current.minute % 30) == 0 or 
-        existing_rates_result is None or
-        existing_rates_result.rates is None or
-        len(existing_rates_result.rates) < 1 or
-        existing_rates_result.rates[-1]["start"] < period_from):
+    if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
       try:
         new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
       except:
         _LOGGER.debug(f'Failed to retrieve electricity rates for {target_mpan}/{target_serial_number} ({tariff_code})')
       
-    if new_rates is not None:
-      _LOGGER.debug(f'Electricity rates retrieved for {target_mpan}/{target_serial_number} ({tariff_code});')
-      
-      if dispatches is not None and is_export_meter == False:
-        new_rates = adjust_intelligent_rates(new_rates, 
-                                             dispatches.planned,
-                                             dispatches.completed)
+      if new_rates is not None:
+        _LOGGER.debug(f'Electricity rates retrieved for {target_mpan}/{target_serial_number} ({tariff_code});')
         
-        _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches}")
+        if dispatches is not None and is_export_meter == False:
+          new_rates = adjust_intelligent_rates(new_rates, 
+                                               dispatches.planned,
+                                               dispatches.completed)
+          
+          _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches}")
 
-      # Sort our rates again _just in case_
-      new_rates.sort(key=lambda rate: rate["start"])
-      
-      raise_rate_events(current,
-                        private_rates_to_public_rates(new_rates),
-                        { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": tariff_code },
-                        fire_event,
-                        EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
-                        EVENT_ELECTRICITY_CURRENT_DAY_RATES,
-                        EVENT_ELECTRICITY_NEXT_DAY_RATES)
-      
-      return ElectricityRatesCoordinatorResult(current, new_rates)
+        # Sort our rates again _just in case_
+        new_rates.sort(key=lambda rate: rate["start"])
+        
+        raise_rate_events(current,
+                          private_rates_to_public_rates(new_rates),
+                          { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": tariff_code },
+                          fire_event,
+                          EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
+                          EVENT_ELECTRICITY_CURRENT_DAY_RATES,
+                          EVENT_ELECTRICITY_NEXT_DAY_RATES)
+        
+        return ElectricityRatesCoordinatorResult(current, 1, new_rates)
 
-    elif (existing_rates_result is not None):
-      _LOGGER.debug(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number}, so using cached rates")
+      elif (existing_rates_result is not None):
+        _LOGGER.debug(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number}, so using cached rates")
+        
+        return ElectricityRatesCoordinatorResult(existing_rates_result.last_retrieved, existing_rates_result.request_attempts + 1, existing_rates_result.rates)
+      else:
+        return ElectricityRatesCoordinatorResult(current, 2, None)
   
   return existing_rates_result
 
