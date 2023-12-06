@@ -15,7 +15,7 @@ async def test_when_data_provided_then_expected_rate_is_returned(request_attempt
   # Arrange
   refresh_rate_in_minutes = 5
   request_datetime = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  current = request_datetime + timedelta(minutes=request_attempts)
+  current = request_datetime + timedelta(minutes=refresh_rate_in_minutes) + timedelta(minutes=request_attempts - 1)
   
   # Act
   next_refresh = calculate_next_refresh(request_datetime, request_attempts, refresh_rate_in_minutes)
