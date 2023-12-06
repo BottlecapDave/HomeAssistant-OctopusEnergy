@@ -24,7 +24,6 @@ class ElectricityStandingChargeCoordinatorResult(BaseCoordinatorResult):
 
   def __init__(self, last_retrieved: datetime, request_attempts: int, standing_charge: {}):
     super().__init__(last_retrieved, request_attempts)
-    self.last_retrieved = last_retrieved
     self.standing_charge = standing_charge
 
 async def async_refresh_electricity_standing_charges_data(
