@@ -57,7 +57,7 @@ async def test_when_account_info_is_none_then_existing_standing_charge_returned(
     return expected_standing_charge
   
   account_info = None
-  existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_from, create_rate_data(period_from, period_to, [2, 4]))
+  existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_from, 1, create_rate_data(period_from, period_to, [2, 4]))
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -87,7 +87,7 @@ async def test_when_no_active_standing_charge_then_none_returned():
     return expected_standing_charge
   
   account_info = get_account_info(False)
-  existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_from, create_rate_data(period_from, period_to, [2, 4]))
+  existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_from, 1, create_rate_data(period_from, period_to, [2, 4]))
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -104,50 +104,46 @@ async def test_when_no_active_standing_charge_then_none_returned():
     assert standing_charge_returned == False
 
 @pytest.mark.asyncio
-async def test_when_current_is_not_thirty_minutes_then_existing_standing_charge_returned():
-  for minute in range(60):
-    if minute == 0 or minute == 30:
-      continue
+async def test_when_next_refresh_is_in_the_past_then_existing_standing_charge_returned():
+  current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  expected_standing_charge = {
+    "start": period_from,
+    "end": period_to,
+    "value_inc_vat": 0.30
+  }
+  standing_charge_returned = False
+  async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
+    nonlocal standing_charge_returned
+    standing_charge_returned = True
+    return expected_standing_charge
+  
+  account_info = get_account_info()
+  existing_standing_charge = ElectricityStandingChargeCoordinatorResult(current - timedelta(minutes=4, seconds=59), 1, {
+    "start": period_from,
+    "end": period_to,
+    "value_inc_vat": 0.10
+  })
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_standing_charge: ElectricityStandingChargeCoordinatorResult = await async_refresh_electricity_standing_charges_data(
+      current,
+      client,
+      account_info,
+      mpan,
+      serial_number,
+      existing_standing_charge
+    )
 
-    current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z").replace(minute=minute)
-    expected_standing_charge = {
-      "start": period_from,
-      "end": period_to,
-      "value_inc_vat": 0.30
-    }
-    standing_charge_returned = False
-    async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
-      nonlocal standing_charge_returned
-      standing_charge_returned = True
-      return expected_standing_charge
-    
-    account_info = get_account_info()
-    existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_from, {
-      "start": period_from,
-      "end": period_to,
-      "value_inc_vat": 0.10
-    })
-    
-    with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
-      client = OctopusEnergyApiClient("NOT_REAL")
-      retrieved_standing_charge: ElectricityStandingChargeCoordinatorResult = await async_refresh_electricity_standing_charges_data(
-        current,
-        client,
-        account_info,
-        mpan,
-        serial_number,
-        existing_standing_charge
-      )
-
-      assert retrieved_standing_charge == existing_standing_charge
-      assert standing_charge_returned == False
+    assert retrieved_standing_charge == existing_standing_charge
+    assert standing_charge_returned == False
 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("existing_standing_charge",[
   (None),
-  (ElectricityStandingChargeCoordinatorResult(period_from, [])),
-  (ElectricityStandingChargeCoordinatorResult(period_from, None)),
+  (ElectricityStandingChargeCoordinatorResult(period_from, 1, [])),
+  (ElectricityStandingChargeCoordinatorResult(period_from, 1, None)),
 ])
 async def test_when_existing_standing_charge_is_none_then_standing_charge_retrieved(existing_standing_charge):
   expected_period_from = current.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -168,7 +164,7 @@ async def test_when_existing_standing_charge_is_none_then_standing_charge_retrie
     return expected_standing_charge
   
   account_info = get_account_info()
-  expected_retrieved_standing_charge = ElectricityStandingChargeCoordinatorResult(current, expected_standing_charge)
+  expected_retrieved_standing_charge = ElectricityStandingChargeCoordinatorResult(current, 1, expected_standing_charge)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -202,8 +198,8 @@ async def test_when_existing_standing_charge_is_old_then_standing_charge_retriev
     return expected_standing_charge
   
   account_info = get_account_info()
-  existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_to - timedelta(days=60), create_rate_data(period_from - timedelta(days=60), period_to - timedelta(days=60), [2, 4]))
-  expected_retrieved_standing_charge = ElectricityStandingChargeCoordinatorResult(current, expected_standing_charge)
+  existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_to - timedelta(days=60), 1, create_rate_data(period_from - timedelta(days=60), period_to - timedelta(days=60), [2, 4]))
+  expected_retrieved_standing_charge = ElectricityStandingChargeCoordinatorResult(current, 1, expected_standing_charge)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -231,7 +227,7 @@ async def test_when_standing_charge_not_retrieved_then_existing_standing_charge_
     return None
   
   account_info = get_account_info()
-  existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_from, expected_standing_charge)
+  existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_from, 1, expected_standing_charge)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -244,5 +240,10 @@ async def test_when_standing_charge_not_retrieved_then_existing_standing_charge_
       existing_standing_charge
     )
 
-    assert retrieved_standing_charge == existing_standing_charge
+    assert retrieved_standing_charge is not None
+    assert retrieved_standing_charge.next_refresh == existing_standing_charge.next_refresh + timedelta(minutes=1)
+    assert retrieved_standing_charge.last_retrieved == existing_standing_charge.last_retrieved
+    assert retrieved_standing_charge.standing_charge == existing_standing_charge.standing_charge
+    assert retrieved_standing_charge.request_attempts == existing_standing_charge.request_attempts + 1
+
     assert standing_charge_returned == True

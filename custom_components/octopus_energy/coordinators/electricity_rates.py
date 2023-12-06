@@ -30,7 +30,6 @@ from ..intelligent import adjust_intelligent_rates
 _LOGGER = logging.getLogger(__name__)
 
 class ElectricityRatesCoordinatorResult(BaseCoordinatorResult):
-  last_retrieved: datetime
   rates: list
 
   def __init__(self, last_retrieved: datetime, request_attempts: int, rates: list):
