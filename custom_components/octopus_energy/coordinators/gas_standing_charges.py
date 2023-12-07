@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta
-from custom_components.octopus_energy.coordinators import BaseCoordinatorResult, get_gas_meter_tariff_code
 
 from homeassistant.util.dt import (now, as_utc)
 from homeassistant.helpers.update_coordinator import (
@@ -16,6 +15,7 @@ from ..const import (
 )
 
 from ..api_client import OctopusEnergyApiClient
+from . import BaseCoordinatorResult, get_gas_meter_tariff_code
 
 _LOGGER = logging.getLogger(__name__)
 
