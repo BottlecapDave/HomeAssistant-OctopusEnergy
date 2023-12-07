@@ -162,9 +162,9 @@ async def async_setup_dependencies(hass, config):
 
   await async_setup_account_info_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
 
-  await async_setup_intelligent_dispatches_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
+  await async_setup_intelligent_dispatches_coordinator(hass)
 
-  await async_setup_intelligent_settings_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
+  await async_setup_intelligent_settings_coordinator(hass)
   
   await async_setup_saving_sessions_coordinators(hass)
 

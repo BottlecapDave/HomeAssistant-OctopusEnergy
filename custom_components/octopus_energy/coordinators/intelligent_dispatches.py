@@ -61,7 +61,6 @@ async def async_refresh_intelligent_dispatches(
   async_mock_intelligent_data: bool,
   async_merge_dispatch_data: Callable[[str, list], Awaitable[list]]
 ):
-
   if (account_info is not None):
     account_id = account_info["id"]
     if (existing_intelligent_dispatches_result is None or current >= existing_intelligent_dispatches_result.next_refresh):
@@ -91,7 +90,7 @@ async def async_refresh_intelligent_dispatches(
   
   return existing_intelligent_dispatches_result
 
-async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
+async def async_setup_intelligent_dispatches_coordinator(hass):
   # Reset data rates as we might have new information
   hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] = None
   
@@ -107,7 +106,6 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
     account_result = hass.data[DOMAIN][DATA_ACCOUNT]
     account_info = account_result.account if account_result is not None else None
       
-
     hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] = await async_refresh_intelligent_dispatches(
       current,
       client,

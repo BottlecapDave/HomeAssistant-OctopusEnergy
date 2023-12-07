@@ -64,7 +64,7 @@ class OctopusEnergyIntelligentBumpCharge(CoordinatorEntity, SwitchEntity, Octopu
       self._attributes["data_last_retrieved"] = result.last_retrieved
 
     current_date = utcnow()
-    self._state = is_in_bump_charge(current_date, result.dispatches.planned)
+    self._state = is_in_bump_charge(current_date, result.dispatches.planned if result.dispatches is not None else [])
     self._attributes["last_evaluated"] = current_date
     
     return self._state
