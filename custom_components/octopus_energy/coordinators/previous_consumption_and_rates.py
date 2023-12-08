@@ -14,7 +14,8 @@ from ..const import (
   DATA_INTELLIGENT_DISPATCHES,
   EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES,
   EVENT_GAS_PREVIOUS_CONSUMPTION_RATES,
-  MINIMUM_CONSUMPTION_DATA_LENGTH
+  MINIMUM_CONSUMPTION_DATA_LENGTH,
+  REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION
 )
 
 from ..api_client import (OctopusEnergyApiClient)
@@ -23,6 +24,7 @@ from ..utils import private_rates_to_public_rates
 
 from ..intelligent import adjust_intelligent_rates
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
+from . import BaseCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,24 +36,24 @@ def __sort_consumption(consumption_data):
   sorted.sort(key=__get_interval_end)
   return sorted
 
-class PreviousConsumptionCoordinatorResult:
+class PreviousConsumptionCoordinatorResult(BaseCoordinatorResult):
   last_retrieved: datetime
   consumption: list
   rates: list
   standing_charge: float
 
-  def __init__(self, last_retrieved: datetime, consumption: list, rates: list, standing_charge):
-    self.last_retrieved = last_retrieved
+  def __init__(self, last_retrieved: datetime, request_attempts: int, consumption: list, rates: list, standing_charge):
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION)
     self.consumption = consumption
     self.rates = rates
     self.standing_charge = standing_charge
 
 async def async_fetch_consumption_and_rates(
   previous_data: PreviousConsumptionCoordinatorResult,
-  utc_now,
+  current: datetime,
   client: OctopusEnergyApiClient,
-  period_from,
-  period_to,
+  period_from: datetime,
+  period_to: datetime,
   identifier: str,
   serial_number: str,
   is_electricity: bool,
@@ -64,9 +66,7 @@ async def async_fetch_consumption_and_rates(
   """Fetch the previous consumption and rates"""
 
   if (previous_data == None or 
-      previous_data.last_retrieved < (utc_now - timedelta(minutes=30)) or
-      utc_now.minute % 30 == 0):
-    
+      current >= previous_data.next_refresh):
     _LOGGER.debug(f"Retrieving previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}...")
     
     try:
@@ -101,20 +101,40 @@ async def async_fetch_consumption_and_rates(
         _LOGGER.debug(f"Fired event for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
 
         return PreviousConsumptionCoordinatorResult(
-          utc_now,
+          current,
+          1,
           consumption_data,
           rate_data,
           standing_charge["value_inc_vat"]
         )
-
+      
       return PreviousConsumptionCoordinatorResult(
-        utc_now,
-        [],
-        [],
-        None
+        current,
+        1,
+        previous_data.consumption,
+        previous_data.rates,
+        previous_data.standing_charge
       )
     except:
       _LOGGER.debug(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
+
+      if previous_data is not None:
+        return PreviousConsumptionCoordinatorResult(
+          previous_data.last_retrieved,
+          previous_data.request_attempts + 1,
+          previous_data.consumption,
+          previous_data.rates,
+          previous_data.standing_charge
+        )
+      else:
+        return PreviousConsumptionCoordinatorResult(
+          # We want to force into our fallback mode
+          current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION),
+          2,
+          None,
+          None,
+          None
+        )
 
   return previous_data 
 

@@ -17,6 +17,7 @@ from ..const import (
   DATA_ACCOUNT_COORDINATOR,
   DATA_INTELLIGENT_DISPATCHES,
   DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
+  REFRESH_RATE_IN_MINUTES_INTELLIGENT,
 
   STORAGE_COMPLETED_DISPATCHES_NAME
 )
@@ -33,7 +34,7 @@ class IntelligentDispatchesCoordinatorResult(BaseCoordinatorResult):
   dispatches: IntelligentDispatches
 
   def __init__(self, last_retrieved: datetime, request_attempts: int, dispatches: IntelligentDispatches):
-    super().__init__(last_retrieved, request_attempts)
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_INTELLIGENT)
     self.dispatches = dispatches
 
 async def async_merge_dispatch_data(hass, account_id: str, completed_dispatches):
@@ -86,7 +87,8 @@ async def async_refresh_intelligent_dispatches(
           existing_intelligent_dispatches_result.dispatches
         )
       else:
-        return IntelligentDispatchesCoordinatorResult(current, 2, None)
+        # We want to force into our fallback mode
+        return IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT), 2, None)
   
   return existing_intelligent_dispatches_result
 

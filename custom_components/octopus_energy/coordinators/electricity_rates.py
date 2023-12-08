@@ -18,6 +18,7 @@ from ..const import (
   EVENT_ELECTRICITY_CURRENT_DAY_RATES,
   EVENT_ELECTRICITY_NEXT_DAY_RATES,
   EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
+  REFRESH_RATE_IN_MINUTES_RATES,
 )
 
 from ..api_client import OctopusEnergyApiClient
@@ -33,7 +34,7 @@ class ElectricityRatesCoordinatorResult(BaseCoordinatorResult):
   rates: list
 
   def __init__(self, last_retrieved: datetime, request_attempts: int, rates: list):
-    super().__init__(last_retrieved, request_attempts)
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_RATES)
     self.rates = rates
 
 async def async_refresh_electricity_rates_data(
@@ -90,7 +91,8 @@ async def async_refresh_electricity_rates_data(
         _LOGGER.debug(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number}, so using cached rates")
         return ElectricityRatesCoordinatorResult(existing_rates_result.last_retrieved, existing_rates_result.request_attempts + 1, existing_rates_result.rates)
       else:
-        return ElectricityRatesCoordinatorResult(current, 2, None)
+        # We want to force into our fallback mode
+        return ElectricityRatesCoordinatorResult(current  - timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES), 2, None)
   
   return existing_rates_result
 

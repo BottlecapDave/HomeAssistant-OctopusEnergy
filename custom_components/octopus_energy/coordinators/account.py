@@ -18,6 +18,7 @@ from ..const import (
   DATA_CLIENT,
   DATA_ACCOUNT,
   DATA_ACCOUNT_COORDINATOR,
+  REFRESH_RATE_IN_MINUTES_ACCOUNT,
 )
 
 from ..api_client import OctopusEnergyApiClient
@@ -28,7 +29,7 @@ class AccountCoordinatorResult(BaseCoordinatorResult):
   account: dict
 
   def __init__(self, last_retrieved: datetime, request_attempts: int, account: dict):
-    super().__init__(last_retrieved, request_attempts)
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_ACCOUNT)
     self.account = account
 
 async def async_refresh_account(

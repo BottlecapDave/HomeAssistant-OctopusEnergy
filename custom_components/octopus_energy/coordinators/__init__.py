@@ -7,7 +7,6 @@ from homeassistant.helpers import issue_registry as ir
 from homeassistant.util.dt import (as_utc)
 
 from ..const import (
-  DEFAULT_REFRESH_RATE_IN_MINUTES,
   DOMAIN,
 )
 
@@ -29,8 +28,9 @@ class BaseCoordinatorResult:
   last_retrieved: datetime
   next_refresh: datetime
   request_attempts: int
+  refresh_rate_in_minutes: int
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, refresh_rate_in_minutes = DEFAULT_REFRESH_RATE_IN_MINUTES):
+  def __init__(self, last_retrieved: datetime, request_attempts: int, refresh_rate_in_minutes: int):
     self.last_retrieved = last_retrieved
     self.request_attempts = request_attempts
     self.next_refresh = calculate_next_refresh(last_retrieved, request_attempts, refresh_rate_in_minutes)

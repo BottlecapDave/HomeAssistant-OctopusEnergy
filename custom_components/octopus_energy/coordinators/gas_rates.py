@@ -15,6 +15,7 @@ from ..const import (
   EVENT_GAS_CURRENT_DAY_RATES,
   EVENT_GAS_NEXT_DAY_RATES,
   EVENT_GAS_PREVIOUS_DAY_RATES,
+  REFRESH_RATE_IN_MINUTES_RATES,
 )
 
 from ..api_client import OctopusEnergyApiClient
@@ -27,7 +28,7 @@ class GasRatesCoordinatorResult(BaseCoordinatorResult):
   rates: list
 
   def __init__(self, last_retrieved: datetime, request_attempts: int, rates: list):
-    super().__init__(last_retrieved, request_attempts)
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_RATES)
     self.rates = rates
 
 async def async_refresh_gas_rates_data(
@@ -79,7 +80,8 @@ async def async_refresh_gas_rates_data(
         _LOGGER.debug(f"Failed to retrieve new gas rates for {target_mprn}/{target_serial_number}, so using cached rates")
         return GasRatesCoordinatorResult(existing_rates_result.last_retrieved, existing_rates_result.request_attempts + 1, existing_rates_result.rates)
       else:
-        return GasRatesCoordinatorResult(current, 2, None)
+        # We want to force into our fallback mode
+        return GasRatesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES), 2, None)
   
   return existing_rates_result
 

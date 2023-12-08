@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta
-from custom_components.octopus_energy.coordinators import BaseCoordinatorResult
 
 from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
@@ -17,10 +16,12 @@ from ..const import (
   DATA_ACCOUNT_COORDINATOR,
   DATA_INTELLIGENT_SETTINGS,
   DATA_INTELLIGENT_SETTINGS_COORDINATOR,
+  REFRESH_RATE_IN_MINUTES_INTELLIGENT,
 )
 
 from ..api_client import OctopusEnergyApiClient
 from ..api_client.intelligent_settings import IntelligentSettings
+from . import BaseCoordinatorResult
 
 from ..intelligent import async_mock_intelligent_data, has_intelligent_tariff, mock_intelligent_settings
 
@@ -30,7 +31,7 @@ class IntelligentCoordinatorResult(BaseCoordinatorResult):
   settings: IntelligentSettings
 
   def __init__(self, last_retrieved: datetime, request_attempts: int, settings: IntelligentSettings):
-    super().__init__(last_retrieved, request_attempts)
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_INTELLIGENT)
     self.settings = settings
 
 async def async_refresh_intelligent_settings(
@@ -64,7 +65,8 @@ async def async_refresh_intelligent_settings(
           existing_intelligent_settings_result.settings
         )
       else:
-        return IntelligentCoordinatorResult(current, 2, None)
+        # We want to force into our fallback mode
+        return IntelligentCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT), 2, None)
   
   return existing_intelligent_settings_result
   

@@ -51,6 +51,7 @@ async def async_get_live_consumption(
         )
       
       return CurrentConsumptionCoordinatorResult(
+        # We want to force into our fallback mode
         current_date - timedelta(minutes=refresh_rate_in_minutes),
         2,
         refresh_rate_in_minutes,

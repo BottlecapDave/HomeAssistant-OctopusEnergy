@@ -12,6 +12,7 @@ from ..const import (
   DOMAIN,
   DATA_CLIENT,
   DATA_ACCOUNT,
+  REFRESH_RATE_IN_MINUTES_STANDING_CHARGE,
 )
 
 from ..api_client import OctopusEnergyApiClient
@@ -23,7 +24,7 @@ class ElectricityStandingChargeCoordinatorResult(BaseCoordinatorResult):
   standing_charge: {}
 
   def __init__(self, last_retrieved: datetime, request_attempts: int, standing_charge: {}):
-    super().__init__(last_retrieved, request_attempts)
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_STANDING_CHARGE)
     self.standing_charge = standing_charge
 
 async def async_refresh_electricity_standing_charges_data(
@@ -56,7 +57,8 @@ async def async_refresh_electricity_standing_charges_data(
         _LOGGER.debug(f"Failed to retrieve new electricity standing charges for {target_mpan}/{target_serial_number} ({tariff_code}), so using cached standing charges")
         return ElectricityStandingChargeCoordinatorResult(existing_standing_charges_result.last_retrieved, existing_standing_charges_result.request_attempts + 1, existing_standing_charges_result.standing_charge)
       else:
-        return ElectricityStandingChargeCoordinatorResult(current, 2, None)
+        # We want to force into our fallback mode
+        return ElectricityStandingChargeCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_STANDING_CHARGE), 2, None)
   
   return existing_standing_charges_result
 
