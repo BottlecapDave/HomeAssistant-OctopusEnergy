@@ -58,12 +58,12 @@ def assert_raised_events(raised_events: dict, expected_event_name: str, expected
   assert raised_events[expected_event_name]["rates"][-1]["end"] == expected_valid_to
 
 @pytest.mark.asyncio
-async def test_when_account_info_is_none_then_existing_rates_returned():
+async def test_when_account_info_is_none_then_existing_gas_rates_returned():
   expected_rates = create_rate_data(period_from, period_to, [1, 2])
-  rates_returned = False
+  mock_api_called = False
   async def async_mocked_get_gas_rates(*args, **kwargs):
-    nonlocal rates_returned
-    rates_returned = True
+    nonlocal mock_api_called
+    mock_api_called = True
     return expected_rates
   
   actual_fired_events = {}
@@ -88,16 +88,16 @@ async def test_when_account_info_is_none_then_existing_rates_returned():
     )
 
     assert retrieved_rates == existing_rates
-    assert rates_returned == False
+    assert mock_api_called == False
     assert len(actual_fired_events.keys()) == 0
 
 @pytest.mark.asyncio
 async def test_when_no_active_rates_then_none_returned():
   expected_rates = create_rate_data(period_from, period_to, [1, 2])
-  rates_returned = False
+  mock_api_called = False
   async def async_mocked_get_gas_rates(*args, **kwargs):
-    nonlocal rates_returned
-    rates_returned = True
+    nonlocal mock_api_called
+    mock_api_called = True
     return expected_rates
   
   actual_fired_events = {}
@@ -122,17 +122,17 @@ async def test_when_no_active_rates_then_none_returned():
     )
 
     assert retrieved_rates == None
-    assert rates_returned == False
+    assert mock_api_called == False
     assert len(actual_fired_events.keys()) == 0
 
 @pytest.mark.asyncio
-async def test_when_next_refresh_is_in_the_past_then_existing_rates_returned():
+async def test_when_next_refresh_is_in_the_past_then_existing_gas_rates_returned():
   current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
   expected_rates = create_rate_data(period_from, period_to, [1, 2])
-  rates_returned = False
+  mock_api_called = False
   async def async_mocked_get_gas_rates(*args, **kwargs):
-    nonlocal rates_returned
-    rates_returned = True
+    nonlocal mock_api_called
+    mock_api_called = True
     return expected_rates
   
   actual_fired_events = {}
@@ -157,7 +157,7 @@ async def test_when_next_refresh_is_in_the_past_then_existing_rates_returned():
     )
 
     assert retrieved_rates == existing_rates
-    assert rates_returned == False
+    assert mock_api_called == False
     assert len(actual_fired_events.keys()) == 0
 
 @pytest.mark.asyncio
@@ -170,14 +170,14 @@ async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
   expected_period_from = (current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_rates = create_rate_data(expected_period_from, expected_period_to, [1, 2])
-  rates_returned = False
+  mock_api_called = False
   requested_period_from = None
   requested_period_to = None
   async def async_mocked_get_gas_rates(*args, **kwargs):
-    nonlocal requested_period_from, requested_period_to, rates_returned
+    nonlocal requested_period_from, requested_period_to, mock_api_called
 
     requested_client, requested_tariff_code, requested_period_from, requested_period_to = args
-    rates_returned = True
+    mock_api_called = True
     return expected_rates
   
   actual_fired_events = {}
@@ -204,7 +204,7 @@ async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
     assert retrieved_rates is not None
     assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
     assert retrieved_rates.rates == expected_retrieved_rates.rates
-    assert rates_returned == True
+    assert mock_api_called == True
     assert requested_period_from == expected_period_from
     assert requested_period_to == expected_period_to
     
@@ -219,10 +219,10 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
   expected_period_from = (current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_rates = create_rate_data(expected_period_from, expected_period_to, [1, 2])
-  rates_returned = False
+  mock_api_called = False
   async def async_mocked_get_gas_rates(*args, **kwargs):
-    nonlocal rates_returned
-    rates_returned = True
+    nonlocal mock_api_called
+    mock_api_called = True
     return expected_rates
   
   actual_fired_events = {}
@@ -250,7 +250,7 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
     assert retrieved_rates is not None
     assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
     assert retrieved_rates.rates == expected_retrieved_rates.rates
-    assert rates_returned == True
+    assert mock_api_called == True
     
     assert len(actual_fired_events.keys()) == 3
     assert_raised_events(actual_fired_events, EVENT_GAS_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
@@ -258,12 +258,11 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
     assert_raised_events(actual_fired_events, EVENT_GAS_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
 
 @pytest.mark.asyncio
-async def test_when_rates_not_retrieved_then_existing_rates_returned():
-  expected_rates = create_rate_data(period_from, period_to, [1, 2, 3, 4])
-  rates_returned = False
+async def test_when_rates_not_retrieved_then_existing_gas_rates_returned():
+  mock_api_called = False
   async def async_mocked_get_gas_rates(*args, **kwargs):
-    nonlocal rates_returned
-    rates_returned = True
+    nonlocal mock_api_called
+    mock_api_called = True
     return None
   
   actual_fired_events = {}
@@ -273,7 +272,7 @@ async def test_when_rates_not_retrieved_then_existing_rates_returned():
     return None
   
   account_info = get_account_info()
-  existing_rates = GasRatesCoordinatorResult(period_from, 1, expected_rates)
+  existing_rates = GasRatesCoordinatorResult(period_from, 1, create_rate_data(period_from, period_to, [1, 2, 3, 4]))
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -290,7 +289,7 @@ async def test_when_rates_not_retrieved_then_existing_rates_returned():
     assert retrieved_rates is not None
     assert retrieved_rates.last_retrieved == existing_rates.last_retrieved
     assert retrieved_rates.rates == existing_rates.rates
-    assert rates_returned == True
+    assert mock_api_called == True
     assert len(actual_fired_events.keys()) == 0
 
 @pytest.mark.asyncio
@@ -300,10 +299,10 @@ async def test_when_negative_rates_present_then_rates_retrieved():
   expected_rates = create_rate_data(expected_period_from, expected_period_to, [1, 2])
   expected_rates[0]["value_inc_vat"] = -0.01
   
-  rates_returned = False
+  mock_api_called = False
   async def async_mocked_get_gas_rates(*args, **kwargs):
-    nonlocal rates_returned
-    rates_returned = True
+    nonlocal mock_api_called
+    mock_api_called = True
     return expected_rates
   
   actual_fired_events = {}
@@ -333,7 +332,7 @@ async def test_when_negative_rates_present_then_rates_retrieved():
     assert retrieved_rates.rates == existing_rates.rates
     assert retrieved_rates.request_attempts == existing_rates.request_attempts + 1
     
-    assert rates_returned == True
+    assert mock_api_called == True
     assert expected_rates[0]["value_inc_vat"] < 0
     
     assert len(actual_fired_events.keys()) == 0

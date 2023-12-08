@@ -50,10 +50,10 @@ async def test_when_account_info_is_none_then_existing_standing_charge_returned(
     "end": period_to,
     "value_inc_vat": 0.30
   }
-  standing_charge_returned = False
+  mock_api_called = False
   async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
-    nonlocal standing_charge_returned
-    standing_charge_returned = True
+    nonlocal mock_api_called
+    mock_api_called = True
     return expected_standing_charge
   
   account_info = None
@@ -71,7 +71,7 @@ async def test_when_account_info_is_none_then_existing_standing_charge_returned(
     )
 
     assert retrieved_standing_charge == existing_standing_charge
-    assert standing_charge_returned == False
+    assert mock_api_called == False
 
 @pytest.mark.asyncio
 async def test_when_no_active_standing_charge_then_none_returned():
@@ -80,10 +80,10 @@ async def test_when_no_active_standing_charge_then_none_returned():
     "end": period_to,
     "value_inc_vat": 0.30
   }
-  standing_charge_returned = False
+  mock_api_called = False
   async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
-    nonlocal standing_charge_returned
-    standing_charge_returned = True
+    nonlocal mock_api_called
+    mock_api_called = True
     return expected_standing_charge
   
   account_info = get_account_info(False)
@@ -101,7 +101,7 @@ async def test_when_no_active_standing_charge_then_none_returned():
     )
 
     assert retrieved_standing_charge is None
-    assert standing_charge_returned == False
+    assert mock_api_called == False
 
 @pytest.mark.asyncio
 async def test_when_next_refresh_is_in_the_past_then_existing_standing_charge_returned():
@@ -111,10 +111,10 @@ async def test_when_next_refresh_is_in_the_past_then_existing_standing_charge_re
     "end": period_to,
     "value_inc_vat": 0.30
   }
-  standing_charge_returned = False
+  mock_api_called = False
   async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
-    nonlocal standing_charge_returned
-    standing_charge_returned = True
+    nonlocal mock_api_called
+    mock_api_called = True
     return expected_standing_charge
   
   account_info = get_account_info()
@@ -136,7 +136,7 @@ async def test_when_next_refresh_is_in_the_past_then_existing_standing_charge_re
     )
 
     assert retrieved_standing_charge == existing_standing_charge
-    assert standing_charge_returned == False
+    assert mock_api_called == False
 
 
 @pytest.mark.asyncio
@@ -153,14 +153,14 @@ async def test_when_existing_standing_charge_is_none_then_standing_charge_retrie
     "end": period_to,
     "value_inc_vat": 0.30
   }
-  standing_charge_returned = False
+  mock_api_called = False
   requested_period_from = None
   requested_period_to = None
   async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
-    nonlocal requested_period_from, requested_period_to, standing_charge_returned, expected_standing_charge
+    nonlocal requested_period_from, requested_period_to, mock_api_called, expected_standing_charge
 
     requested_client, requested_tariff_code, requested_period_from, requested_period_to = args
-    standing_charge_returned = True
+    mock_api_called = True
     return expected_standing_charge
   
   account_info = get_account_info()
@@ -180,7 +180,7 @@ async def test_when_existing_standing_charge_is_none_then_standing_charge_retrie
     assert retrieved_standing_charge is not None
     assert retrieved_standing_charge.last_retrieved == expected_retrieved_standing_charge.last_retrieved
     assert retrieved_standing_charge.standing_charge == expected_retrieved_standing_charge.standing_charge
-    assert standing_charge_returned == True
+    assert mock_api_called == True
     assert requested_period_from == expected_period_from
     assert requested_period_to == expected_period_to
     
@@ -191,10 +191,10 @@ async def test_when_existing_standing_charge_is_old_then_standing_charge_retriev
     "end": period_to,
     "value_inc_vat": 0.30
   }
-  standing_charge_returned = False
+  mock_api_called = False
   async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
-    nonlocal standing_charge_returned
-    standing_charge_returned = True
+    nonlocal mock_api_called
+    mock_api_called = True
     return expected_standing_charge
   
   account_info = get_account_info()
@@ -215,19 +215,18 @@ async def test_when_existing_standing_charge_is_old_then_standing_charge_retriev
     assert retrieved_standing_charge is not None
     assert retrieved_standing_charge.last_retrieved == expected_retrieved_standing_charge.last_retrieved
     assert retrieved_standing_charge.standing_charge == expected_retrieved_standing_charge.standing_charge
-    assert standing_charge_returned == True
+    assert mock_api_called == True
 
 @pytest.mark.asyncio
 async def test_when_standing_charge_not_retrieved_then_existing_standing_charge_returned():
-  expected_standing_charge = create_rate_data(period_from, period_to, [1, 2, 3, 4])
-  standing_charge_returned = False
+  mock_api_called = False
   async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
-    nonlocal standing_charge_returned
-    standing_charge_returned = True
+    nonlocal mock_api_called
+    mock_api_called = True
     return None
   
   account_info = get_account_info()
-  existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_from, 1, expected_standing_charge)
+  existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_from, 1, create_rate_data(period_from, period_to, [1, 2, 3, 4]))
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -246,4 +245,4 @@ async def test_when_standing_charge_not_retrieved_then_existing_standing_charge_
     assert retrieved_standing_charge.standing_charge == existing_standing_charge.standing_charge
     assert retrieved_standing_charge.request_attempts == existing_standing_charge.request_attempts + 1
 
-    assert standing_charge_returned == True
+    assert mock_api_called == True

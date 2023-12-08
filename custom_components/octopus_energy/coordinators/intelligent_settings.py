@@ -38,6 +38,7 @@ async def async_refresh_intelligent_settings(
   client: OctopusEnergyApiClient,
   account_info,
   existing_intelligent_settings_result: IntelligentCoordinatorResult,
+  is_settings_mocked: bool
 ):
   if (account_info is not None):
     account_id = account_info["id"]
@@ -49,6 +50,9 @@ async def async_refresh_intelligent_settings(
           _LOGGER.debug(f'Intelligent settings retrieved for account {account_id}')
         except:
           _LOGGER.debug('Failed to retrieve intelligent settings for account {account_id}')
+
+      if is_settings_mocked:
+        settings = mock_intelligent_settings()
 
       if settings is not None:
         return IntelligentCoordinatorResult(current, 1, settings)
@@ -84,7 +88,8 @@ async def async_setup_intelligent_settings_coordinator(hass):
       current,
       client,
       account_info,
-      hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS] if DATA_INTELLIGENT_SETTINGS in hass.data[DOMAIN] else None 
+      hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS] if DATA_INTELLIGENT_SETTINGS in hass.data[DOMAIN] else None,
+      await async_mock_intelligent_data(hass)
     )
 
     return hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS]

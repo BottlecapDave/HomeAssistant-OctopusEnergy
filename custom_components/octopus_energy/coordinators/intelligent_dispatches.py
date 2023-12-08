@@ -58,7 +58,7 @@ async def async_refresh_intelligent_dispatches(
   client: OctopusEnergyApiClient,
   account_info,
   existing_intelligent_dispatches_result: IntelligentDispatchesCoordinatorResult,
-  async_mock_intelligent_data: bool,
+  is_data_mocked: bool,
   async_merge_dispatch_data: Callable[[str, list], Awaitable[list]]
 ):
   if (account_info is not None):
@@ -72,7 +72,7 @@ async def async_refresh_intelligent_dispatches(
         except:
           _LOGGER.debug('Failed to retrieve intelligent dispatches for account {account_id}')
 
-      if async_mock_intelligent_data:
+      if is_data_mocked:
         dispatches = mock_intelligent_dispatches()
 
       if dispatches is not None:
