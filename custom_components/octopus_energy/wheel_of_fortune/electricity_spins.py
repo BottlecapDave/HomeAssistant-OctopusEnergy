@@ -62,7 +62,7 @@ class OctopusEnergyWheelOfFortuneElectricitySpins(CoordinatorEntity, RestoreSens
   @property
   def state(self):
     result: WheelOfFortuneSpinsCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
-    if result is not None:
+    if result is not None and result.spins is not None:
       self._state = result.spins.electricity
       self._attributes["data_last_retrieved"] = result.last_retrieved
     

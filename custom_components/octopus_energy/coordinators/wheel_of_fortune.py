@@ -11,20 +11,21 @@ from ..const import (
   DOMAIN,
   DATA_CLIENT,
   DATA_WHEEL_OF_FORTUNE_SPINS,
+  REFRESH_RATE_IN_MINUTES_OCTOPLUS_WHEEL_OF_FORTUNE,
 )
 
 from ..api_client import OctopusEnergyApiClient
-from ..api_client.saving_sessions import SavingSession
 from ..api_client.wheel_of_fortune import WheelOfFortuneSpinsResponse
+from . import BaseCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
-class WheelOfFortuneSpinsCoordinatorResult:
+class WheelOfFortuneSpinsCoordinatorResult(BaseCoordinatorResult):
   last_retrieved: datetime
   spins: WheelOfFortuneSpinsResponse
 
-  def __init__(self, last_retrieved: datetime, spins: WheelOfFortuneSpinsResponse):
-    self.last_retrieved = last_retrieved
+  def __init__(self, last_retrieved: datetime, request_attempts: int, spins: WheelOfFortuneSpinsResponse):
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_OCTOPLUS_WHEEL_OF_FORTUNE)
     self.spins = spins
 
 async def async_refresh_wheel_of_fortune_spins(
@@ -33,13 +34,23 @@ async def async_refresh_wheel_of_fortune_spins(
     account_id: str,
     existing_result: WheelOfFortuneSpinsCoordinatorResult
 ) -> WheelOfFortuneSpinsCoordinatorResult:
-  if existing_result is None or current.minute % 30 == 0:
+  if existing_result is None or current >= existing_result.next_refresh:
     try:
       result = await client.async_get_wheel_of_fortune_spins(account_id)
 
-      return WheelOfFortuneSpinsCoordinatorResult(current, result)
+      return WheelOfFortuneSpinsCoordinatorResult(current, 1, result)
     except:
       _LOGGER.debug('Failed to retrieve wheel of fortune spins')
+
+      if (existing_result is not None):
+        return WheelOfFortuneSpinsCoordinatorResult(existing_result.last_retrieved, existing_result.request_attempts + 1, existing_result.spins)
+      else:
+        return WheelOfFortuneSpinsCoordinatorResult(
+          # We want to force into our fallback mode
+          current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_WHEEL_OF_FORTUNE),
+          2,
+          None
+        )
   
   return existing_result
 

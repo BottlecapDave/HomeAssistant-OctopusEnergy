@@ -1,7 +1,8 @@
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta
 import pytest
 import mock
 
+from custom_components.octopus_energy.const import REFRESH_RATE_IN_MINUTES_INTELLIGENT
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatches
 from custom_components.octopus_energy.intelligent import mock_intelligent_dispatches
@@ -249,6 +250,7 @@ async def test_when_existing_settings_is_old_then_settings_retrieved():
     )
 
     assert retrieved_dispatches is not None
+    assert retrieved_dispatches.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)
     assert retrieved_dispatches.last_retrieved == expected_retrieved_dispatches.last_retrieved
     assert retrieved_dispatches.dispatches == expected_retrieved_dispatches.dispatches
     assert mock_api_called == True

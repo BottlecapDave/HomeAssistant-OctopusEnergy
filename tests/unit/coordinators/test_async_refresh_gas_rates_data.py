@@ -6,7 +6,7 @@ from unit import (create_rate_data)
 
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 from custom_components.octopus_energy.coordinators.gas_rates import GasRatesCoordinatorResult, async_refresh_gas_rates_data
-from custom_components.octopus_energy.const import EVENT_GAS_CURRENT_DAY_RATES, EVENT_GAS_NEXT_DAY_RATES, EVENT_GAS_PREVIOUS_DAY_RATES
+from custom_components.octopus_energy.const import EVENT_GAS_CURRENT_DAY_RATES, EVENT_GAS_NEXT_DAY_RATES, EVENT_GAS_PREVIOUS_DAY_RATES, REFRESH_RATE_IN_MINUTES_RATES
 
 current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
 period_from = datetime.strptime("2023-07-14T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
@@ -248,6 +248,7 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
     )
 
     assert retrieved_rates is not None
+    assert retrieved_rates.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
     assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
     assert retrieved_rates.rates == expected_retrieved_rates.rates
     assert mock_api_called == True
@@ -287,13 +288,14 @@ async def test_when_rates_not_retrieved_then_existing_gas_rates_returned():
     )
 
     assert retrieved_rates is not None
+    assert retrieved_rates.next_refresh == existing_rates.next_refresh + timedelta(minutes=1)
     assert retrieved_rates.last_retrieved == existing_rates.last_retrieved
     assert retrieved_rates.rates == existing_rates.rates
     assert mock_api_called == True
     assert len(actual_fired_events.keys()) == 0
 
 @pytest.mark.asyncio
-async def test_when_negative_rates_present_then_rates_retrieved():
+async def test_when_negative_rates_present_then_existing_rates_retrieved():
   expected_period_from = (current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_rates = create_rate_data(expected_period_from, expected_period_to, [1, 2])

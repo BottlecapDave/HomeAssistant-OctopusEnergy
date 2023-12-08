@@ -4,6 +4,7 @@ import mock
 
 from unit import (create_rate_data)
 
+from custom_components.octopus_energy.const import REFRESH_RATE_IN_MINUTES_STANDING_CHARGE
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 from custom_components.octopus_energy.coordinators.electricity_standing_charges import ElectricityStandingChargeCoordinatorResult, async_refresh_electricity_standing_charges_data
 
@@ -213,6 +214,7 @@ async def test_when_existing_standing_charge_is_old_then_standing_charge_retriev
     )
 
     assert retrieved_standing_charge is not None
+    assert retrieved_standing_charge.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_STANDING_CHARGE)
     assert retrieved_standing_charge.last_retrieved == expected_retrieved_standing_charge.last_retrieved
     assert retrieved_standing_charge.standing_charge == expected_retrieved_standing_charge.standing_charge
     assert mock_api_called == True

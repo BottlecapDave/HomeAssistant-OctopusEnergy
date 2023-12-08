@@ -123,6 +123,7 @@ async def async_refresh_saving_sessions(
         )
       else:
         return SavingSessionsCoordinatorResult(
+          # We want to force into our fallback mode
           current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSIONS),
           2,
           [],

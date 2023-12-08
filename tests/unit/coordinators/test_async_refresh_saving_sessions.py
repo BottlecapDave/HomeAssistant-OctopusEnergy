@@ -371,4 +371,5 @@ async def test_when_previous_data_is_out_of_date_then_new_date_is_retrieved():
 
     # Assert
     assert result is not None
+    assert result.next_refresh == current_utc_timestamp + timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSIONS)
     assert saving_sessions_retrieved == True
