@@ -45,6 +45,7 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
 
     self._state = None
     self._last_reset = None
+    self._last_calculated = None
     self._calorific_value = calorific_value
 
   @property
@@ -114,7 +115,7 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
     consumption_data = result.consumption if result is not None and len(result.consumption) > 0 else None
 
     tariff_override_key = get_gas_tariff_override_key(self._serial_number, self._mprn)
-    is_old_data = self._last_reset is None or (consumption_data is not None and self._last_reset < consumption_data[-1]["end"])
+    is_old_data = self._last_calculated is None or (result is not None and self._last_calculated < result.last_retrieved)
     is_tariff_present = tariff_override_key in self._hass.data[DOMAIN]
     has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][tariff_override_key] != self._tariff_code
 
@@ -168,6 +169,7 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
         self._hass.bus.async_fire(EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mprn": self._mprn, "serial_number": self._serial_number, "tariff_code": self._tariff_code, "rates": rate_data })
 
         self._attributes["last_evaluated"] = utcnow()
+        self._last_calculated = result.last_retrieved
 
     if result is not None:
       self._attributes["data_last_retrieved"] = result.last_retrieved

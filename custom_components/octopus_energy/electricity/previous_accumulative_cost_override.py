@@ -115,7 +115,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
 
     tariff_override_key = get_electricity_tariff_override_key(self._serial_number, self._mpan)
 
-    is_old_data = self._last_reset is None or (consumption_data is not None and self._last_reset < consumption_data[-1]["end"])
+    is_old_data = self._last_calculated is None or (result is not None and self._last_calculated < result.last_retrieved)
     is_tariff_present = tariff_override_key in self._hass.data[DOMAIN]
     has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][tariff_override_key] != self._tariff_code
 
@@ -145,7 +145,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
       if (consumption_and_cost is not None):
         _LOGGER.debug(f"Calculated previous electricity consumption cost override for '{self._mpan}/{self._serial_number}'...")
 
-        self._last_reset = consumption_and_cost["last_reset"]
+        self._last_reset = consumption_data[-1]["end"]
         self._state = consumption_and_cost["total_cost"]
 
         self._attributes = {
@@ -169,6 +169,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
         self._hass.bus.async_fire(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mpan": self._mpan, "serial_number": self._serial_number, "tariff_code": self._tariff_code, "rates": rate_data })
 
         self._attributes["last_evaluated"] = current
+        self._last_calculated = result.last_retrieved
 
     if result is not None:
       self._attributes["data_last_retrieved"] = result.last_retrieved
