@@ -9,7 +9,8 @@ from custom_components.octopus_energy.utils.requests import calculate_next_refre
   (2, datetime.strptime("2023-07-14T10:36:01+01:00", "%Y-%m-%dT%H:%M:%S%z")),
   (3, datetime.strptime("2023-07-14T10:38:01+01:00", "%Y-%m-%dT%H:%M:%S%z")),
   (4, datetime.strptime("2023-07-14T10:41:01+01:00", "%Y-%m-%dT%H:%M:%S%z")),
-  (5, datetime.strptime("2023-07-14T10:45:01+01:00", "%Y-%m-%dT%H:%M:%S%z"))
+  (5, datetime.strptime("2023-07-14T10:45:01+01:00", "%Y-%m-%dT%H:%M:%S%z")),
+  (6, datetime.strptime("2023-07-14T10:50:01+01:00", "%Y-%m-%dT%H:%M:%S%z"))
 ])
 async def test_when_data_provided_then_expected_rate_is_returned(request_attempts, expected_next_refresh):
   # Arrange

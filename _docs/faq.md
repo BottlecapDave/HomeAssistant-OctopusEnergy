@@ -13,6 +13,7 @@
   - [Why won't my target rates update?](#why-wont-my-target-rates-update)
   - [My gas consumption/costs seem out](#my-gas-consumptioncosts-seem-out)
   - [I want to use the tariff overrides, but how do I find an available tariff?](#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff)
+  - [How often is data refreshed?](#how-often-is-data-refreshed)
   - [How do I know when there's any update available?](#how-do-i-know-when-theres-any-update-available)
   - [I've been asked for my meter information in a bug request, how do I obtain this?](#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this)
   - [How do I increase the logs for the integration?](#how-do-i-increase-the-logs-for-the-integration)
@@ -112,6 +113,33 @@ For example if I was on the tariff `E-1R-SUPER-GREEN-24M-21-07-30-A` and I wante
 In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https://api.octopus.energy/v1/products/VAR-22-11-01](https://api.octopus.energy/v1/products/VAR-22-11-01). From this list, I would then look up the tariff for my region (e.g. `A` defined at the end of my current tariff) which is defined in the `code` field. It is this value that you add to the `cost_override_tariff` entity. In this example, I want the duel electricity tariff version, so will pick `E-2R-VAR-22-11-01-A`.
 
 ![Target product example](./assets/product_tariff_lookup.png)
+
+## How often is data refreshed?
+
+Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-and-completed-octopus-intelligent-dispatches/8510/8?u=bottlecapdave), the integration polls and retrieves data at different intervals depending on the target data. Below is a rough table describing how often the integration targets refreshing various bits of data. This has been done to try and not overload the API while also providing useful data in a timely fashion.
+
+| Area | Refresh rate (in minutes) | Notes |
+|-|-|-|
+| Account | 30 | This shouldn't change often so no need to poll. This is used to get active tariffs |
+| Intelligent tariff based sensors | 5 | Trying to balance refreshing settings and new dispatch information with not overloading the API |
+| Rate information | 15 | This is what drives most people's automations, but doesn't change that frequently |
+| Current consumption data | Configurable (minimum 1) | This is most useful for automations, but don't want to flood the API with requests |
+| Previous consumption data | 30 | This doesn't change frequently |
+| Standing charges | 30 | This should only change if the user's tariff changes |
+| Saving sessions | 15 | Inactive for most of the year and new sessions have enough warning |
+| Wheel of fortune | 30 | Doesn't change that frequently |
+
+If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly taking longer with each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.
+
+| Attempt | Target time |
+|-|-|
+| 1 | `10:35` |
+| 2 | `10:36` |
+| 3 | `10:38` |
+| 4 | `10:41` |
+| 5 | `10:45` |
+
+**The retrieving of data does not effect the rate the entities states/attributes are evaluated.**
 
 ## How do I know when there's any update available?
 

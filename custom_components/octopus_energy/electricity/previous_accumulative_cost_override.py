@@ -45,6 +45,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
 
     self._state = None
     self._last_reset = None
+    self._last_calculated  = None
 
   @property
   def unique_id(self):
@@ -111,7 +112,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     
     current = utcnow()
     result: PreviousConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
-    consumption_data = result.consumption if result is not None and len(result.consumption) > 0 else None
+    consumption_data = result.consumption if result is not None and result.consumption is not None and len(result.consumption) > 0 else None
 
     tariff_override_key = get_electricity_tariff_override_key(self._serial_number, self._mpan)
 
