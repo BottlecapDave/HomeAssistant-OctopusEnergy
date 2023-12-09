@@ -18,7 +18,7 @@ Instead, you can use different external statistics that are exported by the `pre
 
     It can take **up to 24 hours** for the external statistics to appear.
 
-Please follow the [guide](./energy_dashboard.md#previous-day-consumption) for instructions on how to add these separate sensors to the energy dashboard.
+Please follow the [guide](./setup/energy_dashboard#previous-day-consumption) for instructions on how to add these separate sensors to the energy dashboard.
 
 You should not have this issue for current consumption sensors, as they are updated in realtime.
 
@@ -72,7 +72,7 @@ Data can not appear for a variety of reasons. Before raising any issues, check i
 
 ## I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?
 
-Rate data for agile tariffs are not available in full for the next day, which can cause issues with target rate sensors in their default state. We prevent you from setting up target rate sensors in this form. More information around this can be found in the [target rate documentation](./setup_target_rate.md#agile-users).
+Rate data for agile tariffs are not available in full for the next day, which can cause issues with target rate sensors in their default state. We prevent you from setting up target rate sensors in this form. More information around this can be found in the [target rate documentation](./setup/target_rate#agile-users).
 
 ## Why won't my target rates update?
 

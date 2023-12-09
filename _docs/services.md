@@ -17,7 +17,7 @@ This service is only available for the following sensors
 
 ## octopus_energy.update_target_config
 
-For updating a given [target rate's](./setup_target_rate.md) config. This allows you to change target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
+For updating a given [target rate's](./setup/target_rate) config. This allows you to change target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
 
 !!! info
 
@@ -89,12 +89,12 @@ Service for joining a new saving session event. When used, it may take a couple 
 
 | Attribute                | Optional | Description                                                                                                           |
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
-| `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated. This should always point at the [saving session events](./entities/octoplus.md#saving-session-events) entity. |
+| `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated. This should always point at the [saving session events](./entities/octoplus#saving-session-events) entity. |
 | `data.event_code`      | `no`    | The code of the event to join |
 
 ### Automation Example
 
-Using the [new saving session event](./events.md#new-saving-session), we can join new saving session events automatically using the following integration.
+Using the [new saving session event](./events#new-saving-session), we can join new saving session events automatically using the following integration.
 
 You'll need to update the following entities to match the names of your entities
 * `event.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_session_events`
@@ -122,7 +122,7 @@ action:
 
 ## spin_wheel_of_fortune
 
-This service allows the user to perform a spin on the [wheel of fortune](./entities/wheel_of_fortune.md) that is awarded to users every month. No point letting them go to waste :)
+This service allows the user to perform a spin on the [wheel of fortune](./entities/wheel_of_fortune) that is awarded to users every month. No point letting them go to waste :)
 
 !!! warning
 

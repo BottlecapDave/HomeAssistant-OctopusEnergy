@@ -1,3 +1,3 @@
 # Repairs - Unknown tariff format
 
-If you receive this error around one or more of your tariffs, it's because it doesn't fit the format that Octopus Energy traditionally uses. In this scenario, you should [raise an issue](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues) with the tariff code and your meter information, which can be obtained by following the [FAQ](../../README.md#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this)
+If you receive this error around one or more of your tariffs, it's because it doesn't fit the format that Octopus Energy traditionally uses. In this scenario, you should [raise an issue](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues) with the tariff code and your meter information, which can be obtained by following the [FAQ](../../faq#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this)

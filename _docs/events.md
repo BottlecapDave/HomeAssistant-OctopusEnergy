@@ -90,7 +90,7 @@ This is fired when the next day rates are updated.
 
 `octopus_energy_electricity_previous_consumption_rates`
 
-This is fired when the [previous consumption's](./entities/electricity.md#previous-accumulative-consumption) rates are updated.
+This is fired when the [previous consumption's](./entities/electricity#previous-accumulative-consumption) rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -118,7 +118,7 @@ This is fired when the [previous consumption's](./entities/electricity.md#previo
 
 `octopus_energy_electricity_previous_consumption_override_rates`
 
-This is fired when the [previous consumption override's](./entities/electricity.md#tariff-overrides) rates are updated.
+This is fired when the [previous consumption override's](./entities/electricity#tariff-overrides) rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -230,7 +230,7 @@ This is fired when the next day rates are updated.
 
 `octopus_energy_gas_previous_consumption_rates`
 
-This is fired when the [previous consumption's](./entities/gas.md#previous-accumulative-consumption) rates are updated.
+This is fired when the [previous consumption's](./entities/gas#previous-accumulative-consumption) rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -258,7 +258,7 @@ This is fired when the [previous consumption's](./entities/gas.md#previous-accum
 
 `octopus_energy_gas_previous_consumption_override_rates`
 
-This is fired when the [previous consumption override's](./entities/gas.md#tariff-overrides) rates are updated.
+This is fired when the [previous consumption override's](./entities/gas#tariff-overrides) rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -291,7 +291,7 @@ This event is raised when a new saving session is discovered.
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `account_id` | `string` | The id of the account the new saving session is for |
-| `event_code` | `string` | The code of the new saving session event. This is required if you wishing to use the [join event service](./services.md#join_octoplus_saving_session_event) |
+| `event_code` | `string` | The code of the new saving session event. This is required if you wishing to use the [join event service](./services#join_octoplus_saving_session_event) |
 | `event_id` | `string` | The id of the event |
 | `event_start` | `datetime` | The date/time the event starts |
 | `event_end` | `datetime` | The date/time the event ends |
@@ -329,7 +329,7 @@ Each available event item will include the following attributes
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `id` | `integer` | The id of the event |
-| `code` | `string` | The event code of the event. This will be required to join via the [join service](../services.md) |
+| `code` | `string` | The event code of the event. This will be required to join via the [join service](../services) |
 | `start` | `datetime` | The date/time the event starts |
 | `end` | `datetime` | The date/time the event starts |
 | `octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |
