@@ -1,5 +1,5 @@
 blueprint:
-  name: Octopus Energy - Spin Wheel Of Fortune (single)
+  name: Octopus Energy - Spin Wheel Of Fortune (dual)
   description: Automatically spin the wheel of fortune when spins become available
   domain: automation
   author: BottlecapDave

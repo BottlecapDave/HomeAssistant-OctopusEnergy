@@ -31,4 +31,4 @@ action:
         - service: octopus_energy.spin_wheel_of_fortune
           data: {}
           target:
-            entity_id: !input 'wheel_of_fortune_spins
+            entity_id: !input 'wheel_of_fortune_spins'
