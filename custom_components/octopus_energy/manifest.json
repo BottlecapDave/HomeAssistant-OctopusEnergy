@@ -9,7 +9,7 @@
     "repairs",
     "recorder"
   ],
-  "documentation": "https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/tree/develop/_docs",
+  "documentation": "https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy",
   "homekit": {},
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues",
