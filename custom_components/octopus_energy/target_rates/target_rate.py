@@ -222,14 +222,10 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     
     if state is not None and self._state is None:
       self._state = None if state.state == "unknown" else state.state
-      self._attributes = {}
-      temp_attributes = dict_to_typed_dict(state.attributes)
-      for x in temp_attributes.keys():
-        if x in [CONFIG_TARGET_OLD_NAME, CONFIG_TARGET_OLD_HOURS, CONFIG_TARGET_OLD_TYPE, CONFIG_TARGET_OLD_START_TIME, CONFIG_TARGET_OLD_END_TIME, CONFIG_TARGET_OLD_MPAN]:
-          continue
-        
-        self._attributes[x] = temp_attributes[x]
-
+      self._attributes = dict_to_typed_dict(
+        state.attributes,
+        [CONFIG_TARGET_OLD_NAME, CONFIG_TARGET_OLD_HOURS, CONFIG_TARGET_OLD_TYPE, CONFIG_TARGET_OLD_START_TIME, CONFIG_TARGET_OLD_END_TIME, CONFIG_TARGET_OLD_MPAN]
+      )
       # Make sure our attributes don't override any changed settings
       self._attributes.update(self._config)
     

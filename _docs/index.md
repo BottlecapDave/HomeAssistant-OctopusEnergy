@@ -2,7 +2,7 @@
 
 ## How to setup
 
-Please follow the [setup guide](./setup_account.md) to setup your initial account. This guide details the configuration, along with the entities that will be available to you.
+Please follow the [setup guide](./setup/account.md) to setup your initial account. This guide details the configuration, along with the entities that will be available to you.
 
 ## Entities
 
@@ -48,7 +48,7 @@ These sensors calculate the lowest continuous or intermittent rates **within a 2
 
 These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money. You can go through this flow as many times as you need target rate sensors.
 
-Please follow the [setup guide](./setup_target_rate.md).
+Please follow the [setup guide](./setup/target_rate.md).
 
 ## Events
 
@@ -60,7 +60,7 @@ This integration includes several services. Please review them in the [services 
 
 ## Energy Dashboard
 
-The core sensors have been designed to work with the energy dashboard. Please see the [energy dashboard guide](./energy_dashboard.md) for instructions on how to set this up.
+The core sensors have been designed to work with the energy dashboard. Please see the [energy dashboard guide](./setup/energy_dashboard.md) for instructions on how to set this up.
 
 ## Community Contributions
 

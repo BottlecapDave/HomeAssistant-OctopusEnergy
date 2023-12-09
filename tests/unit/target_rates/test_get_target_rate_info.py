@@ -212,7 +212,7 @@ async def test_when_offset_set_then_active_at_correct_current_time():
   ]
 
   # Check where we're before the offset
-  current_date = rates[0]["start"] - timedelta(hours=1, minutes=1)
+  current_date = datetime.strptime("2022-02-09T08:59:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   result = get_target_rate_info(
     current_date,
@@ -222,7 +222,7 @@ async def test_when_offset_set_then_active_at_correct_current_time():
 
   assert result is not None
   assert result["is_active"] == False
-  assert result["next_time"] == datetime.strptime("2022-02-09T08:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result["next_time"] == datetime.strptime("2022-02-09T09:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   assert result["overall_average_cost"] == 10
   assert result["overall_min_cost"] == 5
@@ -263,7 +263,7 @@ async def test_when_offset_set_then_active_at_correct_current_time():
     assert result["next_max_cost"] == 5
 
   # Check when within rate but after offset
-  current_date = rates[0]["start"] - timedelta(hours=1) + timedelta(minutes=61)
+  current_date = rates[0]["start"] + timedelta(minutes=1)
 
   result = get_target_rate_info(
     current_date,
@@ -273,7 +273,7 @@ async def test_when_offset_set_then_active_at_correct_current_time():
 
   assert result is not None
   assert result["is_active"] == False
-  assert result["next_time"] == datetime.strptime("2022-02-09T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert result["next_time"] == datetime.strptime("2022-02-09T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   assert result["overall_average_cost"] == 10
   assert result["overall_min_cost"] == 5
@@ -292,7 +292,7 @@ async def test_when_current_date_is_equal_to_last_end_date_then_not_active():
   # Arrange
   period_from = datetime.strptime("2022-10-09T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-10-09T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  expected_rates = [0.1]
+  expected_rates = [0.16511, 0.16512, 0.16999]
   rates = create_rate_data(
     period_from,
     period_to,
@@ -311,9 +311,9 @@ async def test_when_current_date_is_equal_to_last_end_date_then_not_active():
   assert result["is_active"] == False
   assert result["next_time"] == None
 
-  assert result["overall_average_cost"] == 0.1
-  assert result["overall_min_cost"] == 0.1
-  assert result["overall_max_cost"] == 0.1
+  assert result["overall_average_cost"] == 0.16633
+  assert result["overall_min_cost"] == 0.16511
+  assert result["overall_max_cost"] == 0.16999
 
   assert result["current_average_cost"] == None
   assert result["current_min_cost"] == None

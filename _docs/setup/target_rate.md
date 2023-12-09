@@ -1,6 +1,6 @@
 # Target Rate Sensor(s)
 
-After you've configured your [account](./setup_account.md), you'll be able to configure target rate sensors. These are configured by adding subsequent instances of the integration going through the [normal flow](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
+After you've configured your [account](./setup/account.md), you'll be able to configure target rate sensors. These are configured by adding subsequent instances of the integration going through the [normal flow](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
 
 These sensors calculate the lowest continuous or intermittent rates **within a 24 hour period** and turn on when these periods are active. If you are targeting an export meter, then the sensors will calculate the highest continuous or intermittent rates **within a 24 hour period** and turn on when these periods are active.
 
@@ -49,9 +49,17 @@ You may want your target rate sensors to turn on a period of time before the opt
 
 ### Rolling Target
 
-Depending on how you're going to use the sensor, you might want the best period to be found throughout the day so it's always available. For example, you might be using the sensor to turn on a washing machine which you might want to come on at the best time regardless of when you use the washing machine. This can result in the sensor coming on more than the target hours, and therefore should be used in conjuction with other sensors. You can activate this behaviour by setting the `Re-evaluate multiple times a day` checkbox.
+Depending on how you're going to use the sensor, you might want the best period to be found throughout the day so it's always available. For example, you might be using the sensor to turn on a washing machine which you might want to come on at the best time regardless of when you use the washing machine. You can activate this behaviour by setting the `Re-evaluate multiple times a day` checkbox.
+
+!!! warning
+
+    Using this can result in the sensor coming on more than the target hours, and therefore should be used in conjunction with other sensors. 
 
 However, you might also only want the target time to occur once a day so once the best time for that day has passed it won't turn on again. For example, you might be using the sensor to turn on something that isn't time critical and could wait till the next day like a charger. This is the default behaviour and is done by not setting the `Re-evaluate multiple times a day` checkbox.
+
+!!! info
+
+    The next set of target times will not be calculated until all target times are in the past. This will have an effect on the `next` set of attributes on the sensor.
 
 ### Latest Period
 

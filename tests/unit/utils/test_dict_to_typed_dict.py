@@ -39,6 +39,25 @@ async def test_when_key_is_skipped_attribute_then_left_as_string():
   assert isinstance(result["mpan"], str)
 
 @pytest.mark.asyncio
+async def test_when_key_is_ignored_then_not_returned():
+  # Arrange
+  input = {
+    "mprn": "1",
+    "mpan": "2",
+  }
+
+  # Act
+  result = dict_to_typed_dict(input, ["mprn"])
+
+  # Assert
+  assert input["mprn"] == "1"
+  assert input["mpan"] == "2"
+
+  assert result is not None
+  assert "mprn" not in result
+  assert "mpan" in result
+
+@pytest.mark.asyncio
 async def test_when_int_is_present_then_converted_to_int():
   # Arrange
   input = {

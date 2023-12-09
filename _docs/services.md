@@ -17,7 +17,7 @@ This service is only available for the following sensors
 
 ## octopus_energy.update_target_config
 
-For updating a given [target rate's](./setup_target_rate.md) config. This allows you to change target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
+For updating a given [target rate's](./setup/target_rate.md) config. This allows you to change target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
 
 !!! info
 

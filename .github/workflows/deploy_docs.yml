@@ -1,6 +1,9 @@
 name: Deploy docs 
 on:
   push:
+    paths:
+      - 'mkdocs.yml'
+      - '_docs/**'
     branches:
       - feat/mkdocs
       - develop

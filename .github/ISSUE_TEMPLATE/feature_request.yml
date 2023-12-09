@@ -31,6 +31,6 @@ body:
       label: Confirmation
       description: 
       options:
-        - label: By submitting this feature request, you agree that you have read the [documentation](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/tree/develop/_docs) and confirmed it does not already exist
+        - label: By submitting this feature request, you agree that you have read the [documentation](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy) and confirmed it does not already exist
           required: true
         - label: I am willing/able to help contribute to the solution of this feature
