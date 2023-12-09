@@ -5,18 +5,18 @@ blueprint:
 
   input:
     saving_session_event_entity:
-      name: Saving session events
-      description: The saving session event entity to join (e.g. event.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_session_events)
+      name: "Saving session events"
+      description: "The saving session event entity to join (e.g. event.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_session_events)"
       selector:
         target:
           entity:
             filter:
               - domain: event
 
+  mode: single
   trigger:
     - platform: event
       event_type: octopus_energy_new_octoplus_saving_session
-  condition: []
   action:
     - service: octopus_energy.join_octoplus_saving_session_event
       data:
