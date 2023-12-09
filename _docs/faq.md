@@ -1,23 +1,5 @@
 # FAQ
 
-- [FAQ](#faq)
-  - [Data in my Home Assistant energy dashboard reported by Octopus Home Mini differs to Octopus Energy dashboard. Why is this?](#data-in-my-home-assistant-energy-dashboard-reported-by-octopus-home-mini-differs-to-octopus-energy-dashboard-why-is-this)
-  - [I've added my previous consumption sensors to the Energy dashboard, but they are reported in a single chunk and are a day or more out. Is this a bug?](#ive-added-my-previous-consumption-sensors-to-the-energy-dashboard-but-they-are-reported-in-a-single-chunk-and-are-a-day-or-more-out-is-this-a-bug)
-  - [Why are the names of the entities so long, and can you change them to be shorted?](#why-are-the-names-of-the-entities-so-long-and-can-you-change-them-to-be-shorted)
-  - [I am getting warnings about entities taking too long to update. Is this normal?](#i-am-getting-warnings-about-entities-taking-too-long-to-update-is-this-normal)
-  - [Why is my gas sensor reporting m3 when Octopus Energy reports it as kWh?](#why-is-my-gas-sensor-reporting-m3-when-octopus-energy-reports-it-as-kwh)
-  - [There are entities that are disabled. Why are they disabled and how do I enable them?](#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them)
-  - [I have entities that are missing](#i-have-entities-that-are-missing)
-  - [I have data missing, is this an issue with the integration](#i-have-data-missing-is-this-an-issue-with-the-integration)
-  - [I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?](#im-an-agile-user-and-having-trouble-setting-up-a-target-rate-sensor-what-am-i-doing-wrong)
-  - [Why won't my target rates update?](#why-wont-my-target-rates-update)
-  - [My gas consumption/costs seem out](#my-gas-consumptioncosts-seem-out)
-  - [I want to use the tariff overrides, but how do I find an available tariff?](#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff)
-  - [How often is data refreshed?](#how-often-is-data-refreshed)
-  - [How do I know when there's any update available?](#how-do-i-know-when-theres-any-update-available)
-  - [I've been asked for my meter information in a bug request, how do I obtain this?](#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this)
-  - [How do I increase the logs for the integration?](#how-do-i-increase-the-logs-for-the-integration)
-
 ## Data in my Home Assistant energy dashboard reported by Octopus Home Mini differs to Octopus Energy dashboard. Why is this?
 
 The data can differ for a number of reasons.
@@ -30,7 +12,11 @@ If you are comparing data in the energy dashboard to previous days data in the O
 
 While you can add the `previous consumption` sensors to the dashboard, they will be associated with the wrong day. This is because the Energy dashboard uses the timestamp of when the sensor updates to determine which day the data should belong to.
 
-Instead, you can use different external statistics that are exported by the `previous consumption` sensors, which are broken down into hourly chunks. Please note it can take **up to 24 hours** for the external statistics to appear.
+Instead, you can use different external statistics that are exported by the `previous consumption` sensors, which are broken down into hourly chunks. 
+
+!!! info 
+
+    It can take **up to 24 hours** for the external statistics to appear.
 
 Please follow the [guide](./energy_dashboard.md#previous-day-consumption) for instructions on how to add these separate sensors to the energy dashboard.
 

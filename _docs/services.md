@@ -1,24 +1,14 @@
 # Services
 
-- [Services](#services)
-  - [octopus\_energy.purge\_invalid\_external\_statistic\_ids](#octopus_energypurge_invalid_external_statistic_ids)
-  - [octopus\_energy.refresh\_previous\_consumption\_data](#octopus_energyrefresh_previous_consumption_data)
-  - [octopus\_energy.update\_target\_config](#octopus_energyupdate_target_config)
-    - [Automation Example](#automation-example)
-  - [join\_octoplus\_saving\_session\_event](#join_octoplus_saving_session_event)
-    - [Automation Example](#automation-example-1)
-  - [spin\_wheel\_of\_fortune](#spin_wheel_of_fortune)
-    - [Automation Example](#automation-example-2)
-
 There are a few services available within this integration, which are detailed here.
 
 ## octopus_energy.purge_invalid_external_statistic_ids
 
-for removing all external statistics that are associated with meters that don't have an active tariff. This is useful if you've been using the integration and obtained new smart meters.
+For removing all external statistics that are associated with meters that don't have an active tariff. This is useful if you've been using the integration and obtained new smart meters.
 
 ## octopus_energy.refresh_previous_consumption_data
 
-for refreshing the consumption/cost information for a given previous consumption entity. This is useful when you've just installed the integration and want old data brought in or a previous consumption sensor fails to import (e.g. data becomes available outside of the configured offset). The service will raise a notification when the refreshing starts and finishes.
+For refreshing the consumption/cost information for a given previous consumption entity. This is useful when you've just installed the integration and want old data brought in or a previous consumption sensor fails to import (e.g. data becomes available outside of the configured offset). The service will raise a notification when the refreshing starts and finishes.
 
 This service is only available for the following sensors
 
@@ -27,9 +17,11 @@ This service is only available for the following sensors
 
 ## octopus_energy.update_target_config
 
-for updating a given [target rate's](./setup_target_rate.md) config. This allows you to change target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
+For updating a given [target rate's](./setup_target_rate.md) config. This allows you to change target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
 
-> Please note this is temporary and will not persist between restarts.
+!!! info
+
+    This is temporary and will not persist between restarts.
 
 | Attribute                | Optional | Description                                                                                                           |
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
@@ -131,6 +123,10 @@ action:
 ## spin_wheel_of_fortune
 
 This service allows the user to perform a spin on the [wheel of fortune](./entities/wheel_of_fortune.md) that is awarded to users every month. No point letting them go to waste :)
+
+!!! warning
+
+    Due to an ongoing issue with the underlying API, this will not award octopoints if used. If you are on Octoplus, it is advised not to use this service.
 
 ### Automation Example
 

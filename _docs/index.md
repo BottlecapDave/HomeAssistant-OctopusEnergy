@@ -1,21 +1,4 @@
-# Home Assistant Octopus Energy Docs
-
-- [Home Assistant Octopus Energy Docs](#home-assistant-octopus-energy-docs)
-  - [How to setup](#how-to-setup)
-  - [Entities](#entities)
-    - [Electricity Entities](#electricity-entities)
-    - [Gas Entities](#gas-entities)
-    - [Home Mini](#home-mini)
-    - [Intelligent](#intelligent)
-    - [Octoplus](#octoplus)
-    - [Wheel of Fortune](#wheel-of-fortune)
-  - [Target Rate Sensors](#target-rate-sensors)
-  - [Events](#events)
-  - [Services](#services)
-  - [Energy Dashboard](#energy-dashboard)
-  - [Community Contributions](#community-contributions)
-  - [FAQ](#faq)
-
+# Home Assistant Octopus Energy
 
 ## How to setup
 
@@ -35,7 +18,9 @@ Please follow the [setup guide](./setup_account.md) to setup your initial accoun
 
 If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to check the box next to `I have a Home Mini`. This will gain the following entities which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/):
 
-> Please note, you will only have the same data exposed in the integration that is available within the Octopus app. There has been reports of gas not appearing within the Octopus app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the Octopus app, if you reload the integration (or restart Home Assistant) then the entities should become available.
+!!! info
+
+    You will only have the same data exposed in the integration that is available within the Octopus app. There has been reports of gas not appearing within the Octopus app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the Octopus app, if you reload the integration (or restart Home Assistant) then the entities should become available.
 
 See [electricity entities](./entities/electricity.md#home-mini-entities) and [gas entities](./entities/gas.md#home-mini-entities) for more information.
 
@@ -45,7 +30,9 @@ If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-
 
 [List of intelligent entities](./entities/intelligent.md).
 
-> Please note: If you switch to the intelligent tariff after you have installed the integration, you will need to reload the integration or restart your Home Assistant instance.
+!!! warning
+    
+    If you switch to the intelligent tariff after you have installed the integration, you will need to reload the integration or restart your Home Assistant instance.
 
 ### Octoplus
 

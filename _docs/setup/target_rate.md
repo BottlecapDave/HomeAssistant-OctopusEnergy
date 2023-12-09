@@ -1,19 +1,4 @@
-# Setup Target Rate Sensor(s)
-
-- [Setup Target Rate Sensor(s)](#setup-target-rate-sensors)
-  - [Setup](#setup)
-    - [Target Timeframe](#target-timeframe)
-      - [Agile Users](#agile-users)
-    - [Hours](#hours)
-    - [Offset](#offset)
-    - [Rolling Target](#rolling-target)
-    - [Latest Period](#latest-period)
-    - [Invert Target Rates](#invert-target-rates)
-  - [Attributes](#attributes)
-  - [Services](#services)
-  - [Examples](#examples)
-    - [Continuous](#continuous)
-    - [Intermittent](#intermittent)
+# Target Rate Sensor(s)
 
 After you've configured your [account](./setup_account.md), you'll be able to configure target rate sensors. These are configured by adding subsequent instances of the integration going through the [normal flow](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
 
@@ -35,7 +20,9 @@ If not specified, these default from `00:00:00` to `00:00:00` the following day.
 
 If for example you want to look at prices overnight you could set the minimum time to something like `20:00` and your maximum time to something like `05:00`. If the minimum time is "before" the maximum time, then it will treat the maximum time as the time for the following day.
 
-> Please note: The target rate will not be evaluated until **all rates** are available for the specified timeframe. Therefore if we're looking between `00:00` and `00:00`, full rate information must exist between this time. Whereas if times are between `10:00` and `16:00`, then rate information is only needed between these times before it can be calculated.
+!!! info
+
+    The target rate will not be evaluated until **all rates** are available for the specified timeframe. Therefore if we're looking between `00:00` and `00:00`, full rate information must exist between this time. Whereas if times are between `10:00` and `16:00`, then rate information is only needed between these times before it can be calculated.
 
 #### Agile Users
 
@@ -102,11 +89,11 @@ The following attributes are available on each sensor
 | `current_average_cost` | `float` | The average cost/rate for the current continuous discovered period. This could be `none`/`unknown` if the sensor is not currently in a discovered period. |
 | `current_min_cost` | `float` | The min cost/rate for the current continuous discovered period. This could be `none`/`unknown` if the sensor is not currently in a discovered period. |
 | `current_max_cost` | `float` | The max cost/rate for the current continuous discovered period. This could be `none`/`unknown` if the sensor is not currently in a discovered period. |
-| `next_time` | `datetime` | The next date/time the sensor will come on. This could be `none`/`unknown` if there are no more periods for the current **24 hour period**. |
-| `next_duration_in_hours` | `float` | The duration the sensor will be on for, for the next continuous discovered period. For `continuous` sensors, this will be the entire period. For `intermittent` sensors, this could be the entire period or a portion of it, depending on the discovered times. This could be `none`/`unknown` if there are no more periods for the current **24 hour period**. |
-| `next_average_cost` | `float` | The average cost/rate for the next continuous discovered period. For `continuous` sensors, this will be the entire period. For `intermittent` sensors, this could be the entire period or a portion of it, depending on the discovered times. This could be `none`/`unknown` if there are no more periods for the current **24 hour period**. |
-| `next_min_cost` | `float` | The average cost/rate for the next continuous discovered period. This could be `none`/`unknown` if there are no more periods for the current **24 hour period**. |
-| `next_max_cost` | `float` | The average cost/rate for the next continuous discovered period. This could be `none`/`unknown` if there are no more periods for the current **24 hour period**. |
+| `next_time` | `datetime` | The next date/time the sensor will come on. This will only be populated if `target_times` has been calculated and at least one period/block is in the future. |
+| `next_duration_in_hours` | `float` | The duration the sensor will be on for, for the next continuous discovered period. For `continuous` sensors, this will be the entire period. For `intermittent` sensors, this could be the entire period or a portion of it, depending on the discovered times. This will only be populated if `target_times` has been calculated and at least one period/block is in the future. |
+| `next_average_cost` | `float` | The average cost/rate for the next continuous discovered period. For `continuous` sensors, this will be the entire period. For `intermittent` sensors, this could be the entire period or a portion of it, depending on the discovered times. This will only be populated if `target_times` has been calculated and at least one period/block is in the future. |
+| `next_min_cost` | `float` | The average cost/rate for the next continuous discovered period. This will only be populated if `target_times` has been calculated and at least one period/block is in the future. |
+| `next_max_cost` | `float` | The average cost/rate for the next continuous discovered period. This will only be populated if `target_times` has been calculated and at least one period/block is in the future. |
 | `target_times_last_evaluated` | datetime | The datetime the target times collection was last evaluated. This will occur if all previous target times are in the past and all rates are available for the requested future time period. For example, if you are targeting 16:00 (day 1) to 16:00 (day 2), and you only have rates up to 23:00 (day 1), then the target rates won't be calculated. |
 | `last_evaluated` | `datetime` | The datetime the state of the sensor was last evaluated based on the current specified target times. This should update every minute |
 
