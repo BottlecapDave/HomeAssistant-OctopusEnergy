@@ -1,19 +1,4 @@
-# Setup Target Rate Sensor(s)
-
-- [Setup Target Rate Sensor(s)](#setup-target-rate-sensors)
-  - [Setup](#setup)
-    - [Target Timeframe](#target-timeframe)
-      - [Agile Users](#agile-users)
-    - [Hours](#hours)
-    - [Offset](#offset)
-    - [Rolling Target](#rolling-target)
-    - [Latest Period](#latest-period)
-    - [Invert Target Rates](#invert-target-rates)
-  - [Attributes](#attributes)
-  - [Services](#services)
-  - [Examples](#examples)
-    - [Continuous](#continuous)
-    - [Intermittent](#intermittent)
+# Target Rate Sensor(s)
 
 After you've configured your [account](./setup_account.md), you'll be able to configure target rate sensors. These are configured by adding subsequent instances of the integration going through the [normal flow](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
 
@@ -35,7 +20,9 @@ If not specified, these default from `00:00:00` to `00:00:00` the following day.
 
 If for example you want to look at prices overnight you could set the minimum time to something like `20:00` and your maximum time to something like `05:00`. If the minimum time is "before" the maximum time, then it will treat the maximum time as the time for the following day.
 
-> Please note: The target rate will not be evaluated until **all rates** are available for the specified timeframe. Therefore if we're looking between `00:00` and `00:00`, full rate information must exist between this time. Whereas if times are between `10:00` and `16:00`, then rate information is only needed between these times before it can be calculated.
+!!! info
+
+    The target rate will not be evaluated until **all rates** are available for the specified timeframe. Therefore if we're looking between `00:00` and `00:00`, full rate information must exist between this time. Whereas if times are between `10:00` and `16:00`, then rate information is only needed between these times before it can be calculated.
 
 #### Agile Users
 
