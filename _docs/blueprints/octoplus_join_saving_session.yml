@@ -9,9 +9,10 @@ blueprint:
       name: "Saving session events"
       description: "The saving session event entity to join (e.g. event.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_session_events)"
       selector:
-        target:
-          entity:
+        entity:
+          filter:
             domain: event
+            integration: octopus_energy
 
 mode: single
 trigger:
@@ -22,7 +23,7 @@ action:
     data:
       event_code: '{{ trigger.event.data["event_code"] }}'
     target:
-      entity_id: !input saving_session_event_entity
+      entity_id: !input 'saving_session_event_entity'
   - service: persistent_notification.create
     data:
       title: "Joined Saving Sessions"
