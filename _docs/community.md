@@ -1,10 +1,5 @@
 # Community Contributions
 
-- [Community Contributions](#community-contributions)
-  - [Agile Price Table](#agile-price-table)
-  - [Export Rates Chart](#export-rates-chart)
-  - [Import and Export Rates Chart](#import-and-export-rates-chart)
-
 These are a few contributions by the community.
 
 ## Agile Price Table

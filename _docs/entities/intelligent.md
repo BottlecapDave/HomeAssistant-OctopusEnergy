@@ -1,15 +1,10 @@
-# Intelligent Entities
+# Intelligent
 
 If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-octopus/), then you'll get the following entities.
 
-> Please note: If you switch to the intelligent tariff after you have installed the integration, you will need to reload the integration or restart your Home Assistant instance.
+!!! warning
 
-- [Intelligent Entities](#intelligent-entities)
-    - [Is Dispatching](#is-dispatching)
-    - [Bump Charge](#bump-charge)
-    - [Smart Charge](#smart-charge)
-    - [Charge Limit](#charge-limit)
-    - [Ready Time](#ready-time)
+    If you switch to the intelligent tariff after you have installed the integration, you will need to reload the integration or restart your Home Assistant instance.
 
 ### Is Dispatching
 

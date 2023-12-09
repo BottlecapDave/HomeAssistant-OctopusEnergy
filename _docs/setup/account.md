@@ -1,12 +1,4 @@
-# Setup Account
-
-- [Setup Account](#setup-account)
-  - [Home Mini](#home-mini)
-    - [Refresh Rate In Minutes](#refresh-rate-in-minutes)
-  - [Previous Consumption Days Offset](#previous-consumption-days-offset)
-  - [Calorific Value](#calorific-value)
-  - [Pricing Caps](#pricing-caps)
-
+# Account
 
 Setup is done entirely via the [integration UI](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
 
@@ -14,7 +6,9 @@ Setup is done entirely via the [integration UI](https://my.home-assistant.io/red
 
 If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to check the box next to `I have a Home Mini`. This will gain the following entities which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/):
 
-> Please note, you will only have the same data exposed in the integration that is available within the app. There has been reports of gas not appearing within the app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the app, if you reload the integration (or restart Home Assistant) then the entities should become available.
+!!! info
+
+    You will only have the same data exposed in the integration that is available within the app. There has been reports of gas not appearing within the app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the app, if you reload the integration (or restart Home Assistant) then the entities should become available.
 
 See [electricity entities](./entities/electricity.md#home-mini-entities) and [gas entities](./entities/gas.md#home-mini-entities) for more information.
 
@@ -34,4 +28,8 @@ When calculating gas costs, a calorific value is included in the calculation. Un
 
 ## Pricing Caps
 
-There has been inconsistencies across tariffs on whether government pricing caps are included or not. Therefore the ability to configure pricing caps has been added within you account. Please note that while rates are reflected straight away, consumption based sensors may take up to 24 hours to reflect. This is due to how they look at data and cannot be changed.
+There has been inconsistencies across tariffs on whether government pricing caps are included or not. Therefore the ability to configure pricing caps has been added within you account. 
+
+!!! info
+
+    While rates are reflected straight away, consumption based sensors may take up to 24 hours to reflect. This is due to how they look at data and cannot be changed.

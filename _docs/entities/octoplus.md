@@ -2,12 +2,6 @@
 
 To support Octopus Energy's [octoplus programme](https://octopus.energy/octoplus/), the following entities are available
 
-- [Octoplus](#octoplus)
-  - [Octoplus Points](#octoplus-points)
-  - [Saving Sessions](#saving-sessions)
-  - [Saving Session Events](#saving-session-events)
-  - [Services](#services)
-
 ## Octoplus Points
 
 `sensor.octopus_energy_{{ACCOUNT_ID}}_octoplus_points`

@@ -1,38 +1,6 @@
-# Electricity Entities
+# Electricity
 
 You'll get the following entities for each electricity meter with an active agreement.
-
-- [Electricity Entities](#electricity-entities)
-  - [Current Rate](#current-rate)
-  - [Previous Rate](#previous-rate)
-  - [Next rate](#next-rate)
-  - [Current Day Rates](#current-day-rates)
-  - [Previous Day Rates](#previous-day-rates)
-  - [Next Day Rates](#next-day-rates)
-  - [Off Peak](#off-peak)
-  - [Smart Meter Entities](#smart-meter-entities)
-    - [Previous Accumulative Consumption](#previous-accumulative-consumption)
-    - [Previous Accumulative Consumptions (Peak Rate)](#previous-accumulative-consumptions-peak-rate)
-    - [Previous Accumulative Consumption (Off Peak Rate)](#previous-accumulative-consumption-off-peak-rate)
-    - [Previous Accumulative Cost](#previous-accumulative-cost)
-    - [Previous Accumulative Cost (Peak Rate)](#previous-accumulative-cost-peak-rate)
-    - [Previous Accumulative Cost (Off Peak Rate)](#previous-accumulative-cost-off-peak-rate)
-  - [Previous Consumption Day Rates](#previous-consumption-day-rates)
-  - [Export Entities](#export-entities)
-  - [Home Mini Entities](#home-mini-entities)
-    - [Current Consumption](#current-consumption)
-    - [Current Demand](#current-demand)
-    - [Current Accumulative Consumption](#current-accumulative-consumption)
-    - [Current Accumulative Consumptions (Peak Rate)](#current-accumulative-consumptions-peak-rate)
-    - [Current Accumulative Consumption (Off Peak Rate)](#current-accumulative-consumption-off-peak-rate)
-    - [Current Accumulative Cost](#current-accumulative-cost)
-    - [Current Accumulative Cost (Peak Rate)](#current-accumulative-cost-peak-rate)
-    - [Current Accumulative Cost (Off Peak Rate)](#current-accumulative-cost-off-peak-rate)
-  - [Tariff Overrides](#tariff-overrides)
-    - [Previous Accumulative Cost Override Tariff](#previous-accumulative-cost-override-tariff)
-      - [How To Use](#how-to-use)
-    - [Previous Accumulative Cost Override](#previous-accumulative-cost-override)
-    - [Previous Consumption Override Day Rates](#previous-consumption-override-day-rates)
 
 ## Current Rate
 
@@ -445,7 +413,9 @@ You may be on an existing tariff but want to know if the grass is greener (or ch
 
 See [below](#previous-accumulative-cost-override-tariff-electricity) for instructions on how to set up.
 
-> Please note: When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
+!!! info
+    
+    When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
 
 ### Previous Accumulative Cost Override Tariff
 
@@ -462,7 +432,9 @@ Once you have found your target tariff
 1. Click on this entity to open the info dialog.
 2. Enter your tariff in the text box, and hit `enter` on your keyboard to confirm
 
-> Please note: When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
+!!! info
+
+    When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
 
 ### Previous Accumulative Cost Override
 
