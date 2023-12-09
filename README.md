@@ -41,7 +41,7 @@ Please follow the [setup guide](./_docs/setup_account.md) to setup your initial 
 
 ## Docs
 
-To get full use of the integration, please visit the [docs](./_docs/readme.md).
+To get full use of the integration, please visit the [docs](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/).
 
 ## FAQ
 
