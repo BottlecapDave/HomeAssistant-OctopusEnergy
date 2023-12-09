@@ -1,0 +1,31 @@
+blueprint:
+  name: Octopus Energy - Join Saving Session
+  description: Automatically joins saving sessions when they become available
+  domain: automation
+
+  input:
+    saving_session_event_entity:
+      name: Saving session events
+      description: The saving session event entity to join (e.g. event.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_session_events)
+      selector:
+        target:
+          entity:
+            filter:
+              - domain: event
+
+  mode: single
+  trigger:
+    - platform: event
+      event_type: octopus_energy_new_octoplus_saving_session
+  condition: []
+  action:
+    - service: octopus_energy.join_octoplus_saving_session_event
+      data:
+        event_code: '{{ trigger.event.data["event_code"] }}'
+      target:
+        entity_id: !input saving_session_event_entity
+    - service: persistent_notification.create
+      data:
+        title: "Joined Saving Sessions"
+        message: >
+          A new Octopus Energy saving session has been joined. It starts at {{ trigger.event.data["event_start"].strftime('%H:%M') }} on {{ trigger.event.data["event_start"].day }}/{{ trigger.event.data["event_start"].month }} 

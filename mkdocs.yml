@@ -23,6 +23,7 @@ nav:
     - ./repairs/unknown_tariff_format.md
     - ./repairs/unknown_tariff.md
   - Community: community.md
+  # - blueprints.md
   - faq.md
 
 # extra:
