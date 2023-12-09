@@ -1,0 +1,40 @@
+blueprint:
+  name: Octopus Energy - Rates updated
+  description: Alerts the user that the rate for a given energy source has updated
+  domain: automation
+  author: BottlecapDave
+
+  input:
+    current_rate:
+      name: "Current rate"
+      description: "The current rate entity (e.g. sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_rate)"
+      selector:
+        entity:
+          filter:
+            domain: sensor
+            integration: octopus_energy
+    
+    energy_source:
+      name: "Energy source"
+      description: "The type of energy the rate is for"
+      selector:
+        select:
+          options:
+            - Electricity
+            - Gas
+
+variables:
+  current_rate: !input current_rate
+  energy_source: !input energy_source
+
+mode: single
+trigger:
+  - platform: state
+    entity_id: !input current_rate
+    to: null
+action:
+  - service: persistent_notification.create
+    data:
+      title: "Rates updated"
+      message: >
+         {{ energy_source }} rate has changed to {{ states(current_rate) }} 
