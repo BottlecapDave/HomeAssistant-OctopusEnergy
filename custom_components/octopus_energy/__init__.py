@@ -10,7 +10,7 @@ from homeassistant.helpers import device_registry as dr
 from homeassistant.components.recorder import get_instance
 from homeassistant.util.dt import (utcnow)
 
-from .coordinators.account import async_setup_account_info_coordinator
+from .coordinators.account import async_setup/account_info_coordinator
 from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatches_coordinator
 from .coordinators.intelligent_settings import async_setup_intelligent_settings_coordinator
 from .coordinators.electricity_rates import async_setup_electricity_rates_coordinator
@@ -160,7 +160,7 @@ async def async_setup_dependencies(hass, config):
         is_smart_meter = meter["is_smart_meter"]
         await async_setup_electricity_rates_coordinator(hass, mpan, serial_number, is_smart_meter, is_export_meter)
 
-  await async_setup_account_info_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
+  await async_setup/account_info_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
 
   await async_setup_intelligent_dispatches_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
 
