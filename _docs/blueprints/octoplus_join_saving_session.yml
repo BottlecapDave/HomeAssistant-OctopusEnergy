@@ -13,7 +13,6 @@ blueprint:
             filter:
               - domain: event
 
-  mode: single
   trigger:
     - platform: event
       event_type: octopus_energy_new_octoplus_saving_session
