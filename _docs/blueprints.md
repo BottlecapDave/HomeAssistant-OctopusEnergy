@@ -6,7 +6,7 @@
 
 ### Automatically join saving sessions
 
-[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2F_docs%2Fblueprints%2Foctoplus_join_saving_session.yml)
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctoplus_join_saving_session.yml)
 
 This blueprint will trigger when a new saving session has been discovered, join it, and send a notification alerting you to when it will start.
 
