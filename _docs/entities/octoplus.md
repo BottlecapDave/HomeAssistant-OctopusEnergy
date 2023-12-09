@@ -46,7 +46,7 @@ Each available event item will include the following attributes
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `id` | `integer` | The id of the event |
-| `code` | `string` | The event code of the event. This will be required to join via the [join service](../services) |
+| `code` | `string` | The event code of the event. This will be required to join via the [join service](../services.md) |
 | `start` | `datetime` | The date/time the event starts |
 | `end` | `datetime` | The date/time the event starts |
 | `octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |
@@ -63,5 +63,5 @@ Each joined event item will include the following attributes
 
 ## Services
 
-There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services).
+There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services.md).
 

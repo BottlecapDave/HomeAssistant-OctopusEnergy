@@ -11,7 +11,7 @@ If you're wanting to display upcoming prices in a nice readable format, then mig
 ## Import and Export Rates Charts
 
 Thanks to @fboundy you can use [ApexCharts Card](https://github.com/RomRider/apexcharts-card) to plot the import and export rates for the current day using the following configuration. 
-Remember that the import and export current_day_rates and next_day_rates will be [disabled by default](../faq#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them) and you will have to enable them and wait for the next update of Octopus agile rates at 4pm before you can add this card to your dashboard.
+Remember that the import and export current_day_rates and next_day_rates will be [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them) and you will have to enable them and wait for the next update of Octopus agile rates at 4pm before you can add this card to your dashboard.
 Replace `{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}` with your information and whether you want the import or export rate chart:
 
 ```yaml

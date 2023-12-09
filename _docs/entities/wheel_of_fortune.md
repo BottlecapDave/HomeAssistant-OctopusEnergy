@@ -16,4 +16,4 @@ The number of spins remaining for gas supply
 
 ## Services
 
-There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services).
+There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services.md).

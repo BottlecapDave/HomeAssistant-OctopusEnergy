@@ -2,17 +2,17 @@
 
 ## How to setup
 
-Please follow the [setup guide](./setup/account) to setup your initial account. This guide details the configuration, along with the entities that will be available to you.
+Please follow the [setup guide](./setup_account.md) to setup your initial account. This guide details the configuration, along with the entities that will be available to you.
 
 ## Entities
 
 ### Electricity Entities
 
-[Full list of electricity entities](./entities/electricity).
+[Full list of electricity entities](./entities/electricity.md).
 
 ### Gas Entities
 
-[Full list of gas entities](./entities/gas).
+[Full list of gas entities](./entities/gas.md).
 
 ### Home Mini
 
@@ -22,13 +22,13 @@ If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blo
 
     You will only have the same data exposed in the integration that is available within the Octopus app. There has been reports of gas not appearing within the Octopus app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the Octopus app, if you reload the integration (or restart Home Assistant) then the entities should become available.
 
-See [electricity entities](./entities/electricity#home-mini-entities) and [gas entities](./entities/gas#home-mini-entities) for more information.
+See [electricity entities](./entities/electricity.md#home-mini-entities) and [gas entities](./entities/gas.md#home-mini-entities) for more information.
 
 ### Intelligent
 
 If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-octopus/), then you'll get a few additional entities when you install the integration. 
 
-[List of intelligent entities](./entities/intelligent).
+[List of intelligent entities](./entities/intelligent.md).
 
 !!! warning
     
@@ -36,7 +36,7 @@ If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-
 
 ### Octoplus
 
-To support Octopus Energy's [octoplus programme](https://octopus.energy/octoplus/). [Full list of octoplus entites](./entities/octoplus).
+To support Octopus Energy's [octoplus programme](https://octopus.energy/octoplus/). [Full list of octoplus entites](./entities/octoplus.md).
 
 ### Wheel of Fortune
 
@@ -48,24 +48,24 @@ These sensors calculate the lowest continuous or intermittent rates **within a 2
 
 These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money. You can go through this flow as many times as you need target rate sensors.
 
-Please follow the [setup guide](./setup/target_rate).
+Please follow the [setup guide](./setup_target_rate.md).
 
 ## Events
 
-This integration raises several events, which can be used for various tasks like automations. For more information, please see the [events docs](./events).
+This integration raises several events, which can be used for various tasks like automations. For more information, please see the [events docs](./events.md).
 
 ## Services
 
-This integration includes several services. Please review them in the [services doc](./services).
+This integration includes several services. Please review them in the [services doc](./services.md).
 
 ## Energy Dashboard
 
-The core sensors have been designed to work with the energy dashboard. Please see the [energy dashboard guide](./setup/energy_dashboard) for instructions on how to set this up.
+The core sensors have been designed to work with the energy dashboard. Please see the [energy dashboard guide](./energy_dashboard.md) for instructions on how to set this up.
 
 ## Community Contributions
 
-A collection of community contributions can be found on the [community contributions](./community) page.
+A collection of community contributions can be found on the [community contributions](./community.md) page.
 
 ## FAQ
 
-Before raising anything, please read through the [faq](./faq). If you have questions, then you can raise a [discussion](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions). If you have found a bug or have a feature request please [raise it](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues) using the appropriate report template.
+Before raising anything, please read through the [faq](./faq.md). If you have questions, then you can raise a [discussion](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions). If you have found a bug or have a feature request please [raise it](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues) using the appropriate report template.
