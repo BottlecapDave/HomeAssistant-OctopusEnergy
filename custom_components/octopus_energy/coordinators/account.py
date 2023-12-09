@@ -24,7 +24,7 @@ from ..api_client import OctopusEnergyApiClient
 
 _LOGGER = logging.getLogger(__name__)
 
-async def async_setup/account_info_coordinator(hass, account_id: str):
+async def async_setup_account_info_coordinator(hass, account_id: str):
   async def async_update_account_data():
     """Fetch data from API endpoint."""
     # Only get data every half hour or if we don't have any data
