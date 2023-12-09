@@ -34,7 +34,7 @@ async def async_check_valid_tariff(hass, client: OctopusEnergyApiClient, tariff_
         f"unknown_tariff_format_{tariff_code}",
         is_fixable=False,
         severity=ir.IssueSeverity.ERROR,
-        learn_more_url="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/repairs/unknown_tariff_format.md",
+        learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/repairs/unknown_tariff_format",
         translation_key="unknown_tariff_format",
         translation_placeholders={ "type": "Electricity" if is_electricity else "Gas", "tariff_code": tariff_code },
       )
@@ -49,7 +49,7 @@ async def async_check_valid_tariff(hass, client: OctopusEnergyApiClient, tariff_
             f"unknown_tariff_{tariff_code}",
             is_fixable=False,
             severity=ir.IssueSeverity.ERROR,
-            learn_more_url="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/repairs/unknown_tariff.md",
+            learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/repairs/unknown_tariff",
             translation_key="unknown_tariff",
             translation_placeholders={ "type": "Electricity" if is_electricity else "Gas", "tariff_code": tariff_code },
           )

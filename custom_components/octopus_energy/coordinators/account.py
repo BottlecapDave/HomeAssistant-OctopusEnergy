@@ -42,7 +42,7 @@ async def async_setup_account_info_coordinator(hass, account_id: str):
             f"account_not_found_{account_id}",
             is_fixable=False,
             severity=ir.IssueSeverity.ERROR,
-            learn_more_url="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/repairs/account_not_found.md",
+            learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/repairs/account_not_found",
             translation_key="account_not_found",
             translation_placeholders={ "account_id": account_id },
           )

@@ -201,7 +201,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
                 f"octopus_mini_not_valid_electricity_{mpan}_{serial_number}",
                 is_fixable=False,
                 severity=ir.IssueSeverity.ERROR,
-                learn_more_url="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/repairs/octopus_mini_not_valid.md",
+                learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/repairs/octopus_mini_not_valid",
                 translation_key="octopus_mini_not_valid",
                 translation_placeholders={ "type": "electricity", "account_id": account_id, "mpan_mprn": mpan, "serial_number": serial_number },
               )
@@ -278,7 +278,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, entry, async_add_enti
                 f"octopus_mini_not_valid_gas_{mprn}_{serial_number}",
                 is_fixable=False,
                 severity=ir.IssueSeverity.ERROR,
-                learn_more_url="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/repairs/octopus_mini_not_valid.md",
+                learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/repairs/octopus_mini_not_valid",
                 translation_key="octopus_mini_not_valid",
                 translation_placeholders={ "type": "gas", "account_id": account_id, "mpan_mprn": mprn, "serial_number": serial_number },
               )
