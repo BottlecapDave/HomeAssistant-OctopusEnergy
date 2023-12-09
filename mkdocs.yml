@@ -25,9 +25,9 @@ nav:
   - Community: community.md
   - faq.md
 
-extra:
-  version:
-    provider: mike
+# extra:
+#   version:
+#     provider: mike
 
 markdown_extensions:
   - admonition
