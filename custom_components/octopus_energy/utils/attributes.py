@@ -3,15 +3,20 @@ from datetime import datetime
 
 attribute_keys_to_skip = ['mpan', 'mprn']
 
-def dict_to_typed_dict(data: dict):
+def dict_to_typed_dict(data: dict, keys_to_ignore = []):
   if data is not None:
 
     if isinstance(data, dict) == False:
       return data
 
     new_data = data.copy()
-    keys = new_data.keys()
+    keys = list(new_data.keys())
+
     for key in keys:
+      if key in keys_to_ignore:
+        del new_data[key]
+        continue
+
       if isinstance(new_data[key], str) and key not in attribute_keys_to_skip:
         # Check for integers
         matches = re.search("^[0-9]+$", new_data[key])
@@ -36,7 +41,6 @@ def dict_to_typed_dict(data: dict):
           is_date = False
 
       elif isinstance(new_data[key], dict):
-        print("test")
         new_data[key] = dict_to_typed_dict(new_data[key])
       elif isinstance(new_data[key], list):
         new_array = []

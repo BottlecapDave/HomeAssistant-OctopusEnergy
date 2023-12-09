@@ -292,7 +292,7 @@ async def test_when_current_date_is_equal_to_last_end_date_then_not_active():
   # Arrange
   period_from = datetime.strptime("2022-10-09T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-10-09T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  expected_rates = [0.1]
+  expected_rates = [0.16511, 0.16512, 0.16999]
   rates = create_rate_data(
     period_from,
     period_to,
@@ -311,9 +311,9 @@ async def test_when_current_date_is_equal_to_last_end_date_then_not_active():
   assert result["is_active"] == False
   assert result["next_time"] == None
 
-  assert result["overall_average_cost"] == 0.1
-  assert result["overall_min_cost"] == 0.1
-  assert result["overall_max_cost"] == 0.1
+  assert result["overall_average_cost"] == 0.16633
+  assert result["overall_min_cost"] == 0.16511
+  assert result["overall_max_cost"] == 0.16999
 
   assert result["current_average_cost"] == None
   assert result["current_min_cost"] == None
