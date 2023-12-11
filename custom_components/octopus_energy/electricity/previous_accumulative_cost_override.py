@@ -1,6 +1,7 @@
 import logging
 from datetime import (datetime)
 import asyncio
+from custom_components.octopus_energy.utils.requests import calculate_next_refresh
 
 from homeassistant.core import HomeAssistant
 
@@ -25,7 +26,7 @@ from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoo
 
 from ..api_client import (OctopusEnergyApiClient)
 
-from ..const import (DOMAIN, EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, MINIMUM_CONSUMPTION_DATA_LENGTH)
+from ..const import (DOMAIN, EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, MINIMUM_CONSUMPTION_DATA_LENGTH, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION)
 
 from . import get_electricity_tariff_override_key
 
@@ -45,7 +46,10 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
 
     self._state = None
     self._last_reset = None
-    self._last_calculated  = None
+
+    self._next_refresh = None
+    self._last_retrieved  = None
+    self._request_attempts = 1
 
   @property
   def unique_id(self):
@@ -115,8 +119,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     consumption_data = result.consumption if result is not None and result.consumption is not None and len(result.consumption) > 0 else None
 
     tariff_override_key = get_electricity_tariff_override_key(self._serial_number, self._mpan)
-
-    is_old_data = self._last_calculated is None or (result is not None and self._last_calculated < result.last_retrieved)
+    is_old_data = (result is not None and (self._next_refresh is None or result.last_retrieved >= self._last_retrieved)) and (self._next_refresh is None or current >= self._next_refresh)
     is_tariff_present = tariff_override_key in self._hass.data[DOMAIN]
     has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][tariff_override_key] != self._tariff_code
 
@@ -127,50 +130,63 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
       period_from = consumption_data[0]["start"]
       period_to = consumption_data[-1]["end"]
 
-      [rate_data, standing_charge] = await asyncio.gather(
-        self._client.async_get_electricity_rates(tariff_override, self._is_smart_meter, period_from, period_to),
-        self._client.async_get_electricity_standing_charge(tariff_override, period_from, period_to)
-      )
+      try:
+        [rate_data, standing_charge] = await asyncio.gather(
+          self._client.async_get_electricity_rates(tariff_override, self._is_smart_meter, period_from, period_to),
+          self._client.async_get_electricity_standing_charge(tariff_override, period_from, period_to)
+        )
 
-      consumption_and_cost = calculate_electricity_consumption_and_cost(
-        current,
-        consumption_data,
-        rate_data,
-        standing_charge["value_inc_vat"] if standing_charge is not None else None,
-        None if has_tariff_changed else self._last_reset,
-        tariff_override
-      )
+        consumption_and_cost = calculate_electricity_consumption_and_cost(
+          current,
+          consumption_data,
+          rate_data,
+          standing_charge["value_inc_vat"] if standing_charge is not None else None,
+          None if has_tariff_changed else self._last_reset,
+          tariff_override
+        )
 
-      self._tariff_code = tariff_override
+        self._tariff_code = tariff_override
 
-      if (consumption_and_cost is not None):
-        _LOGGER.debug(f"Calculated previous electricity consumption cost override for '{self._mpan}/{self._serial_number}'...")
+        if (consumption_and_cost is not None):
+          _LOGGER.debug(f"Calculated previous electricity consumption cost override for '{self._mpan}/{self._serial_number}'...")
 
-        self._last_reset = consumption_data[-1]["end"]
-        self._state = consumption_and_cost["total_cost"]
+          self._last_reset = consumption_data[-1]["end"]
+          self._state = consumption_and_cost["total_cost"]
 
-        self._attributes = {
-          "mpan": self._mpan,
-          "serial_number": self._serial_number,
-          "is_export": self._is_export,
-          "is_smart_meter": self._is_smart_meter,
-          "tariff_code": self._tariff_code,
-          "standing_charge": consumption_and_cost["standing_charge"],
-          "total_without_standing_charge": consumption_and_cost["total_cost_without_standing_charge"],
-          "total": consumption_and_cost["total_cost"],
-          "charges": list(map(lambda charge: {
-            "start": charge["start"],
-            "end": charge["end"],
-            "rate": charge["rate"],
-            "consumption": charge["consumption"],
-            "cost": charge["cost"]
-          }, consumption_and_cost["charges"]))
-        }
+          self._attributes = {
+            "mpan": self._mpan,
+            "serial_number": self._serial_number,
+            "is_export": self._is_export,
+            "is_smart_meter": self._is_smart_meter,
+            "tariff_code": self._tariff_code,
+            "standing_charge": consumption_and_cost["standing_charge"],
+            "total_without_standing_charge": consumption_and_cost["total_cost_without_standing_charge"],
+            "total": consumption_and_cost["total_cost"],
+            "charges": list(map(lambda charge: {
+              "start": charge["start"],
+              "end": charge["end"],
+              "rate": charge["rate"],
+              "consumption": charge["consumption"],
+              "cost": charge["cost"]
+            }, consumption_and_cost["charges"]))
+          }
 
-        self._hass.bus.async_fire(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mpan": self._mpan, "serial_number": self._serial_number, "tariff_code": self._tariff_code, "rates": rate_data })
+          self._hass.bus.async_fire(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mpan": self._mpan, "serial_number": self._serial_number, "tariff_code": self._tariff_code, "rates": rate_data })
 
-        self._attributes["last_evaluated"] = current
-        self._last_calculated = result.last_retrieved
+          self._attributes["last_evaluated"] = current
+          self._request_attempts = 1
+          self._last_retrieved = current
+          self._next_refresh = calculate_next_refresh(current, self._request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION)
+      except:
+        _LOGGER.debug('Failed to retrieve previous accumulative cost override data')
+        self._request_attempts = self._request_attempts + 1
+        self._next_refresh = calculate_next_refresh(
+          self._last_retrieved if self._last_retrieved is not None else current,
+          self._request_attempts,
+          REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION
+        )
+       
+    _LOGGER.debug(f'last_retrieved: {self._last_retrieved}; request_attempts: {self._request_attempts}; refresh_rate_in_minutes: {REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION}; next_refresh: {self._next_refresh}')
 
     if result is not None:
       self._attributes["data_last_retrieved"] = result.last_retrieved

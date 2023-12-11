@@ -37,7 +37,6 @@ def __sort_consumption(consumption_data):
   return sorted
 
 class PreviousConsumptionCoordinatorResult(BaseCoordinatorResult):
-  last_retrieved: datetime
   consumption: list
   rates: list
   standing_charge: float
