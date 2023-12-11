@@ -1,5 +1,38 @@
 # FAQ
 
+## How often is data refreshed?
+
+Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-and-completed-octopus-intelligent-dispatches/8510/8?u=bottlecapdave), the integration polls and retrieves data at different intervals depending on the target data. Below is a rough table describing how often the integration targets refreshing various bits of data. This has been done to try and not overload the API while also providing useful data in a timely fashion.
+
+| Area | Refresh rate (in minutes) | Notes |
+|-|-|-|
+| Account | 30 | This shouldn't change often so no need to poll often. This is used to get active tariffs |
+| Intelligent tariff based sensors | 5 | Trying to balance refreshing settings and new dispatch information without overloading the API |
+| Rate information | 15 | This is what drives most people's automations, but doesn't change that frequently |
+| Current consumption data | Configurable (minimum 1) | This is most useful for a smart home to be as up-to-date as possible, but at the same time we don't want to flood the API with requests |
+| Previous consumption data | 30 | This doesn't change frequently, so no need to request too often. |
+| Standing charges | 30 | This should only change if the user's tariff changes, so no need to request data too often. |
+| Saving sessions | 15 | Inactive for most of the year and new sessions have enough warning |
+| Wheel of fortune | 30 | Doesn't change that frequently, so no need to request too often. |
+
+If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly taking longer with each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.
+
+| Attempt | Target time |
+|-|-|
+| 1 | `10:35` |
+| 2 | `10:36` |
+| 3 | `10:38` |
+| 4 | `10:41` |
+| 5 | `10:45` |
+
+**The retrieving of data does not effect the rate the entities states/attributes are evaluated.**
+
+## I have data missing, is this an issue with the integration?
+
+Data can not appear for a variety of reasons. Before raising any issues, check if the data is available on the [website](https://octopus.energy/dashboard/new/accounts/consumption/home) for the requested period (e.g. for previous consumption, you'll be wanting data for the day before). If it's not available on the website, then unfortunately there is nothing that can be done. 
+
+Data might also not appear if you lose internet connection or the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs. If none of this is applicable, then please raise an issue so we can try and solve the problem.
+
 ## Data in my Home Assistant energy dashboard reported by Octopus Home Mini differs to Octopus Energy dashboard. Why is this?
 
 The data can differ for a number of reasons.
@@ -66,10 +99,6 @@ You should then see entries associated with this component stating either entiti
 
 The identifiers of the entities should then be checked against your Octopus Energy dashboard to verify the correct entities are being picked up. If this is producing unexpected results, then you should raise an issue.
 
-## I have data missing, is this an issue with the integration
-
-Data can not appear for a variety of reasons. Before raising any issues, check if the data is available within the app. If it's not available within the app, then unfortunately there is nothing I can do. Data might also not appear if you lose internet connection or the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs. If none of this is applicable, then please raise an issue so we can try and solve the problem.
-
 ## I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?
 
 Rate data for agile tariffs are not available in full for the next day, which can cause issues with target rate sensors in their default state. We prevent you from setting up target rate sensors in this form. More information around this can be found in the [target rate documentation](./setup/target_rate.md#agile-users).
@@ -99,33 +128,6 @@ For example if I was on the tariff `E-1R-SUPER-GREEN-24M-21-07-30-A` and I wante
 In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https://api.octopus.energy/v1/products/VAR-22-11-01](https://api.octopus.energy/v1/products/VAR-22-11-01). From this list, I would then look up the tariff for my region (e.g. `A` defined at the end of my current tariff) which is defined in the `code` field. It is this value that you add to the `cost_override_tariff` entity. In this example, I want the duel electricity tariff version, so will pick `E-2R-VAR-22-11-01-A`.
 
 ![Target product example](./assets/product_tariff_lookup.png)
-
-## How often is data refreshed?
-
-Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-and-completed-octopus-intelligent-dispatches/8510/8?u=bottlecapdave), the integration polls and retrieves data at different intervals depending on the target data. Below is a rough table describing how often the integration targets refreshing various bits of data. This has been done to try and not overload the API while also providing useful data in a timely fashion.
-
-| Area | Refresh rate (in minutes) | Notes |
-|-|-|-|
-| Account | 30 | This shouldn't change often so no need to poll. This is used to get active tariffs |
-| Intelligent tariff based sensors | 5 | Trying to balance refreshing settings and new dispatch information with not overloading the API |
-| Rate information | 15 | This is what drives most people's automations, but doesn't change that frequently |
-| Current consumption data | Configurable (minimum 1) | This is most useful for automations, but don't want to flood the API with requests |
-| Previous consumption data | 30 | This doesn't change frequently |
-| Standing charges | 30 | This should only change if the user's tariff changes |
-| Saving sessions | 15 | Inactive for most of the year and new sessions have enough warning |
-| Wheel of fortune | 30 | Doesn't change that frequently |
-
-If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly taking longer with each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.
-
-| Attempt | Target time |
-|-|-|
-| 1 | `10:35` |
-| 2 | `10:36` |
-| 3 | `10:38` |
-| 4 | `10:41` |
-| 5 | `10:45` |
-
-**The retrieving of data does not effect the rate the entities states/attributes are evaluated.**
 
 ## How do I know when there's any update available?
 
