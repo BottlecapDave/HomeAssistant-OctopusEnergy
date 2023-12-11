@@ -115,18 +115,18 @@ async def async_fetch_consumption_and_rates(
         previous_data.standing_charge
       )
     except:
-      _LOGGER.debug(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
-
+      result = None
       if previous_data is not None:
-        return PreviousConsumptionCoordinatorResult(
+        result =  PreviousConsumptionCoordinatorResult(
           previous_data.last_retrieved,
           previous_data.request_attempts + 1,
           previous_data.consumption,
           previous_data.rates,
           previous_data.standing_charge
         )
+        _LOGGER.warn(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number} - using cached data. Next attempt at {result.next_refresh}")
       else:
-        return PreviousConsumptionCoordinatorResult(
+        result = PreviousConsumptionCoordinatorResult(
           # We want to force into our fallback mode
           current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION),
           2,
@@ -134,6 +134,9 @@ async def async_fetch_consumption_and_rates(
           None,
           None
         )
+        _LOGGER.warn(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}. Next attempt at {result.next_refresh}")
+
+      return result
 
   return previous_data 
 

@@ -57,16 +57,21 @@ async def async_refresh_intelligent_settings(
 
       if settings is not None:
         return IntelligentCoordinatorResult(current, 1, settings)
-      elif (existing_intelligent_settings_result is not None):
-        _LOGGER.debug(f"Failed to retrieve new intelligent settings, so using cached settings")
-        return IntelligentCoordinatorResult(
+      
+      result = None
+      if (existing_intelligent_settings_result is not None):
+        result = IntelligentCoordinatorResult(
           existing_intelligent_settings_result.last_retrieved,
           existing_intelligent_settings_result.request_attempts + 1,
           existing_intelligent_settings_result.settings
         )
+        _LOGGER.warn(f"Failed to retrieve new intelligent settings - using cached settings. Next attempt at {result.next_refresh}")
       else:
         # We want to force into our fallback mode
-        return IntelligentCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT), 2, None)
+        result = IntelligentCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT), 2, None)
+        _LOGGER.warn(f"Failed to retrieve new intelligent settings. Next attempt at {result.next_refresh}")
+      
+      return result
   
   return existing_intelligent_settings_result
   

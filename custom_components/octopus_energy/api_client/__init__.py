@@ -1136,11 +1136,11 @@ class OctopusEnergyApiClient:
     if response.status >= 400:
       if response.status >= 500:
         msg = f'DO NOT REPORT - Octopus Energy server error ({url}): {response.status}; {text}'
-        _LOGGER.debug(msg)
+        _LOGGER.warn(msg)
         raise ServerError(msg)
       elif response.status not in [401, 403, 404]:
         msg = f'Failed to send request ({url}): {response.status}; {text}'
-        _LOGGER.debug(msg)
+        _LOGGER.warn(msg)
         raise RequestError(msg, [])
       return None
 
@@ -1153,7 +1153,7 @@ class OctopusEnergyApiClient:
     if ("graphql" in url and "errors" in data_as_json):
       msg = f'Errors in request ({url}): {data_as_json["errors"]}'
       errors = list(map(lambda error: error["message"], data_as_json["errors"]))
-      _LOGGER.debug(msg)
+      _LOGGER.warn(msg)
       raise RequestError(msg, errors)
     
     return data_as_json

@@ -40,23 +40,26 @@ async def async_get_live_consumption(
       if result is not None:
         return CurrentConsumptionCoordinatorResult(current_date, 1, refresh_rate_in_minutes, result)
     except:
-      _LOGGER.debug('Failed to retrieve smart meter consumption data')
-
+      result: CurrentConsumptionCoordinatorResult = None
       if previous_consumption is not None:
-        return CurrentConsumptionCoordinatorResult(
+        result = CurrentConsumptionCoordinatorResult(
           previous_consumption.last_retrieved,
           previous_consumption.request_attempts + 1,
           refresh_rate_in_minutes,
           previous_consumption.data
         )
+        _LOGGER.warn(f'Failed to retrieve smart meter consumption data - using cached version. Next attempt at {result.next_refresh}')
+      else:
+        result = CurrentConsumptionCoordinatorResult(
+          # We want to force into our fallback mode
+          current_date - timedelta(minutes=refresh_rate_in_minutes),
+          2,
+          refresh_rate_in_minutes,
+          None
+        )
+        _LOGGER.warn(f'Failed to retrieve smart meter consumption data. Next attempt at {result.next_refresh}')
       
-      return CurrentConsumptionCoordinatorResult(
-        # We want to force into our fallback mode
-        current_date - timedelta(minutes=refresh_rate_in_minutes),
-        2,
-        refresh_rate_in_minutes,
-        None
-      )
+      return result
   
   return previous_consumption
 

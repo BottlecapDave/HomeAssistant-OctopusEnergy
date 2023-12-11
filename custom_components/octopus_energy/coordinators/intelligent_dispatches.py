@@ -79,16 +79,21 @@ async def async_refresh_intelligent_dispatches(
       if dispatches is not None:
         dispatches.completed = await async_merge_dispatch_data(account_id, dispatches.completed)
         return IntelligentDispatchesCoordinatorResult(current, 1, dispatches)
-      elif (existing_intelligent_dispatches_result is not None):
-        _LOGGER.debug(f"Failed to retrieve new dispatches, so using cached dispatches")
-        return IntelligentDispatchesCoordinatorResult(
+      
+      result = None
+      if (existing_intelligent_dispatches_result is not None):
+        result = IntelligentDispatchesCoordinatorResult(
           existing_intelligent_dispatches_result.last_retrieved,
           existing_intelligent_dispatches_result.request_attempts + 1,
           existing_intelligent_dispatches_result.dispatches
         )
+        _LOGGER.warn(f"Failed to retrieve new dispatches - using cached dispatches. Next attempt at {result.next_refresh}")
       else:
         # We want to force into our fallback mode
-        return IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT), 2, None)
+        result = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT), 2, None)
+        _LOGGER.warn(f"Failed to retrieve new dispatches. Next attempt at {result.next_refresh}")
+
+      return result
   
   return existing_intelligent_dispatches_result
 

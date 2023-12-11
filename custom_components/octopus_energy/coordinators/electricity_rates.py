@@ -86,13 +86,17 @@ async def async_refresh_electricity_rates_data(
                           EVENT_ELECTRICITY_NEXT_DAY_RATES)
         
         return ElectricityRatesCoordinatorResult(current, 1, new_rates)
-
-      elif (existing_rates_result is not None):
-        _LOGGER.debug(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number}, so using cached rates")
-        return ElectricityRatesCoordinatorResult(existing_rates_result.last_retrieved, existing_rates_result.request_attempts + 1, existing_rates_result.rates)
+      
+      result = None
+      if (existing_rates_result is not None):
+        result = ElectricityRatesCoordinatorResult(existing_rates_result.last_retrieved, existing_rates_result.request_attempts + 1, existing_rates_result.rates)
+        _LOGGER.warn(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number} - using cached rates. Next attempt at {result.next_refresh}")
       else:
         # We want to force into our fallback mode
-        return ElectricityRatesCoordinatorResult(current  - timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES), 2, None)
+        result = ElectricityRatesCoordinatorResult(current  - timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES), 2, None)
+        _LOGGER.warn(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number}. Next attempt at {result.next_refresh}")
+
+      return result
   
   return existing_rates_result
 

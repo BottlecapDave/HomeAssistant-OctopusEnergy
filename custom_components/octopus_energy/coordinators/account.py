@@ -72,14 +72,13 @@ async def async_refresh_account(
 
         return AccountCoordinatorResult(current, 1, account_info)
     except:
-      # count exceptions as failure to retrieve account
-      _LOGGER.debug('Failed to retrieve account information')
-
-      return AccountCoordinatorResult(
+      result = AccountCoordinatorResult(
         previous_request.last_retrieved,
         previous_request.request_attempts + 1,
         previous_request.account
       )
+      _LOGGER.warn(f'Failed to retrieve account information - using cached version. Next attempt at {result.next_refresh}')
+      return result
 
   return previous_request
 

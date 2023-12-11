@@ -112,23 +112,26 @@ async def async_refresh_saving_sessions(
 
       return SavingSessionsCoordinatorResult(current, 1, available_events, result.joined_events)
     except:
-      _LOGGER.debug('Failed to retrieve saving session information')
-
+      result = None
       if (existing_saving_sessions_result is not None):
-        return SavingSessionsCoordinatorResult(
+        result = SavingSessionsCoordinatorResult(
           existing_saving_sessions_result.last_retrieved,
           existing_saving_sessions_result.request_attempts + 1,
           existing_saving_sessions_result.available_events,
           existing_saving_sessions_result.joined_events
         )
+        _LOGGER.warn(f"Failed to retrieve saving sessions - using cached data. Next attempt at {result.next_refresh}")
       else:
-        return SavingSessionsCoordinatorResult(
+        result = SavingSessionsCoordinatorResult(
           # We want to force into our fallback mode
           current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSIONS),
           2,
           [],
           []
         )
+        _LOGGER.warn(f"Failed to retrieve saving sessions. Next attempt at {result.next_refresh}")
+      
+      return result
   
   return existing_saving_sessions_result
 
