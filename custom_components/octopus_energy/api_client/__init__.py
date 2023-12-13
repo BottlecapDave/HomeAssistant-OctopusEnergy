@@ -6,6 +6,8 @@ from datetime import (datetime, timedelta, time)
 
 from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime)
 
+from ..const import INTEGRATION_VERSION
+
 from ..utils import (
   get_tariff_parts,
 )
@@ -290,8 +292,6 @@ wheel_of_fortune_mutation = '''mutation {{
 
 user_agent_value = "bottlecapdave-home-assistant-octopus-energy"
 
-default_headers = { "user-agent": user_agent_value }
-
 def get_valid_from(rate):
   return rate["valid_from"]
 
@@ -381,7 +381,8 @@ class OctopusEnergyApiClient:
     self._electricity_price_cap = electricity_price_cap
     self._gas_price_cap = gas_price_cap
 
-    self.timeout = aiohttp.ClientTimeout(total=timeout_in_seconds)
+    self._timeout = aiohttp.ClientTimeout(total=timeout_in_seconds)
+    self._default_headers = { "user-agent": f'{user_agent_value}/{INTEGRATION_VERSION}' }
 
   async def async_refresh_token(self):
     """Get the user's refresh token"""
@@ -389,7 +390,7 @@ class OctopusEnergyApiClient:
       return
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         payload = { "query": api_token_query.format(api_key=self._api_key) }
         async with client.post(url, json=payload) as token_response:
@@ -405,7 +406,7 @@ class OctopusEnergyApiClient:
           else:
             _LOGGER.error("Failed to retrieve auth token")
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
     
   async def async_get_account(self, account_id):
@@ -413,7 +414,7 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         # Get account response
         payload = { "query": account_query.format(account_id=account_id) }
@@ -512,7 +513,7 @@ class OctopusEnergyApiClient:
             _LOGGER.error("Failed to retrieve account")
     
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
     
     return None
@@ -522,7 +523,7 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         # Get account response
         payload = { "query": octoplus_saving_session_query.format(account_id=account_id) }
@@ -547,7 +548,7 @@ class OctopusEnergyApiClient:
             _LOGGER.error("Failed to retrieve saving sessions")
     
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
     return None
@@ -557,7 +558,7 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         payload = { "query": octoplus_enrollment_query.format(account_id=account_id) }
         headers = { "Authorization": f"JWT {self._graphql_token}" }
@@ -570,7 +571,7 @@ class OctopusEnergyApiClient:
             _LOGGER.error("Failed to retrieve octoplus status")
     
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
     return None
@@ -580,7 +581,7 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         # Get account response
         payload = { "query": octoplus_points_query }
@@ -594,7 +595,7 @@ class OctopusEnergyApiClient:
             _LOGGER.error("Failed to retrieve octopoints")
     
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
     return None
@@ -604,7 +605,7 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         # Get account response
         payload = { "query": octoplus_saving_session_join_mutation.format(account_id=account_id, event_code=event_code) }
@@ -618,7 +619,7 @@ class OctopusEnergyApiClient:
             return JoinSavingSessionResponse(False, e.errors)
     
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
   async def async_get_smart_meter_consumption(self, device_id: str, period_from: datetime, period_to: datetime):
@@ -626,7 +627,7 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
 
         payload = { "query": live_consumption_query.format(device_id=device_id, period_from=period_from.strftime("%Y-%m-%dT%H:%M:%S%z"), period_to=period_to.strftime("%Y-%m-%dT%H:%M:%S%z")) }
@@ -645,7 +646,7 @@ class OctopusEnergyApiClient:
             _LOGGER.debug(f"Failed to retrieve smart meter consumption data - device_id: {device_id}; period_from: {period_from}; period_to: {period_to}")
     
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
     return None
@@ -655,7 +656,7 @@ class OctopusEnergyApiClient:
     results = []
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         auth = aiohttp.BasicAuth(self._api_key, '')
         page = 1
         has_more_rates = True
@@ -672,7 +673,7 @@ class OctopusEnergyApiClient:
                 page = page + 1
     
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
     
     results.sort(key=get_start)
@@ -683,7 +684,7 @@ class OctopusEnergyApiClient:
     results = []
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         auth = aiohttp.BasicAuth(self._api_key, '')
         url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/day-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
         async with client.get(url, auth=auth) as response:
@@ -709,7 +710,7 @@ class OctopusEnergyApiClient:
             if (self.__is_night_rate(rate, is_smart_meter)) == True:
               results.append(rate)
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
     # Because we retrieve our day and night periods separately over a 2 day period, we need to sort our rates 
@@ -735,7 +736,7 @@ class OctopusEnergyApiClient:
     """Get the current electricity consumption"""
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         auth = aiohttp.BasicAuth(self._api_key, '')
         url = f'{self._base_url}/v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
         async with client.get(url, auth=auth) as response:
@@ -758,7 +759,7 @@ class OctopusEnergyApiClient:
           return None
         
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
   async def async_get_gas_rates(self, tariff_code, period_from, period_to):
@@ -772,7 +773,7 @@ class OctopusEnergyApiClient:
     results = []
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         auth = aiohttp.BasicAuth(self._api_key, '')
         url = f'{self._base_url}/v1/products/{product_code}/gas-tariffs/{tariff_code}/standard-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
         async with client.get(url, auth=auth) as response:
@@ -785,14 +786,14 @@ class OctopusEnergyApiClient:
       return results
     
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
   async def async_get_gas_consumption(self, mprn, serial_number, period_from, period_to):
     """Get the current gas rates"""
     
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         auth = aiohttp.BasicAuth(self._api_key, '')
         url = f'{self._base_url}/v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
         async with client.get(url, auth=auth) as response:
@@ -813,20 +814,20 @@ class OctopusEnergyApiClient:
           
           return None
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
   async def async_get_product(self, product_code):
     """Get all products"""
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         auth = aiohttp.BasicAuth(self._api_key, '')
         url = f'{self._base_url}/v1/products/{product_code}'
         async with client.get(url, auth=auth) as response:
           return await self.__async_read_response__(response, url)
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
   async def async_get_electricity_standing_charge(self, tariff_code, period_from, period_to):
@@ -840,7 +841,7 @@ class OctopusEnergyApiClient:
     result = None
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         auth = aiohttp.BasicAuth(self._api_key, '')
         url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standing-charges?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
         async with client.get(url, auth=auth) as response:
@@ -854,7 +855,7 @@ class OctopusEnergyApiClient:
 
       return result
     except TimeoutError:
-        _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+        _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
         raise TimeoutException()
 
   async def async_get_gas_standing_charge(self, tariff_code, period_from, period_to):
@@ -868,7 +869,7 @@ class OctopusEnergyApiClient:
     result = None
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         auth = aiohttp.BasicAuth(self._api_key, '')
         url = f'{self._base_url}/v1/products/{product_code}/gas-tariffs/{tariff_code}/standing-charges?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
         async with client.get(url, auth=auth) as response:
@@ -882,7 +883,7 @@ class OctopusEnergyApiClient:
 
       return result
     except TimeoutError:
-        _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+        _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
         raise TimeoutException()
   
   async def async_get_intelligent_dispatches(self, account_id: str):
@@ -890,7 +891,7 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         # Get account response
         payload = { "query": intelligent_dispatches_query.format(account_id=account_id) }
@@ -928,7 +929,7 @@ class OctopusEnergyApiClient:
       return None
 
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
   
   async def async_get_intelligent_settings(self, account_id: str):
@@ -936,7 +937,7 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         payload = { "query": intelligent_settings_query.format(account_id=account_id) }
         headers = { "Authorization": f"JWT {self._graphql_token}" }
@@ -970,7 +971,7 @@ class OctopusEnergyApiClient:
       return None
 
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
   
   def __ready_time_to_time__(self, time_str: str) -> time:
@@ -994,7 +995,7 @@ class OctopusEnergyApiClient:
     settings = await self.async_get_intelligent_settings(account_id)
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         payload = { "query": intelligent_settings_mutation.format(
           account_id=account_id,
@@ -1009,7 +1010,7 @@ class OctopusEnergyApiClient:
           response_body = await self.__async_read_response__(response, url)
           _LOGGER.debug(f'async_update_intelligent_car_target_percentage: {response_body}')
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
   async def async_update_intelligent_car_target_time(
@@ -1022,7 +1023,7 @@ class OctopusEnergyApiClient:
     settings = await self.async_get_intelligent_settings(account_id)
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         payload = { "query": intelligent_settings_mutation.format(
           account_id=account_id,
@@ -1037,7 +1038,7 @@ class OctopusEnergyApiClient:
           response_body = await self.__async_read_response__(response, url)
           _LOGGER.debug(f'async_update_intelligent_car_target_time: {response_body}')
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
   async def async_turn_on_intelligent_bump_charge(
@@ -1047,7 +1048,7 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         payload = { "query": intelligent_turn_on_bump_charge_mutation.format(
           account_id=account_id,
@@ -1058,7 +1059,7 @@ class OctopusEnergyApiClient:
           response_body = await self.__async_read_response__(response, url)
           _LOGGER.debug(f'async_turn_on_intelligent_bump_charge: {response_body}')
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
   async def async_turn_off_intelligent_bump_charge(
@@ -1068,7 +1069,7 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         payload = { "query": intelligent_turn_off_bump_charge_mutation.format(
           account_id=account_id,
@@ -1079,7 +1080,7 @@ class OctopusEnergyApiClient:
           response_body = await self.__async_read_response__(response, url)
           _LOGGER.debug(f'async_turn_off_intelligent_bump_charge: {response_body}')
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
   async def async_turn_on_intelligent_smart_charge(
@@ -1089,7 +1090,7 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         payload = { "query": intelligent_turn_on_smart_charge_mutation.format(
           account_id=account_id,
@@ -1100,7 +1101,7 @@ class OctopusEnergyApiClient:
           response_body = await self.__async_read_response__(response, url)
           _LOGGER.debug(f'async_turn_on_intelligent_smart_charge: {response_body}')
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
   async def async_turn_off_intelligent_smart_charge(
@@ -1110,7 +1111,7 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         payload = { "query": intelligent_turn_off_smart_charge_mutation.format(
           account_id=account_id,
@@ -1121,7 +1122,7 @@ class OctopusEnergyApiClient:
           response_body = await self.__async_read_response__(response, url)
           _LOGGER.debug(f'async_turn_off_intelligent_smart_charge: {response_body}')
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
   
   async def async_get_intelligent_device(self, account_id: str):
@@ -1129,7 +1130,7 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         payload = { "query": intelligent_device_query.format(account_id=account_id) }
         headers = { "Authorization": f"JWT {self._graphql_token}" }
@@ -1156,7 +1157,7 @@ class OctopusEnergyApiClient:
       return None
 
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
   
   async def async_get_wheel_of_fortune_spins(self, account_id: str) -> WheelOfFortuneSpinsResponse:
@@ -1164,7 +1165,7 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         payload = { "query": wheel_of_fortune_query.format(account_id=account_id) }
         headers = { "Authorization": f"JWT {self._graphql_token}" }
@@ -1186,7 +1187,7 @@ class OctopusEnergyApiClient:
       return None
 
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
   
   async def async_spin_wheel_of_fortune(self, account_id: str, is_electricity: bool) -> int:
@@ -1194,7 +1195,7 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     try:
-      async with aiohttp.ClientSession(timeout=self.timeout, headers=default_headers) as client:
+      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
         url = f'{self._base_url}/v1/graphql/'
         payload = { "query": wheel_of_fortune_mutation.format(account_id=account_id, supply_type="ELECTRICITY" if is_electricity == True else "GAS") }
         headers = { "Authorization": f"JWT {self._graphql_token}" }
@@ -1214,7 +1215,7 @@ class OctopusEnergyApiClient:
       
       return None
     except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self.timeout} exceeded.')
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
   def __get_interval_end(self, item):
