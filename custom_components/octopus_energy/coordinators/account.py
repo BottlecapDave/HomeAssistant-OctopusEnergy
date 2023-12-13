@@ -21,7 +21,7 @@ from ..const import (
   REFRESH_RATE_IN_MINUTES_ACCOUNT,
 )
 
-from ..api_client import OctopusEnergyApiClient
+from ..api_client import ApiException, OctopusEnergyApiClient
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -71,13 +71,17 @@ async def async_refresh_account(
             await async_check_valid_tariff(hass, client, active_tariff_code, False)
 
         return AccountCoordinatorResult(current, 1, account_info)
-    except:
+    except Exception as e:
+      if isinstance(e, ApiException) == False:
+        _LOGGER.error(e)
+        raise
+      
       result = AccountCoordinatorResult(
         previous_request.last_retrieved,
         previous_request.request_attempts + 1,
         previous_request.account
       )
-      _LOGGER.warn(f'Failed to retrieve account information - using cached version. Next attempt at {result.next_refresh}')
+      _LOGGER.warning(f'Failed to retrieve account information - using cached version. Next attempt at {result.next_refresh}')
       return result
 
   return previous_request

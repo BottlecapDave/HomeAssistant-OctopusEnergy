@@ -15,7 +15,7 @@ from ..const import (
   REFRESH_RATE_IN_MINUTES_STANDING_CHARGE,
 )
 
-from ..api_client import OctopusEnergyApiClient
+from ..api_client import ApiException, OctopusEnergyApiClient
 from . import BaseCoordinatorResult, get_electricity_meter_tariff_code
 
 _LOGGER = logging.getLogger(__name__)
@@ -48,7 +48,11 @@ async def async_refresh_electricity_standing_charges_data(
       try:
         new_standing_charge = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
         _LOGGER.debug(f'Electricity standing charges retrieved for {target_mpan}/{target_serial_number} ({tariff_code})')
-      except:
+      except Exception as e:
+        if isinstance(e, ApiException) == False:
+          _LOGGER.error(e)
+          raise
+        
         _LOGGER.debug(f'Failed to retrieve electricity standing charges for {target_mpan}/{target_serial_number} ({tariff_code})')
       
       if new_standing_charge is not None:
@@ -57,11 +61,11 @@ async def async_refresh_electricity_standing_charges_data(
       result = None
       if (existing_standing_charges_result is not None):
         result = ElectricityStandingChargeCoordinatorResult(existing_standing_charges_result.last_retrieved, existing_standing_charges_result.request_attempts + 1, existing_standing_charges_result.standing_charge)
-        _LOGGER.warn(f"Failed to retrieve new electricity standing charges for {target_mpan}/{target_serial_number} ({tariff_code}) - using cached standing charges. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve new electricity standing charges for {target_mpan}/{target_serial_number} ({tariff_code}) - using cached standing charges. Next attempt at {result.next_refresh}")
       else:
         # We want to force into our fallback mode
         result = ElectricityStandingChargeCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_STANDING_CHARGE), 2, None)
-        _LOGGER.warn(f"Failed to retrieve new electricity standing charges for {target_mpan}/{target_serial_number} ({tariff_code}). Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve new electricity standing charges for {target_mpan}/{target_serial_number} ({tariff_code}). Next attempt at {result.next_refresh}")
 
       return result
   

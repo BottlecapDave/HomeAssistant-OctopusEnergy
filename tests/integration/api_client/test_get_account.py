@@ -1,7 +1,7 @@
 import pytest
 
 from integration import get_test_context
-from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestError
+from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
 
 @pytest.mark.asyncio
 async def test_when_get_account_is_called_then_electricity_and_gas_points_returned():
@@ -68,7 +68,7 @@ async def test_when_get_account_is_called_and_not_found_then_none_returned():
     exception_raised = False
     try:
         await client.async_get_account(account_id)
-    except RequestError:
+    except RequestException:
         exception_raised = True
 
     # Assert
@@ -86,7 +86,7 @@ async def test_when_get_account_is_called_and_api_key_is_invalid_then_none_retur
     exception_raised = False
     try:
         await client.async_get_account(account_id)
-    except RequestError:
+    except RequestException:
         exception_raised = True
 
     # Assert

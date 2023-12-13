@@ -14,7 +14,7 @@ from ..const import (
   REFRESH_RATE_IN_MINUTES_OCTOPLUS_WHEEL_OF_FORTUNE,
 )
 
-from ..api_client import OctopusEnergyApiClient
+from ..api_client import ApiException, OctopusEnergyApiClient
 from ..api_client.wheel_of_fortune import WheelOfFortuneSpinsResponse
 from . import BaseCoordinatorResult
 
@@ -39,11 +39,15 @@ async def async_refresh_wheel_of_fortune_spins(
       result = await client.async_get_wheel_of_fortune_spins(account_id)
 
       return WheelOfFortuneSpinsCoordinatorResult(current, 1, result)
-    except:
+    except Exception as e:
+      if isinstance(e, ApiException) == False:
+        _LOGGER.error(e)
+        raise
+      
       result = None
       if (existing_result is not None):
         result = WheelOfFortuneSpinsCoordinatorResult(existing_result.last_retrieved, existing_result.request_attempts + 1, existing_result.spins)
-        _LOGGER.warn(f'Failed to retrieve wheel of fortune spins - using cached data. Next attempt at {result.next_refresh}')
+        _LOGGER.warning(f'Failed to retrieve wheel of fortune spins - using cached data. Next attempt at {result.next_refresh}')
       else:
         result = WheelOfFortuneSpinsCoordinatorResult(
           # We want to force into our fallback mode
@@ -51,7 +55,7 @@ async def async_refresh_wheel_of_fortune_spins(
           2,
           None
         )
-        _LOGGER.warn(f'Failed to retrieve wheel of fortune spins. Next attempt at {result.next_refresh}')
+        _LOGGER.warning(f'Failed to retrieve wheel of fortune spins. Next attempt at {result.next_refresh}')
 
       return result
   

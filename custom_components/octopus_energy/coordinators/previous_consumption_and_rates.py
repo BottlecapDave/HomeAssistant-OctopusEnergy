@@ -18,7 +18,7 @@ from ..const import (
   REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION
 )
 
-from ..api_client import (OctopusEnergyApiClient)
+from ..api_client import (ApiException, OctopusEnergyApiClient)
 from ..api_client.intelligent_dispatches import IntelligentDispatches
 from ..utils import private_rates_to_public_rates
 
@@ -110,11 +110,15 @@ async def async_fetch_consumption_and_rates(
       return PreviousConsumptionCoordinatorResult(
         current,
         1,
-        previous_data.consumption,
-        previous_data.rates,
-        previous_data.standing_charge
+        previous_data.consumption if previous_data is not None else None,
+        previous_data.rates if previous_data is not None else None,
+        previous_data.standing_charge if previous_data is not None else None
       )
-    except:
+    except Exception as e:
+      if isinstance(e, ApiException) == False:
+        _LOGGER.error(e)
+        raise
+      
       result = None
       if previous_data is not None:
         result =  PreviousConsumptionCoordinatorResult(
@@ -124,7 +128,7 @@ async def async_fetch_consumption_and_rates(
           previous_data.rates,
           previous_data.standing_charge
         )
-        _LOGGER.warn(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number} - using cached data. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number} - using cached data. Next attempt at {result.next_refresh}")
       else:
         result = PreviousConsumptionCoordinatorResult(
           # We want to force into our fallback mode
@@ -134,7 +138,7 @@ async def async_fetch_consumption_and_rates(
           None,
           None
         )
-        _LOGGER.warn(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}. Next attempt at {result.next_refresh}")
 
       return result
 

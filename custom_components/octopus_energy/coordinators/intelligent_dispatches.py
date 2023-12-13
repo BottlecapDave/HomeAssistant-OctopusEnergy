@@ -22,7 +22,7 @@ from ..const import (
   STORAGE_COMPLETED_DISPATCHES_NAME
 )
 
-from ..api_client import OctopusEnergyApiClient
+from ..api_client import ApiException, OctopusEnergyApiClient
 from ..api_client.intelligent_dispatches import IntelligentDispatches
 from . import BaseCoordinatorResult
 
@@ -45,7 +45,7 @@ async def async_merge_dispatch_data(hass, account_id: str, completed_dispatches)
     saved_dispatches = await store.async_load()
   except:
     saved_dispatches = []
-    _LOGGER.warn('Local intelligent dispatch data corrupted. Resetting...')
+    _LOGGER.warning('Local intelligent dispatch data corrupted. Resetting...')
 
   saved_completed_dispatches = dictionary_list_to_dispatches(saved_dispatches)
 
@@ -70,7 +70,11 @@ async def async_refresh_intelligent_dispatches(
         try:
           dispatches = await client.async_get_intelligent_dispatches(account_id)
           _LOGGER.debug(f'Intelligent dispatches retrieved for account {account_id}')
-        except:
+        except Exception as e:
+          if isinstance(e, ApiException) == False:
+            _LOGGER.error(e)
+            raise
+          
           _LOGGER.debug('Failed to retrieve intelligent dispatches for account {account_id}')
 
       if is_data_mocked:
@@ -87,11 +91,11 @@ async def async_refresh_intelligent_dispatches(
           existing_intelligent_dispatches_result.request_attempts + 1,
           existing_intelligent_dispatches_result.dispatches
         )
-        _LOGGER.warn(f"Failed to retrieve new dispatches - using cached dispatches. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve new dispatches - using cached dispatches. Next attempt at {result.next_refresh}")
       else:
         # We want to force into our fallback mode
         result = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT), 2, None)
-        _LOGGER.warn(f"Failed to retrieve new dispatches. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve new dispatches. Next attempt at {result.next_refresh}")
 
       return result
   

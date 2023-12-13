@@ -20,7 +20,7 @@ from ..const import (
   REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSIONS,
 )
 
-from ..api_client import OctopusEnergyApiClient
+from ..api_client import ApiException, OctopusEnergyApiClient
 from ..api_client.saving_sessions import SavingSession
 from . import BaseCoordinatorResult
 
@@ -111,7 +111,11 @@ async def async_refresh_saving_sessions(
       })
 
       return SavingSessionsCoordinatorResult(current, 1, available_events, result.joined_events)
-    except:
+    except Exception as e:
+      if isinstance(e, ApiException) == False:
+        _LOGGER.error(e)
+        raise
+      
       result = None
       if (existing_saving_sessions_result is not None):
         result = SavingSessionsCoordinatorResult(
@@ -120,7 +124,7 @@ async def async_refresh_saving_sessions(
           existing_saving_sessions_result.available_events,
           existing_saving_sessions_result.joined_events
         )
-        _LOGGER.warn(f"Failed to retrieve saving sessions - using cached data. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve saving sessions - using cached data. Next attempt at {result.next_refresh}")
       else:
         result = SavingSessionsCoordinatorResult(
           # We want to force into our fallback mode
@@ -129,7 +133,7 @@ async def async_refresh_saving_sessions(
           [],
           []
         )
-        _LOGGER.warn(f"Failed to retrieve saving sessions. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve saving sessions. Next attempt at {result.next_refresh}")
       
       return result
   

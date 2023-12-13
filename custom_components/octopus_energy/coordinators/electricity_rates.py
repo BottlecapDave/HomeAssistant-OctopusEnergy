@@ -21,7 +21,7 @@ from ..const import (
   REFRESH_RATE_IN_MINUTES_RATES,
 )
 
-from ..api_client import OctopusEnergyApiClient
+from ..api_client import ApiException, OctopusEnergyApiClient
 from ..api_client.intelligent_dispatches import IntelligentDispatches
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 from ..utils import private_rates_to_public_rates
@@ -61,7 +61,11 @@ async def async_refresh_electricity_rates_data(
     if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
       try:
         new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
-      except:
+      except Exception as e:
+        if isinstance(e, ApiException) == False:
+          _LOGGER.error(e)
+          raise
+        
         _LOGGER.debug(f'Failed to retrieve electricity rates for {target_mpan}/{target_serial_number} ({tariff_code})')
       
       if new_rates is not None:
@@ -90,11 +94,11 @@ async def async_refresh_electricity_rates_data(
       result = None
       if (existing_rates_result is not None):
         result = ElectricityRatesCoordinatorResult(existing_rates_result.last_retrieved, existing_rates_result.request_attempts + 1, existing_rates_result.rates)
-        _LOGGER.warn(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number} - using cached rates. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number} - using cached rates. Next attempt at {result.next_refresh}")
       else:
         # We want to force into our fallback mode
         result = ElectricityRatesCoordinatorResult(current  - timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES), 2, None)
-        _LOGGER.warn(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number}. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number}. Next attempt at {result.next_refresh}")
 
       return result
   

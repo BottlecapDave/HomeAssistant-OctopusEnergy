@@ -11,7 +11,7 @@ from homeassistant.components.sensor import (
   RestoreSensor,
   SensorStateClass
 )
-from ..api_client import OctopusEnergyApiClient, RequestError
+from ..api_client import ApiException, OctopusEnergyApiClient, RequestException
 from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
@@ -70,8 +70,11 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
         self._state = await self._client.async_get_octoplus_points()
         self._last_evaluated = now
         self._request_attempts = 1
-      except RequestError as e:
-        _LOGGER.error(f"Failed to retrieve octopoints: {e}")
+      except  Exception as e:
+        if isinstance(e, ApiException) == False:
+          _LOGGER.error(e)
+          raise
+        _LOGGER.warning(f"Failed to retrieve octopoints")
         self._request_attempts = self._request_attempts + 1
 
       self._next_refresh = calculate_next_refresh(self._last_evaluated, self._request_attempts, REFRESH_RATE_IN_MINUTES_OCTOPLUS_WHEEL_OF_FORTUNE)

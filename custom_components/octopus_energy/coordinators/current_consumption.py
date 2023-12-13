@@ -13,7 +13,7 @@ from ..const import (
   DOMAIN,
 )
 
-from ..api_client import (OctopusEnergyApiClient)
+from ..api_client import (ApiException, OctopusEnergyApiClient)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -39,7 +39,11 @@ async def async_get_live_consumption(
       result = await client.async_get_smart_meter_consumption(device_id, period_from, period_to)
       if result is not None:
         return CurrentConsumptionCoordinatorResult(current_date, 1, refresh_rate_in_minutes, result)
-    except:
+    except Exception as e:
+      if isinstance(e, ApiException) == False:
+        _LOGGER.error(e)
+        raise
+
       result: CurrentConsumptionCoordinatorResult = None
       if previous_consumption is not None:
         result = CurrentConsumptionCoordinatorResult(
@@ -48,7 +52,7 @@ async def async_get_live_consumption(
           refresh_rate_in_minutes,
           previous_consumption.data
         )
-        _LOGGER.warn(f'Failed to retrieve smart meter consumption data - using cached version. Next attempt at {result.next_refresh}')
+        _LOGGER.warning(f'Failed to retrieve smart meter consumption data - using cached version. Next attempt at {result.next_refresh}')
       else:
         result = CurrentConsumptionCoordinatorResult(
           # We want to force into our fallback mode
@@ -57,7 +61,7 @@ async def async_get_live_consumption(
           refresh_rate_in_minutes,
           None
         )
-        _LOGGER.warn(f'Failed to retrieve smart meter consumption data. Next attempt at {result.next_refresh}')
+        _LOGGER.warning(f'Failed to retrieve smart meter consumption data. Next attempt at {result.next_refresh}')
       
       return result
   

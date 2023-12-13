@@ -18,7 +18,7 @@ from ..const import (
   REFRESH_RATE_IN_MINUTES_RATES,
 )
 
-from ..api_client import OctopusEnergyApiClient
+from ..api_client import ApiException, OctopusEnergyApiClient
 from ..utils import private_rates_to_public_rates
 from . import BaseCoordinatorResult, get_gas_meter_tariff_code, raise_rate_events
 
@@ -53,7 +53,11 @@ async def async_refresh_gas_rates_data(
     if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
       try:
         new_rates = await client.async_get_gas_rates(tariff_code, period_from, period_to)
-      except:
+      except Exception as e:
+        if isinstance(e, ApiException) == False:
+          _LOGGER.error(e)
+          raise
+        
         _LOGGER.debug(f'Failed to retrieve gas rates for {target_mprn}/{target_serial_number} ({tariff_code})')
 
       # Make sure our rate information doesn't contain any negative values https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/506
@@ -79,11 +83,11 @@ async def async_refresh_gas_rates_data(
       result = None
       if (existing_rates_result is not None):
         result = GasRatesCoordinatorResult(existing_rates_result.last_retrieved, existing_rates_result.request_attempts + 1, existing_rates_result.rates)
-        _LOGGER.warn(f"Failed to retrieve new gas rates for {target_mprn}/{target_serial_number} - using cached rates. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve new gas rates for {target_mprn}/{target_serial_number} - using cached rates. Next attempt at {result.next_refresh}")
       else:
         # We want to force into our fallback mode
         result = GasRatesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES), 2, None)
-        _LOGGER.warn(f"Failed to retrieve new gas rates for {target_mprn}/{target_serial_number}. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve new gas rates for {target_mprn}/{target_serial_number}. Next attempt at {result.next_refresh}")
 
       return result
   

@@ -19,7 +19,7 @@ from ..const import (
   REFRESH_RATE_IN_MINUTES_INTELLIGENT,
 )
 
-from ..api_client import OctopusEnergyApiClient
+from ..api_client import ApiException, OctopusEnergyApiClient
 from ..api_client.intelligent_settings import IntelligentSettings
 from . import BaseCoordinatorResult
 
@@ -49,7 +49,11 @@ async def async_refresh_intelligent_settings(
         try:
           settings = await client.async_get_intelligent_settings(account_id)
           _LOGGER.debug(f'Intelligent settings retrieved for account {account_id}')
-        except:
+        except Exception as e:
+          if isinstance(e, ApiException) == False:
+            _LOGGER.error(e)
+            raise
+
           _LOGGER.debug('Failed to retrieve intelligent settings for account {account_id}')
 
       if is_settings_mocked:
@@ -65,11 +69,11 @@ async def async_refresh_intelligent_settings(
           existing_intelligent_settings_result.request_attempts + 1,
           existing_intelligent_settings_result.settings
         )
-        _LOGGER.warn(f"Failed to retrieve new intelligent settings - using cached settings. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve new intelligent settings - using cached settings. Next attempt at {result.next_refresh}")
       else:
         # We want to force into our fallback mode
         result = IntelligentCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT), 2, None)
-        _LOGGER.warn(f"Failed to retrieve new intelligent settings. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve new intelligent settings. Next attempt at {result.next_refresh}")
       
       return result
   

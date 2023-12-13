@@ -3,7 +3,7 @@ import mock
 
 from homeassistant.util.dt import (as_utc, parse_datetime)
 
-from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestError, ServerError
+from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException, ServerException
 from custom_components.octopus_energy.config.main import async_validate_main_config
 from custom_components.octopus_energy.const import (
   CONFIG_MAIN_ACCOUNT_ID,
@@ -128,7 +128,7 @@ async def test_when_account_info_raises_server_error_then_errors_returned():
   }
 
   async def async_mocked_get_account(*args, **kwargs):
-    raise ServerError()
+    raise ServerException()
 
   # Act
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_account=async_mocked_get_account):
@@ -165,7 +165,7 @@ async def test_when_account_info_raises_request_error_then_errors_returned():
   }
 
   async def async_mocked_get_account(*args, **kwargs):
-    raise RequestError("blah", [])
+    raise RequestException("blah", [])
 
   # Act
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_account=async_mocked_get_account):

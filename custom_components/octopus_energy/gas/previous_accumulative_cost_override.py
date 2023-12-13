@@ -21,7 +21,7 @@ from . import (
   get_gas_tariff_override_key,
 )
 
-from ..api_client import (OctopusEnergyApiClient)
+from ..api_client import (ApiException, OctopusEnergyApiClient)
 
 from .base import (OctopusEnergyGasSensor)
 from ..utils.attributes import dict_to_typed_dict
@@ -178,14 +178,18 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
           self._attempts_to_retrieve = 1
           self._last_retrieved = current
           self._next_refresh = calculate_next_refresh(current, self._request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION)
-      except:
+      except Exception as e:
+        if isinstance(e, ApiException) == False:
+          _LOGGER.error(e)
+          raise
+        
         self._request_attempts = self._request_attempts + 1
         self._next_refresh = calculate_next_refresh(
           self._last_retrieved if self._last_retrieved is not None else current,
           self._request_attempts,
           REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION
         )
-        _LOGGER.warn(f'Failed to retrieve previous accumulative cost override data - using cached data. Next attempt at {self._next_refresh}')
+        _LOGGER.warning(f'Failed to retrieve previous accumulative cost override data - using cached data. Next attempt at {self._next_refresh}')
     
     if result is not None:
       self._attributes["data_last_retrieved"] = result.last_retrieved
