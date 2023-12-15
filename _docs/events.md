@@ -309,7 +309,7 @@ This event is raised when a new saving session is discovered.
     data:
       title: "New Saving Session"
       message: >
-        New Octopus Energy saving session. It starts at {{ trigger.event.data["event_start"].strftime('%H:%M') }} on {{ trigger.event.data["event_start"].day }}/{{ trigger.event.data["event_start"].month }}
+        New Octopus Energy saving session available. It starts at {{ trigger.event.data["event_start"].strftime('%H:%M') }} on {{ trigger.event.data["event_start"].day }}/{{ trigger.event.data["event_start"].month }}
 ```
 
 ## All Saving Sessions
