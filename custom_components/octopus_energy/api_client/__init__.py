@@ -26,6 +26,9 @@ api_token_query = '''mutation {{
 }}'''
 
 account_query = '''query {{
+  octoplusAccountInfo(accountNumber: "{account_id}") {{
+    isOctoplusEnrolled
+  }}
   account(accountNumber: "{account_id}") {{
     electricityAgreements(active: true) {{
 			meterPoint {{
@@ -226,12 +229,6 @@ intelligent_turn_off_smart_charge_mutation = '''mutation {{
 	}}
 }}'''
 
-octoplus_enrollment_query = '''query octoplus_status {{
-	octoplusAccountInfo(accountNumber: "{account_id}") {{
-    isOctoplusEnrolled
-  }}
-}}'''
-
 octoplus_points_query = '''query octoplus_points {
 	loyaltyPointLedgers {
 		balanceCarriedForward
@@ -430,6 +427,9 @@ class OctopusEnergyApiClient:
               account_response_body["data"]["account"] is not None):
             return {
               "id": account_id,
+              "octoplus_enrolled": account_response_body["data"]["octoplusAccountInfo"]["isOctoplusEnrolled"] == True 
+              if "octoplusAccountInfo" in account_response_body["data"] and "isOctoplusEnrolled" in account_response_body["data"]["octoplusAccountInfo"]
+              else False,
               "electricity_meter_points": list(map(lambda mp: {
                   "mpan": mp["meterPoint"]["mpan"],
                   "meters": list(map(lambda m: {
@@ -546,29 +546,6 @@ class OctopusEnergyApiClient:
                                           response_body["data"]["savingSessions"]["account"]["joinedEvents"])))
           else:
             _LOGGER.error("Failed to retrieve saving sessions")
-    
-    except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
-      raise TimeoutException()
-
-    return None
-  
-  async def async_get_octoplus_enrollment(self, account_id: str):
-    """Get the user's octoplus enrollment"""
-    await self.async_refresh_token()
-
-    try:
-      async with aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers) as client:
-        url = f'{self._base_url}/v1/graphql/'
-        payload = { "query": octoplus_enrollment_query.format(account_id=account_id) }
-        headers = { "Authorization": f"JWT {self._graphql_token}" }
-        async with client.post(url, json=payload, headers=headers) as enrollment_response:
-          response_body = await self.__async_read_response__(enrollment_response, url)
-
-          if (response_body is not None and "data" in response_body and "octoplusAccountInfo" in response_body["data"] and "isOctoplusEnrolled" in response_body["data"]["octoplusAccountInfo"]):
-            return response_body["data"]["octoplusAccountInfo"]["isOctoplusEnrolled"] == True
-          else:
-            _LOGGER.error("Failed to retrieve octoplus status")
     
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')

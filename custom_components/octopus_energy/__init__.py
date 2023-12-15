@@ -1,9 +1,5 @@
 import logging
-import asyncio
 from datetime import timedelta
-from custom_components.octopus_energy.config.main import async_migrate_main_config
-from custom_components.octopus_energy.config.target_rates import async_migrate_target_config
-from custom_components.octopus_energy.utils import get_active_tariff_code
 
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
@@ -16,6 +12,10 @@ from .coordinators.intelligent_settings import async_setup_intelligent_settings_
 from .coordinators.electricity_rates import async_setup_electricity_rates_coordinator
 from .coordinators.saving_sessions import async_setup_saving_sessions_coordinators
 from .statistics import get_statistic_ids_to_remove
+
+from .config.main import async_migrate_main_config
+from .config.target_rates import async_migrate_target_config
+from .utils import get_active_tariff_code
 
 from .const import (
   CONFIG_KIND,
@@ -130,12 +130,7 @@ async def async_setup_dependencies(hass, config):
     raise ConfigEntryNotReady(f"Failed to retrieve account information")
 
   hass.data[DOMAIN][DATA_ACCOUNT] = AccountCoordinatorResult(utcnow(), 1, account_info)
-
-  octoplus_status = await client.async_get_octoplus_enrollment(config[CONFIG_MAIN_ACCOUNT_ID])
-  if octoplus_status is None:
-    raise ConfigEntryNotReady(f"Failed to retrieve octoplus status")
-  
-  hass.data[DOMAIN][DATA_OCTOPLUS_SUPPORTED] = octoplus_status
+  hass.data[DOMAIN][DATA_OCTOPLUS_SUPPORTED] = account_info["octoplus_enrolled"]
 
   # Remove gas meter devices which had incorrect identifier
   if account_info is not None and len(account_info["gas_meter_points"]) > 0:

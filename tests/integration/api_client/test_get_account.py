@@ -56,6 +56,8 @@ async def test_when_get_account_is_called_then_electricity_and_gas_points_return
     assert "start" in meter_point["agreements"][0]
     assert "end" in meter_point["agreements"][0]
 
+    assert "octoplus_enrolled" in account
+
 @pytest.mark.asyncio
 async def test_when_get_account_is_called_and_not_found_then_none_returned():
     # Arrange
