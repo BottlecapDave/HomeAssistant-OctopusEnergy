@@ -40,7 +40,7 @@ To support Octopus Energy's [octoplus programme](https://octopus.energy/octoplus
 
 ### Wheel of Fortune
 
-To support the wheel of fortune that is awarded every month to customers.
+To support the wheel of fortune that is awarded every month to customers. [Full list of wheel of fortune entites](./entities/wheel_of_fortune.md).
 
 ## Target Rate Sensors
 
@@ -61,6 +61,10 @@ This integration includes several services. Please review them in the [services 
 ## Energy Dashboard
 
 The core sensors have been designed to work with the energy dashboard. Please see the [energy dashboard guide](./setup/energy_dashboard.md) for instructions on how to set this up.
+
+## Blueprints
+
+A selection of [blueprints](./blueprints.md) are available to help get you up and running quickly with the integration.
 
 ## Community Contributions
 

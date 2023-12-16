@@ -15,7 +15,7 @@ If you have an Octopus Home Mini and a smart electricity meter you can obtain li
 3. For `consumed energy` you want `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption`
 4. Choose the `Use an entity tracking the total costs` option and the entity is `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost`
 
-![HA modal electricity example](./assets/current_consumption_electricity.png){: style="height:500px"}
+![HA modal electricity example](../assets/current_consumption_electricity.png){: style="height:500px"}
 
 !!! note
   
@@ -33,7 +33,7 @@ Do be aware that as you are not directly capturing the smart meter readings in H
 
 ### For Gas
 
-![HA modal gas example](./assets/current_consumption_gas.png){: style="height:500px"}
+![HA modal gas example](../assets/current_consumption_gas.png){: style="height:500px"}
 
 This is only available if you have an Octopus Home Mini and a smart gas meter.
 
@@ -68,7 +68,7 @@ If none of the methods above for feeding Current Day Consumption information int
 ### For Electricity
 
 
-![HA modal electricity example](./assets/previous_consumption_electricity.png){: style="height:500px"}
+![HA modal electricity example](../assets/previous_consumption_electricity.png){: style="height:500px"}
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
 2. Click `Add Consumption` under `Electricity Grid`
@@ -83,7 +83,7 @@ If none of the methods above for feeding Current Day Consumption information int
 
 ### For Gas
 
-![HA modal gas example](./assets/previous_consumption_gas.png){: style="height:500px"}
+![HA modal gas example](../assets/previous_consumption_gas.png){: style="height:500px"}
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
 2. Click `Add Gas Source` under `Gas Consumption`

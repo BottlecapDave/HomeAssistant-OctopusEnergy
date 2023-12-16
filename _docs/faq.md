@@ -100,7 +100,7 @@ In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https:
 
 ![Target product example](./assets/product_tariff_lookup.png)
 
-## How do I know when there's any update available?
+## How do I know when there's an update available?
 
 If you've installed via HACS, then you can keep an eye on `sensor.hacs` to see the number of pending updates. This could be used with an automation or highlighted on your dashboard. This will include any HACS integration update, not just this one. If you're feeling a little more adventurous, then you can enable HACS' [experimental features](https://hacs.xyz/docs/configuration/options/). This will surface any available updates in the normal update location within Home Assistant.
 
