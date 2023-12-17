@@ -11,8 +11,8 @@ You can only record current (i.e. today's) consumption in the Energy dashboard i
 If you have an Octopus Home Mini and a smart electricity meter you can obtain live meter reading data into Home Assistant:
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
-2. Click `Add Consumption` under `Electricity Grid`
-3. For `consumed energy` you want `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption`
+2. Click `Add Consumption` under `Electricity grid`
+3. For `Consumed energy` you want `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption`
 4. Choose the `Use an entity tracking the total costs` option and the entity is `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost`
 
 ![HA modal electricity example](../assets/current_consumption_electricity.png){: style="height:500px"}
@@ -38,8 +38,8 @@ Do be aware that as you are not directly capturing the smart meter readings in H
 This is only available if you have an Octopus Home Mini and a smart gas meter.
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
-2. Click `Add Gas Source` under `Gas Consumption`
-3. For `consumed energy` you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption`
+2. Click `Add Gas Source` under `Gas consumption`
+3. For `Gas usage` you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption`
 4. For `Use an entity tracking the total costs` option you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_cost` 
 
 !!! note
