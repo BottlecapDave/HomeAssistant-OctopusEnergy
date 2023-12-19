@@ -11,21 +11,7 @@
 ### Features
 
 * Added indicator to target rate sensor to indicate if rate information is incomplete and therefore target times cannot be calculated ([28676c3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/28676c38c9da81936137b166dd311ed782f76813))
-* Added version to user agent string ([ee45a06](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ee45a069bf79e5cd09bf31a1d031525129747145))
-* Fixed some code ([de2b2a2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/de2b2a2699126bc13113fee8f7acf5ddc019139a))
 * Improved how data is retrieved from APIs and added backoff logic when failing to contact APIs ([d461718](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d461718504243bcd0d6e304c85eb21d7967d54fc))
-* Updated cost overrides to limit how often data is retrieved ([c73c22a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c73c22abba4c02e121c761ecc3cc5046c1dd6b16))
-* Updated electricity rates refreshing ([e64c830](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e64c830de24d9b28a3f03c6da1a40cbdd3a2c1fd))
-* Updated electricity standing charges refreshing ([bc49caa](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/bc49caaf402419ea0bb22a397b3733bfdd3f5a8c))
-* Updated how often coordinators refresh ([e7e28e4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e7e28e49e2edb6469c32343ab63c9bb2bd2fa013))
-* Updated how often previous cost overrides are calculated ([d7b0d44](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d7b0d44d936f59fbdad8ac0b8dca22e67c2003c2))
-* Updated refresh rate for gas rates and standing charges ([c3d2201](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c3d2201f18b3886730196646fe98979276703750))
-* Updated refresh rate for intelligent dispatches ([025ce2e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/025ce2e4ffb18610f2ff427e7a8c2d71d6c9bce4))
-* Updated refresh rate for intelligent settings ([3fc0192](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3fc0192ceab171dfd144de96988466d67328037f))
-* Updated refresh rate for wheel of fortune data ([6c186cc](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6c186cc13bd226e8477e005d8cd908637bb43bb4))
-* Updated refresh settings for octoplus points ([4c272ee](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4c272ee80fc3150b9075aa1059e28f40508403b7))
-* Updated retrieving of account information to occur more frequently ([c6e92ae](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c6e92ae9c5aeed4193911d461a1587c5117c2af3))
-* Updated saving session coordinator ([1a2d191](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1a2d191d7700d288c09fcf3e0d7f797a3e93dba9))
 
 # [9.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v9.0.2...v9.1.0) (2023-11-28)
 
