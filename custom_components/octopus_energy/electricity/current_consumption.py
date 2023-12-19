@@ -1,4 +1,5 @@
 import logging
+from custom_components.octopus_energy.coordinators.current_consumption import CurrentConsumptionCoordinatorResult
 
 from homeassistant.core import HomeAssistant
 from homeassistant.util.dt import (now)
@@ -81,11 +82,12 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
   def native_value(self):
     """Retrieve the latest electricity consumption"""
     _LOGGER.debug('Updating OctopusEnergyCurrentElectricityConsumption')
-    consumption_result = self.coordinator.data if self.coordinator is not None else None
+    consumption_result: CurrentConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    consumption_data = consumption_result.data if consumption_result is not None else None
 
     current_date = now()
-    if (consumption_result is not None):
-      total_consumption = get_total_consumption(consumption_result)
+    if (consumption_data is not None):
+      total_consumption = get_total_consumption(consumption_data)
       self._state = get_current_consumption_delta(current_date,
                                                   total_consumption,
                                                   self._attributes["last_evaluated"] if "last_evaluated" in self._attributes and self._attributes["last_evaluated"] is not None else current_date,
@@ -94,6 +96,7 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
       if (self._state is not None):
         self._latest_date = current_date
         self._attributes["last_evaluated"] = current_date
+        self._attributes["data_last_retrieved"] = consumption_result.last_retrieved if consumption_result is not None else None
 
       # Store the total consumption ready for the next run
       self._previous_total_consumption = total_consumption

@@ -1,5 +1,38 @@
 # FAQ
 
+## How often is data refreshed?
+
+Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-and-completed-octopus-intelligent-dispatches/8510/8?u=bottlecapdave), the integration polls and retrieves data at different intervals depending on the target data. Below is a rough table describing how often the integration targets refreshing various bits of data. This has been done to try and not overload the API while also providing useful data in a timely fashion - Octopus Energy estimate that ~95% of their traffic comes mainly from this integration.
+
+| Area | Refresh rate (in minutes) | Justification |
+|-|-|-|
+| Account | 60 | This is mainly used to get the active meters and associated tariffs, which shouldn't change often so no need to poll often. |
+| Intelligent tariff based sensors | 5 | Trying to balance refreshing settings and new dispatch information without overloading the API |
+| Rate information | 15 | This is what drives most people's automations, but doesn't change that frequently. We can afford a bit of lag for API stability. |
+| Current consumption data | Configurable (minimum 1) | This is most useful for a smart home to be as up-to-date as possible, but is also rate limited to 100 requests total per hour. 1 minute is enough for most people, but might need to be increased for those with multiple meters (e.g. gas and electricity) |
+| Previous consumption data | 30 | This is usually refreshed once a day at various times throughout the day. We want to be up-to-date as soon as possible, without swamping the API. |
+| Standing charges | 60 | This should only change if the user's tariff changes, so no need to request data too often. Keep in sync with account refreshes. |
+| Saving sessions | 15 | Inactive for most of the year and new sessions have enough warning to allow a bit of lag. |
+| Wheel of fortune | 60 | Doesn't change that frequently, and not fundamental for a smart home (other than knowledge) so no need to request too often. |
+
+If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly taking longer with each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.
+
+| Attempt | Target time |
+|-|-|
+| 1 | `10:35` |
+| 2 | `10:36` |
+| 3 | `10:38` |
+| 4 | `10:41` |
+| 5 | `10:45` |
+
+**The retrieving of data does not effect the rate the entities states/attributes are evaluated.**
+
+## I have data missing, is this an issue with the integration?
+
+Data can not appear for a variety of reasons. Before raising any issues, check if the data is available on the [website](https://octopus.energy/dashboard/new/accounts/consumption/home) for the requested period (e.g. for previous consumption, you'll be wanting data for the day before). If it's not available on the website, then unfortunately there is nothing that can be done. 
+
+Data might also not appear if you lose internet connection or the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs. If none of this is applicable, then please raise an issue so we can try and solve the problem.
+
 ## Data in my Home Assistant energy dashboard reported by Octopus Home Mini differs to Octopus Energy dashboard. Why is this?
 
 The data can differ for a number of reasons.
@@ -65,10 +98,6 @@ The integration only looks at the first property associated with your account th
 You should then see entries associated with this component stating either entities were added, skipped or no entities were available at all.
 
 The identifiers of the entities should then be checked against your Octopus Energy dashboard to verify the correct entities are being picked up. If this is producing unexpected results, then you should raise an issue.
-
-## I have data missing, is this an issue with the integration
-
-Data can not appear for a variety of reasons. Before raising any issues, check if the data is available within the app. If it's not available within the app, then unfortunately there is nothing I can do. Data might also not appear if you lose internet connection or the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs. If none of this is applicable, then please raise an issue so we can try and solve the problem.
 
 ## I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?
 

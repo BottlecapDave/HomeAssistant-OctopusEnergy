@@ -13,7 +13,7 @@ from ..const import (
   CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET,
   CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION
 )
-from ..api_client import OctopusEnergyApiClient, RequestError, ServerError
+from ..api_client import OctopusEnergyApiClient, RequestException, ServerException
 
 async def async_migrate_main_config(version: int, data: {}):
   new_data = {**data}
@@ -62,10 +62,10 @@ async def async_validate_main_config(data):
 
   try:
     account_info = await client.async_get_account(data[CONFIG_MAIN_ACCOUNT_ID])
-  except RequestError:
+  except RequestException:
     # Treat errors as not finding the account
     account_info = None
-  except ServerError:
+  except ServerException:
     errors[CONFIG_MAIN_API_KEY] = "server_error"
   
   if (CONFIG_MAIN_API_KEY not in errors and account_info is None):

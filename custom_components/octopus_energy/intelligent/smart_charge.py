@@ -62,8 +62,9 @@ class OctopusEnergyIntelligentSmartCharge(CoordinatorEntity, SwitchEntity, Octop
     if settings_result is not None:
       self._attributes["data_last_retrieved"] = settings_result.last_retrieved
 
-    self._state = settings_result.settings.smart_charge
-    self._attributes["last_evaluated"] = utcnow()
+    if settings_result.settings is not None:
+      self._state = settings_result.settings.smart_charge
+      self._attributes["last_evaluated"] = utcnow()
     
     return self._state
 

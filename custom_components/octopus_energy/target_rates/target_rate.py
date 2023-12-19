@@ -109,7 +109,10 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     else:
       offset = None
 
-    check_for_errors(self._hass, self._config, self._hass.data[DOMAIN][DATA_ACCOUNT], now())
+    account_result = self._hass.data[DOMAIN][DATA_ACCOUNT]
+    account_info = account_result.account if account_result is not None else None
+
+    check_for_errors(self._hass, self._config, account_info, now())
 
     # Find the current rate. Rates change a maximum of once every 30 minutes.
     current_date = utcnow()
@@ -263,7 +266,10 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
         CONFIG_TARGET_OFFSET: trimmed_target_offset
       })
 
-    errors = validate_target_rate_config(config, self._hass.data[DOMAIN][DATA_ACCOUNT], now())
+    account_result = self._hass.data[DOMAIN][DATA_ACCOUNT]
+    account_info = account_result.account if account_result is not None else None
+
+    errors = validate_target_rate_config(config, account_info, now())
     keys = list(errors.keys())
     if (len(keys)) > 0:
       translations = await translation.async_get_translations(self._hass, self._hass.config.language, "options", {DOMAIN})

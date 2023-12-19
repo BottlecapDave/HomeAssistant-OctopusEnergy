@@ -26,7 +26,7 @@
       "target_rate": {
         "description": "Setup a target rate period. Continuous target will find the cheapest continuous period for your target hours. While intermittent will find the cheapest periods with potential gaps, which when combined will meet your target hours. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/target_rate",
         "data": {
-          "entity_id": "The name of your target",
+          "name": "The name of your target",
           "hours": "The hours you require in decimal format.",
           "type": "The type of target you're after",
           "mpan": "The MPAN number of the meter to apply the target to",
