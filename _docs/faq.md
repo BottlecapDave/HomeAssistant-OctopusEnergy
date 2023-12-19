@@ -31,9 +31,9 @@ Once a successful request is made, the refreshes will revert back to the redefin
 
 ## I have data missing, is this an issue with the integration?
 
-Data can not appear for a variety of reasons. Before raising any issues, check if the data is available on the [website](https://octopus.energy/dashboard/new/accounts/consumption/home) for the requested period (e.g. for previous consumption, you'll be wanting data for the day before). If it's not available on the website, then unfortunately there is nothing that can be done. 
+Data can not appear for a variety of reasons. Before raising any issues, check if the data is available on the [website](https://octopus.energy/dashboard/new/accounts/consumption/home) for the requested period (e.g. for previous consumption, you'll be wanting data for the day before). If it's not available on the website, then unfortunately there is nothing that can be done and you may need to contact Octopus Energy.
 
-Data might also not appear if you lose internet connection or the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs. If none of this is applicable, then please raise an issue so we can try and solve the problem.
+Data might also not appear if you lose internet connection or the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs as warnings around using cached data. If none of this is applicable, then please raise an issue so we can try and solve the problem.
 
 ## Data in my Home Assistant energy dashboard reported by Octopus Home Mini differs to Octopus Energy dashboard. Why is this?
 
