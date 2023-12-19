@@ -1,21 +1,39 @@
 # FAQ
 
-- [FAQ](#faq)
-  - [Data in my Home Assistant energy dashboard reported by Octopus Home Mini differs to Octopus Energy dashboard. Why is this?](#data-in-my-home-assistant-energy-dashboard-reported-by-octopus-home-mini-differs-to-octopus-energy-dashboard-why-is-this)
-  - [I've added my previous consumption sensors to the Energy dashboard, but they are reported in a single chunk and are a day or more out. Is this a bug?](#ive-added-my-previous-consumption-sensors-to-the-energy-dashboard-but-they-are-reported-in-a-single-chunk-and-are-a-day-or-more-out-is-this-a-bug)
-  - [Why are the names of the entities so long, and can you change them to be shorted?](#why-are-the-names-of-the-entities-so-long-and-can-you-change-them-to-be-shorted)
-  - [I am getting warnings about entities taking too long to update. Is this normal?](#i-am-getting-warnings-about-entities-taking-too-long-to-update-is-this-normal)
-  - [Why is my gas sensor reporting m3 when Octopus Energy reports it as kWh?](#why-is-my-gas-sensor-reporting-m3-when-octopus-energy-reports-it-as-kwh)
-  - [There are entities that are disabled. Why are they disabled and how do I enable them?](#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them)
-  - [I have entities that are missing](#i-have-entities-that-are-missing)
-  - [I have data missing, is this an issue with the integration](#i-have-data-missing-is-this-an-issue-with-the-integration)
-  - [I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?](#im-an-agile-user-and-having-trouble-setting-up-a-target-rate-sensor-what-am-i-doing-wrong)
-  - [Why won't my target rates update?](#why-wont-my-target-rates-update)
-  - [My gas consumption/costs seem out](#my-gas-consumptioncosts-seem-out)
-  - [I want to use the tariff overrides, but how do I find an available tariff?](#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff)
-  - [How do I know when there's any update available?](#how-do-i-know-when-theres-any-update-available)
-  - [I've been asked for my meter information in a bug request, how do I obtain this?](#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this)
-  - [How do I increase the logs for the integration?](#how-do-i-increase-the-logs-for-the-integration)
+## How often is data refreshed?
+
+Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-and-completed-octopus-intelligent-dispatches/8510/8?u=bottlecapdave), the integration polls and retrieves data at different intervals depending on the target data. Below is a rough table describing how often the integration targets refreshing various bits of data. This has been done to try and not overload the API while also providing useful data in a timely fashion - Octopus Energy estimate that ~95% of their traffic comes mainly from this integration.
+
+| Area | Refresh rate (in minutes) | Justification |
+|-|-|-|
+| Account | 60 | This is mainly used to get the active meters and associated tariffs, which shouldn't change often so no need to poll often. |
+| Intelligent tariff based sensors | 5 | Trying to balance refreshing settings and new dispatch information without overloading the API |
+| Rate information | 15 | This is what drives most people's automations, but doesn't change that frequently. We can afford a bit of lag for API stability. |
+| Current consumption data | Configurable (minimum 1) | This is most useful for a smart home to be as up-to-date as possible, but is also rate limited to 100 requests total per hour. 1 minute is enough for most people, but might need to be increased for those with multiple meters (e.g. gas and electricity) |
+| Previous consumption data | 30 | This is usually refreshed once a day at various times throughout the day. We want to be up-to-date as soon as possible, without swamping the API. |
+| Standing charges | 60 | This should only change if the user's tariff changes, so no need to request data too often. Keep in sync with account refreshes. |
+| Saving sessions | 15 | Inactive for most of the year and new sessions have enough warning to allow a bit of lag. |
+| Wheel of fortune | 60 | Doesn't change that frequently, and not fundamental for a smart home (other than knowledge) so no need to request too often. |
+
+If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly waiting longer between each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.
+
+| Attempt | Target time |
+|-|-|
+| 1 | `10:35` |
+| 2 | `10:36` |
+| 3 | `10:38` |
+| 4 | `10:41` |
+| 5 | `10:45` |
+
+Once a successful request is made, the refreshes will revert back to the redefined default intervals.
+
+**The retrieving of data does not effect the rate the entities states/attributes are evaluated.**
+
+## I have data missing, is this an issue with the integration?
+
+Data can not appear for a variety of reasons. Before raising any issues, check if the data is available on the [website](https://octopus.energy/dashboard/new/accounts/consumption/home) for the requested period (e.g. for previous consumption, you'll be wanting data for the day before). If it's not available on the website, then unfortunately there is nothing that can be done and you may need to contact Octopus Energy.
+
+Data might also not appear if you lose internet connection or the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs as warnings around using cached data. If none of this is applicable, then please raise an issue so we can try and solve the problem.
 
 ## Data in my Home Assistant energy dashboard reported by Octopus Home Mini differs to Octopus Energy dashboard. Why is this?
 
@@ -29,9 +47,13 @@ If you are comparing data in the energy dashboard to previous days data in the O
 
 While you can add the `previous consumption` sensors to the dashboard, they will be associated with the wrong day. This is because the Energy dashboard uses the timestamp of when the sensor updates to determine which day the data should belong to.
 
-Instead, you can use different external statistics that are exported by the `previous consumption` sensors, which are broken down into hourly chunks. Please note it can take **up to 24 hours** for the external statistics to appear.
+Instead, you can use different external statistics that are exported by the `previous consumption` sensors, which are broken down into hourly chunks. 
 
-Please follow the [guide](./energy_dashboard.md#previous-day-consumption) for instructions on how to add these separate sensors to the energy dashboard.
+!!! info 
+
+    It can take **up to 24 hours** for the external statistics to appear.
+
+Please follow the [guide](./setup/energy_dashboard.md#previous-day-consumption) for instructions on how to add these separate sensors to the energy dashboard.
 
 You should not have this issue for current consumption sensors, as they are updated in realtime.
 
@@ -79,13 +101,9 @@ You should then see entries associated with this component stating either entiti
 
 The identifiers of the entities should then be checked against your Octopus Energy dashboard to verify the correct entities are being picked up. If this is producing unexpected results, then you should raise an issue.
 
-## I have data missing, is this an issue with the integration
-
-Data can not appear for a variety of reasons. Before raising any issues, check if the data is available within the app. If it's not available within the app, then unfortunately there is nothing I can do. Data might also not appear if you lose internet connection or the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs. If none of this is applicable, then please raise an issue so we can try and solve the problem.
-
 ## I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?
 
-Rate data for agile tariffs are not available in full for the next day, which can cause issues with target rate sensors in their default state. We prevent you from setting up target rate sensors in this form. More information around this can be found in the [target rate documentation](./setup_target_rate.md#agile-users).
+Rate data for agile tariffs are not available in full for the next day, which can cause issues with target rate sensors in their default state. We prevent you from setting up target rate sensors in this form. More information around this can be found in the [target rate documentation](./setup/target_rate.md#agile-users).
 
 ## Why won't my target rates update?
 
@@ -113,7 +131,7 @@ In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https:
 
 ![Target product example](./assets/product_tariff_lookup.png)
 
-## How do I know when there's any update available?
+## How do I know when there's an update available?
 
 If you've installed via HACS, then you can keep an eye on `sensor.hacs` to see the number of pending updates. This could be used with an automation or highlighted on your dashboard. This will include any HACS integration update, not just this one. If you're feeling a little more adventurous, then you can enable HACS' [experimental features](https://hacs.xyz/docs/configuration/options/). This will surface any available updates in the normal update location within Home Assistant.
 

@@ -75,11 +75,11 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
     rates = self._rates_coordinator.data.rates if self._rates_coordinator is not None and self._rates_coordinator.data is not None else None
 
     current_date = utcnow()
-    self._state = is_in_planned_dispatch(current_date, result.dispatches.planned) or is_off_peak(current_date, rates)
+    self._state = is_in_planned_dispatch(current_date, result.dispatches.planned if result.dispatches is not None else []) or is_off_peak(current_date, rates)
 
     self._attributes = {
-      "planned_dispatches": dispatches_to_dictionary_list(result.dispatches.planned) if result is not None else [],
-      "completed_dispatches": dispatches_to_dictionary_list(result.dispatches.completed) if result is not None else [],
+      "planned_dispatches": dispatches_to_dictionary_list(result.dispatches.planned if result.dispatches is not None else []) if result is not None else [],
+      "completed_dispatches": dispatches_to_dictionary_list(result.dispatches.completed if result.dispatches is not None else []) if result is not None else [],
       "data_last_retrieved": result.last_retrieved if result is not None else None,
       "last_evaluated": current_date 
     }

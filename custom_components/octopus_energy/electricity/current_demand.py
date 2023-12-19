@@ -1,3 +1,4 @@
+from custom_components.octopus_energy.coordinators.current_consumption import CurrentConsumptionCoordinatorResult
 from homeassistant.util.dt import (now)
 import logging
 
@@ -70,11 +71,13 @@ class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElec
   def native_value(self):
     """Handle updated data from the coordinator."""
     _LOGGER.debug('Updating OctopusEnergyCurrentElectricityConsumption')
-    consumption_result = self.coordinator.data if self.coordinator is not None else None
+    consumption_result: CurrentConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    consumption_data = consumption_result.data if consumption_result is not None else None
 
-    if (consumption_result is not None):
-      self._state = consumption_result[-1]["demand"]
+    if (consumption_data is not None):
+      self._state = consumption_data[-1]["demand"]
       self._attributes["last_evaluated"] = now()
+      self._attributes["data_last_retrieved"] = consumption_result.last_retrieved if consumption_result is not None else None
 
     return self._state
 

@@ -66,7 +66,7 @@ body:
     id: ha-logs
     attributes:
       label: Home Assistant Logs
-      description: Paste any related Home Assistant logs here. Please follow the instructions as outlined in the [readme](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/faq.md#how-do-i-increase-the-logs-for-the-integration)
+      description: Paste any related Home Assistant logs here. Please follow the instructions as outlined in the [readme](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/faq#how-do-i-increase-the-logs-for-the-integration)
     validations:
       required: true
   - type: checkboxes
@@ -75,7 +75,7 @@ body:
       label: Confirmation
       description: 
       options:
-        - label: I confirm that I cannot find my solution within the [documentation](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/tree/develop/_docs)
+        - label: I confirm that I cannot find my solution within the [documentation](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy)
           required: true
-        - label: I confirm that I cannot find my solution within the [FAQ](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/tree/develop/_docs/faq.md)
+        - label: I confirm that I cannot find my solution within the [FAQ](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/faq)
           required: true

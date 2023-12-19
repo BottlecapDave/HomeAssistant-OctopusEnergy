@@ -34,7 +34,8 @@ async def async_setup_entry(hass, entry, async_add_entities):
 async def async_setup_intelligent_sensors(hass, async_add_entities):
   _LOGGER.debug('Setting up intelligent sensors')
 
-  account_info = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_info = account_result.account if account_result is not None else None
 
   now = utcnow()
   has_intelligent_tariff = False

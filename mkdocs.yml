@@ -1,0 +1,61 @@
+site_name: Home Assistant Octopus Energy
+repo_url: https://github.com/bottlecapdave/homeassistant-octopusenergy
+docs_dir: _docs
+
+nav:
+  - Home: index.md
+  - Setup:
+    - ./setup/account.md
+    - ./setup/target_rate.md
+    - ./setup/energy_dashboard.md
+  - Entities:
+    - Electricity: ./entities/electricity.md
+    - Gas: ./entities/gas.md
+    - Octoplus: ./entities/octoplus.md
+    - Intelligent: ./entities/intelligent.md
+    - Wheel Of Fortune: ./entities/wheel_of_fortune.md
+  - services.md
+  - events.md
+  - Repairs:
+    - ./repairs/account_not_found.md
+    - ./repairs/invalid_target_rate.md
+    - ./repairs/octopus_mini_not_valid.md
+    - ./repairs/unknown_tariff_format.md
+    - ./repairs/unknown_tariff.md
+  - Community: community.md
+  - blueprints.md
+  - faq.md
+
+# extra:
+#   version:
+#     provider: mike
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - attr_list
+  - toc:
+      permalink: "#"
+
+theme:
+  name: material
+  features:
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - toc.follow
+  palette:
+    # Palette toggle for light mode
+    - scheme: default
+      primary: light blue
+      toggle:
+        icon: material/brightness-7 
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: light blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode

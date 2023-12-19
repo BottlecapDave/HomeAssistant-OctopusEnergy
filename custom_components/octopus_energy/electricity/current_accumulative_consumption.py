@@ -1,4 +1,5 @@
 import logging
+from custom_components.octopus_energy.coordinators.current_consumption import CurrentConsumptionCoordinatorResult
 
 from homeassistant.core import HomeAssistant
 
@@ -82,7 +83,8 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(CoordinatorEntity, 
   def native_value(self):
     """Retrieve the current days accumulative consumption"""
     current = now()
-    consumption_data = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    consumption_result: CurrentConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    consumption_data = consumption_result.data if consumption_result is not None else None
     rate_data = self._rates_coordinator.data.rates if self._rates_coordinator is not None and self._rates_coordinator.data is not None else None
     standing_charge = self._standing_charge_coordinator.data.standing_charge["value_inc_vat"] if self._standing_charge_coordinator is not None and self._standing_charge_coordinator.data is not None else None
     
@@ -108,6 +110,7 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(CoordinatorEntity, 
         "is_smart_meter": self._is_smart_meter,
         "total": consumption_and_cost["total_consumption"],
         "last_evaluated": consumption_and_cost["last_evaluated"],
+        "data_last_retrieved": consumption_result.last_retrieved if consumption_result is not None else None,
         "charges": list(map(lambda charge: {
           "start": charge["start"],
           "end": charge["end"],

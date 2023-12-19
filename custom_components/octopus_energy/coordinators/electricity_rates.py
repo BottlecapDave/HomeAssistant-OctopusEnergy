@@ -18,23 +18,23 @@ from ..const import (
   EVENT_ELECTRICITY_CURRENT_DAY_RATES,
   EVENT_ELECTRICITY_NEXT_DAY_RATES,
   EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
+  REFRESH_RATE_IN_MINUTES_RATES,
 )
 
-from ..api_client import OctopusEnergyApiClient
+from ..api_client import ApiException, OctopusEnergyApiClient
 from ..api_client.intelligent_dispatches import IntelligentDispatches
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 from ..utils import private_rates_to_public_rates
-from . import get_electricity_meter_tariff_code, raise_rate_events
+from . import BaseCoordinatorResult, get_electricity_meter_tariff_code, raise_rate_events
 from ..intelligent import adjust_intelligent_rates
 
 _LOGGER = logging.getLogger(__name__)
 
-class ElectricityRatesCoordinatorResult:
-  last_retrieved: datetime
+class ElectricityRatesCoordinatorResult(BaseCoordinatorResult):
   rates: list
 
-  def __init__(self, last_retrieved: datetime, rates: list):
-    self.last_retrieved = last_retrieved
+  def __init__(self, last_retrieved: datetime, request_attempts: int, rates: list):
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_RATES)
     self.rates = rates
 
 async def async_refresh_electricity_rates_data(
@@ -58,41 +58,49 @@ async def async_refresh_electricity_rates_data(
       return None
 
     new_rates: list = None
-    if ((current.minute % 30) == 0 or 
-        existing_rates_result is None or
-        existing_rates_result.rates is None or
-        len(existing_rates_result.rates) < 1 or
-        existing_rates_result.rates[-1]["start"] < period_from):
+    if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
       try:
         new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
-      except:
+      except Exception as e:
+        if isinstance(e, ApiException) == False:
+          _LOGGER.error(e)
+          raise
+        
         _LOGGER.debug(f'Failed to retrieve electricity rates for {target_mpan}/{target_serial_number} ({tariff_code})')
       
-    if new_rates is not None:
-      _LOGGER.debug(f'Electricity rates retrieved for {target_mpan}/{target_serial_number} ({tariff_code});')
-      
-      if dispatches is not None and is_export_meter == False:
-        new_rates = adjust_intelligent_rates(new_rates, 
-                                             dispatches.planned,
-                                             dispatches.completed)
+      if new_rates is not None:
+        _LOGGER.debug(f'Electricity rates retrieved for {target_mpan}/{target_serial_number} ({tariff_code});')
         
-        _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches}")
+        if dispatches is not None and is_export_meter == False:
+          new_rates = adjust_intelligent_rates(new_rates, 
+                                               dispatches.planned,
+                                               dispatches.completed)
+          
+          _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches}")
 
-      # Sort our rates again _just in case_
-      new_rates.sort(key=lambda rate: rate["start"])
+        # Sort our rates again _just in case_
+        new_rates.sort(key=lambda rate: rate["start"])
+        
+        raise_rate_events(current,
+                          private_rates_to_public_rates(new_rates),
+                          { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": tariff_code },
+                          fire_event,
+                          EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
+                          EVENT_ELECTRICITY_CURRENT_DAY_RATES,
+                          EVENT_ELECTRICITY_NEXT_DAY_RATES)
+        
+        return ElectricityRatesCoordinatorResult(current, 1, new_rates)
       
-      raise_rate_events(current,
-                        private_rates_to_public_rates(new_rates),
-                        { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": tariff_code },
-                        fire_event,
-                        EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
-                        EVENT_ELECTRICITY_CURRENT_DAY_RATES,
-                        EVENT_ELECTRICITY_NEXT_DAY_RATES)
-      
-      return ElectricityRatesCoordinatorResult(current, new_rates)
+      result = None
+      if (existing_rates_result is not None):
+        result = ElectricityRatesCoordinatorResult(existing_rates_result.last_retrieved, existing_rates_result.request_attempts + 1, existing_rates_result.rates)
+        _LOGGER.warning(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number} - using cached rates. Next attempt at {result.next_refresh}")
+      else:
+        # We want to force into our fallback mode
+        result = ElectricityRatesCoordinatorResult(current  - timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES), 2, None)
+        _LOGGER.warning(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number}. Next attempt at {result.next_refresh}")
 
-    elif (existing_rates_result is not None):
-      _LOGGER.debug(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number}, so using cached rates")
+      return result
   
   return existing_rates_result
 
@@ -106,7 +114,8 @@ async def async_setup_electricity_rates_coordinator(hass, target_mpan: str, targ
     """Fetch data from API endpoint."""
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-    account_info = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
+    account_result = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
+    account_info = account_result.account if account_result is not None else None
     dispatches: IntelligentDispatchesCoordinatorResult = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] else None
     rates = hass.data[DOMAIN][key] if key in hass.data[DOMAIN] else None
 

@@ -7,13 +7,11 @@ from custom_components.octopus_energy.coordinators.previous_consumption_and_rate
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("minutes,previous_data_available",[
-  (0, True),
-  (0, False),
-  (30, True),
-  (30, False),
+@pytest.mark.parametrize("previous_data_available",[
+  (True),
+  (False)
 ])
-async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_requested_data_returned(minutes, previous_data_available):
+async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requested_data_returned(previous_data_available):
   # Arrange
   context = get_test_context()
   client = OctopusEnergyApiClient(context["api_key"])
@@ -27,14 +25,14 @@ async def test_when_now_is_at_30_minute_mark_and_electricity_sensor_then_request
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   
-  minutesStr = f'{minutes}'.zfill(2)
-  current_utc_timestamp = datetime.strptime(f'2022-02-12T00:{minutesStr}:00Z', "%Y-%m-%dT%H:%M:%S%z")
+  current_utc_timestamp = datetime.strptime(f'2022-02-12T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
 
   previous_data = None
   if previous_data_available == True:
     # Make our previous data for the previous period
     previous_data = PreviousConsumptionCoordinatorResult(
-      current_utc_timestamp,
+      current_utc_timestamp - timedelta(days=1),
+      1,
       create_consumption_data(
         datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")

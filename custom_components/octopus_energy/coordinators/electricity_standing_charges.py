@@ -1,6 +1,5 @@
 import logging
 from datetime import datetime, timedelta
-from custom_components.octopus_energy.coordinators import get_electricity_meter_tariff_code
 
 from homeassistant.util.dt import (now, as_utc)
 from homeassistant.helpers.update_coordinator import (
@@ -13,18 +12,19 @@ from ..const import (
   DOMAIN,
   DATA_CLIENT,
   DATA_ACCOUNT,
+  REFRESH_RATE_IN_MINUTES_STANDING_CHARGE,
 )
 
-from ..api_client import OctopusEnergyApiClient
+from ..api_client import ApiException, OctopusEnergyApiClient
+from . import BaseCoordinatorResult, get_electricity_meter_tariff_code
 
 _LOGGER = logging.getLogger(__name__)
 
-class ElectricityStandingChargeCoordinatorResult:
-  last_retrieved: datetime
+class ElectricityStandingChargeCoordinatorResult(BaseCoordinatorResult):
   standing_charge: {}
 
-  def __init__(self, last_retrieved: datetime, standing_charge: {}):
-    self.last_retrieved = last_retrieved
+  def __init__(self, last_retrieved: datetime, request_attempts: int, standing_charge: {}):
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_STANDING_CHARGE)
     self.standing_charge = standing_charge
 
 async def async_refresh_electricity_standing_charges_data(
@@ -44,20 +44,30 @@ async def async_refresh_electricity_standing_charges_data(
       return None
     
     new_standing_charge = None
-    if ((current.minute % 30) == 0 or 
-        existing_standing_charges_result is None or
-        existing_standing_charges_result.standing_charge is None or
-        (existing_standing_charges_result.standing_charge["start"] is not None and existing_standing_charges_result.standing_charge["start"] < period_from)):
+    if (existing_standing_charges_result is None or current >= existing_standing_charges_result.next_refresh):
       try:
         new_standing_charge = await client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
         _LOGGER.debug(f'Electricity standing charges retrieved for {target_mpan}/{target_serial_number} ({tariff_code})')
-      except:
+      except Exception as e:
+        if isinstance(e, ApiException) == False:
+          _LOGGER.error(e)
+          raise
+        
         _LOGGER.debug(f'Failed to retrieve electricity standing charges for {target_mpan}/{target_serial_number} ({tariff_code})')
       
-    if new_standing_charge is not None:
-      return ElectricityStandingChargeCoordinatorResult(current, new_standing_charge)
-    elif (existing_standing_charges_result is not None):
-      _LOGGER.debug(f"Failed to retrieve new electricity standing charges for {target_mpan}/{target_serial_number} ({tariff_code}), so using cached standing charges")
+      if new_standing_charge is not None:
+        return ElectricityStandingChargeCoordinatorResult(current, 1, new_standing_charge)
+      
+      result = None
+      if (existing_standing_charges_result is not None):
+        result = ElectricityStandingChargeCoordinatorResult(existing_standing_charges_result.last_retrieved, existing_standing_charges_result.request_attempts + 1, existing_standing_charges_result.standing_charge)
+        _LOGGER.warning(f"Failed to retrieve new electricity standing charges for {target_mpan}/{target_serial_number} ({tariff_code}) - using cached standing charges. Next attempt at {result.next_refresh}")
+      else:
+        # We want to force into our fallback mode
+        result = ElectricityStandingChargeCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_STANDING_CHARGE), 2, None)
+        _LOGGER.warning(f"Failed to retrieve new electricity standing charges for {target_mpan}/{target_serial_number} ({tariff_code}). Next attempt at {result.next_refresh}")
+
+      return result
   
   return existing_standing_charges_result
 
@@ -71,7 +81,8 @@ async def async_setup_electricity_standing_charges_coordinator(hass, target_mpan
     """Fetch data from API endpoint."""
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-    account_info = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
+    account_result = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
+    account_info = account_result.account if account_result is not None else None
     standing_charges: ElectricityStandingChargeCoordinatorResult = hass.data[DOMAIN][key] if key in hass.data[DOMAIN] else None
 
     hass.data[DOMAIN][key] = await async_refresh_electricity_standing_charges_data(

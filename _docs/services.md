@@ -1,24 +1,14 @@
 # Services
 
-- [Services](#services)
-  - [octopus\_energy.purge\_invalid\_external\_statistic\_ids](#octopus_energypurge_invalid_external_statistic_ids)
-  - [octopus\_energy.refresh\_previous\_consumption\_data](#octopus_energyrefresh_previous_consumption_data)
-  - [octopus\_energy.update\_target\_config](#octopus_energyupdate_target_config)
-    - [Automation Example](#automation-example)
-  - [join\_octoplus\_saving\_session\_event](#join_octoplus_saving_session_event)
-    - [Automation Example](#automation-example-1)
-  - [spin\_wheel\_of\_fortune](#spin_wheel_of_fortune)
-    - [Automation Example](#automation-example-2)
-
 There are a few services available within this integration, which are detailed here.
 
 ## octopus_energy.purge_invalid_external_statistic_ids
 
-for removing all external statistics that are associated with meters that don't have an active tariff. This is useful if you've been using the integration and obtained new smart meters.
+For removing all external statistics that are associated with meters that don't have an active tariff. This is useful if you've been using the integration and obtained new smart meters.
 
 ## octopus_energy.refresh_previous_consumption_data
 
-for refreshing the consumption/cost information for a given previous consumption entity. This is useful when you've just installed the integration and want old data brought in or a previous consumption sensor fails to import (e.g. data becomes available outside of the configured offset). The service will raise a notification when the refreshing starts and finishes.
+For refreshing the consumption/cost information for a given previous consumption entity. This is useful when you've just installed the integration and want old data brought in or a previous consumption sensor fails to import (e.g. data becomes available outside of the configured offset). The service will raise a notification when the refreshing starts and finishes.
 
 This service is only available for the following sensors
 
@@ -27,9 +17,11 @@ This service is only available for the following sensors
 
 ## octopus_energy.update_target_config
 
-for updating a given [target rate's](./setup_target_rate.md) config. This allows you to change target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
+For updating a given [target rate's](./setup/target_rate.md) config. This allows you to change target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
 
-> Please note this is temporary and will not persist between restarts.
+!!! info
+
+    This is temporary and will not persist between restarts.
 
 | Attribute                | Optional | Description                                                                                                           |
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
@@ -66,29 +58,29 @@ input_text:
 Then an automation might look like the following
 
 ```yaml
-automations:
-  - alias: Update target rate config
-    trigger:
-    - platform: state
-      entity_id:
+mode: single
+alias: Update target rate config
+trigger:
+  - platform: state
+    entity_id:
       - input_number.octopus_energy_target_hours
       - input_text.octopus_energy_target_from
       - input_text.octopus_energy_target_to
       - input_text.octopus_energy_target_offset
-    condition: []
-    action:
-    - service: octopus_energy.update_target_config
-      data:
-        target_hours: >
-          "{{ states('input_number.octopus_energy_target_hours') | string }}"
-        target_start_time: >
-          {{ states('input_text.octopus_energy_target_from') }}
-        target_end_time: >
-          {{ states('input_text.octopus_energy_target_to') }}
-        target_offset: >
-          {{ states('input_text.octopus_energy_target_offset') }}
-      target:
-        entity_id: binary_sensor.octopus_energy_target_example
+condition: []
+action:
+  - service: octopus_energy.update_target_config
+    data:
+      target_hours: >
+        "{{ states('input_number.octopus_energy_target_hours') | string }}"
+      target_start_time: >
+        {{ states('input_text.octopus_energy_target_from') }}
+      target_end_time: >
+        {{ states('input_text.octopus_energy_target_to') }}
+      target_offset: >
+        {{ states('input_text.octopus_energy_target_offset') }}
+    target:
+      entity_id: binary_sensor.octopus_energy_target_example
 ```
 
 ## join_octoplus_saving_session_event
@@ -102,88 +94,16 @@ Service for joining a new saving session event. When used, it may take a couple 
 
 ### Automation Example
 
-Using the [new saving session event](./events.md#new-saving-session), we can join new saving session events automatically in the following way
-
-```yaml
-- trigger:
-  - platform: event
-    event_type: octopus_energy_new_octoplus_saving_session
-  condition: []
-  action:
-  - service: octopus_energy.join_octoplus_saving_session_event
-    data:
-      event_code: '{{ trigger.event.data["event_code"] }}'
-    target:
-      entity_id: event.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_session_events
-  - service: persistent_notification.create
-    data:
-      title: "Saving Sessions Updated"
-      message: >
-        Joined new Octopus Energy saving session. It starts at {{ trigger.event.data["event_start"].strftime('%H:%M') }} on {{ trigger.event.data["event_start"].day }}/{{ trigger.event.data["event_start"].month }} 
-```
+For an automation example, please refer to the available [blueprint](./blueprints.md#automatically-join-saving-sessions).
 
 ## spin_wheel_of_fortune
 
 This service allows the user to perform a spin on the [wheel of fortune](./entities/wheel_of_fortune.md) that is awarded to users every month. No point letting them go to waste :)
 
+!!! warning
+
+    Due to an ongoing issue with the underlying API, this will not award octopoints if used. If you are on Octoplus, it is advised not to use this service.
+
 ### Automation Example
 
-We can use the following automation to automatically spin the wheel of fortune
-
-```yaml
-- mode: single
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity
-      above: 0
-    - platform: numeric_state
-      entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_gas
-      above: 0
-  condition: []
-  action:
-    - repeat:
-        count: '{{ states(trigger.entity_id) | int }}'
-        sequence:
-          - service: octopus_energy.spin_wheel_of_fortune
-            data: {}
-            target:
-              entity_id: '{{ trigger.entity_id }}'
-```
-
-or you can split it up into two separate automations
-
-```yaml
-- mode: single
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity
-      above: 0
-  condition: []
-  action:
-    - repeat:
-        count: '{{ states('sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity') | int }}'
-        sequence:
-          - service: octopus_energy.spin_wheel_of_fortune
-            data: {}
-            target:
-              entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity
-```
-
-and
-
-```yaml
-- mode: single
-  trigger:
-    - platform: numeric_state
-      entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_gas
-      above: 0
-  condition: []
-  action:
-    - repeat:
-        count: '{{ states('sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_gas') | int }}'
-        sequence:
-          - service: octopus_energy.spin_wheel_of_fortune
-            data: {}
-            target:
-              entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_gas
-```
+For automation examples, please refer to the available [blueprints](./blueprints.md#wheel-of-fortune).

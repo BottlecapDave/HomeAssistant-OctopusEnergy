@@ -1,28 +1,6 @@
-# Gas Entities
+# Gas
 
 You'll get the following entities for each gas meter with an active agreement:
-
-- [Gas Entities](#gas-entities)
-  - [Current Rate](#current-rate)
-  - [Previous Rate](#previous-rate)
-  - [Next rate](#next-rate)
-  - [Current Day Rates](#current-day-rates)
-  - [Previous Day Rates](#previous-day-rates)
-  - [Next Day Rates](#next-day-rates)
-  - [Smart Meter Entities](#smart-meter-entities)
-    - [Previous Accumulative Consumption](#previous-accumulative-consumption)
-    - [Previous Accumulative Consumption (kWH)](#previous-accumulative-consumption-kwh)
-    - [Previous Accumulative Cost](#previous-accumulative-cost)
-  - [Previous Consumption Day Rates](#previous-consumption-day-rates)
-  - [Home Mini Entities](#home-mini-entities)
-    - [Current Consumption](#current-consumption)
-    - [Current Accumulative Consumption](#current-accumulative-consumption)
-    - [Current Accumulative Cost](#current-accumulative-cost)
-  - [Tariff Overrides](#tariff-overrides)
-    - [Previous Accumulative Cost Override Tariff](#previous-accumulative-cost-override-tariff)
-      - [How To Use](#how-to-use)
-    - [Previous Accumulative Cost Override](#previous-accumulative-cost-override)
-    - [Previous Consumption Override Day Rates](#previous-consumption-override-day-rates)
 
 ## Current Rate
 
@@ -38,7 +16,7 @@ The current rate that energy consumption is charged at (including VAT).
 | `tariff` | `string` | The tariff the meter/rates are associated with |
 | `start` | `datetime` | The date/time when the rate started |
 | `end` | `datetime` | The date/time when the rate ends |
-| `is_capped` | `boolean` | Determines if the rate has been capped by the cap set when you setup your account |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup/account.md#pricing-caps) |
 | `price_cap` | `float` | The price cap that has been configured for the account and is currently applied to all gas rates |
 
 ## Previous Rate
@@ -87,7 +65,7 @@ Each rate item has the following attributes
 | `start` | `datetime` | The date/time when the rate starts |
 | `end` | `datetime` | The date/time when the rate ends |
 | `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup/account.md#pricing-caps) |
 
 ## Previous Day Rates
 
@@ -107,7 +85,7 @@ Each rate item has the following attributes
 | `start` | `datetime` | The date/time when the rate starts |
 | `end` | `datetime` | The date/time when the rate ends |
 | `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup/account.md#pricing-caps) |
 
 ## Next Day Rates
 
@@ -127,13 +105,13 @@ Each rate item has the following attributes
 | `start` | `datetime` | The date/time when the rate starts |
 | `end` | `datetime` | The date/time when the rate ends |
 | `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup/account.md#pricing-caps) |
 
 ## Smart Meter Entities
 
 If your account information doesn't determine you have a smart meter, then you will have the following entities in a disabled state. If you enable these entities, they might not work correctly in this scenario. 
 
-If you are wishing to use these sensors with the Energy Dashboard, then you can follow this [guide](../energy_dashboard.md).
+If you are wishing to use these sensors with the Energy Dashboard, then you can follow this [guide](../setup/energy_dashboard.md).
 
 > By default, it's not possible to include current consumption sensors. This is due to Octopus Energy only receive data from the smart meters up to the previous day.
 
@@ -143,18 +121,20 @@ If you are wishing to use these sensors with the Energy Dashboard, then you can 
 
 The total consumption reported by the meter for the previous day in m3. If your meter reports in m3, then this will be an accurate value reported by Octopus, otherwise it will be a calculated/estimated value.
 
-> Please note that this data won't necessarily be available at the stroke of midnight and has been reported to take up to 18 hours for it to appear. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. If data is not available within the 24 hour timeframe, then the integration will not be able to pick up and display the data.
+!!! info
+
+    This data won't necessarily be available at the stroke of midnight and has been reported to take up to 18 hours for it to appear. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. If data is not available within the 24 hour timeframe, then the integration will not be able to pick up and display the data.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
 | `is_estimated` | `boolean` | Determines if the consumption was estimated. This can occur if your meter reports in `kwh`. |
-| `total_kwh` | `float` | The total energy value for the previous day in `kwh`. If your meter reports in `m3`, then this will be estimated using your set [calorific value](../setup_account.md#calorific-value) |
-| `total_m3` | `float` | The total energy value for the previous day in `m3`. If your meter reports in `kwh`, then this will be estimated using your set [calorific value](../setup_account.md#calorific-value) |
+| `total_kwh` | `float` | The total energy value for the previous day in `kwh`. If your meter reports in `m3`, then this will be estimated using your set [calorific value](../setup/account.md#calorific-value) |
+| `total_m3` | `float` | The total energy value for the previous day in `m3`. If your meter reports in `kwh`, then this will be estimated using your set [calorific value](../setup/account.md#calorific-value) |
 | `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
-| `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup_account.md#calorific-value). |
+| `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 
 Each charge item has the following attributes
 
@@ -170,7 +150,9 @@ Each charge item has the following attributes
 
 The total consumption reported by the meter for the previous day in kwh. If your meter reports in kwh, then this will be an accurate value reported by Octopus, otherwise it will be a calculated/estimated value.
 
-> Please note that this data won't necessarily be available at the stroke of midnight and has been reported to take up to 18 hours for it to appear. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. If data is not available within the 24 hour timeframe, then the integration will not be able to pick up and display the data.
+!!! info
+
+    This data won't necessarily be available at the stroke of midnight and has been reported to take up to 18 hours for it to appear. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. If data is not available within the 24 hour timeframe, then the integration will not be able to pick up and display the data.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -179,7 +161,7 @@ The total consumption reported by the meter for the previous day in kwh. If your
 | `is_estimated` | `boolean` | Determines if the consumption was estimated. This can occur if your meter reports in `m3`. |
 | `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
-| `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup_account.md#calorific-value). |
+| `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 
 Each charge item has the following attributes
 
@@ -195,7 +177,9 @@ Each charge item has the following attributes
 
 The total cost for the previous day, including the standing charge.
 
-> Please note that this will only populate once the consumption data is available.
+!!! info
+
+    This will only populate once the consumption data is available.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -207,7 +191,7 @@ The total cost for the previous day, including the standing charge.
 | `total` | `float` | The total cost for the previous day. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `charges` | `array` | Collection of consumption periods and costs for the previous day broken down into 30 minute periods. |
 | `last_evaluated` | `datetime` | The timestamp determining when the cost was last calculated. |
-| `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup_account.md#calorific-value). |
+| `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 
 Each charge item has the following attributes
 
@@ -237,13 +221,13 @@ Each rate item has the following attributes
 | `start` | `datetime` | The date/time when the rate starts |
 | `end` | `datetime` | The date/time when the rate ends |
 | `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup/account.md#pricing-caps) |
 
 ## Home Mini Entities
 
 ### Current Consumption
 
-> This will only be available if you have specified you have a [Octopus Home Mini](../setup_account.md#home-mini). Do not set unless you have one
+> This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_consumption`
 
@@ -267,10 +251,10 @@ The total consumption reported by the meter for the current day.
 
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
-| `total` | `float` | The total energy value for the previous day in `kwh`. If your meter reports in `m3`, then this will be estimated using your set [calorific value](../setup_account.md#calorific-value) |
+| `total` | `float` | The total energy value for the previous day in `kwh`. If your meter reports in `m3`, then this will be estimated using your set [calorific value](../setup/account.md#calorific-value) |
 | `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
-| `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup_account.md#calorific-value). |
+| `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 
 Each charge item has the following attributes
 
@@ -312,7 +296,9 @@ You may be on an existing tariff but want to know if the grass is greener (or ch
 
 Instructions on how to find tariffs can be found in the [faq](../faq.md#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff).
 
-> Please note: When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
+!!! info
+  
+    When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
 
 ### Previous Accumulative Cost Override Tariff
 
@@ -329,7 +315,9 @@ Once you have found your target tariff
 1. Click on this entity to open the info dialog.
 2. Enter your tariff in the text box, and hit `enter` on your keyboard to confirm
 
-> Please note: When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
+!!! info
+
+    When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
 
 ### Previous Accumulative Cost Override
 
@@ -357,4 +345,4 @@ Each rate item has the following attributes
 | `start` | `datetime` | The date/time when the rate starts |
 | `end` | `datetime` | The date/time when the rate ends |
 | `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a configured price cap |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup/account.md#pricing-caps) |

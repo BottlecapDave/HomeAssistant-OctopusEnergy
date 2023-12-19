@@ -1,15 +1,5 @@
 # Energy Dashboard
 
-- [Energy Dashboard](#energy-dashboard)
-  - [Current Consumption](#current-consumption)
-    - [For Electricity](#for-electricity)
-      - [Octopus Home Mini](#octopus-home-mini)
-      - [Alternative methods to measure current Home Consumption](#alternative-methods-to-measure-current-home-consumption)
-    - [For Gas](#for-gas)
-  - [Previous Day Consumption](#previous-day-consumption)
-    - [For Electricity](#for-electricity-1)
-    - [For Gas](#for-gas-1)
-
 ## Current Consumption
 
 ### For Electricity
@@ -21,13 +11,15 @@ You can only record current (i.e. today's) consumption in the Energy dashboard i
 If you have an Octopus Home Mini and a smart electricity meter you can obtain live meter reading data into Home Assistant:
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
-2. Click `Add Consumption` under `Electricity Grid`
-3. For `consumed energy` you want `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption`
+2. Click `Add Consumption` under `Electricity grid`
+3. For `Consumed energy` you want `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption`
 4. Choose the `Use an entity tracking the total costs` option and the entity is `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost`
 
-<img src="./assets/current_consumption_electricity.png" alt="HA modal electricity example" height="500">
+![HA modal electricity example](../assets/current_consumption_electricity.png){: style="height:500px"}
 
-> Please note that data will only appear in the energy dashboard from the point you configure the Home Mini within the integration. It doesn't backport any data.
+!!! note
+  
+    Data will only appear in the energy dashboard from the point you configure the Home Mini within the integration. It doesn't backport any data.
 
 #### Alternative methods to measure current Home Consumption
 
@@ -41,30 +33,42 @@ Do be aware that as you are not directly capturing the smart meter readings in H
 
 ### For Gas
 
-<img src="./assets/current_consumption_gas.png" alt="HA modal gas example" height="500">
+![HA modal gas example](../assets/current_consumption_gas.png){: style="height:500px"}
 
 This is only available if you have an Octopus Home Mini and a smart gas meter.
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
-2. Click `Add Gas Source` under `Gas Consumption`
-3. For `consumed energy` you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption`
+2. Click `Add Gas Source` under `Gas consumption`
+3. For `Gas usage` you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption`
 4. For `Use an entity tracking the total costs` option you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_cost` 
 
-> Please note that data will only appear in the energy dashboard from the point you configure the Home Mini within the integration. It doesn't backport any data.
+!!! note
+
+    Data will only appear in the energy dashboard from the point you configure the Home Mini within the integration. It doesn't backport any data.
 
 ## Previous Day Consumption
 
-If none of the methods above for feeding Current Day Consumption information into the Energy dashboard are suitable, you can add `previous consumption` sensors to the dashboard, using information retrieved via the Octopus API.  Note that the consumption information is only available on the following day so "today's" Energy dashboard will show zero values, but "yesterday's", "day before", etc will show the correct consumption for each day.
+If none of the methods above for feeding Current Day Consumption information into the Energy dashboard are suitable, you can add `previous consumption` information to the dashboard, using information retrieved via the Octopus API. Note that the consumption information is only available on the following day so "today's" Energy dashboard will show zero values, but "yesterday's", "day before", etc will show the correct consumption for each day.
 
-**Beware: Whilst you can add the previous consumption sensors directly to the Energy dashboard, they will be associated with the wrong day.** This is because the Energy dashboard uses the timestamp of when the sensor updates to determine which day the data should belong to.
 
-Instead, you **must** use external statistics that are exported by the `previous consumption` sensors, which are broken down into hourly chunks. Please note it can take **up to 24 hours** for the external statistics to appear.
+!!! warning
 
-> Please note: I'm still investigating having hourly breakdowns imported on the entity themselves rather than as external statistics, but currently in doing so it's still including the spikes on the day of retrieval. I've opened a [forum post](https://community.home-assistant.io/t/help-needed-around-importing-historic-statistics/567726) but awaiting answers.
+    **Beware**: Whilst you can add the previous consumption sensors directly to the Energy dashboard, they will be associated with the wrong day. This is because the Energy dashboard uses the timestamp of when the sensor updates to determine which day the data should belong to.
+
+    Instead, you **must** use external statistics that are exported by the `previous consumption` sensors, which are broken down into hourly chunks. 
+
+!!! info
+
+    It can take **up to 24 hours** for the external statistics to appear.
+
+!!! note
+
+    I'm still investigating having hourly breakdowns imported on the entity themselves rather than as external statistics, but currently in doing so it's still including the spikes on the day of retrieval. I've opened a [forum post](https://community.home-assistant.io/t/help-needed-around-importing-historic-statistics/567726) but awaiting answers.
 
 ### For Electricity
 
-<img src="./assets/previous_consumption_electricity.png" alt="HA modal electricity example" height="500">
+
+![HA modal electricity example](../assets/previous_consumption_electricity.png){: style="height:500px"}
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
 2. Click `Add Consumption` under `Electricity Grid`
@@ -79,12 +83,12 @@ Instead, you **must** use external statistics that are exported by the `previous
 
 ### For Gas
 
-<img src="./assets/previous_consumption_gas.png" alt="HA modal gas example" height="500">
+![HA modal gas example](../assets/previous_consumption_gas.png){: style="height:500px"}
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
 2. Click `Add Gas Source` under `Gas Consumption`
 3. For `consumed energy` you want one of the following
 * `octopus_energy:gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption` - The total consumption reported by the meter for the previous day in m3. If your meter reports in m3, then this will be an accurate value reported by Octopus, otherwise it will be a calculated/estimated value. **Please note the different name to the standard entity.**
 * `octopus_energy:gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption_kwh` - The total consumption reported by the meter for the previous day in kwh. If your meter reports in kwh, then this will be an accurate value reported by Octopus, otherwise it will be a calculated/estimated value. **Please note the different name to the standard entity.**
-4. For `Use an entity tracking the total costs` option you want the following
+1. For `Use an entity tracking the total costs` option you want the following
 * `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost` - The total cost for the previous day.

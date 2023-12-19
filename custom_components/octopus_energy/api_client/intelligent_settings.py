@@ -1,7 +1,7 @@
 from datetime import time
 
 class IntelligentSettings:
-  smart_charge: str
+  smart_charge: bool
   charge_limit_weekday: int
   charge_limit_weekend: int
   ready_time_weekday: time
@@ -9,7 +9,7 @@ class IntelligentSettings:
 
   def __init__(
     self,
-    smart_charge: str,
+    smart_charge: bool,
     charge_limit_weekday: int,
     charge_limit_weekend: int,
     ready_time_weekday: str,

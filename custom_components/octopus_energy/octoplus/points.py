@@ -1,5 +1,7 @@
 import logging
 from datetime import timedelta
+from custom_components.octopus_energy.const import REFRESH_RATE_IN_MINUTES_OCTOPLUS_WHEEL_OF_FORTUNE
+from custom_components.octopus_energy.utils.requests import calculate_next_refresh
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import generate_entity_id
@@ -9,7 +11,7 @@ from homeassistant.components.sensor import (
   RestoreSensor,
   SensorStateClass
 )
-from ..api_client import OctopusEnergyApiClient
+from ..api_client import ApiException, OctopusEnergyApiClient, RequestException
 from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
@@ -27,6 +29,8 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
       "last_evaluated": None
     }
     self._last_evaluated = None
+    self._next_refresh = None
+    self._request_attempts = 1
 
     self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
 
@@ -61,9 +65,19 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
   
   async def async_update(self):
     now = utcnow()
-    if self._last_evaluated is None or self._last_evaluated + timedelta(minutes=30) < now:
-      self._state = await self._client.async_get_octoplus_points()
-      self._last_evaluated = now
+    if self._next_refresh is None or now >= self._next_refresh:
+      try:
+        self._state = await self._client.async_get_octoplus_points()
+        self._last_evaluated = now
+        self._request_attempts = 1
+      except  Exception as e:
+        if isinstance(e, ApiException) == False:
+          _LOGGER.error(e)
+          raise
+        _LOGGER.warning(f"Failed to retrieve octopoints")
+        self._request_attempts = self._request_attempts + 1
+
+      self._next_refresh = calculate_next_refresh(self._last_evaluated, self._request_attempts, REFRESH_RATE_IN_MINUTES_OCTOPLUS_WHEEL_OF_FORTUNE)
     
     self._attributes["data_last_retrieved"] = self._last_evaluated
     self._attributes["last_evaluated"] = self._last_evaluated

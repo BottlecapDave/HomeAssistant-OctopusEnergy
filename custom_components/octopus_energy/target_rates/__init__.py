@@ -25,7 +25,7 @@ def apply_offset(date_time: datetime, offset: str, inverse = False):
   
   return date_time + timedelta(hours=hours, minutes=minutes, seconds=seconds)
 
-def __get_applicable_rates(current_date: datetime, target_start_time: str, target_end_time: str, rates, is_rolling_target: bool):
+def get_applicable_rates(current_date: datetime, target_start_time: str, target_end_time: str, rates, is_rolling_target = True):
   if (target_start_time is not None):
     target_start = parse_datetime(current_date.strftime(f"%Y-%m-%dT{target_start_time}:00%z"))
   else:
@@ -82,16 +82,11 @@ def __get_valid_to(rate):
   return rate["end"]
 
 def calculate_continuous_times(
-    current_date: datetime,
-    target_start_time: str,
-    target_end_time: str,
+    applicable_rates: list,
     target_hours: float,
-    rates,
-    is_rolling_target = True,
     search_for_highest_rate = False,
     find_last_rates = False
   ):
-  applicable_rates = __get_applicable_rates(current_date, target_start_time, target_end_time, rates, is_rolling_target)
   if (applicable_rates is None):
     return []
   
@@ -132,16 +127,11 @@ def calculate_continuous_times(
   return []
 
 def calculate_intermittent_times(
-    current_date: datetime,
-    target_start_time: str,
-    target_end_time: str,
+    applicable_rates: list,
     target_hours: float,
-    rates,
-    is_rolling_target = True,
     search_for_highest_rate = False,
     find_last_rates = False
   ):
-  applicable_rates = __get_applicable_rates(current_date, target_start_time, target_end_time, rates, is_rolling_target)
   if (applicable_rates is None):
     return []
   
@@ -276,7 +266,7 @@ def get_target_rate_info(current_date: datetime, applicable_rates, offset: str =
     "current_average_cost": current_average_cost,
     "current_min_cost": current_min_cost,
     "current_max_cost": current_max_cost,
-    "next_time": apply_offset(next_time, offset) if next_time is not None and offset is not None else next_time,
+    "next_time": next_time,
     "next_duration_in_hours": next_duration_in_hours,
     "next_average_cost": next_average_cost,
     "next_min_cost": next_min_cost,

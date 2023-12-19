@@ -3,7 +3,7 @@ import pytest
 
 from unit import (create_rate_data, agile_rates)
 from custom_components.octopus_energy.api_client import rates_to_thirty_minute_increments
-from custom_components.octopus_energy.target_rates import calculate_continuous_times
+from custom_components.octopus_energy.target_rates import calculate_continuous_times, get_applicable_rates
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("current_date,target_start_time,target_end_time,expected_first_valid_from,is_rolling_target,find_last_rates",[
@@ -70,14 +70,18 @@ async def test_when_continuous_times_present_then_next_continuous_times_returned
   # Restrict our time block
   target_hours = 1
 
-  # Act
-  result = calculate_continuous_times(
+  applicable_rates = get_applicable_rates(
     current_date,
     target_start_time,
     target_end_time,
-    target_hours,
     rates,
-    is_rolling_target,
+    is_rolling_target
+  )
+
+  # Act
+  result = calculate_continuous_times(
+    applicable_rates,
+    target_hours,
     False,
     find_last_rates
   )
@@ -158,14 +162,18 @@ async def test_when_continuous_times_present_and_highest_price_required_then_nex
   # Restrict our time block
   target_hours = 1
 
-  # Act
-  result = calculate_continuous_times(
+  applicable_rates = get_applicable_rates(
     current_date,
     target_start_time,
     target_end_time,
-    target_hours,
     rates,
-    is_rolling_target,
+    is_rolling_target
+  )
+
+  # Act
+  result = calculate_continuous_times(
+    applicable_rates,
+    target_hours,
     True,
     find_last_rates
   )
@@ -281,14 +289,18 @@ async def test_readme_examples(current_date, target_start_time, target_end_time,
   # Restrict our time block
   target_hours = 1
 
-  # Act
-  result = calculate_continuous_times(
+  applicable_rates = get_applicable_rates(
     current_date,
     target_start_time,
     target_end_time,
-    target_hours,
     rates,
     is_rolling_target
+  )
+
+  # Act
+  result = calculate_continuous_times(
+    applicable_rates,
+    target_hours,
   )
 
   # Assert
@@ -304,31 +316,14 @@ async def test_readme_examples(current_date, target_start_time, target_end_time,
     assert result[1]["end"] == expected_first_valid_from + timedelta(minutes=60)
 
 @pytest.mark.asyncio
-async def test_when_current_time_has_not_enough_time_left_then_no_continuous_times_returned():
+async def test_when_applicable_rates_is_none_then_no_continuous_times_returned():
   # Arrange
-  period_from = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  expected_rates = [0.1, 0.2, 0.3, 0.2, 0.2, 0.1]
-
-  rates = create_rate_data(
-    period_from,
-    period_to,
-    expected_rates
-  )
-  
-  # Restrict our time block
-  current_date = datetime.strptime("2022-02-09T17:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  target_start_time = "10:00"
-  target_end_time = "18:00"
   target_hours = 1
 
   # Act
   result = calculate_continuous_times(
-    current_date,
-    target_start_time,
-    target_end_time,
-    target_hours,
-    rates
+    None,
+    target_hours
   )
 
   # Assert
@@ -424,15 +419,18 @@ async def test_when_go_rates_supplied_once_a_day_set_and_cheapest_period_past_th
   # Restrict our time block
   target_hours = 4
 
-  # Act
-  result = calculate_continuous_times(
+  applicable_rates = get_applicable_rates(
     current_date,
     None,
     None,
-    target_hours,
     rates,
-    None,
     False
+  )
+
+  # Act
+  result = calculate_continuous_times(
+    applicable_rates,
+    target_hours
   )
 
   # Assert
@@ -465,13 +463,20 @@ async def test_when_last_rate_is_currently_active_and_target_is_rolling_then_rat
   # Restrict our time block
   target_hours = 0.5
 
-  # Act
-  result = calculate_continuous_times(
+  applicable_rates = get_applicable_rates(
     current_date,
     target_start_time,
     target_end_time,
+    agile_rates,
+    True
+  )
+
+  # Act
+  result = calculate_continuous_times(
+    applicable_rates,
     target_hours,
-    agile_rates
+    False,
+    True
   )
 
   # Assert
@@ -480,199 +485,6 @@ async def test_when_last_rate_is_currently_active_and_target_is_rolling_then_rat
   assert result[0]["start"] == expected_first_valid_from
   assert result[0]["end"] == expected_first_valid_from + timedelta(minutes=30)
   assert result[0]["value_inc_vat"] == 0.18081
-
-@pytest.mark.asyncio
-async def test_when_start_time_is_after_end_time_then_rates_are_overnight():
-  # Arrange
-  current_date = datetime.strptime("2022-10-21T09:10:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
-  target_start_time = "20:00"
-  target_end_time = "09:00"
-
-  expected_first_valid_from = datetime.strptime("2022-10-21T23:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
-  
-  # Restrict our time block
-  target_hours = 1
-
-  # Act
-  result = calculate_continuous_times(
-    current_date,
-    target_start_time,
-    target_end_time,
-    target_hours,
-    agile_rates,
-    False
-  )
-
-  # Assert
-  assert result is not None
-  assert len(result) == 2
-  assert result[0]["start"] == expected_first_valid_from
-  assert result[0]["end"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[0]["value_inc_vat"] == 0.14123
-
-  assert result[1]["start"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[1]["end"] == expected_first_valid_from + timedelta(minutes=60)
-  assert result[1]["value_inc_vat"] == 0.14123
-
-@pytest.mark.asyncio
-async def test_when_start_time_and_end_time_is_same_then_rates_are_shifted():
-  # Arrange
-  current_date = datetime.strptime("2022-10-21T17:10:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
-  target_start_time = "16:00"
-  target_end_time = "16:00"
-
-  expected_first_valid_from = datetime.strptime("2022-10-21T23:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
-  
-  # Restrict our time block
-  target_hours = 1
-
-  # Act
-  result = calculate_continuous_times(
-    current_date,
-    target_start_time,
-    target_end_time,
-    target_hours,
-    agile_rates,
-    False
-  )
-
-  # Assert
-  assert result is not None
-  assert len(result) == 2
-  assert result[0]["start"] == expected_first_valid_from
-  assert result[0]["end"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[0]["value_inc_vat"] == 0.14123
-
-  assert result[1]["start"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[1]["end"] == expected_first_valid_from + timedelta(minutes=60)
-  assert result[1]["value_inc_vat"] == 0.14123
-
-
-@pytest.mark.asyncio
-async def test_when_start_time_is_after_end_time_and_rolling_target_then_rates_are_overnight():
-  # Arrange
-  current_date = datetime.strptime("2022-10-21T23:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
-  target_start_time = "22:00"
-  target_end_time = "01:00"
-
-  expected_first_valid_from = datetime.strptime("2022-10-21T23:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
-  
-  # Restrict our time block
-  target_hours = 1
-
-  tariff_code = "test-tariff"
-  rates = rates_to_thirty_minute_increments(
-    {
-      "results": [
-        {
-          "value_exc_vat": 15.1,
-          "value_inc_vat": 15.1,
-          "valid_from": "2022-10-21T00:00:00Z",
-          "valid_to": "2022-10-21T22:00:00Z"
-        },
-        {
-          "value_exc_vat": 16.1,
-          "value_inc_vat": 16.1,
-          "valid_from": "2022-10-21T22:00:00Z",
-          "valid_to": "2022-10-22T02:00:00Z"
-        },
-        {
-          "value_exc_vat": 15.1,
-          "value_inc_vat": 15.1,
-          "valid_from": "2022-10-22T02:00:00Z",
-          "valid_to": "2022-10-22T05:00:00Z"
-        },
-      ]
-    },
-    datetime.strptime("2022-10-21T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-    datetime.strptime("2022-10-24T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-    tariff_code
-  )
-
-  # Act
-  result = calculate_continuous_times(
-    current_date,
-    target_start_time,
-    target_end_time,
-    target_hours,
-    rates,
-    True
-  )
-
-  # Assert
-  assert result is not None
-  assert len(result) == 2
-  assert result[0]["start"] == expected_first_valid_from
-  assert result[0]["end"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[0]["value_inc_vat"] == 0.161
-
-  assert result[1]["start"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[1]["end"] == expected_first_valid_from + timedelta(minutes=60)
-  assert result[1]["value_inc_vat"] == 0.161
-
-@pytest.mark.asyncio
-async def test_when_start_time_and_end_time_is_same_and_rolling_target_then_rates_are_shifted():
-  # Arrange
-  current_date = datetime.strptime("2022-10-21T23:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
-  target_start_time = "16:00"
-  target_end_time = "16:00"
-
-  expected_first_valid_from = datetime.strptime("2022-10-22T02:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
-  
-  # Restrict our time block
-  target_hours = 1
-
-  tariff_code = "test-tariff"
-  rates = rates_to_thirty_minute_increments(
-    {
-      "results": [
-        {
-          "value_exc_vat": 15.1,
-          "value_inc_vat": 15.1,
-          "valid_from": "2022-10-21T00:00:00Z",
-          "valid_to": "2022-10-21T22:00:00Z"
-        },
-        {
-          "value_exc_vat": 16.1,
-          "value_inc_vat": 16.1,
-          "valid_from": "2022-10-21T22:00:00Z",
-          "valid_to": "2022-10-22T02:00:00Z"
-        },
-        {
-          "value_exc_vat": 15.1,
-          "value_inc_vat": 15.1,
-          "valid_from": "2022-10-22T02:00:00Z",
-          "valid_to": "2022-10-22T05:00:00Z"
-        },
-        {
-          "value_exc_vat": 16.1,
-          "value_inc_vat": 16.1,
-          "valid_from": "2022-10-22T05:00:00Z",
-          "valid_to": "2022-10-23T00:00:00Z"
-        },
-      ]
-    },
-    datetime.strptime("2022-10-21T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-    datetime.strptime("2022-10-24T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-    tariff_code
-  )
-
-  # Act
-  result = calculate_continuous_times(
-    current_date,
-    target_start_time,
-    target_end_time,
-    target_hours,
-    rates,
-    True
-  )
-
-  # Assert
-  assert result is not None
-  assert len(result) == 2
-  assert result[0]["start"] == expected_first_valid_from
-  assert result[0]["end"] == expected_first_valid_from + timedelta(minutes=30)
-  assert result[0]["value_inc_vat"] == 0.151
 
 @pytest.mark.asyncio
 async def test_when_available_rates_are_too_low_then_no_times_are_returned():
@@ -684,14 +496,18 @@ async def test_when_available_rates_are_too_low_then_no_times_are_returned():
   # Restrict our time block
   target_hours = 3
 
-  # Act
-  result = calculate_continuous_times(
+  applicable_rates = get_applicable_rates(
     current_date,
     target_start_time,
     target_end_time,
-    target_hours,
     agile_rates,
     False
+  )
+
+  # Act
+  result = calculate_continuous_times(
+    applicable_rates,
+    target_hours
   )
 
   # Assert

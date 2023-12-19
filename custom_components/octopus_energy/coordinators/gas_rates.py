@@ -15,20 +15,20 @@ from ..const import (
   EVENT_GAS_CURRENT_DAY_RATES,
   EVENT_GAS_NEXT_DAY_RATES,
   EVENT_GAS_PREVIOUS_DAY_RATES,
+  REFRESH_RATE_IN_MINUTES_RATES,
 )
 
-from ..api_client import OctopusEnergyApiClient
+from ..api_client import ApiException, OctopusEnergyApiClient
 from ..utils import private_rates_to_public_rates
-from . import get_gas_meter_tariff_code, raise_rate_events
+from . import BaseCoordinatorResult, get_gas_meter_tariff_code, raise_rate_events
 
 _LOGGER = logging.getLogger(__name__)
 
-class GasRatesCoordinatorResult:
-  last_retrieved: datetime
+class GasRatesCoordinatorResult(BaseCoordinatorResult):
   rates: list
 
-  def __init__(self, last_retrieved: datetime, rates: list):
-    self.last_retrieved = last_retrieved
+  def __init__(self, last_retrieved: datetime, request_attempts: int, rates: list):
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_RATES)
     self.rates = rates
 
 async def async_refresh_gas_rates_data(
@@ -49,39 +49,47 @@ async def async_refresh_gas_rates_data(
       return None
 
     new_rates: list = None
-    if ((current.minute % 30) == 0 or 
-        existing_rates_result is None or
-        existing_rates_result.rates is None or
-        len(existing_rates_result.rates) < 1 or
-        existing_rates_result.rates[-1]["start"] < period_from):
+    
+    if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
       try:
         new_rates = await client.async_get_gas_rates(tariff_code, period_from, period_to)
-      except:
+      except Exception as e:
+        if isinstance(e, ApiException) == False:
+          _LOGGER.error(e)
+          raise
+        
         _LOGGER.debug(f'Failed to retrieve gas rates for {target_mprn}/{target_serial_number} ({tariff_code})')
 
-    # Make sure our rate information doesn't contain any negative values https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/506
-    if new_rates is not None:
-      for rate in new_rates:
-        if rate["value_inc_vat"] < 0:
-          new_rates = None
-          break
-      
-    if new_rates is not None:
-      _LOGGER.debug(f'Gas rates retrieved for {target_mprn}/{target_serial_number} ({tariff_code});')
+      # Make sure our rate information doesn't contain any negative values https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/506
+      if new_rates is not None:
+        for rate in new_rates:
+          if rate["value_inc_vat"] < 0:
+            new_rates = None
+            break
+        
+      if new_rates is not None:
+        _LOGGER.debug(f'Gas rates retrieved for {target_mprn}/{target_serial_number} ({tariff_code});')
 
-      raise_rate_events(current,
-                        private_rates_to_public_rates(new_rates),
-                        { "mprn": target_mprn, "serial_number": target_serial_number, "tariff_code": tariff_code },
-                        fire_event,
-                        EVENT_GAS_PREVIOUS_DAY_RATES,
-                        EVENT_GAS_CURRENT_DAY_RATES,
-                        EVENT_GAS_NEXT_DAY_RATES)
-      
-      return GasRatesCoordinatorResult(current, new_rates)
+        raise_rate_events(current,
+                          private_rates_to_public_rates(new_rates),
+                          { "mprn": target_mprn, "serial_number": target_serial_number, "tariff_code": tariff_code },
+                          fire_event,
+                          EVENT_GAS_PREVIOUS_DAY_RATES,
+                          EVENT_GAS_CURRENT_DAY_RATES,
+                          EVENT_GAS_NEXT_DAY_RATES)
+        
+        return GasRatesCoordinatorResult(current, 1, new_rates)
 
-    elif (existing_rates_result is not None):
-      _LOGGER.debug(f"Failed to retrieve new gas rates for {target_mprn}/{target_serial_number}, so using cached rates")
-      return existing_rates_result
+      result = None
+      if (existing_rates_result is not None):
+        result = GasRatesCoordinatorResult(existing_rates_result.last_retrieved, existing_rates_result.request_attempts + 1, existing_rates_result.rates)
+        _LOGGER.warning(f"Failed to retrieve new gas rates for {target_mprn}/{target_serial_number} - using cached rates. Next attempt at {result.next_refresh}")
+      else:
+        # We want to force into our fallback mode
+        result = GasRatesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES), 2, None)
+        _LOGGER.warning(f"Failed to retrieve new gas rates for {target_mprn}/{target_serial_number}. Next attempt at {result.next_refresh}")
+
+      return result
   
   return existing_rates_result
 
@@ -94,7 +102,8 @@ async def async_setup_gas_rates_coordinator(hass, client: OctopusEnergyApiClient
   async def async_update_gas_rates_data():
     """Fetch data from API endpoint."""
     current = now()
-    account_info = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
+    account_result = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
+    account_info = account_result.account if account_result is not None else None
     rates = hass.data[DOMAIN][key] if key in hass.data[DOMAIN] else None
 
     hass.data[DOMAIN][key] = await async_refresh_gas_rates_data(

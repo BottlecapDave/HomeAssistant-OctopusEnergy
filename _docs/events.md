@@ -1,31 +1,5 @@
 # Events
 
-- [Events](#events)
-  - [Electricity Current Day Rates](#electricity-current-day-rates)
-    - [Automation Example](#automation-example)
-  - [Electricity Previous Day Rates](#electricity-previous-day-rates)
-    - [Automation Example](#automation-example-1)
-  - [Electricity Next Day Rates](#electricity-next-day-rates)
-    - [Automation Example](#automation-example-2)
-  - [Electricity Previous Consumption Rates](#electricity-previous-consumption-rates)
-    - [Automation Example](#automation-example-3)
-  - [Electricity Previous Consumption Override Rates](#electricity-previous-consumption-override-rates)
-    - [Automation Example](#automation-example-4)
-  - [Gas Current Day Rates](#gas-current-day-rates)
-    - [Automation Example](#automation-example-5)
-  - [Gas Previous Day Rates](#gas-previous-day-rates)
-    - [Automation Example](#automation-example-6)
-  - [Gas Next Day Rates](#gas-next-day-rates)
-    - [Automation Example](#automation-example-7)
-  - [Gas Previous Consumption Rates](#gas-previous-consumption-rates)
-    - [Automation Example](#automation-example-8)
-  - [Gas Previous Consumption Override Rates](#gas-previous-consumption-override-rates)
-    - [Automation Example](#automation-example-9)
-  - [New Saving Session](#new-saving-session)
-    - [Automation Example](#automation-example-10)
-  - [All Saving Sessions](#all-saving-sessions)
-    - [Automation Example](#automation-example-11)
-
 The following events are raised by the integration. These events power various entities and can also be used within automations.
 
 ## Electricity Current Day Rates
@@ -335,7 +309,7 @@ This event is raised when a new saving session is discovered.
     data:
       title: "New Saving Session"
       message: >
-        New Octopus Energy saving session. It starts at {{ trigger.event.data["event_start"].strftime('%H:%M') }} on {{ trigger.event.data["event_start"].day }}/{{ trigger.event.data["event_start"].month }}
+        New Octopus Energy saving session available. It starts at {{ trigger.event.data["event_start"].strftime('%H:%M') }} on {{ trigger.event.data["event_start"].day }}/{{ trigger.event.data["event_start"].month }}
 ```
 
 ## All Saving Sessions
@@ -367,6 +341,7 @@ Each joined event item will include the following attributes
 | `id` | `integer` | The id of the event |
 | `start` | `datetime` | The date/time the event starts |
 | `end` | `datetime` | The date/time the event starts |
+| `octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |
 | `rewarded_octopoints` | `integer` | The total number of octopoints that were awarded (if any or known) |
 
 ### Automation Example

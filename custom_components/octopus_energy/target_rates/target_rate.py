@@ -40,6 +40,7 @@ from ..const import (
 from . import (
   calculate_continuous_times,
   calculate_intermittent_times,
+  get_applicable_rates,
   get_target_rate_info
 )
 
@@ -108,7 +109,10 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     else:
       offset = None
 
-    check_for_errors(self._hass, self._config, self._hass.data[DOMAIN][DATA_ACCOUNT], now())
+    account_result = self._hass.data[DOMAIN][DATA_ACCOUNT]
+    account_info = account_result.account if account_result is not None else None
+
+    check_for_errors(self._hass, self._config, account_info, now())
 
     # Find the current rate. Rates change a maximum of once every 30 minutes.
     current_date = utcnow()
@@ -159,31 +163,32 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
 
           find_highest_rates = (self._is_export and invert_target_rates == False) or (self._is_export == False and invert_target_rates)
 
+          applicable_rates = get_applicable_rates(
+            current_date,
+            start_time,
+            end_time,
+            all_rates,
+            is_rolling_target
+          )
+
           if (self._config[CONFIG_TARGET_TYPE] == "Continuous"):
             self._target_rates = calculate_continuous_times(
-              now(),
-              start_time,
-              end_time,
+              applicable_rates,
               target_hours,
-              all_rates,
-              is_rolling_target,
               find_highest_rates,
               find_last_rates
             )
           elif (self._config[CONFIG_TARGET_TYPE] == "Intermittent"):
             self._target_rates = calculate_intermittent_times(
-              now(),
-              start_time,
-              end_time,
+              applicable_rates,
               target_hours,
-              all_rates,
-              is_rolling_target,
               find_highest_rates,
               find_last_rates
             )
           else:
             _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")
 
+          self._attributes["rates_incomplete"] = applicable_rates is None
           self._attributes["target_times"] = self._target_rates
           self._attributes["target_times_last_evaluated"] = current_date
           _LOGGER.debug(f"calculated rates: {self._target_rates}")
@@ -219,14 +224,10 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     
     if state is not None and self._state is None:
       self._state = None if state.state == "unknown" else state.state
-      self._attributes = {}
-      temp_attributes = dict_to_typed_dict(state.attributes)
-      for x in temp_attributes.keys():
-        if x in [CONFIG_TARGET_OLD_NAME, CONFIG_TARGET_OLD_HOURS, CONFIG_TARGET_OLD_TYPE, CONFIG_TARGET_OLD_START_TIME, CONFIG_TARGET_OLD_END_TIME, CONFIG_TARGET_OLD_MPAN]:
-          continue
-        
-        self._attributes[x] = temp_attributes[x]
-
+      self._attributes = dict_to_typed_dict(
+        state.attributes,
+        [CONFIG_TARGET_OLD_NAME, CONFIG_TARGET_OLD_HOURS, CONFIG_TARGET_OLD_TYPE, CONFIG_TARGET_OLD_START_TIME, CONFIG_TARGET_OLD_END_TIME, CONFIG_TARGET_OLD_MPAN]
+      )
       # Make sure our attributes don't override any changed settings
       self._attributes.update(self._config)
     
@@ -265,7 +266,10 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
         CONFIG_TARGET_OFFSET: trimmed_target_offset
       })
 
-    errors = validate_target_rate_config(config, self._hass.data[DOMAIN][DATA_ACCOUNT], now())
+    account_result = self._hass.data[DOMAIN][DATA_ACCOUNT]
+    account_info = account_result.account if account_result is not None else None
+
+    errors = validate_target_rate_config(config, account_info, now())
     keys = list(errors.keys())
     if (len(keys)) > 0:
       translations = await translation.async_get_translations(self._hass, self._hass.config.language, "options", {DOMAIN})

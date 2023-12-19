@@ -151,12 +151,5 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
     
     if state is not None and self._state is None:
       self._state = None if state.state == "unknown" else state.state
-      self._attributes = {}
-      temp_attributes = dict_to_typed_dict(state.attributes)
-      for x in temp_attributes.keys():
-        if x in ['all_rates', 'applicable_rates']:
-          continue
-        
-        self._attributes[x] = state.attributes[x]
-    
+      self._attributes = dict_to_typed_dict(state.attributes, ['all_rates', 'applicable_rates'])
       _LOGGER.debug(f'Restored OctopusEnergyElectricityCurrentRate state: {self._state}')

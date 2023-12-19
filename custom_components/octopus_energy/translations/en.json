@@ -3,7 +3,7 @@
   "config": {
     "step": {
       "user": {
-        "description": "Setup your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
+        "description": "Setup your basic account information.",
         "data": {
           "api_key": "Api key",
           "account_id": "Your account Id (e.g. A-AAAA1111)",
@@ -18,13 +18,15 @@
           "gas_price_cap": "Optional gas price cap in pence"
         },
         "data_description": {
+          "account_id": "This can be found on your bill or at the top of https://octopus.energy/dashboard",
+          "api_key": "This can be found at https://octopus.energy/dashboard/developer/",
           "calorific_value": "This can be found on your gas statement and can change from time to time"
         }
       },
       "target_rate": {
-        "description": "Setup a target rate period. Continuous target will find the cheapest continuous period for your target hours. While intermittent will find the cheapest periods with potential gaps, which when combined will meet your target hours. Full documentation can be found at https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/setup_target_rate.md",
+        "description": "Setup a target rate period. Continuous target will find the cheapest continuous period for your target hours. While intermittent will find the cheapest periods with potential gaps, which when combined will meet your target hours. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/target_rate",
         "data": {
-          "entity_id": "The name of your target",
+          "name": "The name of your target",
           "hours": "The hours you require in decimal format.",
           "type": "The type of target you're after",
           "mpan": "The MPAN number of the meter to apply the target to",
@@ -57,7 +59,7 @@
     "step": {
       "user": {
         "title": "Update Account Info",
-        "description": "Update your basic account information. This can be found at https://octopus.energy/dashboard/developer/.",
+        "description": "Update your basic account information.",
         "data": {
           "api_key": "Api key",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
@@ -70,12 +72,13 @@
           "gas_price_cap": "Optional gas price cap in pence"
         },
         "data_description": {
+          "api_key": "This can be found at https://octopus.energy/dashboard/developer/",
           "calorific_value": "This can be found on your gas statement and can change from time to time"
         }
       },
       "target_rate": {
         "title": "Update Target Rate",
-        "description": "Update the settings for your target rate sensor, which can be used to help you save energy and money. Full documentation can be found at https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/setup_target_rate.md",
+        "description": "Update the settings for your target rate sensor, which can be used to help you save energy and money. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/target_rate",
         "data": {
           "hours": "The hours you require in decimal format.",
           "mpan": "The MPAN number of the meter to apply the target to",

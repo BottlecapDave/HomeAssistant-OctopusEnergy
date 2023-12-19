@@ -1,0 +1,38 @@
+blueprint:
+  name: Octopus Energy - Join Saving Session
+  description: Automatically joins saving sessions when they become available
+  domain: automation
+  author: BottlecapDave
+  input:
+    saving_session_event_entity:
+      name: Saving session events
+      description: The saving session event entity to join (e.g. event.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_session_events)
+      selector:
+        entity:
+          filter:
+          - domain:
+            - event
+            integration: octopus_energy
+          multiple: false
+  source_url: https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/blob/develop/_docs/blueprints/octopus_energy_octoplus_join_saving_session.yml
+mode: single
+variables:
+  saving_session_event_entity: !input saving_session_event_entity
+trigger:
+- platform: state
+  entity_id: !input saving_session_event_entity
+condition:
+- condition: template
+  value_template: "{{ state_attr(saving_session_event_entity, 'available_events') | length > 0 }}"
+action:
+- service: octopus_energy.join_octoplus_saving_session_event
+  data:
+    event_code: "{{ state_attr(saving_session_event_entity, 'available_events')[0]['code'] }}"
+  target:
+    entity_id: !input saving_session_event_entity
+- service: persistent_notification.create
+  data:
+    title: Joined Saving Sessions
+    message: >
+      {% set event_start = state_attr(saving_session_event_entity, 'available_events')[0]['start'] %}
+      Joined a new Octopus Energy saving session. It starts at {{ event_start.strftime('%H:%M') }} on {{ event_start.day }}/{{ event_start.month }}

@@ -74,8 +74,9 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
     if settings_result is not None:
       self._attributes["data_last_retrieved"] = settings_result.last_retrieved
     
-    self._state = settings_result.settings.charge_limit_weekday
-    self._attributes["last_evaluated"] = utcnow()
+    if settings_result.settings is not None:
+      self._state = settings_result.settings.charge_limit_weekday
+      self._attributes["last_evaluated"] = utcnow()
     
     return self._state
 

@@ -37,15 +37,15 @@ To install, place the contents of `custom_components` into the `<config director
 
 ## How to setup
 
-Please follow the [setup guide](./_docs/setup_account.md) to setup your initial account. This guide details the configuration, along with the sensors that will be available to you.
+Please follow the [setup guide](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account) to setup your initial account. This guide details the configuration, along with the sensors that will be available to you.
 
 ## Docs
 
-To get full use of the integration, please visit the [docs](./_docs/readme.md).
+To get full use of the integration, please visit the [docs](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/).
 
 ## FAQ
 
-Before raising anything, please read through the [faq](./_docs/faq.md). If you have questions, then you can raise a [discussion](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions). If you have found a bug or have a feature request please [raise it](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues) using the appropriate report template.
+Before raising anything, please read through the [faq](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/faq). If you have questions, then you can raise a [discussion](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions). If you have found a bug or have a feature request please [raise it](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues) using the appropriate report template.
 
 ## Sponsorship
 
