@@ -2,18 +2,18 @@
 
 ## How often is data refreshed?
 
-Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-and-completed-octopus-intelligent-dispatches/8510/8?u=bottlecapdave), the integration polls and retrieves data at different intervals depending on the target data. Below is a rough table describing how often the integration targets refreshing various bits of data. This has been done to try and not overload the API while also providing useful data in a timely fashion.
+Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-and-completed-octopus-intelligent-dispatches/8510/8?u=bottlecapdave), the integration polls and retrieves data at different intervals depending on the target data. Below is a rough table describing how often the integration targets refreshing various bits of data. This has been done to try and not overload the API while also providing useful data in a timely fashion - Octopus Energy estimate that ~95% of their traffic comes mainly from this integration.
 
-| Area | Refresh rate (in minutes) | Notes |
+| Area | Refresh rate (in minutes) | Justification |
 |-|-|-|
-| Account | 30 | This shouldn't change often so no need to poll often. This is used to get active tariffs |
+| Account | 60 | This is mainly used to get the active meters and associated tariffs, which shouldn't change often so no need to poll often. |
 | Intelligent tariff based sensors | 5 | Trying to balance refreshing settings and new dispatch information without overloading the API |
-| Rate information | 15 | This is what drives most people's automations, but doesn't change that frequently |
-| Current consumption data | Configurable (minimum 1) | This is most useful for a smart home to be as up-to-date as possible, but at the same time we don't want to flood the API with requests |
-| Previous consumption data | 30 | This doesn't change frequently, so no need to request too often. |
-| Standing charges | 30 | This should only change if the user's tariff changes, so no need to request data too often. |
-| Saving sessions | 15 | Inactive for most of the year and new sessions have enough warning |
-| Wheel of fortune | 30 | Doesn't change that frequently, so no need to request too often. |
+| Rate information | 15 | This is what drives most people's automations, but doesn't change that frequently. We can afford a bit of lag for API stability. |
+| Current consumption data | Configurable (minimum 1) | This is most useful for a smart home to be as up-to-date as possible, but is also rate limited to 100 requests total per hour. 1 minute is enough for most people, but might need to be increased for those with multiple meters (e.g. gas and electricity) |
+| Previous consumption data | 30 | This is usually refreshed once a day at various times throughout the day. We want to be up-to-date as soon as possible, without swamping the API. |
+| Standing charges | 60 | This should only change if the user's tariff changes, so no need to request data too often. Keep in sync with account refreshes. |
+| Saving sessions | 15 | Inactive for most of the year and new sessions have enough warning to allow a bit of lag. |
+| Wheel of fortune | 60 | Doesn't change that frequently, and not fundamental for a smart home (other than knowledge) so no need to request too often. |
 
 If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly taking longer with each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.
 
