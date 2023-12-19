@@ -15,7 +15,7 @@ Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-
 | Saving sessions | 15 | Inactive for most of the year and new sessions have enough warning to allow a bit of lag. |
 | Wheel of fortune | 60 | Doesn't change that frequently, and not fundamental for a smart home (other than knowledge) so no need to request too often. |
 
-If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly taking longer with each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.
+If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly waiting longer between each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.
 
 | Attempt | Target time |
 |-|-|
@@ -24,6 +24,8 @@ If data cannot be refreshed for any reason (e.g. no internet or APIs are down), 
 | 3 | `10:38` |
 | 4 | `10:41` |
 | 5 | `10:45` |
+
+Once a successful request is made, the refreshes will revert back to the redefined default intervals.
 
 **The retrieving of data does not effect the rate the entities states/attributes are evaluated.**
 
