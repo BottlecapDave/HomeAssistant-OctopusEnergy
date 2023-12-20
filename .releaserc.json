@@ -16,7 +16,7 @@
     ],
     [
       "@semantic-release/git", {
-        "assets": ["package.json", "CHANGELOG.md", "./custom_components/octopus_energy/manifest.json"],
+        "assets": ["package.json", "CHANGELOG.md", "./custom_components/octopus_energy"],
         "message": "release: Released v${nextRelease.version} [skip ci]"
       }
     ],
