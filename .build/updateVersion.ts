@@ -15,13 +15,17 @@ function updateManifestVersion(version: string) {
 
 function updateVersionConstant(version: string) {
   const buffer = readFileSync(constantFilePath);
-  let content = buffer.toString();
+  const oldContent = buffer.toString();
 
   const versionRegex = /INTEGRATION_VERSION = \"[^\"]+\"/g
-  content = content.replace(versionRegex, `INTEGRATION_VERSION = \"${version}\"`);
+  const newContent = oldContent.replace(versionRegex, `INTEGRATION_VERSION = \"${version}\"`);
 
-  writeFileSync(constantFilePath, content);
-  console.log(`Updated constant version to '${version}'`);
+  if (oldContent != newContent) {
+    writeFileSync(constantFilePath, newContent);
+    console.log(`Updated constant version to '${version}'`);
+  } else {
+    console.log(`Failed to update constant version to '${version}'`);
+  }
 }
 
 updateManifestVersion(process.argv[2]);
