@@ -1,3 +1,10 @@
+## [9.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v9.2.0...v9.2.1) (2023-12-20)
+
+
+### Bug Fixes
+
+* Fixed issue where user agent version was not updated ([6660075](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/66600758be135ab0a58a43ec4378ab6026bc6ea1))
+
 # [9.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v9.1.0...v9.2.0) (2023-12-19)
 
 
