@@ -5,12 +5,12 @@ from ..const import (
   REGEX_ENTITY_NAME
 )
 
-async def async_migrate_cost_sensor_config(version: int, data: {}, get_entries):
+async def async_migrate_cost_tracker_config(version: int, data: {}, get_entries):
   new_data = {**data}
 
   return new_data
 
-def merge_cost_sensor_config(data: dict, options: dict, updated_config: dict = None):
+def merge_cost_tracker_config(data: dict, options: dict, updated_config: dict = None):
   config = dict(data)
   if options is not None:
     config.update(options)
@@ -20,7 +20,7 @@ def merge_cost_sensor_config(data: dict, options: dict, updated_config: dict = N
 
   return config
 
-def validate_cost_sensor_config(data):
+def validate_cost_tracker_config(data):
   errors = {}
 
   matches = re.search(REGEX_ENTITY_NAME, data[CONFIG_COST_NAME])

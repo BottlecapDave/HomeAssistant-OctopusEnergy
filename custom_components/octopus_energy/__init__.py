@@ -20,6 +20,7 @@ from .utils import get_active_tariff_code
 from .const import (
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
+  CONFIG_KIND_COST_TRACKER,
   CONFIG_KIND_TARGET_RATE,
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_VERSION,
@@ -40,6 +41,7 @@ from .const import (
 
 ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "text", "number", "switch", "time", "event"]
 TARGET_RATE_PLATFORMS = ["binary_sensor"]
+COST_TRACKER_PLATFORMS = ["sensor"]
 
 from .api_client import OctopusEnergyApiClient
 
@@ -102,6 +104,25 @@ async def async_setup_entry(hass, entry):
             raise ConfigEntryNotReady(f"Electricity rates have not been setup for {mpan}/{serial_number}")
 
     await hass.config_entries.async_forward_entry_setups(entry, TARGET_RATE_PLATFORMS)
+  elif config[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
+    if DOMAIN not in hass.data or DATA_ACCOUNT not in hass.data[DOMAIN]:
+      raise ConfigEntryNotReady("Account has not been setup")
+    
+    now = utcnow()
+    account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+    account_info = account_result.account if account_result is not None else None
+    for point in account_info["electricity_meter_points"]:
+      # We only care about points that have active agreements
+      electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
+      if electricity_tariff_code is not None:
+        for meter in point["meters"]:
+          mpan = point["mpan"]
+          serial_number = meter["serial_number"]
+          electricity_rates_coordinator_key = DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)
+          if electricity_rates_coordinator_key not in hass.data[DOMAIN]:
+            raise ConfigEntryNotReady(f"Electricity rates have not been setup for {mpan}/{serial_number}")
+
+    await hass.config_entries.async_forward_entry_setups(entry, COST_TRACKER_PLATFORMS)
   
   entry.async_on_unload(entry.add_update_listener(options_update_listener))
 

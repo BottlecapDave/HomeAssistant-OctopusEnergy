@@ -11,10 +11,11 @@ from homeassistant.components.sensor import (
 )
 
 from .coordinators.account import AccountCoordinatorResult
-from .config.cost_sensor import validate_cost_sensor_config
+from .config.cost_tracker import validate_cost_tracker_config
 from .config.target_rates import merge_target_rate_config, validate_target_rate_config
 from .config.main import async_validate_main_config, merge_main_config
 from .const import (
+  CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE,
   CONFIG_COST_ENTITY_ID,
   CONFIG_COST_MPAN,
   CONFIG_COST_NAME,
@@ -23,7 +24,7 @@ from .const import (
   CONFIG_DEFAULT_PREVIOUS_CONSUMPTION_OFFSET_IN_DAYS,
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
-  CONFIG_KIND_COST_SENSOR,
+  CONFIG_KIND_COST_TRACKER,
   CONFIG_KIND_TARGET_RATE,
   CONFIG_MAIN_ACCOUNT_ID,
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
@@ -141,7 +142,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Optional(CONFIG_TARGET_INVERT_TARGET_RATES, default=False): bool,
     })
   
-  async def __async_setup_cost_sensor_schema__(self):
+  async def __async_setup_cost_tracker_schema__(self):
     account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][DATA_ACCOUNT]
     if (account_info is None):
       return self.async_abort(reason="account_not_found")
@@ -160,6 +161,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Required(CONFIG_COST_ENTITY_ID): selector.EntitySelector(
           selector.EntitySelectorConfig(domain="sensor", device_class=[SensorDeviceClass.ENERGY]),
       ),
+      vol.Optional(CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE, default=False): bool,
     })
 
   async def async_step_target_rate(self, user_input):
@@ -187,23 +189,23 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       step_id="target_rate", data_schema=data_Schema, errors=errors
     )
 
-  async def async_step_cost_sensor(self, user_input):
+  async def async_step_cost_tracker(self, user_input):
     """Setup a target based on the provided user input"""
-    errors = validate_cost_sensor_config(user_input) if user_input is not None else {}
+    errors = validate_cost_tracker_config(user_input) if user_input is not None else {}
     account_ids = self.__get_account_ids__()
 
     if len(errors) < 1 and user_input is not None:
-      user_input[CONFIG_KIND] = CONFIG_KIND_COST_SENSOR
+      user_input[CONFIG_KIND] = CONFIG_KIND_COST_TRACKER
       user_input[CONFIG_TARGET_ACCOUNT_ID] = list(account_ids.keys())[0]
       return self.async_create_entry(
-        title=f"{user_input[CONFIG_COST_NAME]} (cost sensor)", 
+        title=f"{user_input[CONFIG_COST_NAME]} (cost tracker)", 
         data=user_input
       )
 
     # Reshow our form with raised logins
-    data_Schema = await self.__async_setup_cost_sensor_schema__()
+    data_Schema = await self.__async_setup_cost_tracker_schema__()
     return self.async_show_form(
-      step_id="cost_sensor", data_schema=data_Schema, errors=errors
+      step_id="cost_tracker", data_schema=data_Schema, errors=errors
     )
   
   async def async_step_choice(self, user_input):
@@ -211,7 +213,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     return self.async_show_menu(
       step_id="choice", menu_options={
         "target_rate": "Target rate",
-        "cost_sensor": "Cost sensor"
+        "cost_tracker": "Cost Tracker"
       }
     )
 
@@ -232,7 +234,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
         if user_input[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
           return await self.async_step_target_rate(user_input)
         
-        if user_input[CONFIG_KIND] == CONFIG_KIND_COST_SENSOR:
+        if user_input[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
           return await self.async_step_cost_sensor(user_input)
         
       return self.async_abort(reason="unexpected_entry")

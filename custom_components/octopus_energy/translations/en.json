@@ -38,12 +38,13 @@
           "target_invert_target_rates": "Invert targeted rates"
         }
       },
-      "cost_sensor": {
+      "cost_tracker": {
         "description": "Track the cost for a given energy based sensor",
         "data": {
           "name": "The name of your cost sensor",
           "mpan": "The meter the cost rates should be associated with",
-          "entity_id": "The entity to track the costs for."
+          "entity_id": "The entity to track the costs for.",
+          "entity_accumulative_value": "Tracked entity state is accumulative"
         }
       }
     },
@@ -99,12 +100,13 @@
           "target_invert_target_rates": "Invert targeted rates"
         }
       },
-      "cost_sensor": {
+      "cost_tracker": {
         "description": "Track the cost for a given energy based sensor",
         "data": {
           "name": "The name of your cost sensor",
           "mpan": "The meter the cost rates should be associated with",
-          "entity_id": "The entity to track the costs for."
+          "entity_id": "The entity to track the costs for.",
+          "entity_accumulative_value": "Tracked entity state is accumulative"
         }
       }
     },
