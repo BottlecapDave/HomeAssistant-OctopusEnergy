@@ -20,9 +20,9 @@ from .utils import get_active_tariff_code
 from .const import (
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
+  CONFIG_KIND_TARGET_RATE,
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_VERSION,
-  DATA_OCTOPLUS_SUPPORTED,
   DOMAIN,
 
   CONFIG_MAIN_API_KEY,
@@ -79,11 +79,11 @@ async def async_setup_entry(hass, entry):
   if entry.options:
     config.update(entry.options)
 
-  if CONFIG_MAIN_API_KEY in config:
+  if config[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
     await async_setup_dependencies(hass, config)
 
     await hass.config_entries.async_forward_entry_setups(entry, ACCOUNT_PLATFORMS)
-  elif CONFIG_TARGET_NAME in config:
+  elif config[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
     if DOMAIN not in hass.data or DATA_ACCOUNT not in hass.data[DOMAIN]:
       raise ConfigEntryNotReady("Account has not been setup")
     
@@ -130,7 +130,6 @@ async def async_setup_dependencies(hass, config):
     raise ConfigEntryNotReady(f"Failed to retrieve account information")
 
   hass.data[DOMAIN][DATA_ACCOUNT] = AccountCoordinatorResult(utcnow(), 1, account_info)
-  hass.data[DOMAIN][DATA_OCTOPLUS_SUPPORTED] = account_info["octoplus_enrolled"]
 
   # Remove gas meter devices which had incorrect identifier
   if account_info is not None and len(account_info["gas_meter_points"]) > 0:
