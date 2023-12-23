@@ -144,6 +144,7 @@ intelligent_dispatches_query = '''query {{
 intelligent_device_query = '''query {{
 	registeredKrakenflexDevice(accountNumber: "{account_id}") {{
 		krakenflexDeviceId
+    provider
 		vehicleMake
 		vehicleModel
     vehicleBatterySizeInKwh
@@ -1120,6 +1121,7 @@ class OctopusEnergyApiClient:
             device = response_body["data"]["registeredKrakenflexDevice"]
             return {
               "krakenflexDeviceId": device["krakenflexDeviceId"],
+              "provider": device["provider"],
               "vehicleMake": device["vehicleMake"],
               "vehicleModel": device["vehicleModel"],
               "vehicleBatterySizeInKwh": float(device["vehicleBatterySizeInKwh"]) if "vehicleBatterySizeInKwh" in device and device["vehicleBatterySizeInKwh"] is not None else None,
