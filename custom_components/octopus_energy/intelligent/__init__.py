@@ -74,6 +74,7 @@ def mock_intelligent_settings():
 def mock_intelligent_device():
   return {
     "krakenflexDeviceId": "1",
+    "provider": FULLY_SUPPORTED_INTELLIGENT_PROVIDERS[0],
 		"vehicleMake": "Tesla",
 		"vehicleModel": "Model Y",
     "vehicleBatterySizeInKwh": 75.0,
@@ -178,3 +179,49 @@ def dispatches_to_dictionary_list(dispatches: list[IntelligentDispatchItem]):
       })
 
   return items
+
+class IntelligentFeatures:
+  bump_charge_supported: bool
+  charge_limit_supported: bool
+  planned_dispatches_supported: bool
+  ready_time_supported: bool
+  smart_charge_supported: bool
+
+  def __init__(self,
+               bump_charge_supported: bool,
+               charge_limit_supported: bool,
+               planned_dispatches_supported: bool,
+               ready_time_supported: bool,
+               smart_charge_supported: bool):
+    self.bump_charge_supported = bump_charge_supported
+    self.charge_limit_supported = charge_limit_supported
+    self.planned_dispatches_supported = planned_dispatches_supported
+    self.ready_time_supported = ready_time_supported
+    self.smart_charge_supported = smart_charge_supported
+
+FULLY_SUPPORTED_INTELLIGENT_PROVIDERS = [
+  "DAIKIN",
+  "ECOBEE",
+  "ENERGIZER",
+  "ENPHASE",
+  "ENODE",
+  "GIVENERGY",
+  "HUAWEI",
+  "JEDLIX",
+  "MYENERGI",
+  "OCPP_WALLBOX",
+  "SENSI",
+  "SMARTCAR",
+  "TESLA",
+  "SMART_PEAR",
+]
+
+def get_intelligent_features(provider: str) -> IntelligentFeatures:
+  if provider in FULLY_SUPPORTED_INTELLIGENT_PROVIDERS:
+    return IntelligentFeatures(True, True, True, True, True)
+  elif provider == "OHME":
+    # return IntelligentFeatures(False, False, False, False, False)
+    return IntelligentFeatures(True, True, True, True, True)
+
+  _LOGGER.warn(f"Unexpected intelligent provider '{provider}'")
+  return IntelligentFeatures(False, False, False, False, False)
