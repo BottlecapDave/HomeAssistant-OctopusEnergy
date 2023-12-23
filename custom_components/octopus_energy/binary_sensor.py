@@ -9,17 +9,18 @@ from .electricity.off_peak import OctopusEnergyElectricityOffPeak
 from .octoplus.saving_sessions import OctopusEnergySavingSessions
 from .target_rates.target_rate import OctopusEnergyTargetRate
 from .intelligent.dispatching import OctopusEnergyIntelligentDispatching
-from .api_client import OctopusEnergyApiClient
-from .intelligent import async_mock_intelligent_data, is_intelligent_tariff, mock_intelligent_device
 from .utils import get_active_tariff_code
+from .intelligent import get_intelligent_features
 
 from .const import (
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
   CONFIG_KIND_TARGET_RATE,
   DATA_ACCOUNT_ID,
-  DATA_CLIENT,
+  DATA_INTELLIGENT_DEVICE,
   DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
+  DATA_INTELLIGENT_MPAN,
+  DATA_INTELLIGENT_SERIAL_NUMBER,
   DOMAIN,
 
   CONFIG_TARGET_MPAN,
@@ -75,12 +76,8 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
   account_result = hass.data[DOMAIN][DATA_ACCOUNT]
   account_info = account_result.account if account_result is not None else None
   account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]
-  client = hass.data[DOMAIN][DATA_CLIENT]
 
   now = utcnow()
-  has_intelligent_tariff = False
-  intelligent_mpan = None
-  intelligent_serial_number = None
   entities = [OctopusEnergySavingSessions(hass, saving_session_coordinator, account_id)]
   if len(account_info["electricity_meter_points"]) > 0:
 
@@ -94,36 +91,15 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
           electricity_rate_coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)]
           
           entities.append(OctopusEnergyElectricityOffPeak(hass, electricity_rate_coordinator, meter, point))
-          if meter["is_export"] == False:
-            
-            if is_intelligent_tariff(tariff_code):
-              intelligent_mpan = mpan
-              intelligent_serial_number = serial_number
-              has_intelligent_tariff = True
 
-  should_mock_intelligent_data = await async_mock_intelligent_data(hass)
-  if should_mock_intelligent_data:
-    # Pick the first meter if we're mocking our intelligent data
-    for point in account_info["electricity_meter_points"]:
-      tariff_code = get_active_tariff_code(now, point["agreements"])
-      if tariff_code is not None:
-        for meter in point["meters"]:
-          intelligent_mpan = point["mpan"]
-          intelligent_serial_number = meter["serial_number"]
-          break
-
-  if has_intelligent_tariff or should_mock_intelligent_data:
+  intelligent_device = hass.data[DOMAIN][DATA_INTELLIGENT_DEVICE]
+  intelligent_mpan = hass.data[DOMAIN][DATA_INTELLIGENT_MPAN]
+  intelligent_serial_number = hass.data[DOMAIN][DATA_INTELLIGENT_SERIAL_NUMBER]
+  if intelligent_device is not None and intelligent_mpan is not None and intelligent_serial_number is not None:
+    intelligent_features = get_intelligent_features(intelligent_device["provider"])
     coordinator = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES_COORDINATOR]
-    client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-
-    account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]
-    if should_mock_intelligent_data:
-      device = mock_intelligent_device()
-    else:
-      device = await client.async_get_intelligent_device(account_id)
-
     electricity_rate_coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(intelligent_mpan, intelligent_serial_number)]
-    entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, device, account_id))
+    entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, intelligent_device, account_id, intelligent_features.planned_dispatches_supported))
 
   if len(entities) > 0:
     async_add_entities(entities, True)
