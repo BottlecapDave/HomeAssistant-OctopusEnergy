@@ -43,7 +43,7 @@ def assert_raised_events(
   assert "max_rate" in raised_events[expected_event_name]
   assert raised_events[expected_event_name]["max_rate"] == expected_max_rate
   assert "average_rate" in raised_events[expected_event_name]
-  assert round(raised_events[expected_event_name]["average_rate"], 3) == round(expected_average, 3)
+  assert raised_events[expected_event_name]["average_rate"] ==round(expected_average, 8)
 
 @pytest.mark.asyncio
 async def test_when_when_next_refresh_is_in_the_future_and_previous_data_is_available_then_previous_data_returned():

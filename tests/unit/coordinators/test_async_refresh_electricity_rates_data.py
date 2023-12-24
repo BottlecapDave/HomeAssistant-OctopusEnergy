@@ -79,7 +79,7 @@ def assert_raised_events(raised_events: dict, expected_event_name: str, expected
   assert "max_rate" in raised_events[expected_event_name]
   assert raised_events[expected_event_name]["max_rate"] == expected_max_rate
   assert "average_rate" in raised_events[expected_event_name]
-  assert round(raised_events[expected_event_name]["average_rate"], 3) == round(expected_average, 3)
+  assert raised_events[expected_event_name]["average_rate"] == round(expected_average, 8)
 
 @pytest.mark.asyncio
 async def test_when_account_info_is_none_then_existing_rates_returned():
