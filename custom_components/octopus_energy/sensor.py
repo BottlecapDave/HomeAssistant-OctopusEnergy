@@ -111,6 +111,20 @@ async def async_setup_entry(hass, entry, async_add_entities):
   elif entry.data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
     await async_setup_cost_sensors(hass, entry, async_add_entities)
 
+    platform = entity_platform.async_get_current_platform()
+    platform.async_register_entity_service(
+      "update_cost_tracker",
+      vol.All(
+        vol.Schema(
+          {
+            vol.Required("tracking_enabled"): bool,
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
+      ),
+      "async_update_cost_tracker_config"
+    )
+
 async def async_setup_account_sensors(hass: HomeAssistant, entry, async_add_entities):
   config = dict(entry.data)
 

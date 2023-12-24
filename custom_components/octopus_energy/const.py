@@ -58,7 +58,7 @@ CONFIG_TARGET_ACCOUNT_ID = "account_id"
 
 CONFIG_COST_NAME = "name"
 CONFIG_COST_MPAN = "mpan"
-CONFIG_COST_ENTITY_ID = "entity_id"
+CONFIG_COST_TARGET_ENTITY_ID = "target_entity_id"
 CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE = "entity_accumulative_value"
 
 DATA_CONFIG = "CONFIG"

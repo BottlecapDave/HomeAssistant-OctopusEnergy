@@ -27,12 +27,12 @@ from homeassistant.const import (
 
 from ..const import (
   CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE,
-  CONFIG_COST_ENTITY_ID,
+  CONFIG_COST_TARGET_ENTITY_ID,
   CONFIG_COST_NAME,
 )
 
 from ..coordinators.electricity_rates import ElectricityRatesCoordinatorResult
-from . import calculate_consumption
+from . import add_consumption
 from ..electricity import calculate_electricity_consumption_and_cost
 
 from ..utils.attributes import dict_to_typed_dict
@@ -52,7 +52,8 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
     self._is_export = is_export
     self._attributes = self._config.copy()
     self._attributes["is_tracking"] = True
-    self._attributes["charges"] = []
+    self._attributes["tracked_charges"] = []
+    self._attributes["untracked_charges"] = []
     self._is_export = is_export
     
     self._hass = hass
@@ -114,7 +115,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
 
     self.async_on_remove(
         async_track_state_change_event(
-            self.hass, [self._config[CONFIG_COST_ENTITY_ID]], self._async_calculate_cost
+            self.hass, [self._config[CONFIG_COST_TARGET_ENTITY_ID]], self._async_calculate_cost
         )
     )
 
@@ -127,36 +128,58 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
     current = utcnow()
     rates_result: ElectricityRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
 
-    consumption_data = calculate_consumption(current,
-                                             self._attributes["charges"],
-                                             float(new_state.state),
-                                             None if old_state.state is None or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else float(old_state.state),
-                                             self._config[CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE])
+    consumption_data = add_consumption(current,
+                                       self._attributes["tracked_charges"],
+                                       self._attributes["untracked_charges"],
+                                       float(new_state.state),
+                                       None if old_state.state is None or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else float(old_state.state),
+                                       self._config[CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE],
+                                       self._attributes["is_tracking"])
 
     if (consumption_data is not None and rates_result.rates is not None):
-      result = calculate_electricity_consumption_and_cost(
+      tracked_result = calculate_electricity_consumption_and_cost(
         current,
-        consumption_data,
+        consumption_data.tracked_consumption_data,
         rates_result.rates,
         0,
         None, # We want to always recalculate
         rates_result.rates[0]["tariff_code"]
       )
 
-      if result is not None:
-        self._attributes["charges"] = list(map(lambda charge: {
+      untracked_result = calculate_electricity_consumption_and_cost(
+        current,
+        consumption_data.untracked_consumption_data,
+        rates_result.rates,
+        0,
+        None, # We want to always recalculate
+        rates_result.rates[0]["tariff_code"]
+      )
+
+      if tracked_result is not None:
+        self._attributes["tracked_charges"] = list(map(lambda charge: {
           "start": charge["start"],
           "end": charge["end"],
           "rate": charge["rate"],
           "consumption": charge["consumption"],
           "cost": charge["cost"]
-        }, result["charges"]))
-        self._attributes["total_consumption"] = result["total_consumption"]
-        self._state = result["total_cost"]
+        }, tracked_result["charges"]))
+        
+        self._attributes["untracked_charges"] = list(map(lambda charge: {
+          "start": charge["start"],
+          "end": charge["end"],
+          "rate": charge["rate"],
+          "consumption": charge["consumption"],
+          "cost": charge["cost"]
+        }, untracked_result["charges"]))
+        
+        self._attributes["total_consumption"] = tracked_result["total_consumption"] + untracked_result["total_consumption"]
+        self._state = tracked_result["total_cost"]
+
+        self.async_write_ha_state()
 
   @callback
-  async def async_toggle_tracking(self):
+  async def async_update_cost_tracker_config(self, is_tracking_enabled: bool):
     """Toggle tracking on/off"""
-    self._attributes["is_tracking"] = self._attributes["is_tracking"] == False
+    self._attributes["is_tracking"] = is_tracking_enabled
 
     self.async_write_ha_state()

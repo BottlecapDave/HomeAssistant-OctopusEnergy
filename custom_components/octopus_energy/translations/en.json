@@ -43,7 +43,7 @@
         "data": {
           "name": "The name of your cost sensor",
           "mpan": "The meter the cost rates should be associated with",
-          "entity_id": "The entity to track the costs for.",
+          "target_entity_id": "The entity to track the costs for.",
           "entity_accumulative_value": "Tracked entity state is accumulative"
         }
       }
@@ -105,7 +105,7 @@
         "data": {
           "name": "The name of your cost sensor",
           "mpan": "The meter the cost rates should be associated with",
-          "entity_id": "The entity to track the costs for.",
+          "target_entity_id": "The entity to track the costs for.",
           "entity_accumulative_value": "Tracked entity state is accumulative"
         }
       }

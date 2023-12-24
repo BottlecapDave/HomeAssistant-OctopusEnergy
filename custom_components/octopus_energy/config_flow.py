@@ -16,7 +16,7 @@ from .config.target_rates import merge_target_rate_config, validate_target_rate_
 from .config.main import async_validate_main_config, merge_main_config
 from .const import (
   CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE,
-  CONFIG_COST_ENTITY_ID,
+  CONFIG_COST_TARGET_ENTITY_ID,
   CONFIG_COST_MPAN,
   CONFIG_COST_NAME,
   CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
@@ -158,7 +158,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
               mode=selector.SelectSelectorMode.DROPDOWN,
           )
       ),
-      vol.Required(CONFIG_COST_ENTITY_ID): selector.EntitySelector(
+      vol.Required(CONFIG_COST_TARGET_ENTITY_ID): selector.EntitySelector(
           selector.EntitySelectorConfig(domain="sensor", device_class=[SensorDeviceClass.ENERGY]),
       ),
       vol.Optional(CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE, default=False): bool,
