@@ -71,6 +71,28 @@ async def async_check_valid_tariff(hass, client: OctopusEnergyApiClient, tariff_
       except:
         _LOGGER.debug(f"Failed to retrieve product info for '{tariff_parts.product_code}'")
 
+def __raise_rate_event(event_key: str,
+                       rates: list,
+                       additional_attributes: "dict[str, Any]",
+                       fire_event: Callable[[str, "dict[str, Any]"], None]):
+  
+  min_rate = None
+  max_rate = None
+  average_rate = 0
+  for rate in rates:
+    if min_rate is None or min_rate > rate["value_inc_vat"]:
+      min_rate = rate["value_inc_vat"]
+
+    if max_rate is None or max_rate < rate["value_inc_vat"]:
+      max_rate = rate["value_inc_vat"]
+
+    average_rate += rate["value_inc_vat"]
+
+  print(average_rate)
+  event_data = { "rates": rates, "min_rate": min_rate, "max_rate": max_rate, "average_rate": average_rate / len(rates) }
+  event_data.update(additional_attributes)
+  fire_event(event_key, event_data)
+
 def raise_rate_events(now: datetime,
                       rates: list, 
                       additional_attributes: "dict[str, Any]",
@@ -94,17 +116,9 @@ def raise_rate_events(now: datetime,
     else:
       current_rates.append(rate)
 
-  event_data = { "rates": previous_rates }
-  event_data.update(additional_attributes)
-  fire_event(previous_event_key, event_data)
-  
-  event_data = { "rates": current_rates }
-  event_data.update(additional_attributes)
-  fire_event(current_event_key, event_data)
-  
-  event_data = { "rates": next_rates }
-  event_data.update(additional_attributes)
-  fire_event(next_event_key, event_data)
+  __raise_rate_event(previous_event_key, previous_rates, additional_attributes, fire_event)
+  __raise_rate_event(current_event_key, current_rates, additional_attributes, fire_event)
+  __raise_rate_event(next_event_key, next_rates, additional_attributes, fire_event)
 
 def get_electricity_meter_tariff_code(current: datetime, account_info, target_mpan: str, target_serial_number: str):
   if len(account_info["electricity_meter_points"]) > 0:

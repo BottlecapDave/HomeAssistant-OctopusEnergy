@@ -14,6 +14,9 @@ This is fired when the current day rates are updated.
 | `tariff_code` | `string` | The tariff code associated with current day's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
+| `min_rate` | `float` | The minimum/lowest rate in the discovered rates collection |
+| `max_rate` | `float` | The maximum/highest rate in the discovered rates collection |
+| `average_rate` | `float` | The average rate in the discovered rates collection |
 
 ### Automation Example
 
@@ -42,6 +45,9 @@ This is fired when the previous day rates are updated.
 | `tariff_code` | `string` | The tariff code associated with previous day's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
+| `min_rate` | `float` | The minimum/lowest rate in the discovered rates collection |
+| `max_rate` | `float` | The maximum/highest rate in the discovered rates collection |
+| `average_rate` | `float` | The average rate in the discovered rates collection |
 
 ### Automation Example
 
@@ -70,6 +76,9 @@ This is fired when the next day rates are updated.
 | `tariff_code` | `string` | The tariff code associated with next day's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
+| `min_rate` | `float` | The minimum/lowest rate in the discovered rates collection |
+| `max_rate` | `float` | The maximum/highest rate in the discovered rates collection |
+| `average_rate` | `float` | The average rate in the discovered rates collection |
 
 ### Automation Example
 
@@ -98,6 +107,9 @@ This is fired when the [previous consumption's](./entities/electricity.md#previo
 | `tariff_code` | `string` | The tariff code associated with previous consumption's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
+| `min_rate` | `float` | The minimum/lowest rate in the discovered rates collection |
+| `max_rate` | `float` | The maximum/highest rate in the discovered rates collection |
+| `average_rate` | `float` | The average rate in the discovered rates collection |
 
 ### Automation Example
 
@@ -154,6 +166,9 @@ This is fired when the current day rates are updated.
 | `tariff_code` | `string` | The tariff code associated with current day's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
+| `min_rate` | `float` | The minimum/lowest rate in the discovered rates collection |
+| `max_rate` | `float` | The maximum/highest rate in the discovered rates collection |
+| `average_rate` | `float` | The average rate in the discovered rates collection |
 
 ### Automation Example
 
@@ -182,6 +197,9 @@ This is fired when the previous day rates are updated.
 | `tariff_code` | `string` | The tariff code associated with previous day's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
+| `min_rate` | `float` | The minimum/lowest rate in the discovered rates collection |
+| `max_rate` | `float` | The maximum/highest rate in the discovered rates collection |
+| `average_rate` | `float` | The average rate in the discovered rates collection |
 
 ### Automation Example
 
@@ -210,6 +228,9 @@ This is fired when the next day rates are updated.
 | `tariff_code` | `string` | The tariff code associated with next day's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
+| `min_rate` | `float` | The minimum/lowest rate in the discovered rates collection |
+| `max_rate` | `float` | The maximum/highest rate in the discovered rates collection |
+| `average_rate` | `float` | The average rate in the discovered rates collection |
 
 ### Automation Example
 
@@ -238,6 +259,9 @@ This is fired when the [previous consumption's](./entities/gas.md#previous-accum
 | `tariff_code` | `string` | The tariff code associated with previous consumption's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
+| `min_rate` | `float` | The minimum/lowest rate in the discovered rates collection |
+| `max_rate` | `float` | The maximum/highest rate in the discovered rates collection |
+| `average_rate` | `float` | The average rate in the discovered rates collection |
 
 ### Automation Example
 

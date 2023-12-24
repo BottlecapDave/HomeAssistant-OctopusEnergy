@@ -92,10 +92,23 @@ async def async_fetch_consumption_and_rates(
         _LOGGER.debug(f"Discovered previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
         consumption_data = __sort_consumption(consumption_data)
 
+        public_rates = private_rates_to_public_rates(rate_data)
+        min_rate = None
+        max_rate = None
+        average_rate = 0
+        for rate in public_rates:
+          if min_rate is None or min_rate > rate["value_inc_vat"]:
+            min_rate = rate["value_inc_vat"]
+
+          if max_rate is None or max_rate < rate["value_inc_vat"]:
+            max_rate = rate["value_inc_vat"]
+
+          average_rate += rate["value_inc_vat"]
+
         if (is_electricity == True):
-          fire_event(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, { "mpan": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": private_rates_to_public_rates(rate_data) })
+          fire_event(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, { "mpan": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": public_rates, "min_rate": min_rate, "max_rate": max_rate, "average_rate": average_rate / len(rate_data) })
         else:
-          fire_event(EVENT_GAS_PREVIOUS_CONSUMPTION_RATES, { "mprn": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": private_rates_to_public_rates(rate_data) })
+          fire_event(EVENT_GAS_PREVIOUS_CONSUMPTION_RATES, { "mprn": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": public_rates, "min_rate": min_rate, "max_rate": max_rate, "average_rate": average_rate / len(rate_data) })
 
         _LOGGER.debug(f"Fired event for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
 

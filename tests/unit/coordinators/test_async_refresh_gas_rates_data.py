@@ -57,6 +57,29 @@ def assert_raised_events(raised_events: dict, expected_event_name: str, expected
   assert "end" in raised_events[expected_event_name]["rates"][-1]
   assert raised_events[expected_event_name]["rates"][-1]["end"] == expected_valid_to
 
+  # Make sure all rates are in order
+  expected_start = expected_valid_from
+  for rate in raised_events[expected_event_name]["rates"]:
+    assert rate["start"] == expected_start
+
+    expected_end = expected_start + timedelta(minutes=30)
+    assert rate["end"] == expected_end
+    expected_start = expected_end
+
+  rates: list = raised_events[expected_event_name]["rates"]
+  rates.sort(key=lambda rate: rate["value_inc_vat"])
+  expected_min_rate = rates[0]["value_inc_vat"]
+  rates.sort(key=lambda rate: rate["value_inc_vat"], reverse=True)
+  expected_max_rate = rates[0]["value_inc_vat"]
+  expected_average = sum(map(lambda rate: rate["value_inc_vat"], rates)) / len(rates)
+  
+  assert "min_rate" in raised_events[expected_event_name]
+  assert raised_events[expected_event_name]["min_rate"] == expected_min_rate
+  assert "max_rate" in raised_events[expected_event_name]
+  assert raised_events[expected_event_name]["max_rate"] == expected_max_rate
+  assert "average_rate" in raised_events[expected_event_name]
+  assert round(raised_events[expected_event_name]["average_rate"], 3) == round(expected_average, 3)
+
 @pytest.mark.asyncio
 async def test_when_account_info_is_none_then_existing_gas_rates_returned():
   expected_rates = create_rate_data(period_from, period_to, [1, 2])
