@@ -25,6 +25,7 @@ from ..utils import private_rates_to_public_rates
 from ..intelligent import adjust_intelligent_rates
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 from . import BaseCoordinatorResult
+from ..utils.rate_information import get_min_max_average_rates
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -93,22 +94,12 @@ async def async_fetch_consumption_and_rates(
         consumption_data = __sort_consumption(consumption_data)
 
         public_rates = private_rates_to_public_rates(rate_data)
-        min_rate = None
-        max_rate = None
-        average_rate = 0
-        for rate in public_rates:
-          if min_rate is None or min_rate > rate["value_inc_vat"]:
-            min_rate = rate["value_inc_vat"]
-
-          if max_rate is None or max_rate < rate["value_inc_vat"]:
-            max_rate = rate["value_inc_vat"]
-
-          average_rate += rate["value_inc_vat"]
+        min_max_average_rates = get_min_max_average_rates(public_rates)
 
         if (is_electricity == True):
-          fire_event(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, { "mpan": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": public_rates, "min_rate": min_rate, "max_rate": max_rate, "average_rate": average_rate / len(rate_data) })
+          fire_event(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, { "mpan": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": public_rates, "min_rate": min_max_average_rates["min"], "max_rate": min_max_average_rates["max"], "average_rate": min_max_average_rates["average"] })
         else:
-          fire_event(EVENT_GAS_PREVIOUS_CONSUMPTION_RATES, { "mprn": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": public_rates, "min_rate": min_rate, "max_rate": max_rate, "average_rate": average_rate / len(rate_data) })
+          fire_event(EVENT_GAS_PREVIOUS_CONSUMPTION_RATES, { "mprn": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": public_rates, "min_rate": min_max_average_rates["min"], "max_rate": min_max_average_rates["max"], "average_rate": min_max_average_rates["average"] })
 
         _LOGGER.debug(f"Fired event for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
 

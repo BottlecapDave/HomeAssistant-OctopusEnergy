@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 import logging
 from typing import Callable, Any
-from custom_components.octopus_energy.utils.requests import calculate_next_refresh
 
 from homeassistant.helpers import issue_registry as ir
 from homeassistant.util.dt import (as_utc)
@@ -16,6 +15,8 @@ from ..utils import (
   get_active_tariff_code,
   get_tariff_parts
 )
+from ..utils.rate_information import get_min_max_average_rates
+from ..utils.requests import calculate_next_refresh
 
 from ..const import (
   DOMAIN,
@@ -76,20 +77,9 @@ def __raise_rate_event(event_key: str,
                        additional_attributes: "dict[str, Any]",
                        fire_event: Callable[[str, "dict[str, Any]"], None]):
   
-  min_rate = None
-  max_rate = None
-  average_rate = 0
-  for rate in rates:
-    if min_rate is None or min_rate > rate["value_inc_vat"]:
-      min_rate = rate["value_inc_vat"]
+  min_max_average_rates = get_min_max_average_rates(rates)
 
-    if max_rate is None or max_rate < rate["value_inc_vat"]:
-      max_rate = rate["value_inc_vat"]
-
-    average_rate += rate["value_inc_vat"]
-
-  print(average_rate)
-  event_data = { "rates": rates, "min_rate": min_rate, "max_rate": max_rate, "average_rate": average_rate / len(rates) }
+  event_data = { "rates": rates, "min_rate": min_max_average_rates["min"], "max_rate": min_max_average_rates["max"], "average_rate": min_max_average_rates["average"] }
   event_data.update(additional_attributes)
   fire_event(event_key, event_data)
 
