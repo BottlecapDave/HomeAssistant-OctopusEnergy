@@ -182,10 +182,10 @@ async def async_setup_dependencies(hass, config):
         await async_setup_electricity_rates_coordinator(hass, mpan, serial_number, is_smart_meter, is_export_meter)
 
         if meter["is_export"] == False:
-            if is_intelligent_tariff(tariff_code):
-              intelligent_mpan = mpan
-              intelligent_serial_number = serial_number
-              has_intelligent_tariff = True
+          if is_intelligent_tariff(electricity_tariff_code):
+            intelligent_mpan = mpan
+            intelligent_serial_number = serial_number
+            has_intelligent_tariff = True
 
   should_mock_intelligent_data = await async_mock_intelligent_data(hass)
   if should_mock_intelligent_data:

@@ -34,7 +34,7 @@ async def async_setup_intelligent_sensors(hass, async_add_entities):
 
   account_id = account_info["id"]
   client = hass.data[DOMAIN][DATA_CLIENT]
-  intelligent_device = hass.data[DOMAIN][DATA_INTELLIGENT_DEVICE]
+  intelligent_device = hass.data[DOMAIN][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN] else None
   if intelligent_device is not None:
     intelligent_features = get_intelligent_features(intelligent_device["provider"])
     settings_coordinator = hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS_COORDINATOR]

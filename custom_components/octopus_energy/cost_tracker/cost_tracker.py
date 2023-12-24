@@ -143,7 +143,9 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
         rates_result.rates,
         0,
         None, # We want to always recalculate
-        rates_result.rates[0]["tariff_code"]
+        rates_result.rates[0]["tariff_code"],
+        0,
+        False
       )
 
       untracked_result = calculate_electricity_consumption_and_cost(
@@ -152,10 +154,12 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
         rates_result.rates,
         0,
         None, # We want to always recalculate
-        rates_result.rates[0]["tariff_code"]
+        rates_result.rates[0]["tariff_code"],
+        0,
+        False
       )
 
-      if tracked_result is not None:
+      if tracked_result is not None and untracked_result is not None:
         self._attributes["tracked_charges"] = list(map(lambda charge: {
           "start": charge["start"],
           "end": charge["end"],
