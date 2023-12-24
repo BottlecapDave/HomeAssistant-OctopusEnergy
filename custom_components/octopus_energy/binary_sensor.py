@@ -91,9 +91,9 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
           
           entities.append(OctopusEnergyElectricityOffPeak(hass, electricity_rate_coordinator, meter, point))
 
-  intelligent_device = hass.data[DOMAIN][DATA_INTELLIGENT_DEVICE]
-  intelligent_mpan = hass.data[DOMAIN][DATA_INTELLIGENT_MPAN]
-  intelligent_serial_number = hass.data[DOMAIN][DATA_INTELLIGENT_SERIAL_NUMBER]
+  intelligent_device = hass.data[DOMAIN][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN] else None
+  intelligent_mpan = hass.data[DOMAIN][DATA_INTELLIGENT_MPAN] if DATA_INTELLIGENT_MPAN in hass.data[DOMAIN] else None
+  intelligent_serial_number = hass.data[DOMAIN][DATA_INTELLIGENT_SERIAL_NUMBER] if DATA_INTELLIGENT_SERIAL_NUMBER in hass.data[DOMAIN] else None
   if intelligent_device is not None and intelligent_mpan is not None and intelligent_serial_number is not None:
     intelligent_features = get_intelligent_features(intelligent_device["provider"])
     coordinator = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES_COORDINATOR]
