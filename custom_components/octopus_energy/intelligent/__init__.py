@@ -16,15 +16,15 @@ mock_intelligent_data_key = "MOCK_INTELLIGENT_DATA"
 
 _LOGGER = logging.getLogger(__name__)
 
-async def async_mock_intelligent_data(hass):
-  mock_data = hass.data[DOMAIN][mock_intelligent_data_key] if mock_intelligent_data_key in hass.data[DOMAIN] else None
+async def async_mock_intelligent_data(hass, account_id: str):
+  mock_data = hass.data[DOMAIN][account_id][mock_intelligent_data_key] if mock_intelligent_data_key in hass.data[DOMAIN][account_id] else None
   if mock_data is None:
     store = storage.Store(hass, "1", "octopus_energy.mock_intelligent_responses")
-    hass.data[DOMAIN][mock_intelligent_data_key] = await store.async_load() is not None
+    hass.data[DOMAIN][account_id][mock_intelligent_data_key] = await store.async_load() is not None
   
-  _LOGGER.debug(f'MOCK_INTELLIGENT_DATA: {hass.data[DOMAIN][mock_intelligent_data_key]}')
+  _LOGGER.debug(f'MOCK_INTELLIGENT_DATA: {hass.data[DOMAIN][account_id][mock_intelligent_data_key]}')
 
-  return hass.data[DOMAIN][mock_intelligent_data_key]
+  return hass.data[DOMAIN][account_id][mock_intelligent_data_key]
 
 def mock_intelligent_dispatches() -> IntelligentDispatches:
   planned: list[IntelligentDispatchItem] = []

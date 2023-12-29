@@ -104,22 +104,22 @@ async def async_refresh_electricity_rates_data(
   
   return existing_rates_result
 
-async def async_setup_electricity_rates_coordinator(hass, target_mpan: str, target_serial_number: str, is_smart_meter: bool, is_export_meter: bool):
+async def async_setup_electricity_rates_coordinator(hass, account_id: str, target_mpan: str, target_serial_number: str, is_smart_meter: bool, is_export_meter: bool):
   key = DATA_ELECTRICITY_RATES_KEY.format(target_mpan, target_serial_number)
 
   # Reset data rates as we might have new information
-  hass.data[DOMAIN][key] = None
+  hass.data[DOMAIN][account_id][key] = None
   
   async def async_update_electricity_rates_data():
     """Fetch data from API endpoint."""
     current = now()
-    client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-    account_result = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
+    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
+    account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN][account_id] else None
     account_info = account_result.account if account_result is not None else None
-    dispatches: IntelligentDispatchesCoordinatorResult = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] else None
-    rates = hass.data[DOMAIN][key] if key in hass.data[DOMAIN] else None
+    dispatches: IntelligentDispatchesCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None
+    rates = hass.data[DOMAIN][account_id][key] if key in hass.data[DOMAIN][account_id] else None
 
-    hass.data[DOMAIN][key] = await async_refresh_electricity_rates_data(
+    hass.data[DOMAIN][account_id][key] = await async_refresh_electricity_rates_data(
       current,
       client,
       account_info,
@@ -132,10 +132,10 @@ async def async_setup_electricity_rates_coordinator(hass, target_mpan: str, targ
       hass.bus.async_fire
     )
 
-    return hass.data[DOMAIN][key]
+    return hass.data[DOMAIN][account_id][key]
 
   coordinator_key = DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(target_mpan, target_serial_number)
-  hass.data[DOMAIN][coordinator_key] = DataUpdateCoordinator(
+  hass.data[DOMAIN][account_id][coordinator_key] = DataUpdateCoordinator(
     hass,
     _LOGGER,
     name=key,
@@ -146,4 +146,4 @@ async def async_setup_electricity_rates_coordinator(hass, target_mpan: str, targ
     always_update=True
   )
 
-  await hass.data[DOMAIN][coordinator_key].async_config_entry_first_refresh()
+  await hass.data[DOMAIN][account_id][coordinator_key].async_config_entry_first_refresh()

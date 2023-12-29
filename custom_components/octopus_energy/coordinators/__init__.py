@@ -37,9 +37,9 @@ class BaseCoordinatorResult:
     self.next_refresh = calculate_next_refresh(last_retrieved, request_attempts, refresh_rate_in_minutes)
     _LOGGER.debug(f'last_retrieved: {last_retrieved}; request_attempts: {request_attempts}; refresh_rate_in_minutes: {refresh_rate_in_minutes}; next_refresh: {self.next_refresh}')
 
-async def async_check_valid_tariff(hass, client: OctopusEnergyApiClient, tariff_code: str, is_electricity: bool):
+async def async_check_valid_tariff(hass, account_id: str, client: OctopusEnergyApiClient, tariff_code: str, is_electricity: bool):
   tariff_key = f'{DATA_KNOWN_TARIFF}_{tariff_code}'
-  if (tariff_key not in hass.data[DOMAIN]):
+  if (tariff_key not in hass.data[DOMAIN][account_id]):
     tariff_parts = get_tariff_parts(tariff_code)
     if tariff_parts is None:
       ir.async_create_issue(
@@ -68,7 +68,7 @@ async def async_check_valid_tariff(hass, client: OctopusEnergyApiClient, tariff_
             translation_placeholders={ "type": "Electricity" if is_electricity else "Gas", "tariff_code": tariff_code },
           )
         else:
-          hass.data[DOMAIN][tariff_key] = True
+          hass.data[DOMAIN][account_id][tariff_key] = True
       except:
         _LOGGER.debug(f"Failed to retrieve product info for '{tariff_parts.product_code}'")
 

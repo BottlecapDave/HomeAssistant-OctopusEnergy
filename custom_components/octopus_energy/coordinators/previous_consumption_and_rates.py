@@ -150,6 +150,7 @@ async def async_fetch_consumption_and_rates(
 
 async def async_create_previous_consumption_and_rates_coordinator(
     hass,
+    account_id: str,
     client: OctopusEnergyApiClient,
     identifier: str,
     serial_number: str,
@@ -164,11 +165,11 @@ async def async_create_previous_consumption_and_rates_coordinator(
     """Fetch data from API endpoint."""
     period_from = as_utc((now() - timedelta(days=days_offset)).replace(hour=0, minute=0, second=0, microsecond=0))
     period_to = period_from + timedelta(days=1)
-    dispatches: IntelligentDispatchesCoordinatorResult = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] else None
+    dispatches: IntelligentDispatchesCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None
     
     result = await async_fetch_consumption_and_rates(
-      hass.data[DOMAIN][previous_consumption_key] 
-      if previous_consumption_key in hass.data[DOMAIN]
+      hass.data[DOMAIN][account_id][previous_consumption_key] 
+      if previous_consumption_key in hass.data[DOMAIN][account_id]
       else None,
       utcnow(),
       client,
@@ -184,10 +185,10 @@ async def async_create_previous_consumption_and_rates_coordinator(
     )
 
     if (result is not None):
-      hass.data[DOMAIN][previous_consumption_key] = result
+      hass.data[DOMAIN][account_id][previous_consumption_key] = result
 
-    if previous_consumption_key in hass.data[DOMAIN]:
-      return hass.data[DOMAIN][previous_consumption_key] 
+    if previous_consumption_key in hass.data[DOMAIN][account_id]:
+      return hass.data[DOMAIN][account_id][previous_consumption_key] 
     else:
       return None
 
@@ -202,7 +203,7 @@ async def async_create_previous_consumption_and_rates_coordinator(
     always_update=True
   )
 
-  hass.data[DOMAIN][f'{identifier}_{serial_number}_previous_consumption_and_cost_coordinator'] = coordinator
+  hass.data[DOMAIN][account_id][f'{identifier}_{serial_number}_previous_consumption_and_cost_coordinator'] = coordinator
 
   await coordinator.async_config_entry_first_refresh()
 
