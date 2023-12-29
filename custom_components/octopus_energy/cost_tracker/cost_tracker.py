@@ -2,7 +2,7 @@ import logging
 
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
-from homeassistant.util.dt import (utcnow)
+from homeassistant.util.dt import (utcnow, parse_datetime)
 
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
@@ -133,6 +133,8 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
                                        self._attributes["untracked_charges"],
                                        float(new_state.state),
                                        None if old_state.state is None or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else float(old_state.state),
+                                       parse_datetime(new_state.attributes["last_reset"]) if "last_reset" in new_state.attributes and new_state.attributes["last_reset"] is not None else None,
+                                       parse_datetime(old_state.attributes["last_reset"]) if "last_reset" in old_state.attributes and old_state.attributes["last_reset"] is not None else None,
                                        self._config[CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE],
                                        self._attributes["is_tracking"])
 

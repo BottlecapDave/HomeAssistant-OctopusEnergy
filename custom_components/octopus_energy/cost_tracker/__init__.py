@@ -30,9 +30,11 @@ def add_consumption(current: datetime,
                     untracked_consumption_data: list,
                     new_value: float,
                     old_value: float,
+                    new_last_reset: datetime,
+                    old_last_reset: datetime,
                     is_accumulative_value: bool,
                     is_tracking: bool):
-  if is_accumulative_value == False:
+  if is_accumulative_value == False or (new_last_reset is not None and old_last_reset is not None and new_last_reset > old_last_reset):
     value = new_value
   elif old_value is not None:
     value = new_value - old_value
@@ -41,11 +43,11 @@ def add_consumption(current: datetime,
     return
 
   start_of_day = current.replace(hour=0, minute=0, second=0, microsecond=0)
-  target_start = current.replace(minute=0 if current.minute % 30 == 0 else 30, second=0, microsecond=0)
+  target_start = current.replace(minute=(0 if current.minute < 30 else 30), second=0, microsecond=0)
   target_end = target_start + timedelta(minutes=30)
 
-  new_tracked_consumption_data = tracked_consumption_data
-  new_untracked_consumption_data = untracked_consumption_data
+  new_tracked_consumption_data = tracked_consumption_data.copy()
+  new_untracked_consumption_data = untracked_consumption_data.copy()
   
   # If we've gone into a new day, then reset the consumption result
   if ((new_tracked_consumption_data is not None and len(new_tracked_consumption_data) > 0 and
