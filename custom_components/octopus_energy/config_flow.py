@@ -15,12 +15,11 @@ from .const import (
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
   CONFIG_KIND_TARGET_RATE,
-  CONFIG_MAIN_ACCOUNT_ID,
+  CONFIG_ACCOUNT_ID,
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET,
   CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET,
-  CONFIG_TARGET_ACCOUNT_ID,
   CONFIG_VERSION,
   DOMAIN,
   
@@ -76,7 +75,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     account_ids = {}
     for entry in self.hass.config_entries.async_entries(DOMAIN):
       if CONFIG_KIND in entry.data and entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
-        account_id = entry.data[CONFIG_MAIN_ACCOUNT_ID]
+        account_id = entry.data[CONFIG_ACCOUNT_ID]
         account_ids[account_id] = account_id
 
     return account_ids
@@ -88,7 +87,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     if len(errors) < 1:
       user_input[CONFIG_KIND] = CONFIG_KIND_ACCOUNT
       return self.async_create_entry(
-        title=user_input[CONFIG_MAIN_ACCOUNT_ID], 
+        title=user_input[CONFIG_ACCOUNT_ID], 
         data=user_input
       )
 
@@ -132,7 +131,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
     if len(errors) < 1:
       user_input[CONFIG_KIND] = CONFIG_KIND_TARGET_RATE
-      user_input[CONFIG_TARGET_ACCOUNT_ID] = list(account_ids.keys())[0]
+      user_input[CONFIG_ACCOUNT_ID] = list(account_ids.keys())[0]
       # Setup our targets sensor
       return self.async_create_entry(
         title=f"{user_input[CONFIG_TARGET_NAME]} (target)", 

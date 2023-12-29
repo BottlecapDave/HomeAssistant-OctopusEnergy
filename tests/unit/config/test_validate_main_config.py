@@ -6,7 +6,7 @@ from homeassistant.util.dt import (as_utc, parse_datetime)
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException, ServerException
 from custom_components.octopus_energy.config.main import async_validate_main_config
 from custom_components.octopus_energy.const import (
-  CONFIG_MAIN_ACCOUNT_ID,
+  CONFIG_ACCOUNT_ID,
   CONFIG_MAIN_API_KEY, 
   CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
@@ -43,7 +43,7 @@ async def test_when_data_is_valid_then_no_errors_returned():
   # Arrange
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
-    CONFIG_MAIN_ACCOUNT_ID: "A-123",
+    CONFIG_ACCOUNT_ID: "A-123",
     CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
     CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
     CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
@@ -63,7 +63,7 @@ async def test_when_data_is_valid_then_no_errors_returned():
     errors = await async_validate_main_config(data)
 
     # Assert
-    assert CONFIG_MAIN_ACCOUNT_ID not in errors
+    assert CONFIG_ACCOUNT_ID not in errors
     assert CONFIG_MAIN_API_KEY not in errors 
     assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
     assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
@@ -79,7 +79,7 @@ async def test_when_account_info_not_found_then_errors_returned():
   # Arrange
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
-    CONFIG_MAIN_ACCOUNT_ID: "A-123",
+    CONFIG_ACCOUNT_ID: "A-123",
     CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
     CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
     CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
@@ -101,7 +101,7 @@ async def test_when_account_info_not_found_then_errors_returned():
     assert CONFIG_MAIN_API_KEY in errors
     assert errors[CONFIG_MAIN_API_KEY] == "account_not_found"
 
-    assert CONFIG_MAIN_ACCOUNT_ID not in errors
+    assert CONFIG_ACCOUNT_ID not in errors
     assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
     assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
     assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES not in errors
@@ -116,7 +116,7 @@ async def test_when_account_info_raises_server_error_then_errors_returned():
   # Arrange
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
-    CONFIG_MAIN_ACCOUNT_ID: "A-123",
+    CONFIG_ACCOUNT_ID: "A-123",
     CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
     CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
     CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
@@ -138,7 +138,7 @@ async def test_when_account_info_raises_server_error_then_errors_returned():
     assert CONFIG_MAIN_API_KEY in errors
     assert errors[CONFIG_MAIN_API_KEY] == "server_error"
 
-    assert CONFIG_MAIN_ACCOUNT_ID not in errors
+    assert CONFIG_ACCOUNT_ID not in errors
     assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
     assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
     assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES not in errors
@@ -153,7 +153,7 @@ async def test_when_account_info_raises_request_error_then_errors_returned():
   # Arrange
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
-    CONFIG_MAIN_ACCOUNT_ID: "A-123",
+    CONFIG_ACCOUNT_ID: "A-123",
     CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
     CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
     CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
@@ -175,7 +175,7 @@ async def test_when_account_info_raises_request_error_then_errors_returned():
     assert CONFIG_MAIN_API_KEY in errors
     assert errors[CONFIG_MAIN_API_KEY] == "account_not_found"
 
-    assert CONFIG_MAIN_ACCOUNT_ID not in errors
+    assert CONFIG_ACCOUNT_ID not in errors
     assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
     assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
     assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES not in errors
@@ -190,7 +190,7 @@ async def test_when_live_electricity_less_than_one_and_supports_live_consumption
   # Arrange
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
-    CONFIG_MAIN_ACCOUNT_ID: "A-123",
+    CONFIG_ACCOUNT_ID: "A-123",
     CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: False,
     CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 0,
     CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
@@ -210,7 +210,7 @@ async def test_when_live_electricity_less_than_one_and_supports_live_consumption
     errors = await async_validate_main_config(data)
 
     # Assert
-    assert CONFIG_MAIN_ACCOUNT_ID not in errors
+    assert CONFIG_ACCOUNT_ID not in errors
     assert CONFIG_MAIN_API_KEY not in errors 
     assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
     assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
@@ -226,7 +226,7 @@ async def test_when_live_gas_less_than_one_and_supports_live_consumption_is_fals
   # Arrange
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
-    CONFIG_MAIN_ACCOUNT_ID: "A-123",
+    CONFIG_ACCOUNT_ID: "A-123",
     CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: False,
     CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
     CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 0,
@@ -246,7 +246,7 @@ async def test_when_live_gas_less_than_one_and_supports_live_consumption_is_fals
     errors = await async_validate_main_config(data)
 
     # Assert
-    assert CONFIG_MAIN_ACCOUNT_ID not in errors
+    assert CONFIG_ACCOUNT_ID not in errors
     assert CONFIG_MAIN_API_KEY not in errors 
     assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
     assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
@@ -262,7 +262,7 @@ async def test_when_live_electricity_less_than_one_and_supports_live_consumption
   # Arrange
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
-    CONFIG_MAIN_ACCOUNT_ID: "A-123",
+    CONFIG_ACCOUNT_ID: "A-123",
     CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
     CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 0,
     CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
@@ -285,7 +285,7 @@ async def test_when_live_electricity_less_than_one_and_supports_live_consumption
     assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES in errors
     assert errors[CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES] == "value_greater_than_zero"
 
-    assert CONFIG_MAIN_ACCOUNT_ID not in errors
+    assert CONFIG_ACCOUNT_ID not in errors
     assert CONFIG_MAIN_API_KEY not in errors 
     assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
     assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES not in errors
@@ -300,7 +300,7 @@ async def test_when_live_gas_less_than_one_and_supports_live_consumption_is_true
   # Arrange
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
-    CONFIG_MAIN_ACCOUNT_ID: "A-123",
+    CONFIG_ACCOUNT_ID: "A-123",
     CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
     CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
     CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 0,
@@ -323,7 +323,7 @@ async def test_when_live_gas_less_than_one_and_supports_live_consumption_is_true
     assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES in errors
     assert errors[CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES] == "value_greater_than_zero"
 
-    assert CONFIG_MAIN_ACCOUNT_ID not in errors
+    assert CONFIG_ACCOUNT_ID not in errors
     assert CONFIG_MAIN_API_KEY not in errors 
     assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
     assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
@@ -338,7 +338,7 @@ async def test_when_previous_electricity_offset_less_than_one_then_errors_return
   # Arrange
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
-    CONFIG_MAIN_ACCOUNT_ID: "A-123",
+    CONFIG_ACCOUNT_ID: "A-123",
     CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
     CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
     CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
@@ -361,7 +361,7 @@ async def test_when_previous_electricity_offset_less_than_one_then_errors_return
     assert CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET in errors
     assert errors[CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET] == "value_greater_than_zero"
 
-    assert CONFIG_MAIN_ACCOUNT_ID not in errors
+    assert CONFIG_ACCOUNT_ID not in errors
     assert CONFIG_MAIN_API_KEY not in errors 
     assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
     assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
@@ -376,7 +376,7 @@ async def test_when_previous_gas_offset_less_than_one_then_errors_returned():
   # Arrange
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
-    CONFIG_MAIN_ACCOUNT_ID: "A-123",
+    CONFIG_ACCOUNT_ID: "A-123",
     CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
     CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
     CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
@@ -399,7 +399,7 @@ async def test_when_previous_gas_offset_less_than_one_then_errors_returned():
     assert CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET in errors
     assert errors[CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET] == "value_greater_than_zero"
 
-    assert CONFIG_MAIN_ACCOUNT_ID not in errors
+    assert CONFIG_ACCOUNT_ID not in errors
     assert CONFIG_MAIN_API_KEY not in errors 
     assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
     assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors

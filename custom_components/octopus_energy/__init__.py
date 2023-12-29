@@ -30,7 +30,7 @@ from .const import (
   DOMAIN,
 
   CONFIG_MAIN_API_KEY,
-  CONFIG_MAIN_ACCOUNT_ID,
+  CONFIG_ACCOUNT_ID,
   CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
   CONFIG_MAIN_GAS_PRICE_CAP,
   
@@ -62,7 +62,7 @@ async def async_migrate_entry(hass, config_entry):
     if CONFIG_MAIN_API_KEY in config_entry.data or CONFIG_MAIN_OLD_API_KEY in config_entry.data or (CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT):
       new_data = await async_migrate_main_config(config_entry.version, config_entry.data)
       new_options = await async_migrate_main_config(config_entry.version, config_entry.options)
-      title = new_data[CONFIG_MAIN_ACCOUNT_ID]
+      title = new_data[CONFIG_ACCOUNT_ID]
     else:
       new_data = await async_migrate_target_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
       new_options = await async_migrate_target_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
@@ -126,9 +126,9 @@ async def async_setup_dependencies(hass, config):
 
   client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap)
   hass.data[DOMAIN][DATA_CLIENT] = client
-  hass.data[DOMAIN][DATA_ACCOUNT_ID] = config[CONFIG_MAIN_ACCOUNT_ID]
+  hass.data[DOMAIN][DATA_ACCOUNT_ID] = config[CONFIG_ACCOUNT_ID]
 
-  account_info = await client.async_get_account(config[CONFIG_MAIN_ACCOUNT_ID])
+  account_info = await client.async_get_account(config[CONFIG_ACCOUNT_ID])
   if (account_info is None):
     raise ConfigEntryNotReady(f"Failed to retrieve account information")
 
@@ -191,7 +191,7 @@ async def async_setup_dependencies(hass, config):
     hass.data[DOMAIN][DATA_INTELLIGENT_MPAN] = intelligent_mpan
     hass.data[DOMAIN][DATA_INTELLIGENT_SERIAL_NUMBER] = intelligent_serial_number
 
-  await async_setup_account_info_coordinator(hass, config[CONFIG_MAIN_ACCOUNT_ID])
+  await async_setup_account_info_coordinator(hass, config[CONFIG_ACCOUNT_ID])
 
   await async_setup_intelligent_dispatches_coordinator(hass)
 

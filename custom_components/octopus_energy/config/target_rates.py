@@ -6,8 +6,7 @@ from homeassistant.util.dt import (parse_datetime)
 from ..const import (
   CONFIG_KIND,
   CONFIG_KIND_TARGET_RATE,
-  CONFIG_MAIN_ACCOUNT_ID,
-  CONFIG_TARGET_ACCOUNT_ID,
+  CONFIG_ACCOUNT_ID,
   CONFIG_TARGET_END_TIME,
   CONFIG_TARGET_HOURS,
   CONFIG_TARGET_MPAN,
@@ -66,8 +65,8 @@ async def async_migrate_target_config(version: int, data: {}, get_entries):
 
     entries: list = get_entries(DOMAIN)
     for entry in entries:
-      if CONFIG_MAIN_ACCOUNT_ID in entry.data:
-        new_data[CONFIG_TARGET_ACCOUNT_ID] = entry.data[CONFIG_MAIN_ACCOUNT_ID]
+      if CONFIG_ACCOUNT_ID in entry.data:
+        new_data[CONFIG_ACCOUNT_ID] = entry.data[CONFIG_ACCOUNT_ID]
 
   return new_data
 
