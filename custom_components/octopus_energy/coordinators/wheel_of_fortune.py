@@ -65,16 +65,16 @@ async def async_setup_wheel_of_fortune_spins_coordinator(hass, account_id: str):
   async def async_update_data():
     """Fetch data from API endpoint."""
     current = now()
-    client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
+    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
-    hass.data[DOMAIN][DATA_WHEEL_OF_FORTUNE_SPINS] = await async_refresh_wheel_of_fortune_spins(
+    hass.data[DOMAIN][account_id][DATA_WHEEL_OF_FORTUNE_SPINS] = await async_refresh_wheel_of_fortune_spins(
       current,
       client,
       account_id,
-      hass.data[DOMAIN][DATA_WHEEL_OF_FORTUNE_SPINS] if DATA_WHEEL_OF_FORTUNE_SPINS in hass.data[DOMAIN] else None
+      hass.data[DOMAIN][account_id][DATA_WHEEL_OF_FORTUNE_SPINS] if DATA_WHEEL_OF_FORTUNE_SPINS in hass.data[DOMAIN][account_id] else None
     )
 
-    return hass.data[DOMAIN][DATA_WHEEL_OF_FORTUNE_SPINS]
+    return hass.data[DOMAIN][account_id][DATA_WHEEL_OF_FORTUNE_SPINS]
 
   coordinator = DataUpdateCoordinator(
     hass,

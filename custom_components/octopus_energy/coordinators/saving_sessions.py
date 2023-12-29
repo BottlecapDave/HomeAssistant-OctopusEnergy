@@ -139,16 +139,15 @@ async def async_refresh_saving_sessions(
   
   return existing_saving_sessions_result
 
-async def async_setup_saving_sessions_coordinators(hass):
-  account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]
+async def async_setup_saving_sessions_coordinators(hass, account_id: str):
 
   async def async_update_saving_sessions():
     """Fetch data from API endpoint."""
     # Only get data every half hour or if we don't have any data
     current = now()
-    client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-    force_update = hass.data[DOMAIN][DATA_SAVING_SESSIONS_FORCE_UPDATE] if DATA_SAVING_SESSIONS_FORCE_UPDATE in hass.data[DOMAIN] else False
-    previous_result = hass.data[DOMAIN][DATA_SAVING_SESSIONS] if DATA_SAVING_SESSIONS in hass.data[DOMAIN] else None
+    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
+    force_update = hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS_FORCE_UPDATE] if DATA_SAVING_SESSIONS_FORCE_UPDATE in hass.data[DOMAIN][account_id] else False
+    previous_result = hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS] if DATA_SAVING_SESSIONS in hass.data[DOMAIN][account_id] else None
 
     result = await async_refresh_saving_sessions(
       current,
@@ -159,12 +158,12 @@ async def async_setup_saving_sessions_coordinators(hass):
     )
 
     if result != previous_result:
-      hass.data[DOMAIN][DATA_SAVING_SESSIONS_FORCE_UPDATE] = False
+      hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS_FORCE_UPDATE] = False
 
-    hass.data[DOMAIN][DATA_SAVING_SESSIONS] = result
-    return hass.data[DOMAIN][DATA_SAVING_SESSIONS]
+    hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS] = result
+    return hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS]
 
-  hass.data[DOMAIN][DATA_SAVING_SESSIONS_COORDINATOR] = DataUpdateCoordinator(
+  hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS_COORDINATOR] = DataUpdateCoordinator(
     hass,
     _LOGGER,
     name=f"{account_id}_saving_sessions",
@@ -175,4 +174,4 @@ async def async_setup_saving_sessions_coordinators(hass):
     always_update=True
   )
   
-  await hass.data[DOMAIN][DATA_SAVING_SESSIONS_COORDINATOR].async_config_entry_first_refresh()
+  await hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS_COORDINATOR].async_config_entry_first_refresh()

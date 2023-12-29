@@ -35,7 +35,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative electricity cost for a different tariff."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, tariff_code, meter, point):
+  def __init__(self, hass: HomeAssistant, account_id: str, coordinator, client: OctopusEnergyApiClient, tariff_code, meter, point):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
@@ -43,6 +43,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     self._hass = hass
     self._tariff_code = tariff_code
     self._client = client
+    self._account_id = account_id
 
     self._state = None
     self._last_reset = None
@@ -120,13 +121,13 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
 
     tariff_override_key = get_electricity_tariff_override_key(self._serial_number, self._mpan)
     is_old_data = (result is not None and (self._next_refresh is None or result.last_retrieved >= self._last_retrieved)) and (self._next_refresh is None or current >= self._next_refresh)
-    is_tariff_present = tariff_override_key in self._hass.data[DOMAIN]
-    has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][tariff_override_key] != self._tariff_code
+    is_tariff_present = tariff_override_key in self._hass.data[DOMAIN][self._account_id]
+    has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][self._account_id][tariff_override_key] != self._tariff_code
 
     if (consumption_data is not None and len(consumption_data) >= MINIMUM_CONSUMPTION_DATA_LENGTH and is_tariff_present and (is_old_data or has_tariff_changed)):
       _LOGGER.debug(f"Calculating previous electricity consumption cost override for '{self._mpan}/{self._serial_number}'...")
       
-      tariff_override = self._hass.data[DOMAIN][tariff_override_key]
+      tariff_override = self._hass.data[DOMAIN][self._account_id][tariff_override_key]
       period_from = consumption_data[0]["start"]
       period_to = consumption_data[-1]["end"]
 

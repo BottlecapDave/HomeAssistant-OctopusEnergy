@@ -26,12 +26,11 @@ from .const import (
   CONFIG_KIND_ACCOUNT,
   CONFIG_KIND_COST_TRACKER,
   CONFIG_KIND_TARGET_RATE,
-  CONFIG_MAIN_ACCOUNT_ID,
+  CONFIG_ACCOUNT_ID,
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET,
   CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET,
-  CONFIG_TARGET_ACCOUNT_ID,
   CONFIG_VERSION,
   DATA_ACCOUNT,
   DOMAIN,
@@ -88,7 +87,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     account_ids = {}
     for entry in self.hass.config_entries.async_entries(DOMAIN):
       if CONFIG_KIND in entry.data and entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
-        account_id = entry.data[CONFIG_MAIN_ACCOUNT_ID]
+        account_id = entry.data[CONFIG_ACCOUNT_ID]
         account_ids[account_id] = account_id
 
     return account_ids
@@ -100,7 +99,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     if len(errors) < 1:
       user_input[CONFIG_KIND] = CONFIG_KIND_ACCOUNT
       return self.async_create_entry(
-        title=user_input[CONFIG_MAIN_ACCOUNT_ID], 
+        title=user_input[CONFIG_ACCOUNT_ID], 
         data=user_input
       )
 
@@ -109,7 +108,10 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     )
 
   async def __async_setup_target_rate_schema__(self):
-    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][DATA_ACCOUNT]
+    account_ids = self.__get_account_ids__()
+    account_id = list(account_ids.keys())[0]
+
+    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
     if (account_info is None):
       return self.async_abort(reason="account_not_found")
 
@@ -143,7 +145,10 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     })
   
   async def __async_setup_cost_tracker_schema__(self):
-    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][DATA_ACCOUNT]
+    account_ids = self.__get_account_ids__()
+    account_id = list(account_ids.keys())[0]
+
+    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
     if (account_info is None):
       return self.async_abort(reason="account_not_found")
 
@@ -166,17 +171,19 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
   async def async_step_target_rate(self, user_input):
     """Setup a target based on the provided user input"""
-    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][DATA_ACCOUNT]
+    account_ids = self.__get_account_ids__()
+    account_id = list(account_ids.keys())[0]
+
+    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
     if (account_info is None):
       return self.async_abort(reason="account_not_found")
 
     now = utcnow()
     errors = validate_target_rate_config(user_input, account_info.account, now) if user_input is not None else {}
-    account_ids = self.__get_account_ids__()
 
     if len(errors) < 1 and user_input is not None:
       user_input[CONFIG_KIND] = CONFIG_KIND_TARGET_RATE
-      user_input[CONFIG_TARGET_ACCOUNT_ID] = list(account_ids.keys())[0]
+      user_input[CONFIG_ACCOUNT_ID] = account_id
       # Setup our targets sensor
       return self.async_create_entry(
         title=f"{user_input[CONFIG_TARGET_NAME]} (target)", 
@@ -258,7 +265,10 @@ class OptionsFlowHandler(OptionsFlow):
     self._entry = entry
 
   async def __async_setup_target_rate_schema__(self, config, errors):
-    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][DATA_ACCOUNT]
+    account_ids = self.get_account_ids()
+    account_id = list(account_ids.keys())[0]
+
+    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
     if account_info is None:
       errors[CONFIG_TARGET_MPAN] = "account_not_found"
 
@@ -417,11 +427,13 @@ class OptionsFlowHandler(OptionsFlow):
 
   async def async_step_target_rate(self, user_input):
     """Manage the options for the custom component."""
+    account_ids = self.get_account_ids()
+    account_id = list(account_ids.keys())[0]
 
     config = merge_target_rate_config(self._entry.data, self._entry.options, user_input)
 
-    client = self.hass.data[DOMAIN][DATA_CLIENT]
-    account_info = await client.async_get_account(self.hass.data[DOMAIN][DATA_ACCOUNT_ID])
+    client = self.hass.data[DOMAIN][account_id][DATA_CLIENT]
+    account_info = await client.async_get_account(account_id)
 
     now = utcnow()
     errors = validate_target_rate_config(user_input, account_info, now)
