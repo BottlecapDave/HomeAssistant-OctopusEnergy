@@ -6,7 +6,7 @@ blueprint:
 
   input:
     cost_tracker_entity:
-      name: Saving session events
+      name: Cost tracker entities
       description: The cost tracker entities to update
       selector:
         entity:
@@ -28,6 +28,7 @@ blueprint:
           filter:
           - domain:
             - sensor
+            - input_number
           multiple: false
 
 mode: single
