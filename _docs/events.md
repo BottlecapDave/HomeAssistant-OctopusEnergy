@@ -353,7 +353,7 @@ Each available event item will include the following attributes
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `id` | `integer` | The id of the event |
-| `code` | `string` | The event code of the event. This will be required to join via the [join service](../services.md) |
+| `code` | `string` | The event code of the event. This will be required to join via the [join service](./services.md) |
 | `start` | `datetime` | The date/time the event starts |
 | `end` | `datetime` | The date/time the event starts |
 | `octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |

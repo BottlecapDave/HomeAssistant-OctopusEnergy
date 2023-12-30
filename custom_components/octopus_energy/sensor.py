@@ -125,7 +125,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
       vol.All(
         vol.Schema(
           {
-            vol.Required("tracking_enabled"): bool,
+            vol.Required("is_tracking_enabled"): bool,
           },
           extra=vol.ALLOW_EXTRA,
         ),

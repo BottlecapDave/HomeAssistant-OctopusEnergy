@@ -8,7 +8,7 @@ Ever wondered how much your individual appliances are costing you? You can creat
 
 ## Setup
 
-After you've configured your [account](./setup/account.md), you'll be able to configure cost tracker sensors. These are configured by adding subsequent instances of the integration going through the [normal flow](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy), and selecting `Cost Tracker` in the provided menu.
+After you've configured your [account](./account.md), you'll be able to configure cost tracker sensors. These are configured by adding subsequent instances of the integration going through the [normal flow](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy), and selecting `Cost Tracker` in the provided menu.
 
 ### Name
 

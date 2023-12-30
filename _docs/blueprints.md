@@ -46,13 +46,13 @@ This blueprint will trigger when either gas or electricity energy source spins a
 
 ## Cost Tracker
 
-## Automatically update tracking (negative)
+### Automatically update tracking (negative)
 
 [Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_cost_tracker_negative.yml) | [Source](./blueprints/octopus_energy_cost_tracker_negative.yml)
 
 This blueprint will automatically update the tracking state for the specified [cost tracker](./setup/cost_tracker.md) sensors when the monitored sensor goes negative.
 
-## Automatically update tracking (positive)
+### Automatically update tracking (positive)
 
 [Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_cost_tracker_positive.yml) | [Source](./blueprints/octopus_energy_cost_tracker_positive.yml)
 

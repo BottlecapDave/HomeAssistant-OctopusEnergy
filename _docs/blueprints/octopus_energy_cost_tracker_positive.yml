@@ -1,6 +1,6 @@
 blueprint:
-  name: Octopus Energy - Cost tracker (negative)
-  description: Automatically updates the tracking state of the specified cost trackers when the monitored sensor goes negative.
+  name: Octopus Energy - Cost tracker (positive)
+  description: Automatically updates the tracking state of the specified cost trackers when the monitored sensor goes positive (including zero).
   domain: automation
   author: BottlecapDave
 
