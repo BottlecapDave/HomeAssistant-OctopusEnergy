@@ -38,6 +38,8 @@ from .gas.previous_accumulative_cost_override import OctopusEnergyPreviousAccumu
 from .wheel_of_fortune.electricity_spins import OctopusEnergyWheelOfFortuneElectricitySpins
 from .wheel_of_fortune.gas_spins import OctopusEnergyWheelOfFortuneGasSpins
 from .cost_tracker.cost_tracker import OctopusEnergyCostTrackerSensor
+from .cost_tracker.cost_tracker_off_peak import OctopusEnergyCostTrackerOffPeakSensor
+from .cost_tracker.cost_tracker_peak import OctopusEnergyCostTrackerPeakSensor
 
 from .coordinators.current_consumption import async_create_current_consumption_coordinator
 from .coordinators.gas_rates import async_setup_gas_rates_coordinator
@@ -333,6 +335,10 @@ async def async_setup_cost_sensors(hass: HomeAssistant, config, async_add_entiti
           is_export = meter["is_export"]
           serial_number = meter["serial_number"]
           coordinator = hass.data[DOMAIN][account_id][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)]
-          entities = [OctopusEnergyCostTrackerSensor(hass, coordinator, config, is_export)]
+          entities = [
+            OctopusEnergyCostTrackerSensor(hass, coordinator, config, is_export),
+            OctopusEnergyCostTrackerOffPeakSensor(hass, coordinator, config, is_export),
+            OctopusEnergyCostTrackerPeakSensor(hass, coordinator, config, is_export)
+          ]
           async_add_entities(entities, True)
           return
