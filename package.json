@@ -8,7 +8,8 @@
     "commit": "cz",
     "release": "semantic-release",
     "test-unit": "python -m pytest tests/unit",
-    "test-integration": "python -m pytest tests/integration"
+    "test-integration": "python -m pytest tests/integration",
+    "docs-serve": "python -m mkdocs serve"
   },
   "repository": {
     "type": "git",
