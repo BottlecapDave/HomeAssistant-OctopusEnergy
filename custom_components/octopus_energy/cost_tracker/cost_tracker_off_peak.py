@@ -168,8 +168,10 @@ class OctopusEnergyCostTrackerOffPeakSensor(CoordinatorEntity, RestoreSensor):
       )
 
       if tracked_result is not None and untracked_result is not None:
-        self._attributes["total_consumption"] = tracked_result["total_consumption_off_peak"] + untracked_result["total_consumption_off_peak"]
-        self._state = tracked_result["total_cost_off_peak"]
+        total_tracked_consumption = tracked_result["total_consumption_off_peak"] if "total_consumption_off_peak" in tracked_result else 0
+        total_untracked_consumption = untracked_result["total_consumption_off_peak"] if "total_consumption_off_peak" in untracked_result else 0
+        self._attributes["total_consumption"] = total_tracked_consumption + total_untracked_consumption
+        self._state = tracked_result["total_cost_off_peak"] if "total_cost_off_peak" in tracked_result else 0
 
         self.async_write_ha_state()
 
