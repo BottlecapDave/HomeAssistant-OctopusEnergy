@@ -11,7 +11,7 @@ from homeassistant.components.sensor import (
   SensorStateClass
 )
 from homeassistant.const import (
-    VOLUME_CUBIC_METERS
+    UnitOfVolume
 )
 
 from homeassistant.util.dt import (utcnow)
@@ -77,7 +77,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumption(CoordinatorEntity, Octopus
   @property
   def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
-    return VOLUME_CUBIC_METERS
+    return UnitOfVolume.CUBIC_METERS
 
   @property
   def icon(self):
@@ -134,7 +134,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumption(CoordinatorEntity, Octopus
         self.name,
         consumption_and_cost["charges"],
         rate_data,
-        VOLUME_CUBIC_METERS,
+        UnitOfVolume.CUBIC_METERS,
         "consumption_m3",
         False
       )
