@@ -1,6 +1,8 @@
 from datetime import datetime, timedelta
 import pytest
 
+
+from custom_components.octopus_energy.api_client.saving_sessions import SavingSession
 from custom_components.octopus_energy.octoplus import get_saving_session_consumption_dates
 
 @pytest.mark.asyncio
@@ -109,11 +111,11 @@ from custom_components.octopus_energy.octoplus import get_saving_session_consump
 async def test_when_no_previous_saving_sessions_then_correct_dates_returned(saving_session_start: datetime, expected_result: list[datetime]):
   # Arrange
   saving_session_diff = timedelta(minutes=90)
-  saving_session_end = saving_session_start + saving_session_diff
   previous_saving_sessions = []
+  saving_session = SavingSession('1', 'ABC', saving_session_start, saving_session_start + saving_session_diff, 0)
 
   # Act
-  result = get_saving_session_consumption_dates(saving_session_start, saving_session_end, previous_saving_sessions)
+  result = get_saving_session_consumption_dates(saving_session, previous_saving_sessions)
 
   # Assert
   assert len(result) == len(expected_result)
@@ -237,14 +239,11 @@ async def test_when_no_previous_saving_sessions_then_correct_dates_returned(savi
 async def test_when_previous_saving_sessions_present_then_returned_dates_do_not_include_saving_session(saving_session_start: datetime, previous_saving_session_start: datetime, expected_result: list[datetime]):
   # Arrange
   saving_session_diff = timedelta(minutes=90)
-  saving_session_end = saving_session_start + saving_session_diff
-  previous_saving_sessions = [{
-    "start": previous_saving_session_start,
-    "end": previous_saving_session_start + timedelta(hours=1)
-  }]
+  previous_saving_sessions = [SavingSession('2', 'DEF',previous_saving_session_start, previous_saving_session_start + timedelta(hours=1), 0)]
+  saving_session = SavingSession('1', 'ABC', saving_session_start, saving_session_start + saving_session_diff, 0)
 
   # Act
-  result = get_saving_session_consumption_dates(saving_session_start, saving_session_end, previous_saving_sessions)
+  result = get_saving_session_consumption_dates(saving_session, previous_saving_sessions)
 
   # Assert
   assert len(result) == len(expected_result)
