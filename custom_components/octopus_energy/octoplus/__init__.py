@@ -36,22 +36,30 @@ def is_new_saving_session_date_valid(saving_session_start: datetime, previous_sa
   
   return True
 
+def get_target_consumption_days(saving_session: datetime):
+  saving_session_day = saving_session.weekday()
+  if (saving_session_day >= 5):
+    return 4
+  
+  return 10
+
 def get_saving_session_consumption_dates(saving_session: SavingSession, previous_saving_sessions: list[SavingSession]) -> list[SavingSessionConsumptionDate]:
   dates: list[SavingSessionConsumptionDate] = []
 
   hours = saving_session.end - saving_session.start
+  target_consumption_dates = get_target_consumption_days(saving_session.start)
   saving_session_day = saving_session.start.weekday()
   if (saving_session_day >= 5):
     # Weekend
     new_start = saving_session.start
-    while len(dates) < 4:
+    while len(dates) < target_consumption_dates:
       new_start = new_start - timedelta(days=1)
       if (is_new_saving_session_date_valid(new_start, previous_saving_sessions) and new_start.weekday() >= 5):
         dates.append(SavingSessionConsumptionDate(new_start, new_start + hours))
   else:
     # Weekday
     new_start = saving_session.start
-    while len(dates) < 10:
+    while len(dates) < target_consumption_dates:
       new_start = new_start - timedelta(days=1)
       if (is_new_saving_session_date_valid(new_start, previous_saving_sessions) and new_start.weekday() < 5):
         dates.append(SavingSessionConsumptionDate(new_start, new_start + hours))
@@ -107,6 +115,8 @@ def get_saving_session_targets(current: datetime, saving_session: SavingSession,
         current_saving_session_period_index = index
         break
 
+  target_consumption_days = get_target_consumption_days(saving_session.start)
+
   # Work out which consumption data is applicable for each saving session period and what our overall target is
   targets: list[SavingSessionTarget] = []
   for saving_session_period in saving_session_periods:
@@ -119,7 +129,7 @@ def get_saving_session_targets(current: datetime, saving_session: SavingSession,
                                        saving_session_period["end"],
                                        sum(map(lambda item: item["consumption"], target_consumption_data)) / len(target_consumption_data),
                                        target_consumption_data,
-                                       False))
+                                       len(target_consumption_data) != target_consumption_days))
 
   current_target = targets[current_saving_session_period_index]
   print(current_target.consumption_items)
