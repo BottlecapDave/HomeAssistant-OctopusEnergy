@@ -13,6 +13,7 @@ Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-
 | Previous consumption data | 30 | This is usually refreshed once a day at various times throughout the day. We want to be up-to-date as soon as possible, without swamping the API. |
 | Standing charges | 60 | This should only change if the user's tariff changes, so no need to request data too often. Keep in sync with account refreshes. |
 | Saving sessions | 15 | Inactive for most of the year and new sessions have enough warning to allow a bit of lag. |
+| Saving session target | 30 | Not relevant most of the time and intensive due to retrieving consumption data |
 | Wheel of fortune | 60 | Doesn't change that frequently, and not fundamental for a smart home (other than knowledge) so no need to request too often. |
 
 If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly waiting longer between each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.

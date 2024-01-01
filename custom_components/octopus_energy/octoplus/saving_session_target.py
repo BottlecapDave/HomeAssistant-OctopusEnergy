@@ -47,7 +47,13 @@ class OctopusEnergySavingSessionTarget(CoordinatorEntity, RestoreSensor):
     self._consumption_data = None
     self._attributes = {
       "mpan": mpan,
-      "serial_number": serial_number
+      "serial_number": serial_number,
+      "saving_session_target_start": None,
+      "saving_session_target_end": None,
+      "is_incomplete_calculation": None,
+      "consumption_items": None,
+      "total_target": None,
+      "targets": None,
     }
     self._next_refresh = None
 
@@ -108,7 +114,7 @@ class OctopusEnergySavingSessionTarget(CoordinatorEntity, RestoreSensor):
         target_saving_session = get_next_saving_sessions_event(current, saving_session.joined_events)
 
       if (target_saving_session is not None):
-        if self._next_refresh is None or current >= self._next_refresh:
+        if self._next_refresh is None or current >= self._next_refresh and self._attributes["is_incomplete_calculation"] != False:
           consumption_dates = get_saving_session_consumption_dates(target_saving_session, all_saving_sessions)
 
           try:
