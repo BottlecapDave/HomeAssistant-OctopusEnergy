@@ -11,7 +11,10 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.components.sensor import (
     RestoreSensor,
     SensorDeviceClass,
-    SensorStateClass
+    SensorStateClass,
+)
+from homeassistant.const import (
+    UnitOfEnergy
 )
 
 from . import (
@@ -63,7 +66,7 @@ class OctopusEnergySavingSessionTarget(CoordinatorEntity, RestoreSensor):
   @property
   def device_class(self):
     """The type of sensor"""
-    return SensorDeviceClass.MONETARY
+    return SensorDeviceClass.ENERGY
 
   @property
   def state_class(self):
@@ -73,12 +76,12 @@ class OctopusEnergySavingSessionTarget(CoordinatorEntity, RestoreSensor):
   @property
   def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
-    return "GBP"
+    return UnitOfEnergy.KILO_WATT_HOUR
 
   @property
   def icon(self):
     """Icon of the sensor."""
-    return "mdi:currency-gbp"
+    return "mdi:lightning-bolt"
 
   @property
   def extra_state_attributes(self):
