@@ -18,7 +18,8 @@ def calculate_electricity_consumption_and_cost(
     standing_charge,
     last_reset,
     tariff_code,
-    minimum_consumption_records = 0
+    minimum_consumption_records = 0,
+    round_cost = True
   ):
   if (consumption_data is not None and len(consumption_data) >= minimum_consumption_records and rate_data is not None and len(rate_data) > 0 and standing_charge is not None):
 
@@ -64,17 +65,17 @@ def calculate_electricity_consumption_and_cost(
           "end": rate["end"],
           "rate": value_inc_vat_to_pounds(value),
           "consumption": consumption_value,
-          "cost": round(cost / 100, 2)
+          "cost": round(cost / 100, 2) if round_cost else cost / 100
         })
       
-      total_cost = round(total_cost_in_pence / 100, 2)
-      total_cost_plus_standing_charge = round((total_cost_in_pence + standing_charge) / 100, 2)
+      total_cost = round(total_cost_in_pence / 100, 2) if round_cost else total_cost_in_pence / 100
+      total_cost_plus_standing_charge = round((total_cost_in_pence + standing_charge) / 100, 2) if round_cost else (total_cost_in_pence + standing_charge) / 100
 
-      last_reset = sorted_consumption_data[0]["start"]
-      last_calculated_timestamp = sorted_consumption_data[-1]["end"]
+      last_reset = sorted_consumption_data[0]["start"] if len(sorted_consumption_data) > 0 else None
+      last_calculated_timestamp = sorted_consumption_data[-1]["end"] if len(sorted_consumption_data) > 0 else None
 
       result = {
-        "standing_charge": round(standing_charge / 100, 2),
+        "standing_charge": round(standing_charge / 100, 2) if round_cost else standing_charge / 100,
         "total_cost_without_standing_charge": total_cost,
         "total_cost": total_cost_plus_standing_charge,
         "total_consumption": total_consumption,
@@ -84,8 +85,8 @@ def calculate_electricity_consumption_and_cost(
       }
 
       if off_peak_cost is not None:
-        result["total_cost_off_peak"] = round(total_cost_off_peak / 100, 2)
-        result["total_cost_peak"] = round(total_cost_peak / 100, 2)
+        result["total_cost_off_peak"] = round(total_cost_off_peak / 100, 2) if round_cost else total_cost_off_peak / 100
+        result["total_cost_peak"] = round(total_cost_peak / 100, 2) if round_cost else total_cost_peak / 100
         result["total_consumption_off_peak"] = total_consumption_off_peak
         result["total_consumption_peak"] = total_consumption_peak
 
