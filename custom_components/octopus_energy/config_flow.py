@@ -92,7 +92,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
     return account_ids
 
-  async def __async_setup_initial_account__(self, user_input):
+  async def async_step_account(self, user_input):
     """Setup the initial account based on the provided user input"""
     errors = await async_validate_main_config(user_input)
 
@@ -104,7 +104,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       )
 
     return self.async_show_form(
-      step_id="user", data_schema=DATA_SCHEMA_ACCOUNT, errors=errors
+      step_id="account", data_schema=DATA_SCHEMA_ACCOUNT, errors=errors
     )
 
   async def __async_setup_target_rate_schema__(self):
@@ -236,7 +236,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     if user_input is not None:
       if CONFIG_KIND in user_input:
         if user_input[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
-          return await self.__async_setup_initial_account__(user_input)
+          return await self.async_step_account(user_input)
         
         if user_input[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
           return await self.async_step_target_rate(user_input)
@@ -250,7 +250,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       return await self.async_step_choice(user_input)
 
     return self.async_show_form(
-      step_id="user", data_schema=DATA_SCHEMA_ACCOUNT
+      step_id="account", data_schema=DATA_SCHEMA_ACCOUNT
     )
 
   @staticmethod

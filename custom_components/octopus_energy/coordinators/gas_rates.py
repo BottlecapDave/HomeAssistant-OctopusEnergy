@@ -129,6 +129,4 @@ async def async_setup_gas_rates_coordinator(hass, account_id: str, client: Octop
     always_update=True
   )
 
-  await coordinator.async_config_entry_first_refresh()
-
   return coordinator

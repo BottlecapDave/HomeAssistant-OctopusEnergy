@@ -2,7 +2,7 @@
   "title": "Octopus Energy",
   "config": {
     "step": {
-      "user": {
+      "account": {
         "description": "Setup your basic account information.",
         "data": {
           "api_key": "Api key",

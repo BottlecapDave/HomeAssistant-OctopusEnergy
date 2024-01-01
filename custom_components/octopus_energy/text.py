@@ -77,4 +77,4 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   else:
     _LOGGER.info('No gas meters available')
 
-  async_add_entities(entities, True)
+  async_add_entities(entities)

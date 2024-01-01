@@ -75,8 +75,6 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
 
   saving_session_coordinator = hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS_COORDINATOR]
 
-  await saving_session_coordinator.async_config_entry_first_refresh()
-
   now = utcnow()
   entities = [OctopusEnergySavingSessions(hass, saving_session_coordinator, account_id)]
   if len(account_info["electricity_meter_points"]) > 0:
@@ -102,7 +100,7 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
     entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, intelligent_device, account_id, intelligent_features.planned_dispatches_supported))
 
   if len(entities) > 0:
-    async_add_entities(entities, True)
+    async_add_entities(entities)
 
 async def async_setup_target_sensors(hass, entry, async_add_entities):
   config = dict(entry.data)
@@ -129,5 +127,5 @@ async def async_setup_target_sensors(hass, entry, async_add_entities):
           serial_number = meter["serial_number"]
           coordinator = hass.data[DOMAIN][account_id][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)]
           entities = [OctopusEnergyTargetRate(hass, account_id, coordinator, config, is_export)]
-          async_add_entities(entities, True)
+          async_add_entities(entities)
           return

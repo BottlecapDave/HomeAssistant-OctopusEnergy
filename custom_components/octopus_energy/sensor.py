@@ -137,9 +137,6 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   account_id = config[CONFIG_ACCOUNT_ID]
   
   client = hass.data[DOMAIN][account_id][DATA_CLIENT]
-
-  saving_session_coordinator = hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS_COORDINATOR]
-  await saving_session_coordinator.async_config_entry_first_refresh()
   
   account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
   account_info = account_result.account if account_result is not None else None
@@ -315,7 +312,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   else:
     _LOGGER.info('No gas meters available')
 
-  async_add_entities(entities, True)
+  async_add_entities(entities)
 
 async def async_setup_cost_sensors(hass: HomeAssistant, config, async_add_entities):
   account_id = config[CONFIG_ACCOUNT_ID]
@@ -340,5 +337,5 @@ async def async_setup_cost_sensors(hass: HomeAssistant, config, async_add_entiti
             OctopusEnergyCostTrackerOffPeakSensor(hass, coordinator, config, is_export),
             OctopusEnergyCostTrackerPeakSensor(hass, coordinator, config, is_export)
           ]
-          async_add_entities(entities, True)
+          async_add_entities(entities)
           return

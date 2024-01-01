@@ -173,5 +173,3 @@ async def async_setup_saving_sessions_coordinators(hass, account_id: str):
     update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),
     always_update=True
   )
-  
-  await hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS_COORDINATOR].async_config_entry_first_refresh()

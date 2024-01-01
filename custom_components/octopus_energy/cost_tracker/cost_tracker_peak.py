@@ -144,7 +144,7 @@ class OctopusEnergyCostTrackerPeakSensor(CoordinatorEntity, RestoreSensor):
                                        self._config[CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE],
                                        self._attributes["is_tracking"])
 
-    if (consumption_data is not None and rates_result.rates is not None):
+    if (consumption_data is not None and rates_result is not None and rates_result.rates is not None):
       tracked_result = calculate_electricity_consumption_and_cost(
         current,
         consumption_data.tracked_consumption_data,

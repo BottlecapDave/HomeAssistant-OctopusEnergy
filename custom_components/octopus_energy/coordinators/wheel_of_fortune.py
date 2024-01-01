@@ -86,7 +86,5 @@ async def async_setup_wheel_of_fortune_spins_coordinator(hass, account_id: str):
     update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),
     always_update=True
   )
-  
-  await coordinator.async_config_entry_first_refresh()
 
   return coordinator

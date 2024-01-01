@@ -138,5 +138,3 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
     update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),
     always_update=True
   )
-
-  await hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR].async_config_entry_first_refresh()
