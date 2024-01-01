@@ -68,6 +68,14 @@ class OctopusEnergySavingSessionTarget(CoordinatorEntity, RestoreSensor):
   def name(self):
     """Name of the sensor."""
     return f"Octopus Energy {self._account_id} Octoplus Saving Session Target"
+  
+  @property
+  def entity_registry_enabled_default(self) -> bool:
+    """Return if the entity should be enabled when first added.
+
+    This only applies when fist added to the entity registry.
+    """
+    return False
 
   @property
   def device_class(self):
