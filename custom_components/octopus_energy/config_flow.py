@@ -203,7 +203,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
     if len(errors) < 1 and user_input is not None:
       user_input[CONFIG_KIND] = CONFIG_KIND_COST_TRACKER
-      user_input[CONFIG_TARGET_ACCOUNT_ID] = list(account_ids.keys())[0]
+      user_input[CONFIG_ACCOUNT_ID] = list(account_ids.keys())[0]
       return self.async_create_entry(
         title=f"{user_input[CONFIG_COST_NAME]} (cost tracker)", 
         data=user_input
@@ -219,7 +219,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     """Setup choice menu"""
     return self.async_show_menu(
       step_id="choice", menu_options={
-        "target_rate": "Target rate",
+        "target_rate": "Target Rate",
         "cost_tracker": "Cost Tracker"
       }
     )
