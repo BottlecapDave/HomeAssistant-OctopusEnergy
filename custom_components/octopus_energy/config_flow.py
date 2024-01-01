@@ -54,7 +54,6 @@ from .const import (
 
   DATA_SCHEMA_ACCOUNT,
   DATA_CLIENT,
-  DATA_ACCOUNT_ID,
 )
 
 from .utils import get_active_tariff_code

@@ -39,7 +39,6 @@ from .const import (
 
   DATA_CLIENT,
   DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
-  DATA_ACCOUNT_ID,
   DATA_ACCOUNT
 )
 
@@ -151,7 +150,6 @@ async def async_setup_dependencies(hass, config):
 
   client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap)
   hass.data[DOMAIN][account_id][DATA_CLIENT] = client
-  hass.data[DOMAIN][account_id][DATA_ACCOUNT_ID] = config[CONFIG_ACCOUNT_ID]
 
   account_info = await client.async_get_account(config[CONFIG_ACCOUNT_ID])
   if (account_info is None):
