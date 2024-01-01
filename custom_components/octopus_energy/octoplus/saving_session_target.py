@@ -159,6 +159,12 @@ class OctopusEnergySavingSessionTarget(CoordinatorEntity, RestoreSensor):
 
       else:
         self._state = None
+        self._attributes["saving_session_target_start"] = None
+        self._attributes["saving_session_target_end"] = None
+        self._attributes["is_incomplete_calculation"] = None
+        self._attributes["consumption_items"] = None
+        self._attributes["total_target"] = None
+        self._attributes["targets"] = None
 
     if saving_session is not None:
       self._attributes["data_last_retrieved"] = saving_session.last_retrieved
