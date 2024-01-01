@@ -7,7 +7,6 @@ from .const import (
   CONFIG_ACCOUNT_ID,
   DOMAIN,
 
-  DATA_ACCOUNT_ID,
   DATA_CLIENT
 )
 

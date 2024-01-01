@@ -19,7 +19,6 @@ from .octoplus.saving_sessions_events import OctopusEnergyOctoplusSavingSessionE
 
 from .const import (
   CONFIG_ACCOUNT_ID,
-  DATA_ACCOUNT_ID,
   DATA_CLIENT,
   DOMAIN,
 
