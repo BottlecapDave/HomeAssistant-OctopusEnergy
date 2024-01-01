@@ -102,7 +102,7 @@ class OctopusEnergySavingSessionTarget(CoordinatorEntity, RestoreSensor):
     """Attributes of the sensor."""
     return self._attributes
   
-   @property
+  @property
   def native_value(self):
     return self._state
 
