@@ -22,7 +22,7 @@ This blueprint will trigger when a new saving session has been discovered, join 
 
 ### Automatically spin wheel of fortune (single)
 
-[Install blueprint (single)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_spin_wheel_of_fortune_single.yml) | [Source](./blueprints/octopus_energy_spin_wheel_of_fortune_single.yml)
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_spin_wheel_of_fortune_single.yml) | [Source](./blueprints/octopus_energy_spin_wheel_of_fortune_single.yml)
 
 This blueprint will trigger when the number of spins for a given energy source goes above zero, and will spin until the sensor reaches zero.
 
@@ -32,7 +32,7 @@ This blueprint will trigger when the number of spins for a given energy source g
 
 ### Automatically spin wheel of fortune (Dual)
 
-[Install blueprint (single)](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_spin_wheel_of_fortune_dual.yml) | [Source](./blueprints/octopus_energy_spin_wheel_of_fortune_dual.yml)
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_spin_wheel_of_fortune_dual.yml) | [Source](./blueprints/octopus_energy_spin_wheel_of_fortune_dual.yml)
 
 This blueprint will trigger when either gas or electricity energy source spins are available, and will spin until the sensor reaches zero. This works as above, but combines both sensors into a single automation.
 
@@ -43,3 +43,17 @@ This blueprint will trigger when either gas or electricity energy source spins a
 !!! warning
 
     Due to an ongoing issue with the underlying API, this will not award octopoints if used. If you are on Octoplus, it is advised not to use this blueprint.
+
+## Cost Tracker
+
+### Automatically update tracking (negative)
+
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_cost_tracker_negative.yml) | [Source](./blueprints/octopus_energy_cost_tracker_negative.yml)
+
+This blueprint will automatically update the tracking state for the specified [cost tracker](./setup/cost_tracker.md) sensors when the monitored sensor goes negative.
+
+### Automatically update tracking (positive)
+
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_cost_tracker_positive.yml) | [Source](./blueprints/octopus_energy_cost_tracker_positive.yml)
+
+This blueprint will automatically update the tracking state for the specified [cost tracker](./setup/cost_tracker.md) sensors when the monitored sensor goes positive (including zero).

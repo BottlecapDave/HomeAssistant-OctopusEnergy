@@ -96,7 +96,5 @@ async def async_create_current_consumption_coordinator(hass, account_id: str, cl
     update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),
     always_update=True
   )
-  
-  await coordinator.async_config_entry_first_refresh()
 
   return coordinator

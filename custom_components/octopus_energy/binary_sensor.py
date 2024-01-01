@@ -13,16 +13,16 @@ from .utils import get_active_tariff_code
 from .intelligent import get_intelligent_features
 
 from .const import (
+  CONFIG_KIND,
+  CONFIG_KIND_ACCOUNT,
+  CONFIG_KIND_TARGET_RATE,
   CONFIG_ACCOUNT_ID,
-  DATA_ACCOUNT_ID,
   DATA_INTELLIGENT_DEVICE,
   DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
   DATA_INTELLIGENT_MPAN,
   DATA_INTELLIGENT_SERIAL_NUMBER,
   DOMAIN,
 
-  CONFIG_MAIN_API_KEY,
-  CONFIG_TARGET_NAME,
   CONFIG_TARGET_MPAN,
 
   DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
@@ -35,30 +35,30 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
 
-  if CONFIG_MAIN_API_KEY in entry.data:
+  if entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
     await async_setup_main_sensors(hass, entry, async_add_entities)
-  elif CONFIG_TARGET_NAME in entry.data:
+  elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
     await async_setup_target_sensors(hass, entry, async_add_entities)
 
-  platform = entity_platform.async_get_current_platform()
-  platform.async_register_entity_service(
-    "update_target_config",
-    vol.All(
-      vol.Schema(
-        {
-          vol.Required("target_hours"): str,
-          vol.Optional("target_start_time"): str,
-          vol.Optional("target_end_time"): str,
-          vol.Optional("target_offset"): str,
-        },
-        extra=vol.ALLOW_EXTRA,
+    platform = entity_platform.async_get_current_platform()
+    platform.async_register_entity_service(
+      "update_target_config",
+      vol.All(
+        vol.Schema(
+          {
+            vol.Required("target_hours"): str,
+            vol.Optional("target_start_time"): str,
+            vol.Optional("target_end_time"): str,
+            vol.Optional("target_offset"): str,
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
+        cv.has_at_least_one_key(
+          "target_hours", "target_start_time", "target_end_time", "target_offset"
+        ),
       ),
-      cv.has_at_least_one_key(
-        "target_hours", "target_start_time", "target_end_time", "target_offset"
-      ),
-    ),
-    "async_update_config",
-  )
+      "async_update_config",
+    )
 
   return True
 
@@ -74,8 +74,6 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
   account_info = account_result.account if account_result is not None else None
 
   saving_session_coordinator = hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS_COORDINATOR]
-
-  await saving_session_coordinator.async_config_entry_first_refresh()
 
   now = utcnow()
   entities = [OctopusEnergySavingSessions(hass, saving_session_coordinator, account_id)]
@@ -102,7 +100,7 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
     entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, intelligent_device, account_id, intelligent_features.planned_dispatches_supported))
 
   if len(entities) > 0:
-    async_add_entities(entities, True)
+    async_add_entities(entities)
 
 async def async_setup_target_sensors(hass, entry, async_add_entities):
   config = dict(entry.data)
@@ -129,5 +127,5 @@ async def async_setup_target_sensors(hass, entry, async_add_entities):
           serial_number = meter["serial_number"]
           coordinator = hass.data[DOMAIN][account_id][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)]
           entities = [OctopusEnergyTargetRate(hass, account_id, coordinator, config, is_export)]
-          async_add_entities(entities, True)
+          async_add_entities(entities)
           return

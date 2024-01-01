@@ -4,12 +4,13 @@
 
 Below are the main features of the integration
 
-* [Electricity](./entities/electricity/) and [gas](./entities/gas/) meter support including consumption data and rate information
-* [Custom sensor support to target cheapest rates](./setup/target_rate/)
-* [Octopus Home mini support](./setup/account/#home-mini)
-* [Intelligent tariff settings support](./entities/intelligent/)
-* [Saving sessions support](./entities/octoplus/#saving-sessions)
-* [Wheel of fortune support](./entities/wheel_of_fortune/)
+* [Electricity](./entities/electricity.md) and [gas](./entities/gas.md) meter support including consumption data and rate information
+* [Custom sensor support to target cheapest rates](./setup/target_rate.md)
+* [Custom sensor support for tracking costs of other entities](./setup/cost_tracker.md)
+* [Octopus Home mini support](./setup/account.md#home-mini)
+* [Intelligent tariff settings support](./entities/intelligent.md)
+* [Saving sessions support](./entities/octoplus.md#saving-sessions)
+* [Wheel of fortune support](./entities/wheel_of_fortune.md)
 
 ## How to setup
 
@@ -60,6 +61,12 @@ These sensors calculate the lowest continuous or intermittent rates **within a 2
 These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money. You can go through this flow as many times as you need target rate sensors.
 
 Please follow the [setup guide](./setup/target_rate.md).
+
+## Cost Tracker Sensors
+
+These sensors track the consumption of other existing sensors and provide a daily cost of those sensors.
+
+Please follow the [setup guide](./setup/cost_tracker.md).
 
 ## Events
 

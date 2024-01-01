@@ -48,4 +48,4 @@ async def async_setup_intelligent_sensors(hass, config, async_add_entities):
     if intelligent_features.ready_time_supported:
       entities.append(OctopusEnergyIntelligentReadyTime(hass, settings_coordinator, client, intelligent_device, account_id))
 
-  async_add_entities(entities, True)
+  async_add_entities(entities)

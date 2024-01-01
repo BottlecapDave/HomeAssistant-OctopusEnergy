@@ -91,4 +91,4 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
           entities.append(OctopusEnergyGasPreviousConsumptionOverrideRates(hass, meter, point))
 
   if len(entities) > 0:
-    async_add_entities(entities, True)
+    async_add_entities(entities)

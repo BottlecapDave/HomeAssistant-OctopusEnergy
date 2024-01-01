@@ -2,7 +2,7 @@
   "title": "Octopus Energy",
   "config": {
     "step": {
-      "user": {
+      "account": {
         "description": "Setup your basic account information.",
         "data": {
           "api_key": "Api key",
@@ -37,6 +37,15 @@
           "last_rates": "Find last applicable rates",
           "target_invert_target_rates": "Invert targeted rates"
         }
+      },
+      "cost_tracker": {
+        "description": "Track the cost for a given energy based sensor",
+        "data": {
+          "name": "The name of your cost sensor",
+          "mpan": "The meter the cost rates should be associated with",
+          "target_entity_id": "The entity to track the costs for.",
+          "entity_accumulative_value": "Tracked entity state is accumulative"
+        }
       }
     },
     "error": {
@@ -52,7 +61,8 @@
       "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information."
     },
     "abort": {
-      "not_supported": "Configuration for target rates is not supported at the moment."
+      "not_supported": "Configuration for target rates is not supported at the moment.",
+      "account_not_found": "Account information is not found"
     }
   },
   "options": {
@@ -89,6 +99,15 @@
           "last_rates": "Find last applicable rates",
           "target_invert_target_rates": "Invert targeted rates"
         }
+      },
+      "cost_tracker": {
+        "description": "Track the cost for a given energy based sensor",
+        "data": {
+          "name": "The name of your cost sensor",
+          "mpan": "The meter the cost rates should be associated with",
+          "target_entity_id": "The entity to track the costs for.",
+          "entity_accumulative_value": "Tracked entity state is accumulative"
+        }
       }
     },
     "error": {
@@ -103,7 +122,8 @@
       "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information."
     },
     "abort": {
-      "not_supported": "Configuration for target rates is not supported at the moment."
+      "not_supported": "Configuration for target rates is not supported at the moment.",
+      "account_not_found": "Account information is not found"
     }
   },
   "issues": {

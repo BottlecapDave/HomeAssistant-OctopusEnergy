@@ -205,6 +205,4 @@ async def async_create_previous_consumption_and_rates_coordinator(
 
   hass.data[DOMAIN][account_id][f'{identifier}_{serial_number}_previous_consumption_and_cost_coordinator'] = coordinator
 
-  await coordinator.async_config_entry_first_refresh()
-
   return coordinator

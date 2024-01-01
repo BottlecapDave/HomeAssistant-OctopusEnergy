@@ -107,6 +107,4 @@ async def async_setup_electricity_standing_charges_coordinator(hass, account_id:
     always_update=True
   )
 
-  await coordinator.async_config_entry_first_refresh()
-
   return coordinator

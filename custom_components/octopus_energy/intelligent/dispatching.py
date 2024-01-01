@@ -43,6 +43,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
       "planned_dispatches": [],
       "completed_dispatches": [],
       "last_evaluated": None,
+      "provider": device["provider"],
       "vehicle_battery_size_in_kwh": device["vehicleBatterySizeInKwh"],
       "charge_point_power_in_kw": device["chargePointPowerInKw"]
     }
@@ -76,12 +77,12 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
     rates = self._rates_coordinator.data.rates if self._rates_coordinator is not None and self._rates_coordinator.data is not None else None
 
     current_date = utcnow()
-    planned_dispatches = result.dispatches.planned if result.dispatches is not None and self._planned_dispatches_supported else []
+    planned_dispatches = result.dispatches.planned if result is not None and result.dispatches is not None and self._planned_dispatches_supported else []
     self._state = is_in_planned_dispatch(current_date, planned_dispatches) or is_off_peak(current_date, rates)
 
     self._attributes = {
       "planned_dispatches": dispatches_to_dictionary_list(planned_dispatches) if result is not None else [],
-      "completed_dispatches": dispatches_to_dictionary_list(result.dispatches.completed if result.dispatches is not None else []) if result is not None else [],
+      "completed_dispatches": dispatches_to_dictionary_list(result.dispatches.completed if result is not None and result.dispatches is not None else []) if result is not None else [],
       "data_last_retrieved": result.last_retrieved if result is not None else None,
       "last_evaluated": current_date 
     }

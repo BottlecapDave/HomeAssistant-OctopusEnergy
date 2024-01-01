@@ -37,6 +37,9 @@ from .gas.standing_charge import OctopusEnergyGasCurrentStandingCharge
 from .gas.previous_accumulative_cost_override import OctopusEnergyPreviousAccumulativeGasCostOverride
 from .wheel_of_fortune.electricity_spins import OctopusEnergyWheelOfFortuneElectricitySpins
 from .wheel_of_fortune.gas_spins import OctopusEnergyWheelOfFortuneGasSpins
+from .cost_tracker.cost_tracker import OctopusEnergyCostTrackerSensor
+from .cost_tracker.cost_tracker_off_peak import OctopusEnergyCostTrackerOffPeakSensor
+from .cost_tracker.cost_tracker_peak import OctopusEnergyCostTrackerPeakSensor
 
 from .coordinators.current_consumption import async_create_current_consumption_coordinator
 from .coordinators.gas_rates import async_setup_gas_rates_coordinator
@@ -50,17 +53,20 @@ from .octoplus.saving_session_target import OctopusEnergySavingSessionTarget
 
 from .utils import (get_active_tariff_code)
 from .const import (
+  CONFIG_COST_MPAN,
   CONFIG_ACCOUNT_ID,
   CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_DEFAULT_PREVIOUS_CONSUMPTION_OFFSET_IN_DAYS,
+  CONFIG_KIND,
+  CONFIG_KIND_ACCOUNT,
+  CONFIG_KIND_COST_TRACKER,
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET,
   CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET,
   DOMAIN,
   
-  CONFIG_MAIN_API_KEY,
   CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
   CONFIG_MAIN_CALORIFIC_VALUE,
   CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
@@ -82,34 +88,50 @@ async def async_setup_entry(hass, entry, async_add_entities):
   if entry.options:
     config.update(entry.options)
 
-  if CONFIG_MAIN_API_KEY in entry.data:
+  if config[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
     await async_setup_default_sensors(hass, config, async_add_entities)
 
-  platform = entity_platform.async_get_current_platform()
-  platform.async_register_entity_service(
-    "refresh_previous_consumption_data",
-    vol.All(
-      vol.Schema(
-        {
-          vol.Optional("start_time"): str,
-        },
-        extra=vol.ALLOW_EXTRA,
+    platform = entity_platform.async_get_current_platform()
+    platform.async_register_entity_service(
+      "refresh_previous_consumption_data",
+      vol.All(
+        vol.Schema(
+          {
+            vol.Optional("start_time"): str,
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
       ),
-    ),
-    "async_refresh_previous_consumption_data",
-  )
+      "async_refresh_previous_consumption_data"
+    )
 
-  platform.async_register_entity_service(
-    "spin_wheel_of_fortune",
-    vol.All(
-      vol.Schema(
-        {},
-        extra=vol.ALLOW_EXTRA,
+    platform.async_register_entity_service(
+      "spin_wheel_of_fortune",
+      vol.All(
+        vol.Schema(
+          {},
+          extra=vol.ALLOW_EXTRA,
+        ),
       ),
-    ),
-    "async_spin_wheel",
-    # supports_response=SupportsResponse.OPTIONAL
-  )
+      "async_spin_wheel",
+      # supports_response=SupportsResponse.OPTIONAL
+    )
+  elif config[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
+    await async_setup_cost_sensors(hass, config, async_add_entities)
+
+    platform = entity_platform.async_get_current_platform()
+    platform.async_register_entity_service(
+      "update_cost_tracker",
+      vol.All(
+        vol.Schema(
+          {
+            vol.Required("is_tracking_enabled"): bool,
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
+      ),
+      "async_update_cost_tracker_config"
+    )
 
 async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_entities):
   account_id = config[CONFIG_ACCOUNT_ID]
@@ -117,7 +139,6 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   client = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
   saving_session_coordinator = hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS_COORDINATOR]
-  await saving_session_coordinator.async_config_entry_first_refresh()
   
   account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
   account_info = account_result.account if account_result is not None else None
@@ -300,4 +321,30 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   else:
     _LOGGER.info('No gas meters available')
 
-  async_add_entities(entities, True)
+  async_add_entities(entities)
+
+async def async_setup_cost_sensors(hass: HomeAssistant, config, async_add_entities):
+  account_id = config[CONFIG_ACCOUNT_ID]
+  account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+  account_info = account_result.account if account_result is not None else None
+
+  mpan = config[CONFIG_COST_MPAN]
+
+  now = utcnow()
+  is_export = False
+  for point in account_info["electricity_meter_points"]:
+    tariff_code = get_active_tariff_code(now, point["agreements"])
+    if tariff_code is not None:
+      # For backwards compatibility, pick the first applicable meter
+      if point["mpan"] == mpan or mpan is None:
+        for meter in point["meters"]:
+          is_export = meter["is_export"]
+          serial_number = meter["serial_number"]
+          coordinator = hass.data[DOMAIN][account_id][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)]
+          entities = [
+            OctopusEnergyCostTrackerSensor(hass, coordinator, config, is_export),
+            OctopusEnergyCostTrackerOffPeakSensor(hass, coordinator, config, is_export),
+            OctopusEnergyCostTrackerPeakSensor(hass, coordinator, config, is_export)
+          ]
+          async_add_entities(entities)
+          return
