@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from custom_components.octopus_energy.api_client.saving_sessions import SavingSession
-from custom_components.octopus_energy.octoplus import get_saving_session_targets
+from custom_components.octopus_energy.octoplus import get_saving_session_target
 
 def generate_consumption_data(dates: list, consumption_values: list):
   consumption_data = []
@@ -50,7 +50,7 @@ async def test_when_current_is_before_saving_session_then_first_target_is_return
   consumption_data = generate_consumption_data(target_consumption_dates, [1.1, 1.2, 1.3])
 
   # Act
-  result = get_saving_session_targets(current, saving_session, consumption_data)
+  result = get_saving_session_target(current, saving_session, consumption_data)
 
   # Assert
   assert result is not None
@@ -107,7 +107,7 @@ async def test_when_current_is_during_saving_session_then_correct_target_is_retu
   consumption_data = generate_consumption_data(target_consumption_dates, [1.1, 1.2, 1.3])
 
   # Act
-  result = get_saving_session_targets(current, saving_session, consumption_data)
+  result = get_saving_session_target(current, saving_session, consumption_data)
 
   # Assert
   assert result is not None
@@ -161,7 +161,7 @@ async def test_when_current_after_saving_session_then_none_is_returned():
   consumption_data = generate_consumption_data(target_consumption_dates, [1.1, 1.2, 1.3])
 
   # Act
-  result = get_saving_session_targets(current, saving_session, consumption_data)
+  result = get_saving_session_target(current, saving_session, consumption_data)
 
   # Assert
   assert result is None
@@ -188,7 +188,7 @@ async def test_when_saving_session_is_none_then_none_is_returned():
   consumption_data = generate_consumption_data(target_consumption_dates, [1.1, 1.2, 1.3])
 
   # Act
-  result = get_saving_session_targets(current, saving_session, consumption_data)
+  result = get_saving_session_target(current, saving_session, consumption_data)
 
   # Assert
   assert result is None
@@ -220,7 +220,7 @@ async def test_when_saving_session_is_weekday_and_consumption_data_is_incomplete
   consumption_data = generate_consumption_data(target_consumption_dates, [1.1, 1.2, 1.3])
 
   # Act
-  result = get_saving_session_targets(current, saving_session, consumption_data)
+  result = get_saving_session_target(current, saving_session, consumption_data)
 
   # Assert
   assert result is not None
@@ -249,7 +249,7 @@ async def test_when_saving_session_is_weekend_and_consumption_data_is_incomplete
   consumption_data = generate_consumption_data(target_consumption_dates, [1.1, 1.2, 1.3])
 
   # Act
-  result = get_saving_session_targets(current, saving_session, consumption_data)
+  result = get_saving_session_target(current, saving_session, consumption_data)
 
   # Assert
   assert result is not None

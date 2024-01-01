@@ -99,7 +99,7 @@ def get_saving_session_thirty_minute_periods(saving_session: SavingSession):
 
   return periods
 
-def get_saving_session_targets(current: datetime, saving_session: SavingSession, consumption_data: list) -> SavingSessionTargetResult:
+def get_saving_session_target(current: datetime, saving_session: SavingSession, consumption_data: list) -> SavingSessionTargetResult:
   if saving_session is None:
     return None
   
