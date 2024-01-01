@@ -246,7 +246,7 @@ If current consumption data is unable to be retrieved, then the integration will
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption_m3`
 
-The total consumption reported by the meter for the current day in m3. This is calculated/estimated from the kWh data reported by Octopus Energy.
+The total consumption reported by the meter for the current day in m3. This is calculated/estimated using your set [calorific value](../setup/account.md#calorific-value) from the kWh data reported by Octopus Energy.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
