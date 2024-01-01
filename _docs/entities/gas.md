@@ -115,9 +115,9 @@ If you are wishing to use these sensors with the Energy Dashboard, then you can 
 
 > By default, it's not possible to include current consumption sensors. This is due to Octopus Energy only receive data from the smart meters up to the previous day.
 
-### Previous Accumulative Consumption
+### Previous Accumulative Consumption (m3)
 
-`sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption`
+`sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption_m3`
 
 The total consumption reported by the meter for the previous day in m3. If your meter reports in m3, then this will be an accurate value reported by Octopus, otherwise it will be a calculated/estimated value.
 
@@ -135,6 +135,7 @@ The total consumption reported by the meter for the previous day in m3. If your 
 | `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
+| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
 Each charge item has the following attributes
 
@@ -144,7 +145,7 @@ Each charge item has the following attributes
 | `end` | `datetime` | The date/time when the consumption ends |
 | `consumption` | `float` | The consumption value of the specified period |
 
-### Previous Accumulative Consumption (kWH)
+### Previous Accumulative Consumption (kWh)
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption_kwh`
 
@@ -162,6 +163,7 @@ The total consumption reported by the meter for the previous day in kwh. If your
 | `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
+| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
 Each charge item has the following attributes
 
@@ -240,21 +242,45 @@ If current consumption data is unable to be retrieved, then the integration will
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
 
-### Current Accumulative Consumption
+### Current Accumulative Consumption (m3)
 
-`sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption`
+`sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption_m3`
 
-The total consumption reported by the meter for the current day.
+The total consumption reported by the meter for the current day in m3. This is calculated/estimated from the kWh data reported by Octopus Energy.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
 
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
-| `total` | `float` | The total energy value for the previous day in `kwh`. If your meter reports in `m3`, then this will be estimated using your set [calorific value](../setup/account.md#calorific-value) |
 | `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
-| `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
+| `charges` | `array` | Collection of consumption periods for the current day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
+| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
+
+Each charge item has the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The date/time when the consumption starts |
+| `end` | `datetime` | The date/time when the consumption ends |
+| `consumption` | `float` | The consumption value of the specified period |
+
+### Current Accumulative Consumption (kWh)
+
+`sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption_kwh`
+
+The total consumption reported by the meter for the current day in kWh. This is natively reported by Octopus Energy.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+
+| `mprn` | `string` | The mprn for the associated meter |
+| `serial_number` | `string` | The serial for the associated meter |
+| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
+| `charges` | `array` | Collection of consumption periods for the current day broken down into 30 minute periods. |
+| `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
+| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
 Each charge item has the following attributes
 
