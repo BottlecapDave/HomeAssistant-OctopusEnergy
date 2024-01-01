@@ -104,6 +104,23 @@ This service allows the user to perform a spin on the [wheel of fortune](./entit
 
     Due to an ongoing issue with the underlying API, this will not award octopoints if used. If you are on Octoplus, it is advised not to use this service.
 
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the wheel of fortune sensor that represents the type of spin to be made. This should always point at one of the [wheel of fortune sensors](./entities/wheel_of_fortune.md) entities. |
+
 ### Automation Example
 
 For automation examples, please refer to the available [blueprints](./blueprints.md#wheel-of-fortune).
+
+## update_cost_tracker
+
+This service allows the user to turn the tracking on/off for a given [cost tracker](./setup/cost_tracker.md) sensor.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the cost tracker sensor(s) whose configuration is to be updated. |
+| `data.is_tracking_enabled`      | `no`    | Determines if tracking should be enabled (true) or disabled (false) for the specified cost trackers |
+
+### Automation Example
+
+For automation examples, please refer to the available [blueprints](./blueprints.md#cost-tracker).

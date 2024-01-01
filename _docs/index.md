@@ -61,6 +61,12 @@ These sensors can then be used in automations to turn on/off devices that save y
 
 Please follow the [setup guide](./setup/target_rate.md).
 
+## Cost Tracker Sensors
+
+These sensors track the consumption of other existing sensors and provide a daily cost of those sensors.
+
+Please follow the [setup guide](./setup/cost_tracker.md).
+
 ## Events
 
 This integration raises several events, which can be used for various tasks like automations. For more information, please see the [events docs](./events.md).

@@ -67,3 +67,17 @@ spin_wheel_of_fortune:
     entity:
       integration: octopus_energy
       domain: sensor
+
+update_cost_tracker:
+  name: Update cost tracker
+  description: Updates cost tracker information.
+  target:
+    entity:
+      integration: octopus_energy
+      domain: sensor
+  fields:
+    is_tracking_enabled:
+      name: Is tracking enabled
+      description: Determines if the cost tracker should be enabled or disabled.
+      selector:
+        boolean:
