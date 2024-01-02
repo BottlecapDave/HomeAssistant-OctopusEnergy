@@ -88,7 +88,10 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
     state = await self.async_get_last_state()
 
     if state is not None:
-      self._state = None if state.state == "unknown" else time_time.strptime(state.state, "%H:%M:%S")
+      time_state = None if state.state == "unknown" else time_time.strptime(state.state, "%H:%M:%S")
+      if time_state is not None:
+        self._state = time(hour=time_state.tm_hour, minute=time_state.tm_min, second=min(time_state.tm_sec, 59))  # account for leap seconds
+      
       self._attributes = dict_to_typed_dict(state.attributes)
     
     if (self._state is None):
