@@ -8,6 +8,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.util.dt import (utcnow)
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base import OctopusEnergyIntelligentSensor
 from ..api_client import OctopusEnergyApiClient
@@ -17,7 +18,7 @@ from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyIntelligentBumpCharge(CoordinatorEntity, SwitchEntity, OctopusEnergyIntelligentSensor):
+class OctopusEnergyIntelligentBumpCharge(CoordinatorEntity, SwitchEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
   """Switch for turning intelligent bump charge on and off."""
 
   def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, device, account_id: str):

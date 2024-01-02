@@ -1,7 +1,6 @@
 import logging
 from datetime import time
 import time as time_time
-from custom_components.octopus_energy.utils.attributes import dict_to_typed_dict
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import generate_entity_id
@@ -11,15 +10,16 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.components.time import TimeEntity
 from homeassistant.util.dt import (utcnow)
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base import OctopusEnergyIntelligentSensor
 from ..api_client import OctopusEnergyApiClient
 from ..coordinators.intelligent_settings import IntelligentCoordinatorResult
-
+from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEnergyIntelligentSensor):
+class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
   """Sensor for setting the target time to charge the car to the desired percentage."""
 
   def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, device, account_id: str):
