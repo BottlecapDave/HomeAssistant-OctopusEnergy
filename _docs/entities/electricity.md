@@ -135,6 +135,10 @@ Each rate item has the following attributes
 
 This is `on` when you're within your tariff's off peak period, and `off` at all other times. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be work if you're on a tariff with an off peak period.
 
+!!! warning
+
+    For intelligent tariffs, this sensor will only turn on during the standard off peak period. If you are wanting to know when extended off peak rates are available, you'll want to use the [is dispatching](./intelligent.md#is-dispatching) sensor.
+
 ## Smart Meter Entities
 
 If your account information doesn't determine you have a smart meter, then you will have the following entities in a disabled state. If you enable these entities, they might not work correctly in this scenario.
