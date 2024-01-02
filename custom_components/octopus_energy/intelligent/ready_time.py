@@ -1,5 +1,7 @@
 import logging
 from datetime import time
+import time as time_time
+from custom_components.octopus_energy.utils.attributes import dict_to_typed_dict
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import generate_entity_id
@@ -78,3 +80,18 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
     self._state = value
     self._last_updated = utcnow()
     self.async_write_ha_state()
+
+  async def async_added_to_hass(self):
+    """Call when entity about to be added to hass."""
+    # If not None, we got an initial value.
+    await super().async_added_to_hass()
+    state = await self.async_get_last_state()
+
+    if state is not None:
+      self._state = None if state.state == "unknown" else time_time.strptime(state.state, "%H:%M:%S")
+      self._attributes = dict_to_typed_dict(state.attributes)
+    
+    if (self._state is None):
+      self._state = False
+    
+    _LOGGER.debug(f'Restored OctopusEnergyIntelligentReadyTime state: {self._state}')
