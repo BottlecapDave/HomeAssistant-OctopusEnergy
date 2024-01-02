@@ -1,5 +1,6 @@
 import logging
 from datetime import time
+import time as time_time
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import generate_entity_id
@@ -9,15 +10,16 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.components.time import TimeEntity
 from homeassistant.util.dt import (utcnow)
+from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base import OctopusEnergyIntelligentSensor
 from ..api_client import OctopusEnergyApiClient
 from ..coordinators.intelligent_settings import IntelligentCoordinatorResult
-
+from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEnergyIntelligentSensor):
+class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
   """Sensor for setting the target time to charge the car to the desired percentage."""
 
   def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, device, account_id: str):
@@ -78,3 +80,21 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
     self._state = value
     self._last_updated = utcnow()
     self.async_write_ha_state()
+
+  async def async_added_to_hass(self):
+    """Call when entity about to be added to hass."""
+    # If not None, we got an initial value.
+    await super().async_added_to_hass()
+    state = await self.async_get_last_state()
+
+    if state is not None:
+      time_state = None if state.state == "unknown" else time_time.strptime(state.state, "%H:%M:%S")
+      if time_state is not None:
+        self._state = time(hour=time_state.tm_hour, minute=time_state.tm_min, second=min(time_state.tm_sec, 59))  # account for leap seconds
+      
+      self._attributes = dict_to_typed_dict(state.attributes)
+    
+    if (self._state is None):
+      self._state = False
+    
+    _LOGGER.debug(f'Restored OctopusEnergyIntelligentReadyTime state: {self._state}')

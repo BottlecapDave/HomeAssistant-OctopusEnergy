@@ -84,7 +84,10 @@ def is_off_peak(current: datetime, rates):
 
   rate_information = get_current_rate_information(rates, current)
 
-  return off_peak_value is not None and rate_information is not None and value_inc_vat_to_pounds(off_peak_value) == rate_information["current_rate"]["value_inc_vat"]
+  return (off_peak_value is not None and 
+          rate_information is not None and 
+          rate_information["current_rate"]["is_intelligent_adjusted"] == False and 
+          value_inc_vat_to_pounds(off_peak_value) == rate_information["current_rate"]["value_inc_vat"])
 
 def private_rates_to_public_rates(rates: list):
   if rates is None:

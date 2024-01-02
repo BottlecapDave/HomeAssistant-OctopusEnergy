@@ -12,7 +12,7 @@ from .coordinators.intelligent_settings import async_setup_intelligent_settings_
 from .coordinators.electricity_rates import async_setup_electricity_rates_coordinator
 from .coordinators.saving_sessions import async_setup_saving_sessions_coordinators
 from .statistics import get_statistic_ids_to_remove
-from .intelligent import async_mock_intelligent_data, is_intelligent_tariff, mock_intelligent_device
+from .intelligent import async_mock_intelligent_data, get_intelligent_features, is_intelligent_tariff, mock_intelligent_device
 
 from .config.main import async_migrate_main_config
 from .config.target_rates import async_migrate_target_config
@@ -177,16 +177,10 @@ async def async_setup_dependencies(hass, config):
     electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
     if electricity_tariff_code is not None:
       for meter in point["meters"]:
-        mpan = point["mpan"]
-        serial_number = meter["serial_number"]
-        is_export_meter = meter["is_export"]
-        is_smart_meter = meter["is_smart_meter"]
-        await async_setup_electricity_rates_coordinator(hass, account_id, mpan, serial_number, is_smart_meter, is_export_meter)
-
         if meter["is_export"] == False:
           if is_intelligent_tariff(electricity_tariff_code):
-            intelligent_mpan = mpan
-            intelligent_serial_number = serial_number
+            intelligent_mpan = point["mpan"]
+            intelligent_serial_number = meter["serial_number"]
             has_intelligent_tariff = True
 
   should_mock_intelligent_data = await async_mock_intelligent_data(hass, account_id)
@@ -200,6 +194,7 @@ async def async_setup_dependencies(hass, config):
           intelligent_serial_number = meter["serial_number"]
           break
 
+  intelligent_device = None
   if has_intelligent_tariff or should_mock_intelligent_data:
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
@@ -211,6 +206,18 @@ async def async_setup_dependencies(hass, config):
     hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] = intelligent_device
     hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] = intelligent_mpan
     hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] = intelligent_serial_number
+
+  for point in account_info["electricity_meter_points"]:
+    # We only care about points that have active agreements
+    electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
+    if electricity_tariff_code is not None:
+      for meter in point["meters"]:
+        mpan = point["mpan"]
+        serial_number = meter["serial_number"]
+        is_export_meter = meter["is_export"]
+        is_smart_meter = meter["is_smart_meter"]
+        planned_dispatches_supported = get_intelligent_features(intelligent_device["provider"]).planned_dispatches_supported if intelligent_device is not None else True
+        await async_setup_electricity_rates_coordinator(hass, account_id, mpan, serial_number, is_smart_meter, is_export_meter, planned_dispatches_supported)
 
   await async_setup_account_info_coordinator(hass, account_id)
 

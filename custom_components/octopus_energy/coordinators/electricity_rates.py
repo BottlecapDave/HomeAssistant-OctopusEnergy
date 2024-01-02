@@ -104,7 +104,7 @@ async def async_refresh_electricity_rates_data(
   
   return existing_rates_result
 
-async def async_setup_electricity_rates_coordinator(hass, account_id: str, target_mpan: str, target_serial_number: str, is_smart_meter: bool, is_export_meter: bool):
+async def async_setup_electricity_rates_coordinator(hass, account_id: str, target_mpan: str, target_serial_number: str, is_smart_meter: bool, is_export_meter: bool, planned_dispatches_supported: bool):
   key = DATA_ELECTRICITY_RATES_KEY.format(target_mpan, target_serial_number)
 
   # Reset data rates as we might have new information
@@ -128,7 +128,11 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str, targe
       is_smart_meter,
       is_export_meter,
       rates,
-      dispatches.dispatches if dispatches is not None else None,
+      IntelligentDispatches(
+        dispatches.dispatches.planned if planned_dispatches_supported == True else [],
+        dispatches.dispatches.completed
+      )
+      if dispatches is not None else None,
       hass.bus.async_fire
     )
 

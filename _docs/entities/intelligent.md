@@ -10,15 +10,21 @@ If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-
 
 `binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching`
 
-This sensor is used to determine if you're currently in a planned dispatch period (i.e. "smart-charge" determined by Octopus Energy) or are within the off peak period.
+This sensor is used to determine if you're currently in a planned dispatch period (i.e. "smart-charge" determined by Octopus Energy) or are within the standard off peak period.
+
+!!! warning
+
+    If you are using this to drive other automations for cheap rates (e.g. to fill batteries), you should perform additional checks to make sure your vehicle is actually charging. If it isn't, this sensor could be incorrectly on if during a dispatch outside of the standard off peak period and you will therefore not receive the off peak rate.
+    
+    If you are wanting to know when you are within a guaranteed off peak period, you should use the [off peak](./electricity.md#off-peak) sensor.
 
 !!! info
 
-    `planned_dispatches` is not supported for the following intelligent providers
+    This sensor is only partially supported for the following intelligent providers
 
     * OHME
 
-    `planned_dispatches` will therefore always return an empty collection and this entity will only turn on when within of the standard off peak period.
+    If you are supplied by one of the above providers, `planned_dispatches` will always return an empty collection and this entity will only turn on when within the standard off peak period.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
