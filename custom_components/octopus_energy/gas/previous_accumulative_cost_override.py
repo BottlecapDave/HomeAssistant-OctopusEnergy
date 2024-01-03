@@ -121,7 +121,7 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
     consumption_data = result.consumption if result is not None and result.consumption is not None and len(result.consumption) > 0 else None
 
     tariff_override_key = get_gas_tariff_override_key(self._serial_number, self._mprn)
-    is_old_data = (result is not None and (self._next_refresh is None or result.last_retrieved >= self._last_retrieved)) and (self._next_refresh is None or current >= self._next_refresh)
+    is_old_data = (result is not None and (self._last_retrieved is None or result.last_retrieved >= self._last_retrieved)) and (self._next_refresh is None or current >= self._next_refresh)
     is_tariff_present = tariff_override_key in self._hass.data[DOMAIN][self._account_id]
     has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][self._account_id][tariff_override_key] != self._tariff_code
 
@@ -190,6 +190,7 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
           self._request_attempts,
           REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION
         )
+        _LOGGER.error(e)
         _LOGGER.warning(f'Failed to retrieve previous accumulative cost override data - using cached data. Next attempt at {self._next_refresh}')
     
     if result is not None:
