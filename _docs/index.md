@@ -1,5 +1,17 @@
 # Home Assistant Octopus Energy
 
+## Features
+
+Below are the main features of the integration
+
+* [Electricity](./entities/electricity.md) and [gas](./entities/gas.md) meter support including consumption data and rate information
+* [Custom sensor support to target cheapest rates](./setup/target_rate.md)
+* [Custom sensor support for tracking costs of other entities](./setup/cost_tracker.md)
+* [Octopus Home mini support](./setup/account.md#home-mini)
+* [Intelligent tariff settings support](./entities/intelligent.md)
+* [Saving sessions support](./entities/octoplus.md#saving-sessions)
+* [Wheel of fortune support](./entities/wheel_of_fortune.md)
+
 ## How to setup
 
 Please follow the [setup guide](./setup/account.md) to setup your initial account. This guide details the configuration, along with the entities that will be available to you.
@@ -50,6 +62,12 @@ These sensors can then be used in automations to turn on/off devices that save y
 
 Please follow the [setup guide](./setup/target_rate.md).
 
+## Cost Tracker Sensors
+
+These sensors track the consumption of other existing sensors and provide a daily cost of those sensors.
+
+Please follow the [setup guide](./setup/cost_tracker.md).
+
 ## Events
 
 This integration raises several events, which can be used for various tasks like automations. For more information, please see the [events docs](./events.md).
@@ -73,3 +91,7 @@ A collection of community contributions can be found on the [community contribut
 ## FAQ
 
 Before raising anything, please read through the [faq](./faq.md). If you have questions, then you can raise a [discussion](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions). If you have found a bug or have a feature request please [raise it](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues) using the appropriate report template.
+
+## Sponsorship
+
+Please see the [sponsorship](./sponsorship.md) page for more information.

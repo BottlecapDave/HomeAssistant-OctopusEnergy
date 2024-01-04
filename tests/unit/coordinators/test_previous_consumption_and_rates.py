@@ -31,6 +31,20 @@ def assert_raised_events(
   assert "end" in raised_events[expected_event_name]["rates"][-1]
   assert raised_events[expected_event_name]["rates"][-1]["end"] == expected_valid_to
 
+  rates: list = raised_events[expected_event_name]["rates"]
+  rates.sort(key=lambda rate: rate["value_inc_vat"])
+  expected_min_rate = rates[0]["value_inc_vat"]
+  rates.sort(key=lambda rate: rate["value_inc_vat"], reverse=True)
+  expected_max_rate = rates[0]["value_inc_vat"]
+  expected_average = sum(map(lambda rate: rate["value_inc_vat"], rates)) / len(rates)
+  
+  assert "min_rate" in raised_events[expected_event_name]
+  assert raised_events[expected_event_name]["min_rate"] == expected_min_rate
+  assert "max_rate" in raised_events[expected_event_name]
+  assert raised_events[expected_event_name]["max_rate"] == expected_max_rate
+  assert "average_rate" in raised_events[expected_event_name]
+  assert raised_events[expected_event_name]["average_rate"] ==round(expected_average, 8)
+
 @pytest.mark.asyncio
 async def test_when_when_next_refresh_is_in_the_future_and_previous_data_is_available_then_previous_data_returned():
   # Arrange

@@ -5,8 +5,8 @@ import voluptuous as vol
 from homeassistant.core import HomeAssistant
 from homeassistant.components import persistent_notification
 from homeassistant.const import (
-  ENERGY_KILO_WATT_HOUR,
-  VOLUME_CUBIC_METERS
+  UnitOfEnergy,
+  UnitOfVolume
 )
 
 from homeassistant.util.dt import (now, parse_datetime)
@@ -64,7 +64,7 @@ async def async_refresh_previous_electricity_consumption_data(
         get_electricity_consumption_statistic_name(serial_number, mpan, is_export),
         consumption_and_cost["charges"],
         rates,
-        ENERGY_KILO_WATT_HOUR,
+        UnitOfEnergy.KILO_WATT_HOUR,
         "consumption"
       )
 
@@ -134,7 +134,7 @@ async def async_refresh_previous_gas_consumption_data(
         get_gas_consumption_statistic_name(serial_number, mprn),
         consumption_and_cost["charges"],
         rates,
-        VOLUME_CUBIC_METERS,
+        UnitOfVolume.CUBIC_METERS,
         "consumption_m3",
         False
       )
@@ -146,7 +146,7 @@ async def async_refresh_previous_gas_consumption_data(
         get_gas_consumption_statistic_name(serial_number, mprn, True),
         consumption_and_cost["charges"],
         rates,
-        ENERGY_KILO_WATT_HOUR,
+        UnitOfEnergy.KILO_WATT_HOUR,
         "consumption_kwh",
         False
       )

@@ -34,7 +34,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative gas cost for a different tariff."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, tariff_code, meter, point, calorific_value):
+  def __init__(self, hass: HomeAssistant, account_id: str, coordinator, client: OctopusEnergyApiClient, tariff_code, meter, point, calorific_value):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
@@ -43,6 +43,7 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
     self._client = client
     self._tariff_code = tariff_code
     self._native_consumption_units = meter["consumption_units"]
+    self._account_id = account_id
 
     self._state = None
     self._last_reset = None
@@ -120,14 +121,14 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
     consumption_data = result.consumption if result is not None and result.consumption is not None and len(result.consumption) > 0 else None
 
     tariff_override_key = get_gas_tariff_override_key(self._serial_number, self._mprn)
-    is_old_data = (result is not None and (self._next_refresh is None or result.last_retrieved >= self._last_retrieved)) and (self._next_refresh is None or current >= self._next_refresh)
-    is_tariff_present = tariff_override_key in self._hass.data[DOMAIN]
-    has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][tariff_override_key] != self._tariff_code
+    is_old_data = (result is not None and (self._last_retrieved is None or result.last_retrieved >= self._last_retrieved)) and (self._next_refresh is None or current >= self._next_refresh)
+    is_tariff_present = tariff_override_key in self._hass.data[DOMAIN][self._account_id]
+    has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][self._account_id][tariff_override_key] != self._tariff_code
 
     if (consumption_data is not None and len(consumption_data) >= MINIMUM_CONSUMPTION_DATA_LENGTH and is_tariff_present and (is_old_data or has_tariff_changed)):
       _LOGGER.debug(f"Calculating previous gas consumption cost override for '{self._mprn}/{self._serial_number}'...")
 
-      tariff_override = self._hass.data[DOMAIN][tariff_override_key]
+      tariff_override = self._hass.data[DOMAIN][self._account_id][tariff_override_key]
       period_from = consumption_data[0]["start"]
       period_to = consumption_data[-1]["end"]
 
@@ -189,6 +190,7 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
           self._request_attempts,
           REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION
         )
+        _LOGGER.error(e)
         _LOGGER.warning(f'Failed to retrieve previous accumulative cost override data - using cached data. Next attempt at {self._next_refresh}')
     
     if result is not None:

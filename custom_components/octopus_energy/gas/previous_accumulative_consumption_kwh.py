@@ -12,7 +12,7 @@ from homeassistant.components.sensor import (
   SensorStateClass
 )
 from homeassistant.const import (
-    ENERGY_KILO_WATT_HOUR
+    UnitOfEnergy
 )
 
 from homeassistant.util.dt import (utcnow)
@@ -73,7 +73,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
   @property
   def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
-    return ENERGY_KILO_WATT_HOUR
+    return UnitOfEnergy.KILO_WATT_HOUR
 
   @property
   def icon(self):
@@ -130,7 +130,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
         self.name,
         consumption_and_cost["charges"],
         rate_data,
-        ENERGY_KILO_WATT_HOUR,
+        UnitOfEnergy.KILO_WATT_HOUR,
         "consumption_kwh",
         False
       )

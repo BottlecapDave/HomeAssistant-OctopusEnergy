@@ -26,7 +26,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(OctopusEner
 
   _attr_pattern = REGEX_TARIFF_PARTS
 
-  def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, tariff_code, meter, point):
+  def __init__(self, hass: HomeAssistant, account_id: str, client: OctopusEnergyApiClient, tariff_code, meter, point):
     """Init sensor."""
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
@@ -37,6 +37,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(OctopusEner
     self._client = client
     self._tariff_code = tariff_code
     self._attr_native_value = tariff_code
+    self._account_id = account_id
   
   @property
   def entity_registry_enabled_default(self) -> bool:
@@ -68,7 +69,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(OctopusEner
       raise Exception(result)
 
     self._attr_native_value = value
-    self._hass.data[DOMAIN][get_electricity_tariff_override_key(self._serial_number, self._mpan)] = value
+    self._hass.data[DOMAIN][self._account_id][get_electricity_tariff_override_key(self._serial_number, self._mpan)] = value
     self.async_write_ha_state()
 
   async def async_added_to_hass(self):
@@ -81,7 +82,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(OctopusEner
       if state.state is not None:
         self._attr_native_value = state.state
         self._attr_state = state.state
-        self._hass.data[DOMAIN][get_electricity_tariff_override_key(self._serial_number, self._mpan)] = self._attr_native_value
+        self._hass.data[DOMAIN][self._account_id][get_electricity_tariff_override_key(self._serial_number, self._mpan)] = self._attr_native_value
       
       self._attributes = dict_to_typed_dict(state.attributes)
     

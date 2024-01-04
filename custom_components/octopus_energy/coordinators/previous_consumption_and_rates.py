@@ -25,6 +25,7 @@ from ..utils import private_rates_to_public_rates
 from ..intelligent import adjust_intelligent_rates
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 from . import BaseCoordinatorResult
+from ..utils.rate_information import get_min_max_average_rates
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -92,10 +93,13 @@ async def async_fetch_consumption_and_rates(
         _LOGGER.debug(f"Discovered previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
         consumption_data = __sort_consumption(consumption_data)
 
+        public_rates = private_rates_to_public_rates(rate_data)
+        min_max_average_rates = get_min_max_average_rates(public_rates)
+
         if (is_electricity == True):
-          fire_event(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, { "mpan": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": private_rates_to_public_rates(rate_data) })
+          fire_event(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, { "mpan": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": public_rates, "min_rate": min_max_average_rates["min"], "max_rate": min_max_average_rates["max"], "average_rate": min_max_average_rates["average"] })
         else:
-          fire_event(EVENT_GAS_PREVIOUS_CONSUMPTION_RATES, { "mprn": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": private_rates_to_public_rates(rate_data) })
+          fire_event(EVENT_GAS_PREVIOUS_CONSUMPTION_RATES, { "mprn": identifier, "serial_number": serial_number, "tariff_code": tariff_code, "rates": public_rates, "min_rate": min_max_average_rates["min"], "max_rate": min_max_average_rates["max"], "average_rate": min_max_average_rates["average"] })
 
         _LOGGER.debug(f"Fired event for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
 
@@ -146,6 +150,7 @@ async def async_fetch_consumption_and_rates(
 
 async def async_create_previous_consumption_and_rates_coordinator(
     hass,
+    account_id: str,
     client: OctopusEnergyApiClient,
     identifier: str,
     serial_number: str,
@@ -160,11 +165,11 @@ async def async_create_previous_consumption_and_rates_coordinator(
     """Fetch data from API endpoint."""
     period_from = as_utc((now() - timedelta(days=days_offset)).replace(hour=0, minute=0, second=0, microsecond=0))
     period_to = period_from + timedelta(days=1)
-    dispatches: IntelligentDispatchesCoordinatorResult = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] else None
+    dispatches: IntelligentDispatchesCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None
     
     result = await async_fetch_consumption_and_rates(
-      hass.data[DOMAIN][previous_consumption_key] 
-      if previous_consumption_key in hass.data[DOMAIN]
+      hass.data[DOMAIN][account_id][previous_consumption_key] 
+      if previous_consumption_key in hass.data[DOMAIN][account_id]
       else None,
       utcnow(),
       client,
@@ -180,10 +185,10 @@ async def async_create_previous_consumption_and_rates_coordinator(
     )
 
     if (result is not None):
-      hass.data[DOMAIN][previous_consumption_key] = result
+      hass.data[DOMAIN][account_id][previous_consumption_key] = result
 
-    if previous_consumption_key in hass.data[DOMAIN]:
-      return hass.data[DOMAIN][previous_consumption_key] 
+    if previous_consumption_key in hass.data[DOMAIN][account_id]:
+      return hass.data[DOMAIN][account_id][previous_consumption_key] 
     else:
       return None
 
@@ -198,8 +203,6 @@ async def async_create_previous_consumption_and_rates_coordinator(
     always_update=True
   )
 
-  hass.data[DOMAIN][f'{identifier}_{serial_number}_previous_consumption_and_cost_coordinator'] = coordinator
-
-  await coordinator.async_config_entry_first_refresh()
+  hass.data[DOMAIN][account_id][f'{identifier}_{serial_number}_previous_consumption_and_cost_coordinator'] = coordinator
 
   return coordinator

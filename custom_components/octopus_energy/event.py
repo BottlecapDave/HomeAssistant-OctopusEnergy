@@ -18,7 +18,7 @@ from .gas.rates_previous_consumption_override import OctopusEnergyGasPreviousCon
 from .octoplus.saving_sessions_events import OctopusEnergyOctoplusSavingSessionEvents
 
 from .const import (
-  DATA_ACCOUNT_ID,
+  CONFIG_ACCOUNT_ID,
   DATA_CLIENT,
   DOMAIN,
 
@@ -57,10 +57,11 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
   if entry.options:
     config.update(entry.options)
 
-  account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_id = config[CONFIG_ACCOUNT_ID]
+
+  account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
   account_info = account_result.account if account_result is not None else None
-  account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]
-  client = hass.data[DOMAIN][DATA_CLIENT]
+  client = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
   now = utcnow()
   entities = [OctopusEnergyOctoplusSavingSessionEvents(hass, client, account_id)]
@@ -89,4 +90,4 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
           entities.append(OctopusEnergyGasPreviousConsumptionOverrideRates(hass, meter, point))
 
   if len(entities) > 0:
-    async_add_entities(entities, True)
+    async_add_entities(entities)

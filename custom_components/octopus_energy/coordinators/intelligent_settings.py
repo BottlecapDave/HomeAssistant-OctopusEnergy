@@ -79,33 +79,33 @@ async def async_refresh_intelligent_settings(
   
   return existing_intelligent_settings_result
   
-async def async_setup_intelligent_settings_coordinator(hass):
+async def async_setup_intelligent_settings_coordinator(hass, account_id: str):
   # Reset data rates as we might have new information
-  hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS] = None
+  hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS] = None
   
   async def async_update_intelligent_settings_data():
     """Fetch data from API endpoint."""
     # Request our account data to be refreshed
-    account_coordinator = hass.data[DOMAIN][DATA_ACCOUNT_COORDINATOR]
+    account_coordinator = hass.data[DOMAIN][account_id][DATA_ACCOUNT_COORDINATOR]
     if account_coordinator is not None:
       await account_coordinator.async_request_refresh()
 
     current = utcnow()
-    client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-    account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
+    account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
     account_info = account_result.account if account_result is not None else None
       
-    hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS] = await async_refresh_intelligent_settings(
+    hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS] = await async_refresh_intelligent_settings(
       current,
       client,
       account_info,
-      hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS] if DATA_INTELLIGENT_SETTINGS in hass.data[DOMAIN] else None,
-      await async_mock_intelligent_data(hass)
+      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS] if DATA_INTELLIGENT_SETTINGS in hass.data[DOMAIN][account_id] else None,
+      await async_mock_intelligent_data(hass, account_id)
     )
 
-    return hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS]
+    return hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS]
 
-  hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS_COORDINATOR] = DataUpdateCoordinator(
+  hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS_COORDINATOR] = DataUpdateCoordinator(
     hass,
     _LOGGER,
     name="intelligent_settings",
@@ -113,5 +113,3 @@ async def async_setup_intelligent_settings_coordinator(hass):
     update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),
     always_update=True
   )
-
-  await hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS_COORDINATOR].async_config_entry_first_refresh()

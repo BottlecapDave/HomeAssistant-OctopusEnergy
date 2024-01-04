@@ -2,6 +2,7 @@
 
 ![installation_badge](https://img.shields.io/badge/dynamic/json?color=41BDF5&logo=home-assistant&label=integration%20usage&suffix=%20installs&cacheSeconds=15600&url=https://analytics.home-assistant.io/custom_integrations.json&query=$.octopus_energy.total) [![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/bottlecapdave)
 - [Home Assistant Octopus Energy](#home-assistant-octopus-energy)
+  - [Features](#features)
   - [How to install](#how-to-install)
     - [HACS](#hacs)
     - [Manual](#manual)
@@ -15,6 +16,17 @@ Custom component built from the ground up to bring your Octopus Energy details i
 This integration is in no way affiliated with Octopus Energy.
 
 If you find this useful and are planning on moving to Octopus Energy, why not use my [referral link](https://share.octopus.energy/gray-jade-372)?
+
+## Features
+
+Below are the main features of the integration
+
+* [Electricity](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/electricity/) and [gas](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/gas/) meter support including consumption data and rate information
+* [Custom sensor support to target cheapest rates](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/target_rate/)
+* [Octopus Home mini support](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account/#home-mini)
+* [Intelligent tariff settings support](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/intelligent/)
+* [Saving sessions support](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/octoplus/#saving-sessions)
+* [Wheel of fortune support](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/wheel_of_fortune/)
 
 ## How to install
 

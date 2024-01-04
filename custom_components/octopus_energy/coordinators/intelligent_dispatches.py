@@ -101,34 +101,34 @@ async def async_refresh_intelligent_dispatches(
   
   return existing_intelligent_dispatches_result
 
-async def async_setup_intelligent_dispatches_coordinator(hass):
+async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
   # Reset data rates as we might have new information
-  hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] = None
+  hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] = None
   
   async def async_update_intelligent_dispatches_data():
     """Fetch data from API endpoint."""
     # Request our account data to be refreshed
-    account_coordinator = hass.data[DOMAIN][DATA_ACCOUNT_COORDINATOR]
+    account_coordinator = hass.data[DOMAIN][account_id][DATA_ACCOUNT_COORDINATOR]
     if account_coordinator is not None:
       await account_coordinator.async_request_refresh()
 
     current = utcnow()
-    client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-    account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
+    account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
     account_info = account_result.account if account_result is not None else None
       
-    hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] = await async_refresh_intelligent_dispatches(
+    hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] = await async_refresh_intelligent_dispatches(
       current,
       client,
       account_info,
-      hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN] else None,
-      await async_mock_intelligent_data(hass),
+      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None,
+      await async_mock_intelligent_data(hass, account_id),
       lambda account_id, completed_dispatches: async_merge_dispatch_data(hass, account_id, completed_dispatches) 
     )
     
-    return hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES]
+    return hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES]
 
-  hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES_COORDINATOR] = DataUpdateCoordinator(
+  hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR] = DataUpdateCoordinator(
     hass,
     _LOGGER,
     name="intelligent_dispatches",
@@ -138,5 +138,3 @@ async def async_setup_intelligent_dispatches_coordinator(hass):
     update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),
     always_update=True
   )
-
-  await hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES_COORDINATOR].async_config_entry_first_refresh()

@@ -12,17 +12,17 @@ from homeassistant.components.sensor import (
   SensorStateClass
 )
 from homeassistant.const import (
-    ENERGY_KILO_WATT_HOUR
+    UnitOfEnergy
 )
 
 from .base import (OctopusEnergyGasSensor)
 from ..utils.attributes import dict_to_typed_dict
 
-from ..gas import calculate_gas_consumption_and_cost
+from . import calculate_gas_consumption_and_cost
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyCurrentAccumulativeGasConsumption(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
+class OctopusEnergyCurrentAccumulativeGasConsumptionKwh(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the current accumulative gas consumption."""
 
   def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, standing_charge_coordinator, tariff_code, meter, point, calorific_value):
@@ -42,7 +42,7 @@ class OctopusEnergyCurrentAccumulativeGasConsumption(CoordinatorEntity, OctopusE
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_gas_{self._serial_number}_{self._mprn}_current_accumulative_consumption"
+    return f"octopus_energy_gas_{self._serial_number}_{self._mprn}_current_accumulative_consumption_kwh"
 
   @property
   def name(self):
@@ -62,7 +62,7 @@ class OctopusEnergyCurrentAccumulativeGasConsumption(CoordinatorEntity, OctopusE
   @property
   def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
-    return ENERGY_KILO_WATT_HOUR
+    return UnitOfEnergy.KILO_WATT_HOUR
 
   @property
   def icon(self):
@@ -106,7 +106,7 @@ class OctopusEnergyCurrentAccumulativeGasConsumption(CoordinatorEntity, OctopusE
       self._attributes = {
         "mprn": self._mprn,
         "serial_number": self._serial_number,
-        "total": consumption_and_cost["total_consumption_kwh"],
+        "is_estimated": False,
         "last_evaluated": consumption_and_cost["last_evaluated"],
         "data_last_retrieved": consumption_result.last_retrieved if consumption_result is not None else None,
         "charges": list(map(lambda charge: {
@@ -127,6 +127,6 @@ class OctopusEnergyCurrentAccumulativeGasConsumption(CoordinatorEntity, OctopusE
     
     if state is not None and self._state is None:
       self._state = None if state.state == "unknown" else state.state
-      self._attributes = dict_to_typed_dict(state.attributes)
+      self._attributes = dict_to_typed_dict(state.attributes, ["total"])
     
       _LOGGER.debug(f'Restored OctopusEnergyCurrentAccumulativeGasConsumption state: {self._state}')

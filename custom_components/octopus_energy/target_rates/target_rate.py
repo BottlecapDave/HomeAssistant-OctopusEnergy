@@ -53,7 +53,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
   """Sensor for calculating when a target should be turned on or off."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, config, is_export):
+  def __init__(self, hass: HomeAssistant, account_id: str, coordinator, config, is_export):
     """Init sensor."""
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
@@ -65,6 +65,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     self._is_export = is_export
     self._attributes["is_target_export"] = is_export
     self._last_evaluated = None
+    self._account_id = account_id
     
     is_rolling_target = True
     if CONFIG_TARGET_ROLLING_TARGET in self._config:
@@ -109,7 +110,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     else:
       offset = None
 
-    account_result = self._hass.data[DOMAIN][DATA_ACCOUNT]
+    account_result = self._hass.data[DOMAIN][self._account_id][DATA_ACCOUNT]
     account_info = account_result.account if account_result is not None else None
 
     check_for_errors(self._hass, self._config, account_info, now())
@@ -266,7 +267,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
         CONFIG_TARGET_OFFSET: trimmed_target_offset
       })
 
-    account_result = self._hass.data[DOMAIN][DATA_ACCOUNT]
+    account_result = self._hass.data[DOMAIN][self._account_id][DATA_ACCOUNT]
     account_info = account_result.account if account_result is not None else None
 
     errors = validate_target_rate_config(config, account_info, now())

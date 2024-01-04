@@ -93,20 +93,20 @@ async def async_refresh_gas_rates_data(
   
   return existing_rates_result
 
-async def async_setup_gas_rates_coordinator(hass, client: OctopusEnergyApiClient, target_mprn: str, target_serial_number: str):
+async def async_setup_gas_rates_coordinator(hass, account_id: str, client: OctopusEnergyApiClient, target_mprn: str, target_serial_number: str):
   key = DATA_GAS_RATES_KEY.format(target_mprn, target_serial_number)
 
   # Reset data rates as we might have new information
-  hass.data[DOMAIN][key] = None
+  hass.data[DOMAIN][account_id][key] = None
   
   async def async_update_gas_rates_data():
     """Fetch data from API endpoint."""
     current = now()
-    account_result = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
+    account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN][account_id] else None
     account_info = account_result.account if account_result is not None else None
-    rates = hass.data[DOMAIN][key] if key in hass.data[DOMAIN] else None
+    rates = hass.data[DOMAIN][account_id][key] if key in hass.data[DOMAIN][account_id] else None
 
-    hass.data[DOMAIN][key] = await async_refresh_gas_rates_data(
+    hass.data[DOMAIN][account_id][key] = await async_refresh_gas_rates_data(
       current,
       client,
       account_info,
@@ -116,7 +116,7 @@ async def async_setup_gas_rates_coordinator(hass, client: OctopusEnergyApiClient
       hass.bus.async_fire
     )
 
-    return hass.data[DOMAIN][key]
+    return hass.data[DOMAIN][account_id][key]
 
   coordinator = DataUpdateCoordinator(
     hass,
@@ -128,7 +128,5 @@ async def async_setup_gas_rates_coordinator(hass, client: OctopusEnergyApiClient
     update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),
     always_update=True
   )
-
-  await coordinator.async_config_entry_first_refresh()
 
   return coordinator

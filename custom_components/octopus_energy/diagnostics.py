@@ -4,22 +4,29 @@ import logging
 from homeassistant.components.diagnostics import async_redact_data
 
 from .const import (
+  CONFIG_ACCOUNT_ID,
   DOMAIN,
 
-  DATA_ACCOUNT_ID,
   DATA_CLIENT
 )
 
 _LOGGER = logging.getLogger(__name__)
 
-async def async_get_device_diagnostics(hass, config_entry, device):
+async def async_get_device_diagnostics(hass, entry, device):
     """Return diagnostics for a device."""
 
-    client = hass.data[DOMAIN][DATA_CLIENT]
+    config = dict(entry.data)
+
+    if entry.options:
+      config.update(entry.options)
+
+    account_id = config[CONFIG_ACCOUNT_ID]
+
+    client = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
     _LOGGER.info('Retrieving account details for diagnostics...')
     
-    account_info = await client.async_get_account(hass.data[DOMAIN][DATA_ACCOUNT_ID])
+    account_info = await client.async_get_account(account_id)
 
     points_length = account_info is not None and len(account_info["electricity_meter_points"])
     if account_info is not None and points_length > 0:

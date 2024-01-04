@@ -63,12 +63,12 @@ async def async_refresh_account(
         if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
           for point in account_info["electricity_meter_points"]:
             active_tariff_code = get_active_tariff_code(current, point["agreements"])
-            await async_check_valid_tariff(hass, client, active_tariff_code, True)
+            await async_check_valid_tariff(hass, account_id, client, active_tariff_code, True)
 
         if account_info is not None and len(account_info["gas_meter_points"]) > 0:
           for point in account_info["gas_meter_points"]:
             active_tariff_code = get_active_tariff_code(current, point["agreements"])
-            await async_check_valid_tariff(hass, client, active_tariff_code, False)
+            await async_check_valid_tariff(hass, account_id, client, active_tariff_code, False)
 
         return AccountCoordinatorResult(current, 1, account_info)
     except Exception as e:
@@ -91,22 +91,22 @@ async def async_setup_account_info_coordinator(hass, account_id: str):
     """Fetch data from API endpoint."""
     # Only get data every half hour or if we don't have any data
     current = now()
-    client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
+    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
-    if DATA_ACCOUNT not in hass.data[DOMAIN] or hass.data[DOMAIN][DATA_ACCOUNT] is None:
+    if DATA_ACCOUNT not in hass.data[DOMAIN][account_id] or hass.data[DOMAIN][account_id][DATA_ACCOUNT] is None:
       raise Exception("Failed to find account information")
 
-    hass.data[DOMAIN][DATA_ACCOUNT] = await async_refresh_account(
+    hass.data[DOMAIN][account_id][DATA_ACCOUNT] = await async_refresh_account(
       hass,
       current,
       client,
       account_id,
-      hass.data[DOMAIN][DATA_ACCOUNT]
+      hass.data[DOMAIN][account_id][DATA_ACCOUNT]
     )
     
-    return hass.data[DOMAIN][DATA_ACCOUNT]
+    return hass.data[DOMAIN][account_id][DATA_ACCOUNT]
 
-  hass.data[DOMAIN][DATA_ACCOUNT_COORDINATOR] = DataUpdateCoordinator(
+  hass.data[DOMAIN][account_id][DATA_ACCOUNT_COORDINATOR] = DataUpdateCoordinator(
     hass,
     _LOGGER,
     name="update_account",
@@ -116,5 +116,3 @@ async def async_setup_account_info_coordinator(hass, account_id: str):
     update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),
     always_update=True
   )
-  
-  await hass.data[DOMAIN][DATA_ACCOUNT_COORDINATOR].async_config_entry_first_refresh()

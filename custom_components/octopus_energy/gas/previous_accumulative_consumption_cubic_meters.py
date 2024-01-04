@@ -11,7 +11,7 @@ from homeassistant.components.sensor import (
   SensorStateClass
 )
 from homeassistant.const import (
-    VOLUME_CUBIC_METERS
+    UnitOfVolume
 )
 
 from homeassistant.util.dt import (utcnow)
@@ -30,7 +30,7 @@ from ..statistics.refresh import async_refresh_previous_gas_consumption_data
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyPreviousAccumulativeGasConsumption(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
+class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative gas reading."""
 
   def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, coordinator, tariff_code, meter, point, calorific_value):
@@ -57,7 +57,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumption(CoordinatorEntity, Octopus
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_gas_{self._serial_number}_{self._mprn}_previous_accumulative_consumption"
+    return f"octopus_energy_gas_{self._serial_number}_{self._mprn}_previous_accumulative_consumption_m3"
     
   @property
   def name(self):
@@ -77,7 +77,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumption(CoordinatorEntity, Octopus
   @property
   def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
-    return VOLUME_CUBIC_METERS
+    return UnitOfVolume.CUBIC_METERS
 
   @property
   def icon(self):
@@ -134,7 +134,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumption(CoordinatorEntity, Octopus
         self.name,
         consumption_and_cost["charges"],
         rate_data,
-        VOLUME_CUBIC_METERS,
+        UnitOfVolume.CUBIC_METERS,
         "consumption_m3",
         False
       )

@@ -138,3 +138,25 @@ def get_next_rate_information(rates, now: datetime):
     }
 
   return None
+
+def get_min_max_average_rates(rates: list):
+  min_rate = None
+  max_rate = None
+  average_rate = 0
+
+  if rates is not None:
+    for rate in rates:
+      if min_rate is None or min_rate > rate["value_inc_vat"]:
+        min_rate = rate["value_inc_vat"]
+
+      if max_rate is None or max_rate < rate["value_inc_vat"]:
+        max_rate = rate["value_inc_vat"]
+
+      average_rate += rate["value_inc_vat"]
+
+  return {
+    "min": min_rate,
+    "max": max_rate,
+    # Round as there can be some minor inaccuracies with floats :(
+    "average": round(average_rate / len(rates) if rates is not None and len(rates) > 0 else 1, 8)
+  }

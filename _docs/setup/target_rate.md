@@ -1,6 +1,6 @@
 # Target Rate Sensor(s)
 
-After you've configured your [account](./setup/account.md), you'll be able to configure target rate sensors. These are configured by adding subsequent instances of the integration going through the [normal flow](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
+After you've configured your [account](./account.md), you'll be able to configure target rate sensors. These are configured by adding subsequent instances of the integration going through the [normal flow](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy), and selecting `Target Rate` in the provided menu.
 
 These sensors calculate the lowest continuous or intermittent rates **within a 24 hour period** and turn on when these periods are active. If you are targeting an export meter, then the sensors will calculate the highest continuous or intermittent rates **within a 24 hour period** and turn on when these periods are active.
 
@@ -108,7 +108,7 @@ The following attributes are available on each sensor
 
 ## Services
 
-There are services available associated with target rate sensors. Please review them in the [services doc](./services.md).
+There are services available associated with target rate sensors. Please review them in the [services doc](../services.md).
 
 ## Examples
 

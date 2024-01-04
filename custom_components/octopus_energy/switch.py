@@ -1,17 +1,14 @@
-from datetime import timedelta
 import logging
-
-from homeassistant.util.dt import (utcnow)
 
 from .intelligent.smart_charge import OctopusEnergyIntelligentSmartCharge
 from .intelligent.bump_charge import OctopusEnergyIntelligentBumpCharge
 from .api_client import OctopusEnergyApiClient
-from .intelligent import async_mock_intelligent_data, is_intelligent_tariff, mock_intelligent_device
-from .utils import get_active_tariff_code
+from .intelligent import get_intelligent_features
 
 from .const import (
-  DATA_ACCOUNT_ID,
+  CONFIG_ACCOUNT_ID,
   DATA_CLIENT,
+  DATA_INTELLIGENT_DEVICE,
   DOMAIN,
 
   CONFIG_MAIN_API_KEY,
@@ -25,42 +22,39 @@ _LOGGER = logging.getLogger(__name__)
 
 async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
+  config = dict(entry.data)
 
-  if CONFIG_MAIN_API_KEY in entry.data:
-    await async_setup_intelligent_sensors(hass, async_add_entities)
+  if entry.options:
+    config.update(entry.options)
+
+  if CONFIG_MAIN_API_KEY in config:
+    await async_setup_intelligent_sensors(hass, config, async_add_entities)
 
   return True
 
-async def async_setup_intelligent_sensors(hass, async_add_entities):
+async def async_setup_intelligent_sensors(hass, config, async_add_entities):
   _LOGGER.debug('Setting up intelligent sensors')
+  
+  entities = []
 
-  account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_id = config[CONFIG_ACCOUNT_ID]
+
+  account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
   account_info = account_result.account if account_result is not None else None
 
-  now = utcnow()
-  has_intelligent_tariff = False
-  if len(account_info["electricity_meter_points"]) > 0:
+  account_id = account_info["id"]
+  client = hass.data[DOMAIN][account_id][DATA_CLIENT]
+  intelligent_device = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
+  if intelligent_device is not None:
+    intelligent_features = get_intelligent_features(intelligent_device["provider"])
+    settings_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS_COORDINATOR]
+    dispatches_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR]
+    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
-    for point in account_info["electricity_meter_points"]:
-      # We only care about points that have active agreements
-      tariff_code = get_active_tariff_code(now, point["agreements"])
-      if is_intelligent_tariff(tariff_code):
-        has_intelligent_tariff = True
-        break
+    if intelligent_features.bump_charge_supported:
+      entities.append(OctopusEnergyIntelligentSmartCharge(hass, settings_coordinator, client, intelligent_device, account_id))
 
-  should_mock_intelligent_data = await async_mock_intelligent_data(hass)
-  if has_intelligent_tariff or should_mock_intelligent_data:
-    settings_coordinator = hass.data[DOMAIN][DATA_INTELLIGENT_SETTINGS_COORDINATOR]
-    dispatches_coordinator = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES_COORDINATOR]
-    client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-    
-    account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]
-    if should_mock_intelligent_data:
-      device = mock_intelligent_device()
-    else:
-      device = await client.async_get_intelligent_device(account_id)
+    if intelligent_features.smart_charge_supported:
+      entities.append(OctopusEnergyIntelligentBumpCharge(hass, dispatches_coordinator, client, intelligent_device, account_id))
 
-    async_add_entities([
-      OctopusEnergyIntelligentSmartCharge(hass, settings_coordinator, client, device, account_id),
-      OctopusEnergyIntelligentBumpCharge(hass, dispatches_coordinator, client, device, account_id)
-    ], True)
+  async_add_entities(entities)

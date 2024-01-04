@@ -9,18 +9,20 @@ from .electricity.off_peak import OctopusEnergyElectricityOffPeak
 from .octoplus.saving_sessions import OctopusEnergySavingSessions
 from .target_rates.target_rate import OctopusEnergyTargetRate
 from .intelligent.dispatching import OctopusEnergyIntelligentDispatching
-from .api_client import OctopusEnergyApiClient
-from .intelligent import async_mock_intelligent_data, is_intelligent_tariff, mock_intelligent_device
 from .utils import get_active_tariff_code
+from .intelligent import get_intelligent_features
 
 from .const import (
-  DATA_ACCOUNT_ID,
-  DATA_CLIENT,
+  CONFIG_KIND,
+  CONFIG_KIND_ACCOUNT,
+  CONFIG_KIND_TARGET_RATE,
+  CONFIG_ACCOUNT_ID,
+  DATA_INTELLIGENT_DEVICE,
   DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
+  DATA_INTELLIGENT_MPAN,
+  DATA_INTELLIGENT_SERIAL_NUMBER,
   DOMAIN,
 
-  CONFIG_MAIN_API_KEY,
-  CONFIG_TARGET_NAME,
   CONFIG_TARGET_MPAN,
 
   DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
@@ -33,30 +35,30 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
 
-  if CONFIG_MAIN_API_KEY in entry.data:
+  if entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
     await async_setup_main_sensors(hass, entry, async_add_entities)
-  elif CONFIG_TARGET_NAME in entry.data:
+  elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
     await async_setup_target_sensors(hass, entry, async_add_entities)
 
-  platform = entity_platform.async_get_current_platform()
-  platform.async_register_entity_service(
-    "update_target_config",
-    vol.All(
-      vol.Schema(
-        {
-          vol.Required("target_hours"): str,
-          vol.Optional("target_start_time"): str,
-          vol.Optional("target_end_time"): str,
-          vol.Optional("target_offset"): str,
-        },
-        extra=vol.ALLOW_EXTRA,
+    platform = entity_platform.async_get_current_platform()
+    platform.async_register_entity_service(
+      "update_target_config",
+      vol.All(
+        vol.Schema(
+          {
+            vol.Required("target_hours"): str,
+            vol.Optional("target_start_time"): str,
+            vol.Optional("target_end_time"): str,
+            vol.Optional("target_offset"): str,
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
+        cv.has_at_least_one_key(
+          "target_hours", "target_start_time", "target_end_time", "target_offset"
+        ),
       ),
-      cv.has_at_least_one_key(
-        "target_hours", "target_start_time", "target_end_time", "target_offset"
-      ),
-    ),
-    "async_update_config",
-  )
+      "async_update_config",
+    )
 
   return True
 
@@ -67,19 +69,13 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
   if entry.options:
     config.update(entry.options)
 
-  saving_session_coordinator = hass.data[DOMAIN][DATA_SAVING_SESSIONS_COORDINATOR]
-
-  await saving_session_coordinator.async_config_entry_first_refresh()
-
-  account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+  account_id = config[CONFIG_ACCOUNT_ID]
+  account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
   account_info = account_result.account if account_result is not None else None
-  account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]
-  client = hass.data[DOMAIN][DATA_CLIENT]
+
+  saving_session_coordinator = hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS_COORDINATOR]
 
   now = utcnow()
-  has_intelligent_tariff = False
-  intelligent_mpan = None
-  intelligent_serial_number = None
   entities = [OctopusEnergySavingSessions(hass, saving_session_coordinator, account_id)]
   if len(account_info["electricity_meter_points"]) > 0:
 
@@ -90,42 +86,21 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
         for meter in point["meters"]:
           mpan = point["mpan"]
           serial_number = meter["serial_number"]
-          electricity_rate_coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)]
+          electricity_rate_coordinator = hass.data[DOMAIN][account_id][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)]
           
           entities.append(OctopusEnergyElectricityOffPeak(hass, electricity_rate_coordinator, meter, point))
-          if meter["is_export"] == False:
-            
-            if is_intelligent_tariff(tariff_code):
-              intelligent_mpan = mpan
-              intelligent_serial_number = serial_number
-              has_intelligent_tariff = True
 
-  should_mock_intelligent_data = await async_mock_intelligent_data(hass)
-  if should_mock_intelligent_data:
-    # Pick the first meter if we're mocking our intelligent data
-    for point in account_info["electricity_meter_points"]:
-      tariff_code = get_active_tariff_code(now, point["agreements"])
-      if tariff_code is not None:
-        for meter in point["meters"]:
-          intelligent_mpan = point["mpan"]
-          intelligent_serial_number = meter["serial_number"]
-          break
-
-  if has_intelligent_tariff or should_mock_intelligent_data:
-    coordinator = hass.data[DOMAIN][DATA_INTELLIGENT_DISPATCHES_COORDINATOR]
-    client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-
-    account_id = hass.data[DOMAIN][DATA_ACCOUNT_ID]
-    if should_mock_intelligent_data:
-      device = mock_intelligent_device()
-    else:
-      device = await client.async_get_intelligent_device(account_id)
-
-    electricity_rate_coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(intelligent_mpan, intelligent_serial_number)]
-    entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, device, account_id))
+  intelligent_device = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
+  intelligent_mpan = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] if DATA_INTELLIGENT_MPAN in hass.data[DOMAIN][account_id] else None
+  intelligent_serial_number = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] if DATA_INTELLIGENT_SERIAL_NUMBER in hass.data[DOMAIN][account_id] else None
+  if intelligent_device is not None and intelligent_mpan is not None and intelligent_serial_number is not None:
+    intelligent_features = get_intelligent_features(intelligent_device["provider"])
+    coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR]
+    electricity_rate_coordinator = hass.data[DOMAIN][account_id][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(intelligent_mpan, intelligent_serial_number)]
+    entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, intelligent_device, account_id, intelligent_features.planned_dispatches_supported))
 
   if len(entities) > 0:
-    async_add_entities(entities, True)
+    async_add_entities(entities)
 
 async def async_setup_target_sensors(hass, entry, async_add_entities):
   config = dict(entry.data)
@@ -133,7 +108,9 @@ async def async_setup_target_sensors(hass, entry, async_add_entities):
   if entry.options:
     config.update(entry.options)
 
-  account_result = hass.data[DOMAIN][DATA_ACCOUNT]
+  
+  account_id = config[CONFIG_ACCOUNT_ID]
+  account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
   account_info = account_result.account if account_result is not None else None
 
   mpan = config[CONFIG_TARGET_MPAN]
@@ -148,7 +125,7 @@ async def async_setup_target_sensors(hass, entry, async_add_entities):
         for meter in point["meters"]:
           is_export = meter["is_export"]
           serial_number = meter["serial_number"]
-          coordinator = hass.data[DOMAIN][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)]
-          entities = [OctopusEnergyTargetRate(hass, coordinator, config, is_export)]
-          async_add_entities(entities, True)
+          coordinator = hass.data[DOMAIN][account_id][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)]
+          entities = [OctopusEnergyTargetRate(hass, account_id, coordinator, config, is_export)]
+          async_add_entities(entities)
           return

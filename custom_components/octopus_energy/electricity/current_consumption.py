@@ -13,7 +13,7 @@ from homeassistant.components.sensor import (
   SensorStateClass,
 )
 from homeassistant.const import (
-    ENERGY_KILO_WATT_HOUR
+    UnitOfEnergy
 )
 
 from .base import (OctopusEnergyElectricitySensor)
@@ -61,7 +61,7 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
   @property
   def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
-    return ENERGY_KILO_WATT_HOUR
+    return UnitOfEnergy.KILO_WATT_HOUR
 
   @property
   def icon(self):
@@ -100,6 +100,8 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
 
       # Store the total consumption ready for the next run
       self._previous_total_consumption = total_consumption
+
+      _LOGGER.debug(f'state: {self._state}; total_consumption: {total_consumption}; previous_total_consumption: {self._previous_total_consumption}; consumption_data: {consumption_data}')
     
     return self._state
 

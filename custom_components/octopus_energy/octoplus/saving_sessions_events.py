@@ -67,4 +67,4 @@ class OctopusEnergyOctoplusSavingSessionEvents(EventEntity, RestoreEntity):
     if (result.is_successful == False):
       raise Exception(result.errors[0])
     else:
-      self._hass.data[DOMAIN][DATA_SAVING_SESSIONS_FORCE_UPDATE] = True
+      self._hass.data[DOMAIN][self._account_id][DATA_SAVING_SESSIONS_FORCE_UPDATE] = True

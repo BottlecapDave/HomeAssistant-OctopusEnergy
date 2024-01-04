@@ -71,21 +71,21 @@ async def async_refresh_gas_standing_charges_data(
   
   return existing_standing_charges_result
 
-async def async_setup_gas_standing_charges_coordinator(hass, target_mprn: str, target_serial_number: str):
+async def async_setup_gas_standing_charges_coordinator(hass, account_id: str, target_mprn: str, target_serial_number: str):
   key = DATA_GAS_STANDING_CHARGE_KEY.format(target_mprn, target_serial_number)
   
   # Reset data rates as we might have new information
-  hass.data[DOMAIN][key] = None
+  hass.data[DOMAIN][account_id][key] = None
   
   async def async_update_gas_standing_charges_data():
     """Fetch data from API endpoint."""
     current = now()
-    client: OctopusEnergyApiClient = hass.data[DOMAIN][DATA_CLIENT]
-    account_result = hass.data[DOMAIN][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN] else None
+    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
+    account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN][account_id] else None
     account_info = account_result.account if account_result is not None else None
-    standing_charges: GasStandingChargeCoordinatorResult = hass.data[DOMAIN][key] if key in hass.data[DOMAIN] else None
+    standing_charges: GasStandingChargeCoordinatorResult = hass.data[DOMAIN][account_id][key] if key in hass.data[DOMAIN][account_id] else None
 
-    hass.data[DOMAIN][key] = await async_refresh_gas_standing_charges_data(
+    hass.data[DOMAIN][account_id][key] = await async_refresh_gas_standing_charges_data(
       current,
       client,
       account_info,
@@ -94,7 +94,7 @@ async def async_setup_gas_standing_charges_coordinator(hass, target_mprn: str, t
       standing_charges,
     )
 
-    return hass.data[DOMAIN][key]
+    return hass.data[DOMAIN][account_id][key]
 
   coordinator = DataUpdateCoordinator(
     hass,
@@ -106,7 +106,5 @@ async def async_setup_gas_standing_charges_coordinator(hass, target_mprn: str, t
     update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),
     always_update=True
   )
-
-  await coordinator.async_config_entry_first_refresh()
 
   return coordinator
