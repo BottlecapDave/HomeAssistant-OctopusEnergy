@@ -1,3 +1,34 @@
+# [10.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v9.2.1...v10.0.0) (2024-01-04)
+
+
+### Bug Fixes
+
+* Added prevention around multiple access token requests ([0ecd453](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0ecd45325f90c4ad1599b0f73a305fb23982d354))
+* Fixed deprecated HA references ([5751d3b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5751d3b0b301e18f60755aec56358bbc1152e087))
+* Fixed issue with cost override when last retrieved is not defined ([59dbb7d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/59dbb7df4531e6c1ae50ba1583602d4fd3b5344a))
+* Fixed off peak sensor turning on during extended intelligent off peak periods ([9b36f07](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9b36f07b5d53d05e82cac518748ae0013f320576))
+* Fixed restoring of intelligent states ([faa3a32](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/faa3a32e942c5c57241e19e1fe18dde1d8802a66))
+* reduced API calls for intelligent data during setup ([381c723](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/381c723885d2b068b4a4f2b9dd15883460861588))
+* Reduced required data on startup to speed up initialisation. This may result in a slight delay to get updated data ([5a2838f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5a2838f3c61b688149d106ba42b9169d1c518206))
+* removed various intelligent features for OHME as these were incorrectly exposed and not supported ([9d52884](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9d528841b992328d490bd1e051c58625d8fba270))
+
+
+### Features
+
+* added m3 representation of current accumualtive gas consumption for Octopus Home Mini ([bc1be66](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/bc1be661dde383598812b92cd9ff03f05462e5cf))
+* Added min/max/average rates to previous/current/next day rate events/entities ([58c3488](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/58c34885bc2125074b574112fbef477a56b635bf))
+* Added support for custom sensors for tracking the cost of other entities ([54604fd](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/54604fdb0c7f24cb65346010f00e299c3dd1e0df))
+
+
+### BREAKING CHANGES
+
+* The current and previous accumulative gas consumptions meter entity ids have been updated to include
+suffixes representing the reported unit of measurement. Any references to these entities will need
+to be updated.
+* If you are on intelligent tariff and use OHME chargers, then various intelligent features will be
+removed. These were incorrectly exposed. Please see
+https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/573 for more information
+
 ## [9.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v9.2.0...v9.2.1) (2023-12-20)
 
 
