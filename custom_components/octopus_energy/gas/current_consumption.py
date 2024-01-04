@@ -99,6 +99,8 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
 
       # Store the total consumption ready for the next run
       self._previous_total_consumption = total_consumption
+      
+      _LOGGER.debug(f'state: {self._state}; total_consumption: {total_consumption}; previous_total_consumption: {self._previous_total_consumption}; consumption_data: {consumption_data}')
     
     return self._state
 
