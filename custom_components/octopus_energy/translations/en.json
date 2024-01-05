@@ -39,7 +39,7 @@
         }
       },
       "cost_tracker": {
-        "description": "Track the cost for a given energy based sensor",
+        "description": "Track the cost for a given energy based sensor. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/cost_tracker.",
         "data": {
           "name": "The name of your cost sensor",
           "mpan": "The meter the cost rates should be associated with",
