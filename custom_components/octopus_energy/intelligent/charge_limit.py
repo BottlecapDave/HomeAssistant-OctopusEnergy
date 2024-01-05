@@ -99,8 +99,7 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
       ):
       
       self._attributes = dict_to_typed_dict(last_state.attributes)
-      if last_state.state is not "unknown":
+      if last_state.state != "unknown":
         self._state = last_number_data.native_value
-
           
     _LOGGER.debug(f'Restored OctopusEnergyIntelligentChargeLimit state: {self._state}')
