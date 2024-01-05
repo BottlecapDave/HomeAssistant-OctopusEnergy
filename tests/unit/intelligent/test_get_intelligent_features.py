@@ -34,6 +34,10 @@ from custom_components.octopus_energy.intelligent import get_intelligent_feature
   ("TESLA".lower(), True, True, True, True, True),
   ("SMART_PEAR".lower(), True, True, True, True, True),
   ("OHME".lower(), False, False, False, False, False),
+  # Unexpected providers
+  ("unexpected".lower(), False, False, False, False, False),
+  ("".lower(), False, False, False, False, False),
+  (None, False, False, False, False, False),
 ])
 async def test_when_provider_provided_then_expected_features_returned(
   provider: str,

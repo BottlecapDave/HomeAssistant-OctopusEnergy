@@ -217,10 +217,10 @@ FULLY_SUPPORTED_INTELLIGENT_PROVIDERS = [
 ]
 
 def get_intelligent_features(provider: str) -> IntelligentFeatures:
-  if provider.upper() in FULLY_SUPPORTED_INTELLIGENT_PROVIDERS:
+  if provider is not None and provider.upper() in FULLY_SUPPORTED_INTELLIGENT_PROVIDERS:
     return IntelligentFeatures(True, True, True, True, True)
   elif provider == "OHME":
     return IntelligentFeatures(False, False, False, False, False)
 
-  _LOGGER.warn(f"Unexpected intelligent provider '{provider}'")
+  _LOGGER.warning(f"Unexpected intelligent provider '{provider}'")
   return IntelligentFeatures(False, False, False, False, False)
