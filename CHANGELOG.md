@@ -1,3 +1,15 @@
+## [10.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.0.0...v10.0.1) (2024-01-06)
+
+
+### Bug Fixes
+
+* Added migration of accumulative gas consumption sensors - see https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions/678 for more details ([f379786](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f37978673aec21f008d8d35c7bcfcba48bd59173))
+* Fixed being unable to edit target rate configuration ([150d97a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/150d97af9149affa456801a30895f7e6b3be327f))
+* Fixed initialising of integration to automatically retry if account information can't be retrieved ([320eb15](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/320eb15cc1fd1ff3039aaa0abfa7bc4f1c35ff6d))
+* Fixed issue when intelligent device provider is unavailable ([6d9f469](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6d9f4693b335aa84caaaf4885d32fb9300921231))
+* Fixed warning raised in charge limit sensor ([c43ef73](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c43ef73abb7553aec89985acf88b5672cbaaa6bd))
+* Fixed where intelligent entities were incorrectly available to users on intelligent flux tariff ([0be466a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0be466a578f910e2af79ed3ccd63b26bdf3fd35e))
+
 # [10.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v9.2.1...v10.0.0) (2024-01-04)
 
 
