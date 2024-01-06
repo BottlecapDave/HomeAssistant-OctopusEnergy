@@ -86,7 +86,8 @@ def mock_intelligent_device():
 def is_intelligent_tariff(tariff_code: str):
   parts = get_tariff_parts(tariff_code.upper())
 
-  return parts is not None and "INTELLI" in parts.product_code
+  # Need to ignore Octopus Intelligent Go tariffs
+  return parts is not None and ("INTELLI-BB-VAR" in parts.product_code or "INTELLI-VAR" in parts.product_code)
 
 def has_intelligent_tariff(current: datetime, account_info):
   if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
@@ -217,10 +218,10 @@ FULLY_SUPPORTED_INTELLIGENT_PROVIDERS = [
 ]
 
 def get_intelligent_features(provider: str) -> IntelligentFeatures:
-  if provider.upper() in FULLY_SUPPORTED_INTELLIGENT_PROVIDERS:
+  if provider is not None and provider.upper() in FULLY_SUPPORTED_INTELLIGENT_PROVIDERS:
     return IntelligentFeatures(True, True, True, True, True)
   elif provider == "OHME":
     return IntelligentFeatures(False, False, False, False, False)
 
-  _LOGGER.warn(f"Unexpected intelligent provider '{provider}'")
+  _LOGGER.warning(f"Unexpected intelligent provider '{provider}'")
   return IntelligentFeatures(False, False, False, False, False)
