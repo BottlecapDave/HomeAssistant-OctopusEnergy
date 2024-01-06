@@ -46,7 +46,7 @@ ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "text", "number", "switch", "tim
 TARGET_RATE_PLATFORMS = ["binary_sensor"]
 COST_TRACKER_PLATFORMS = ["sensor"]
 
-from .api_client import ApiException, OctopusEnergyApiClient
+from .api_client import OctopusEnergyApiClient, RequestException
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -155,7 +155,11 @@ async def async_setup_dependencies(hass, config):
     account_info = await client.async_get_account(config[CONFIG_ACCOUNT_ID])
     if (account_info is None):
       raise ConfigEntryNotReady(f"Failed to retrieve account information")
-  except ApiException:
+  except Exception as e:
+    if isinstance(e, RequestException) == False:
+      _LOGGER.error(e)
+      raise
+    
     raise ConfigEntryNotReady(f"Failed to retrieve account information")
 
   hass.data[DOMAIN][account_id][DATA_ACCOUNT] = AccountCoordinatorResult(utcnow(), 1, account_info)
