@@ -77,19 +77,19 @@ def get_target_rate_meters(account_info, now):
 
   return meters
 
-class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN): 
-  """Config flow."""
-
-  VERSION = CONFIG_VERSION
-
-  def __get_account_ids__(self):
+def get_account_ids(hass):
     account_ids = {}
-    for entry in self.hass.config_entries.async_entries(DOMAIN):
+    for entry in hass.config_entries.async_entries(DOMAIN):
       if CONFIG_KIND in entry.data and entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
         account_id = entry.data[CONFIG_ACCOUNT_ID]
         account_ids[account_id] = account_id
 
     return account_ids
+
+class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN): 
+  """Config flow."""
+
+  VERSION = CONFIG_VERSION
 
   async def async_step_account(self, user_input):
     """Setup the initial account based on the provided user input"""
@@ -107,7 +107,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     )
 
   async def __async_setup_target_rate_schema__(self):
-    account_ids = self.__get_account_ids__()
+    account_ids = get_account_ids(self.hass)
     account_id = list(account_ids.keys())[0]
 
     account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
@@ -144,7 +144,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     })
   
   async def __async_setup_cost_tracker_schema__(self):
-    account_ids = self.__get_account_ids__()
+    account_ids = get_account_ids(self.hass)
     account_id = list(account_ids.keys())[0]
 
     account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
@@ -170,7 +170,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
   async def async_step_target_rate(self, user_input):
     """Setup a target based on the provided user input"""
-    account_ids = self.__get_account_ids__()
+    account_ids = get_account_ids(self.hass)
     account_id = list(account_ids.keys())[0]
 
     account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
@@ -198,7 +198,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
   async def async_step_cost_tracker(self, user_input):
     """Setup a target based on the provided user input"""
     errors = validate_cost_tracker_config(user_input) if user_input is not None else {}
-    account_ids = self.__get_account_ids__()
+    account_ids = get_account_ids(self.hass)
 
     if len(errors) < 1 and user_input is not None:
       user_input[CONFIG_KIND] = CONFIG_KIND_COST_TRACKER
@@ -264,7 +264,7 @@ class OptionsFlowHandler(OptionsFlow):
     self._entry = entry
 
   async def __async_setup_target_rate_schema__(self, config, errors):
-    account_ids = self.get_account_ids()
+    account_ids = get_account_ids(self.hass)
     account_id = list(account_ids.keys())[0]
 
     account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
@@ -426,7 +426,7 @@ class OptionsFlowHandler(OptionsFlow):
 
   async def async_step_target_rate(self, user_input):
     """Manage the options for the custom component."""
-    account_ids = self.get_account_ids()
+    account_ids = get_account_ids(self.hass)
     account_id = list(account_ids.keys())[0]
 
     config = merge_target_rate_config(self._entry.data, self._entry.options, user_input)

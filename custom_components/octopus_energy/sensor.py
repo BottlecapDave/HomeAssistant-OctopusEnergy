@@ -3,7 +3,7 @@ import logging
 
 from homeassistant.util.dt import (utcnow)
 from homeassistant.core import HomeAssistant, SupportsResponse
-from homeassistant.helpers import entity_platform, issue_registry as ir
+from homeassistant.helpers import entity_platform, issue_registry as ir, entity_registry as er
 
 from .electricity.current_consumption import OctopusEnergyCurrentElectricityConsumption
 from .electricity.current_accumulative_consumption import OctopusEnergyCurrentAccumulativeElectricityConsumption
@@ -151,6 +151,9 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
     OctopusEnergyWheelOfFortuneGasSpins(hass, wheel_of_fortune_coordinator, client, account_id)
   ]
 
+  registry = er.async_get(hass)
+  entity_ids_to_migrate = []
+
   octoplus_enrolled = account_info is not None and account_info["octoplus_enrolled"] == True
   
   if octoplus_enrolled:
@@ -292,6 +295,11 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
           entities.append(OctopusEnergyPreviousAccumulativeGasCost(hass, previous_consumption_coordinator, gas_tariff_code, meter, point, calorific_value))
           entities.append(OctopusEnergyPreviousAccumulativeGasCostOverride(hass,  account_id, previous_consumption_coordinator, client, gas_tariff_code, meter, point, calorific_value))
 
+          entity_ids_to_migrate.append({
+            "old": f"octopus_energy_gas_{serial_number}_{mprn}_previous_accumulative_consumption",
+            "new": f"octopus_energy_gas_{serial_number}_{mprn}_previous_accumulative_consumption_m3"
+          })
+
           if CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True:
             live_consumption_refresh_in_minutes = CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES
             if CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES in config:
@@ -304,6 +312,11 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
               entities.append(OctopusEnergyCurrentAccumulativeGasConsumptionCubicMeters(hass, consumption_coordinator, gas_rate_coordinator, gas_standing_charges_coordinator, gas_tariff_code, meter, point, calorific_value))
               entities.append(OctopusEnergyCurrentAccumulativeGasCost(hass, consumption_coordinator, gas_rate_coordinator, gas_standing_charges_coordinator, gas_tariff_code, meter, point, calorific_value))
               
+              entity_ids_to_migrate.append({
+                "old": f"octopus_energy_gas_{serial_number}_{mprn}_current_accumulative_consumption",
+                "new": f"octopus_energy_gas_{serial_number}_{mprn}_current_accumulative_consumption_kwh"
+              })
+
               ir.async_delete_issue(hass, DOMAIN, f"octopus_mini_not_valid_gas_{mprn}_{serial_number}")
             else:
               ir.async_create_issue(
@@ -322,6 +335,16 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
         _LOGGER.info(f'agreements: {point["agreements"]}')
   else:
     _LOGGER.info('No gas meters available')
+
+  # Migrate entity ids that might have changed
+  for item in entity_ids_to_migrate:
+    entity_id = registry.async_get_entity_id("sensor", DOMAIN, item["old"])
+    if entity_id is not None:
+      try:
+        _LOGGER.info(f'Migrating entity id and unique id for {item["old"]} to {item["new"]}')
+        registry.async_update_entity(entity_id, new_entity_id=f'sensor.{item["new"]}'.lower(), new_unique_id=item["new"])
+      except Exception as e:
+        _LOGGER.warning(f'Failed to migrate entity id and unique id for {item["old"]} to {item["new"]} - {e}')
 
   async_add_entities(entities)
 
