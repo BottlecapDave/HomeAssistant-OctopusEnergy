@@ -1,8 +1,9 @@
+from datetime import datetime
 import logging
 
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
-from homeassistant.util.dt import (utcnow, parse_datetime)
+from homeassistant.util.dt import (now, parse_datetime)
 
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
@@ -48,6 +49,7 @@ class OctopusEnergyCostTrackerOffPeakSensor(CoordinatorEntity, RestoreSensor):
     CoordinatorEntity.__init__(self, coordinator)
 
     self._state = None
+    self._last_reset = None
     self._config = config
     self._is_export = is_export
     self._attributes = self._config.copy()
@@ -105,6 +107,14 @@ class OctopusEnergyCostTrackerOffPeakSensor(CoordinatorEntity, RestoreSensor):
     """Determines the total cost of the tracked entity."""
     return self._state
   
+  @property
+  def last_reset(self):
+    """Return the time when the sensor was last reset, if any."""
+    current: datetime = now()
+    self._reset_if_new_day(current)
+    
+    return self._last_reset
+
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
     # If not None, we got an initial value.
@@ -131,7 +141,7 @@ class OctopusEnergyCostTrackerOffPeakSensor(CoordinatorEntity, RestoreSensor):
     if new_state is None or new_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
       return
 
-    current = utcnow()
+    current = now()
     rates_result: ElectricityRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
 
     consumption_data = add_consumption(current,
@@ -145,6 +155,8 @@ class OctopusEnergyCostTrackerOffPeakSensor(CoordinatorEntity, RestoreSensor):
                                        self._attributes["is_tracking"])
 
     if (consumption_data is not None and rates_result is not None and rates_result.rates is not None):
+      self._reset_if_new_day(current)
+
       tracked_result = calculate_electricity_consumption_and_cost(
         current,
         consumption_data.tracked_consumption_data,
@@ -175,9 +187,20 @@ class OctopusEnergyCostTrackerOffPeakSensor(CoordinatorEntity, RestoreSensor):
 
         self.async_write_ha_state()
 
-  @callback
-  async def async_update_cost_tracker_config(self, is_tracking_enabled: bool):
-    """Toggle tracking on/off"""
-    self._attributes["is_tracking"] = is_tracking_enabled
+  def _reset_if_new_day(self, current: datetime):
+    current: datetime = now()
+    start_of_day = current.replace(hour=0, minute=0, second=0, microsecond=0)
+    if self._last_reset is None:
+      self._last_reset = start_of_day
+      return True
+    
+    if self._last_reset.date() != current.date():
+      self._state = 0
+      self._attributes["tracked_charges"] = []
+      self._attributes["untracked_charges"] = []
+      self._attributes["total_consumption"] = 0
+      self._last_reset = start_of_day
 
-    self.async_write_ha_state()
+      return True
+
+    return False
