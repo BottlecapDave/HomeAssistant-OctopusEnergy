@@ -132,6 +132,5 @@ def get_saving_session_target(current: datetime, saving_session: SavingSession, 
                                        len(target_consumption_data) != target_consumption_days))
 
   current_target = targets[current_saving_session_period_index]
-  print(current_target.consumption_items)
 
   return SavingSessionTargetResult(current_target, sum(map(lambda target: target.target, targets)), targets)

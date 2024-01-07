@@ -105,6 +105,10 @@ class OctopusEnergySavingSessionTarget(CoordinatorEntity, RestoreSensor):
   @property
   def native_value(self):
     return self._state
+  
+  @property
+  def should_poll(self) -> bool:
+    return True
 
   async def async_update(self):
     await super().async_update()
@@ -122,11 +126,17 @@ class OctopusEnergySavingSessionTarget(CoordinatorEntity, RestoreSensor):
         target_saving_session = get_next_saving_sessions_event(current, saving_session.joined_events)
 
       if (target_saving_session is not None):
-        if self._next_refresh is None or current >= self._next_refresh and self._attributes["is_incomplete_calculation"] != False:
+        if (self._next_refresh is None or current >= self._next_refresh) and (self._consumption_data is None or self._attributes["is_incomplete_calculation"] != False):
           consumption_dates = get_saving_session_consumption_dates(target_saving_session, all_saving_sessions)
 
           try:
-            consumption_data = await asyncio.gather(map(lambda consumption_date: self._client.async_get_electricity_consumption(self._attributes["mpan"], self._attributes["serial_number"], consumption_date.start, consumption_date.end), consumption_dates))
+            requests = []
+            for consumption_date in consumption_dates:
+              requests.append(self._client.async_get_electricity_consumption(self._attributes["mpan"],
+                                                                             self._attributes["serial_number"],
+                                                                             consumption_date.start,
+                                                                             consumption_date.end))
+            consumption_data = await asyncio.gather(*requests)
             self._consumption_data = [
               x
               for xs in consumption_data
@@ -136,6 +146,7 @@ class OctopusEnergySavingSessionTarget(CoordinatorEntity, RestoreSensor):
             self._request_attempts = 1
             self._last_retrieved = current
             self._next_refresh = calculate_next_refresh(current, self._request_attempts, REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSION_TARGET)
+            _LOGGER.info('Consumption data was refreshed successfully')
           except Exception as e:
             if isinstance(e, ApiException) == False:
               _LOGGER.error(e)
@@ -157,12 +168,12 @@ class OctopusEnergySavingSessionTarget(CoordinatorEntity, RestoreSensor):
           self._attributes["is_incomplete_calculation"] = target.current_target.is_incomplete_calculation
           self._attributes["consumption_items"] = target.current_target.consumption_items
           self._attributes["total_target"] = target.total_target
-          self._attributes["targets"] = map(lambda target: {
+          self._attributes["targets"] = list(map(lambda target: {
             "start": target.start,
             "end": target.end,
             "target": target.target,
             "is_incomplete_calculation": target.is_incomplete_calculation
-          }, target.targets)
+          }, target.targets))
         else:
           self._attributes["saving_session_target_start"] = None
           self._attributes["saving_session_target_end"] = None
@@ -192,8 +203,5 @@ class OctopusEnergySavingSessionTarget(CoordinatorEntity, RestoreSensor):
     if state is not None:
       self._state = None if state.state == "unknown" else state.state
       self._attributes = dict_to_typed_dict(state.attributes)
-    
-    if (self._state is None):
-      self._state = False
     
     _LOGGER.debug(f'Restored state: {self._state}')
