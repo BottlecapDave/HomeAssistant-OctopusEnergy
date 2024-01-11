@@ -120,7 +120,6 @@ async def async_fetch_consumption_and_rates(
       )
     except Exception as e:
       if isinstance(e, ApiException) == False:
-        _LOGGER.error(e)
         raise
       
       result = None

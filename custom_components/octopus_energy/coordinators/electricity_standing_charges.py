@@ -50,7 +50,6 @@ async def async_refresh_electricity_standing_charges_data(
         _LOGGER.debug(f'Electricity standing charges retrieved for {target_mpan}/{target_serial_number} ({tariff_code})')
       except Exception as e:
         if isinstance(e, ApiException) == False:
-          _LOGGER.error(e)
           raise
         
         _LOGGER.debug(f'Failed to retrieve electricity standing charges for {target_mpan}/{target_serial_number} ({tariff_code})')

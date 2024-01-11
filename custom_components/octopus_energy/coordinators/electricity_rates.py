@@ -63,7 +63,6 @@ async def async_refresh_electricity_rates_data(
         new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
       except Exception as e:
         if isinstance(e, ApiException) == False:
-          _LOGGER.error(e)
           raise
         
         _LOGGER.debug(f'Failed to retrieve electricity rates for {target_mpan}/{target_serial_number} ({tariff_code})')

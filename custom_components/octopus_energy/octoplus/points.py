@@ -72,7 +72,6 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
         self._request_attempts = 1
       except  Exception as e:
         if isinstance(e, ApiException) == False:
-          _LOGGER.error(e)
           raise
         _LOGGER.warning(f"Failed to retrieve octopoints")
         self._request_attempts = self._request_attempts + 1
