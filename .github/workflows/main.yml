@@ -10,6 +10,7 @@ on:
 jobs:
   validate:
     name: Validate
+    if: ${{ github.event_name != 'schedule' }} || ( ${{ github.event_name == 'schedule' }} && github.repository == 'BottlecapDave/HomeAssistant-OctopusEnergy' )
     runs-on: "ubuntu-latest"
     steps:
       - uses: "actions/checkout@v2"
@@ -20,6 +21,7 @@ jobs:
           category: "integration"
   unit_tests:
     name: Unit Tests
+    if: ${{ github.event_name != 'schedule' }} || ( ${{ github.event_name == 'schedule' }} && github.repository == 'BottlecapDave/HomeAssistant-OctopusEnergy' )
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -36,6 +38,7 @@ jobs:
           python -m pytest tests/unit
   integration_tests:
     name: Integration Tests
+    if: ${{ github.event_name != 'schedule' }} || ( ${{ github.event_name == 'schedule' }} && github.repository == 'BottlecapDave/HomeAssistant-OctopusEnergy' )
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
