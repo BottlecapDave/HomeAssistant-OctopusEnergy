@@ -59,11 +59,11 @@ jobs:
           ACCOUNT_ID: ${{ secrets.OCTOPUS_ENERGY_ACCOUNT_ID }}
   release:
     name: Release
-    if: github.ref == 'refs/heads/main'
-    needs: 
-    - validate
-    - unit_tests
-    - integration_tests
+    if: github.repository == 'BottlecapDave/HomeAssistant-OctopusEnergy' && github.ref == 'refs/heads/main'
+    needs:
+      - validate
+      - unit_tests
+      - integration_tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
