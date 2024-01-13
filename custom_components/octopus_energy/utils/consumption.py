@@ -56,6 +56,12 @@ def calculate_current_consumption(
 
       # Store the total consumption ready for the next run
       last_total_consumption = total_consumption
+
+    # Reset to zero if we don't have up-to-date information 
+    elif consumption_result.last_retrieved.date() != current_date.date():
+      new_state = 0
+      last_evaluated = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
+      total_consumption = 0
     
     _LOGGER.debug(f'state: {new_state}; total_consumption: {total_consumption}; previous_total_consumption: {last_total_consumption}; consumption_data: {consumption_data}')
     
