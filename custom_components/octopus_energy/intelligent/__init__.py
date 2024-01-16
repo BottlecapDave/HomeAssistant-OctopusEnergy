@@ -99,9 +99,10 @@ def has_intelligent_tariff(current: datetime, account_info):
   return False
 
 def __get_dispatch(rate, dispatches: list[IntelligentDispatchItem], expected_source: str):
-  for dispatch in dispatches:
-    if (expected_source is None or dispatch.source == expected_source) and dispatch.start <= rate["start"] and dispatch.end >= rate["end"]:
-      return dispatch
+  if dispatches is not None:
+    for dispatch in dispatches:
+      if (expected_source is None or dispatch.source == expected_source) and dispatch.start <= rate["start"] and dispatch.end >= rate["end"]:
+        return dispatch
     
   return None
 
