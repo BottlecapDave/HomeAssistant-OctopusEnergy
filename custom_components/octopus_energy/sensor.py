@@ -24,6 +24,7 @@ from .electricity.previous_accumulative_cost_peak import OctopusEnergyPreviousAc
 from .electricity.previous_accumulative_cost_override import OctopusEnergyPreviousAccumulativeElectricityCostOverride
 from .electricity.previous_rate import OctopusEnergyElectricityPreviousRate
 from .electricity.standing_charge import OctopusEnergyElectricityCurrentStandingCharge
+from .electricity.current_consumption_saving_session import OctopusEnergyCurrentElectricityConsumptionSavingSession
 from .gas.current_rate import OctopusEnergyGasCurrentRate
 from .gas.next_rate import OctopusEnergyGasNextRate
 from .gas.previous_rate import OctopusEnergyGasPreviousRate
@@ -227,6 +228,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
                 entities.append(OctopusEnergyCurrentAccumulativeElectricityCostPeak(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, electricity_tariff_code, meter, point))
                 entities.append(OctopusEnergyCurrentAccumulativeElectricityCostOffPeak(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, electricity_tariff_code, meter, point))
                 entities.append(OctopusEnergyCurrentElectricityDemand(hass, consumption_coordinator, meter, point))
+                entities.append(OctopusEnergyCurrentElectricityConsumptionSavingSession(hass, consumption_coordinator, saving_session_coordinator, electricity_tariff_code, meter, point))
 
                 ir.async_delete_issue(hass, DOMAIN, f"octopus_mini_not_valid_electricity_{mpan}_{serial_number}")
               else:
