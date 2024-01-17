@@ -1,7 +1,7 @@
 import logging
 from custom_components.octopus_energy.coordinators.current_consumption import CurrentConsumptionCoordinatorResult
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.util.dt import (now)
 
 from homeassistant.helpers.update_coordinator import (
@@ -80,8 +80,11 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
   
   @property
   def native_value(self):
+    return self._state
+  
+  @callback
+  def _handle_coordinator_update(self) -> None:
     """Retrieve the latest electricity consumption"""
-    _LOGGER.debug('Updating OctopusEnergyCurrentElectricityConsumption')
     consumption_result: CurrentConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     current_date = now()
     
@@ -99,7 +102,8 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
     self._attributes["last_evaluated"] = result.last_evaluated
     self._attributes["data_last_retrieved"] = result.data_last_retrieved
 
-    return self._state
+    _LOGGER.debug('Updated OctopusEnergyCurrentElectricityConsumption')
+    super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

@@ -2,7 +2,7 @@ import logging
 
 from datetime import time
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 
 from homeassistant.helpers.update_coordinator import (
@@ -66,6 +66,10 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
 
   @property
   def native_value(self) -> float:
+    return self._state
+  
+  @callback
+  def _handle_coordinator_update(self) -> None:
     """The value of the charge limit."""
     settings_result: IntelligentCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     if settings_result is None or (self._last_updated is not None and self._last_updated > settings_result.last_retrieved):
@@ -77,8 +81,8 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
     if settings_result.settings is not None:
       self._state = settings_result.settings.charge_limit_weekday
       self._attributes["last_evaluated"] = utcnow()
-    
-    return self._state
+
+    super()._handle_coordinator_update()
 
   async def async_set_native_value(self, value: float) -> None:
     """Set new value."""
