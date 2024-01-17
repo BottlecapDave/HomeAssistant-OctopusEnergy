@@ -72,7 +72,6 @@ async def async_refresh_intelligent_dispatches(
           _LOGGER.debug(f'Intelligent dispatches retrieved for account {account_id}')
         except Exception as e:
           if isinstance(e, ApiException) == False:
-            _LOGGER.error(e)
             raise
           
           _LOGGER.debug('Failed to retrieve intelligent dispatches for account {account_id}')

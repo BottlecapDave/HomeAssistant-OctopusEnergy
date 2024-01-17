@@ -73,7 +73,6 @@ async def async_refresh_account(
         return AccountCoordinatorResult(current, 1, account_info)
     except Exception as e:
       if isinstance(e, ApiException) == False:
-        _LOGGER.error(e)
         raise
       
       result = AccountCoordinatorResult(

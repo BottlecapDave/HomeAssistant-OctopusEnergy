@@ -41,7 +41,6 @@ async def async_refresh_wheel_of_fortune_spins(
       return WheelOfFortuneSpinsCoordinatorResult(current, 1, result)
     except Exception as e:
       if isinstance(e, ApiException) == False:
-        _LOGGER.error(e)
         raise
       
       result = None

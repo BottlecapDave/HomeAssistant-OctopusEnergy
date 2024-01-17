@@ -315,7 +315,6 @@ The total consumption reported by the meter for the current day.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-
 | `mpan` | `string` | The mpan for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
 | `is_export` | `boolean` | Determines if the meter exports energy rather than imports |

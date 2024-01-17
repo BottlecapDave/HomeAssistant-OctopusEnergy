@@ -61,13 +61,17 @@ class OctopusEnergyWheelOfFortuneGasSpins(CoordinatorEntity, RestoreSensor):
 
   @property
   def state(self):
+    return self._state
+  
+  @callback
+  def _handle_coordinator_update(self) -> None:
     result: WheelOfFortuneSpinsCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     if result is not None and result.spins is not None:
       self._state = result.spins.gas
       self._attributes["data_last_retrieved"] = result.last_retrieved
 
     self._attributes["last_evaluated"] = utcnow()
-    return self._state
+    super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

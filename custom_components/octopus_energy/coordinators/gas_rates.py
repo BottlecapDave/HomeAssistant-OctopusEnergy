@@ -55,7 +55,6 @@ async def async_refresh_gas_rates_data(
         new_rates = await client.async_get_gas_rates(tariff_code, period_from, period_to)
       except Exception as e:
         if isinstance(e, ApiException) == False:
-          _LOGGER.error(e)
           raise
         
         _LOGGER.debug(f'Failed to retrieve gas rates for {target_mprn}/{target_serial_number} ({tariff_code})')

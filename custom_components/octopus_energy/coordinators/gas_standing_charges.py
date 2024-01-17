@@ -50,7 +50,6 @@ async def async_refresh_gas_standing_charges_data(
         _LOGGER.debug(f'Gas standing charges retrieved for {target_mprn}/{target_serial_number} ({tariff_code})')
       except Exception as e:
         if isinstance(e, ApiException) == False:
-          _LOGGER.error(e)
           raise
         
         _LOGGER.debug(f'Failed to retrieve gas standing charges for {target_mprn}/{target_serial_number} ({tariff_code})')

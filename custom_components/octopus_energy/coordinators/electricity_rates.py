@@ -22,7 +22,6 @@ from ..const import (
 )
 
 from ..api_client import ApiException, OctopusEnergyApiClient
-from ..api_client.intelligent_dispatches import IntelligentDispatches
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 from ..utils import private_rates_to_public_rates
 from . import BaseCoordinatorResult, get_electricity_meter_tariff_code, raise_rate_events
@@ -32,10 +31,14 @@ _LOGGER = logging.getLogger(__name__)
 
 class ElectricityRatesCoordinatorResult(BaseCoordinatorResult):
   rates: list
+  original_rates: list
+  rates_last_adjusted: datetime
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, rates: list):
+  def __init__(self, last_retrieved: datetime, request_attempts: int, rates: list, original_rates: list = None, rates_last_adjusted: datetime = None):
     super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_RATES)
     self.rates = rates
+    self.original_rates = original_rates if original_rates is not None else rates
+    self.rates_last_adjusted = rates_last_adjusted if rates_last_adjusted else last_retrieved
 
 async def async_refresh_electricity_rates_data(
     current: datetime,
@@ -46,7 +49,8 @@ async def async_refresh_electricity_rates_data(
     is_smart_meter: bool,
     is_export_meter: bool,
     existing_rates_result: ElectricityRatesCoordinatorResult,
-    dispatches: IntelligentDispatches,
+    dispatches_result: IntelligentDispatchesCoordinatorResult,
+    planned_dispatches_supported: bool,
     fire_event: Callable[[str, "dict[str, Any]"], None],
   ) -> ElectricityRatesCoordinatorResult: 
   if (account_info is not None):
@@ -63,7 +67,6 @@ async def async_refresh_electricity_rates_data(
         new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
       except Exception as e:
         if isinstance(e, ApiException) == False:
-          _LOGGER.error(e)
           raise
         
         _LOGGER.debug(f'Failed to retrieve electricity rates for {target_mpan}/{target_serial_number} ({tariff_code})')
@@ -71,12 +74,15 @@ async def async_refresh_electricity_rates_data(
       if new_rates is not None:
         _LOGGER.debug(f'Electricity rates retrieved for {target_mpan}/{target_serial_number} ({tariff_code});')
         
-        if dispatches is not None and is_export_meter == False:
-          new_rates = adjust_intelligent_rates(new_rates, 
-                                               dispatches.planned,
-                                               dispatches.completed)
+        original_rates = new_rates.copy()
+        original_rates.sort(key=lambda rate: rate["start"])
+        
+        if dispatches_result is not None and dispatches_result.dispatches is not None and is_export_meter == False:
+          new_rates = adjust_intelligent_rates(new_rates,
+                                               dispatches_result.dispatches.planned if planned_dispatches_supported else [],
+                                               dispatches_result.dispatches.completed)
           
-          _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches}")
+          _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches_result.dispatches}")
 
         # Sort our rates again _just in case_
         new_rates.sort(key=lambda rate: rate["start"])
@@ -89,19 +95,58 @@ async def async_refresh_electricity_rates_data(
                           EVENT_ELECTRICITY_CURRENT_DAY_RATES,
                           EVENT_ELECTRICITY_NEXT_DAY_RATES)
         
-        return ElectricityRatesCoordinatorResult(current, 1, new_rates)
+        return ElectricityRatesCoordinatorResult(current, 1, new_rates, original_rates, current)
       
       result = None
       if (existing_rates_result is not None):
-        result = ElectricityRatesCoordinatorResult(existing_rates_result.last_retrieved, existing_rates_result.request_attempts + 1, existing_rates_result.rates)
+        result = ElectricityRatesCoordinatorResult(
+          existing_rates_result.last_retrieved,
+          existing_rates_result.request_attempts + 1,
+          existing_rates_result.rates,
+          existing_rates_result.original_rates,
+          existing_rates_result.rates_last_adjusted
+        )
         _LOGGER.warning(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number} - using cached rates. Next attempt at {result.next_refresh}")
       else:
         # We want to force into our fallback mode
-        result = ElectricityRatesCoordinatorResult(current  - timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES), 2, None)
+        result = ElectricityRatesCoordinatorResult(
+          current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES),
+          2,
+          None,
+          None,
+          None
+        )
         _LOGGER.warning(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number}. Next attempt at {result.next_refresh}")
 
       return result
-  
+    
+    # While we might have updated completed dispatches when planned dispatches isn't supported, 
+    # these can wait as they only power previous consumption costs which can be recalculated with a delay
+    elif (is_export_meter == False and planned_dispatches_supported == True and existing_rates_result is not None and dispatches_result is not None and dispatches_result.last_retrieved > existing_rates_result.rates_last_adjusted):
+      new_rates = adjust_intelligent_rates(existing_rates_result.original_rates,
+                                           dispatches_result.dispatches.planned,
+                                           dispatches_result.dispatches.completed)
+      
+      _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches_result.dispatches}")
+
+      # Sort our rates again _just in case_
+      new_rates.sort(key=lambda rate: rate["start"])
+      
+      raise_rate_events(current,
+                        private_rates_to_public_rates(new_rates),
+                        { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": tariff_code, "intelligent_dispatches_updated": True },
+                        fire_event,
+                        EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
+                        EVENT_ELECTRICITY_CURRENT_DAY_RATES,
+                        EVENT_ELECTRICITY_NEXT_DAY_RATES)
+      
+      return ElectricityRatesCoordinatorResult(
+        existing_rates_result.last_retrieved,
+        existing_rates_result.request_attempts,
+        new_rates,
+        existing_rates_result.original_rates,
+        current
+      )
   return existing_rates_result
 
 async def async_setup_electricity_rates_coordinator(hass, account_id: str, target_mpan: str, target_serial_number: str, is_smart_meter: bool, is_export_meter: bool, planned_dispatches_supported: bool):
@@ -128,11 +173,8 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str, targe
       is_smart_meter,
       is_export_meter,
       rates,
-      IntelligentDispatches(
-        dispatches.dispatches.planned if planned_dispatches_supported == True else [],
-        dispatches.dispatches.completed
-      )
-      if dispatches is not None else None,
+      dispatches,
+      planned_dispatches_supported,
       hass.bus.async_fire
     )
 

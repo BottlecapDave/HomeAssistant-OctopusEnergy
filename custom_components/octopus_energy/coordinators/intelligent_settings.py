@@ -51,7 +51,6 @@ async def async_refresh_intelligent_settings(
           _LOGGER.debug(f'Intelligent settings retrieved for account {account_id}')
         except Exception as e:
           if isinstance(e, ApiException) == False:
-            _LOGGER.error(e)
             raise
 
           _LOGGER.debug('Failed to retrieve intelligent settings for account {account_id}')

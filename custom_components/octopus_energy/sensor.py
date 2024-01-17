@@ -337,14 +337,14 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
     _LOGGER.info('No gas meters available')
 
   # Migrate entity ids that might have changed
-  for item in entity_ids_to_migrate:
-    entity_id = registry.async_get_entity_id("sensor", DOMAIN, item["old"])
-    if entity_id is not None:
-      try:
-        _LOGGER.info(f'Migrating entity id and unique id for {item["old"]} to {item["new"]}')
-        registry.async_update_entity(entity_id, new_entity_id=f'sensor.{item["new"]}'.lower(), new_unique_id=item["new"])
-      except Exception as e:
-        _LOGGER.warning(f'Failed to migrate entity id and unique id for {item["old"]} to {item["new"]} - {e}')
+  # for item in entity_ids_to_migrate:
+  #   entity_id = registry.async_get_entity_id("sensor", DOMAIN, item["old"])
+  #   if entity_id is not None:
+  #     try:
+  #       _LOGGER.info(f'Migrating entity id and unique id for {item["old"]} to {item["new"]}')
+  #       registry.async_update_entity(entity_id, new_entity_id=f'sensor.{item["new"]}'.lower(), new_unique_id=item["new"])
+  #     except Exception as e:
+  #       _LOGGER.warning(f'Failed to migrate entity id and unique id for {item["old"]} to {item["new"]} - {e}')
 
   async_add_entities(entities)
 

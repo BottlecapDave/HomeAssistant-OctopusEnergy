@@ -1,6 +1,6 @@
 import logging
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 
 from homeassistant.helpers.update_coordinator import (
@@ -56,6 +56,10 @@ class OctopusEnergyIntelligentBumpCharge(CoordinatorEntity, SwitchEntity, Octopu
   
   @property
   def is_on(self):
+    return self._state
+  
+  @callback
+  def _handle_coordinator_update(self) -> None:
     """Determine if the bump charge is on."""
     result: IntelligentDispatchesCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
     if result is None or (self._last_updated is not None and self._last_updated > result.last_retrieved):
@@ -67,8 +71,8 @@ class OctopusEnergyIntelligentBumpCharge(CoordinatorEntity, SwitchEntity, Octopu
     current_date = utcnow()
     self._state = is_in_bump_charge(current_date, result.dispatches.planned if result.dispatches is not None else [])
     self._attributes["last_evaluated"] = current_date
-    
-    return self._state
+
+    super()._handle_coordinator_update()
 
   async def async_turn_on(self):
     """Turn on the switch."""

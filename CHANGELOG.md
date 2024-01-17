@@ -1,3 +1,10 @@
+## [10.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.0.1...v10.0.2) (2024-01-07)
+
+
+### Bug Fixes
+
+* Removed entity migration as not working properly and putting things into weird state. Follow https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions/678 for updates ([daa492f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/daa492ffbf2c83de78623b0268220841dc117d8b))
+
 ## [10.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.0.0...v10.0.1) (2024-01-06)
 
 

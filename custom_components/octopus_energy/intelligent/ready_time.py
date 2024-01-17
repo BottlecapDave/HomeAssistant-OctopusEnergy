@@ -2,7 +2,7 @@ import logging
 from datetime import time
 import time as time_time
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 
 from homeassistant.helpers.update_coordinator import (
@@ -57,6 +57,10 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
 
   @property
   def native_value(self) -> time:
+    return self._state
+  
+  @callback
+  def _handle_coordinator_update(self) -> None:
     """The time that the car should be ready by."""
     settings_result: IntelligentCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     if settings_result is None or (self._last_updated is not None and self._last_updated > settings_result.last_retrieved):
@@ -69,7 +73,7 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
       self._state = settings_result.settings.ready_time_weekday
       self._attributes["last_evaluated"] = utcnow()
 
-    return self._state
+    super()._handle_coordinator_update()
 
   async def async_set_value(self, value: time) -> None:
     """Set new value."""

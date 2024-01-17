@@ -41,7 +41,6 @@ async def async_get_live_consumption(
         return CurrentConsumptionCoordinatorResult(current_date, 1, refresh_rate_in_minutes, result)
     except Exception as e:
       if isinstance(e, ApiException) == False:
-        _LOGGER.error(e)
         raise
 
       result: CurrentConsumptionCoordinatorResult = None

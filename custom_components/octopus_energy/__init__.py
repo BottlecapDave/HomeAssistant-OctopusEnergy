@@ -157,7 +157,6 @@ async def async_setup_dependencies(hass, config):
       raise ConfigEntryNotReady(f"Failed to retrieve account information")
   except Exception as e:
     if isinstance(e, RequestException) == False:
-      _LOGGER.error(e)
       raise
     
     raise ConfigEntryNotReady(f"Failed to retrieve account information")
