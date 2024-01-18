@@ -107,7 +107,7 @@ async def async_setup_intelligent_settings_coordinator(hass, account_id: str):
   hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS_COORDINATOR] = DataUpdateCoordinator(
     hass,
     _LOGGER,
-    name="intelligent_settings",
+    name=f"intelligent_settings_{account_id}",
     update_method=async_update_intelligent_settings_data,
     update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),
     always_update=True

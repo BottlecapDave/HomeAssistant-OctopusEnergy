@@ -408,3 +408,41 @@ async def test_when_previous_gas_offset_less_than_one_then_errors_returned():
     assert CONFIG_MAIN_CALORIFIC_VALUE not in errors
     assert CONFIG_MAIN_ELECTRICITY_PRICE_CAP not in errors
     assert CONFIG_MAIN_GAS_PRICE_CAP not in errors
+
+@pytest.mark.asyncio
+async def test_when_account_has_been_setup_already_than_one_then_errors_returned():
+  # Arrange
+  data = {
+    CONFIG_MAIN_API_KEY: "test-api-key",
+    CONFIG_ACCOUNT_ID: "A-123",
+    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET: 1,
+    CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET: 1,
+    CONFIG_MAIN_CALORIFIC_VALUE: 40,
+    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+  }
+
+  account_info = get_account_info()
+  async def async_mocked_get_account(*args, **kwargs):
+    return account_info
+
+  # Act
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_account=async_mocked_get_account):
+    errors = await async_validate_main_config(data, [data[CONFIG_ACCOUNT_ID]])
+
+    # Assert
+    assert CONFIG_ACCOUNT_ID in errors
+    assert errors[CONFIG_ACCOUNT_ID] == "duplicate_account"
+
+    assert CONFIG_MAIN_API_KEY not in errors 
+    assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
+    assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
+    assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES not in errors
+    assert CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET not in errors
+    assert CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET not in errors
+    assert CONFIG_MAIN_CALORIFIC_VALUE not in errors
+    assert CONFIG_MAIN_ELECTRICITY_PRICE_CAP not in errors
+    assert CONFIG_MAIN_GAS_PRICE_CAP not in errors

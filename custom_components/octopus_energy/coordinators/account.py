@@ -108,7 +108,7 @@ async def async_setup_account_info_coordinator(hass, account_id: str):
   hass.data[DOMAIN][account_id][DATA_ACCOUNT_COORDINATOR] = DataUpdateCoordinator(
     hass,
     _LOGGER,
-    name="update_account",
+    name=f"update_account-{account_id}",
     update_method=async_update_account_data,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes

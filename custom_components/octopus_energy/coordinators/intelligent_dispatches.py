@@ -130,7 +130,7 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
   hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR] = DataUpdateCoordinator(
     hass,
     _LOGGER,
-    name="intelligent_dispatches",
+    name=f"intelligent_dispatches-{account_id}",
     update_method=async_update_intelligent_dispatches_data,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes
