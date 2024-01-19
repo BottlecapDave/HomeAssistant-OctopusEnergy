@@ -1,5 +1,6 @@
 import logging
 from datetime import (datetime, timedelta, time)
+import re
 
 from homeassistant.util.dt import (utcnow, parse_datetime)
 
@@ -87,7 +88,11 @@ def is_intelligent_tariff(tariff_code: str):
   parts = get_tariff_parts(tariff_code.upper())
 
   # Need to ignore Octopus Intelligent Go tariffs
-  return parts is not None and ("INTELLI-BB-VAR" in parts.product_code or "INTELLI-VAR" in parts.product_code)
+  return parts is not None and (
+    "INTELLI-BB-VAR" in parts.product_code or
+    "INTELLI-VAR" in parts.product_code or
+    re.search("INTELLI-[0-9]", parts.product_code) is not None
+  )
 
 def has_intelligent_tariff(current: datetime, account_info):
   if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
