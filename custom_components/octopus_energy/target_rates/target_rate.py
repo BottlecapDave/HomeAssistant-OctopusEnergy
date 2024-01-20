@@ -104,6 +104,10 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
   
   @property
   def is_on(self):
+    return self._state
+  
+  @callback
+  def _handle_coordinator_update(self) -> None:
     """Determines if the target rate sensor is active."""
     if CONFIG_TARGET_OFFSET in self._config:
       offset = self._config[CONFIG_TARGET_OFFSET]
@@ -215,7 +219,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     self._state = active_result["is_active"]
 
     _LOGGER.debug(f"calculated: {self._state}")
-    return self._state
+    super()._handle_coordinator_update()
   
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

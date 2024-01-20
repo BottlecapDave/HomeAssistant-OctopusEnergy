@@ -1,7 +1,7 @@
 from datetime import timedelta
 import logging
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 
 from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
@@ -76,6 +76,10 @@ class OctopusEnergyGasNextRate(CoordinatorEntity, OctopusEnergyGasSensor, Restor
 
   @property
   def native_value(self):
+    return self._state
+  
+  @callback
+  def _handle_coordinator_update(self) -> None:
     """Retrieve the next rate for the sensor."""
     current = utcnow()
     rates_result: GasRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
@@ -111,8 +115,7 @@ class OctopusEnergyGasNextRate(CoordinatorEntity, OctopusEnergyGasSensor, Restor
       self._attributes["data_last_retrieved"] = rates_result.last_retrieved
 
     self._attributes["last_evaluated"] = current
-
-    return self._state
+    super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

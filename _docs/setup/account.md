@@ -26,6 +26,10 @@ By default, the previous consumptions sensors are set up to pull and record the 
 
 When calculating gas costs, a calorific value is included in the calculation. Unfortunately this changes from region to region and is not provided by the Octopus Energy API. The default value of this is `40`, but if you check your latest bill you should be able to find the value for you. This will give you a more accurate consumption and cost calculation when your meter reports in `m3`.
 
+!!! info
+
+    Changing this will change future calculations. It will not change calculations that have been made in the past.
+
 ## Pricing Caps
 
 There has been inconsistencies across tariffs on whether government pricing caps are included or not. Therefore the ability to configure pricing caps has been added within you account. 

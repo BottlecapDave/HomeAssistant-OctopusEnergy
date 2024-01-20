@@ -1,6 +1,6 @@
 import logging
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 
 from homeassistant.components.sensor import (
   RestoreSensor,
@@ -12,6 +12,7 @@ from homeassistant.helpers.update_coordinator import (
 
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
+from ..coordinators.electricity_standing_charges import ElectricityStandingChargeCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -60,22 +61,26 @@ class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEn
 
   @property
   def native_value(self):
+    return self._state
+  
+  @callback
+  def _handle_coordinator_update(self) -> None:
     """Retrieve the latest electricity standing charge"""
     _LOGGER.debug('Updating OctopusEnergyElectricityCurrentStandingCharge')
 
-    standard_charge_result = self.coordinator.data.standing_charge if self.coordinator is not None and self.coordinator.data is not None else None
+    standard_charge_result: ElectricityStandingChargeCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     
-    if standard_charge_result is not None:
-      self._latest_date = standard_charge_result["start"]
-      self._state = standard_charge_result["value_inc_vat"] / 100
+    if standard_charge_result is not None and standard_charge_result.standing_charge is not None:
+      self._latest_date = standard_charge_result.standing_charge["start"]
+      self._state = standard_charge_result.standing_charge["value_inc_vat"] / 100
 
       # Adjust our period, as our gas only changes on a daily basis
-      self._attributes["start"] = standard_charge_result["start"]
-      self._attributes["end"] = standard_charge_result["end"]
+      self._attributes["start"] = standard_charge_result.standing_charge["start"]
+      self._attributes["end"] = standard_charge_result.standing_charge["end"]
     else:
       self._state = None
 
-    return self._state
+    super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

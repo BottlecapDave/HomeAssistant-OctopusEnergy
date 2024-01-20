@@ -181,7 +181,6 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
           self._next_refresh = calculate_next_refresh(current, self._request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION)
       except Exception as e:
         if isinstance(e, ApiException) == False:
-          _LOGGER.error(e)
           raise
         
         self._request_attempts = self._request_attempts + 1
@@ -190,7 +189,6 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
           self._request_attempts,
           REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION
         )
-        _LOGGER.error(e)
         _LOGGER.warning(f'Failed to retrieve previous accumulative cost override data - using cached data. Next attempt at {self._next_refresh}')
     
     if result is not None:

@@ -76,10 +76,6 @@ then yes, this is expected. This is a default warning built into Home Assistant,
 
 If you wish to suppress this warning, you can follow [this advice](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/429#issuecomment-1783739547).
 
-## Why is my gas sensor reporting m3 when Octopus Energy reports it as kWh?
-
-The sensor was setup when Home Assistant only supported gas sensors in m3 format. While this has been changed since, the reporting of the sensor can't be changed because this would be a breaking change for existing users. However a `kwh` sensor has been added to provide this data.
-
 ## There are entities that are disabled. Why are they disabled and how do I enable them?
 
 Some entities are disabled by default. This is usually because the entities are not applicable for all tariffs or are for niche scenarios. By having these entities disabled, it also doesn't overwhelm new users when they install the integration otherwise most users will be presented with over 40 different entities.
@@ -117,7 +113,14 @@ If the `last_evaluated` attribute is not updating, then please raise an issue.
 
 ## My gas consumption/costs seem out
 
-This is most likely due to the default caloric value not matching your region/bill. This can be configured when setting up or updating your account.
+Depending on the native reading from your meter or the sensor you're looking at, the consumption may have to be converted from kWh into cubic meters.
+
+* The current consumption (m3) is always calculated, as the Home Mini provides this data in kWh via the API.
+* The previous consumption sensor (m3) _may_ be calculated if your meter natively speaks in kWh. This is indicated by the `is_estimated` attribute on the sensor
+
+Because all rates are in kWh, if any conversions are required into kWh then the cost could also be out by this conversion.
+
+The conversion cubic meters (m3) to kWh is achieved by following this [formula](https://www.theenergyshop.com/guides/how-to-convert-gas-units-to-kwh). The part that can differ from person to person is the calorific value, which defaults in the integration to 40. This will most likely be incorrect, but unfortunately is not provided by the OE APIs. Therefore you'll need to set it as part of your [account](./setup/account.md#calorific-value). This changes throughout the year and can be found on your latest bill.
 
 ## I want to use the tariff overrides, but how do I find an available tariff?
 
@@ -137,6 +140,12 @@ If you've installed via HACS, then you can keep an eye on `sensor.hacs` to see t
 
 If you've installed the integration manually, then you should keep an eye on the [GitHub releases](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases). You could even subscribe to the [RSS feed](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases.atom).
 
+## How do I increase the logs for the integration?
+
+If you are having issues, it would be helpful to include Home Assistant logs as part of any raised issue. This can be done by following the [instructions](https://www.home-assistant.io/docs/configuration/troubleshooting/#enabling-debug-logging) outlined by Home Assistant.
+
+You should run these logs for about a day and then include the contents in the issue. Please be sure to remove any personal identifiable information from the logs before including them.
+
 ## I've been asked for my meter information in a bug request, how do I obtain this?
 
 If you've been asked for meter information, don't worry we won't ask for anything sensitive. To obtain this information
@@ -146,9 +155,3 @@ If you've been asked for meter information, don't worry we won't ask for anythin
 3. Click on one of the meters
 4. Click on "Download diagnostics"
 5. Take the contents of the downloads json file and paste into the bug report. Remember to surround the contents with ``` both at the start and end.
-
-## How do I increase the logs for the integration?
-
-If you are having issues, it would be helpful to include Home Assistant logs as part of any raised issue. This can be done by following the [instructions](https://www.home-assistant.io/docs/configuration/troubleshooting/#enabling-debug-logging) outlined by Home Assistant.
-
-You should run these logs for about a day and then include the contents in the issue. Please be sure to remove any personal identifiable information from the logs before including them.

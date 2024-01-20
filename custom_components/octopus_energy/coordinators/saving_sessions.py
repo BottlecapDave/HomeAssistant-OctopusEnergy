@@ -112,7 +112,6 @@ async def async_refresh_saving_sessions(
       return SavingSessionsCoordinatorResult(current, 1, available_events, result.joined_events)
     except Exception as e:
       if isinstance(e, ApiException) == False:
-        _LOGGER.error(e)
         raise
       
       result = None

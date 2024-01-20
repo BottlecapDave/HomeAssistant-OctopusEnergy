@@ -250,7 +250,6 @@ The total consumption reported by the meter for the current day in m3. This is c
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
 | `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
@@ -274,7 +273,6 @@ The total consumption reported by the meter for the current day in kWh. This is 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
 | `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |

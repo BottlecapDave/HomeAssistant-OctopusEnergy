@@ -1,6 +1,6 @@
 import logging
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util.dt import (utcnow)
 
@@ -68,6 +68,10 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
 
   @property
   def is_on(self):
+    return self._state
+  
+  @callback
+  def _handle_coordinator_update(self) -> None:
     """Determine if the user is in a saving session."""
     self._attributes = {
       "current_joined_event_start": None,
@@ -104,8 +108,7 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
       self._attributes["next_joined_event_duration_in_minutes"] = next_event.duration_in_minutes
 
     self._attributes["last_evaluated"] = current_date
-
-    return self._state
+    super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
