@@ -623,7 +623,8 @@ async def test_when_rates_next_refresh_is_in_the_future_dispatches_retrieved_aft
     return None
   
   account_info = get_account_info()
-  existing_rates = ElectricityRatesCoordinatorResult(current - timedelta(minutes=4, seconds=59), 1, create_rate_data(expected_period_from, expected_period_to, [1, 2, 3, 4]))
+  expected_original_rates = create_rate_data(expected_period_from, expected_period_to, [1, 2, 3, 4])
+  existing_rates = ElectricityRatesCoordinatorResult(current - timedelta(minutes=4, seconds=59), 1, expected_original_rates.copy())
   expected_dispatch_start = (current + timedelta(hours=2)).replace(second=0, microsecond=0)
   expected_dispatch_end = expected_dispatch_start + timedelta(minutes=90)
   dispatches_result = IntelligentDispatchesCoordinatorResult(existing_rates.last_retrieved + timedelta(seconds=1), 1, IntelligentDispatches(
@@ -657,7 +658,7 @@ async def test_when_rates_next_refresh_is_in_the_future_dispatches_retrieved_aft
 
     assert retrieved_rates is not None
     assert retrieved_rates.last_retrieved == existing_rates.last_retrieved
-    assert retrieved_rates.original_rates == existing_rates.original_rates
+    assert retrieved_rates.original_rates == expected_original_rates
     assert retrieved_rates.rates_last_adjusted == current
 
     assert len(retrieved_rates.rates) == len(existing_rates.rates)
