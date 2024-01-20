@@ -58,11 +58,15 @@ def merge_main_config(data: dict, options: dict, updated_config: dict = None):
 async def async_validate_main_config(data, account_ids = []):
   errors = {}
 
-  client = OctopusEnergyApiClient(data[CONFIG_MAIN_API_KEY])
-
   if data[CONFIG_ACCOUNT_ID] in account_ids:
     errors[CONFIG_ACCOUNT_ID] = "duplicate_account"
     return errors
+  
+  if CONFIG_MAIN_API_KEY not in data:
+    errors[CONFIG_MAIN_API_KEY] = "api_key_not_set"
+    return errors
+  
+  client = OctopusEnergyApiClient(data[CONFIG_MAIN_API_KEY])
 
   try:
     account_info = await client.async_get_account(data[CONFIG_ACCOUNT_ID])
