@@ -28,7 +28,7 @@ jobs:
       - run: mkdocs build --strict 
   
   deploy_docs:
-    if: ${{ env.should_deploy == false }}
+    if: ${{ env.should_deploy }}
     name: Deploy docs
     runs-on: ubuntu-latest
     permissions:
