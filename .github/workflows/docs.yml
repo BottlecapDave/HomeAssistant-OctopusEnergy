@@ -1,0 +1,49 @@
+name: Docs
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'mkdocs.yml'
+      - '_docs/**'
+env:
+  should_deploy: ${{ github.repository_owner == 'BottlecapDave' && (github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main') }}
+jobs:
+  build_docs:
+    if: ${{ env.should_deploy == false }}
+    name: Build docs
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+      - uses: actions/cache@v3
+        with:
+          key: mkdocs-material-${{ env.cache_id }}
+          path: .cache
+          restore-keys: |
+            mkdocs-material-
+      - run: pip install mkdocs-material
+      - run: mkdocs build --strict 
+  
+  deploy_docs:
+    if: ${{ env.should_deploy }}
+    name: Deploy docs
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
+      - uses: actions/cache@v3
+        with:
+          key: mkdocs-material-${{ env.cache_id }}
+          path: .cache
+          restore-keys: |
+            mkdocs-material-
+      - run: pip install mkdocs-material
+      - run: mkdocs gh-deploy --strict --force
