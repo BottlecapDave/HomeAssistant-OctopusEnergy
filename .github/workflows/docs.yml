@@ -6,10 +6,10 @@ on:
       - 'mkdocs.yml'
       - '_docs/**'
 env:
-  should_deploy: ${{ github.repository_owner == 'BottlecapDave' && (github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main') }}
+  SHOULD_DEPLOY: ${{ github.repository_owner == 'BottlecapDave' && (github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main') }}
 jobs:
   build_docs:
-    if: ${{ env.should_deploy == false }}
+    if: ${{ env.SHOULD_DEPLOY == false }}
     name: Build docs
     runs-on: ubuntu-latest
     steps:
@@ -28,7 +28,7 @@ jobs:
       - run: mkdocs build --strict 
   
   deploy_docs:
-    if: ${{ env.should_deploy }}
+    if: ${{ env.SHOULD_DEPLOY }}
     name: Deploy docs
     runs-on: ubuntu-latest
     permissions:
