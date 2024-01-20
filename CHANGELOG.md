@@ -1,3 +1,19 @@
+## [10.0.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.0.2...v10.0.3) (2024-01-20)
+
+
+### Bug Fixes
+
+* Fixed current consumption not resetting to zero at midnight if data isn't available ([19ae707](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/19ae7074ead4e3ff6da210c7e027d831cab2a675))
+* Fixed current consumption sensor resetting to zero after a minute when data hasn't refreshed ([a13edef](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a13edef4fb8af213334fddd05a1f2aed40b2c898))
+* Fixed issue intelligent based electricity rates not being adjusted when dispatches are refreshed between rate refreshes ([f9514d3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f9514d3e068548ee20bfb189abad2d76bd92d2ef))
+* Fixed issue when updating electricity rates and intelligent dispatches is unavailable ([9bd2b9c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9bd2b9c74046a54684a5c7d4100e18c30a613eaf))
+* Fixed old Intelligent Go tariff not being picked up correctly ([c935206](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c9352060b10799c43941d7e322663593f718bf0a))
+* Increased timeout limit to 20 seconds to try and resolve issues people have been having ([6de26f6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6de26f69a40decb816b8193511db44ebae7ddcc6))
+* Removed duplicate logging of events ([1f4e3da](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1f4e3da9f89ae615d44b38eee7e916d4e7608308))
+* Reset cost tracker every day at midnight ([3328562](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/33285628bb618ab3a2072f3fcb5e09769c27757f))
+* Reset cost tracker every day at midnight ([d99de11](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d99de11fcbf25dc84daf8b39499e83cb8b4fa4c5))
+* Updated various sensors to update their state based on recommended HA practices ([9885528](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/988552865909d137e6ea85639cd364f073468546))
+
 ## [10.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.0.1...v10.0.2) (2024-01-07)
 
 
