@@ -76,6 +76,10 @@ then yes, this is expected. This is a default warning built into Home Assistant,
 
 If you wish to suppress this warning, you can follow [this advice](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/429#issuecomment-1783739547).
 
+## I want to use a utility meter with the consumption sensors, but they don't seem to be adding up correctly. Is there something I'm doing wrong?
+
+While the underlying data updates less frequently (see above), the consumption sensors themselves update every minute to check for changes. This includes attribute updates to state when the sensor was last evaluated or when the underlying data was last retrieved. Unfortunately the utility meter looks for _any_ updates to the input sensor, which includes attribute changes. Therefore if you wish to use a utility meter, you'll need to create a template sensor that wraps the consumption sensor you're wishing to target and just exposes the state, and use this template sensor as your input. This will ignore any attribute updates and stabilise the utility meter updates.
+
 ## There are entities that are disabled. Why are they disabled and how do I enable them?
 
 Some entities are disabled by default. This is usually because the entities are not applicable for all tariffs or are for niche scenarios. By having these entities disabled, it also doesn't overwhelm new users when they install the integration otherwise most users will be presented with over 40 different entities.
