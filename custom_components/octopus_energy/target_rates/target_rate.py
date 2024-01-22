@@ -228,7 +228,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     state = await self.async_get_last_state()
     
     if state is not None and self._state is None:
-      self._state = None if state.state == "unknown" else state.state
+      self._state = None if state.state == "unknown" or state.state is None else state.state.lower() == 'on'
       self._attributes = dict_to_typed_dict(
         state.attributes,
         [CONFIG_TARGET_OLD_NAME, CONFIG_TARGET_OLD_HOURS, CONFIG_TARGET_OLD_TYPE, CONFIG_TARGET_OLD_START_TIME, CONFIG_TARGET_OLD_END_TIME, CONFIG_TARGET_OLD_MPAN]
