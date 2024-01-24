@@ -3,6 +3,9 @@ import logging
 from typing import Callable, Any
 
 from homeassistant.helpers import issue_registry as ir
+from homeassistant.helpers.update_coordinator import (
+  CoordinatorEntity,
+)
 from homeassistant.util.dt import (as_utc)
 
 from ..const import (
@@ -24,6 +27,21 @@ from ..const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+class MultiCoordinatorEntity(CoordinatorEntity):
+  def __init__(self, primary_coordinator, secondary_coordinators):
+    CoordinatorEntity.__init__(self, primary_coordinator)
+    self._secondary_coordinators = secondary_coordinators
+
+  async def async_added_to_hass(self) -> None:
+    """When entity is added to hass."""
+    await super().async_added_to_hass()
+    for secondary_coordinator in self._secondary_coordinators:
+      self.async_on_remove(
+          secondary_coordinator.async_add_listener(
+            self._handle_coordinator_update, self.coordinator_context
+          )
+      )
 
 class BaseCoordinatorResult:
   last_retrieved: datetime
