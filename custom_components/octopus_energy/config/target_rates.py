@@ -150,14 +150,16 @@ def validate_target_rate_config(data, account_info, now):
   start_time = data[CONFIG_TARGET_START_TIME] if CONFIG_TARGET_START_TIME in data else "00:00"
   end_time = data[CONFIG_TARGET_END_TIME] if CONFIG_TARGET_END_TIME in data else "00:00"
 
-  if CONFIG_TARGET_HOURS not in errors and CONFIG_TARGET_START_TIME not in errors and CONFIG_TARGET_END_TIME not in errors:
+  is_time_valid = CONFIG_TARGET_START_TIME not in errors and CONFIG_TARGET_END_TIME not in errors
+
+  if CONFIG_TARGET_HOURS not in errors and is_time_valid:
     if is_time_frame_long_enough(data[CONFIG_TARGET_HOURS], start_time, end_time) == False:
       errors[CONFIG_TARGET_HOURS] = "invalid_hours_time_frame"
 
   meter_tariffs = get_meter_tariffs(account_info, now)
   if (data[CONFIG_TARGET_MPAN] not in meter_tariffs):
     errors[CONFIG_TARGET_MPAN] = "invalid_mpan"
-  else:
+  elif is_time_valid:
     tariff = meter_tariffs[data[CONFIG_TARGET_MPAN]]
     if is_agile_tariff(tariff):
       if is_in_agile_darkzone(start_time, end_time):
