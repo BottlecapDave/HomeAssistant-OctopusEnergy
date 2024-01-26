@@ -366,7 +366,7 @@ class RequestException(ApiException):
 class OctopusEnergyApiClient:
   _refresh_token_lock = RLock()
 
-  def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None, timeout_in_seconds = 15):
+  def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None, timeout_in_seconds = 20):
     if (api_key is None):
       raise Exception('API KEY is not set')
 

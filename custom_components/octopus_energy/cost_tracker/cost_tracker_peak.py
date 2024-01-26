@@ -122,7 +122,7 @@ class OctopusEnergyCostTrackerPeakSensor(CoordinatorEntity, RestoreSensor):
     state = await self.async_get_last_state()
     
     if state is not None and self._state is None:
-      self._state = None if state.state == "unknown" else state.state
+      self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
       self._attributes = dict_to_typed_dict(state.attributes)
       # Make sure our attributes don't override any changed settings
       self._attributes.update(self._config)

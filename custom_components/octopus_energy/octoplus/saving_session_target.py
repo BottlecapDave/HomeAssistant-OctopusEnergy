@@ -146,7 +146,7 @@ class OctopusEnergySavingSessionTarget(CoordinatorEntity, RestoreSensor):
             self._request_attempts = 1
             self._last_retrieved = current
             self._next_refresh = calculate_next_refresh(current, self._request_attempts, REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSION_TARGET)
-            _LOGGER.info('Consumption data was refreshed successfully')
+            _LOGGER.info('Saving session target data was refreshed successfully')
           except Exception as e:
             if isinstance(e, ApiException) == False:
               _LOGGER.error(e)
@@ -190,6 +190,7 @@ class OctopusEnergySavingSessionTarget(CoordinatorEntity, RestoreSensor):
         self._attributes["consumption_items"] = None
         self._attributes["total_target"] = None
         self._attributes["targets"] = None
+        self._consumption_data = None
 
     if saving_session is not None:
       self._attributes["data_last_retrieved"] = saving_session.last_retrieved

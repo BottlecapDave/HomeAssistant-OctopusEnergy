@@ -1,11 +1,12 @@
 import logging
 from datetime import datetime
 
+from homeassistant.const import (
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
+)
 from homeassistant.core import HomeAssistant, callback
 
-from homeassistant.helpers.update_coordinator import (
-  CoordinatorEntity,
-)
 from homeassistant.components.sensor import (
   RestoreSensor,
   SensorDeviceClass,
@@ -18,18 +19,19 @@ from . import (
   calculate_electricity_consumption_and_cost,
 )
 
+from ..coordinators import MultiCoordinatorEntity
 from ..coordinators.current_consumption import CurrentConsumptionCoordinatorResult
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyCurrentAccumulativeElectricityCostOffPeak(CoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
+class OctopusEnergyCurrentAccumulativeElectricityCostOffPeak(MultiCoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
   """Sensor for displaying the current days accumulative electricity cost during off peak hours."""
 
   def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, standing_charge_coordinator, tariff_code, meter, point):
     """Init sensor."""
-    CoordinatorEntity.__init__(self, coordinator)
+    MultiCoordinatorEntity.__init__(self, coordinator, [rates_coordinator, standing_charge_coordinator])
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._state = None
@@ -127,7 +129,7 @@ class OctopusEnergyCurrentAccumulativeElectricityCostOffPeak(CoordinatorEntity, 
     state = await self.async_get_last_state()
     
     if state is not None and self._state is None:
-      self._state = None if state.state == "unknown" else state.state
+      self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
       self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyCurrentAccumulativeElectricityCostOffPeak state: {self._state}')

@@ -1,5 +1,9 @@
 import logging
 
+from homeassistant.const import (
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
+)
 from homeassistant.core import HomeAssistant, callback
 
 from homeassistant.helpers.update_coordinator import (
@@ -95,6 +99,6 @@ class OctopusEnergyGasCurrentStandingCharge(CoordinatorEntity, OctopusEnergyGasS
     state = await self.async_get_last_state()
     
     if state is not None and self._state is None:
-      self._state = None if state.state == "unknown" else state.state
+      self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
       self._attributes = dict_to_typed_dict(state.attributes, ['valid_from', 'valid_to'])
       _LOGGER.debug(f'Restored OctopusEnergyGasCurrentStandingCharge state: {self._state}')
