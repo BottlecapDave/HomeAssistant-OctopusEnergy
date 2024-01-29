@@ -1,7 +1,10 @@
 import logging
-
 from datetime import time
 
+from homeassistant.const import (
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
+)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 
@@ -103,7 +106,7 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
       ):
       
       self._attributes = dict_to_typed_dict(last_state.attributes)
-      if last_state.state != "unknown":
+      if last_state.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN):
         self._state = last_number_data.native_value
           
     _LOGGER.debug(f'Restored OctopusEnergyIntelligentChargeLimit state: {self._state}')

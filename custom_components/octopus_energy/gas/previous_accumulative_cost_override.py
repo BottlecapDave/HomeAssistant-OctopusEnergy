@@ -1,8 +1,11 @@
 import logging
 from datetime import (datetime)
 import asyncio
-from custom_components.octopus_energy.utils.requests import calculate_next_refresh
 
+from homeassistant.const import (
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
+)
 from homeassistant.core import HomeAssistant
 
 from homeassistant.helpers.update_coordinator import (
@@ -25,6 +28,7 @@ from ..api_client import (ApiException, OctopusEnergyApiClient)
 
 from .base import (OctopusEnergyGasSensor)
 from ..utils.attributes import dict_to_typed_dict
+from ..utils.requests import calculate_next_refresh
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
 
 from ..const import DOMAIN, EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, MINIMUM_CONSUMPTION_DATA_LENGTH, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION
@@ -201,7 +205,7 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
     state = await self.async_get_last_state()
     
     if state is not None and self._state is None:
-      self._state = None if state.state == "unknown" else state.state
+      self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
       self._attributes = dict_to_typed_dict(state.attributes)
 
       _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeGasCostOverride state: {self._state}')

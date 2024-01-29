@@ -122,7 +122,12 @@ async def async_refresh_electricity_rates_data(
     
     # While we might have updated completed dispatches when planned dispatches isn't supported, 
     # these can wait as they only power previous consumption costs which can be recalculated with a delay
-    elif (is_export_meter == False and planned_dispatches_supported == True and existing_rates_result is not None and dispatches_result is not None and dispatches_result.last_retrieved > existing_rates_result.rates_last_adjusted):
+    elif (is_export_meter == False and 
+          planned_dispatches_supported == True and 
+          existing_rates_result is not None and 
+          dispatches_result is not None and
+          dispatches_result.dispatches is not None and
+          dispatches_result.last_retrieved > existing_rates_result.rates_last_adjusted):
       new_rates = adjust_intelligent_rates(existing_rates_result.original_rates,
                                            dispatches_result.dispatches.planned,
                                            dispatches_result.dispatches.completed)

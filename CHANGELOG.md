@@ -11,7 +11,6 @@
 * Increased timeout limit to 20 seconds to try and resolve issues people have been having ([6de26f6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6de26f69a40decb816b8193511db44ebae7ddcc6))
 * Removed duplicate logging of events ([1f4e3da](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1f4e3da9f89ae615d44b38eee7e916d4e7608308))
 * Reset cost tracker every day at midnight ([3328562](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/33285628bb618ab3a2072f3fcb5e09769c27757f))
-* Reset cost tracker every day at midnight ([d99de11](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d99de11fcbf25dc84daf8b39499e83cb8b4fa4c5))
 * Updated various sensors to update their state based on recommended HA practices ([9885528](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/988552865909d137e6ea85639cd364f073468546))
 
 ## [10.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.0.1...v10.0.2) (2024-01-07)
