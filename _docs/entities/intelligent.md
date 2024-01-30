@@ -104,3 +104,17 @@ This sensor is used to see and set the ready time for your future intelligent ch
 |-----------|------|-------------|
 | `last_evaluated` | `datetime` | The date/time the value was last evaluated |
 | `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
+
+## Migrating from megakid/ha_octopus_intelligent?
+
+If you're moving to this integration from [megakid/ha_octopus_intelligent](https://github.com/megakid/ha_octopus_intelligent), below is a quick guide on what entities you should use
+
+* `binary_sensor.octopus_intelligent_slot` - Use the [is dispatching sensor](#is-dispatching)
+* `binary_sensor.octopus_intelligent_planned_dispatch_slot` - There is no alternative for this.
+* `binary_sensor.octopus_intelligent_slot_next_1_hour`, `binary_sensor.octopus_intelligent_slot_next_2_hours` and `binary_sensor.octopus_intelligent_slot_next_3_hours` - These sensors felt like they would always fall short of peoples requirements as everyone has different time periods they wish to know about. There is currently no alternative for this, but there are plans to expose current and next start/end times as attributes on the sensor.
+* `sensor.octopus_intelligent_next_offpeak_start` - The default off peak start date/time can be found as an attribute on the [off peak sensor](./electricity.md#off-peak). This can be extracted using a [template sensor](https://www.home-assistant.io/integrations/template/).
+* `sensor.octopus_intelligent_offpeak_end` - The default off peak end date/time can be found as an attribute on the [off peak sensor](./electricity.md#off-peak). This can be extracted using a [template sensor](https://www.home-assistant.io/integrations/template/).
+* `switch.octopus_intelligent_bump_charge` - Use the [bump charge sensor](#bump-charge)
+* `switch.octopus_intelligent_smart_charging` - Use the [smart charge sensor](#smart-charge)
+* `select.octopus_intelligent_target_time` - Use the [ready time sensor](#ready-time)
+* `select.octopus_intelligent_target_soc` - Use the [charge limit sensor](#charge-limit)

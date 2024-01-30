@@ -139,6 +139,13 @@ This is `on` when you're within your tariff's off peak period, and `off` at all 
 
     For intelligent tariffs, this sensor will only turn on during the standard off peak period. If you are wanting to know when extended off peak rates are available, you'll want to use the [is dispatching](./intelligent.md#is-dispatching) sensor.
 
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `current_start` | `datetime` | The date/time when the off peak rate started |
+| `current_end` | `datetime` | The date/time when the off peak rate ends |
+| `next_start` | `datetime` | The date/time when the next off peak rate starts |
+| `next_end` | `datetime` | The date/time when the next off peak rate ends |
+
 ## Smart Meter Entities
 
 If your account information doesn't determine you have a smart meter, then you will have the following entities in a disabled state. If you enable these entities, they might not work correctly in this scenario.
@@ -275,15 +282,19 @@ Each rate item has the following attributes
 
 ## Export Entities
 
-If you export energy, then in addition you'll gain the above entities with the name `export` present. E.g. `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_rate`.
+If you export energy, then unless specified otherwise, in addition you'll gain the above entities with the name `export` present. E.g. `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_rate`.
 
 ## Home Mini Entities
 
 ### Current Consumption
 
-> This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
-
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_consumption`
+
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
 
 The latest electricity consumption sent to Octopus Energy. This will update every minute. This is a legacy sensor which was been built to see the accumulation within the energy dashboard. This _may_ be removed in the future.
 
@@ -297,9 +308,10 @@ If current consumption data is unable to be retrieved, then the integration will
 
 ### Current Demand
 
-> This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
-
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_demand`
+
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
 
 The current demand reported by the Home Mini. This will try and update every minute.
 
@@ -310,6 +322,12 @@ The current demand reported by the Home Mini. This will try and update every min
 ### Current Accumulative Consumption
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption`
+
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
 
 The total consumption reported by the meter for the current day.
 
@@ -334,6 +352,12 @@ Each charge item has the following attributes
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption_peak`
 
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
+
 The total consumption reported by the meter for the current day that applied during peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
 
 | Attribute | Type | Description |
@@ -347,6 +371,12 @@ The total consumption reported by the meter for the current day that applied dur
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption_off_peak`
 
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
+
 The total consumption reported by the meter for the current day that applied during off peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
 
 | Attribute | Type | Description |
@@ -359,6 +389,12 @@ The total consumption reported by the meter for the current day that applied dur
 ### Current Accumulative Cost
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost`
+
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
 
 The total cost for the current day, including the standing charge.
 
@@ -388,6 +424,12 @@ Each charge item has the following attributes
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost_peak`
 
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
+
 The total cost for the current day that applied during peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
 
 | Attribute | Type | Description |
@@ -400,6 +442,12 @@ The total cost for the current day that applied during peak hours. This is [disa
 ### Current Accumulative Cost (Off Peak Rate) 
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost_off_peak`
+
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
 
 The total cost for the current day that applied during off peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
 
