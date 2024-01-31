@@ -99,7 +99,6 @@ class OctopusEnergyElectricityOffPeak(CoordinatorEntity, OctopusEnergyElectricit
           self._attributes["next_start"] = time.start
           self._attributes["next_end"] = time.end
 
-
       self._last_updated = current
 
     super()._handle_coordinator_update()

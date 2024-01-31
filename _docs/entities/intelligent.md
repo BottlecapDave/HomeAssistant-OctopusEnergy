@@ -36,6 +36,10 @@ This sensor is used to determine if you're currently in a planned dispatch perio
 | `charge_point_power_in_kw` | `float` | The power of the charge point battery in kW. |
 | `last_evaluated` | `datetime` | The date/time the value was last evaluated |
 | `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
+| `current_start` | `datetime` | The date/time when the dispatching or off peak rate started |
+| `current_end` | `datetime` | The date/time when the dispatching or off peak rate ends |
+| `next_start` | `datetime` | The date/time when the next dispatching or off peak rate starts |
+| `next_end` | `datetime` | The date/time when the next dispatching or off peak rate ends |
 
 ### Bump Charge
 

@@ -1,8 +1,8 @@
-from custom_components.octopus_energy.api_client import rates_to_thirty_minute_increments
 import pytest
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from custom_components.octopus_energy.utils import get_off_peak_times
+from custom_components.octopus_energy.api_client import rates_to_thirty_minute_increments
 from tests.unit import create_rate_data
 
 @pytest.mark.asyncio
