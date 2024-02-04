@@ -17,6 +17,7 @@ from .intelligent_settings import IntelligentSettings
 from .intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
 from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSessionsResponse
 from .wheel_of_fortune import WheelOfFortuneSpinsResponse
+from .greenness_forecast import GreennessForecast
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -289,6 +290,16 @@ wheel_of_fortune_mutation = '''mutation {{
   }}
 }}'''
 
+greenness_forecast_query = '''query {
+  greennessForecast {
+    validFrom
+    validTo
+    greennessScore
+    greennessIndex
+    highlightFlag
+  }
+}'''
+
 user_agent_value = "bottlecapdave-home-assistant-octopus-energy"
 
 def get_valid_from(rate):
@@ -536,6 +547,32 @@ class OctopusEnergyApiClient:
       raise TimeoutException()
     
     return None
+  
+  async def async_get_greenness_forecast(self) -> list[GreennessForecast]:
+    """Get the latest greenness forecast"""
+    await self.async_refresh_token()
+
+    try:
+      client = self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": greenness_forecast_query }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as greenness_forecast_response:
+
+        response_body = await self.__async_read_response__(greenness_forecast_response, url)
+        if (response_body is not None and "data" in response_body and "greennessForecast" in response_body["data"]):
+          forecast = list(map(lambda item: GreennessForecast(as_utc(parse_datetime(item["validFrom"])),
+                                                             as_utc(parse_datetime(item["validTo"])),
+                                                             int(item["greennessScore"]),
+                                                             item["greennessIndex"],
+                                                             item["highlightFlag"]),
+                          response_body["data"]["greennessForecast"]))
+          forecast.sort(key=lambda item: item.start)
+          return forecast
+    
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
 
   async def async_get_saving_sessions(self, account_id: str) -> SavingSessionsResponse:
     """Get the user's seasons savings"""

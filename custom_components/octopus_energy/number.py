@@ -12,7 +12,6 @@ from .const import (
   CONFIG_MAIN_API_KEY,
 
   DATA_INTELLIGENT_SETTINGS_COORDINATOR,
-  DATA_ACCOUNT
 )
 
 _LOGGER = logging.getLogger(__name__)
