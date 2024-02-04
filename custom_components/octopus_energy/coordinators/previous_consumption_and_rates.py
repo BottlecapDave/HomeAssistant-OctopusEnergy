@@ -112,7 +112,7 @@ async def async_fetch_consumption_and_rates(
         )
       
       return PreviousConsumptionCoordinatorResult(
-        current,
+        previous_data.last_retrieved if previous_data is not None else current,
         1,
         previous_data.consumption if previous_data is not None else None,
         previous_data.rates if previous_data is not None else None,
