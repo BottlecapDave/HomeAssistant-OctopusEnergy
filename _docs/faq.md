@@ -14,6 +14,7 @@ Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-
 | Standing charges | 60 | This should only change if the user's tariff changes, so no need to request data too often. Keep in sync with account refreshes. |
 | Saving sessions | 15 | Inactive for most of the year and new sessions have enough warning to allow a bit of lag. |
 | Wheel of fortune | 60 | Doesn't change that frequently, and not fundamental for a smart home (other than knowledge) so no need to request too often. |
+| Greenness Forecast | 180 | Doesn't change frequently |
 
 If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly waiting longer between each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.
 
