@@ -31,10 +31,10 @@ forecast: list[GreennessForecast] = [
 async def test_when_forecast_none_then_none_returned():
   # Arrange
   current = datetime.strptime("2024-02-02T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  include_highlighted = False
+  restrict_highlighted = False
 
   # Act
-  result = get_current_and_next_forecast(current, None, include_highlighted)
+  result = get_current_and_next_forecast(current, None, restrict_highlighted)
 
   # Assert
   assert result is None
@@ -43,10 +43,10 @@ async def test_when_forecast_none_then_none_returned():
 async def test_when_current_not_available_then_current_none():
   # Arrange
   current = datetime.strptime("2024-02-02T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  include_highlighted = False
+  restrict_highlighted = False
 
   # Act
-  result = get_current_and_next_forecast(current, forecast, include_highlighted)
+  result = get_current_and_next_forecast(current, forecast, restrict_highlighted)
 
   # Assert
   assert result is not None
@@ -59,10 +59,10 @@ async def test_when_current_not_available_then_current_none():
 async def test_when_next_not_available_then_next_none():
   # Arrange
   current = datetime.strptime("2024-02-06T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  include_highlighted = False
+  restrict_highlighted = False
 
   # Act
-  result = get_current_and_next_forecast(current, forecast, include_highlighted)
+  result = get_current_and_next_forecast(current, forecast, restrict_highlighted)
 
   # Assert
   assert result is not None
@@ -76,13 +76,13 @@ async def test_when_next_not_available_then_next_none():
   (True),
   (False)
 ])
-async def test_when_include_highlighted_then_nonhighlighed_ignored(current_highlighted: bool):
+async def test_when_restrict_highlighted_then_nonhighlighed_ignored(current_highlighted: bool):
   # Arrange
   current = datetime.strptime("2024-02-04T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z") if current_highlighted else datetime.strptime("2024-02-03T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  include_highlighted = True
+  restrict_highlighted = True
 
   # Act
-  result = get_current_and_next_forecast(current, forecast, include_highlighted)
+  result = get_current_and_next_forecast(current, forecast, restrict_highlighted)
 
   # Assert
   assert result is not None

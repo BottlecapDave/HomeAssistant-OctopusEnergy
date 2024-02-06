@@ -10,13 +10,13 @@ class CurrentNextForecastResult:
     self.current = current
     self.next = next
 
-def get_current_and_next_forecast(current: datetime, forecast: list[GreennessForecast], include_highlighted = False):
+def get_current_and_next_forecast(current: datetime, forecast: list[GreennessForecast], restrict_highlighted = False):
   if (forecast is not None):
     current_forecast: GreennessForecast = None
     next_forecast: GreennessForecast = None
 
     for item in forecast:
-      if include_highlighted and item.highlightFlag == False:
+      if restrict_highlighted and item.highlight_flag == False:
         continue
 
       if (item.start <= current and item.end >= current):
@@ -32,9 +32,9 @@ def greenness_forecast_to_dictionary(forecast: GreennessForecast):
     return {
       "start": forecast.start,
       "end": forecast.end,
-      "greenness_index": forecast.greennessIndex,
-      "greenness_score": forecast.greennessScore,
-      "is_highlighted": forecast.highlightFlag
+      "greenness_index": forecast.greenness_index,
+      "greenness_score": forecast.greenness_score,
+      "is_highlighted": forecast.highlight_flag
     }
   
   return {}

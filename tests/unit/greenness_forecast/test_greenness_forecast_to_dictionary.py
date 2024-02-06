@@ -34,8 +34,8 @@ async def test_when_forecast_not_none_then_dictionary_returned():
   assert "end" in result
   assert result["end"] == forecast.end
   assert "greenness_index" in result
-  assert result["greenness_index"] == forecast.greennessIndex
+  assert result["greenness_index"] == forecast.greenness_index
   assert "greenness_score" in result
-  assert result["greenness_score"] == forecast.greennessScore
+  assert result["greenness_score"] == forecast.greenness_score
   assert "is_highlighted" in result
-  assert result["is_highlighted"] == forecast.highlightFlag
+  assert result["is_highlighted"] == forecast.highlight_flag

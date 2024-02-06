@@ -33,11 +33,11 @@ async def test_when_get_greenness_forecast_is_called_then_points_are_returned():
 
         previous_end = forecast.end
 
-        assert forecast.greennessScore >= 0
-        assert forecast.greennessIndex != "" and forecast.greennessIndex is not None
-        assert forecast.greennessIndex is not None
-        assert forecast.highlightFlag == True or forecast.highlightFlag == False
-        if forecast.highlightFlag == True:
+        assert forecast.greenness_score >= 0
+        assert forecast.greenness_index != "" and forecast.greenness_index is not None
+        assert forecast.greenness_index is not None
+        assert forecast.highlight_flag == True or forecast.highlight_flag == False
+        if forecast.highlight_flag == True:
             highlighted_forecast_found = True
 
     assert highlighted_forecast_found == True
