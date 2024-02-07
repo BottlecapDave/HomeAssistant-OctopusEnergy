@@ -18,7 +18,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from ..utils.attributes import dict_to_typed_dict
 from ..coordinators.greenness_forecast import GreennessForecastCoordinatorResult
-from . import get_current_and_next_forecast
+from . import get_current_and_next_forecast, greenness_forecast_to_dictionary
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -92,7 +92,7 @@ class OctopusEnergyGreennessForecastHighlighted(CoordinatorEntity, BinarySensorE
 
       current_and_next = get_current_and_next_forecast(current, forecast, True)
       if current_and_next is not None:
-        self._attributes["current"] = current_and_next.current
+        self._attributes["current"] = greenness_forecast_to_dictionary(current_and_next.current) if current_and_next.current is not None else None
 
         if current_and_next.next is not None:
           self._attributes["next_start"] = current_and_next.next.start

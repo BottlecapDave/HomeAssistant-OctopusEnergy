@@ -87,9 +87,11 @@ class OctopusEnergyGreennessForecastCurrentIndex(CoordinatorEntity, RestoreSenso
       current_and_next = get_current_and_next_forecast(current, forecast)
       if current_and_next is not None:
         self._attributes = greenness_forecast_to_dictionary(current_and_next.current)
-        self._state = current_and_next.current.greenness_index if current_and_next.current is not None else None
-        self._attributes["next_start"] = current_and_next.next.start
-        self._attributes["next_end"] = current_and_next.next.end
+        self._state = current_and_next.current.greenness_score if current_and_next.current is not None else None
+        
+        if current_and_next.next is not None:
+          self._attributes["next_start"] = current_and_next.next.start
+          self._attributes["next_end"] = current_and_next.next.end
 
       self._attributes["forecast"] = greenness_forecast_to_dictionary_list(forecast)
       self._attributes["data_last_retrieved"] = result.last_retrieved
