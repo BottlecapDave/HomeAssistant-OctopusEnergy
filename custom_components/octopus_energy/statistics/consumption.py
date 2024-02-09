@@ -24,6 +24,16 @@ def get_gas_consumption_statistic_unique_id(serial_number: str, mpan: str, is_kw
 def get_gas_consumption_statistic_name(serial_number: str, mpan: str, is_kwh: bool = False):
   return f"Gas {serial_number} {mpan} Previous Accumulative Consumption{' (kWh)' if is_kwh else ''}"
 
+class ImportConsumptionStatisticsResult:
+  total: float
+  peak: float
+  off_peak: float
+
+  def __init__(self, total: float, peak: float, off_peak: float):
+    self.total = total
+    self.peak = peak
+    self.off_peak = off_peak
+
 async def async_import_external_statistics_from_consumption(
     current: datetime,
     hass: HomeAssistant,
@@ -33,7 +43,8 @@ async def async_import_external_statistics_from_consumption(
     rates,
     unit_of_measurement: str, 
     consumption_key: str,
-    include_peak_off_peak: bool = True
+    include_peak_off_peak: bool = True,
+    initial_statistics: ImportConsumptionStatisticsResult = None
   ):
   if (consumptions is None or len(consumptions) < 1 or rates is None or len(rates) < 1):
     return
@@ -41,13 +52,13 @@ async def async_import_external_statistics_from_consumption(
   statistic_id = f"{DOMAIN}:{unique_id}".lower()
 
   # Our sum needs to be based from the last total, so we need to grab the last record from the previous day
-  total_sum = await async_get_last_sum(hass, consumptions[0]["start"], statistic_id)
+  total_sum = initial_statistics.total if initial_statistics is not None else await async_get_last_sum(hass, consumptions[0]["start"], statistic_id)
 
   peak_statistic_id = f'{statistic_id}_peak'
-  peak_sum = await async_get_last_sum(hass, consumptions[0]["start"], peak_statistic_id)
+  peak_sum = initial_statistics.peak if initial_statistics is not None else await async_get_last_sum(hass, consumptions[0]["start"], peak_statistic_id)
 
   off_peak_statistic_id = f'{statistic_id}_off_peak'
-  off_peak_sum = await async_get_last_sum(hass, consumptions[0]["start"], off_peak_statistic_id)
+  off_peak_sum = initial_statistics.off_peak if initial_statistics is not None else await async_get_last_sum(hass, consumptions[0]["start"], off_peak_statistic_id)
 
   statistics = build_consumption_statistics(current, consumptions, rates, consumption_key, total_sum, peak_sum, off_peak_sum)
 
@@ -90,3 +101,7 @@ async def async_import_external_statistics_from_consumption(
       ),
       statistics["off_peak"]
     )
+
+  return ImportConsumptionStatisticsResult(statistics["total"][-1]["sum"] if statistics["total"][-1] is not None else 0,
+                                           statistics["peak"][-1]["sum"] if statistics["peak"][-1] is not None else 0,
+                                           statistics["off_peak"][-1]["sum"] if statistics["off_peak"][-1] is not None else 0)
