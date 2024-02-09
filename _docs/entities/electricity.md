@@ -68,7 +68,7 @@ The state of this sensor states when the current day's rates were last updated. 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the current day |
+| `rates` | `array` | The list of rates applicable for the current day |
 | `tariff_code` | `string` | The tariff code associated with current day's rates |
 | `serial_number` | `string` | The serial number of the meter the rates are related to |
 | `mpan` | `string` | The MPAN of the meter the rates are related to |
@@ -91,7 +91,7 @@ The state of this sensor states when the previous day's rates were last updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous day |
+| `rates` | `array` | The list of rates applicable for the previous day |
 | `tariff_code` | `string` | The tariff code associated with previous day's rates |
 | `serial_number` | `string` | The serial number of the meter the rates are related to |
 | `mpan` | `string` | The MPAN of the meter the rates are related to |
@@ -114,7 +114,7 @@ The state of this sensor states when the next day's rates were last updated. The
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the next day |
+| `rates` | `array` | The list of rates applicable for the next day |
 | `tariff_code` | `string` | The tariff code associated with today's rates |
 | `serial_number` | `string` | The serial number of the meter the rates are related to |
 | `mpan` | `string` | The MPAN of the meter the rates are related to |
@@ -285,7 +285,7 @@ The state of this sensor states when the previous consumption's rates were last 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous consumption |
+| `rates` | `array` | The list of rates applicable for the previous consumption |
 | `tariff_code` | `string` | The tariff code associated with previous consumption's rates |
 
 Each rate item has the following attributes
@@ -536,7 +536,7 @@ The state of this sensor states when the previous consumption override's rates w
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous consumption override |
+| `rates` | `array` | The list of rates applicable for the previous consumption override |
 | `tariff_code` | `string` | The tariff code associated with previous consumption override's rates |
 
 Each rate item has the following attributes

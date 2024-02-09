@@ -10,7 +10,7 @@ This is fired when the current day rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the current day |
+| `rates` | `array` | The list of rates applicable for the current day |
 | `tariff_code` | `string` | The tariff code associated with current day's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -41,7 +41,7 @@ This is fired when the previous day rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous day |
+| `rates` | `array` | The list of rates applicable for the previous day |
 | `tariff_code` | `string` | The tariff code associated with previous day's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -72,7 +72,7 @@ This is fired when the next day rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the next day |
+| `rates` | `array` | The list of rates applicable for the next day |
 | `tariff_code` | `string` | The tariff code associated with next day's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -103,7 +103,7 @@ This is fired when the [previous consumption's](./entities/electricity.md#previo
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous consumption |
+| `rates` | `array` | The list of rates applicable for the previous consumption |
 | `tariff_code` | `string` | The tariff code associated with previous consumption's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -134,7 +134,7 @@ This is fired when the [previous consumption override's](./entities/electricity.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous consumption override |
+| `rates` | `array` | The list of rates applicable for the previous consumption override |
 | `tariff_code` | `string` | The tariff code associated with previous consumption override's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -162,7 +162,7 @@ This is fired when the current day rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the current day |
+| `rates` | `array` | The list of rates applicable for the current day |
 | `tariff_code` | `string` | The tariff code associated with current day's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -193,7 +193,7 @@ This is fired when the previous day rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous day |
+| `rates` | `array` | The list of rates applicable for the previous day |
 | `tariff_code` | `string` | The tariff code associated with previous day's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -224,7 +224,7 @@ This is fired when the next day rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the next day |
+| `rates` | `array` | The list of rates applicable for the next day |
 | `tariff_code` | `string` | The tariff code associated with next day's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -255,7 +255,7 @@ This is fired when the [previous consumption's](./entities/gas.md#previous-accum
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous consumption |
+| `rates` | `array` | The list of rates applicable for the previous consumption |
 | `tariff_code` | `string` | The tariff code associated with previous consumption's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -286,7 +286,7 @@ This is fired when the [previous consumption override's](./entities/gas.md#tarif
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous consumption override |
+| `rates` | `array` | The list of rates applicable for the previous consumption override |
 | `tariff_code` | `string` | The tariff code associated with previous consumption override's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |

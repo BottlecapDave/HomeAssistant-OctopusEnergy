@@ -41,6 +41,16 @@ This sensor is used to determine if you're currently in a planned dispatch perio
 | `next_start` | `datetime` | The date/time when the next dispatching or off peak rate starts |
 | `next_end` | `datetime` | The date/time when the next dispatching or off peak rate ends |
 
+Each item in `planned_dispatch` or `completed_dispatches` have the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The start date/time of the dispatch |
+| `end` | `datetime` | The end date/time of the dispatch |
+| `charge_in_kwh` | `float` | The amount to be charged within the dispatch period. |
+| `source` | `string` | Determines what has caused the dispatch to be generated. Will be `smart-charge` or `bump-charge`. |
+| `location` | `string` | The location of the smart charge |
+
 ### Bump Charge
 
 `switch.octopus_energy_{{ACCOUNT_ID}}_intelligent_bump_charge`

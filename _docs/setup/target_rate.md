@@ -90,7 +90,7 @@ The following attributes are available on each sensor
 | `end_time` | `string` | The end time configured for the sensor. |
 | `is_target_export` | `boolean` | Determines if the meter being targeted is exporting energy. This will change the behaviour of the sensor to look for the highest rates. |
 | `rates_incomplete` | `boolean` | True if rate information is incomplete and therefore target times cannot be calculated; False otherwise. |
-| `target_times` | `list` | The discovered times and rates the sensor will come on for. |
+| `target_times` | `array` | The discovered times and rates the sensor will come on for. |
 | `overall_average_cost` | `float` | The average cost/rate of all discovered times during the current **24 hour period**. |
 | `overall_min_cost` | `float` | The minimum cost/rate of all discovered times during the current **24 hour period**. |
 | `overall_max_cost` | `float` | The maximum cost/rate of all discovered times during the current **24 hour period**. |

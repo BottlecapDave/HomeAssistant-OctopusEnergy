@@ -48,8 +48,8 @@ This is in pounds and pence (e.g. 1.01 = £1.01).
 | `entity_accumulative_value` | `boolean` | Determines if the tracked entity has accumulative data (based on config) |
 | `account_id` | `string` | The id of the account the cost tracker is for (based on config) |
 | `is_tracking` | `boolean` | Determines if the tracker is currently tracking consumption/cost data |
-| `tracked_changes` | `list` | The collection of tracked entity changes where the costs have been tracked in 30 minute increments |
-| `untracked_changes` | `list` | The collection of tracked entity changes where the costs have **not** been tracked in 30 minute increments |
+| `tracked_changes` | `array` | The collection of tracked entity changes where the costs have been tracked in 30 minute increments |
+| `untracked_changes` | `array` | The collection of tracked entity changes where the costs have **not** been tracked in 30 minute increments |
 | `total_consumption` | `float` | The total consumption that has been tracked for the current day |
 
 Each item within the `tracked_changes` and `untracked_changes` have the following attributes
