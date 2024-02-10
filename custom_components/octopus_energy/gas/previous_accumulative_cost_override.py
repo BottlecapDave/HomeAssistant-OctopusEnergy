@@ -135,13 +135,13 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
       period_to = consumption_data[-1]["end"]
 
       try:
-        _LOGGER.debug(f"Retrieving rates and standing charge overrides for '{self._mpan}/{self._serial_number}' ({period_from} - {period_to})...")
+        _LOGGER.debug(f"Retrieving rates and standing charge overrides for '{self._mprn}/{self._serial_number}' ({period_from} - {period_to})...")
         [rate_data, standing_charge] = await asyncio.gather(
           self._client.async_get_gas_rates(tariff_override, period_from, period_to),
           self._client.async_get_gas_standing_charge(tariff_override, period_from, period_to)
         )
 
-        _LOGGER.debug(f"Rates and standing charge overrides for '{self._mpan}/{self._serial_number}' ({period_from} - {period_to}) retrieved")
+        _LOGGER.debug(f"Rates and standing charge overrides for '{self._mprn}/{self._serial_number}' ({period_from} - {period_to}) retrieved")
 
         consumption_and_cost = calculate_gas_consumption_and_cost(
           consumption_data,
@@ -183,9 +183,9 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
           self._attributes["last_evaluated"] = current
           self._attempts_to_retrieve = 1
           self._last_retrieved = current
-          self._next_refresh = calculate_next_refresh(result.last_retrieved, self._request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION)
+          self._next_refresh = calculate_next_refresh(current, self._request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION)
         else:
-          _LOGGER.debug(f"Consumption and cost overrides not available for '{self._mpan}/{self._serial_number}' ({self._last_reset})")
+          _LOGGER.debug(f"Consumption and cost overrides not available for '{self._mprn}/{self._serial_number}' ({self._last_reset})")
       except Exception as e:
         if isinstance(e, ApiException) == False:
           raise

@@ -184,7 +184,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
           self._attributes["last_evaluated"] = current
           self._request_attempts = 1
           self._last_retrieved = current
-          self._next_refresh = calculate_next_refresh(result.last_retrieved, self._request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION)
+          self._next_refresh = calculate_next_refresh(current, self._request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION)
         else:
           _LOGGER.debug(f"Consumption and cost not available for '{self._mpan}/{self._serial_number}' ({self._last_reset})")
       except Exception as e:
