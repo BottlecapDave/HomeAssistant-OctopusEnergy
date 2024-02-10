@@ -11,6 +11,7 @@ Below are the main features of the integration
 * [Intelligent tariff settings support](./entities/intelligent.md)
 * [Saving sessions support](./entities/octoplus.md#saving-sessions)
 * [Wheel of fortune support](./entities/wheel_of_fortune.md)
+* [Greener days support](./entities/greenness_forecast.md)
 
 ## How to install
 
@@ -72,6 +73,10 @@ To support Octopus Energy's [octoplus programme](https://octopus.energy/octoplus
 ### Wheel of Fortune
 
 To support the wheel of fortune that is awarded every month to customers. [Full list of wheel of fortune entites](./entities/wheel_of_fortune.md).
+
+### Greenness Forecast
+
+To support Octopus Energy's [greener days](https://octopus.energy/smart/greener-days/). [Full list of greenness forecast entites](./entities/greenness_forecast.md).
 
 ## Target Rate Sensors
 
