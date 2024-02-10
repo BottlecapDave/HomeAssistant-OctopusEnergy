@@ -92,7 +92,7 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, Res
     """Retrieve the current rate for the sensor."""
     current = utcnow()
     rates_result: GasRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
-    if (rates_result is not None and (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0)):
+    if (rates_result is not None):
       _LOGGER.debug(f"Updating OctopusEnergyGasCurrentRate for '{self._mprn}/{self._serial_number}'")
 
       rate_information = get_current_rate_information(rates_result.rates, current)

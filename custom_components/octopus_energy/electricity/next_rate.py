@@ -90,7 +90,7 @@ class OctopusEnergyElectricityNextRate(CoordinatorEntity, OctopusEnergyElectrici
     # Find the next rate. We only need to do this every half an hour
     current = utcnow()
     rates_result: ElectricityRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
-    if (rates_result is not None and (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0)):
+    if (rates_result is not None):
       _LOGGER.debug(f"Updating OctopusEnergyElectricityNextRate for '{self._mpan}/{self._serial_number}'")
 
       target = current

@@ -48,8 +48,8 @@ This is in pounds and pence (e.g. 1.01 = £1.01).
 | `entity_accumulative_value` | `boolean` | Determines if the tracked entity has accumulative data (based on config) |
 | `account_id` | `string` | The id of the account the cost tracker is for (based on config) |
 | `is_tracking` | `boolean` | Determines if the tracker is currently tracking consumption/cost data |
-| `tracked_changes` | `list` | The collection of tracked entity changes where the costs have been tracked in 30 minute increments |
-| `untracked_changes` | `list` | The collection of tracked entity changes where the costs have **not** been tracked in 30 minute increments |
+| `tracked_changes` | `array` | The collection of tracked entity changes where the costs have been tracked in 30 minute increments |
+| `untracked_changes` | `array` | The collection of tracked entity changes where the costs have **not** been tracked in 30 minute increments |
 | `total_consumption` | `float` | The total consumption that has been tracked for the current day |
 
 Each item within the `tracked_changes` and `untracked_changes` have the following attributes
@@ -66,9 +66,10 @@ Each item within the `tracked_changes` and `untracked_changes` have the followin
 
 `sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_peak`
 
-This is the total cost of the tracked entity at peak rate for the current day. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be work if you're on a tariff with an off peak period.
+This is the total cost of the tracked entity at peak rate for the current day. This is in pounds and pence (e.g. 1.01 = £1.01).
 
-This is in pounds and pence (e.g. 1.01 = £1.01).
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -84,9 +85,10 @@ This is in pounds and pence (e.g. 1.01 = £1.01).
 
 `sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_off_peak`
 
-This is the total cost of the tracked entity at off peak rate for the current day. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be work if you're on a tariff with an off peak period.
+This is the total cost of the tracked entity at off peak rate for the current day. This is in pounds and pence (e.g. 1.01 = £1.01).
 
-This is in pounds and pence (e.g. 1.01 = £1.01).
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 | Attribute | Type | Description |
 |-----------|------|-------------|

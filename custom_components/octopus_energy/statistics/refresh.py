@@ -41,6 +41,9 @@ async def async_refresh_previous_electricity_consumption_data(
   )
 
   period_from = parse_datetime(f'{trimmed_date}T00:00:00Z')
+
+  previous_consumption_result = None
+  previous_cost_result= None
   while period_from < now():
     period_to = period_from + timedelta(days=1)
 
@@ -57,7 +60,7 @@ async def async_refresh_previous_electricity_consumption_data(
     )
   
     if consumption_and_cost is not None:
-      await async_import_external_statistics_from_consumption(
+      previous_consumption_result = await async_import_external_statistics_from_consumption(
         period_from,
         hass,
         get_electricity_consumption_statistic_unique_id(serial_number, mpan, is_export),
@@ -65,10 +68,11 @@ async def async_refresh_previous_electricity_consumption_data(
         consumption_and_cost["charges"],
         rates,
         UnitOfEnergy.KILO_WATT_HOUR,
-        "consumption"
+        "consumption",
+        initial_statistics=previous_consumption_result
       )
 
-      await async_import_external_statistics_from_cost(
+      previous_cost_result = await async_import_external_statistics_from_cost(
         period_from,
         hass,
         get_electricity_cost_statistic_unique_id(serial_number, mpan, is_export),
@@ -76,7 +80,8 @@ async def async_refresh_previous_electricity_consumption_data(
         consumption_and_cost["charges"],
         rates,
         "GBP",
-        "consumption"
+        "consumption",
+        initial_statistics=previous_cost_result
       )
 
     period_from = period_to
@@ -110,6 +115,9 @@ async def async_refresh_previous_gas_consumption_data(
   )
   
   period_from = parse_datetime(f'{trimmed_date}T00:00:00Z')
+  previous_m3_consumption_result = None
+  previous_kwh_consumption_result = None
+  previous_cost_result = None
   while period_from < now():
     period_to = period_from + timedelta(days=1)
 
@@ -127,7 +135,7 @@ async def async_refresh_previous_gas_consumption_data(
     )
   
     if consumption_and_cost is not None:
-      await async_import_external_statistics_from_consumption(
+      previous_m3_consumption_result =  await async_import_external_statistics_from_consumption(
         period_from,
         hass,
         get_gas_consumption_statistic_unique_id(serial_number, mprn),
@@ -136,10 +144,11 @@ async def async_refresh_previous_gas_consumption_data(
         rates,
         UnitOfVolume.CUBIC_METERS,
         "consumption_m3",
-        False
+        False,
+        initial_statistics=previous_m3_consumption_result
       )
 
-      await async_import_external_statistics_from_consumption(
+      previous_kwh_consumption_result = await async_import_external_statistics_from_consumption(
         period_from,
         hass,
         get_gas_consumption_statistic_unique_id(serial_number, mprn, True),
@@ -148,10 +157,11 @@ async def async_refresh_previous_gas_consumption_data(
         rates,
         UnitOfEnergy.KILO_WATT_HOUR,
         "consumption_kwh",
-        False
+        False,
+        initial_statistics=previous_kwh_consumption_result
       )
 
-      await async_import_external_statistics_from_cost(
+      previous_cost_result = await async_import_external_statistics_from_cost(
         period_from,
         hass,
         get_gas_cost_statistic_unique_id(serial_number, mprn),
@@ -160,7 +170,8 @@ async def async_refresh_previous_gas_consumption_data(
         rates,
         "GBP",
         "consumption_kwh",
-        False
+        False,
+        previous_cost_result
       )
 
     period_from = period_to

@@ -2,7 +2,7 @@ import voluptuous as vol
 import logging
 
 from homeassistant.util.dt import (utcnow)
-from homeassistant.core import HomeAssistant, SupportsResponse
+from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_platform, issue_registry as ir, entity_registry as er
 
 from .electricity.current_consumption import OctopusEnergyCurrentElectricityConsumption
@@ -41,6 +41,7 @@ from .wheel_of_fortune.gas_spins import OctopusEnergyWheelOfFortuneGasSpins
 from .cost_tracker.cost_tracker import OctopusEnergyCostTrackerSensor
 from .cost_tracker.cost_tracker_off_peak import OctopusEnergyCostTrackerOffPeakSensor
 from .cost_tracker.cost_tracker_peak import OctopusEnergyCostTrackerPeakSensor
+from .greenness_forecast.current_index import OctopusEnergyGreennessForecastCurrentIndex
 
 from .coordinators.current_consumption import async_create_current_consumption_coordinator
 from .coordinators.gas_rates import async_setup_gas_rates_coordinator
@@ -65,6 +66,7 @@ from .const import (
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET,
   CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET,
+  DATA_GREENNESS_FORECAST_COORDINATOR,
   DOMAIN,
   
   CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
@@ -142,12 +144,13 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   account_info = account_result.account if account_result is not None else None
 
   wheel_of_fortune_coordinator = await async_setup_wheel_of_fortune_spins_coordinator(hass, account_id)
+  greenness_forecast_coordinator = hass.data[DOMAIN][account_id][DATA_GREENNESS_FORECAST_COORDINATOR]
   
   entities = [
     OctopusEnergyWheelOfFortuneElectricitySpins(hass, wheel_of_fortune_coordinator, client, account_id),
-    OctopusEnergyWheelOfFortuneGasSpins(hass, wheel_of_fortune_coordinator, client, account_id)
+    OctopusEnergyWheelOfFortuneGasSpins(hass, wheel_of_fortune_coordinator, client, account_id),
+    OctopusEnergyGreennessForecastCurrentIndex(hass, greenness_forecast_coordinator, account_id)
   ]
-
 
   registry = er.async_get(hass)
   entity_ids_to_migrate = []

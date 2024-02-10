@@ -17,7 +17,7 @@ from homeassistant.components.binary_sensor import (
 )
 from homeassistant.helpers.restore_state import RestoreEntity
 
-from ..utils import is_off_peak
+from ..utils import get_off_peak_times, is_off_peak
 
 from .base import OctopusEnergyElectricitySensor
 from ..utils.attributes import dict_to_typed_dict
@@ -34,7 +34,12 @@ class OctopusEnergyElectricityOffPeak(CoordinatorEntity, OctopusEnergyElectricit
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
   
     self._state = None
-    self._attributes = {}
+    self._attributes = {
+      "current_start": None,
+      "current_end": None,
+      "next_start": None,
+      "next_end": None,
+    }
     self._last_updated = None
 
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
@@ -71,7 +76,28 @@ class OctopusEnergyElectricityOffPeak(CoordinatorEntity, OctopusEnergyElectricit
     if (rates is not None and (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0)):
       _LOGGER.debug(f"Updating OctopusEnergyElectricityOffPeak for '{self._mpan}/{self._serial_number}'")
 
-      self._state = is_off_peak(current, rates)
+      self._state = False
+      self._attributes = {
+        "current_start": None,
+        "current_end": None,
+        "next_start": None,
+        "next_end": None,
+      }
+      
+      times = get_off_peak_times(current, rates)
+      if times is not None and len(times) > 0:
+        time = times.pop(0)
+        if time.start <= current:
+          self._attributes["current_start"] = time.start
+          self._attributes["current_end"] = time.end
+          self._state = True
+
+          if len(times) > 0:
+            self._attributes["next_start"] = times[0].start
+            self._attributes["next_end"] = times[0].end
+        else:
+          self._attributes["next_start"] = time.start
+          self._attributes["next_end"] = time.end
 
       self._last_updated = current
 
