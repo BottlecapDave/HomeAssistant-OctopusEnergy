@@ -36,9 +36,10 @@ async def async_get_live_consumption(
     period_to = current_date + timedelta(days=1)
     
     try:
-      result = await client.async_get_smart_meter_consumption(device_id, period_from, period_to)
-      if result is not None:
-        return CurrentConsumptionCoordinatorResult(current_date, 1, refresh_rate_in_minutes, result)
+      data = await client.async_get_smart_meter_consumption(device_id, period_from, period_to)
+      if data is not None:
+        _LOGGER.debug(f'Retrieved current consumption data for {device_id}; period_from: {period_from}; period_to: {period_to}; length: {len(data)}; last_from: {data[-1]["start"] if len(data) > 0 else None}')
+        return CurrentConsumptionCoordinatorResult(current_date, 1, refresh_rate_in_minutes, data)
     except Exception as e:
       if isinstance(e, ApiException) == False:
         raise

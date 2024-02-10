@@ -4,6 +4,9 @@ from homeassistant.util.dt import (as_utc, parse_datetime)
 from custom_components.octopus_energy.config.target_rates import validate_target_rate_config
 from custom_components.octopus_energy.const import CONFIG_TARGET_END_TIME, CONFIG_TARGET_HOURS, CONFIG_TARGET_MPAN, CONFIG_TARGET_NAME, CONFIG_TARGET_OFFSET, CONFIG_TARGET_START_TIME
 
+non_agile_tariff = "E-1R-SUPER-GREEN-24M-21-07-30-C"
+agile_tariff = "E-1R-AGILE-FLEX-22-11-25-B"
+
 now = as_utc(parse_datetime("2023-08-20T10:00:00Z"))
 mpan = "selected-mpan"
 
@@ -25,22 +28,25 @@ def get_account_info(tariff_code: str = "E-1R-SUPER-GREEN-24M-21-07-30-C", is_ac
   }
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("name",[
-  (""),
-  ("Test"),
-  ("test@"),
+@pytest.mark.parametrize("name,tariff",[
+  ("", non_agile_tariff),
+  ("Test", non_agile_tariff),
+  ("test@", non_agile_tariff),
+  ("", agile_tariff),
+  ("Test", agile_tariff),
+  ("test@", agile_tariff),
 ])
-async def test_when_config_has_invalid_name_then_errors_returned(name):
+async def test_when_config_has_invalid_name_then_errors_returned(name, tariff):
   # Arrange
   data = {
     CONFIG_TARGET_NAME: name,
     CONFIG_TARGET_MPAN: mpan,
     CONFIG_TARGET_HOURS: "1.5",
     CONFIG_TARGET_START_TIME: "00:00",
-    CONFIG_TARGET_END_TIME: "00:00",
+    CONFIG_TARGET_END_TIME: "16:00",
     CONFIG_TARGET_OFFSET: "-00:00:00",
   }
-  account_info = get_account_info()
+  account_info = get_account_info(tariff)
 
   # Act
   errors = validate_target_rate_config(data, account_info, now)
@@ -57,26 +63,33 @@ async def test_when_config_has_invalid_name_then_errors_returned(name):
   assert CONFIG_TARGET_OFFSET not in errors
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("hours",[
-  (""),
-  ("-1.0"),
-  ("s"),
-  ("1.01"),
-  ("1.49"),
-  ("1.51"),
-  ("1.99"),
+@pytest.mark.parametrize("hours,tariff",[
+  ("", non_agile_tariff),
+  ("-1.0", non_agile_tariff),
+  ("s", non_agile_tariff),
+  ("1.01", non_agile_tariff),
+  ("1.49", non_agile_tariff),
+  ("1.51", non_agile_tariff),
+  ("1.99", non_agile_tariff),
+  ("", agile_tariff),
+  ("-1.0", agile_tariff),
+  ("s", agile_tariff),
+  ("1.01", agile_tariff),
+  ("1.49", agile_tariff),
+  ("1.51", agile_tariff),
+  ("1.99", agile_tariff),
 ])
-async def test_when_config_has_invalid_hours_then_errors_returned(hours):
+async def test_when_config_has_invalid_hours_then_errors_returned(hours, tariff):
   # Arrange
   data = {
     CONFIG_TARGET_NAME: "test",
     CONFIG_TARGET_MPAN: mpan,
     CONFIG_TARGET_HOURS: hours,
     CONFIG_TARGET_START_TIME: "00:00",
-    CONFIG_TARGET_END_TIME: "00:00",
+    CONFIG_TARGET_END_TIME: "16:00",
     CONFIG_TARGET_OFFSET: "-00:00:00",
   }
-  account_info = get_account_info()
+  account_info = get_account_info(tariff)
 
   # Act
   errors = validate_target_rate_config(data, account_info, now)
@@ -92,25 +105,34 @@ async def test_when_config_has_invalid_hours_then_errors_returned(hours):
   assert CONFIG_TARGET_OFFSET not in errors
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("start_time",[
-  (""),
-  ("s"),
-  ("24:00"),
-  ("-0:01"),
-  ("00:000"),
-  ("00:60"),
+@pytest.mark.parametrize("start_time,tariff",[
+  ("", non_agile_tariff),
+  ("s", non_agile_tariff),
+  ("24:00", non_agile_tariff),
+  ("-0:01", non_agile_tariff),
+  ("00:000", non_agile_tariff),
+  ("00:60", non_agile_tariff),
+  ("00:00:00", non_agile_tariff),
+
+  ("", agile_tariff),
+  ("s", agile_tariff),
+  ("24:00", agile_tariff),
+  ("-0:01", agile_tariff),
+  ("00:000", agile_tariff),
+  ("00:60", agile_tariff),
+  ("00:00:00", agile_tariff),
 ])
-async def test_when_config_has_invalid_start_time_then_errors_returned(start_time):
+async def test_when_config_has_invalid_start_time_then_errors_returned(start_time, tariff):
   # Arrange
   data = {
     CONFIG_TARGET_NAME: "test",
     CONFIG_TARGET_MPAN: mpan,
     CONFIG_TARGET_HOURS: "1.5",
     CONFIG_TARGET_START_TIME: start_time,
-    CONFIG_TARGET_END_TIME: "00:00",
+    CONFIG_TARGET_END_TIME: "16:00",
     CONFIG_TARGET_OFFSET: "-00:00:00",
   }
-  account_info = get_account_info()
+  account_info = get_account_info(tariff)
 
   # Act
   errors = validate_target_rate_config(data, account_info, now)
@@ -126,15 +148,24 @@ async def test_when_config_has_invalid_start_time_then_errors_returned(start_tim
   assert CONFIG_TARGET_OFFSET not in errors
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("end_time",[
-  (""),
-  ("s"),
-  ("24:00"),
-  ("-0:01"),
-  ("00:000"),
-  ("00:60"),
+@pytest.mark.parametrize("end_time,tariff",[
+  ("", non_agile_tariff),
+  ("s", non_agile_tariff),
+  ("24:00", non_agile_tariff),
+  ("-0:01", non_agile_tariff),
+  ("00:000", non_agile_tariff),
+  ("00:60", non_agile_tariff),
+  ("00:00:00", non_agile_tariff),
+
+  ("", agile_tariff),
+  ("s", agile_tariff),
+  ("24:00", agile_tariff),
+  ("-0:01", agile_tariff),
+  ("00:000", agile_tariff),
+  ("00:60", agile_tariff),
+  ("00:00:00", agile_tariff),
 ])
-async def test_when_config_has_invalid_end_time_then_errors_returned(end_time):
+async def test_when_config_has_invalid_end_time_then_errors_returned(end_time, tariff):
   # Arrange
   data = {
     CONFIG_TARGET_NAME: "test",
@@ -144,7 +175,7 @@ async def test_when_config_has_invalid_end_time_then_errors_returned(end_time):
     CONFIG_TARGET_END_TIME: end_time,
     CONFIG_TARGET_OFFSET: "-00:00:00",
   }
-  account_info = get_account_info()
+  account_info = get_account_info(tariff)
 
   # Act
   errors = validate_target_rate_config(data, account_info, now)
@@ -160,31 +191,44 @@ async def test_when_config_has_invalid_end_time_then_errors_returned(end_time):
   assert CONFIG_TARGET_OFFSET not in errors
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("offset",[
-  (""),
-  ("s"),
-  ("00"),
-  ("-00"),
-  ("00:00"),
-  ("-00:00"),
-  ("24:00:00"),
-  ("-24:00:00"),
-  ("00:60:00"),
-  ("-00:60:00"),
-  ("00:00:60"),
-  ("-00:00:60"),
+@pytest.mark.parametrize("offset,tariff",[
+  ("", non_agile_tariff),
+  ("s", non_agile_tariff),
+  ("00", non_agile_tariff),
+  ("-00", non_agile_tariff),
+  ("00:00", non_agile_tariff),
+  ("-00:00", non_agile_tariff),
+  ("24:00:00", non_agile_tariff),
+  ("-24:00:00", non_agile_tariff),
+  ("00:60:00", non_agile_tariff),
+  ("-00:60:00", non_agile_tariff),
+  ("00:00:60", non_agile_tariff),
+  ("-00:00:60", non_agile_tariff),
+
+  ("", agile_tariff),
+  ("s", agile_tariff),
+  ("00", agile_tariff),
+  ("-00", agile_tariff),
+  ("00:00", agile_tariff),
+  ("-00:00", agile_tariff),
+  ("24:00:00", agile_tariff),
+  ("-24:00:00", agile_tariff),
+  ("00:60:00", agile_tariff),
+  ("-00:60:00", agile_tariff),
+  ("00:00:60", agile_tariff),
+  ("-00:00:60", agile_tariff),
 ])
-async def test_when_config_has_invalid_end_time_then_errors_returned(offset):
+async def test_when_config_has_invalid_offset_then_errors_returned(offset, tariff):
   # Arrange
   data = {
     CONFIG_TARGET_NAME: "test",
     CONFIG_TARGET_MPAN: mpan,
     CONFIG_TARGET_HOURS: "1.5",
     CONFIG_TARGET_START_TIME: "00:00",
-    CONFIG_TARGET_END_TIME: "00:00",
+    CONFIG_TARGET_END_TIME: "16:00",
     CONFIG_TARGET_OFFSET: offset,
   }
-  account_info = get_account_info()
+  account_info = get_account_info(tariff)
 
   # Act
   errors = validate_target_rate_config(data, account_info, now)
@@ -200,11 +244,13 @@ async def test_when_config_has_invalid_end_time_then_errors_returned(offset):
   assert CONFIG_TARGET_END_TIME not in errors
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("start_time,end_time",[
-  ("01:00","02:00"),
-  ("23:00","00:00"),
+@pytest.mark.parametrize("start_time,end_time,tariff",[
+  ("01:00","02:00", non_agile_tariff),
+  ("23:00","00:00", non_agile_tariff),
+  ("01:00","02:00", agile_tariff),
+  ("23:00","00:00", agile_tariff),
 ])
-async def test_when_hours_exceed_selected_time_frame_then_errors_returned(start_time, end_time):
+async def test_when_hours_exceed_selected_time_frame_then_errors_returned(start_time, end_time, tariff):
   # Arrange
   data = {
     CONFIG_TARGET_NAME: "test",
@@ -214,7 +260,7 @@ async def test_when_hours_exceed_selected_time_frame_then_errors_returned(start_
     CONFIG_TARGET_END_TIME: end_time,
     CONFIG_TARGET_OFFSET: "-00:00:00",
   }
-  account_info = get_account_info()
+  account_info = get_account_info(tariff)
 
   # Act
   errors = validate_target_rate_config(data, account_info, now)
@@ -230,17 +276,21 @@ async def test_when_hours_exceed_selected_time_frame_then_errors_returned(start_
   assert CONFIG_TARGET_OFFSET not in errors
 
 @pytest.mark.asyncio
-async def test_when_mpan_not_found_then_errors_returned():
+@pytest.mark.parametrize("tariff",[
+  (non_agile_tariff),
+  (agile_tariff),
+])
+async def test_when_mpan_not_found_then_errors_returned(tariff):
   # Arrange
   data = {
     CONFIG_TARGET_NAME: "test",
     CONFIG_TARGET_MPAN: mpan,
     CONFIG_TARGET_HOURS: "1.5",
     CONFIG_TARGET_START_TIME: "00:00",
-    CONFIG_TARGET_END_TIME: "00:00",
+    CONFIG_TARGET_END_TIME: "16:00",
     CONFIG_TARGET_OFFSET: "-00:00:00",
   }
-  account_info = get_account_info(is_active_agreement=False)
+  account_info = get_account_info(tariff, is_active_agreement=False)
 
   # Act
   errors = validate_target_rate_config(data, account_info, now)
@@ -271,7 +321,7 @@ async def test_when_select_mpan_agile_tariff_and_invalid_hours_picked_not_found_
     CONFIG_TARGET_END_TIME: end_time,
     CONFIG_TARGET_OFFSET: "-00:00:00",
   }
-  account_info = get_account_info("E-1R-AGILE-FLEX-22-11-25-B")
+  account_info = get_account_info(agile_tariff)
 
   # Act
   errors = validate_target_rate_config(data, account_info, now)
@@ -308,7 +358,7 @@ async def test_when_config_is_valid_and_not_agile_then_no_errors_returned(start_
   if offset is not None:
     data[CONFIG_TARGET_OFFSET] = offset
 
-  account_info = get_account_info()
+  account_info = get_account_info(non_agile_tariff)
 
   # Act
   errors = validate_target_rate_config(data, account_info, now)
@@ -351,7 +401,7 @@ async def test_when_config_is_valid_and_agile_then_no_errors_returned(start_time
   if offset is not None:
     data[CONFIG_TARGET_OFFSET] = offset
 
-  account_info = get_account_info("E-1R-AGILE-FLEX-22-11-25-B")
+  account_info = get_account_info(agile_tariff)
 
   # Act
   errors = validate_target_rate_config(data, account_info, now)

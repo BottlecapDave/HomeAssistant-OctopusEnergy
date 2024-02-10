@@ -10,6 +10,10 @@ The current rate that energy consumption is charged at (including VAT).
 
 This is in pounds and pence (e.g. 1.01 = £1.01).
 
+!!! warning
+
+    If you are on an intelligent tariff, then rate information will be adjusted to off-peak rates when a dispatch is discovered during the period. This off peak rate will be dependent on your car charging. As the integration has no knowledge of if your car is charging, this value might be incorrect. This is indicated via the `is_intelligent_adjusted` attribute.
+
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `mpan` | `string` | The mpan for the associated meter |
@@ -42,6 +46,8 @@ This is in pounds and pence (e.g. 1.01 = £1.01).
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
 | `start` | `datetime` | The date/time when the previous rate started |
 | `end` | `datetime` | The date/time when the previous rate ended |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup/account.md#pricing-caps) |
+| `is_intelligent_adjusted` | `boolean` | Indicates if the rate has been adjusted due to a dispatch organised by an intelligent tariff |
 
 ## Next rate
 
@@ -51,6 +57,10 @@ The next/upcoming rate that energy consumption will be charged at (including VAT
 
 This is in pounds and pence (e.g. 1.01 = £1.01).
 
+!!! warning
+
+    If you are on an intelligent tariff, then rate information will be adjusted to off-peak rates when a dispatch is discovered during the period. This off peak rate will be dependent on your car charging. As the integration has no knowledge of if your car is charging, this value might be incorrect. This is indicated via the `is_intelligent_adjusted` attribute.
+
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `mpan` | `string` | The mpan for the associated meter |
@@ -59,6 +69,8 @@ This is in pounds and pence (e.g. 1.01 = £1.01).
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
 | `start` | `datetime` | The date/time when the next rate starts |
 | `end` | `datetime` | The date/time when the next rate ends |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup/account.md#pricing-caps) |
+| `is_intelligent_adjusted` | `boolean` | Indicates if the rate has been adjusted due to a dispatch organised by an intelligent tariff |
 
 ## Current Day Rates
 
@@ -68,7 +80,7 @@ The state of this sensor states when the current day's rates were last updated. 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the current day |
+| `rates` | `array` | The list of rates applicable for the current day |
 | `tariff_code` | `string` | The tariff code associated with current day's rates |
 | `serial_number` | `string` | The serial number of the meter the rates are related to |
 | `mpan` | `string` | The MPAN of the meter the rates are related to |
@@ -91,7 +103,7 @@ The state of this sensor states when the previous day's rates were last updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous day |
+| `rates` | `array` | The list of rates applicable for the previous day |
 | `tariff_code` | `string` | The tariff code associated with previous day's rates |
 | `serial_number` | `string` | The serial number of the meter the rates are related to |
 | `mpan` | `string` | The MPAN of the meter the rates are related to |
@@ -114,7 +126,7 @@ The state of this sensor states when the next day's rates were last updated. The
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the next day |
+| `rates` | `array` | The list of rates applicable for the next day |
 | `tariff_code` | `string` | The tariff code associated with today's rates |
 | `serial_number` | `string` | The serial number of the meter the rates are related to |
 | `mpan` | `string` | The MPAN of the meter the rates are related to |
@@ -133,11 +145,21 @@ Each rate item has the following attributes
 
 `binary_sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_off_peak`
 
-This is `on` when you're within your tariff's off peak period, and `off` at all other times. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be work if you're on a tariff with an off peak period.
+This is `on` when you're within your tariff's off peak period, and `off` at all other times. This will only be work if you're on a tariff with an off peak period.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 !!! warning
 
     For intelligent tariffs, this sensor will only turn on during the standard off peak period. If you are wanting to know when extended off peak rates are available, you'll want to use the [is dispatching](./intelligent.md#is-dispatching) sensor.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `current_start` | `datetime` | The date/time when the off peak rate started |
+| `current_end` | `datetime` | The date/time when the off peak rate ends |
+| `next_start` | `datetime` | The date/time when the next off peak rate starts |
+| `next_end` | `datetime` | The date/time when the next off peak rate ends |
 
 ## Smart Meter Entities
 
@@ -175,7 +197,10 @@ Each charge item has the following attributes
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_peak`
 
-The total consumption reported by the meter for the previous day that applied during peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
+The total consumption reported by the meter for the previous day that applied during peak hours. This will only be populated if you're on a tariff with two available rates.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -188,7 +213,10 @@ The total consumption reported by the meter for the previous day that applied du
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_off_peak`
 
-The total consumption reported by the meter for the previous day that applied during off peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
+The total consumption reported by the meter for the previous day that applied during off peak hours. This will only be populated if you're on a tariff with two available rates.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -230,7 +258,10 @@ Each charge item has the following attributes
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_peak`
 
-The total cost for the previous day that applied during peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
+The total cost for the previous day that applied during peak hours. This will only be populated if you're on a tariff with two available rates.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -243,7 +274,10 @@ The total cost for the previous day that applied during peak hours. This is [dis
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_off_peak`
 
-The total cost for the previous day that applied during off peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
+The total cost for the previous day that applied during off peak hours. This will only be populated if you're on a tariff with two available rates.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -256,11 +290,14 @@ The total cost for the previous day that applied during off peak hours. This is 
 
 `event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_consumption_rates`
 
-The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous day's rates, but could differ if the default offset is changed. The attributes of this sensor exposes the previous consumption's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
+The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous day's rates, but could differ if the default offset is changed. The attributes of this sensor exposes the previous consumption's rates. 
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous consumption |
+| `rates` | `array` | The list of rates applicable for the previous consumption |
 | `tariff_code` | `string` | The tariff code associated with previous consumption's rates |
 
 Each rate item has the following attributes
@@ -275,15 +312,19 @@ Each rate item has the following attributes
 
 ## Export Entities
 
-If you export energy, then in addition you'll gain the above entities with the name `export` present. E.g. `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_rate`.
+If you export energy, then unless specified otherwise, in addition you'll gain the above entities with the name `export` present. E.g. `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_rate`.
 
 ## Home Mini Entities
 
 ### Current Consumption
 
-> This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
-
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_consumption`
+
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
 
 The latest electricity consumption sent to Octopus Energy. This will update every minute. This is a legacy sensor which was been built to see the accumulation within the energy dashboard. This _may_ be removed in the future.
 
@@ -297,9 +338,10 @@ If current consumption data is unable to be retrieved, then the integration will
 
 ### Current Demand
 
-> This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
-
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_demand`
+
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
 
 The current demand reported by the Home Mini. This will try and update every minute.
 
@@ -310,6 +352,12 @@ The current demand reported by the Home Mini. This will try and update every min
 ### Current Accumulative Consumption
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption`
+
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
 
 The total consumption reported by the meter for the current day.
 
@@ -334,7 +382,16 @@ Each charge item has the following attributes
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption_peak`
 
-The total consumption reported by the meter for the current day that applied during peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
+
+The total consumption reported by the meter for the current day that applied during peak hours. This will only be populated if you're on a tariff with two available rates.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -347,7 +404,16 @@ The total consumption reported by the meter for the current day that applied dur
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption_off_peak`
 
-The total consumption reported by the meter for the current day that applied during off peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
+
+The total consumption reported by the meter for the current day that applied during off peak hours. This will only be populated if you're on a tariff with two available rates.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -359,6 +425,12 @@ The total consumption reported by the meter for the current day that applied dur
 ### Current Accumulative Cost
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost`
+
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
 
 The total cost for the current day, including the standing charge.
 
@@ -388,7 +460,16 @@ Each charge item has the following attributes
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost_peak`
 
-The total cost for the current day that applied during peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
+
+The total cost for the current day that applied during peak hours. This will only be populated if you're on a tariff with two available rates.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -401,7 +482,16 @@ The total cost for the current day that applied during peak hours. This is [disa
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost_off_peak`
 
-The total cost for the current day that applied during off peak hours. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). This will only be populated if you're on a tariff with two available rates.
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
+
+The total cost for the current day that applied during off peak hours. This will only be populated if you're on a tariff with two available rates.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -451,11 +541,14 @@ For attributes, see [Previous Accumulative Cost](#previous-accumulative-cost).
 
 `event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_consumption_override_rates`
 
-The state of this sensor states when the previous consumption override's rates were last updated. The attributes of this sensor exposes the previous consumption override's rates. This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
+The state of this sensor states when the previous consumption override's rates were last updated. The attributes of this sensor exposes the previous consumption override's rates. 
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous consumption override |
+| `rates` | `array` | The list of rates applicable for the previous consumption override |
 | `tariff_code` | `string` | The tariff code associated with previous consumption override's rates |
 
 Each rate item has the following attributes

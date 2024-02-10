@@ -89,6 +89,35 @@ def is_off_peak(current: datetime, rates):
           rate_information["current_rate"]["is_intelligent_adjusted"] == False and 
           value_inc_vat_to_pounds(off_peak_value) == rate_information["current_rate"]["value_inc_vat"])
 
+class OffPeakTime:
+  start: datetime
+  end: datetime
+
+  def __init__(self, start, end):
+    self.start = start
+    self.end = end
+
+def get_off_peak_times(current: datetime, rates: list):
+  off_peak_value = get_off_peak_cost(current, rates)
+  times: list[OffPeakTime] = []
+
+  if rates is not None and off_peak_value is not None:
+    start = None
+    rates_length = len(rates)
+    for rate_index in range(rates_length):
+      rate = rates[rate_index]
+      if (rate["value_inc_vat"] == off_peak_value and 
+          ("is_intelligent_adjusted" not in rate or rate["is_intelligent_adjusted"] == False)):
+        if start is None:
+          start = rate["start"]
+      elif start is not None:
+        end = rates[rate_index - 1]["end"]
+        if end >= current:
+          times.append(OffPeakTime(start, end))
+        start = None
+
+  return times
+
 def private_rates_to_public_rates(rates: list):
   if rates is None:
     return None

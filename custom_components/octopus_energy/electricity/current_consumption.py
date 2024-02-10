@@ -1,6 +1,9 @@
 import logging
-from custom_components.octopus_energy.coordinators.current_consumption import CurrentConsumptionCoordinatorResult
 
+from homeassistant.const import (
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
+)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.util.dt import (now)
 
@@ -16,6 +19,7 @@ from homeassistant.const import (
     UnitOfEnergy
 )
 
+from ..coordinators.current_consumption import CurrentConsumptionCoordinatorResult
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
 
@@ -112,7 +116,7 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
     state = await self.async_get_last_state()
     
     if state is not None and self._state is None:
-      self._state = None if state.state == "unknown" else state.state
+      self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
       self._attributes = dict_to_typed_dict(state.attributes)
 
       if "last_updated_timestamp" in self._attributes:

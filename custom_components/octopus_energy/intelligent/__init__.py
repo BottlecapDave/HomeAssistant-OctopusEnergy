@@ -6,7 +6,7 @@ from homeassistant.util.dt import (utcnow, parse_datetime)
 
 from homeassistant.helpers import storage
 
-from ..utils import get_active_tariff_code, get_tariff_parts
+from ..utils import OffPeakTime, get_active_tariff_code, get_tariff_parts
 
 from ..const import DOMAIN
 
@@ -231,3 +231,39 @@ def get_intelligent_features(provider: str) -> IntelligentFeatures:
 
   _LOGGER.warning(f"Unexpected intelligent provider '{provider}'")
   return IntelligentFeatures(False, False, False, False, False)
+
+class DispatchTime:
+  start: datetime
+  end: datetime
+
+  def __init__(self, start, end):
+    self.start = start
+    self.end = end
+
+def get_dispatch_times(current: datetime, off_peak_times: list[OffPeakTime], planned_dispatches: list[IntelligentDispatchItem]):
+  times: list[DispatchTime] = []
+
+  if off_peak_times is not None:
+    for off_peak_time in off_peak_times:
+      if off_peak_time.end >= current:
+        times.append(DispatchTime(off_peak_time.start, off_peak_time.end))
+
+  if planned_dispatches is not None:
+    for dispatch in planned_dispatches:
+      if dispatch.end < current:
+        continue
+
+      dispatch_time_added = False
+      for time in times:
+        if dispatch.start <= time.start and dispatch.end >= time.start:
+          time.start = dispatch.start
+          dispatch_time_added = True
+        elif dispatch.start <= time.end and dispatch.end >= time.end:
+          time.end = dispatch.end
+          dispatch_time_added = True
+
+      if dispatch_time_added == False:
+        times.append(DispatchTime(dispatch.start, dispatch.end))
+
+  times.sort(key=lambda time: time.start)
+  return times

@@ -1,7 +1,10 @@
 import logging
-
 from datetime import time
 
+from homeassistant.const import (
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
+)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 
@@ -33,6 +36,10 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
     self._account_id = account_id
     self._attributes = {}
     self.entity_id = generate_entity_id("number.{}", self.unique_id, hass=hass)
+
+    self._attr_native_min_value = 10
+    self._attr_native_max_value = 100
+    self._attr_native_step = 5
 
   @property
   def unique_id(self):
@@ -102,8 +109,8 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
         (last_number_data := await self.async_get_last_number_data())
       ):
       
-      self._attributes = dict_to_typed_dict(last_state.attributes)
-      if last_state.state != "unknown":
+      self._attributes = dict_to_typed_dict(last_state.attributes, ["min", "max", "step"])
+      if last_state.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN):
         self._state = last_number_data.native_value
           
     _LOGGER.debug(f'Restored OctopusEnergyIntelligentChargeLimit state: {self._state}')

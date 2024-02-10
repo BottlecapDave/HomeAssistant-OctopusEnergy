@@ -2,6 +2,10 @@ import logging
 from datetime import time
 import time as time_time
 
+from homeassistant.const import (
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
+)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 
@@ -92,7 +96,7 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
     state = await self.async_get_last_state()
 
     if state is not None:
-      time_state = None if state.state == "unknown" else time_time.strptime(state.state, "%H:%M:%S")
+      time_state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else time_time.strptime(state.state, "%H:%M:%S")
       if time_state is not None:
         self._state = time(hour=time_state.tm_hour, minute=time_state.tm_min, second=min(time_state.tm_sec, 59))  # account for leap seconds
       

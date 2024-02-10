@@ -1,8 +1,11 @@
 import logging
 from datetime import (datetime)
 import asyncio
-from custom_components.octopus_energy.utils.requests import calculate_next_refresh
 
+from homeassistant.const import (
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
+)
 from homeassistant.core import HomeAssistant
 
 from homeassistant.helpers.update_coordinator import (
@@ -22,6 +25,7 @@ from . import (
 
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
+from ..utils.requests import calculate_next_refresh
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
 
 from ..api_client import (ApiException, OctopusEnergyApiClient)
@@ -120,29 +124,32 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     consumption_data = result.consumption if result is not None and result.consumption is not None and len(result.consumption) > 0 else None
 
     tariff_override_key = get_electricity_tariff_override_key(self._serial_number, self._mpan)
-    is_old_data = (result is not None and (self._last_retrieved is None or result.last_retrieved >= self._last_retrieved)) and (self._next_refresh is None or current >= self._next_refresh)
+    is_old_data = ((result is not None and 
+                    (self._last_retrieved is None or result.last_retrieved >= self._last_retrieved)) and 
+                   (self._next_refresh is None or current >= self._next_refresh))
     is_tariff_present = tariff_override_key in self._hass.data[DOMAIN][self._account_id]
     has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][self._account_id][tariff_override_key] != self._tariff_code
 
-    if (consumption_data is not None and len(consumption_data) >= MINIMUM_CONSUMPTION_DATA_LENGTH and is_tariff_present and (is_old_data or has_tariff_changed)):
-      _LOGGER.debug(f"Calculating previous electricity consumption cost override for '{self._mpan}/{self._serial_number}'...")
-      
+    if (consumption_data is not None and len(consumption_data) >= MINIMUM_CONSUMPTION_DATA_LENGTH and is_tariff_present and (is_old_data or has_tariff_changed)):      
       tariff_override = self._hass.data[DOMAIN][self._account_id][tariff_override_key]
       period_from = consumption_data[0]["start"]
       period_to = consumption_data[-1]["end"]
 
       try:
+        _LOGGER.debug(f"Retrieving rates and standing charge overrides for '{self._mpan}/{self._serial_number}' ({period_from} - {period_to})...")
         [rate_data, standing_charge] = await asyncio.gather(
           self._client.async_get_electricity_rates(tariff_override, self._is_smart_meter, period_from, period_to),
           self._client.async_get_electricity_standing_charge(tariff_override, period_from, period_to)
         )
+
+        _LOGGER.debug(f"Rates and standing charge overrides for '{self._mpan}/{self._serial_number}' ({period_from} - {period_to}) retrieved")
 
         consumption_and_cost = calculate_electricity_consumption_and_cost(
           current,
           consumption_data,
           rate_data,
           standing_charge["value_inc_vat"] if standing_charge is not None else None,
-          None if has_tariff_changed else self._last_reset,
+          None,
           tariff_override
         )
 
@@ -178,13 +185,15 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
           self._request_attempts = 1
           self._last_retrieved = current
           self._next_refresh = calculate_next_refresh(current, self._request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION)
+        else:
+          _LOGGER.debug(f"Consumption and cost not available for '{self._mpan}/{self._serial_number}' ({self._last_reset})")
       except Exception as e:
         if isinstance(e, ApiException) == False:
           raise
         
         self._request_attempts = self._request_attempts + 1
         self._next_refresh = calculate_next_refresh(
-          self._last_retrieved if self._last_retrieved is not None else current,
+          result.last_retrieved,
           self._request_attempts,
           REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION
         )
@@ -200,7 +209,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     state = await self.async_get_last_state()
     
     if state is not None and self._state is None:
-      self._state = None if state.state == "unknown" else state.state
+      self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
       self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeElectricityCostOverride state: {self._state}')

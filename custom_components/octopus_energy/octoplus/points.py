@@ -1,8 +1,10 @@
 import logging
 from datetime import timedelta
-from custom_components.octopus_energy.const import REFRESH_RATE_IN_MINUTES_OCTOPLUS_WHEEL_OF_FORTUNE
-from custom_components.octopus_energy.utils.requests import calculate_next_refresh
 
+from homeassistant.const import (
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
+)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util.dt import (utcnow)
@@ -11,6 +13,9 @@ from homeassistant.components.sensor import (
   RestoreSensor,
   SensorStateClass
 )
+
+from ..const import REFRESH_RATE_IN_MINUTES_OCTOPLUS_WHEEL_OF_FORTUNE
+from ..utils.requests import calculate_next_refresh
 from ..api_client import ApiException, OctopusEnergyApiClient, RequestException
 from ..utils.attributes import dict_to_typed_dict
 
@@ -88,7 +93,7 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
     state = await self.async_get_last_state()
 
     if state is not None and self._state is None:
-      self._state = None if state.state == "unknown" else state.state
+      self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
       self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyOctoplusPoints state: {self._state}')
