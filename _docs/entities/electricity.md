@@ -10,6 +10,10 @@ The current rate that energy consumption is charged at (including VAT).
 
 This is in pounds and pence (e.g. 1.01 = £1.01).
 
+!!! warning
+
+    If you are on an intelligent tariff, then rate information will be adjusted to off-peak rates when a dispatch is discovered during the period. This off peak rate will be dependent on your car charging. As the integration has no knowledge of if your car is charging, this value might be incorrect. This is indicated via the `is_intelligent_adjusted` attribute.
+
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `mpan` | `string` | The mpan for the associated meter |
@@ -42,6 +46,8 @@ This is in pounds and pence (e.g. 1.01 = £1.01).
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
 | `start` | `datetime` | The date/time when the previous rate started |
 | `end` | `datetime` | The date/time when the previous rate ended |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup/account.md#pricing-caps) |
+| `is_intelligent_adjusted` | `boolean` | Indicates if the rate has been adjusted due to a dispatch organised by an intelligent tariff |
 
 ## Next rate
 
@@ -51,6 +57,10 @@ The next/upcoming rate that energy consumption will be charged at (including VAT
 
 This is in pounds and pence (e.g. 1.01 = £1.01).
 
+!!! warning
+
+    If you are on an intelligent tariff, then rate information will be adjusted to off-peak rates when a dispatch is discovered during the period. This off peak rate will be dependent on your car charging. As the integration has no knowledge of if your car is charging, this value might be incorrect. This is indicated via the `is_intelligent_adjusted` attribute.
+
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `mpan` | `string` | The mpan for the associated meter |
@@ -59,6 +69,8 @@ This is in pounds and pence (e.g. 1.01 = £1.01).
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
 | `start` | `datetime` | The date/time when the next rate starts |
 | `end` | `datetime` | The date/time when the next rate ends |
+| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup/account.md#pricing-caps) |
+| `is_intelligent_adjusted` | `boolean` | Indicates if the rate has been adjusted due to a dispatch organised by an intelligent tariff |
 
 ## Current Day Rates
 
