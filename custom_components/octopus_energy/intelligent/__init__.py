@@ -8,7 +8,7 @@ from homeassistant.helpers import storage
 
 from ..utils import OffPeakTime, get_active_tariff_code, get_tariff_parts
 
-from ..const import DOMAIN
+from ..const import DOMAIN, REFRESH_RATE_IN_MINUTES_INTELLIGENT
 
 from ..api_client.intelligent_settings import IntelligentSettings
 from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
@@ -40,13 +40,6 @@ def mock_intelligent_dispatches() -> IntelligentDispatches:
       "home"
     ),
     IntelligentDispatchItem(
-      utcnow().replace(hour=6, minute=0, second=0, microsecond=0),
-      utcnow().replace(hour=7, minute=0, second=0, microsecond=0),
-      1.2,
-      "smart-charge",
-      "home"
-    ),
-    IntelligentDispatchItem(
       utcnow().replace(hour=7, minute=0, second=0, microsecond=0),
       utcnow().replace(hour=8, minute=0, second=0, microsecond=0),
       4.6,
@@ -54,6 +47,29 @@ def mock_intelligent_dispatches() -> IntelligentDispatches:
       "home"
     )
   ]
+
+  # Simulate a dispatch coming in late
+  if (utcnow() >= utcnow().replace(hour=10, minute=10, second=0, microsecond=0) - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)):
+    dispatches.append(
+      IntelligentDispatchItem(
+        utcnow().replace(hour=10, minute=10, second=0, microsecond=0),
+        utcnow().replace(hour=10, minute=30, second=0, microsecond=0),
+        1.2,
+        "smart-charge",
+        "home"
+      )
+    )
+
+  if (utcnow() >= utcnow().replace(hour=18, minute=0, second=0, microsecond=0) - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)):
+    dispatches.append(
+      IntelligentDispatchItem(
+        utcnow().replace(hour=18, minute=0, second=0, microsecond=0),
+        utcnow().replace(hour=18, minute=20, second=0, microsecond=0),
+        1.2,
+        "smart-charge",
+        "home"
+      )
+    )
 
   for dispatch in dispatches:
     if (dispatch.end > utcnow()):
@@ -106,7 +122,12 @@ def has_intelligent_tariff(current: datetime, account_info):
 def __get_dispatch(rate, dispatches: list[IntelligentDispatchItem], expected_source: str):
   if dispatches is not None:
     for dispatch in dispatches:
-      if (expected_source is None or dispatch.source == expected_source) and dispatch.start <= rate["start"] and dispatch.end >= rate["end"]:
+      if ((expected_source is None or dispatch.source == expected_source) and 
+          ((dispatch.start <= rate["start"] and dispatch.end >= rate["end"]) or # Rate is within dispatch
+           (dispatch.start >= rate["start"] and dispatch.start < rate["end"]) or # dispatch starts within rate
+           (dispatch.end > rate["start"] and dispatch.end <= rate["end"]) # dispatch ends within rate
+          )
+        ):
         return dispatch
     
   return None
