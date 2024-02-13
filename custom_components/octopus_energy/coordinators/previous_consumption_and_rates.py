@@ -22,7 +22,7 @@ from ..api_client import (ApiException, OctopusEnergyApiClient)
 from ..api_client.intelligent_dispatches import IntelligentDispatches
 from ..utils import private_rates_to_public_rates
 
-from ..intelligent import adjust_intelligent_rates
+from ..intelligent import adjust_intelligent_rates, is_intelligent_tariff
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 from . import BaseCoordinatorResult
 from ..utils.rate_information import get_min_max_average_rates
@@ -71,6 +71,10 @@ async def async_fetch_consumption_and_rates(
     
     try:
       if (is_electricity == True):
+        # We'll calculate the wrong value if we don't have our intelligent dispatches
+        if is_intelligent_tariff(tariff_code) and intelligent_dispatches is None:
+          return previous_data
+
         [consumption_data, rate_data, standing_charge] = await asyncio.gather(
           client.async_get_electricity_consumption(identifier, serial_number, period_from, period_to),
           client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to),
