@@ -252,12 +252,13 @@ octoplus_saving_session_join_mutation = '''mutation {{
 
 octoplus_saving_session_query = '''query {{
 	savingSessions {{
-    events {{
+    events(getDevEvents: false) {{
 			id
       code
 			rewardPerKwhInOctoPoints
 			startAt
 			endAt
+      devEvent
 		}}
 		account(accountNumber: "{account_id}") {{
 			hasJoinedCampaign
