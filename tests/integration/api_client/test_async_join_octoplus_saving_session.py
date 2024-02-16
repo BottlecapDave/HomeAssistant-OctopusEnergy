@@ -8,8 +8,8 @@ async def test_when_join_octoplus_saving_session_is_called_with_invalid_event_th
     # Arrange
     context = get_test_context()
 
-    client = OctopusEnergyApiClient(context["api_key"])
-    account_id = context["account_id"]
+    client = OctopusEnergyApiClient(context.api_key)
+    account_id = context.account_id
     event_code = "not-an-event-code"
 
     # Act

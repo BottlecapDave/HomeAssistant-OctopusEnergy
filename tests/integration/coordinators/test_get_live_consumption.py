@@ -13,8 +13,8 @@
 # async def test_when_get_live_consumption_is_called_then_last_5_minutes_returned_returned():
 #   # Arrange
 #   context = get_test_context()
-#   client = OctopusEnergyApiClient(context["api_key"])
-#   account_id = context["account_id"]
+#   client = OctopusEnergyApiClient(context.api_key)
+#   account_id = context.account_id
 
 #   # Get our target device
 #   account = await client.async_get_account(account_id)
@@ -24,7 +24,7 @@
   
 #   assert len(account["electricity_meter_points"]) == 1
 #   meter_point = account["electricity_meter_points"][0]
-#   assert meter_point["mpan"] == context["electricity_mpan"]
+#   assert meter_point["mpan"] == context.electricity_mpan
     
 #   assert len(meter_point["meters"]) == 1
 #   meter = meter_point["meters"][0]

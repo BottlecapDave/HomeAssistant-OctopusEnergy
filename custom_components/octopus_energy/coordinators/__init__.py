@@ -136,7 +136,7 @@ def get_electricity_meter_tariff_code(current: datetime, account_info, target_mp
       # have to enumerate the different meters being used for each tariff as well.
       for meter in point["meters"]:
         if active_tariff_code is not None and point["mpan"] == target_mpan and meter["serial_number"] == target_serial_number:
-           return active_tariff_code
+          return active_tariff_code
            
   return None
 

@@ -8,7 +8,7 @@ async def test_when_get_octoplus_points_is_called_then_points_are_returned():
     # Arrange
     context = get_test_context()
 
-    client = OctopusEnergyApiClient(context["api_key"])
+    client = OctopusEnergyApiClient(context.api_key)
 
     # Act
     points = await client.async_get_octoplus_points()

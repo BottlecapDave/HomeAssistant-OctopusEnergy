@@ -194,7 +194,6 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
             mpan,
             serial_number,
             True,
-            electricity_tariff_code,
             meter["is_smart_meter"],
             previous_electricity_consumption_days_offset
           )
@@ -280,7 +279,6 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
             mprn,
             serial_number,
             False,
-            gas_tariff_code,
             None,
             previous_gas_consumption_days_offset
           )

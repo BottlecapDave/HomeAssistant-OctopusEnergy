@@ -53,7 +53,7 @@ account_query = '''query {{
             firmwareVersion
 					}}
 				}}
-				agreements {{
+				agreements(includeInactive: true) {{
 					validFrom
 					validTo
 					tariff {{
@@ -96,7 +96,7 @@ account_query = '''query {{
             firmwareVersion
 					}}
 				}}
-				agreements {{
+				agreements(includeInactive: true) {{
 					validFrom
 					validTo
 					tariff {{
