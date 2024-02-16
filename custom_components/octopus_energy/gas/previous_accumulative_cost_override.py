@@ -148,7 +148,6 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
           rate_data,
           standing_charge["value_inc_vat"] if standing_charge is not None else None,
           None,
-          tariff_override,
           self._native_consumption_units,
           self._calorific_value
         )

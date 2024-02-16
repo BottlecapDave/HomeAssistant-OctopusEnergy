@@ -157,7 +157,6 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
         rates_result.rates,
         0,
         None, # We want to always recalculate
-        rates_result.rates[0]["tariff_code"],
         0,
         False
       )
@@ -168,7 +167,6 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
         rates_result.rates,
         0,
         None, # We want to always recalculate
-        rates_result.rates[0]["tariff_code"],
         0,
         False
       )

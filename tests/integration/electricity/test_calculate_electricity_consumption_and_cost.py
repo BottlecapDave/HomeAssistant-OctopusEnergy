@@ -63,8 +63,7 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
     consumption_and_rates_result.consumption,
     consumption_and_rates_result.rates,
     consumption_and_rates_result.standing_charge,
-    latest_date,
-    expected_tariff_code
+    latest_date
   )
 
   # Assert

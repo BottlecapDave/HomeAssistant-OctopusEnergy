@@ -23,8 +23,7 @@ async def test_when_electricity_consumption_is_none_then_no_calculation_is_retur
     consumption_data,
     rate_data,
     standing_charge,
-    latest_date,
-    tariff_code
+    latest_date
   )
 
   # Assert
@@ -49,8 +48,7 @@ async def test_when_electricity_rates_is_none_then_no_calculation_is_returned():
     consumption_data,
     rate_data,
     standing_charge,
-    latest_date,
-    tariff_code
+    latest_date
   )
 
   # Assert
@@ -78,8 +76,7 @@ async def test_when_electricity_consumption_is_before_latest_date_then_no_calcul
     consumption_data,
     rate_data,
     standing_charge,
-    latest_date,
-    tariff_code
+    latest_date
   )
 
   # Assert
@@ -118,8 +115,7 @@ async def test_when_electricity_consumption_available_then_calculation_returned(
     consumption_data,
     rate_data,
     standing_charge,
-    latest_date,
-    tariff_code
+    latest_date
   )
 
   # Assert
@@ -186,8 +182,7 @@ async def test_when_electricity_consumption_starting_at_latest_date_then_calcula
     consumption_data,
     rate_data,
     standing_charge,
-    latest_date,
-    tariff_code
+    latest_date
   )
 
   # Assert
@@ -259,8 +254,7 @@ async def test_when_electricity_consumption_available_and_two_peaks_available_th
     consumption_data,
     rate_data,
     standing_charge,
-    latest_date,
-    tariff_code
+    latest_date
   )
 
   # Assert

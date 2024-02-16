@@ -29,13 +29,12 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
   """Sensor for displaying the current days accumulative electricity cost."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, standing_charge_coordinator, tariff_code, meter, point):
+  def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, standing_charge_coordinator, meter, point):
     """Init sensor."""
     MultiCoordinatorEntity.__init__(self, coordinator, [rates_coordinator, standing_charge_coordinator])
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._hass = hass
-    self._tariff_code = tariff_code
 
     self._state = None
     self._last_reset = None
@@ -108,8 +107,7 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
       consumption_data,
       rate_data,
       standing_charge,
-      None, # We want to always recalculate
-      self._tariff_code
+      None # We want to always recalculate
     )
 
     if (consumption_and_cost is not None):
@@ -122,7 +120,7 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
         "serial_number": self._serial_number,
         "is_export": self._is_export,
         "is_smart_meter": self._is_smart_meter,
-        "tariff_code": self._tariff_code,
+        "tariff_code": rate_data[0]["tariff_code"],
         "standing_charge": consumption_and_cost["standing_charge"],
         "total_without_standing_charge": consumption_and_cost["total_cost_without_standing_charge"],
         "total": consumption_and_cost["total_cost"],

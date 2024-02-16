@@ -62,7 +62,6 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
     consumption_and_rates_result.rates,
     consumption_and_rates_result.standing_charge,
     latest_date,
-    expected_tariff_code,
     consumption_units,
     40
   )
