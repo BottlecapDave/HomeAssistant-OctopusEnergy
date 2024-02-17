@@ -152,7 +152,8 @@ class OctopusEnergyCostTrackerPeakSensor(CoordinatorEntity, RestoreSensor):
                                        parse_datetime(new_state.attributes["last_reset"]) if "last_reset" in new_state.attributes and new_state.attributes["last_reset"] is not None else None,
                                        parse_datetime(old_state.attributes["last_reset"]) if "last_reset" in old_state.attributes and old_state.attributes["last_reset"] is not None else None,
                                        self._config[CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE],
-                                       self._attributes["is_tracking"])
+                                       self._attributes["is_tracking"],
+                                       new_state.attributes["state_class"] if "state_class" in new_state.attributes else None)
 
     if (consumption_data is not None and rates_result is not None and rates_result.rates is not None):
       self._reset_if_new_day(current)
