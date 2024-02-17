@@ -10,7 +10,7 @@ If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-
 
 `binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching`
 
-This sensor is used to determine if you're currently in a planned dispatch period (i.e. "smart-charge" determined by Octopus Energy) or are within the standard off peak period.
+This sensor is used to determine if you're currently in a planned dispatch period (i.e. "smart-charge" determined by Octopus Energy) or are within the standard off peak period. This sensor **will not** come on during a bump charge.
 
 !!! warning
 
