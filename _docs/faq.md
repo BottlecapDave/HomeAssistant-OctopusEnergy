@@ -29,7 +29,7 @@ If data cannot be refreshed for any reason (e.g. no internet or APIs are down), 
 Once a successful request is made, the refreshes will revert back to the redefined default intervals.
 
 !!! note
-    The retrieving of data does not effect the rate the entities states/attributes are evaluated.**
+    The retrieving of data does not effect the rate the entities states/attributes are evaluated.
 
 ## I have data missing, is this an issue with the integration?
 
