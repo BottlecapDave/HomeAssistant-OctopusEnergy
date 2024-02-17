@@ -14,13 +14,15 @@ from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requested_data_returned(previous_data_available):
   # Arrange
   context = get_test_context()
-  client = OctopusEnergyApiClient(context["api_key"])
+  client = OctopusEnergyApiClient(context.api_key)
 
-  sensor_identifier = context["electricity_mpan"]
-  sensor_serial_number = context["electricity_serial_number"]
+  account_info = await client.async_get_account(context.account_id)
+  assert account_info is not None
+
+  sensor_identifier = context.electricity_mpan
+  sensor_serial_number = context.electricity_serial_number
   is_electricity = True
   is_smart_meter = True
-  tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
 
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -55,13 +57,13 @@ async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requ
   result = await async_fetch_consumption_and_rates(
     previous_data,
     current_utc_timestamp,
+    account_info,
     client,
     period_from,
     period_to,
     sensor_identifier,
     sensor_serial_number,
     is_electricity,
-    tariff_code,
     is_smart_meter,
     fire_event
   )
@@ -85,6 +87,7 @@ async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requ
     expected_valid_from = expected_valid_to
 
   assert len(result.rates) == 48
+  assert result.rates[0]["tariff_code"] == "E-1R-SUPER-GREEN-24M-21-07-30-L"
 
   assert result.standing_charge is not None
 

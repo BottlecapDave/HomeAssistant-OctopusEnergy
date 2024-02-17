@@ -1,5 +1,9 @@
 from datetime import datetime, timedelta
 
+from homeassistant.components.sensor import (
+  SensorStateClass,
+)
+
 class CostTrackerResult:
   tracked_consumption_data: list
   untracked_consumption_data: list
@@ -33,8 +37,13 @@ def add_consumption(current: datetime,
                     new_last_reset: datetime,
                     old_last_reset: datetime,
                     is_accumulative_value: bool,
-                    is_tracking: bool):
-  if is_accumulative_value == False or (new_last_reset is not None and old_last_reset is not None and new_last_reset > old_last_reset):
+                    is_tracking: bool,
+                    state_class: str = None):
+  if (is_accumulative_value == False or 
+      (new_last_reset is not None and old_last_reset is not None and new_last_reset > old_last_reset) or
+      # Based on https://developers.home-assistant.io/docs/core/entity/sensor/#available-state-classes, when the new value is less than the old value
+      # this represents a reset
+      (state_class == SensorStateClass.TOTAL_INCREASING and new_value < old_value)):
     value = new_value
   elif old_value is not None:
     value = new_value - old_value

@@ -83,7 +83,7 @@ action:
       entity_id: binary_sensor.octopus_energy_target_example
 ```
 
-## join_octoplus_saving_session_event
+## octopus_energy.join_octoplus_saving_session_event
 
 Service for joining a new saving session event. When used, it may take a couple of minutes for the other sensors to refresh the changes.
 
@@ -96,7 +96,7 @@ Service for joining a new saving session event. When used, it may take a couple 
 
 For an automation example, please refer to the available [blueprint](./blueprints.md#automatically-join-saving-sessions).
 
-## spin_wheel_of_fortune
+## octopus_energy.spin_wheel_of_fortune
 
 This service allows the user to perform a spin on the [wheel of fortune](./entities/wheel_of_fortune.md) that is awarded to users every month. No point letting them go to waste :)
 
@@ -112,7 +112,7 @@ This service allows the user to perform a spin on the [wheel of fortune](./entit
 
 For automation examples, please refer to the available [blueprints](./blueprints.md#wheel-of-fortune).
 
-## update_cost_tracker
+## octopus_energy.update_cost_tracker
 
 This service allows the user to turn the tracking on/off for a given [cost tracker](./setup/cost_tracker.md) sensor.
 

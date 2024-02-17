@@ -14,7 +14,7 @@ See [electricity entities](../entities/electricity.md#home-mini-entities) and [g
 
 ### Refresh Rate In Minutes
 
-This determines how often data related to your Home Mini is retrieved from Octopus Energy. The Octopus Energy APIs have a rate limit of 100 calls per hour, which is shared among all calls including through the app. This is usually enough for one meter's data to be retrieved once a minute. However, if you are using other integrations, have more than one meter (e.g. gas) or want the app to not be effected you may want to increase this rate. 
+This determines how often data related to your Home Mini is retrieved from Octopus Energy. The Octopus Energy APIs have a rate limit of 100 calls per hour, which is shared among all calls including through the app. The defaults are usually enough for one electricity and one gas meter's data to be retrieved. However, if you are using other integrations, have more meters being tracked or want the app to not be effected you may want to increase this rate.
 
 You can adjust these independently between gas and electricity.
 

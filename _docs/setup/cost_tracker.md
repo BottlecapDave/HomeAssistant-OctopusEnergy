@@ -28,7 +28,7 @@ This should be true if the tracked entity's state increases over time (true) or 
 
 ## Handling Exporting
 
-Due to everyone's HA setup being different for how they track importing/exporting, the sensors themselves assume that all consumption changes should be tracked and the cost calculated. However, you may wish to turn off tracking when your
+Due to everyone's HA setup being different for how they track importing/exporting, the sensors themselves assume that all consumption changes should be tracked and the cost calculated. However, you may wish to turn off tracking when you're exporting. This can be done via the related [services](../services.md#octopus_energyupdate_cost_tracker).
 
 ## Entities
 
@@ -102,4 +102,4 @@ This is the total cost of the tracked entity at off peak rate for the current da
 
 ## Services
 
-There are services available associated with cost tracker sensors. Please review them in the [services doc](../services.md#update_cost_tracker).
+There are services available associated with cost tracker sensors. Please review them in the [services doc](../services.md#octopus_energyupdate_cost_tracker).

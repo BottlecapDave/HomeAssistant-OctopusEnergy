@@ -34,13 +34,12 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative gas consumption in kwh."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point, calorific_value):
+  def __init__(self, hass: HomeAssistant, coordinator, meter, point, calorific_value):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
 
     self._hass = hass
-    self._tariff_code = tariff_code
     self._native_consumption_units = meter["consumption_units"]
     self._state = None
     self._last_reset = None
@@ -119,7 +118,6 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
       rate_data,
       standing_charge,
       self._last_reset,
-      self._tariff_code,
       self._native_consumption_units,
       self._calorific_value
     )

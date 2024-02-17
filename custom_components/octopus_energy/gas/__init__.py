@@ -25,7 +25,6 @@ def calculate_gas_consumption_and_cost(
     rate_data,
     standing_charge,
     last_reset,
-    tariff_code,
     consumption_units,
     calorific_value
   ):
@@ -62,7 +61,7 @@ def calculate_gas_consumption_and_cost(
         try:
           rate = next(r for r in rate_data if r["start"] == consumption_from and r["end"] == consumption_to)
         except StopIteration:
-          raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to} for tariff {tariff_code}")
+          raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to}")
 
         value = rate["value_inc_vat"]
         cost = (value * current_consumption_kwh)

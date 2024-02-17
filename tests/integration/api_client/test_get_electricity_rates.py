@@ -13,7 +13,7 @@ async def async_assert_electricity_data(tariff, is_smart_meter, price_cap, perio
     # Arrange
     context = get_test_context()
 
-    client = OctopusEnergyApiClient(context["api_key"], price_cap)
+    client = OctopusEnergyApiClient(context.api_key, price_cap)
 
     # Act
     data = await client.async_get_electricity_rates(tariff, is_smart_meter, period_from, period_to)
@@ -168,7 +168,7 @@ async def test_when_get_electricity_rates_is_called_for_non_existent_tariff_then
     # Arrange
     context = get_test_context()
 
-    client = OctopusEnergyApiClient(context["api_key"])
+    client = OctopusEnergyApiClient(context.api_key)
 
     # Act
     data = await client.async_get_electricity_rates(tariff, True, default_period_from, default_period_to)

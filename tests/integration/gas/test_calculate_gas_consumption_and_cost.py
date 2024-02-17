@@ -14,11 +14,14 @@ from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned(consumption_units):
   # Arrange
   context = get_test_context()
-  client = OctopusEnergyApiClient(context["api_key"])
+  client = OctopusEnergyApiClient(context.api_key)
+
+  account_info = await client.async_get_account(context.account_id)
+  assert account_info is not None
 
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
+  expected_tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-L"
   latest_date = None
 
   actual_fired_events = {}
@@ -29,19 +32,19 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
   
   # Retrieve real consumption data so we can make sure our calculation works with the result
   current_utc_timestamp = datetime.strptime(f'2022-03-02T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
-  sensor_identifier = context["gas_mprn"]
-  sensor_serial_number = context["gas_serial_number"]
+  sensor_identifier = context.gas_mprn
+  sensor_serial_number = context.gas_serial_number
   is_electricity = False
   consumption_and_rates_result = await async_fetch_consumption_and_rates(
     None,
     current_utc_timestamp,
+    account_info,
     client,
     period_from,
     period_to,
     sensor_identifier,
     sensor_serial_number,
     is_electricity,
-    tariff_code,
     True,
     fire_event
   )
@@ -50,7 +53,7 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
 
   # Make sure we have standing charges available
 
-  standard_charge_result = await client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
+  standard_charge_result = await client.async_get_gas_standing_charge(expected_tariff_code, period_from, period_to)
   assert standard_charge_result is not None
 
   # Act
@@ -59,7 +62,6 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
     consumption_and_rates_result.rates,
     consumption_and_rates_result.standing_charge,
     latest_date,
-    tariff_code,
     consumption_units,
     40
   )
@@ -70,8 +72,8 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
   assert result["standing_charge"] == round(standard_charge_result["value_inc_vat"] / 100, 2)
   
   if consumption_units == "m³":
-    assert result["total_cost_without_standing_charge"] == 2.88
-    assert result["total_cost"] == 3.14
+    assert result["total_cost_without_standing_charge"] == 2.86
+    assert result["total_cost"] == 3.12
     assert round(result["total_consumption_kwh"], 2) == 63.86
     assert round(result["total_consumption_m3"], 2) == 5.62
   else:
