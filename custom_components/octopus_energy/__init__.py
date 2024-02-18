@@ -5,6 +5,9 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
 from homeassistant.components.recorder import get_instance
 from homeassistant.util.dt import (utcnow)
+from homeassistant.const import (
+    EVENT_HOMEASSISTANT_STOP
+)
 
 from .coordinators.account import AccountCoordinatorResult, async_setup_account_info_coordinator
 from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatches_coordinator
@@ -76,6 +79,13 @@ async def async_migrate_entry(hass, config_entry):
 
   return True
 
+async def _async_close_client(hass, account_id: str):
+  if account_id in hass.data[DOMAIN] and DATA_CLIENT in hass.data[DOMAIN][account_id]:
+    _LOGGER.debug('Closing client...')
+    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
+    await client.async_close()
+    _LOGGER.debug('Client closed.')
+
 async def async_setup_entry(hass, entry):
   """This is called from the config flow."""
   hass.data.setdefault(DOMAIN, {})
@@ -91,6 +101,14 @@ async def async_setup_entry(hass, entry):
   if config[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
     await async_setup_dependencies(hass, config)
     await hass.config_entries.async_forward_entry_setups(entry, ACCOUNT_PLATFORMS)
+
+    async def async_close_connection(_) -> None:
+      """Close client."""
+      await _async_close_client(hass, account_id)
+
+    entry.async_on_unload(
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, async_close_connection)
+    )
   elif config[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
     if DOMAIN not in hass.data or account_id not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN][account_id]:
       raise ConfigEntryNotReady("Account has not been setup")
@@ -149,6 +167,8 @@ async def async_setup_dependencies(hass, config):
   _LOGGER.info(f'electricity_price_cap: {electricity_price_cap}')
   _LOGGER.info(f'gas_price_cap: {gas_price_cap}')
 
+  # Close any existing clients, as our new client may have changed
+  await _async_close_client(hass, account_id)
   client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap)
   hass.data[DOMAIN][account_id][DATA_CLIENT] = client
 

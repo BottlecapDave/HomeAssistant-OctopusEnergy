@@ -399,6 +399,10 @@ class OctopusEnergyApiClient:
 
     self._session = None
 
+  async def async_close(self):
+    with self._session_lock:
+      await self._session.close()
+
   def _create_client_session(self):
     if self._session is not None:
       return self._session
