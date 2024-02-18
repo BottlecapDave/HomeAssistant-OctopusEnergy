@@ -91,6 +91,9 @@ DATA_SAVING_SESSIONS_FORCE_UPDATE = "SAVING_SESSIONS_FORCE_UPDATE"
 
 STORAGE_COMPLETED_DISPATCHES_NAME = "octopus_energy.{}-completed-intelligent-dispatches.json"
 
+INTELLIGENT_SOURCE_SMART_CHARGE = "smart-charge"
+INTELLIGENT_SOURCE_BUMP_CHARGE = "bump-charge"
+
 REGEX_HOURS = "^[0-9]+(\\.[0-9]+)*$"
 REGEX_TIME = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"
 REGEX_ENTITY_NAME = "^[a-z0-9_]+$"
