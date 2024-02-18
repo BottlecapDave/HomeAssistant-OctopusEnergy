@@ -164,31 +164,48 @@ async def async_setup_dependencies(hass, config):
 
   hass.data[DOMAIN][account_id][DATA_ACCOUNT] = AccountCoordinatorResult(utcnow(), 1, account_info)
 
-  # Remove gas meter devices which had incorrect identifier
+  device_registry = dr.async_get(hass)
+  now = utcnow()
+
   if account_info is not None and len(account_info["gas_meter_points"]) > 0:
-    device_registry = dr.async_get(hass)
     for point in account_info["gas_meter_points"]:
       mprn = point["mprn"]
       for meter in point["meters"]:
         serial_number = meter["serial_number"]
-        intelligent_device = device_registry.async_get_device(identifiers={(DOMAIN, f"electricity_{serial_number}_{mprn}")})
-        if intelligent_device is not None:
-          device_registry.async_remove_device(intelligent_device.id)
+
+        tariff_code = get_active_tariff_code(now, point["agreements"])
+        if tariff_code is None:
+          gas_device = device_registry.async_get_device(identifiers={(DOMAIN, f"gas_{serial_number}_{mprn}")})
+          if gas_device is not None:
+            _LOGGER.debug(f'Removed gas device {serial_number}/{mprn} due to no active tariff')
+            device_registry.async_remove_device(gas_device.id)
+
+        # Remove gas meter devices which had incorrect identifier
+        gas_device = device_registry.async_get_device(identifiers={(DOMAIN, f"electricity_{serial_number}_{mprn}")})
+        if gas_device is not None:
+          device_registry.async_remove_device(gas_device.id)
 
   has_intelligent_tariff = False
   intelligent_mpan = None
   intelligent_serial_number = None
-  now = utcnow()
   for point in account_info["electricity_meter_points"]:
-    # We only care about points that have active agreements
+    mpan = point["mpan"]
     electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
-    if electricity_tariff_code is not None:
-      for meter in point["meters"]:
+
+    for meter in point["meters"]:  
+      serial_number = meter["serial_number"]
+      
+      if electricity_tariff_code is not None:
         if meter["is_export"] == False:
           if is_intelligent_tariff(electricity_tariff_code):
-            intelligent_mpan = point["mpan"]
-            intelligent_serial_number = meter["serial_number"]
+            intelligent_mpan = mpan
+            intelligent_serial_number = serial_number
             has_intelligent_tariff = True
+      else:
+        _LOGGER.debug(f'Removed electricity device {serial_number}/{mpan} due to no active tariff')
+        electricity_device = device_registry.async_get_device(identifiers={(DOMAIN, f"electricity_{serial_number}_{mpan}")})
+        if electricity_device is not None:
+          device_registry.async_remove_device(electricity_device.id)
 
   should_mock_intelligent_data = await async_mock_intelligent_data(hass, account_id)
   if should_mock_intelligent_data:
