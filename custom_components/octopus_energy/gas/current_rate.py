@@ -27,12 +27,11 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the current rate."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point, gas_price_cap):
+  def __init__(self, hass: HomeAssistant, coordinator, meter, point, gas_price_cap):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
 
-    self._tariff_code = tariff_code
     self._gas_price_cap = gas_price_cap
 
     self._state = None
@@ -42,7 +41,7 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, Res
       "mprn": self._mprn,
       "serial_number": self._serial_number,
       "is_smart_meter": self._is_smart_meter,
-      "tariff": self._tariff_code,
+      "tariff": None,
       "start": None,
       "end": None,
       "is_capped": None,
@@ -102,7 +101,7 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, Res
           "mprn": self._mprn,
           "serial_number": self._serial_number,
           "is_smart_meter": self._is_smart_meter,
-          "tariff": self._tariff_code,
+          "tariff": rate_information["current_rate"]["tariff_code"],
           "start": rate_information["current_rate"]["start"],
           "end": rate_information["current_rate"]["end"],
           "is_capped": rate_information["current_rate"]["is_capped"],
@@ -114,7 +113,7 @@ class OctopusEnergyGasCurrentRate(CoordinatorEntity, OctopusEnergyGasSensor, Res
           "mprn": self._mprn,
           "serial_number": self._serial_number,
           "is_smart_meter": self._is_smart_meter,
-          "tariff": self._tariff_code,
+          "tariff": None,
           "start": None,
           "end": None,
           "is_capped": None,

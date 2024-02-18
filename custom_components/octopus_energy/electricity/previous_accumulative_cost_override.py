@@ -149,8 +149,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
           consumption_data,
           rate_data,
           standing_charge["value_inc_vat"] if standing_charge is not None else None,
-          None,
-          tariff_override
+          None
         )
 
         self._tariff_code = tariff_override

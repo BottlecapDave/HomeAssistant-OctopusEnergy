@@ -17,7 +17,6 @@ def calculate_electricity_consumption_and_cost(
     rate_data,
     standing_charge,
     last_reset,
-    tariff_code,
     minimum_consumption_records = 0,
     round_cost = True
   ):
@@ -47,7 +46,7 @@ def calculate_electricity_consumption_and_cost(
         try:
           rate = next(r for r in rate_data if r["start"] == consumption_from and r["end"] == consumption_to)
         except StopIteration:
-          raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to} for tariff {tariff_code}")
+          raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to}")
 
         value = rate["value_inc_vat"]
         cost = (value * consumption_value)

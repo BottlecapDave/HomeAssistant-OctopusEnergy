@@ -21,7 +21,7 @@ async def test_when_get_electricity_standing_charge_is_called_for_existent_tarif
     # Arrange
     context = get_test_context()
 
-    client = OctopusEnergyApiClient(context["api_key"])
+    client = OctopusEnergyApiClient(context.api_key)
 
     # Act
     result = await client.async_get_electricity_standing_charge(tariff, period_from, period_to)
@@ -38,7 +38,7 @@ async def test_when_get_electricity_standing_charge_is_called_with_tracker_tarif
     context = get_test_context()
     period_from = now().replace(hour=0, minute=0, second=0, microsecond=0)
     period_to = (now() + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-    client = OctopusEnergyApiClient(context["api_key"])
+    client = OctopusEnergyApiClient(context.api_key)
 
     # Act
     result = await client.async_get_electricity_standing_charge(tariff, period_from, period_to)
@@ -54,7 +54,7 @@ async def test_when_get_electricity_standing_charge_is_called_for_non_existent_t
     # Arrange
     context = get_test_context()
 
-    client = OctopusEnergyApiClient(context["api_key"])
+    client = OctopusEnergyApiClient(context.api_key)
 
     # Act
     result = await client.async_get_electricity_standing_charge(tariff, period_from, period_to)

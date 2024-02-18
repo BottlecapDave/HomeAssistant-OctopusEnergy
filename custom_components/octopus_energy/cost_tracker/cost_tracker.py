@@ -132,8 +132,10 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
   async def _async_calculate_cost(self, event: EventType[EventStateChangedData]):
     new_state = event.data["new_state"]
     old_state = event.data["old_state"]
-    if new_state is None or new_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
+    if new_state is None or new_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
       return
+    
+    _LOGGER.debug(f'event: {event.data}')
 
     current = now()
     rates_result: ElectricityRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
@@ -146,7 +148,8 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
                                        parse_datetime(new_state.attributes["last_reset"]) if "last_reset" in new_state.attributes and new_state.attributes["last_reset"] is not None else None,
                                        parse_datetime(old_state.attributes["last_reset"]) if "last_reset" in old_state.attributes and old_state.attributes["last_reset"] is not None else None,
                                        self._config[CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE],
-                                       self._attributes["is_tracking"])
+                                       self._attributes["is_tracking"],
+                                       new_state.attributes["state_class"] if "state_class" in new_state.attributes else None)
 
     if (consumption_data is not None and rates_result is not None and rates_result.rates is not None):
       self._reset_if_new_day(current)
@@ -157,7 +160,6 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
         rates_result.rates,
         0,
         None, # We want to always recalculate
-        rates_result.rates[0]["tariff_code"],
         0,
         False
       )
@@ -168,7 +170,6 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
         rates_result.rates,
         0,
         None, # We want to always recalculate
-        rates_result.rates[0]["tariff_code"],
         0,
         False
       )

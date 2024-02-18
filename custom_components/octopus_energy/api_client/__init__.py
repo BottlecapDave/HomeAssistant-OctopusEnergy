@@ -53,7 +53,7 @@ account_query = '''query {{
             firmwareVersion
 					}}
 				}}
-				agreements {{
+				agreements(includeInactive: true) {{
 					validFrom
 					validTo
 					tariff {{
@@ -96,7 +96,7 @@ account_query = '''query {{
             firmwareVersion
 					}}
 				}}
-				agreements {{
+				agreements(includeInactive: true) {{
 					validFrom
 					validTo
 					tariff {{
@@ -252,12 +252,13 @@ octoplus_saving_session_join_mutation = '''mutation {{
 
 octoplus_saving_session_query = '''query {{
 	savingSessions {{
-    events {{
+    events(getDevEvents: false) {{
 			id
       code
 			rewardPerKwhInOctoPoints
 			startAt
 			endAt
+      devEvent
 		}}
 		account(accountNumber: "{account_id}") {{
 			hasJoinedCampaign
@@ -397,6 +398,10 @@ class OctopusEnergyApiClient:
     self._default_headers = { "user-agent": f'{user_agent_value}/{INTEGRATION_VERSION}' }
 
     self._session = None
+
+  async def async_close(self):
+    with self._session_lock:
+      await self._session.close()
 
   def _create_client_session(self):
     if self._session is not None:

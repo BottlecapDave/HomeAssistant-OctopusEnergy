@@ -2,7 +2,7 @@ import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 
 DOMAIN = "octopus_energy"
-INTEGRATION_VERSION = "10.1.0"
+INTEGRATION_VERSION = "10.1.2"
 
 REFRESH_RATE_IN_MINUTES_ACCOUNT = 60
 REFRESH_RATE_IN_MINUTES_INTELLIGENT = 5
@@ -90,6 +90,9 @@ DATA_GREENNESS_FORECAST = "GREENNESS_FORECAST"
 DATA_SAVING_SESSIONS_FORCE_UPDATE = "SAVING_SESSIONS_FORCE_UPDATE"
 
 STORAGE_COMPLETED_DISPATCHES_NAME = "octopus_energy.{}-completed-intelligent-dispatches.json"
+
+INTELLIGENT_SOURCE_SMART_CHARGE = "smart-charge"
+INTELLIGENT_SOURCE_BUMP_CHARGE = "bump-charge"
 
 REGEX_HOURS = "^[0-9]+(\\.[0-9]+)*$"
 REGEX_TIME = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"

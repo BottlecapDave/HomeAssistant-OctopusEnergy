@@ -1,3 +1,26 @@
+## [10.1.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.1.1...v10.1.2) (2024-02-18)
+
+
+### Bug Fixes
+
+* Automatically removed devices associated with old meters ([e6905d0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e6905d096373ed40b6f8a7fb0cd62c4a8bd436a2))
+* Fixed dispatching sensor incorrectly turning on when bump charges are activated ([b37e4b1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b37e4b1a4ae5447ebc8465839eb9c0c1a9f4be5c))
+* Fixed issue where client is not cleaned up correctly on restart ([deac67b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/deac67ba099c251c4b21bc11ab32d7bd480548a1))
+* Fixed issue with cost trackers when old state is unavailable/unknown ([599613b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/599613b6b4e4b5aa70670e2dd653f3f3f88ae605))
+
+## [10.1.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.1.0...v10.1.1) (2024-02-17)
+
+
+### Bug Fixes
+
+* Fixed icon for update cost tracker service ([e1d048a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e1d048a1fc99655000163931f38b680a66915aa0))
+* Fixed issue when rates were not adjusted for dispatches that started or ended part way through a rate ([fb3e3f2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fb3e3f2cf269a90c01b97162729dba2db98b8aa1))
+* Fixed issue where previous cost is calculated incorrectly when on restart and on intelligent tariff and dispatches have not been retrieved ([406f2c8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/406f2c84f392d17e9fd836597ecda00f8e95c47d))
+* Fixed issue where tariff attribute on entities would be old tariff when switched over ([a328fec](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a328fece656eda5a5f0bf432b3ef290517abab07))
+* Fixed issue with cost tracker when used with total_increasing entities that reset ([6759317](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6759317099328d185cd4fa05fdc628f29b6b0d04))
+* Fixed previous consumption cost not adapting when tariff changes ([2ec461e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2ec461eb1616f2f10ab583ba561823202bbf6706))
+* Updated saving sessions to ignore octopus test events ([9488a37](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9488a370b0d703fe68eb34f9e4222fd18ff5d0ec))
+
 # [10.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.0.4...v10.1.0) (2024-02-10)
 
 

@@ -24,12 +24,10 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyGasCurrentStandingCharge(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the current standing charge."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point):
+  def __init__(self, hass: HomeAssistant, coordinator, meter, point):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
-
-    self._tariff_code = tariff_code
 
     self._state = None
     self._latest_date = None

@@ -78,6 +78,7 @@ async def test_when_target_has_rates_and_gmt_then_rate_information_is_returned()
   assert "current_rate" in rate_information
   assert rate_information["current_rate"]["start"] == datetime.strptime("2022-02-28T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert rate_information["current_rate"]["end"] == rate_information["current_rate"]["start"] + timedelta(minutes=60)
+  assert rate_information["current_rate"]["tariff_code"] == rate_data[0]["tariff_code"]
 
   assert rate_information["current_rate"]["value_inc_vat"] == round(expected_rate / 100, 6)
   
@@ -129,6 +130,7 @@ async def test_when_target_has_rates_and_bst_then_rate_information_is_returned()
   assert "current_rate" in rate_information
   assert rate_information["current_rate"]["start"] == datetime.strptime("2022-02-28T00:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
   assert rate_information["current_rate"]["end"] == rate_information["current_rate"]["start"] + timedelta(minutes=60)
+  assert rate_information["current_rate"]["tariff_code"] == rate_data[0]["tariff_code"]
 
   assert rate_information["current_rate"]["value_inc_vat"] == round(expected_rate / 100, 6)
   
@@ -178,6 +180,7 @@ async def test_when_all_rates_identical_costs_then_rate_information_is_returned(
   assert "current_rate" in rate_information
   assert rate_information["current_rate"]["start"] == period_from
   assert rate_information["current_rate"]["end"] == period_to
+  assert rate_information["current_rate"]["tariff_code"] == rate_data[0]["tariff_code"]
 
   assert rate_information["current_rate"]["value_inc_vat"] == round(expected_rate / 100, 6)
   
@@ -254,6 +257,7 @@ async def test_when_agile_rates_then_rate_information_is_returned(now: datetime)
   assert rate_information["current_rate"]["value_inc_vat"] == round(expected_current_rate / 100, 6)
   assert rate_information["current_rate"]["start"] == datetime.strptime("2023-10-06T09:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
   assert rate_information["current_rate"]["end"] == datetime.strptime("2023-10-06T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  assert rate_information["current_rate"]["tariff_code"] == rate_data[0]["tariff_code"]
 
   assert "applicable_rates" in rate_information
   assert len(rate_information["applicable_rates"]) == 1

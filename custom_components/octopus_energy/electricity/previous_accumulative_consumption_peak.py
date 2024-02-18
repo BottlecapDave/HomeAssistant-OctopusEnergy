@@ -34,13 +34,12 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyPreviousAccumulativeElectricityConsumptionPeak(CoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative electricity reading during peak hours."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point):
+  def __init__(self, hass: HomeAssistant, coordinator, meter, point):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._state = None
-    self._tariff_code = tariff_code
     self._last_reset = None
     self._hass = hass
 
@@ -110,8 +109,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumptionPeak(CoordinatorEnt
       consumption_data,
       rate_data,
       standing_charge,
-      self._last_reset,
-      self._tariff_code
+      self._last_reset
     )
 
     if (consumption_and_cost is not None):

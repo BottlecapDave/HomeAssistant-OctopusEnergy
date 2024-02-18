@@ -5,6 +5,9 @@ from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
 from homeassistant.components.recorder import get_instance
 from homeassistant.util.dt import (utcnow)
+from homeassistant.const import (
+    EVENT_HOMEASSISTANT_STOP
+)
 
 from .coordinators.account import AccountCoordinatorResult, async_setup_account_info_coordinator
 from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatches_coordinator
@@ -76,6 +79,13 @@ async def async_migrate_entry(hass, config_entry):
 
   return True
 
+async def _async_close_client(hass, account_id: str):
+  if account_id in hass.data[DOMAIN] and DATA_CLIENT in hass.data[DOMAIN][account_id]:
+    _LOGGER.debug('Closing client...')
+    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
+    await client.async_close()
+    _LOGGER.debug('Client closed.')
+
 async def async_setup_entry(hass, entry):
   """This is called from the config flow."""
   hass.data.setdefault(DOMAIN, {})
@@ -91,6 +101,14 @@ async def async_setup_entry(hass, entry):
   if config[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
     await async_setup_dependencies(hass, config)
     await hass.config_entries.async_forward_entry_setups(entry, ACCOUNT_PLATFORMS)
+
+    async def async_close_connection(_) -> None:
+      """Close client."""
+      await _async_close_client(hass, account_id)
+
+    entry.async_on_unload(
+        hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, async_close_connection)
+    )
   elif config[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
     if DOMAIN not in hass.data or account_id not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN][account_id]:
       raise ConfigEntryNotReady("Account has not been setup")
@@ -149,6 +167,8 @@ async def async_setup_dependencies(hass, config):
   _LOGGER.info(f'electricity_price_cap: {electricity_price_cap}')
   _LOGGER.info(f'gas_price_cap: {gas_price_cap}')
 
+  # Close any existing clients, as our new client may have changed
+  await _async_close_client(hass, account_id)
   client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap)
   hass.data[DOMAIN][account_id][DATA_CLIENT] = client
 
@@ -164,31 +184,48 @@ async def async_setup_dependencies(hass, config):
 
   hass.data[DOMAIN][account_id][DATA_ACCOUNT] = AccountCoordinatorResult(utcnow(), 1, account_info)
 
-  # Remove gas meter devices which had incorrect identifier
+  device_registry = dr.async_get(hass)
+  now = utcnow()
+
   if account_info is not None and len(account_info["gas_meter_points"]) > 0:
-    device_registry = dr.async_get(hass)
     for point in account_info["gas_meter_points"]:
       mprn = point["mprn"]
       for meter in point["meters"]:
         serial_number = meter["serial_number"]
-        intelligent_device = device_registry.async_get_device(identifiers={(DOMAIN, f"electricity_{serial_number}_{mprn}")})
-        if intelligent_device is not None:
-          device_registry.async_remove_device(intelligent_device.id)
+
+        tariff_code = get_active_tariff_code(now, point["agreements"])
+        if tariff_code is None:
+          gas_device = device_registry.async_get_device(identifiers={(DOMAIN, f"gas_{serial_number}_{mprn}")})
+          if gas_device is not None:
+            _LOGGER.debug(f'Removed gas device {serial_number}/{mprn} due to no active tariff')
+            device_registry.async_remove_device(gas_device.id)
+
+        # Remove gas meter devices which had incorrect identifier
+        gas_device = device_registry.async_get_device(identifiers={(DOMAIN, f"electricity_{serial_number}_{mprn}")})
+        if gas_device is not None:
+          device_registry.async_remove_device(gas_device.id)
 
   has_intelligent_tariff = False
   intelligent_mpan = None
   intelligent_serial_number = None
-  now = utcnow()
   for point in account_info["electricity_meter_points"]:
-    # We only care about points that have active agreements
+    mpan = point["mpan"]
     electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
-    if electricity_tariff_code is not None:
-      for meter in point["meters"]:
+
+    for meter in point["meters"]:  
+      serial_number = meter["serial_number"]
+      
+      if electricity_tariff_code is not None:
         if meter["is_export"] == False:
           if is_intelligent_tariff(electricity_tariff_code):
-            intelligent_mpan = point["mpan"]
-            intelligent_serial_number = meter["serial_number"]
+            intelligent_mpan = mpan
+            intelligent_serial_number = serial_number
             has_intelligent_tariff = True
+      else:
+        _LOGGER.debug(f'Removed electricity device {serial_number}/{mpan} due to no active tariff')
+        electricity_device = device_registry.async_get_device(identifiers={(DOMAIN, f"electricity_{serial_number}_{mpan}")})
+        if electricity_device is not None:
+          device_registry.async_remove_device(electricity_device.id)
 
   should_mock_intelligent_data = await async_mock_intelligent_data(hass, account_id)
   if should_mock_intelligent_data:

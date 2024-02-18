@@ -41,6 +41,7 @@ def create_rate_data(period_from, period_to, expected_rates: list):
       "start": current_valid_from,
       "end": current_valid_to,
       "value_inc_vat": expected_rates[rate_index],
+      "tariff_code": "E-1R-Test-L",
       "is_capped": False
     })
 

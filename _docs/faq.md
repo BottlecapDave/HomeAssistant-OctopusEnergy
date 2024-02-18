@@ -28,7 +28,8 @@ If data cannot be refreshed for any reason (e.g. no internet or APIs are down), 
 
 Once a successful request is made, the refreshes will revert back to the redefined default intervals.
 
-**The retrieving of data does not effect the rate the entities states/attributes are evaluated.**
+!!! note
+    The retrieving of data does not effect the rate the entities states/attributes are evaluated.
 
 ## I have data missing, is this an issue with the integration?
 
@@ -58,9 +59,19 @@ Please follow the [guide](./setup/energy_dashboard.md#previous-day-consumption) 
 
 You should not have this issue for current consumption sensors, as they are updated in realtime.
 
-## Why are the names of the entities so long, and can you change them to be shorted?
+## Why are the names of the entities so long, and can you change them to be shorter?
 
-The names and ids of the entities are long to avoid clashes with both other integrations and with other meters that might be associated with your account. However you are free to update the names and/or ids to something more concise for you as per the [Home Assistant docs](https://www.home-assistant.io/docs/configuration/customizing-devices/#changing-the-entity-id).
+Naming things are hard. The entity ids are long for the following reasons
+
+* The domain is present as I didn't want to potentially clash with other integrations that provide similar sensors for meters, as a lot of people in the community use things like the glow device to get their readings. Hindsight, I probably wouldn't include this, but we're here now.
+
+* The serial number and mpan/mprn is present because the data that comes back from OE is in an array of arrays. I am only on an import tariff, so couldn't guarantee that any of these were unique and didn't want to assume anything. Turns out one of these is duplicated between import/export meters so if I had picked one of these I would have been wrong and had a clash.
+
+* The account id is present in other sensors because it is on the roadmap to support multiple accounts (which the serial number/mpan/mprn also play apart in).
+
+The names of the entities are equally long for consistency with the entity id and so that you can tell one entity apart from another in the above scenarios.
+
+However you are free to update the names and/or ids to something more concise for you as per the [Home Assistant docs](https://www.home-assistant.io/docs/configuration/customizing-devices/#changing-the-entity-id).
 
 ## I am getting warnings about entities taking too long to update. Is this normal?
 
@@ -76,6 +87,12 @@ then yes, this is expected. This is a default warning built into Home Assistant,
 2. Octopus Energy APIs are slow to respond, or having issues.
 
 If you wish to suppress this warning, you can follow [this advice](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/429#issuecomment-1783739547).
+
+## I am getting errors relating to "Too many requests". Is there something wrong?
+
+The most common scenario for this is related to the Home Mini. This can be determined by the presence of `smartMeterTelemetry` in the error message. The Octopus Energy APIs have a rate limit of 100 calls per hour, which is shared among all calls including through the app or other integrations. The defaults are usually enough for one electricity and one gas meter's data to be retrieved. However, if you are using other integrations, have more meters being tracked or want the app to not be effected you may want to increase this rate via your [account](./setup/account.md#refresh-rate-in-minutes).
+
+If you are receiving this error for a different reason, please raise an [issue](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues), as Octopus Energy might have introduced a new rate limit.
 
 ## I want to use a utility meter with the consumption sensors, but they don't seem to be adding up correctly. Is there something I'm doing wrong?
 

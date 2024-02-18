@@ -11,7 +11,7 @@ async def test_when_get_greenness_forecast_is_called_then_points_are_returned():
     # Arrange
     context = get_test_context()
 
-    client = OctopusEnergyApiClient(context["api_key"])
+    client = OctopusEnergyApiClient(context.api_key)
 
     # Act
     result = await client.async_get_greenness_forecast()

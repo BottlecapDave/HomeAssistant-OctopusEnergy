@@ -32,6 +32,12 @@ from custom_components.octopus_energy.api_client.intelligent_dispatches import I
   (parse_datetime("2023-06-07T17:00:00Z"), True),
   (parse_datetime("2023-06-07T18:00:00+01:00"), True),
 
+  # During bump charge
+  (parse_datetime("2023-06-07T18:00:00Z"), False),
+  (parse_datetime("2023-06-07T19:00:00+01:00"), False),
+  (parse_datetime("2023-06-07T19:00:00Z"), False),
+  (parse_datetime("2023-06-07T20:00:00+01:00"), False),
+
   (parse_datetime("2023-06-07T15:59:59Z"), False),
   (parse_datetime("2023-06-07T16:59:59+01:00"), False),
   (parse_datetime("2023-06-07T17:00:01Z"), False),
@@ -59,6 +65,13 @@ async def test_when_dispatch_is_now_then_is_in_planned_dispatch_returns_correctl
       as_utc(parse_datetime("2023-06-07T17:00:00Z")),
       1,
       "smart-charge",
+      "home"
+    ),
+    IntelligentDispatchItem(
+      as_utc(parse_datetime("2023-06-07T18:00:00Z")),
+      as_utc(parse_datetime("2023-06-07T19:00:00Z")),
+      1,
+      "bump-charge",
       "home"
     )
   ]
