@@ -1,3 +1,13 @@
+## [10.1.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.1.1...v10.1.2) (2024-02-18)
+
+
+### Bug Fixes
+
+* Automatically removed devices associated with old meters ([e6905d0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e6905d096373ed40b6f8a7fb0cd62c4a8bd436a2))
+* Fixed dispatching sensor incorrectly turning on when bump charges are activated ([b37e4b1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b37e4b1a4ae5447ebc8465839eb9c0c1a9f4be5c))
+* Fixed issue where client is not cleaned up correctly on restart ([deac67b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/deac67ba099c251c4b21bc11ab32d7bd480548a1))
+* Fixed issue with cost trackers when old state is unavailable/unknown ([599613b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/599613b6b4e4b5aa70670e2dd653f3f3f88ae605))
+
 ## [10.1.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.1.0...v10.1.1) (2024-02-17)
 
 
