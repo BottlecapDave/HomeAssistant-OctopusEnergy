@@ -56,28 +56,12 @@ account_query = '''query {{
 				agreements(includeInactive: true) {{
 					validFrom
 					validTo
-					tariff {{
-						...on StandardTariff {{
-							tariffCode
+          tariff {{
+            ... on TariffType {{
               productCode
-						}}
-						...on DayNightTariff {{
-							tariffCode
-              productCode
-						}}
-						...on ThreeRateTariff {{
-							tariffCode
-              productCode
-						}}
-						...on HalfHourlyTariff {{
-							tariffCode
-              productCode
-						}}
-            ...on PrepayTariff {{
-							tariffCode
-              productCode
-						}}
-					}}
+              tariffCode
+            }}
+          }}
 				}}
 			}}
     }}
