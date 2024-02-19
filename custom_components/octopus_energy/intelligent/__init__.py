@@ -153,6 +153,7 @@ def adjust_intelligent_rates(rates, planned_dispatches: list[IntelligentDispatch
       adjusted_rates.append({
         "start": rate["start"],
         "end": rate["end"],
+        "tariff_code": rate["tariff_code"],
         "value_inc_vat": off_peak_rate["value_inc_vat"],
         "is_capped": rate["is_capped"] if "is_capped" in rate else False,
         "is_intelligent_adjusted": True
