@@ -97,7 +97,7 @@ class OffPeakTime:
     self.start = start
     self.end = end
 
-def get_off_peak_times(current: datetime, rates: list):
+def get_off_peak_times(current: datetime, rates: list, include_intelligent_adjusted = False):
   off_peak_value = get_off_peak_cost(current, rates)
   times: list[OffPeakTime] = []
 
@@ -107,7 +107,7 @@ def get_off_peak_times(current: datetime, rates: list):
     for rate_index in range(rates_length):
       rate = rates[rate_index]
       if (rate["value_inc_vat"] == off_peak_value and 
-          ("is_intelligent_adjusted" not in rate or rate["is_intelligent_adjusted"] == False)):
+          ("is_intelligent_adjusted" not in rate or rate["is_intelligent_adjusted"] == False or include_intelligent_adjusted)):
         if start is None:
           start = rate["start"]
       elif start is not None:
