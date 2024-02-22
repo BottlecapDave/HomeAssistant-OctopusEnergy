@@ -17,8 +17,7 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from ..intelligent import (
-  dispatches_to_dictionary_list,
-  get_dispatch_times
+  dispatches_to_dictionary_list
 )
 
 from ..utils import get_off_peak_times
