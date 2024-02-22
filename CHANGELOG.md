@@ -1,3 +1,13 @@
+## [10.1.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.1.2...v10.1.3) (2024-02-22)
+
+
+### Bug Fixes
+
+* Fixed issue when dispatch source is not defined to count as smart charge ([0af23b9](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0af23b98d1702a847354b5bf28cec11507c551ea))
+* Fixed issue when dispatching sensor would not stay on during full half hour when planned dispatch is active ([e64c694](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e64c69484dbdba271c5d3dd0adaeb7b839ff8b1b))
+* Fixed issue where start/end times could be incorrect on next/previous rate sensors ([c431dac](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c431dac82e4172cbfc2ed9e59faa831ef1523e55))
+* Fixed issue with calculating current rates for intelligent based tariffs ([6efcfc0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6efcfc0fd10eb5d23f4e2fb62ae04bfa28d26018))
+
 ## [10.1.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.1.1...v10.1.2) (2024-02-18)
 
 
