@@ -130,7 +130,8 @@ def has_intelligent_tariff(current: datetime, account_info):
 def __get_dispatch(rate, dispatches: list[IntelligentDispatchItem], expected_source: str):
   if dispatches is not None:
     for dispatch in dispatches:
-      if ((expected_source is None or dispatch.source == expected_source) and 
+      # Source as none counts as smart charge - https://forum.octopus.energy/t/pending-and-completed-octopus-intelligent-dispatches/8510/102
+      if ((expected_source is None or dispatch.source is None or dispatch.source == expected_source) and 
           ((dispatch.start <= rate["start"] and dispatch.end >= rate["end"]) or # Rate is within dispatch
            (dispatch.start >= rate["start"] and dispatch.start < rate["end"]) or # dispatch starts within rate
            (dispatch.end > rate["start"] and dispatch.end <= rate["end"]) # dispatch ends within rate

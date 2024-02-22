@@ -138,7 +138,7 @@ async def test_when_planned_smart_charge_dispatch_spans_two_parts_then_rates_adj
       as_utc(parse_datetime("2022-10-10T22:00:00Z")),
       as_utc(parse_datetime("2022-10-11T04:00:00Z")),
       1,
-      "smart-charge",
+      None,
       "home"
     )
   ]
