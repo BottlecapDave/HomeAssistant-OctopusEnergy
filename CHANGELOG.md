@@ -1,3 +1,10 @@
+## [10.1.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.1.3...v10.1.4) (2024-02-22)
+
+
+### Bug Fixes
+
+* Fixed invalid reference ([0083b2d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0083b2df5de510c3a4fc8d2ae9d72563cd9f9abd))
+
 ## [10.1.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.1.2...v10.1.3) (2024-02-22)
 
 
