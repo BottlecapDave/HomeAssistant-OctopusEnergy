@@ -43,7 +43,7 @@ def mock_intelligent_dispatches() -> IntelligentDispatches:
       utcnow().replace(hour=7, minute=0, second=0, microsecond=0),
       utcnow().replace(hour=8, minute=0, second=0, microsecond=0),
       4.6,
-      INTELLIGENT_SOURCE_SMART_CHARGE,
+      None,
       "home"
     ),
 
@@ -130,7 +130,8 @@ def has_intelligent_tariff(current: datetime, account_info):
 def __get_dispatch(rate, dispatches: list[IntelligentDispatchItem], expected_source: str):
   if dispatches is not None:
     for dispatch in dispatches:
-      if ((expected_source is None or dispatch.source == expected_source) and 
+      # Source as none counts as smart charge - https://forum.octopus.energy/t/pending-and-completed-octopus-intelligent-dispatches/8510/102
+      if ((expected_source is None or dispatch.source is None or dispatch.source == expected_source) and 
           ((dispatch.start <= rate["start"] and dispatch.end >= rate["end"]) or # Rate is within dispatch
            (dispatch.start >= rate["start"] and dispatch.start < rate["end"]) or # dispatch starts within rate
            (dispatch.end > rate["start"] and dispatch.end <= rate["end"]) # dispatch ends within rate
@@ -153,6 +154,7 @@ def adjust_intelligent_rates(rates, planned_dispatches: list[IntelligentDispatch
       adjusted_rates.append({
         "start": rate["start"],
         "end": rate["end"],
+        "tariff_code": rate["tariff_code"],
         "value_inc_vat": off_peak_rate["value_inc_vat"],
         "is_capped": rate["is_capped"] if "is_capped" in rate else False,
         "is_intelligent_adjusted": True
@@ -162,17 +164,10 @@ def adjust_intelligent_rates(rates, planned_dispatches: list[IntelligentDispatch
     
   return adjusted_rates
 
-def is_in_planned_dispatch(current_date: datetime, dispatches: list[IntelligentDispatchItem]) -> bool:
-  for dispatch in dispatches:
-    if (dispatch.start <= current_date and dispatch.end >= current_date):
-      return dispatch.source == INTELLIGENT_SOURCE_SMART_CHARGE
-  
-  return False
-
 def is_in_bump_charge(current_date: datetime, dispatches: list[IntelligentDispatchItem]) -> bool:
   for dispatch in dispatches:
-    if (dispatch.source == INTELLIGENT_SOURCE_BUMP_CHARGE and dispatch.start <= current_date and dispatch.end >= current_date):
-      return True
+    if (dispatch.start <= current_date and dispatch.end >= current_date):
+      return dispatch.source == INTELLIGENT_SOURCE_BUMP_CHARGE
   
   return False
 
@@ -260,39 +255,3 @@ def get_intelligent_features(provider: str) -> IntelligentFeatures:
 
   _LOGGER.warning(f"Unexpected intelligent provider '{provider}'")
   return IntelligentFeatures(False, False, False, False, False)
-
-class DispatchTime:
-  start: datetime
-  end: datetime
-
-  def __init__(self, start, end):
-    self.start = start
-    self.end = end
-
-def get_dispatch_times(current: datetime, off_peak_times: list[OffPeakTime], planned_dispatches: list[IntelligentDispatchItem]):
-  times: list[DispatchTime] = []
-
-  if off_peak_times is not None:
-    for off_peak_time in off_peak_times:
-      if off_peak_time.end >= current:
-        times.append(DispatchTime(off_peak_time.start, off_peak_time.end))
-
-  if planned_dispatches is not None:
-    for dispatch in planned_dispatches:
-      if dispatch.end < current:
-        continue
-
-      dispatch_time_added = False
-      for time in times:
-        if dispatch.start <= time.start and dispatch.end >= time.start:
-          time.start = dispatch.start
-          dispatch_time_added = True
-        elif dispatch.start <= time.end and dispatch.end >= time.end:
-          time.end = dispatch.end
-          dispatch_time_added = True
-
-      if dispatch_time_added == False:
-        times.append(DispatchTime(dispatch.start, dispatch.end))
-
-  times.sort(key=lambda time: time.start)
-  return times

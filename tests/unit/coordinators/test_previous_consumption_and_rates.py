@@ -441,6 +441,9 @@ async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requ
 @pytest.mark.asyncio
 async def test_when_retrieving_gas_and_next_refresh_is_in_the_past_and_returned_data_is_empty_then_previous_data_returned():
   # Arrange
+  async def async_mocked_get_gas_rates(*args, **kwargs):
+    return []
+
   async def async_mocked_get_gas_consumption(*args, **kwargs):
     return []
   
@@ -453,7 +456,7 @@ async def test_when_retrieving_gas_and_next_refresh_is_in_the_past_and_returned_
     actual_fired_events[name] = metadata
     return None
 
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_consumption=async_mocked_get_gas_consumption, async_get_gas_standing_charge=async_mocked_get_gas_standing_charge):
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates, async_get_gas_consumption=async_mocked_get_gas_consumption, async_get_gas_standing_charge=async_mocked_get_gas_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
 
     is_electricity = False
@@ -511,6 +514,9 @@ async def test_when_retrieving_gas_and_next_refresh_is_in_the_past_and_returned_
 @pytest.mark.asyncio
 async def test_when_retrieving_electricity_and_next_refresh_is_in_the_past_and_returned_data_is_empty_then_previous_data_returned():
   # Arrange
+  async def async_mocked_get_electricity_rates(*args, **kwargs):
+    return []
+
   async def async_mocked_get_electricity_consumption(*args, **kwargs):
     return []
   
@@ -523,7 +529,7 @@ async def test_when_retrieving_electricity_and_next_refresh_is_in_the_past_and_r
     actual_fired_events[name] = metadata
     return None
 
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_consumption=async_mocked_get_electricity_consumption, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_rates=async_mocked_get_electricity_rates, async_get_electricity_consumption=async_mocked_get_electricity_consumption, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
 
     is_electricity = True
