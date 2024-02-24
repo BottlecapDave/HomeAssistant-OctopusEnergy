@@ -42,6 +42,7 @@ from .cost_tracker.cost_tracker import OctopusEnergyCostTrackerSensor
 from .cost_tracker.cost_tracker_off_peak import OctopusEnergyCostTrackerOffPeakSensor
 from .cost_tracker.cost_tracker_peak import OctopusEnergyCostTrackerPeakSensor
 from .greenness_forecast.current_index import OctopusEnergyGreennessForecastCurrentIndex
+from .greenness_forecast.next_index import OctopusEnergyGreennessForecastNextIndex
 
 from .coordinators.current_consumption import async_create_current_consumption_coordinator
 from .coordinators.gas_rates import async_setup_gas_rates_coordinator
@@ -75,7 +76,6 @@ from .const import (
   CONFIG_MAIN_GAS_PRICE_CAP,
 
   DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
-  DATA_SAVING_SESSIONS_COORDINATOR,
   DATA_CLIENT,
   DATA_ACCOUNT
 )
@@ -149,7 +149,8 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   entities = [
     OctopusEnergyWheelOfFortuneElectricitySpins(hass, wheel_of_fortune_coordinator, client, account_id),
     OctopusEnergyWheelOfFortuneGasSpins(hass, wheel_of_fortune_coordinator, client, account_id),
-    OctopusEnergyGreennessForecastCurrentIndex(hass, greenness_forecast_coordinator, account_id)
+    OctopusEnergyGreennessForecastCurrentIndex(hass, greenness_forecast_coordinator, account_id),
+    OctopusEnergyGreennessForecastNextIndex(hass, greenness_forecast_coordinator, account_id)
   ]
 
   registry = er.async_get(hass)
