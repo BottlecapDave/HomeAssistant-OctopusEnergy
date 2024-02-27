@@ -657,12 +657,14 @@ class OctopusEnergyApiClient:
         response_body = await self.__async_read_response__(live_consumption_response, url)
 
         if (response_body is not None and "data" in response_body and "smartMeterTelemetry" in response_body["data"] and response_body["data"]["smartMeterTelemetry"] is not None and len(response_body["data"]["smartMeterTelemetry"]) > 0):
-          return list(map(lambda mp: {
-            "consumption": float(mp["consumptionDelta"]) / 1000,
-            "demand": float(mp["demand"]) if "demand" in mp and mp["demand"] is not None else None,
-            "start": parse_datetime(mp["readAt"]),
-            "end": parse_datetime(mp["readAt"]) + timedelta(minutes=30)
-          }, response_body["data"]["smartMeterTelemetry"]))
+          return [
+            {
+              "consumption": float(mp["consumptionDelta"]) / 1000,
+              "demand": float(mp["demand"]) if "demand" in mp and mp["demand"] is not None else None,
+              "start": parse_datetime(mp["readAt"]),
+              "end": parse_datetime(mp["readAt"]) + timedelta(minutes=30)
+            } for mp in response_body["data"]["smartMeterTelemetry"] if mp.get("consumptionDelta")
+          ]
         else:
           _LOGGER.debug(f"Failed to retrieve smart meter consumption data - device_id: {device_id}; period_from: {period_from}; period_to: {period_to}")
     
