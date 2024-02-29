@@ -1,0 +1,44 @@
+blueprint:
+  name: Octopus Energy - Cost tracker (negative)
+  description: Automatically updates the tracking state of the specified cost trackers when the monitored sensor goes negative.
+  domain: automation
+  author: BottlecapDave
+
+  input:
+    cost_tracker_entity:
+      name: Cost tracker entities
+      description: The cost tracker entities to update
+      selector:
+        entity:
+          filter:
+          - domain:
+            - sensor
+            integration: octopus_energy
+          multiple: true
+    cost_tracker_tracking_state:
+      name: Cost tracker tracking state
+      description: The tracking state to update the specified cost tracker entities to
+      selector:
+        boolean:
+    monitored_entity:
+      name: Monitored entity
+      description: The entity to monitor to determine if the tracking state should be updated (e.g. current demand)
+      selector:
+        entity:
+          filter:
+          - domain:
+            - sensor
+            - input_number
+          multiple: false
+
+mode: single
+trigger:
+  - platform: numeric_state
+    entity_id: !input monitored_entity
+    below: 0
+action:
+  - service: octopus_energy.update_cost_tracker
+    target:
+      entity_id: !input cost_tracker_entity
+    data:
+      is_tracking_enabled: !input cost_tracker_tracking_state

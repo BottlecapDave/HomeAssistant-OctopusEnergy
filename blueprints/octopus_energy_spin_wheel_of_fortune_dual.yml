@@ -1,0 +1,43 @@
+blueprint:
+  name: Octopus Energy - Spin Wheel Of Fortune (dual)
+  description: Automatically spin the wheel of fortune when spins become available
+  domain: automation
+  author: BottlecapDave
+
+  input:
+    wheel_of_fortune_spins_electricity:
+      name: "Electricity wheel of fortune spins"
+      description: "The sensor that holds the number electricity wheel of fortune spins (e.g. sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity)"
+      selector:
+        entity:
+          filter:
+            domain: sensor
+            integration: octopus_energy
+
+    wheel_of_fortune_spins_gas:
+      name: "Gas wheel of fortune spins"
+      description: "The sensor that holds the number gas wheel of fortune spins (e.g. sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_gas)"
+      selector:
+        entity:
+          filter:
+            domain: sensor
+            integration: octopus_energy
+
+mode: queued
+max: 4
+trigger:
+  - platform: numeric_state
+    entity_id: !input wheel_of_fortune_spins_electricity
+    above: 0
+  - platform: numeric_state
+    entity_id: !input wheel_of_fortune_spins_gas
+    above: 0
+condition: []
+action:
+  - repeat:
+      count: '{{ states(trigger.entity_id) | int }}'
+      sequence:
+        - service: octopus_energy.spin_wheel_of_fortune
+          data: {}
+          target:
+            entity_id: '{{ trigger.entity_id }}'
