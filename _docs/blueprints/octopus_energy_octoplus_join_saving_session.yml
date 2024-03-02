@@ -35,4 +35,4 @@ action:
     title: Joined Saving Sessions
     message: >
       {% set event_start = state_attr(saving_session_event_entity, 'available_events')[0]['start'] %}
-      Joined a new Octopus Energy saving session. It starts at {{ event_start.strftime('%H:%M') }} on {{ event_start.day }}/{{ event_start.month }}
+      Joined a new Octopus Energy saving session. It starts at {{ event_start.strftime('%H:%M') }} on {{ event_start.day }}/{{ event_start.month }}, and will end at {{ event_end.strftime('%H:%M') }} on {{ event_end.day }}/{{ event_end.month }}.
