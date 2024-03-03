@@ -43,19 +43,17 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
   """Sensor for calculating the cost for a given sensor."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, config, is_export):
+  def __init__(self, hass: HomeAssistant, coordinator, config):
     """Init sensor."""
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
 
     self._state = None
     self._config = config
-    self._is_export = is_export
     self._attributes = self._config.copy()
     self._attributes["is_tracking"] = True
     self._attributes["tracked_charges"] = []
     self._attributes["untracked_charges"] = []
-    self._is_export = is_export
     self._last_reset = None
     
     self._hass = hass

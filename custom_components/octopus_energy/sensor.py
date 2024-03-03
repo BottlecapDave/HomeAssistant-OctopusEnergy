@@ -41,6 +41,12 @@ from .wheel_of_fortune.gas_spins import OctopusEnergyWheelOfFortuneGasSpins
 from .cost_tracker.cost_tracker import OctopusEnergyCostTrackerSensor
 from .cost_tracker.cost_tracker_off_peak import OctopusEnergyCostTrackerOffPeakSensor
 from .cost_tracker.cost_tracker_peak import OctopusEnergyCostTrackerPeakSensor
+from .cost_tracker.cost_tracker_week import OctopusEnergyCostTrackerWeekSensor
+from .cost_tracker.cost_tracker_week_off_peak import OctopusEnergyCostTrackerWeekOffPeakSensor
+from .cost_tracker.cost_tracker_week_peak import OctopusEnergyCostTrackerWeekPeakSensor
+from .cost_tracker.cost_tracker_month import OctopusEnergyCostTrackerMonthSensor
+from .cost_tracker.cost_tracker_month_off_peak import OctopusEnergyCostTrackerMonthOffPeakSensor
+from .cost_tracker.cost_tracker_month_peak import OctopusEnergyCostTrackerMonthPeakSensor
 from .greenness_forecast.current_index import OctopusEnergyGreennessForecastCurrentIndex
 from .greenness_forecast.next_index import OctopusEnergyGreennessForecastNextIndex
 
@@ -119,7 +125,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
       # supports_response=SupportsResponse.OPTIONAL
     )
   elif config[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
-    await async_setup_cost_sensors(hass, config, async_add_entities)
+    await async_setup_cost_sensors(hass, entry, config, async_add_entities)
 
     platform = entity_platform.async_get_current_platform()
     platform.async_register_entity_service(
@@ -153,7 +159,6 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
     OctopusEnergyGreennessForecastNextIndex(hass, greenness_forecast_coordinator, account_id)
   ]
 
-  registry = er.async_get(hass)
   entity_ids_to_migrate = []
 
   if account_info["octoplus_enrolled"] == True:
@@ -341,28 +346,43 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
 
   async_add_entities(entities)
 
-async def async_setup_cost_sensors(hass: HomeAssistant, config, async_add_entities):
+async def async_setup_cost_sensors(hass: HomeAssistant, entry, config, async_add_entities):
   account_id = config[CONFIG_ACCOUNT_ID]
   account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
   account_info = account_result.account if account_result is not None else None
 
   mpan = config[CONFIG_COST_MPAN]
 
+  registry = er.async_get(hass)
+
   now = utcnow()
-  is_export = False
   for point in account_info["electricity_meter_points"]:
     tariff_code = get_active_tariff_code(now, point["agreements"])
     if tariff_code is not None:
       # For backwards compatibility, pick the first applicable meter
       if point["mpan"] == mpan or mpan is None:
         for meter in point["meters"]:
-          is_export = meter["is_export"]
           serial_number = meter["serial_number"]
           coordinator = hass.data[DOMAIN][account_id][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)]
+
+          sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, config)
+          off_peak_sensor = OctopusEnergyCostTrackerOffPeakSensor(hass, coordinator, config)
+          peak_sensor = OctopusEnergyCostTrackerPeakSensor(hass, coordinator, config)
+
+          sensor_entity_id = registry.async_get_entity_id("sensor", DOMAIN, sensor.unique_id)
+          off_peak_sensor_entity_id = registry.async_get_entity_id("sensor", DOMAIN, off_peak_sensor.unique_id)
+          peak_sensor_entity_id = registry.async_get_entity_id("sensor", DOMAIN, peak_sensor.unique_id)
+
           entities = [
-            OctopusEnergyCostTrackerSensor(hass, coordinator, config, is_export),
-            OctopusEnergyCostTrackerOffPeakSensor(hass, coordinator, config, is_export),
-            OctopusEnergyCostTrackerPeakSensor(hass, coordinator, config, is_export)
+            sensor,
+            off_peak_sensor,
+            peak_sensor,
+            OctopusEnergyCostTrackerWeekSensor(hass, entry, config, sensor_entity_id if sensor_entity_id is not None else sensor.entity_id),
+            OctopusEnergyCostTrackerWeekOffPeakSensor(hass, entry, config, off_peak_sensor_entity_id if off_peak_sensor_entity_id is not None else off_peak_sensor.entity_id),
+            OctopusEnergyCostTrackerWeekPeakSensor(hass, entry, config, peak_sensor_entity_id if peak_sensor_entity_id is not None else peak_sensor.entity_id),
+            OctopusEnergyCostTrackerMonthSensor(hass, entry, config, sensor_entity_id if sensor_entity_id is not None else sensor.entity_id),
+            OctopusEnergyCostTrackerMonthOffPeakSensor(hass, entry, config, off_peak_sensor_entity_id if off_peak_sensor_entity_id is not None else off_peak_sensor.entity_id),
+            OctopusEnergyCostTrackerMonthPeakSensor(hass, entry, config, peak_sensor_entity_id if peak_sensor_entity_id is not None else peak_sensor.entity_id),
           ]
           async_add_entities(entities)
-          return
+          break

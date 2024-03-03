@@ -100,6 +100,132 @@ This is the total cost of the tracked entity at off peak rate for the current da
 | `is_tracking` | `boolean` | Determines if the tracker is currently tracking consumption/cost data |
 | `total_consumption` | `float` | The total consumption that has been tracked for the current day at off peak rate |
 
+### Week cost sensor
+
+`sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_week`
+
+This is the total cost of the tracked entity for the current week. This will reset on the configured day.
+
+This is in pounds and pence (e.g. 1.01 = £1.01).
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `name` | `string` | The base name of the cost tracker (based on config) |
+| `mpan` | `string` | The mpan of the meter that determines how the cost is calculated (based on config) |
+| `target_entity_id` | `string` | The entity whose consumption data is being tracked (based on config) |
+| `entity_accumulative_value` | `boolean` | Determines if the tracked entity has accumulative data (based on config) |
+| `account_id` | `string` | The id of the account the cost tracker is for (based on config) |
+| `accumulated_data` | `array` | The collection of accumulated cost in daily increments |
+| `total_consumption` | `float` | The total consumption that has been tracked for the current week |
+
+Each item within the `accumulated_data` has the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The date/time when the consumption starts |
+| `end` | `datetime` | The date/time when the consumption ends |
+| `consumption` | `float` | The consumption value of the specified period |
+| `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
+
+### Week cost sensor (Peak)
+
+`sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_week_peak`
+
+This is the total cost of the tracked entity at peak rate for the current week. This is in pounds and pence (e.g. 1.01 = £1.01).
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `name` | `string` | The base name of the cost tracker (based on config) |
+| `mpan` | `string` | The mpan of the meter that determines how the cost is calculated (based on config) |
+| `target_entity_id` | `string` | The entity whose consumption data is being tracked (based on config) |
+| `entity_accumulative_value` | `boolean` | Determines if the tracked entity has accumulative data (based on config) |
+| `account_id` | `string` | The id of the account the cost tracker is for (based on config) |
+| `total_consumption` | `float` | The total consumption that has been tracked for the current week at peak rate |
+
+### Week cost sensor (Off Peak)
+
+`sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_week_off_peak`
+
+This is the total cost of the tracked entity at off peak rate for the current week. This is in pounds and pence (e.g. 1.01 = £1.01).
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `name` | `string` | The base name of the cost tracker (based on config) |
+| `mpan` | `string` | The mpan of the meter that determines how the cost is calculated (based on config) |
+| `target_entity_id` | `string` | The entity whose consumption data is being tracked (based on config) |
+| `entity_accumulative_value` | `boolean` | Determines if the tracked entity has accumulative data (based on config) |
+| `account_id` | `string` | The id of the account the cost tracker is for (based on config) |
+| `total_consumption` | `float` | The total consumption that has been tracked for the current week at off peak rate |
+
+### Month cost sensor
+
+`sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_month`
+
+This is the total cost of the tracked entity for the current month. This will reset on the configured day.
+
+This is in pounds and pence (e.g. 1.01 = £1.01).
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `name` | `string` | The base name of the cost tracker (based on config) |
+| `mpan` | `string` | The mpan of the meter that determines how the cost is calculated (based on config) |
+| `target_entity_id` | `string` | The entity whose consumption data is being tracked (based on config) |
+| `entity_accumulative_value` | `boolean` | Determines if the tracked entity has accumulative data (based on config) |
+| `account_id` | `string` | The id of the account the cost tracker is for (based on config) |
+| `accumulated_data` | `array` | The collection of accumulated cost in daily increments |
+| `total_consumption` | `float` | The total consumption that has been tracked for the current month |
+
+Each item within the `accumulated_data` has the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The date/time when the consumption starts |
+| `end` | `datetime` | The date/time when the consumption ends |
+| `consumption` | `float` | The consumption value of the specified period |
+| `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
+
+### Month cost sensor (Peak)
+
+`sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_month_peak`
+
+This is the total cost of the tracked entity at peak rate for the current month. This is in pounds and pence (e.g. 1.01 = £1.01).
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `name` | `string` | The base name of the cost tracker (based on config) |
+| `mpan` | `string` | The mpan of the meter that determines how the cost is calculated (based on config) |
+| `target_entity_id` | `string` | The entity whose consumption data is being tracked (based on config) |
+| `entity_accumulative_value` | `boolean` | Determines if the tracked entity has accumulative data (based on config) |
+| `account_id` | `string` | The id of the account the cost tracker is for (based on config) |
+| `total_consumption` | `float` | The total consumption that has been tracked for the current month at peak rate |
+
+### Month cost sensor (Off Peak)
+
+`sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_month_off_peak`
+
+This is the total cost of the tracked entity at off peak rate for the current month. This is in pounds and pence (e.g. 1.01 = £1.01).
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `name` | `string` | The base name of the cost tracker (based on config) |
+| `mpan` | `string` | The mpan of the meter that determines how the cost is calculated (based on config) |
+| `target_entity_id` | `string` | The entity whose consumption data is being tracked (based on config) |
+| `entity_accumulative_value` | `boolean` | Determines if the tracked entity has accumulative data (based on config) |
+| `account_id` | `string` | The id of the account the cost tracker is for (based on config) |
+| `total_consumption` | `float` | The total consumption that has been tracked for the current month at off peak rate |
+
 ## Services
 
 There are services available associated with cost tracker sensors. Please review them in the [services doc](../services.md#octopus_energyupdate_cost_tracker).

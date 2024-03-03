@@ -281,10 +281,12 @@ async def async_unload_entry(hass, entry):
     """Unload a config entry."""
 
     unload_ok = False
-    if CONFIG_MAIN_API_KEY in entry.data:
+    if entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
       unload_ok = await hass.config_entries.async_unload_platforms(entry, ACCOUNT_PLATFORMS)
-    elif CONFIG_TARGET_NAME in entry.data:
+    elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
       unload_ok = await hass.config_entries.async_unload_platforms(entry, TARGET_RATE_PLATFORMS)
+    elif entry.data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
+      unload_ok = await hass.config_entries.async_unload_platforms(entry, COST_TRACKER_PLATFORMS)
 
     return unload_ok
 
