@@ -44,7 +44,9 @@
           "name": "The name of your cost sensor",
           "mpan": "The meter the cost rates should be associated with",
           "target_entity_id": "The entity to track the costs for.",
-          "entity_accumulative_value": "Tracked entity state is accumulative"
+          "entity_accumulative_value": "Tracked entity state is accumulative",
+          "weekday_reset": "The day when the week cost sensor should reset",
+          "month_day_reset": "The day when the month cost sensor should reset"
         }
       }
     },
@@ -58,7 +60,9 @@
       "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol",
       "invalid_hours_time_frame": "The target hours do not fit in the elected target time frame",
       "invalid_mpan": "Meter not found in account with an active tariff",
-      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information."
+      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information.",
+      "invalid_week_day": "Week reset day must be between 0 and 6 (inclusively)",
+      "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)"
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",
@@ -106,7 +110,9 @@
           "name": "The name of your cost sensor",
           "mpan": "The meter the cost rates should be associated with",
           "target_entity_id": "The entity to track the costs for.",
-          "entity_accumulative_value": "Tracked entity state is accumulative"
+          "entity_accumulative_value": "Tracked entity state is accumulative",
+          "weekday_reset": "The day when the week cost sensor should reset",
+          "month_day_reset": "The day when the month cost sensor should reset"
         }
       }
     },
@@ -119,7 +125,9 @@
       "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol",
       "invalid_hours_time_frame": "The target hours do not fit in the elected target time frame",
       "invalid_mpan": "Meter not found in account with an active tariff",
-      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information."
+      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information.",
+      "invalid_week_day": "Week reset day must be between 0 and 6 (inclusively)",
+      "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)"
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",

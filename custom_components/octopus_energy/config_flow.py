@@ -11,14 +11,16 @@ from homeassistant.components.sensor import (
 )
 
 from .coordinators.account import AccountCoordinatorResult
-from .config.cost_tracker import validate_cost_tracker_config
+from .config.cost_tracker import merge_cost_tracker_config, validate_cost_tracker_config
 from .config.target_rates import merge_target_rate_config, validate_target_rate_config
 from .config.main import async_validate_main_config, merge_main_config
 from .const import (
   CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE,
+  CONFIG_COST_MONTH_DAY_RESET,
   CONFIG_COST_TARGET_ENTITY_ID,
   CONFIG_COST_MPAN,
   CONFIG_COST_NAME,
+  CONFIG_COST_WEEKDAY_RESET,
   CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_DEFAULT_PREVIOUS_CONSUMPTION_OFFSET_IN_DAYS,
@@ -76,6 +78,17 @@ def get_target_rate_meters(account_info, now):
         meters.append(selector.SelectOptionDict(value=point["mpan"], label= f'{point["mpan"]} ({"Export" if is_export == True else "Import"})'))
 
   return meters
+
+def get_weekday_options():
+  return [
+    selector.SelectOptionDict(value="0", label="Monday"),
+    selector.SelectOptionDict(value="1", label="Tuesday"),
+    selector.SelectOptionDict(value="2", label="Wednesday"),
+    selector.SelectOptionDict(value="3", label="Thursday"),
+    selector.SelectOptionDict(value="4", label="Friday"),
+    selector.SelectOptionDict(value="5", label="Saturday"),
+    selector.SelectOptionDict(value="6", label="Sunday"),
+  ]
 
 def get_account_ids(hass):
     account_ids = {}
@@ -166,6 +179,13 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
           selector.EntitySelectorConfig(domain="sensor", device_class=[SensorDeviceClass.ENERGY]),
       ),
       vol.Optional(CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE, default=False): bool,
+      vol.Required(CONFIG_COST_WEEKDAY_RESET, default="0"): selector.SelectSelector(
+          selector.SelectSelectorConfig(
+              options=get_weekday_options(),
+              mode=selector.SelectSelectorMode.DROPDOWN,
+          )
+      ),
+      vol.Required(CONFIG_COST_MONTH_DAY_RESET, default=1): cv.positive_int,
     })
 
   async def async_step_target_rate(self, user_input):
@@ -197,12 +217,19 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
   async def async_step_cost_tracker(self, user_input):
     """Setup a target based on the provided user input"""
-    errors = validate_cost_tracker_config(user_input) if user_input is not None else {}
     account_ids = get_account_ids(self.hass)
+    account_id = list(account_ids.keys())[0]
+
+    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+    if (account_info is None):
+      return self.async_abort(reason="account_not_found")
+
+    now = utcnow()
+    errors = validate_cost_tracker_config(user_input, account_info.account, now) if user_input is not None else {}
 
     if len(errors) < 1 and user_input is not None:
       user_input[CONFIG_KIND] = CONFIG_KIND_COST_TRACKER
-      user_input[CONFIG_ACCOUNT_ID] = list(account_ids.keys())[0]
+      user_input[CONFIG_ACCOUNT_ID] = account_id
       return self.async_create_entry(
         title=f"{user_input[CONFIG_COST_NAME]} (cost tracker)", 
         data=user_input
@@ -264,8 +291,7 @@ class OptionsFlowHandler(OptionsFlow):
     self._entry = entry
 
   async def __async_setup_target_rate_schema__(self, config, errors):
-    account_ids = get_account_ids(self.hass)
-    account_id = list(account_ids.keys())[0]
+    account_id = config[CONFIG_ACCOUNT_ID]
 
     account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
     if account_info is None:
@@ -396,6 +422,51 @@ class OptionsFlowHandler(OptionsFlow):
       ),
       errors=errors
     )
+  
+  async def __async_setup_cost_tracker_schema__(self, config, errors):
+    account_id = config[CONFIG_ACCOUNT_ID]
+
+    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+    if account_info is None:
+      errors[CONFIG_TARGET_MPAN] = "account_not_found"
+
+    now = utcnow()
+    meters = get_target_rate_meters(account_info.account, now)
+
+    return self.async_show_form(
+      step_id="cost_tracker",
+      data_schema=self.add_suggested_values_to_schema(
+        vol.Schema({
+          vol.Required(CONFIG_COST_NAME): str,
+          vol.Required(CONFIG_TARGET_MPAN): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=meters,
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
+          vol.Required(CONFIG_COST_TARGET_ENTITY_ID): selector.EntitySelector(
+              selector.EntitySelectorConfig(domain="sensor", device_class=[SensorDeviceClass.ENERGY]),
+          ),
+          vol.Optional(CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE): bool,
+          vol.Required(CONFIG_COST_WEEKDAY_RESET): selector.SelectSelector(
+              selector.SelectSelectorConfig(
+                  options=get_weekday_options(),
+                  mode=selector.SelectSelectorMode.DROPDOWN,
+              )
+          ),
+          vol.Required(CONFIG_COST_MONTH_DAY_RESET): cv.positive_int,
+        }),
+        {
+          CONFIG_COST_NAME: config[CONFIG_COST_NAME],
+          CONFIG_TARGET_MPAN: config[CONFIG_TARGET_MPAN],
+          CONFIG_COST_TARGET_ENTITY_ID: config[CONFIG_COST_TARGET_ENTITY_ID],
+          CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE: config[CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE],
+          CONFIG_COST_WEEKDAY_RESET: f"{config[CONFIG_COST_WEEKDAY_RESET]}" if CONFIG_COST_WEEKDAY_RESET in config else "0",
+          CONFIG_COST_MONTH_DAY_RESET: config[CONFIG_COST_MONTH_DAY_RESET] if CONFIG_COST_MONTH_DAY_RESET in config else 1,
+        }
+      ),
+      errors=errors
+    )
 
   async def async_step_init(self, user_input):
     """Manage the options for the custom component."""
@@ -408,7 +479,9 @@ class OptionsFlowHandler(OptionsFlow):
       config = merge_target_rate_config(self._entry.data, self._entry.options, user_input)
       return await self.__async_setup_target_rate_schema__(config, {})
 
-    # if (kind == CONFIG_KIND_COST_SENSOR):
+    if (kind == CONFIG_KIND_COST_TRACKER):
+      config = merge_cost_tracker_config(self._entry.data, self._entry.options, user_input)
+      return await self.__async_setup_cost_tracker_schema__(config, {})
 
     return self.async_abort(reason="not_supported")
 
@@ -431,13 +504,33 @@ class OptionsFlowHandler(OptionsFlow):
 
     config = merge_target_rate_config(self._entry.data, self._entry.options, user_input)
 
-    client = self.hass.data[DOMAIN][account_id][DATA_CLIENT]
-    account_info = await client.async_get_account(account_id)
+    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+    if (account_info is None):
+      return self.async_abort(reason="account_not_found")
 
     now = utcnow()
-    errors = validate_target_rate_config(user_input, account_info, now)
+    errors = validate_target_rate_config(config, account_info.account, now)
 
     if (len(errors) > 0):
       return await self.__async_setup_target_rate_schema__(config, errors)
+
+    return self.async_create_entry(title="", data=config)
+  
+  async def async_step_cost_tracker(self, user_input):
+    """Manage the options for the custom component."""
+    account_ids = get_account_ids(self.hass)
+    account_id = list(account_ids.keys())[0]
+
+    config = merge_cost_tracker_config(self._entry.data, self._entry.options, user_input)
+
+    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+    if (account_info is None):
+      return self.async_abort(reason="account_not_found")
+
+    now = utcnow()
+    errors = validate_cost_tracker_config(config, account_info.account, now)
+
+    if (len(errors) > 0):
+      return await self.__async_setup_cost_tracker_schema__(config, errors)
 
     return self.async_create_entry(title="", data=config)

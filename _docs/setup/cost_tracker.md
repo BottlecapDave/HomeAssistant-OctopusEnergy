@@ -26,6 +26,14 @@ This is the entity whose consumption should be tracked and the cost calculated a
 
 This should be true if the tracked entity's state increases over time (true) or if it's the difference between updates (false).
 
+### Week sensor day reset
+
+This is the day of the week the accumulative week sensor should reset. This defaults to Monday.
+
+### Month sensor day reset
+
+This is the day of the month the accumulative month sensor should reset. This must be between 1 and 28 (inclusively). This defaults to the 1st.
+
 ## Handling Exporting
 
 Due to everyone's HA setup being different for how they track importing/exporting, the sensors themselves assume that all consumption changes should be tracked and the cost calculated. However, you may wish to turn off tracking when you're exporting. This can be done via the related [services](../services.md#octopus_energyupdate_cost_tracker).
