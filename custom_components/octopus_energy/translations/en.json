@@ -134,6 +134,11 @@
       "account_not_found": "Account information is not found"
     }
   },
+  "exceptions": {
+    "cost_tracker_invalid_date": {
+      "message": "Date must be between {min_date} and {max_date}"
+    }
+  },
   "issues": {
     "account_not_found": {
       "title": "Account \"{account_id}\" not found",

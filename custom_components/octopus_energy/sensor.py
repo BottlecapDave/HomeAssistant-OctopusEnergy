@@ -4,6 +4,7 @@ import logging
 from homeassistant.util.dt import (utcnow)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_platform, issue_registry as ir, entity_registry as er
+import homeassistant.helpers.config_validation as cv
 
 from .electricity.current_consumption import OctopusEnergyCurrentElectricityConsumption
 from .electricity.current_accumulative_consumption import OctopusEnergyCurrentAccumulativeElectricityConsumption
@@ -150,6 +151,21 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ),
       ),
       "async_reset_cost_tracker"
+    )
+
+    platform.async_register_entity_service(
+      "adjust_accumulative_cost_tracker",
+      vol.All(
+        vol.Schema(
+          {
+            vol.Required("date"): cv.date,
+            vol.Required("consumption"): cv.positive_float,
+            vol.Required("cost"): cv.positive_float,
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
+      ),
+      "async_adjust_accumulative_cost_tracker"
     )
 
 async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_entities):

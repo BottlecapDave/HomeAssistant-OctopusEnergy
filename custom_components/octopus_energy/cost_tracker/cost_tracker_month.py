@@ -2,6 +2,7 @@ from datetime import datetime
 import logging
 
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util.dt import (now)
 
@@ -27,6 +28,7 @@ from homeassistant.const import (
 from ..const import (
   CONFIG_COST_MONTH_DAY_RESET,
   CONFIG_COST_NAME,
+  DOMAIN,
 )
 
 from . import accumulate_cost
@@ -147,7 +149,39 @@ class OctopusEnergyCostTrackerMonthSensor(RestoreSensor):
     
     _LOGGER.debug(f"Source entity updated for '{self.entity_id}'; Event: {event.data}")
 
-    result = accumulate_cost(current, self._attributes["accumulated_data"], float(new_state.state), float(new_state.attributes["total_consumption"]))
+    self._recalculate_cost(current, float(new_state.state), float(new_state.attributes["total_consumption"]))
+  
+  @callback
+  async def async_reset_cost_tracker(self):
+    """Resets the sensor"""
+    self._state = 0
+    self._attributes["accumulated_data"] = []
+    self._attributes["total_consumption"] = 0
+
+    self.async_write_ha_state()
+
+  @callback
+  async def async_adjust_accumulative_cost_tracker(self, date, consumption: float, cost: float):
+    """Adjusts the sensor"""
+    selected_date = None
+    for data in self._attributes["accumulated_data"]:
+      if data["start"].date() == date:
+        selected_date = data["start"]
+
+    if selected_date is None:
+      raise ServiceValidationError(
+        translation_domain=DOMAIN,
+        translation_key="cost_tracker_invalid_date",
+        translation_placeholders={ 
+          "min_date": self._attributes["accumulated_data"][0]["start"].date(),
+          "max_date": self._attributes["accumulated_data"][-1]["start"].date() 
+        },
+      )
+
+    self._recalculate_cost(selected_date, cost, consumption)
+
+  def _recalculate_cost(self, current: datetime, new_cost: float, new_consumption: float):
+    result = accumulate_cost(current, self._attributes["accumulated_data"], new_cost, new_consumption)
         
     self._attributes["total_consumption"] = result.total_consumption
     self._attributes["accumulated_data"] = result.accumulative_data
@@ -172,12 +206,3 @@ class OctopusEnergyCostTrackerMonthSensor(RestoreSensor):
       return True
 
     return False
-  
-  @callback
-  async def async_reset_cost_tracker(self):
-    """Resets the sensor"""
-    self._state = 0
-    self._attributes["accumulated_data"] = []
-    self._attributes["total_consumption"] = 0
-
-    self.async_write_ha_state()
