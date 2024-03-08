@@ -218,3 +218,13 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
       return True
 
     return False
+  
+  @callback
+  async def async_reset_cost_tracker(self):
+    """Resets the sensor"""
+    self._state = 0
+    self._attributes["tracked_charges"] = []
+    self._attributes["untracked_charges"] = []
+    self._attributes["total_consumption"] = 0
+
+    self.async_write_ha_state()

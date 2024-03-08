@@ -81,3 +81,11 @@ update_cost_tracker:
       description: Determines if the cost tracker should be enabled or disabled.
       selector:
         boolean:
+
+reset_cost_tracker:
+  name: Reset cost tracker
+  description: Resets a given cost tracker back to zero.
+  target:
+    entity:
+      integration: octopus_energy
+      domain: sensor

@@ -141,6 +141,17 @@ async def async_setup_entry(hass, entry, async_add_entities):
       "async_update_cost_tracker_config"
     )
 
+    platform.async_register_entity_service(
+      "reset_cost_tracker",
+      vol.All(
+        vol.Schema(
+          {},
+          extra=vol.ALLOW_EXTRA,
+        ),
+      ),
+      "async_reset_cost_tracker"
+    )
+
 async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_entities):
   account_id = config[CONFIG_ACCOUNT_ID]
   

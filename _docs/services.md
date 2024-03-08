@@ -124,3 +124,11 @@ This service allows the user to turn the tracking on/off for a given [cost track
 ### Automation Example
 
 For automation examples, please refer to the available [blueprints](./blueprints.md#cost-tracker).
+
+## octopus_energy.reset_cost_tracker
+
+Resets a given [cost tracker](./setup/cost_tracker.md) sensor back to zero before it's normal reset time.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the cost tracker sensor(s) whose configuration is to be updated. |

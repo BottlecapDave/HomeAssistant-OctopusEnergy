@@ -1,7 +1,7 @@
 from datetime import datetime
 import logging
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util.dt import (now)
 
@@ -172,3 +172,12 @@ class OctopusEnergyCostTrackerMonthSensor(RestoreSensor):
       return True
 
     return False
+  
+  @callback
+  async def async_reset_cost_tracker(self):
+    """Resets the sensor"""
+    self._state = 0
+    self._attributes["accumulated_data"] = []
+    self._attributes["total_consumption"] = 0
+
+    self.async_write_ha_state()
