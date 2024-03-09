@@ -36,6 +36,8 @@ def calculate_electricity_consumption_and_cost(
       total_cost_peak = 0
       total_consumption_off_peak = 0
       total_consumption_peak = 0
+      peak_charges = []
+      off_peak_charges = []
 
       for consumption in sorted_consumption_data:
         consumption_value = consumption["consumption"]
@@ -52,20 +54,24 @@ def calculate_electricity_consumption_and_cost(
         cost = (value * consumption_value)
         total_cost_in_pence = total_cost_in_pence + cost
 
-        if value == off_peak_cost:
-          total_consumption_off_peak = total_consumption_off_peak + consumption_value
-          total_cost_off_peak = total_cost_off_peak + cost
-        else:
-          total_consumption_peak = total_consumption_peak + consumption_value
-          total_cost_peak = total_cost_peak + cost
-
-        charges.append({
+        current_charge = {
           "start": rate["start"],
           "end": rate["end"],
           "rate": value_inc_vat_to_pounds(value),
           "consumption": consumption_value,
           "cost": round(cost / 100, 2) if round_cost else cost / 100
-        })
+        }
+
+        if value == off_peak_cost:
+          total_consumption_off_peak = total_consumption_off_peak + consumption_value
+          total_cost_off_peak = total_cost_off_peak + cost
+          off_peak_charges.append(current_charge)
+        else:
+          total_consumption_peak = total_consumption_peak + consumption_value
+          total_cost_peak = total_cost_peak + cost
+          peak_charges.append(current_charge)
+
+        charges.append(current_charge)
       
       total_cost = round(total_cost_in_pence / 100, 2) if round_cost else total_cost_in_pence / 100
       total_cost_plus_standing_charge = round((total_cost_in_pence + standing_charge) / 100, 2) if round_cost else (total_cost_in_pence + standing_charge) / 100
@@ -80,7 +86,9 @@ def calculate_electricity_consumption_and_cost(
         "total_consumption": total_consumption,
         "last_reset": last_reset,
         "last_evaluated": last_calculated_timestamp,
-        "charges": charges
+        "charges": charges,
+        "off_peak_charges": off_peak_charges,
+        "peak_charges": peak_charges
       }
 
       if off_peak_cost is not None:

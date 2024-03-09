@@ -7,6 +7,7 @@
         "spin_wheel_of_fortune": "mdi:star-circle",
         "update_cost_tracker": "mdi:invoice-edit",
         "reset_cost_tracker": "mdi:refresh",
-        "adjust_accumulative_cost_tracker": "mdi:numeric"
+        "adjust_accumulative_cost_tracker": "mdi:numeric",
+        "adjust_cost_tracker": "mdi:numeric"
     }
 }

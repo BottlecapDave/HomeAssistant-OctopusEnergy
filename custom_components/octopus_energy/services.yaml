@@ -96,7 +96,7 @@ reset_cost_tracker:
 
 adjust_accumulative_cost_tracker:
   name: Adjusts accumulative cost tracker
-  description: Adjusts a record within an accumulative (week or month) cost tracker
+  description: Adjusts a record within an accumulative cost tracker (e.g. sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_week or sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_month)
   target:
     entity:
       integration: octopus_energy
@@ -120,3 +120,22 @@ adjust_accumulative_cost_tracker:
         number:
           step: any
 
+adjust_cost_tracker:
+  name: Adjusts cost tracker
+  description: Adjusts a record within todays cost tracker (e.g. sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}})
+  target:
+    entity:
+      integration: octopus_energy
+      domain: sensor
+  fields:
+    datetime:
+      name: DateTime
+      description: The datetime of the period to adjust within the cost tracker
+      selector:
+        datetime:
+    consumption:
+      name: Consumption
+      description: The new consumption for the selected date
+      selector:
+        number:
+          step: any

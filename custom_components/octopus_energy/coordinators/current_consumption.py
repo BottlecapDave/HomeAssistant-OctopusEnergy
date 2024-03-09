@@ -1,6 +1,5 @@
 from datetime import (datetime, timedelta)
 import logging
-from custom_components.octopus_energy.coordinators import BaseCoordinatorResult
 
 from homeassistant.util.dt import (now)
 from homeassistant.helpers.update_coordinator import (
@@ -14,6 +13,7 @@ from ..const import (
 )
 
 from ..api_client import (ApiException, OctopusEnergyApiClient)
+from . import BaseCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 

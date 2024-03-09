@@ -2,8 +2,9 @@ from datetime import datetime
 import logging
 
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.entity import generate_entity_id
-from homeassistant.util.dt import (now, parse_datetime)
+from homeassistant.util.dt import (now, parse_datetime, as_local)
 
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
@@ -30,6 +31,7 @@ from ..const import (
   CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE,
   CONFIG_COST_TARGET_ENTITY_ID,
   CONFIG_COST_NAME,
+  DOMAIN,
 )
 
 from ..coordinators.electricity_rates import ElectricityRatesCoordinatorResult
@@ -155,34 +157,8 @@ class OctopusEnergyCostTrackerPeakSensor(CoordinatorEntity, RestoreSensor):
 
     if (consumption_data is not None and rates_result is not None and rates_result.rates is not None):
       self._reset_if_new_day(current)
-
-      tracked_result = calculate_electricity_consumption_and_cost(
-        current,
-        consumption_data.tracked_consumption_data,
-        rates_result.rates,
-        0,
-        None, # We want to always recalculate
-        0,
-        False
-      )
-
-      untracked_result = calculate_electricity_consumption_and_cost(
-        current,
-        consumption_data.untracked_consumption_data,
-        rates_result.rates,
-        0,
-        None, # We want to always recalculate
-        0,
-        False
-      )
-
-      if tracked_result is not None and untracked_result is not None:
-        total_tracked_consumption = tracked_result["total_consumption_peak"] if "total_consumption_peak" in tracked_result else 0
-        total_untracked_consumption = untracked_result["total_consumption_peak"] if "total_consumption_peak" in untracked_result else 0
-        self._attributes["total_consumption"] = total_tracked_consumption + total_untracked_consumption
-        self._state = tracked_result["total_cost_peak"] if "total_cost_peak" in tracked_result else 0
-
-        self.async_write_ha_state()
+      
+      self._recalculate_cost(current, consumption_data.tracked_consumption_data, consumption_data.untracked_consumption_data, rates_result.rates)
 
   @callback
   async def async_update_cost_tracker_config(self, is_tracking_enabled: bool):
@@ -190,6 +166,84 @@ class OctopusEnergyCostTrackerPeakSensor(CoordinatorEntity, RestoreSensor):
     self._attributes["is_tracking"] = is_tracking_enabled
 
     self.async_write_ha_state()
+  
+  @callback
+  async def async_reset_cost_tracker(self):
+    """Resets the sensor"""
+    self._state = 0
+    self._attributes["tracked_charges"] = []
+    self._attributes["untracked_charges"] = []
+    self._attributes["total_consumption"] = 0
+
+    self.async_write_ha_state()
+
+  @callback
+  async def async_adjust_cost_tracker(self, datetime, consumption: float):
+    """Adjusts the sensor"""
+    local_datetime = as_local(datetime)
+    selected_datetime = None
+    for data in self._attributes["tracked_charges"]:
+      if local_datetime >= data["start"] and local_datetime < data["end"]:
+        selected_datetime = data["start"]
+        data["consumption"] = consumption
+
+    if selected_datetime is None:
+      raise ServiceValidationError(
+        translation_domain=DOMAIN,
+        translation_key="cost_tracker_invalid_date",
+        translation_placeholders={ 
+          "min_date": self._attributes["tracked_charges"][0]["start"].date(),
+          "max_date": self._attributes["tracked_charges"][-1]["end"].date() 
+        },
+      )
+
+    rates_result: ElectricityRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    self._recalculate_cost(now(), self._attributes["tracked_charges"], self._attributes["untracked_charges"], rates_result.rates)
+
+  def _recalculate_cost(self, current: datetime, tracked_consumption_data: list, untracked_consumption_data: list, rates: list):
+    tracked_result = calculate_electricity_consumption_and_cost(
+      current,
+      tracked_consumption_data,
+      rates,
+      0,
+      None, # We want to always recalculate
+      0,
+      False
+    )
+
+    untracked_result = calculate_electricity_consumption_and_cost(
+      current,
+      untracked_consumption_data,
+      rates,
+      0,
+      None, # We want to always recalculate
+      0,
+      False
+    )
+
+    if tracked_result is not None and untracked_result is not None:
+      self._attributes["tracked_charges"] = list(map(lambda charge: {
+        "start": charge["start"],
+        "end": charge["end"],
+        "rate": charge["rate"],
+        "consumption": charge["consumption"],
+        "cost": charge["cost"]
+      }, tracked_result["peak_charges"]))
+      
+      self._attributes["untracked_charges"] = list(map(lambda charge: {
+        "start": charge["start"],
+        "end": charge["end"],
+        "rate": charge["rate"],
+        "consumption": charge["consumption"],
+        "cost": charge["cost"]
+      }, untracked_result["peak_charges"]))
+
+      total_tracked_consumption = tracked_result["total_consumption_peak"] if "total_consumption_peak" in tracked_result else 0
+      total_untracked_consumption = untracked_result["total_consumption_peak"] if "total_consumption_peak" in untracked_result else 0
+      self._attributes["total_consumption"] = total_tracked_consumption + total_untracked_consumption
+      self._state = tracked_result["total_cost_peak"] if "total_cost_peak" in tracked_result else 0
+
+      self.async_write_ha_state()
 
   def _reset_if_new_day(self, current: datetime):
     current: datetime = now()
@@ -208,13 +262,3 @@ class OctopusEnergyCostTrackerPeakSensor(CoordinatorEntity, RestoreSensor):
       return True
 
     return False
-  
-  @callback
-  async def async_reset_cost_tracker(self):
-    """Resets the sensor"""
-    self._state = 0
-    self._attributes["tracked_charges"] = []
-    self._attributes["untracked_charges"] = []
-    self._attributes["total_consumption"] = 0
-
-    self.async_write_ha_state()

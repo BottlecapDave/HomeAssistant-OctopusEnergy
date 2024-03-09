@@ -190,7 +190,6 @@ class OctopusEnergyCostTrackerWeekSensor(RestoreSensor):
     self.async_write_ha_state()
 
   def _reset_if_new_week(self, current: datetime):
-    current: datetime = now()
     start_of_day = current.replace(hour=0, minute=0, second=0, microsecond=0)
     if self._last_reset is None:
       self._last_reset = start_of_day

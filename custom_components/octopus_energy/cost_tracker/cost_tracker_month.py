@@ -100,7 +100,7 @@ class OctopusEnergyCostTrackerMonthSensor(RestoreSensor):
   def last_reset(self):
     """Return the time when the sensor was last reset, if any."""
     current: datetime = now()
-    self._reset_if_new_week(current)
+    self._reset_if_new_month(current)
 
     return self._last_reset
   
@@ -141,7 +141,7 @@ class OctopusEnergyCostTrackerMonthSensor(RestoreSensor):
 
   async def _async_calculate_cost(self, event: EventType[EventStateChangedData]):
     current = now()
-    self._reset_if_new_week(current)
+    self._reset_if_new_month(current)
 
     new_state = event.data["new_state"]
     if new_state is None or new_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
@@ -189,8 +189,7 @@ class OctopusEnergyCostTrackerMonthSensor(RestoreSensor):
 
     self.async_write_ha_state()
 
-  def _reset_if_new_week(self, current: datetime):
-    current: datetime = now()
+  def _reset_if_new_month(self, current: datetime):
     start_of_day = current.replace(hour=0, minute=0, second=0, microsecond=0)
     if self._last_reset is None:
       self._last_reset = start_of_day

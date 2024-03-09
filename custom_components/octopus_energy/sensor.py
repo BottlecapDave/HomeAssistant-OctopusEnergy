@@ -168,6 +168,20 @@ async def async_setup_entry(hass, entry, async_add_entities):
       "async_adjust_accumulative_cost_tracker"
     )
 
+    platform.async_register_entity_service(
+      "adjust_cost_tracker",
+      vol.All(
+        vol.Schema(
+          {
+            vol.Required("datetime"): cv.datetime,
+            vol.Required("consumption"): cv.positive_float,
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
+      ),
+      "async_adjust_cost_tracker"
+    )
+
 async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_entities):
   account_id = config[CONFIG_ACCOUNT_ID]
   
