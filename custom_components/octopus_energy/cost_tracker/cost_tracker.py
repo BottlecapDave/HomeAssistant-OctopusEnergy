@@ -4,11 +4,13 @@ import logging
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util.dt import (now, parse_datetime)
+from homeassistant.util.unit_conversion import EnergyConverter
 
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
 from homeassistant.components.sensor import (
+  CONF_STATE_CLASS,
   RestoreSensor,
   SensorDeviceClass,
   SensorStateClass,
@@ -22,12 +24,13 @@ from homeassistant.helpers.event import (
 from homeassistant.helpers.typing import EventType
 
 from homeassistant.const import (
+    CONF_UNIT_OF_MEASUREMENT,
+    UnitOfEnergy,
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
 )
 
 from ..const import (
-  CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE,
   CONFIG_COST_TARGET_ENTITY_ID,
   CONFIG_COST_NAME,
 )
@@ -132,6 +135,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
   async def _async_calculate_cost(self, event: EventType[EventStateChangedData]):
     new_state = event.data["new_state"]
     old_state = event.data["old_state"]
+    accumulative = event.data["new_state"].attributes.get(CONF_STATE_CLASS, SensorStateClass.MEASUREMENT)
     if new_state is None or new_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
       return
     
@@ -139,15 +143,17 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
 
     current = now()
     rates_result: ElectricityRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    new_state_value = EnergyConverter.convert(float(new_state.state), event.data["new_state"].attributes.get(CONF_UNIT_OF_MEASUREMENT, UnitOfEnergy.KILO_WATT_HOUR), UnitOfEnergy.KILO_WATT_HOUR)
+    old_state_value = None if old_state.state is None or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else EnergyConverter.convert(float(old_state.state), event.data["old_state"].attributes.get(CONF_UNIT_OF_MEASUREMENT, UnitOfEnergy.KILO_WATT_HOUR), UnitOfEnergy.KILO_WATT_HOUR)
 
     consumption_data = add_consumption(current,
                                        self._attributes["tracked_charges"],
                                        self._attributes["untracked_charges"],
-                                       float(new_state.state),
-                                       None if old_state.state is None or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else float(old_state.state),
+                                       new_state_value,
+                                       old_state_value,
                                        parse_datetime(new_state.attributes["last_reset"]) if "last_reset" in new_state.attributes and new_state.attributes["last_reset"] is not None else None,
                                        parse_datetime(old_state.attributes["last_reset"]) if "last_reset" in old_state.attributes and old_state.attributes["last_reset"] is not None else None,
-                                       self._config[CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE],
+                                       accumulative,
                                        self._attributes["is_tracking"],
                                        new_state.attributes["state_class"] if "state_class" in new_state.attributes else None)
 
