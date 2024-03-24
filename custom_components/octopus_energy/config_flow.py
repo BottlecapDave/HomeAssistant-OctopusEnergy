@@ -15,7 +15,6 @@ from .config.cost_tracker import validate_cost_tracker_config
 from .config.target_rates import merge_target_rate_config, validate_target_rate_config
 from .config.main import async_validate_main_config, merge_main_config
 from .const import (
-  CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE,
   CONFIG_COST_TARGET_ENTITY_ID,
   CONFIG_COST_MPAN,
   CONFIG_COST_NAME,
@@ -165,7 +164,6 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Required(CONFIG_COST_TARGET_ENTITY_ID): selector.EntitySelector(
           selector.EntitySelectorConfig(domain="sensor", device_class=[SensorDeviceClass.ENERGY]),
       ),
-      vol.Optional(CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE, default=False): bool,
     })
 
   async def async_step_target_rate(self, user_input):

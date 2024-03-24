@@ -8,6 +8,9 @@ from ..const import (
 async def async_migrate_cost_tracker_config(version: int, data: {}, get_entries):
   new_data = {**data}
 
+  if (version <= 3):
+    del new_data["entity_accumulative_value"]
+
   return new_data
 
 def merge_cost_tracker_config(data: dict, options: dict, updated_config: dict = None):
