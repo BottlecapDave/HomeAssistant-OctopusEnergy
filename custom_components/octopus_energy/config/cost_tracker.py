@@ -9,7 +9,8 @@ async def async_migrate_cost_tracker_config(version: int, data: {}, get_entries)
   new_data = {**data}
 
   if (version <= 3):
-    del new_data["entity_accumulative_value"]
+    if "entity_accumulative_value" in new_data:
+      del new_data["entity_accumulative_value"]
 
   return new_data
 
