@@ -18,6 +18,7 @@ from .coordinators.greenness_forecast import async_setup_greenness_forecast_coor
 from .statistics import get_statistic_ids_to_remove
 from .intelligent import async_mock_intelligent_data, get_intelligent_features, is_intelligent_tariff, mock_intelligent_device
 
+from .config.cost_tracker import async_migrate_cost_tracker_config
 from .config.main import async_migrate_main_config
 from .config.target_rates import async_migrate_target_config
 from .utils import get_active_tariff_code
@@ -68,9 +69,12 @@ async def async_migrate_entry(hass, config_entry):
       new_data = await async_migrate_main_config(config_entry.version, config_entry.data)
       new_options = await async_migrate_main_config(config_entry.version, config_entry.options)
       title = new_data[CONFIG_ACCOUNT_ID]
-    else:
+    elif config_entry.data.get(CONFIG_KIND) == CONFIG_KIND_TARGET_RATE:
       new_data = await async_migrate_target_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
       new_options = await async_migrate_target_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
+    elif config_entry.data.get(CONFIG_KIND) == CONFIG_KIND_COST_TRACKER:
+      new_data = await async_migrate_cost_tracker_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
+      new_options = await async_migrate_cost_tracker_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
     
     config_entry.version = CONFIG_VERSION
     hass.config_entries.async_update_entry(config_entry, title=title, data=new_data, options=new_options)
