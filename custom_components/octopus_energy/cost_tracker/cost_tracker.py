@@ -135,7 +135,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
   async def _async_calculate_cost(self, event: EventType[EventStateChangedData]):
     new_state = event.data["new_state"]
     old_state = event.data["old_state"]
-    accumulative = event.data["new_state"].attributes.get(CONF_STATE_CLASS, SensorStateClass.MEASUREMENT)
+    accumulative = event.data["new_state"].attributes.get(CONF_STATE_CLASS, SensorStateClass.MEASUREMENT) != SensorStateClass.MEASUREMENT
     if new_state is None or new_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
       return
     
