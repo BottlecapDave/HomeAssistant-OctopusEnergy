@@ -658,7 +658,7 @@ class OctopusEnergyApiClient:
 
         if (response_body is not None and "data" in response_body and "smartMeterTelemetry" in response_body["data"] and response_body["data"]["smartMeterTelemetry"] is not None and len(response_body["data"]["smartMeterTelemetry"]) > 0):
           return list(map(lambda mp: {
-            "consumption": float(mp["consumptionDelta"]) / 1000,
+            "consumption": float(mp["consumptionDelta"]) / 1000 if "consumptionDelta" in mp and mp["consumptionDelta"] is not None else 0,
             "demand": float(mp["demand"]) if "demand" in mp and mp["demand"] is not None else None,
             "start": parse_datetime(mp["readAt"]),
             "end": parse_datetime(mp["readAt"]) + timedelta(minutes=30)
