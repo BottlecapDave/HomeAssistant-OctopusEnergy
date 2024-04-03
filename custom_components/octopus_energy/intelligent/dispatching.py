@@ -17,9 +17,7 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from ..intelligent import (
-  dispatches_to_dictionary_list,
-  get_dispatch_times,
-  is_in_planned_dispatch
+  dispatches_to_dictionary_list
 )
 
 from ..utils import get_off_peak_times
@@ -102,25 +100,24 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
       "next_end": None,
     }
 
-    off_peak_times = get_off_peak_times(current_date, rates)
-    times = get_dispatch_times(current_date, off_peak_times, planned_dispatches)
-    is_off_peak = False
+    off_peak_times = get_off_peak_times(current_date, rates, True)
+    is_dispatching = False
     
-    if times is not None and len(times) > 0:
-      time = times.pop(0)
+    if off_peak_times is not None and len(off_peak_times) > 0:
+      time = off_peak_times.pop(0)
       if time.start <= current_date:
         self._attributes["current_start"] = time.start
         self._attributes["current_end"] = time.end
-        is_off_peak = True
+        is_dispatching = True
 
-        if len(times) > 0:
-          self._attributes["next_start"] = times[0].start
-          self._attributes["next_end"] = times[0].end
+        if len(off_peak_times) > 0:
+          self._attributes["next_start"] = off_peak_times[0].start
+          self._attributes["next_end"] = off_peak_times[0].end
       else:
         self._attributes["next_start"] = time.start
         self._attributes["next_end"] = time.end
 
-    self._state = is_in_planned_dispatch(current_date, planned_dispatches) or is_off_peak
+    self._state = is_dispatching
 
     super()._handle_coordinator_update()
 

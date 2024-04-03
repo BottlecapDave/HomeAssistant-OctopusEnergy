@@ -10,6 +10,14 @@
 
 This blueprint will raise a persistent notification within HA when a rate updates.
 
+## Consumption
+
+### Alert when consumption data is late
+
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%octopus_energy_late_consumption_data.yml) | [Source](./blueprints/octopus_energy_late_consumption_data.yml)
+
+This blueprint will fire a configured action when the latest available consumption data is x hours old, where x is configured via the blueprint.
+
 ## Octoplus
 
 ### Automatically join saving sessions

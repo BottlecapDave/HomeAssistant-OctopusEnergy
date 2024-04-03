@@ -1,0 +1,61 @@
+blueprint:
+  name: Octopus Energy - Late Consumption Data
+  description: Automatically get an alert if consumption data isn't available within the specified timeframe as long as the data has been retrieved recently.
+  domain: automation
+  author: BottlecapDave
+  input:
+    latest_consumption_data_available_timestamp:
+      name: Latest consumption data available timestamp entity
+      description: The entity which reports the latest consumption data available timestamp
+      selector:
+        entity:
+          filter:
+          - domain:
+            - sensor
+            integration: octopus_energy
+    energy_source:
+      name: Energy source
+      description: The type of energy the rate is for
+      selector:
+        select:
+          options:
+          - Electricity
+          - Gas
+          multiple: false
+          sort: false
+          custom_value: false
+    alert_hours:
+      name: Alert hours
+      description: The number of hours between now and the timestamp entity before the automation will trigger
+      default: 1
+      selector:
+        number:
+          min: 1.0
+          max: 720.0
+          mode: slider
+          step: 1.0
+    actions:
+      name: Actions
+      description: Notifications or similar to be run. {{message}} is an example message
+      selector:
+        action: {}
+trigger_variables:
+  latest_consumption_data_available_timestamp: !input latest_consumption_data_available_timestamp
+  alert_hours: !input alert_hours
+  energy_source: !input energy_source
+variables:
+  hours_since: "{{ ((now() - state_attr(latest_consumption_data_available_timestamp, 'latest_available_data_timestamp') | as_datetime).seconds / 3600) }}"
+  message: '{{ energy_source }} consumption data is running late. It was last available {{ hours_since | int }} hours ago.'
+mode: queued
+max: 4
+trigger:
+- platform: template
+  value_template: >
+    {{ ((now() - state_attr(latest_consumption_data_available_timestamp, 'latest_available_data_timestamp') | as_datetime).seconds / 3600) >= alert_hours }}
+condition:
+  - condition: template
+    value_template: >
+      {{ ((now() - state_attr(latest_consumption_data_available_timestamp, 'latest_available_data_timestamp') | as_datetime).seconds / 3600) >= alert_hours }}
+action:
+- choose: []
+  default: !input actions

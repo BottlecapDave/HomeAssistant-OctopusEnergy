@@ -36,8 +36,6 @@ async def test_when_get_electricity_standing_charge_is_called_for_existent_tarif
 async def test_when_get_electricity_standing_charge_is_called_with_tracker_tariff_then_rates_are_returned(tariff):
     # Arrange
     context = get_test_context()
-    period_from = now().replace(hour=0, minute=0, second=0, microsecond=0)
-    period_to = (now() + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
     client = OctopusEnergyApiClient(context.api_key)
 
     # Act

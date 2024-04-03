@@ -29,6 +29,7 @@ module.exports = {
     { value: 'revert', name: 'revert: Revert to a commit' },
     { value: 'release', name: 'release: a release of the project' },
     { value: 'WIP', name: 'WIP: Work in progress' },
+    { value: 'blueprint', name: 'blueprint: A blueprint enhancing the integration' },
   ],
 
   scopes: scopes.map(x => { return { name: x }}),

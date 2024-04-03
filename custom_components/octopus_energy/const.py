@@ -2,7 +2,7 @@ import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 
 DOMAIN = "octopus_energy"
-INTEGRATION_VERSION = "10.1.2"
+INTEGRATION_VERSION = "10.1.4"
 
 REFRESH_RATE_IN_MINUTES_ACCOUNT = 60
 REFRESH_RATE_IN_MINUTES_INTELLIGENT = 5
@@ -60,6 +60,8 @@ CONFIG_COST_NAME = "name"
 CONFIG_COST_MPAN = "mpan"
 CONFIG_COST_TARGET_ENTITY_ID = "target_entity_id"
 CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE = "entity_accumulative_value"
+CONFIG_COST_WEEKDAY_RESET = "weekday_reset"
+CONFIG_COST_MONTH_DAY_RESET = "month_day_reset"
 
 DATA_CONFIG = "CONFIG"
 DATA_ELECTRICITY_RATES_COORDINATOR_KEY = "ELECTRICITY_RATES_COORDINATOR_{}_{}"

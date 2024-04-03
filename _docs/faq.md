@@ -37,6 +37,8 @@ Data can not appear for a variety of reasons. Before raising any issues, check i
 
 Data might also not appear if you lose internet connection or the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs as warnings around using cached data. If none of this is applicable, then please raise an issue so we can try and solve the problem.
 
+If you are missing consumption data, the previous consumption sensors have an attribute (`latest_available_data_timestamp`) stating the timestamp of the latest consumption data that is available via the API.
+
 ## Data in my Home Assistant energy dashboard reported by Octopus Home Mini differs to Octopus Energy dashboard. Why is this?
 
 The data can differ for a number of reasons.

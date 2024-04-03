@@ -73,3 +73,51 @@ def add_consumption(current: datetime,
     new_untracked_consumption_data = __add_consumption(new_untracked_consumption_data, target_start, target_end, value)
 
   return CostTrackerResult(new_tracked_consumption_data, new_untracked_consumption_data)
+
+class AccumulativeCostTrackerResult:
+  accumulative_data: list
+  total_consumption: float
+  total_cost: float
+
+  def __init__(self, accumulative_data: list, total_consumption: float, total_cost: float):
+    self.accumulative_data = accumulative_data
+    self.total_consumption = total_consumption
+    self.total_cost = total_cost
+
+def accumulate_cost(current: datetime, accumulative_data: list, new_cost: float, new_consumption: float) -> AccumulativeCostTrackerResult:
+  start_of_day = current.replace(hour=0, minute=0, second=0, microsecond=0)
+  
+  if accumulative_data is None:
+    accumulative_data = []
+
+  total_cost = 0
+  total_consumption = 0
+  is_day_added = False
+  new_accumulative_data = []
+  for item in accumulative_data:
+    new_item = item.copy()
+    
+    if "start" in new_item and new_item["start"] == start_of_day:
+      new_item["cost"] = new_cost
+      new_item["consumption"] = new_consumption
+      is_day_added = True
+
+    if "consumption" in new_item:
+      total_consumption += new_item["consumption"]
+
+    if "cost" in new_item:
+      total_cost += new_item["cost"]
+
+    new_accumulative_data.append(new_item)
+
+  if is_day_added == False:
+    new_accumulative_data.append({
+      "start": start_of_day,
+      "end": start_of_day + timedelta(days=1),
+      "cost": new_cost,
+      "consumption": new_consumption,
+    })
+
+  return AccumulativeCostTrackerResult(new_accumulative_data, total_consumption, total_cost)
+
+  

@@ -137,7 +137,8 @@ async def test_when_when_account_is_none_then_previous_data_returned(is_electric
     1,
     [],
     [],
-    None
+    None,
+    datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   )
 
   # Act
@@ -186,7 +187,8 @@ async def test_when_when_next_refresh_is_in_the_future_and_previous_data_is_avai
     1,
     [],
     [],
-    None
+    None,
+    datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   )
 
   # Act
@@ -271,7 +273,8 @@ async def test_when_next_refresh_is_in_the_past_and_gas_sensor_then_requested_da
           datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
           [1, 2]
         ),
-        10.1
+        10.1,
+        datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
       )
 
     # Act
@@ -387,7 +390,8 @@ async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requ
           datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
           [1, 2]
         ),
-        10.1
+        10.1,
+        datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
       )
 
     # Act
@@ -441,6 +445,9 @@ async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requ
 @pytest.mark.asyncio
 async def test_when_retrieving_gas_and_next_refresh_is_in_the_past_and_returned_data_is_empty_then_previous_data_returned():
   # Arrange
+  async def async_mocked_get_gas_rates(*args, **kwargs):
+    return []
+
   async def async_mocked_get_gas_consumption(*args, **kwargs):
     return []
   
@@ -453,7 +460,7 @@ async def test_when_retrieving_gas_and_next_refresh_is_in_the_past_and_returned_
     actual_fired_events[name] = metadata
     return None
 
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_consumption=async_mocked_get_gas_consumption, async_get_gas_standing_charge=async_mocked_get_gas_standing_charge):
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates, async_get_gas_consumption=async_mocked_get_gas_consumption, async_get_gas_standing_charge=async_mocked_get_gas_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
 
     is_electricity = False
@@ -481,7 +488,8 @@ async def test_when_retrieving_gas_and_next_refresh_is_in_the_past_and_returned_
         previous_period_to,
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     # Act
@@ -511,6 +519,9 @@ async def test_when_retrieving_gas_and_next_refresh_is_in_the_past_and_returned_
 @pytest.mark.asyncio
 async def test_when_retrieving_electricity_and_next_refresh_is_in_the_past_and_returned_data_is_empty_then_previous_data_returned():
   # Arrange
+  async def async_mocked_get_electricity_rates(*args, **kwargs):
+    return []
+
   async def async_mocked_get_electricity_consumption(*args, **kwargs):
     return []
   
@@ -523,7 +534,7 @@ async def test_when_retrieving_electricity_and_next_refresh_is_in_the_past_and_r
     actual_fired_events[name] = metadata
     return None
 
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_consumption=async_mocked_get_electricity_consumption, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_rates=async_mocked_get_electricity_rates, async_get_electricity_consumption=async_mocked_get_electricity_consumption, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
     client = OctopusEnergyApiClient("NOT_REAL")
 
     is_electricity = True
@@ -551,7 +562,8 @@ async def test_when_retrieving_electricity_and_next_refresh_is_in_the_past_and_r
         previous_period_to,
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     store = {
@@ -633,7 +645,8 @@ async def test_when_not_enough_consumption_returned_then_previous_data_returned(
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     # Act
@@ -711,7 +724,8 @@ async def test_when_electricity_and_consumption_data_spans_multiple_days_then_pr
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     # Act
@@ -789,7 +803,8 @@ async def test_when_gas_and_consumption_data_spans_multiple_days_then_previous_d
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     # Act
@@ -869,7 +884,8 @@ async def test_when_intelligent_dispatches_available_then_adjusted_requested_dat
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     intelligent_dispatches = IntelligentDispatches(
@@ -993,7 +1009,8 @@ async def test_when_intelligent_tariff_and_no_dispatches_available_then_previous
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     intelligent_dispatches = None
@@ -1076,7 +1093,8 @@ async def test_when_electricity_tariff_not_found_then_previous_result_returned()
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     intelligent_dispatches = None
@@ -1163,7 +1181,8 @@ async def test_when_gas_tariff_not_found_then_previous_result_returned():
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     intelligent_dispatches = None

@@ -160,6 +160,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
 
     if result is not None:
       self._attributes["data_last_retrieved"] = result.last_retrieved
+      self._attributes["latest_available_data_timestamp"] = result.latest_available_timestamp
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

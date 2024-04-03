@@ -41,13 +41,15 @@ def __sort_consumption(consumption_data):
 class PreviousConsumptionCoordinatorResult(BaseCoordinatorResult):
   consumption: list
   rates: list
+  latest_available_timestamp: datetime
   standing_charge: float
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, consumption: list, rates: list, standing_charge):
+  def __init__(self, last_retrieved: datetime, request_attempts: int, consumption: list, rates: list, standing_charge, latest_available_timestamp: datetime = None):
     super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION)
     self.consumption = consumption
     self.rates = rates
     self.standing_charge = standing_charge
+    self.latest_available_timestamp = latest_available_timestamp
 
 async def async_fetch_consumption_and_rates(
   previous_data: PreviousConsumptionCoordinatorResult,
@@ -84,8 +86,9 @@ async def async_fetch_consumption_and_rates(
         if is_intelligent_tariff(tariff_code) and intelligent_dispatches is None:
           return previous_data
 
-        [consumption_data, rate_data, standing_charge] = await asyncio.gather(
+        [consumption_data, latest_consumption_data, rate_data, standing_charge] = await asyncio.gather(
           client.async_get_electricity_consumption(identifier, serial_number, period_from, period_to),
+          client.async_get_electricity_consumption(identifier, serial_number, None, None, 1),
           client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to),
           client.async_get_electricity_standing_charge(tariff_code, period_from, period_to)
         )
@@ -101,8 +104,9 @@ async def async_fetch_consumption_and_rates(
           _LOGGER.error(f"Could not determine tariff code for previous consumption for gas {identifier}/{serial_number}")
           return previous_data
 
-        [consumption_data, rate_data, standing_charge] = await asyncio.gather(
+        [consumption_data, latest_consumption_data, rate_data, standing_charge] = await asyncio.gather(
           client.async_get_gas_consumption(identifier, serial_number, period_from, period_to),
+          client.async_get_gas_consumption(identifier, serial_number, None, None, 1),
           client.async_get_gas_rates(tariff_code, period_from, period_to),
           client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
         )
@@ -126,7 +130,8 @@ async def async_fetch_consumption_and_rates(
           1,
           consumption_data,
           rate_data,
-          standing_charge["value_inc_vat"]
+          standing_charge["value_inc_vat"],
+          latest_consumption_data[-1]["end"] if latest_consumption_data is not None and len(latest_consumption_data) > 0 else None
         )
       
       return PreviousConsumptionCoordinatorResult(
@@ -134,7 +139,10 @@ async def async_fetch_consumption_and_rates(
         1,
         previous_data.consumption if previous_data is not None else None,
         previous_data.rates if previous_data is not None else None,
-        previous_data.standing_charge if previous_data is not None else None
+        previous_data.standing_charge if previous_data is not None else None,
+        latest_consumption_data[-1]["end"]
+        if latest_consumption_data is not None and len(latest_consumption_data) > 0
+        else previous_data.latest_available_timestamp if previous_data is not None else None
       )
     except Exception as e:
       if isinstance(e, ApiException) == False:
@@ -147,7 +155,8 @@ async def async_fetch_consumption_and_rates(
           previous_data.request_attempts + 1,
           previous_data.consumption,
           previous_data.rates,
-          previous_data.standing_charge
+          previous_data.standing_charge,
+          previous_data.latest_available_timestamp
         )
         _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number} - using cached data. Next attempt at {result.next_refresh}")
       else:
@@ -155,6 +164,7 @@ async def async_fetch_consumption_and_rates(
           # We want to force into our fallback mode
           current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION),
           2,
+          None,
           None,
           None,
           None

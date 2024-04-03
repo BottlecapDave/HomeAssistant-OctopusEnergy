@@ -109,6 +109,14 @@ async def async_setup_entry(hass, entry):
     entry.async_on_unload(
         hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, async_close_connection)
     )
+
+    # If the main account has been reloaded, then reload all other entries to make sure they're referencing
+    # the correct references (e.g. rate coordinators)
+    child_entries = hass.config_entries.async_entries(DOMAIN)
+    for child_entry in child_entries:
+      if child_entry.data[CONFIG_KIND] != CONFIG_KIND_ACCOUNT and child_entry.data[CONFIG_ACCOUNT_ID] == account_id:
+        await hass.config_entries.async_reload(child_entry.entry_id)
+  
   elif config[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
     if DOMAIN not in hass.data or account_id not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN][account_id]:
       raise ConfigEntryNotReady("Account has not been setup")
@@ -281,10 +289,12 @@ async def async_unload_entry(hass, entry):
     """Unload a config entry."""
 
     unload_ok = False
-    if CONFIG_MAIN_API_KEY in entry.data:
+    if entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
       unload_ok = await hass.config_entries.async_unload_platforms(entry, ACCOUNT_PLATFORMS)
-    elif CONFIG_TARGET_NAME in entry.data:
+    elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
       unload_ok = await hass.config_entries.async_unload_platforms(entry, TARGET_RATE_PLATFORMS)
+    elif entry.data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
+      unload_ok = await hass.config_entries.async_unload_platforms(entry, COST_TRACKER_PLATFORMS)
 
     return unload_ok
 

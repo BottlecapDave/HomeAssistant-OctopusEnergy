@@ -11,25 +11,29 @@ def create_rates():
       "value_exc_vat": 9.111,
       "value_inc_vat": 9.11,
       "start": as_utc(parse_datetime("2022-10-10T03:30:00Z")),
-      "end": as_utc(parse_datetime("2022-10-10T04:00:00Z"))
+      "end": as_utc(parse_datetime("2022-10-10T04:00:00Z")),
+      "tariff_code": "E-1R-TARIFF-L"
     },
     {
       "value_exc_vat": 30.1,
       "value_inc_vat": 30.1,
       "start": as_utc(parse_datetime("2022-10-10T04:00:00Z")),
-      "end": as_utc(parse_datetime("2022-10-10T04:30:00Z"))
+      "end": as_utc(parse_datetime("2022-10-10T04:30:00Z")),
+      "tariff_code": "E-1R-TARIFF-L"
     },
     {
       "value_exc_vat": 30.1,
       "value_inc_vat": 30.1,
       "start": as_utc(parse_datetime("2022-10-10T04:30:00Z")),
-      "end": as_utc(parse_datetime("2022-10-10T05:00:00Z"))
+      "end": as_utc(parse_datetime("2022-10-10T05:00:00Z")),
+      "tariff_code": "E-1R-TARIFF-L"
     },
     {
       "value_exc_vat": 30.1,
       "value_inc_vat": 30.1,
       "start": as_utc(parse_datetime("2022-10-10T05:00:00Z")),
-      "end": as_utc(parse_datetime("2022-10-10T05:30:00Z"))
+      "end": as_utc(parse_datetime("2022-10-10T05:30:00Z")),
+      "tariff_code": "E-1R-TARIFF-L"
     },
   ]
 
@@ -75,6 +79,7 @@ async def test_when_planned_smart_charge_dispatch_present_in_rate_then_rates_adj
     if index == 3:
       assert rate["start"] == adjusted_rates[index]["start"]
       assert rate["end"] == adjusted_rates[index]["end"]
+      assert rate["tariff_code"] == adjusted_rates[index]["tariff_code"]
       assert off_peak == adjusted_rates[index]["value_inc_vat"]
       assert True == adjusted_rates[index]["is_intelligent_adjusted"]
       
@@ -105,6 +110,7 @@ async def test_when_planned_smart_charge_dispatch_spans_multiple_rates_then_rate
     if index == 1 or index == 2:
       assert rate["start"] == adjusted_rates[index]["start"]
       assert rate["end"] == adjusted_rates[index]["end"]
+      assert rate["tariff_code"] == adjusted_rates[index]["tariff_code"]
       assert off_peak == adjusted_rates[index]["value_inc_vat"]
       assert True == adjusted_rates[index]["is_intelligent_adjusted"]
       
@@ -132,7 +138,7 @@ async def test_when_planned_smart_charge_dispatch_spans_two_parts_then_rates_adj
       as_utc(parse_datetime("2022-10-10T22:00:00Z")),
       as_utc(parse_datetime("2022-10-11T04:00:00Z")),
       1,
-      "smart-charge",
+      None,
       "home"
     )
   ]
@@ -148,6 +154,7 @@ async def test_when_planned_smart_charge_dispatch_spans_two_parts_then_rates_adj
       print(f"start: {rate['start']}; end: {rate['end']}")
       assert rate["start"] == adjusted_rates[index]["start"]
       assert rate["end"] == adjusted_rates[index]["end"]
+      assert rate["tariff_code"] == adjusted_rates[index]["tariff_code"]
       assert off_peak == adjusted_rates[index]["value_inc_vat"]
       assert True == adjusted_rates[index]["is_intelligent_adjusted"]
       
@@ -203,6 +210,7 @@ async def test_when_complete_smart_charge_dispatch_present_in_rate_then_rates_ad
     if index == 3:
       assert rate["start"] == adjusted_rates[index]["start"]
       assert rate["end"] == adjusted_rates[index]["end"]
+      assert rate["tariff_code"] == adjusted_rates[index]["tariff_code"]
       assert off_peak == adjusted_rates[index]["value_inc_vat"]
       assert True == adjusted_rates[index]["is_intelligent_adjusted"]
       
@@ -233,6 +241,7 @@ async def test_when_complete_non_smart_charge_dispatch_present_in_rate_then_rate
     if index == 3:
       assert rate["start"] == adjusted_rates[index]["start"]
       assert rate["end"] == adjusted_rates[index]["end"]
+      assert rate["tariff_code"] == adjusted_rates[index]["tariff_code"]
       assert off_peak == adjusted_rates[index]["value_inc_vat"]
       assert True == adjusted_rates[index]["is_intelligent_adjusted"]
       

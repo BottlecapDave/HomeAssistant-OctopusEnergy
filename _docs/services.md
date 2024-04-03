@@ -124,3 +124,32 @@ This service allows the user to turn the tracking on/off for a given [cost track
 ### Automation Example
 
 For automation examples, please refer to the available [blueprints](./blueprints.md#cost-tracker).
+
+## octopus_energy.reset_cost_tracker
+
+Resets a given [cost tracker](./setup/cost_tracker.md) sensor back to zero before it's normal reset time.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the cost tracker sensor(s) that should be reset. |
+
+## octopus_energy.adjust_accumulative_cost_tracker
+
+Allows you to adjust the cost/consumption for any given date recorded by an accumulative [cost tracker](./setup/cost_tracker.md) sensor (e.g. week or month).
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the cost tracker sensor(s) that should be updated (e.g. `sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_week` or `sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_month`). |
+| `data.date`              | `no`     | The date of the data within the cost tracker to be adjusted. |
+| `data.consumption`       | `no`     | The new consumption recorded against the specified date. |
+| `data.cost`              | `no`     | The new cost recorded against the specified date. |
+
+## octopus_energy.adjust_cost_tracker
+
+Allows you to adjust the consumption for any given period recorded by a [cost tracker](./setup/cost_tracker.md) sensor representing today.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the cost tracker sensor(s) that should be updated (e.g. `sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}`). |
+| `data.date`              | `no`     | The date of the data within the cost tracker to be adjusted. |
+| `data.consumption`       | `no`     | The new consumption recorded against the specified date. |
