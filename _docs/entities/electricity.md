@@ -184,6 +184,7 @@ The total consumption reported by the meter for the previous day.
 | `total` | `float` | The total energy value for the previous day. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 | `last_evaluated` | `datetime` | The date/time that the consumption sensor was last evaluated. |
+| `latest_available_data_timestamp` | `datetime` | The date/time of the latest available consumption data via the API. This is only for data reported directly by the meter and won't include data reported by other devices (e.g. Octopus Home Mini) |
 
 Each charge item has the following attributes
 

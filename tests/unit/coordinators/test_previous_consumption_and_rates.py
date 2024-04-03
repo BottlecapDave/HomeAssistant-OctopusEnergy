@@ -137,7 +137,8 @@ async def test_when_when_account_is_none_then_previous_data_returned(is_electric
     1,
     [],
     [],
-    None
+    None,
+    datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   )
 
   # Act
@@ -186,7 +187,8 @@ async def test_when_when_next_refresh_is_in_the_future_and_previous_data_is_avai
     1,
     [],
     [],
-    None
+    None,
+    datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   )
 
   # Act
@@ -271,7 +273,8 @@ async def test_when_next_refresh_is_in_the_past_and_gas_sensor_then_requested_da
           datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
           [1, 2]
         ),
-        10.1
+        10.1,
+        datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
       )
 
     # Act
@@ -387,7 +390,8 @@ async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requ
           datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
           [1, 2]
         ),
-        10.1
+        10.1,
+        datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
       )
 
     # Act
@@ -484,7 +488,8 @@ async def test_when_retrieving_gas_and_next_refresh_is_in_the_past_and_returned_
         previous_period_to,
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     # Act
@@ -557,7 +562,8 @@ async def test_when_retrieving_electricity_and_next_refresh_is_in_the_past_and_r
         previous_period_to,
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     store = {
@@ -639,7 +645,8 @@ async def test_when_not_enough_consumption_returned_then_previous_data_returned(
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     # Act
@@ -717,7 +724,8 @@ async def test_when_electricity_and_consumption_data_spans_multiple_days_then_pr
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     # Act
@@ -795,7 +803,8 @@ async def test_when_gas_and_consumption_data_spans_multiple_days_then_previous_d
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     # Act
@@ -875,7 +884,8 @@ async def test_when_intelligent_dispatches_available_then_adjusted_requested_dat
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     intelligent_dispatches = IntelligentDispatches(
@@ -999,7 +1009,8 @@ async def test_when_intelligent_tariff_and_no_dispatches_available_then_previous
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     intelligent_dispatches = None
@@ -1082,7 +1093,8 @@ async def test_when_electricity_tariff_not_found_then_previous_result_returned()
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     intelligent_dispatches = None
@@ -1169,7 +1181,8 @@ async def test_when_gas_tariff_not_found_then_previous_result_returned():
         datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
         [1, 2]
       ),
-      10.1
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
     intelligent_dispatches = None
