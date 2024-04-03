@@ -142,23 +142,23 @@
   "issues": {
     "account_not_found": {
       "title": "Account \"{account_id}\" not found",
-      "description": "The integration failed to retrieve the information associated with your configured account. Please check your account exists and that your API key is valid. Click 'Learn More' to find out how to fix this."
+      "description": "The integration failed to retrieve the information associated with your configured account. Please check your account exists and that your API key is valid. Click \"Learn More\" to find out how to fix this."
     },
     "unknown_tariff_format": {
       "title": "Invalid format - {type} - {tariff_code}",
-      "description": "The tariff \"{tariff_code}\" associated with your {type} meter is not in an expected format. Click on 'Learn More' with instructions on what to do next."
+      "description": "The tariff \"{tariff_code}\" associated with your {type} meter is not in an expected format. Click on \"Learn More\" with instructions on what to do next."
     },
     "unknown_tariff": {
       "title": "Unknown tariff - {type} - {tariff_code}",
-      "description": "The tariff \"{tariff_code}\" associated with your {type} meter has not been found. Click on 'Learn More' with instructions on what to do next."
+      "description": "The tariff \"{tariff_code}\" associated with your {type} meter has not been found. Click on \"Learn More\" with instructions on what to do next."
     },
     "invalid_target_rate": {
       "title": "Invalid target rate \"{name}\"",
-      "description": "The target rate \"{name}\" has become invalid. Click on 'Learn More' with instructions on what to do next."
+      "description": "The target rate \"{name}\" has become invalid. Click on \"Learn More\" with instructions on what to do next."
     },
     "octopus_mini_not_valid": {
       "title": "Octopus Mini not valid for {type} meter",
-      "description": "Octopus Mini has been configured for account '{account_id}', but it's not available for {type} meter {mpan_mprn}/{serial_number}. If this is expected, you can ignore this notice, otherwise click 'Learn More' with instructions on what to do next."
+      "description": "Octopus Mini has been configured for account \"{account_id}\", but it's not available for {type} meter {mpan_mprn}/{serial_number}. If this is expected, you can ignore this notice, otherwise click \"Learn More\" with instructions on what to do next."
     }
   }
 }
