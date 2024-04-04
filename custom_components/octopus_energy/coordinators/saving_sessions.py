@@ -164,7 +164,7 @@ async def async_setup_saving_sessions_coordinators(hass, account_id: str):
   hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS_COORDINATOR] = DataUpdateCoordinator(
     hass,
     _LOGGER,
-    name=f"{account_id}_saving_sessions",
+    name=f"saving_sessions_{account_id}",
     update_method=async_update_saving_sessions,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes

@@ -78,7 +78,7 @@ async def async_setup_wheel_of_fortune_spins_coordinator(hass, account_id: str):
   coordinator = DataUpdateCoordinator(
     hass,
     _LOGGER,
-    name=f"{account_id}_wheel_of_fortune_spins",
+    name=f"wheel_of_fortune_spins_{account_id}",
     update_method=async_update_data,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes

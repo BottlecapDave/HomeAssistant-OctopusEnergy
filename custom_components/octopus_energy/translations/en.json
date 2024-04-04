@@ -38,6 +38,12 @@
           "target_invert_target_rates": "Invert targeted rates"
         }
       },
+      "target_rate_account": {
+        "description": "Select the account your target rate sensor will be using for its calculations",
+        "data": {
+          "account_id": "Account"
+        }
+      },
       "cost_tracker": {
         "description": "Track the cost for a given energy based sensor. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/cost_tracker.",
         "data": {
@@ -47,6 +53,12 @@
           "entity_accumulative_value": "Tracked entity state is accumulative",
           "weekday_reset": "The day when the week cost sensor should reset",
           "month_day_reset": "The day when the month cost sensor should reset"
+        }
+      },
+      "cost_tracker_account": {
+        "description": "Select the account your cost tracker will be using for its calculations",
+        "data": {
+          "account_id": "Account"
         }
       }
     },
@@ -61,6 +73,7 @@
       "invalid_hours_time_frame": "The target hours do not fit in the elected target time frame",
       "invalid_mpan": "Meter not found in account with an active tariff",
       "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information.",
+      "duplicate_account": "Account has already been configured",
       "invalid_week_day": "Week reset day must be between 0 and 6 (inclusively)",
       "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)"
     },
