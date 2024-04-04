@@ -4,9 +4,9 @@ blueprint:
   domain: automation
   author: BottlecapDave
   input:
-    latest_consumption_data_available_timestamp:
-      name: Latest consumption data available timestamp entity
-      description: The entity which reports the latest consumption data available timestamp
+    previous_accumulative_consumption_entity:
+      name: Previous accumulative consumption entity
+      description: The entity which reports the previous accumulative consumption (e.g sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption)
       selector:
         entity:
           filter:
@@ -40,22 +40,22 @@ blueprint:
       selector:
         action: {}
 trigger_variables:
-  latest_consumption_data_available_timestamp: !input latest_consumption_data_available_timestamp
+  previous_accumulative_consumption_entity: !input previous_accumulative_consumption_entity
   alert_hours: !input alert_hours
   energy_source: !input energy_source
 variables:
-  hours_since: "{{ ((now() - state_attr(latest_consumption_data_available_timestamp, 'latest_available_data_timestamp') | as_datetime).seconds / 3600) }}"
+  hours_since: "{{ ((now() - state_attr(previous_accumulative_consumption_entity, 'latest_available_data_timestamp') | as_datetime).seconds / 3600) }}"
   message: '{{ energy_source }} consumption data is running late. It was last available {{ hours_since | int }} hours ago.'
 mode: queued
 max: 4
 trigger:
 - platform: template
   value_template: >
-    {{ ((now() - state_attr(latest_consumption_data_available_timestamp, 'latest_available_data_timestamp') | as_datetime).seconds / 3600) >= alert_hours }}
+    {{ ((now() - state_attr(previous_accumulative_consumption_entity, 'latest_available_data_timestamp') | as_datetime).seconds / 3600) >= alert_hours }}
 condition:
   - condition: template
     value_template: >
-      {{ ((now() - state_attr(latest_consumption_data_available_timestamp, 'latest_available_data_timestamp') | as_datetime).seconds / 3600) >= alert_hours }}
+      {{ ((now() - state_attr(previous_accumulative_consumption_entity, 'latest_available_data_timestamp') | as_datetime).seconds / 3600) >= alert_hours }}
 action:
 - choose: []
   default: !input actions
