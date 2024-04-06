@@ -27,7 +27,7 @@ from ..const import (
   REGEX_TIME
 )
 
-from ..utils import get_active_tariff_code
+from . import get_meter_tariffs
 from ..utils.tariff_check import is_agile_tariff
 
 async def async_migrate_target_config(version: int, data: {}, get_entries):
@@ -79,16 +79,6 @@ def merge_target_rate_config(data: dict, options: dict, updated_config: dict = N
     config.update(updated_config)
 
   return config
-
-def get_meter_tariffs(account_info, now):
-  meters = {}
-  if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
-    for point in account_info["electricity_meter_points"]:
-      active_tariff_code = get_active_tariff_code(now, point["agreements"])
-      if active_tariff_code is not None:
-        meters[point["mpan"]] = active_tariff_code
-
-  return meters
 
 def is_time_frame_long_enough(hours, start_time, end_time):
   start_time = parse_datetime(f"2023-08-01T{start_time}:00Z")

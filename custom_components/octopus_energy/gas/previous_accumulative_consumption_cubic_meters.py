@@ -37,7 +37,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative gas reading."""
 
-  def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, coordinator, meter, point, calorific_value):
+  def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, coordinator, account_id, meter, point, calorific_value):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
@@ -47,6 +47,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEnti
     self._native_consumption_units = meter["consumption_units"]
     self._state = None
     self._last_reset = None
+    self._account_id = account_id
     self._calorific_value = calorific_value
 
   @property
@@ -163,6 +164,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEnti
 
     if result is not None:
       self._attributes["data_last_retrieved"] = result.last_retrieved
+      self._attributes["latest_available_data_timestamp"] = result.latest_available_timestamp
 
     super()._handle_coordinator_update()
 
@@ -180,7 +182,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEnti
 
   @callback
   async def async_refresh_previous_consumption_data(self, start_date):
-    """Update sensors config"""
+    """Refresh the underlying consumption data"""
 
     await async_refresh_previous_gas_consumption_data(
       self._hass,

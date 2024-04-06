@@ -38,13 +38,27 @@
           "target_invert_target_rates": "Invert targeted rates"
         }
       },
+      "target_rate_account": {
+        "description": "Select the account your target rate sensor will be using for its calculations",
+        "data": {
+          "account_id": "Account"
+        }
+      },
       "cost_tracker": {
         "description": "Track the cost for a given energy based sensor. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/cost_tracker.",
         "data": {
           "name": "The name of your cost sensor",
           "mpan": "The meter the cost rates should be associated with",
           "target_entity_id": "The entity to track the costs for.",
-          "entity_accumulative_value": "Tracked entity state is accumulative"
+          "entity_accumulative_value": "Tracked entity state is accumulative",
+          "weekday_reset": "The day when the week cost sensor should reset",
+          "month_day_reset": "The day when the month cost sensor should reset"
+        }
+      },
+      "cost_tracker_account": {
+        "description": "Select the account your cost tracker will be using for its calculations",
+        "data": {
+          "account_id": "Account"
         }
       }
     },
@@ -58,7 +72,10 @@
       "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol",
       "invalid_hours_time_frame": "The target hours do not fit in the elected target time frame",
       "invalid_mpan": "Meter not found in account with an active tariff",
-      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information."
+      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information.",
+      "duplicate_account": "Account has already been configured",
+      "invalid_week_day": "Week reset day must be between 0 and 6 (inclusively)",
+      "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)"
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",
@@ -106,7 +123,9 @@
           "name": "The name of your cost sensor",
           "mpan": "The meter the cost rates should be associated with",
           "target_entity_id": "The entity to track the costs for.",
-          "entity_accumulative_value": "Tracked entity state is accumulative"
+          "entity_accumulative_value": "Tracked entity state is accumulative",
+          "weekday_reset": "The day when the week cost sensor should reset",
+          "month_day_reset": "The day when the month cost sensor should reset"
         }
       }
     },
@@ -119,33 +138,40 @@
       "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol",
       "invalid_hours_time_frame": "The target hours do not fit in the elected target time frame",
       "invalid_mpan": "Meter not found in account with an active tariff",
-      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information."
+      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information.",
+      "invalid_week_day": "Week reset day must be between 0 and 6 (inclusively)",
+      "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)"
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",
       "account_not_found": "Account information is not found"
     }
   },
+  "exceptions": {
+    "cost_tracker_invalid_date": {
+      "message": "Date must be between {min_date} and {max_date}"
+    }
+  },
   "issues": {
     "account_not_found": {
       "title": "Account \"{account_id}\" not found",
-      "description": "The integration failed to retrieve the information associated with your configured account. Please check your account exists and that your API key is valid. Click 'Learn More' to find out how to fix this."
+      "description": "The integration failed to retrieve the information associated with your configured account. Please check your account exists and that your API key is valid. Click \"Learn More\" to find out how to fix this."
     },
     "unknown_tariff_format": {
       "title": "Invalid format - {type} - {tariff_code}",
-      "description": "The tariff \"{tariff_code}\" associated with your {type} meter is not in an expected format. Click on 'Learn More' with instructions on what to do next."
+      "description": "The tariff \"{tariff_code}\" associated with your {type} meter is not in an expected format. Click on \"Learn More\" with instructions on what to do next."
     },
     "unknown_tariff": {
       "title": "Unknown tariff - {type} - {tariff_code}",
-      "description": "The tariff \"{tariff_code}\" associated with your {type} meter has not been found. Click on 'Learn More' with instructions on what to do next."
+      "description": "The tariff \"{tariff_code}\" associated with your {type} meter has not been found. Click on \"Learn More\" with instructions on what to do next."
     },
     "invalid_target_rate": {
       "title": "Invalid target rate \"{name}\"",
-      "description": "The target rate \"{name}\" has become invalid. Click on 'Learn More' with instructions on what to do next."
+      "description": "The target rate \"{name}\" has become invalid. Click on \"Learn More\" with instructions on what to do next."
     },
     "octopus_mini_not_valid": {
       "title": "Octopus Mini not valid for {type} meter",
-      "description": "Octopus Mini has been configured for account '{account_id}', but it's not available for {type} meter {mpan_mprn}/{serial_number}. If this is expected, you can ignore this notice, otherwise click 'Learn More' with instructions on what to do next."
+      "description": "Octopus Mini has been configured for account \"{account_id}\", but it's not available for {type} meter {mpan_mprn}/{serial_number}. If this is expected, you can ignore this notice, otherwise click \"Learn More\" with instructions on what to do next."
     }
   }
 }

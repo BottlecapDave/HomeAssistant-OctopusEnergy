@@ -658,7 +658,7 @@ class OctopusEnergyApiClient:
 
         if (response_body is not None and "data" in response_body and "smartMeterTelemetry" in response_body["data"] and response_body["data"]["smartMeterTelemetry"] is not None and len(response_body["data"]["smartMeterTelemetry"]) > 0):
           return list(map(lambda mp: {
-            "consumption": float(mp["consumptionDelta"]) / 1000,
+            "consumption": float(mp["consumptionDelta"]) / 1000 if "consumptionDelta" in mp and mp["consumptionDelta"] is not None else 0,
             "demand": float(mp["demand"]) if "demand" in mp and mp["demand"] is not None else None,
             "start": parse_datetime(mp["readAt"]),
             "end": parse_datetime(mp["readAt"]) + timedelta(minutes=30)
@@ -753,13 +753,26 @@ class OctopusEnergyApiClient:
     else:
       return await self.async_get_electricity_day_night_rates(product_code, tariff_code, is_smart_meter, period_from, period_to)
 
-  async def async_get_electricity_consumption(self, mpan, serial_number, period_from, period_to):
+  async def async_get_electricity_consumption(self, mpan, serial_number, period_from, period_to, page_size: int | None = None):
     """Get the current electricity consumption"""
 
     try:
       client = self._create_client_session()
       auth = aiohttp.BasicAuth(self._api_key, '')
-      url = f'{self._base_url}/v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
+
+      query_params = []
+      if period_from is not None:
+        query_params.append(f'period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}')
+      
+      if period_to is not None:
+        query_params.append(f'period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}')
+
+      if page_size is not None:
+        query_params.append(f'page_size={page_size}')
+
+      query_string = '&'.join(query_params)
+      
+      url = f"{self._base_url}/v1/electricity-meter-points/{mpan}/meters/{serial_number}/consumption{f'?{query_string}' if len(query_string) > 0 else ''}"
       async with client.get(url, auth=auth) as response:
         
         data = await self.__async_read_response__(response, url)
@@ -771,7 +784,7 @@ class OctopusEnergyApiClient:
 
             # For some reason, the end point returns slightly more data than we requested, so we need to filter out
             # the results
-            if as_utc(item["start"]) >= period_from and as_utc(item["end"]) <= period_to:
+            if (period_from is None or as_utc(item["start"]) >= period_from) and (period_to is None or as_utc(item["end"]) <= period_to):
               results.append(item)
           
           results.sort(key=self.__get_interval_end)
@@ -810,13 +823,27 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
-  async def async_get_gas_consumption(self, mprn, serial_number, period_from, period_to):
+  async def async_get_gas_consumption(self, mprn, serial_number, period_from, period_to, page_size: int | None = None):
     """Get the current gas rates"""
     
     try:
       client = self._create_client_session()
       auth = aiohttp.BasicAuth(self._api_key, '')
-      url = f'{self._base_url}/v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
+
+      query_params = []
+      if period_from is not None:
+        query_params.append(f'period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}')
+      
+      if period_to is not None:
+        query_params.append(f'period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}')
+
+      if page_size is not None:
+        query_params.append(f'page_size={page_size}')
+
+      query_string = '&'.join(query_params)
+
+      url = f"{self._base_url}/v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption{f'?{query_string}' if len(query_string) > 0 else ''}"
+      print(url)
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
         if (data is not None and "results" in data):
@@ -827,7 +854,7 @@ class OctopusEnergyApiClient:
 
             # For some reason, the end point returns slightly more data than we requested, so we need to filter out
             # the results
-            if as_utc(item["start"]) >= period_from and as_utc(item["end"]) <= period_to:
+            if (period_from is None or as_utc(item["start"]) >= period_from) and (period_to is None or as_utc(item["end"]) <= period_to):
               results.append(item)
           
           results.sort(key=self.__get_interval_end)
