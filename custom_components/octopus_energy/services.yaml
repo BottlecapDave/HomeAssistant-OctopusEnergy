@@ -113,12 +113,16 @@ adjust_accumulative_cost_tracker:
       selector:
         number:
           step: any
+          mode: box
+          unit_of_measurement: GBP
     consumption:
       name: Consumption
       description: The new consumption for the selected date
       selector:
         number:
           step: any
+          mode: box
+          unit_of_measurement: kWh
 
 adjust_cost_tracker:
   name: Adjusts cost tracker
@@ -139,3 +143,5 @@ adjust_cost_tracker:
       selector:
         number:
           step: any
+          mode: box
+          unit_of_measurement: kWh
