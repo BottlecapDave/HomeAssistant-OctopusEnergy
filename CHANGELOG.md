@@ -1,3 +1,24 @@
+# [10.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.1.4...v10.2.0) (2024-04-06)
+
+
+### Bug Fixes
+
+* Added missing account id information for previous accumulative gas consumption sensor ([6bd6387](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6bd63871d1ad77ceb9c12f5e8696b725b1d77a00))
+* Fixed issue when consumption data from Octopus Home Mini is not defined but demand data is ([d51647c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d51647c2962d0f09c96ee81e9fa369879f901875))
+* Fixed missing account id for repair message relating to octopus mini not being available. ([fa5650f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fa5650faf8726d81c1ed1bf2b8c6c222a8dab59b))
+
+
+### Features
+
+* Added attribute to previous consumption sensors to indicate the latest available data via the API ([cd735c6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cd735c6c2ac0eb60ceb44f9dcf9629ece91cf701))
+* Added cost tracker for weekly and monthly accumulations ([01c3733](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/01c3733111abeceff2edba2a0074fc49a279b41f))
+* Added sensor for next greenness forecast ([0708271](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0708271eb5bf919d57e7fc421fbc5dbdd2fd10c3))
+* Added service for adjusting specified dates within cost tracker accumulative sensors (e.g. week and month) ([26a9462](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/26a946228a1fc47fa82c1020584b4762b9973c91))
+* Added service for adjusting standard daily cost tracker ([1378e47](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1378e4708e4846b46e05ec2fa557f04c49cb01fa))
+* Added service for resetting a cost tracker back to zero. ([d28d63b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d28d63b17dec9d43604f44d96ead6dc35f9a967f))
+* Added support for multiple different accounts ([c15b4af](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c15b4af83b7075631871a7069f734b823c7e3504))
+* Updated cost tracker config to be updatable ([c24db54](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c24db54df842d09ed86f383d2eca1bfd5c5e0342))
+
 ## [10.1.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.1.3...v10.1.4) (2024-02-22)
 
 
