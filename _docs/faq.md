@@ -31,6 +31,21 @@ Once a successful request is made, the refreshes will revert back to the redefin
 !!! note
     The retrieving of data does not effect the rate the entities states/attributes are evaluated.
 
+## The integration provides features I don't need, can I turn the feature off?
+
+There is no config option to turn features on/off. This is because the required data is not cut and dry per feature as some data is shared among "features" (e.g. rate data is required to determine if consumption data is peak or off peak).
+
+However, the integration only requests the data specified above that is needed for the provided entities to function. If you disable the entities that you don't need, then the integration won't request the corresponding data. 
+
+Disabling entities is easy. All you need to do is
+
+1. Go to the [Octopus Energy](https://my.home-assistant.io/redirect/integration/?domain=octopus_energy) integration.
+2. Click on `entities`
+3. Go into multi-select mode and select the entities you want to disable
+4. Select `Disable selected`
+
+Some entities are disabled by default by the integration, which are highlighted as such in the documentation.
+
 ## I have data missing, is this an issue with the integration?
 
 Data can not appear for a variety of reasons. Before raising any issues, check if the data is available on the [website](https://octopus.energy/dashboard/new/accounts/consumption/home) for the requested period (e.g. for previous consumption, you'll be wanting data for the day before). If it's not available on the website, then unfortunately there is nothing that can be done and you may need to contact Octopus Energy.
