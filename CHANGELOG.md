@@ -1,3 +1,11 @@
+## [10.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.2.0...v10.2.1) (2024-04-07)
+
+
+### Bug Fixes
+
+* Fixed logging issue with cost trackers ([cfdd927](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cfdd927ab0b94be9554cb7458789e9034c6605a5))
+* Fixed target rate sensor picking times an hour before/after requested timeframe - timezone issue ([3651780](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3651780af51ba37c85f357925631174a298feed3))
+
 # [10.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.1.4...v10.2.0) (2024-04-06)
 
 
