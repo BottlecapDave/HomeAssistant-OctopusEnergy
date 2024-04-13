@@ -10,6 +10,7 @@ Determines the current Octoplus points balance. This sensor will only be availab
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
+| `redeemable_points` | `integer` | The number of points that can be redeemed into account credit |
 | `last_evaluated` | `datetime` | The date/time the value was last evaluated |
 | `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
 
