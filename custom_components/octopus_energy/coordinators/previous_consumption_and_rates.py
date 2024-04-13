@@ -185,7 +185,7 @@ async def async_create_previous_consumption_and_rates_coordinator(
     is_smart_meter: bool,
     days_offset: int):
   """Create reading coordinator"""
-  previous_consumption_key = f'{identifier}_{serial_number}_previous_consumption_and_rates'
+  previous_consumption_data_key = f'{identifier}_{serial_number}_previous_consumption_and_rates'
 
   async def async_update_data():
     """Fetch data from API endpoint."""
@@ -196,7 +196,7 @@ async def async_create_previous_consumption_and_rates_coordinator(
     dispatches: IntelligentDispatchesCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None
     
     result = await async_fetch_consumption_and_rates(
-      hass.data[DOMAIN][account_id][previous_consumption_key] if previous_consumption_key in hass.data[DOMAIN][account_id] else None,
+      hass.data[DOMAIN][account_id][previous_consumption_data_key] if previous_consumption_data_key in hass.data[DOMAIN][account_id] else None,
       utcnow(),
       account_info,
       client,
@@ -211,17 +211,17 @@ async def async_create_previous_consumption_and_rates_coordinator(
     )
 
     if (result is not None):
-      hass.data[DOMAIN][account_id][previous_consumption_key] = result
+      hass.data[DOMAIN][account_id][previous_consumption_data_key] = result
 
-    if previous_consumption_key in hass.data[DOMAIN][account_id]:
-      return hass.data[DOMAIN][account_id][previous_consumption_key] 
+    if previous_consumption_data_key in hass.data[DOMAIN][account_id]:
+      return hass.data[DOMAIN][account_id][previous_consumption_data_key] 
     else:
       return None
 
   coordinator = DataUpdateCoordinator(
     hass,
     _LOGGER,
-    name=previous_consumption_key,
+    name=previous_consumption_data_key,
     update_method=async_update_data,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes

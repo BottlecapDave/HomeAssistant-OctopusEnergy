@@ -15,11 +15,10 @@ period_from = datetime.strptime("2023-07-14T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%
 period_to = datetime.strptime("2023-07-15T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
 dispatches_last_retrieved = datetime.strptime("2023-07-14T10:00:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
 
-tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
 mpan = "1234567890"
 serial_number = "abcdefgh"
 
-def get_account_info(is_active_agreement = True):
+def get_account_info(is_active_agreement = True, tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"):
   return {
     "electricity_meter_points": [
       {
@@ -776,6 +775,47 @@ async def test_when_rates_next_refresh_is_in_the_future_dispatches_retrieved_bef
     ], 
     []
   ))
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_rates=async_mocked_get_electricity_rates):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_rates: ElectricityRatesCoordinatorResult = await async_refresh_electricity_rates_data(
+      current,
+      client,
+      account_info,
+      mpan,
+      serial_number,
+      True,
+      False,
+      existing_rates,
+      dispatches_result,
+      True,
+      fire_event
+    )
+
+    assert retrieved_rates == existing_rates
+    assert mock_api_called == False
+    assert len(actual_fired_events.keys()) == 0
+
+@pytest.mark.asyncio
+async def test_when_rate_is_intelligent_and_dispatches_not_available_then_existing_rates_returned():
+  expected_period_from = (current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+  expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
+  expected_rates = create_rate_data(expected_period_from, expected_period_to, [1, 2])
+  mock_api_called = False
+  async def async_mocked_get_electricity_rates(*args, **kwargs):
+    nonlocal mock_api_called
+    mock_api_called = True
+    return expected_rates
+  
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
+  
+  account_info = get_account_info(tariff_code="E-1R-INTELLI-VAR-22-10-14-C")
+  existing_rates = ElectricityRatesCoordinatorResult(period_to - timedelta(days=60), 1, create_rate_data(period_from - timedelta(days=60), period_to - timedelta(days=60), [2, 4]))
+  dispatches_result = None
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_rates=async_mocked_get_electricity_rates):
     client = OctopusEnergyApiClient("NOT_REAL")

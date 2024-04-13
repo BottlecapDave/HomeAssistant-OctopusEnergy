@@ -25,7 +25,7 @@ from ..api_client import ApiException, OctopusEnergyApiClient
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 from ..utils import private_rates_to_public_rates
 from . import BaseCoordinatorResult, get_electricity_meter_tariff_code, raise_rate_events
-from ..intelligent import adjust_intelligent_rates
+from ..intelligent import adjust_intelligent_rates, is_intelligent_tariff
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -60,6 +60,10 @@ async def async_refresh_electricity_rates_data(
     tariff_code = get_electricity_meter_tariff_code(current, account_info, target_mpan, target_serial_number)
     if tariff_code is None:
       return None
+    
+    # We'll calculate the wrong value if we don't have our intelligent dispatches
+    if is_intelligent_tariff(tariff_code) and (dispatches_result is None or dispatches_result.dispatches is None):
+      return existing_rates_result
 
     new_rates: list = None
     if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
