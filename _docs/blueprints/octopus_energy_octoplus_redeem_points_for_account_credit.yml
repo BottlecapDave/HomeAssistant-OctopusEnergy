@@ -17,9 +17,10 @@ blueprint:
     threshold:
       name: Threshold hours
       description: The minimum number of redeemable points to be available for the automatic redemption to occur
-      default: 0
+      default: 1
       selector:
         number:
+          min: 1
           mode: box
           step: 1.0
     actions:

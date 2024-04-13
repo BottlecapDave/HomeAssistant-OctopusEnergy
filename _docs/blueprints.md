@@ -34,6 +34,12 @@ If you wish to customise how the notification is delivered, you should install [
 
 This blueprint will automatically redeem all redeemable points for account credit when the number of redeemable points exceeds a configurable threshold.
 
+!!! info
+
+    This will only trigger when the redeemable points go from under the threshold to over. If it's already over the threshold, then the automation will not trigger. This is by [design of Home Assistant](https://www.home-assistant.io/docs/automation/trigger/#numeric-state-trigger).
+    
+    You can manually run the automation if the redeemable points is over the threshold to get it in a state where automatic redemption will happen in the future.
+
 ## Wheel of Fortune
 
 ### Automatically spin wheel of fortune (single)
