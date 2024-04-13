@@ -52,12 +52,13 @@ async def async_refresh_electricity_rates_data(
     dispatches_result: IntelligentDispatchesCoordinatorResult,
     planned_dispatches_supported: bool,
     fire_event: Callable[[str, "dict[str, Any]"], None],
+    tariff_override = None
   ) -> ElectricityRatesCoordinatorResult: 
   if (account_info is not None):
     period_from = as_utc((current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
     period_to = as_utc((current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0))
 
-    tariff_code = get_electricity_meter_tariff_code(current, account_info, target_mpan, target_serial_number)
+    tariff_code = get_electricity_meter_tariff_code(current, account_info, target_mpan, target_serial_number) if tariff_override is None else tariff_override
     if tariff_code is None:
       return None
     
@@ -158,7 +159,14 @@ async def async_refresh_electricity_rates_data(
       )
   return existing_rates_result
 
-async def async_setup_electricity_rates_coordinator(hass, account_id: str, target_mpan: str, target_serial_number: str, is_smart_meter: bool, is_export_meter: bool, planned_dispatches_supported: bool):
+async def async_setup_electricity_rates_coordinator(hass,
+                                                    account_id: str,
+                                                    target_mpan: str,
+                                                    target_serial_number: str,
+                                                    is_smart_meter: bool,
+                                                    is_export_meter: bool,
+                                                    planned_dispatches_supported: bool,
+                                                    tariff_override = None):
   key = DATA_ELECTRICITY_RATES_KEY.format(target_mpan, target_serial_number)
 
   # Reset data rates as we might have new information
@@ -184,7 +192,8 @@ async def async_setup_electricity_rates_coordinator(hass, account_id: str, targe
       rates,
       dispatches,
       planned_dispatches_supported,
-      hass.bus.async_fire
+      hass.bus.async_fire,
+      tariff_override
     )
 
     return hass.data[DOMAIN][account_id][key]

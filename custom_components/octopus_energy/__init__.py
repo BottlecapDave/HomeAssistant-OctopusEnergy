@@ -21,6 +21,7 @@ from .intelligent import async_mock_intelligent_data, get_intelligent_features, 
 from .config.main import async_migrate_main_config
 from .config.target_rates import async_migrate_target_config
 from .utils import get_active_tariff_code
+from .utils.tariff_overrides import async_get_tariff_override
 
 from .const import (
   CONFIG_KIND,
@@ -38,8 +39,6 @@ from .const import (
   CONFIG_ACCOUNT_ID,
   CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
   CONFIG_MAIN_GAS_PRICE_CAP,
-  
-  CONFIG_TARGET_NAME,
 
   DATA_CLIENT,
   DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
@@ -268,8 +267,9 @@ async def async_setup_dependencies(hass, config):
         serial_number = meter["serial_number"]
         is_export_meter = meter["is_export"]
         is_smart_meter = meter["is_smart_meter"]
+        tariff_override = await async_get_tariff_override(hass, mpan, serial_number)
         planned_dispatches_supported = get_intelligent_features(intelligent_device["provider"]).planned_dispatches_supported if intelligent_device is not None else True
-        await async_setup_electricity_rates_coordinator(hass, account_id, mpan, serial_number, is_smart_meter, is_export_meter, planned_dispatches_supported)
+        await async_setup_electricity_rates_coordinator(hass, account_id, mpan, serial_number, is_smart_meter, is_export_meter, planned_dispatches_supported, tariff_override)
 
   await async_setup_account_info_coordinator(hass, account_id)
 
