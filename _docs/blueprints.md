@@ -26,6 +26,8 @@ This blueprint will fire a configured action when the latest available consumpti
 
 This blueprint will trigger when a new saving session has been discovered, join it, and send a notification alerting you to when it will start.
 
+If you wish to customise how the notification is delivered, you should install [this blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_join_saving_session_custom_action.yml) ([source](./blueprints/octopus_energy_octoplus_join_saving_session_custom_action.yml)) 
+
 ## Wheel of Fortune
 
 ### Automatically spin wheel of fortune (single)
