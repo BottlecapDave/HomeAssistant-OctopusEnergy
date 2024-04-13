@@ -149,17 +149,12 @@ async def test_when_no_active_rates_then_none_returned():
     assert len(actual_fired_events.keys()) == 0
 
 @pytest.mark.asyncio
-async def test_when_next_refresh_is_in_the_past_then_rates_retrieved():
-  expected_period_from = (current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-  expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
-  expected_rates = create_rate_data(expected_period_from, expected_period_to, [1, 2])
+async def test_when_next_refresh_is_in_the_past_then_existing_gas_rates_returned():
+  current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  expected_rates = create_rate_data(period_from, period_to, [1, 2])
   mock_api_called = False
-  requested_period_from = None
-  requested_period_to = None
   async def async_mocked_get_gas_rates(*args, **kwargs):
-    nonlocal requested_period_from, requested_period_to, mock_api_called
-
-    requested_client, requested_tariff_code, requested_period_from, requested_period_to = args
+    nonlocal mock_api_called
     mock_api_called = True
     return expected_rates
   
@@ -170,8 +165,7 @@ async def test_when_next_refresh_is_in_the_past_then_rates_retrieved():
     return None
   
   account_info = get_account_info()
-  expected_retrieved_rates = GasRatesCoordinatorResult(current, 1, expected_rates)
-  existing_rates = GasRatesCoordinatorResult(current - timedelta(days=4), 1, create_rate_data(period_from, period_to, [2, 4]))
+  existing_rates = GasRatesCoordinatorResult(current - timedelta(minutes=4, seconds=59), 1, create_rate_data(period_from, period_to, [2, 4]))
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -185,17 +179,9 @@ async def test_when_next_refresh_is_in_the_past_then_rates_retrieved():
       fire_event
     )
 
-    assert retrieved_rates is not None
-    assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
-    assert retrieved_rates.rates == expected_retrieved_rates.rates
-    assert mock_api_called == True
-    assert requested_period_from == expected_period_from
-    assert requested_period_to == expected_period_to
-    
-    assert len(actual_fired_events.keys()) == 3
-    assert_raised_events(actual_fired_events, EVENT_GAS_PREVIOUS_DAY_RATES, requested_period_from, requested_period_from + timedelta(days=1))
-    assert_raised_events(actual_fired_events, EVENT_GAS_CURRENT_DAY_RATES, requested_period_from + timedelta(days=1), requested_period_from + timedelta(days=2))
-    assert_raised_events(actual_fired_events, EVENT_GAS_NEXT_DAY_RATES, requested_period_from + timedelta(days=2), requested_period_from + timedelta(days=3))
+    assert retrieved_rates == existing_rates
+    assert mock_api_called == False
+    assert len(actual_fired_events.keys()) == 0
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("existing_rates",[
