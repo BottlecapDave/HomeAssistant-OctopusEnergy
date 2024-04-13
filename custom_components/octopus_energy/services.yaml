@@ -72,6 +72,23 @@ spin_wheel_of_fortune:
       integration: octopus_energy
       domain: sensor
 
+redeem_octoplus_points_into_account_credit:
+  name: Redeem octoplus points into account credit
+  description: Redeems a given number of octoplus points into account credit
+  target:
+    entity:
+      integration: octopus_energy
+      domain: sensor
+  fields:
+    points_to_redeem:
+      name: Points to redeem
+      description: The number of points to redeem
+      selector:
+        number:
+          min: 8
+          step: 1
+          mode: box
+
 update_cost_tracker:
   name: Update cost tracker
   description: Updates cost tracker information.

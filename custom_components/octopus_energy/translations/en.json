@@ -150,6 +150,12 @@
   "exceptions": {
     "cost_tracker_invalid_date": {
       "message": "Date must be between {min_date} and {max_date}"
+    },
+    "octoplus_points_no_points": {
+      "message": "The minimum number of redeemable points is not available"
+    },
+    "octoplus_points_maximum_points": {
+      "message": "You cannot redeem more than {redeemable_points} points"
     }
   },
   "issues": {

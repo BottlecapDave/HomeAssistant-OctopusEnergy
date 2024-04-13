@@ -13,6 +13,8 @@ from ..utils import (
   get_tariff_parts,
 )
 
+
+from .octoplus import RedeemOctoplusPointsResponse
 from .intelligent_settings import IntelligentSettings
 from .intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
 from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSessionsResponse
@@ -284,6 +286,16 @@ greenness_forecast_query = '''query {
     highlightFlag
   }
 }'''
+
+redeem_octoplus_points_account_credit_mutation = '''mutation {{
+  redeemLoyaltyPointsForAccountCredit(input: {{
+    accountNumber: "{account_id}",
+    points: {points}
+  }}) {{
+    pointsRedeemed
+  }}
+}}
+'''
 
 user_agent_value = "bottlecapdave-home-assistant-octopus-energy"
 
@@ -622,7 +634,7 @@ class OctopusEnergyApiClient:
     return None
   
   async def async_join_octoplus_saving_session(self, account_id: str, event_code: str) -> JoinSavingSessionResponse:
-    """Get the user's octoplus points"""
+    """Join a saving session"""
     await self.async_refresh_token()
 
     try:
@@ -631,13 +643,33 @@ class OctopusEnergyApiClient:
       # Get account response
       payload = { "query": octoplus_saving_session_join_mutation.format(account_id=account_id, event_code=event_code) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
-      async with client.post(url, json=payload, headers=headers) as account_response:
+      async with client.post(url, json=payload, headers=headers) as join_response:
 
         try:
-          await self.__async_read_response__(account_response, url)
+          await self.__async_read_response__(join_response, url)
           return JoinSavingSessionResponse(True, [])
         except RequestException as e:
           return JoinSavingSessionResponse(False, e.errors)
+    
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+    
+  async def async_redeem_octoplus_points_into_account_credit(self, account_id: str, points_to_redeem: int) -> RedeemOctoplusPointsResponse:
+    """Redeem octoplus points"""
+    await self.async_refresh_token()
+
+    try:
+      client = self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": redeem_octoplus_points_account_credit_mutation.format(account_id=account_id, points=points_to_redeem) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as redemption_response:
+        try:
+          await self.__async_read_response__(redemption_response, url)
+          return RedeemOctoplusPointsResponse(True, [])
+        except RequestException as e:
+          return RedeemOctoplusPointsResponse(False, e.errors)
     
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')

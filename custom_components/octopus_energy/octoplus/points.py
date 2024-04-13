@@ -90,7 +90,7 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
       _LOGGER.debug(f'Restored OctopusEnergyOctoplusPoints state: {self._state}')
 
   @callback
-  async def async_redeem_points(self, points_to_redeem: int):
+  async def async_redeem_points_into_account_credit(self, points_to_redeem: int):
     """Redeem points"""
     redeemable_points = self._attributes["redeemable_points"] if "redeemable_points" in self._attributes else 0
     if redeemable_points < 1:
@@ -107,7 +107,7 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
         },
       )
 
-    result = await self._client.async_redeem_octoplus_points(self._account_id, points_to_redeem)
+    result = await self._client.async_redeem_octoplus_points_into_account_credit(self._account_id, points_to_redeem)
     if result.is_successful:
       await self.async_refresh_points()
 

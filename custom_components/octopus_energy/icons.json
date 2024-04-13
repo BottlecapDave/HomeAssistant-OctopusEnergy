@@ -8,6 +8,7 @@
         "update_cost_tracker": "mdi:invoice-edit",
         "reset_cost_tracker": "mdi:refresh",
         "adjust_accumulative_cost_tracker": "mdi:numeric",
-        "adjust_cost_tracker": "mdi:numeric"
+        "adjust_cost_tracker": "mdi:numeric",
+        "redeem_octoplus_points_into_account_credit": "mdi:currency-gbp"
     }
 }

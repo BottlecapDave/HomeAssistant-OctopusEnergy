@@ -122,9 +122,27 @@ async def async_setup_entry(hass, entry, async_add_entities):
           extra=vol.ALLOW_EXTRA,
         ),
       ),
-      "async_spin_wheel",
+      "async_redeem_points",
       # supports_response=SupportsResponse.OPTIONAL
     )
+
+    account_id = config[CONFIG_ACCOUNT_ID]
+    account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+    account_info = account_result.account if account_result is not None else None
+    if account_info["octoplus_enrolled"] == True:
+      platform.async_register_entity_service(
+        "redeem_octoplus_points_into_account_credit",
+        vol.All(
+          vol.Schema(
+            {
+              vol.Required("points_to_redeem"): cv.positive_int,
+            },
+            extra=vol.ALLOW_EXTRA,
+          ),
+        ),
+        "async_redeem_points_into_account_credit",
+        # supports_response=SupportsResponse.OPTIONAL
+      )
   elif config[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
     await async_setup_cost_sensors(hass, entry, config, async_add_entities)
 
