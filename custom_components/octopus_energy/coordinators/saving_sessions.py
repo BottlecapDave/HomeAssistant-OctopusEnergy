@@ -77,6 +77,7 @@ async def async_refresh_saving_sessions(
             "event_id": available_event.id,
             "event_start": available_event.start,
             "event_end": available_event.end,
+            "event_duration_in_minutes": available_event.duration_in_minutes,
             "event_octopoints_per_kwh": available_event.octopoints
           })
 
@@ -93,6 +94,7 @@ async def async_refresh_saving_sessions(
           "id": ev.id,
           "start": ev.start,
           "end": ev.end,
+          "duration_in_minutes": ev.duration_in_minutes,
           "rewarded_octopoints": ev.octopoints,
           "octopoints_per_kwh": original_event.octopoints if original_event is not None else None
         })
@@ -104,6 +106,7 @@ async def async_refresh_saving_sessions(
           "code": ev.code,
           "start": ev.start,
           "end": ev.end,
+          "duration_in_minutes": ev.duration_in_minutes,
           "octopoints_per_kwh": ev.octopoints
         }, available_events)),
         "joined_events": joined_events, 

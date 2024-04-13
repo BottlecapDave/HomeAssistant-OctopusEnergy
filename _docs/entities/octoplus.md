@@ -49,6 +49,7 @@ Each available event item will include the following attributes
 | `code` | `string` | The event code of the event. This will be required to join via the [join service](../services.md) |
 | `start` | `datetime` | The date/time the event starts |
 | `end` | `datetime` | The date/time the event starts |
+| `duration_in_minutes` | `integer` | The duration of the event in minutes |
 | `octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |
 
 Each joined event item will include the following attributes
@@ -58,6 +59,7 @@ Each joined event item will include the following attributes
 | `id` | `integer` | The id of the event |
 | `start` | `datetime` | The date/time the event starts |
 | `end` | `datetime` | The date/time the event starts |
+| `duration_in_minutes` | `integer` | The duration of the event in minutes |
 | `rewarded_octopoints` | `integer` | The total number of octopoints that were awarded (if any or known) |
 | `octopoints_per_kwh` | `integer` | The number of octopoints that are/were awarded per kwh saved during the event (if known) |
 
