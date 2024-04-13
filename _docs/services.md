@@ -124,6 +124,10 @@ Allows you to redeem a certain number of of Octoplus points and convert them int
 | `target.entity_id`       | `no`     | The name of the Octoplus points that hold the points to be redeemed. This should always point at one of the [octoplus points sensor](./entities/octoplus.md#octoplus-points) entities. |
 | `data.points_to_redeem`  | `no`     | The number of points to redeem. |
 
+### Automation Example
+
+For automation examples, please refer to the available [blueprints](./blueprints.md#automatically-redeem-octoplus-points-for-account-credit).
+
 ## octopus_energy.update_cost_tracker
 
 This service allows the user to turn the tracking on/off for a given [cost tracker](./setup/cost_tracker.md) sensor.
