@@ -31,8 +31,8 @@ mode: single
 variables:
   octoplus_points_entity: !input octoplus_points_entity
   message: >
-    {% if state_attr(saving_session_event_entity, 'redeemable_points') > 0 %}
-      {{ state_attr(saving_session_event_entity, 'redeemable_points') }} points have been automatically redeemed into account credit.
+    {% if state_attr(octoplus_points_entity, 'redeemable_points') > 0 %}
+      {{ state_attr(octoplus_points_entity, 'redeemable_points') }} points have been automatically redeemed into account credit.
     {% endif %}
 trigger:
 - platform: numeric_state
