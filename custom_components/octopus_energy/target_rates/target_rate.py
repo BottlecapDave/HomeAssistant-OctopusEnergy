@@ -224,6 +224,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     self._state = active_result["is_active"]
 
     _LOGGER.debug(f"calculated: {self._state}")
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
   
   async def async_added_to_hass(self):

@@ -101,6 +101,7 @@ class OctopusEnergyElectricityOffPeak(CoordinatorEntity, OctopusEnergyElectricit
 
       self._last_updated = current
 
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

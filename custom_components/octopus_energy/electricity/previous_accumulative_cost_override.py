@@ -201,6 +201,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     if result is not None:
       self._attributes["data_last_retrieved"] = result.last_retrieved
 
+    self._attributes = dict_to_typed_dict(self._attributes)
+
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
     # If not None, we got an initial value.
