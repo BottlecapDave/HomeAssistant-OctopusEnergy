@@ -66,7 +66,7 @@ async def async_refresh_electricity_rates_data(
     if is_intelligent_tariff(tariff_code) and (dispatches_result is None or dispatches_result.dispatches is None):
       return existing_rates_result
 
-    new_rates: list = None
+    new_rates = None
     if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
       try:
         new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)

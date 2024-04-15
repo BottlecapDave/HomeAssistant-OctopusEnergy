@@ -79,7 +79,7 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(MultiCoordinatorEnt
   def last_reset(self):
     """Return the time when the sensor was last reset, if any."""
     return self._last_reset
-  
+
   @property
   def native_value(self):
     return self._state
