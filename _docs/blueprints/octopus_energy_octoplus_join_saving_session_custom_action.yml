@@ -1,5 +1,5 @@
 blueprint:
-  name: Octopus Energy - Join Saving Session
+  name: Octopus Energy - Join Saving Session (Custom Actions)
   description: Automatically joins saving sessions when they become available
   domain: automation
   author: BottlecapDave
@@ -14,9 +14,20 @@ blueprint:
             - event
             integration: octopus_energy
           multiple: false
+    actions:
+      name: Actions
+      description: Notifications or similar to be run. {{message}} is an example message
+      selector:
+        action: {}
 mode: single
 variables:
   saving_session_event_entity: !input saving_session_event_entity
+  message: >
+    {% if state_attr(saving_session_event_entity, 'available_events') | length > 0 %}
+      {% set event = state_attr(saving_session_event_entity, 'available_events')[0] %}
+      {% set event_start = event['start'] %}
+      Joined a new Octopus Energy saving session. It starts at {{ event_start.strftime('%H:%M') }} on {{ event_start.day }}/{{ event_start.month }} for {{ event.duration_in_minutes | int }} minutes.
+    {% endif %}
 trigger:
 - platform: state
   entity_id: !input saving_session_event_entity
@@ -29,10 +40,6 @@ action:
     event_code: "{{ state_attr(saving_session_event_entity, 'available_events')[0]['code'] }}"
   target:
     entity_id: !input saving_session_event_entity
-- service: persistent_notification.create
-  data:
-    title: Joined Saving Sessions
-    message: >
-      {% set event = state_attr(saving_session_event_entity, 'available_events')[0] %}
-      {% set event_start = event['start'] %}
-      Joined a new Octopus Energy saving session. It starts at {{ event_start.strftime('%H:%M') }} on {{ event_start.day }}/{{ event_start.month }} for {{ event.duration_in_minutes | int }} minutes.
+- choose: []
+  default: !input actions
+      

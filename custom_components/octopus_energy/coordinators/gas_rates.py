@@ -48,7 +48,7 @@ async def async_refresh_gas_rates_data(
     if tariff_code is None:
       return None
 
-    new_rates: list = None
+    new_rates = None
     
     if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
       try:

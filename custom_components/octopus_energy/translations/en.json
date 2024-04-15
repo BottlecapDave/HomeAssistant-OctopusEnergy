@@ -5,8 +5,8 @@
       "account": {
         "description": "Setup your basic account information.",
         "data": {
+          "account_id": "Account ID (e.g. A-AAAA1111)",
           "api_key": "Api key",
-          "account_id": "Your account Id (e.g. A-AAAA1111)",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
           "live_consumption_refresh_in_minutes": "Home Mini refresh rate in minutes",
           "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
@@ -18,8 +18,8 @@
           "gas_price_cap": "Optional gas price cap in pence"
         },
         "data_description": {
-          "account_id": "This can be found on your bill or at the top of https://octopus.energy/dashboard",
-          "api_key": "This can be found at https://octopus.energy/dashboard/developer/",
+          "account_id": "You account ID can be found on your bill or at the top of https://octopus.energy/dashboard",
+          "api_key": "You API key can be found at https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
           "calorific_value": "This can be found on your gas statement and can change from time to time"
         }
       },
@@ -99,7 +99,7 @@
           "gas_price_cap": "Optional gas price cap in pence"
         },
         "data_description": {
-          "api_key": "This can be found at https://octopus.energy/dashboard/developer/",
+          "api_key": "You API key can be found at https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
           "calorific_value": "This can be found on your gas statement and can change from time to time"
         }
       },
@@ -150,6 +150,12 @@
   "exceptions": {
     "cost_tracker_invalid_date": {
       "message": "Date must be between {min_date} and {max_date}"
+    },
+    "octoplus_points_no_points": {
+      "message": "The minimum number of redeemable points is not available"
+    },
+    "octoplus_points_maximum_points": {
+      "message": "You cannot redeem more than {redeemable_points} points"
     }
   },
   "issues": {

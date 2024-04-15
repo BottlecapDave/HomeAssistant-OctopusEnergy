@@ -7,7 +7,7 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant, callback
 
-from homeassistant.util.dt import (utcnow)
+from homeassistant.util.dt import (now)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -85,7 +85,7 @@ class OctopusEnergyGasNextRate(CoordinatorEntity, OctopusEnergyGasSensor, Restor
   @callback
   def _handle_coordinator_update(self) -> None:
     """Retrieve the next rate for the sensor."""
-    current = utcnow()
+    current = now()
     rates_result: GasRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     if (rates_result is not None):
       _LOGGER.debug(f"Updating OctopusEnergyGasNextRate for '{self._mprn}/{self._serial_number}'")

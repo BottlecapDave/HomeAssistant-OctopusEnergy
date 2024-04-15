@@ -1,6 +1,9 @@
 from custom_components.octopus_energy.api_client import rates_to_thirty_minute_increments
 import pytest
 from datetime import datetime, timedelta
+import zoneinfo
+
+from homeassistant.util.dt import (set_default_time_zone)
 
 from custom_components.octopus_energy.utils import get_off_peak_cost
 from tests.unit import create_rate_data
@@ -92,3 +95,37 @@ async def test_when_rates_available_then_off_peak_cost_returned():
 
   # Assert
   assert result == 8.99997
+  
+@pytest.mark.asyncio
+async def test_when_rates_available_and_bst_then_off_peak_cost_returned():
+  period_from = datetime.strptime("2024-04-09T23:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2024-04-10T23:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  current = datetime.strptime("2024-04-09T23:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  set_default_time_zone(zoneinfo.ZoneInfo("Europe/London"))
+  data = [
+    {
+			"value_exc_vat": 7.1428,
+			"value_inc_vat": 7.49994,
+			"valid_from": "2024-04-10T22:30:00+00:00",
+			"valid_to": "2024-04-11T04:30:00+00:00",
+		},
+		{
+			"value_exc_vat": 25.2575,
+			"value_inc_vat": 26.520375,
+			"valid_from": "2024-04-10T04:30:00+00:00",
+			"valid_to": "2024-04-10T22:30:00+00:00",
+		},
+		{
+			"value_exc_vat": 7.1428,
+			"value_inc_vat": 7.49994,
+			"valid_from": "2024-04-09T22:30:00+00:00",
+			"valid_to": "2024-04-10T04:30:00+00:00",
+		}
+  ]
+  rate_data = rates_to_thirty_minute_increments({ "results": data }, period_from, period_to, 'tariff')
+  
+  # Act
+  result = get_off_peak_cost(current, rate_data)
+
+  # Assert
+  assert result == 7.49994

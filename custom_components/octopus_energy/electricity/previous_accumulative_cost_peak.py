@@ -131,6 +131,9 @@ class OctopusEnergyPreviousAccumulativeElectricityCostPeak(CoordinatorEntity, Oc
     
     if state is not None and self._state is None:
       self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
-      self._attributes = dict_to_typed_dict(state.attributes)
+      
+      # For some reason this sensor is having issues with HA recognising last_reset updating unless we update it like the following :shrug:
+      self._attributes = dict_to_typed_dict(state.attributes, ["last_reset"])
+      self._last_reset = datetime.fromisoformat(state.attributes["last_reset"]) if "last_reset" in state.attributes else None
     
       _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeElectricityCostPeak state: {self._state}')

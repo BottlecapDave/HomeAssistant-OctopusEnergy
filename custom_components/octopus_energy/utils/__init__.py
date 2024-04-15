@@ -3,7 +3,7 @@ import re
 from datetime import datetime, timedelta
 
 
-from homeassistant.util.dt import (as_utc, parse_datetime)
+from homeassistant.util.dt import (as_local, as_utc, parse_datetime)
 
 from ..const import (
   REGEX_TARIFF_PARTS,
@@ -64,7 +64,8 @@ def get_active_tariff_code(utcnow: datetime, agreements):
   return None
 
 def get_off_peak_cost(current: datetime, rates: list):
-  today_start = as_utc(current.replace(hour=0, minute=0, second=0, microsecond=0))
+  # Need to use as local to ensure we get the correct from/to periods relative to our local time
+  today_start = as_utc(as_local(current).replace(hour=0, minute=0, second=0, microsecond=0))
   today_end = today_start + timedelta(days=1)
   off_peak_cost = None
 
@@ -72,6 +73,7 @@ def get_off_peak_cost(current: datetime, rates: list):
   if rates is not None:
     for rate in rates:
       if rate["start"] >= today_start and rate["end"] <= today_end:
+        print(rate["start"])
         value = rate["value_inc_vat"]
         rate_charges[value] = (rate_charges[value] if value in rate_charges else value)
         if off_peak_cost is None or off_peak_cost > rate["value_inc_vat"]:

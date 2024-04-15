@@ -112,6 +112,22 @@ This service allows the user to perform a spin on the [wheel of fortune](./entit
 
 For automation examples, please refer to the available [blueprints](./blueprints.md#wheel-of-fortune).
 
+## octopus_energy.redeem_octoplus_points_into_account_credit
+
+Allows you to redeem a certain number of of Octoplus points and convert them into account credit.
+
+!!! info
+    This service is only available if you have signed up to Octoplus
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the Octoplus points that hold the points to be redeemed. This should always point at one of the [octoplus points sensor](./entities/octoplus.md#octoplus-points) entities. |
+| `data.points_to_redeem`  | `no`     | The number of points to redeem. |
+
+### Automation Example
+
+For automation examples, please refer to the available [blueprints](./blueprints.md#automatically-redeem-octoplus-points-for-account-credit).
+
 ## octopus_energy.update_cost_tracker
 
 This service allows the user to turn the tracking on/off for a given [cost tracker](./setup/cost_tracker.md) sensor.

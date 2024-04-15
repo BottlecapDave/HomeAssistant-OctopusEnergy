@@ -6,11 +6,33 @@
       {
         "preset": "angular",
         "releaseRules": [
-          { "type": "blueprint", "release": "patch" }
+          { "type": "blueprint", "release": false }
         ]
       }
     ],
-    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/release-notes-generator",
+      {
+        "preset": "angular",
+        "presetConfig": {
+          "types": [
+            { "type": "feat", "section": "Features", "hidden": false },
+            { "type": "fix", "section": "Bug Fixes", "hidden": false },
+            { "type": "blueprint", "section": "Blueprints", "hidden": false }
+            { "type": "docs", "hidden": true },
+            { "type": "style", "hidden": true },
+            { "type": "refactor", "hidden": true },
+            { "type": "perf", "hidden": true },
+            { "type": "test", "hidden": true },
+            { "type": "build", "hidden": true },
+            { "type": "ci", "hidden": true },
+            { "type": "revert", "hidden": true },
+            { "type": "release", "hidden": true },
+            { "type": "WIP", "hidden": true }
+          ]
+        }
+      }
+    ],
     [
       "@semantic-release/changelog",
       {

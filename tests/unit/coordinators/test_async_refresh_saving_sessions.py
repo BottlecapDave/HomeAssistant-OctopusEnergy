@@ -7,7 +7,6 @@ from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 from custom_components.octopus_energy.api_client.saving_sessions import SavingSession, SavingSessionsResponse
 from custom_components.octopus_energy.const import EVENT_ALL_SAVING_SESSIONS, EVENT_NEW_SAVING_SESSION, REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSIONS
 
-
 def assert_raised_new_saving_session_event(
   raised_event: dict,
   account_id: str,
@@ -27,6 +26,9 @@ def assert_raised_new_saving_session_event(
 
   assert "event_end" in raised_event
   assert raised_event["event_end"] == expected_event.end
+
+  assert "event_duration_in_minutes" in raised_event
+  assert raised_event["event_duration_in_minutes"] == expected_event.duration_in_minutes
   
   assert "event_octopoints_per_kwh" in raised_event
   assert raised_event["event_octopoints_per_kwh"] == expected_event.octopoints
@@ -56,6 +58,9 @@ def assert_raised_all_saving_session_event(
 
     assert "end" in actual_event
     assert actual_event["end"] == expected_event.end
+
+    assert "duration_in_minutes" in actual_event
+    assert actual_event["duration_in_minutes"] == expected_event.duration_in_minutes
     
     assert "octopoints_per_kwh" in actual_event
     assert actual_event["octopoints_per_kwh"] == expected_event.octopoints
@@ -71,6 +76,9 @@ def assert_raised_all_saving_session_event(
 
     assert "end" in actual_event
     assert actual_event["end"] == expected_event.end
+
+    assert "duration_in_minutes" in actual_event
+    assert actual_event["duration_in_minutes"] == expected_event.duration_in_minutes
     
     assert "rewarded_octopoints" in actual_event
     assert actual_event["rewarded_octopoints"] == expected_event.octopoints

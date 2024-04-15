@@ -319,6 +319,7 @@ This event is raised when a new saving session is discovered.
 | `event_id` | `string` | The id of the event |
 | `event_start` | `datetime` | The date/time the event starts |
 | `event_end` | `datetime` | The date/time the event ends |
+| `event_duration_in_minutes` | `integer` | The duration of the event in minutes |
 | `event_octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |
 
 ### Automation Example
@@ -333,7 +334,7 @@ This event is raised when a new saving session is discovered.
     data:
       title: "New Saving Session"
       message: >
-        New Octopus Energy saving session available. It starts at {{ trigger.event.data["event_start"].strftime('%H:%M') }} on {{ trigger.event.data["event_start"].day }}/{{ trigger.event.data["event_start"].month }}
+        New Octopus Energy saving session available. It starts at {{ trigger.event.data["event_start"].strftime('%H:%M') }} on {{ trigger.event.data["event_start"].day }}/{{ trigger.event.data["event_start"].month }} for {{ trigger.event.data["event_duration_in_minutes"] | int }} minutes.
 ```
 
 ## All Saving Sessions
@@ -356,6 +357,7 @@ Each available event item will include the following attributes
 | `code` | `string` | The event code of the event. This will be required to join via the [join service](./services.md) |
 | `start` | `datetime` | The date/time the event starts |
 | `end` | `datetime` | The date/time the event starts |
+| `duration_in_minutes` | `integer` | The duration of the event in minutes |
 | `octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |
 
 Each joined event item will include the following attributes
@@ -365,6 +367,7 @@ Each joined event item will include the following attributes
 | `id` | `integer` | The id of the event |
 | `start` | `datetime` | The date/time the event starts |
 | `end` | `datetime` | The date/time the event starts |
+| `duration_in_minutes` | `integer` | The duration of the event in minutes |
 | `octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |
 | `rewarded_octopoints` | `integer` | The total number of octopoints that were awarded (if any or known) |
 
