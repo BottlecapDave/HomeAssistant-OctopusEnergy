@@ -178,7 +178,13 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
             }, consumption_and_cost["charges"]))
           }
 
-          self._hass.bus.async_fire(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mpan": self._mpan, "serial_number": self._serial_number, "tariff_code": self._tariff_code, "rates": rate_data })
+          self._hass.bus.async_fire(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, 
+                                    dict_to_typed_dict({ 
+                                      "mpan": self._mpan,
+                                      "serial_number": self._serial_number,
+                                      "tariff_code": self._tariff_code,
+                                      "rates": rate_data 
+                                    }))
 
           self._attributes["last_evaluated"] = current
           self._request_attempts = 1

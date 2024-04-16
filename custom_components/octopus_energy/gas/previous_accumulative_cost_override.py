@@ -177,7 +177,13 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
             "calorific_value": self._calorific_value
           }
           
-          self._hass.bus.async_fire(EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mprn": self._mprn, "serial_number": self._serial_number, "tariff_code": self._tariff_code, "rates": rate_data })
+          self._hass.bus.async_fire(EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES,
+                                    dict_to_typed_dict({
+                                      "mprn": self._mprn,
+                                      "serial_number": self._serial_number,
+                                      "tariff_code": self._tariff_code,
+                                      "rates": rate_data 
+                                    }))
 
           self._attributes["last_evaluated"] = current
           self._attempts_to_retrieve = 1
