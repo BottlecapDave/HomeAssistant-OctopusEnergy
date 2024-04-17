@@ -18,7 +18,7 @@
           "types": [
             { "type": "feat", "section": "Features", "hidden": false },
             { "type": "fix", "section": "Bug Fixes", "hidden": false },
-            { "type": "blueprint", "section": "Blueprints", "hidden": false }
+            { "type": "blueprint", "section": "Blueprints", "hidden": false },
             { "type": "docs", "hidden": true },
             { "type": "style", "hidden": true },
             { "type": "refactor", "hidden": true },

@@ -85,7 +85,9 @@ def calculate_continuous_times(
     applicable_rates: list,
     target_hours: float,
     search_for_highest_rate = False,
-    find_last_rates = False
+    find_last_rates = False,
+    min_rate = None,
+    max_rate = None
   ):
   if (applicable_rates is None):
     return []
@@ -102,12 +104,25 @@ def calculate_continuous_times(
   # Loop through our rates and try and find the block of time that meets our desired
   # hours and has the lowest combined rates
   for index, rate in enumerate(applicable_rates):
+    if (min_rate is not None and rate["value_inc_vat"] < min_rate):
+      continue
+
+    if (max_rate is not None and rate["value_inc_vat"] > max_rate):
+      continue
+
     continuous_rates = [rate]
     continuous_rates_total = rate["value_inc_vat"]
     
     for offset in range(1, total_required_rates):
       if (index + offset) < applicable_rates_count:
         offset_rate = applicable_rates[(index + offset)]
+
+        if (min_rate is not None and offset_rate["value_inc_vat"] < min_rate):
+          break
+
+        if (max_rate is not None and offset_rate["value_inc_vat"] > max_rate):
+          break
+
         continuous_rates.append(offset_rate)
         continuous_rates_total += offset_rate["value_inc_vat"]
       else:
@@ -130,7 +145,9 @@ def calculate_intermittent_times(
     applicable_rates: list,
     target_hours: float,
     search_for_highest_rate = False,
-    find_last_rates = False
+    find_last_rates = False,
+    min_rate = None,
+    max_rate = None
   ):
   if (applicable_rates is None):
     return []
@@ -148,6 +165,7 @@ def calculate_intermittent_times(
     else:
       applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], rate["end"]))
 
+  applicable_rates = list(filter(lambda rate: (min_rate is None or rate["value_inc_vat"] >= min_rate) and (max_rate is None or rate["value_inc_vat"] <= max_rate), applicable_rates))
   applicable_rates = applicable_rates[:total_required_rates]
   
   _LOGGER.debug(f'{len(applicable_rates)} applicable rates found')

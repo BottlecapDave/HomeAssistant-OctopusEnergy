@@ -9,6 +9,8 @@ from ..const import (
   CONFIG_ACCOUNT_ID,
   CONFIG_TARGET_END_TIME,
   CONFIG_TARGET_HOURS,
+  CONFIG_TARGET_MAX_RATE,
+  CONFIG_TARGET_MIN_RATE,
   CONFIG_TARGET_MPAN,
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_OFFSET,
@@ -24,6 +26,7 @@ from ..const import (
   REGEX_ENTITY_NAME,
   REGEX_HOURS,
   REGEX_OFFSET_PARTS,
+  REGEX_PRICE,
   REGEX_TIME
 )
 
@@ -77,6 +80,21 @@ def merge_target_rate_config(data: dict, options: dict, updated_config: dict = N
 
   if updated_config is not None:
     config.update(updated_config)
+
+    if CONFIG_TARGET_START_TIME not in updated_config and CONFIG_TARGET_START_TIME in config:
+      config[CONFIG_TARGET_START_TIME] = None
+
+    if CONFIG_TARGET_END_TIME not in updated_config and CONFIG_TARGET_END_TIME in config:
+      config[CONFIG_TARGET_END_TIME] = None
+
+    if CONFIG_TARGET_OFFSET not in updated_config and CONFIG_TARGET_OFFSET in config:
+      config[CONFIG_TARGET_OFFSET] = None
+
+    if CONFIG_TARGET_MIN_RATE not in updated_config and CONFIG_TARGET_MIN_RATE in config:
+      config[CONFIG_TARGET_MIN_RATE] = None
+
+    if CONFIG_TARGET_MAX_RATE not in updated_config and CONFIG_TARGET_MAX_RATE in config:
+      config[CONFIG_TARGET_MAX_RATE] = None
 
   return config
 
@@ -136,6 +154,22 @@ def validate_target_rate_config(data, account_info, now):
     matches = re.search(REGEX_OFFSET_PARTS, data[CONFIG_TARGET_OFFSET])
     if matches is None:
       errors[CONFIG_TARGET_OFFSET] = "invalid_offset"
+
+  if CONFIG_TARGET_MIN_RATE in data and data[CONFIG_TARGET_MIN_RATE] is not None:
+    if isinstance(data[CONFIG_TARGET_MIN_RATE], float) == False:
+      matches = re.search(REGEX_PRICE, data[CONFIG_TARGET_MIN_RATE])
+      if matches is None:
+        errors[CONFIG_TARGET_MIN_RATE] = "invalid_price"
+      else:
+        data[CONFIG_TARGET_MIN_RATE] = float(data[CONFIG_TARGET_MIN_RATE])
+
+  if CONFIG_TARGET_MAX_RATE in data and data[CONFIG_TARGET_MAX_RATE] is not None:
+    if isinstance(data[CONFIG_TARGET_MAX_RATE], float) == False:
+      matches = re.search(REGEX_PRICE, data[CONFIG_TARGET_MAX_RATE])
+      if matches is None:
+        errors[CONFIG_TARGET_MAX_RATE] = "invalid_price"
+      else:
+        data[CONFIG_TARGET_MAX_RATE] = float(data[CONFIG_TARGET_MAX_RATE])
 
   start_time = data[CONFIG_TARGET_START_TIME] if CONFIG_TARGET_START_TIME in data else "00:00"
   end_time = data[CONFIG_TARGET_END_TIME] if CONFIG_TARGET_END_TIME in data else "00:00"
