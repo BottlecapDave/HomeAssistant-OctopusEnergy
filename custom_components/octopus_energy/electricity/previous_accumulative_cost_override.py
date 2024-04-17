@@ -27,6 +27,7 @@ from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..utils.requests import calculate_next_refresh
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
+from ..utils import private_rates_to_public_rates
 
 from ..api_client import (ApiException, OctopusEnergyApiClient)
 
@@ -178,7 +179,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
             }, consumption_and_cost["charges"]))
           }
 
-          self._hass.bus.async_fire(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mpan": self._mpan, "serial_number": self._serial_number, "tariff_code": self._tariff_code, "rates": rate_data })
+          self._hass.bus.async_fire(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mpan": self._mpan, "serial_number": self._serial_number, "tariff_code": self._tariff_code, "rates": private_rates_to_public_rates(rate_data) })
 
           self._attributes["last_evaluated"] = current
           self._request_attempts = 1
