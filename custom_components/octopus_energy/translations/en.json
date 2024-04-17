@@ -35,7 +35,9 @@
           "offset": "The offset to apply to the scheduled block to be considered active",
           "rolling_target": "Re-evaluate multiple times a day",
           "last_rates": "Find last applicable rates",
-          "target_invert_target_rates": "Invert targeted rates"
+          "target_invert_target_rates": "Invert targeted rates",
+          "minimum_rate": "The optional minimum rate for target hours",
+          "maximum_rate": "The optional maximum rate for target hours"
         }
       },
       "target_rate_account": {
@@ -75,7 +77,8 @@
       "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information.",
       "duplicate_account": "Account has already been configured",
       "invalid_week_day": "Week reset day must be between 0 and 6 (inclusively)",
-      "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)"
+      "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)",
+      "invalid_price": "Price must be in the form pounds and pence (e.g. 0.10)"
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",
@@ -114,7 +117,9 @@
           "offset": "The offset to apply to the scheduled block to be considered active",
           "rolling_target": "Re-evaluate multiple times a day",
           "last_rates": "Find last applicable rates",
-          "target_invert_target_rates": "Invert targeted rates"
+          "target_invert_target_rates": "Invert targeted rates",
+          "minimum_rate": "The optional minimum rate for target hours",
+          "maximum_rate": "The optional maximum rate for target hours"
         }
       },
       "cost_tracker": {
@@ -140,7 +145,8 @@
       "invalid_mpan": "Meter not found in account with an active tariff",
       "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information.",
       "invalid_week_day": "Week reset day must be between 0 and 6 (inclusively)",
-      "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)"
+      "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)",
+      "invalid_price": "Price must be in the form pounds and pence (e.g. 0.10)"
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",

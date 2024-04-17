@@ -513,3 +513,96 @@ async def test_when_available_rates_are_too_low_then_no_times_are_returned():
   # Assert
   assert result is not None
   assert len(result) == 0
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("target_hours,expected_first_valid_from,expected_rates",[
+  (0.5, datetime.strptime("2022-10-22T10:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.191]),
+  (1, datetime.strptime("2022-10-22T09:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.2, 0.191]),
+])
+async def test_when_min_rate_is_provided_then_result_does_not_include_any_rate_below_min_rate(target_hours: float, expected_first_valid_from: datetime, expected_rates: list):
+  # Arrange
+  current_date = datetime.strptime("2022-10-22T09:10:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  target_start_time = "09:00"
+  target_end_time = "22:00"
+  min_rate = 0.19
+
+  rates = create_rate_data(
+    datetime.strptime("2022-10-22T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2022-10-23T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    [19.1, 18.9, 19.1, 20]
+  )
+
+  applicable_rates = get_applicable_rates(
+    current_date,
+    target_start_time,
+    target_end_time,
+    rates,
+    True
+  )
+
+  # Act
+  result = calculate_continuous_times(
+    applicable_rates,
+    target_hours,
+    False,
+    False,
+    min_rate
+  )
+
+  # Assert
+  assert result is not None
+  assert len(result) == len(expected_rates)
+
+  expected_from = expected_first_valid_from
+  for index in range(0, len(expected_rates)):
+    assert result[index]["start"] == expected_from
+    expected_from = expected_from + timedelta(minutes=30)
+    assert result[index]["end"] == expected_from
+    assert result[index]["value_inc_vat"] == expected_rates[index]
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("target_hours,expected_first_valid_from,expected_rates",[
+  (0.5, datetime.strptime("2022-10-22T10:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.191]),
+  (1, datetime.strptime("2022-10-22T10:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.191, 0.189]),
+])
+async def test_when_max_rate_is_provided_then_result_does_not_include_any_rate_above_max_rate(target_hours: float, expected_first_valid_from: datetime, expected_rates: list):
+  # Arrange
+  current_date = datetime.strptime("2022-10-22T09:10:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  target_start_time = "09:00"
+  target_end_time = "22:00"
+  max_rate = 0.199
+
+  rates = create_rate_data(
+    datetime.strptime("2022-10-22T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2022-10-23T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    [19.1, 18.9, 19.1, 20]
+  )
+
+  applicable_rates = get_applicable_rates(
+    current_date,
+    target_start_time,
+    target_end_time,
+    rates,
+    True
+  )
+
+  # Act
+  result = calculate_continuous_times(
+    applicable_rates,
+    target_hours,
+    True,
+    False,
+    None,
+    max_rate
+  )
+
+  # Assert
+  assert result is not None
+  assert len(result) == len(expected_rates)
+
+  expected_from = expected_first_valid_from
+  for index in range(0, len(expected_rates)):
+    assert result[index]["start"] == expected_from
+    expected_from = expected_from + timedelta(minutes=30)
+    assert result[index]["end"] == expected_from
+    assert result[index]["value_inc_vat"] == expected_rates[index]

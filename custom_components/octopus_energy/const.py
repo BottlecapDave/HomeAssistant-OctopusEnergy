@@ -56,6 +56,8 @@ CONFIG_TARGET_OFFSET = "offset"
 CONFIG_TARGET_ROLLING_TARGET = "rolling_target"
 CONFIG_TARGET_LAST_RATES = "last_rates"
 CONFIG_TARGET_INVERT_TARGET_RATES = "target_invert_target_rates"
+CONFIG_TARGET_MIN_RATE = "minimum_rate"
+CONFIG_TARGET_MAX_RATE = "maximum_rate"
 
 CONFIG_COST_NAME = "name"
 CONFIG_COST_MPAN = "mpan"
@@ -106,6 +108,7 @@ REGEX_ENTITY_NAME = "^[a-z0-9_]+$"
 REGEX_TARIFF_PARTS = "^((?P<energy>[A-Z])-(?P<rate>[0-9A-Z]+)-)?(?P<product_code>[A-Z0-9-]+)-(?P<region>[A-Z])$"
 REGEX_OFFSET_PARTS = "^(-)?([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
 REGEX_DATE = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+REGEX_PRICE = "^(-)?[0-9]+(\\.[0-9]+)*$"
 
 DATA_SCHEMA_ACCOUNT = vol.Schema({
   vol.Required(CONFIG_ACCOUNT_ID): str,

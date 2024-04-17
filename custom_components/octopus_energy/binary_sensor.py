@@ -48,15 +48,17 @@ async def async_setup_entry(hass, entry, async_add_entities):
       vol.All(
         vol.Schema(
           {
-            vol.Required("target_hours"): str,
+            vol.Optional("target_hours"): str,
             vol.Optional("target_start_time"): str,
             vol.Optional("target_end_time"): str,
             vol.Optional("target_offset"): str,
+            vol.Optional("target_minimum_rate"): str,
+            vol.Optional("target_maximum_rate"): str,
           },
           extra=vol.ALLOW_EXTRA,
         ),
         cv.has_at_least_one_key(
-          "target_hours", "target_start_time", "target_end_time", "target_offset"
+          "target_hours", "target_start_time", "target_end_time", "target_offset", "target_minimum_rate", "target_maximum_rate"
         ),
       ),
       "async_update_config",
