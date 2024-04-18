@@ -187,13 +187,11 @@ def get_unique_rates(current: datetime, rates: list):
 
   return rate_charges
 
-def has_peak_rates(unique_rates: list):
-  return len(unique_rates) == 2 or len(unique_rates) == 3
+def has_peak_rates(total_unique_rates: int):
+  return total_unique_rates == 2 or total_unique_rates == 3
 
-def get_peak_unique_id(unique_rates: list, unique_rate_index: int):
-  total_unique_rates = len(unique_rates)
-
-  if has_peak_rates(unique_rates) == False:
+def get_peak_type(total_unique_rates: int, unique_rate_index: int):
+  if has_peak_rates(total_unique_rates) == False:
     return None
 
   if unique_rate_index == 0:
@@ -208,20 +206,33 @@ def get_peak_unique_id(unique_rates: list, unique_rate_index: int):
   
   return None
 
-def get_peak_name(unique_rates: list, unique_rate_index: int):
-  total_unique_rates = len(unique_rates)
-
-  if has_peak_rates(unique_rates) == False:
+def get_rate_index(total_unique_rates: int, peak_type: str | None):
+  if has_peak_rates(total_unique_rates) == False:
     return None
 
-  if unique_rate_index == 0:
-    return "Off Peak"
-  elif unique_rate_index == 1:
-    if (total_unique_rates == 2):
-      return "Peak"
+  if peak_type == "off_peak":
+    return 0
+  if peak_type == "standard":
+    return 1
+  if peak_type == "peak":
+    if total_unique_rates == 2:
+      return 1
     else:
-      return "Standard"
-  elif total_unique_rates > 2 and unique_rate_index == 2:
+      return 2
+    
+  return None
+
+def get_peak_name(total_unique_rates: int, unique_rate_index: int):
+  if has_peak_rates(total_unique_rates) == False:
+    return None
+
+  peak_type = get_peak_type(total_unique_rates, unique_rate_index)
+
+  if (peak_type == "off_peak"):
+    return "Off Peak"
+  if (peak_type == "peak"):
     return "Peak"
+  if (peak_type == "standard"):
+    return "Standard"
   
   return None

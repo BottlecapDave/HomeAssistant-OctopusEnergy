@@ -1,7 +1,8 @@
+from datetime import timedelta
 import voluptuous as vol
 import logging
 
-from homeassistant.util.dt import (utcnow)
+from homeassistant.util.dt import (utcnow, now)
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_platform, issue_registry as ir, entity_registry as er
 import homeassistant.helpers.config_validation as cv
@@ -9,19 +10,11 @@ import homeassistant.helpers.config_validation as cv
 from .electricity.current_consumption import OctopusEnergyCurrentElectricityConsumption
 from .electricity.current_accumulative_consumption import OctopusEnergyCurrentAccumulativeElectricityConsumption
 from .electricity.current_accumulative_cost import OctopusEnergyCurrentAccumulativeElectricityCost
-from .electricity.current_accumulative_consumption_off_peak import OctopusEnergyCurrentAccumulativeElectricityConsumptionOffPeak
-from .electricity.current_accumulative_consumption_peak import OctopusEnergyCurrentAccumulativeElectricityConsumptionPeak
-from .electricity.current_accumulative_cost_off_peak import OctopusEnergyCurrentAccumulativeElectricityCostOffPeak
-from .electricity.current_accumulative_cost_peak import OctopusEnergyCurrentAccumulativeElectricityCostPeak
 from .electricity.current_demand import OctopusEnergyCurrentElectricityDemand
 from .electricity.current_rate import OctopusEnergyElectricityCurrentRate
 from .electricity.next_rate import OctopusEnergyElectricityNextRate
 from .electricity.previous_accumulative_consumption import OctopusEnergyPreviousAccumulativeElectricityConsumption
-from .electricity.previous_accumulative_consumption_off_peak import OctopusEnergyPreviousAccumulativeElectricityConsumptionOffPeak
-from .electricity.previous_accumulative_consumption_peak import OctopusEnergyPreviousAccumulativeElectricityConsumptionPeak
 from .electricity.previous_accumulative_cost import OctopusEnergyPreviousAccumulativeElectricityCost
-from .electricity.previous_accumulative_cost_off_peak import OctopusEnergyPreviousAccumulativeElectricityCostOffPeak
-from .electricity.previous_accumulative_cost_peak import OctopusEnergyPreviousAccumulativeElectricityCostPeak
 from .electricity.previous_accumulative_cost_override import OctopusEnergyPreviousAccumulativeElectricityCostOverride
 from .electricity.previous_rate import OctopusEnergyElectricityPreviousRate
 from .electricity.standing_charge import OctopusEnergyElectricityCurrentStandingCharge
@@ -58,7 +51,10 @@ from .coordinators.electricity_standing_charges import async_setup_electricity_s
 from .coordinators.gas_standing_charges import async_setup_gas_standing_charges_coordinator
 from .coordinators.wheel_of_fortune import async_setup_wheel_of_fortune_spins_coordinator
 
+from .api_client import OctopusEnergyApiClient
 from .utils.tariff_overrides import async_get_tariff_override
+from .utils.tariff_cache import async_get_cached_tariff_total_unique_rates, async_save_cached_tariff_total_unique_rates
+from .utils.rate_information import get_peak_type, get_unique_rates
 
 from .octoplus.points import OctopusEnergyOctoplusPoints
 
@@ -90,6 +86,21 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+async def get_unique_electricity_rates(hass, client: OctopusEnergyApiClient, tariff_code: str):
+  total_unique_rates = await async_get_cached_tariff_total_unique_rates(hass, tariff_code)
+  if total_unique_rates is None:
+    current_date = now()
+    period_from = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    period_to = period_from + timedelta(days=1)
+    rates = await client.async_get_electricity_rates(tariff_code, True, period_from, period_to)
+    if rates is None:
+      raise Exception(f"Failed to retrieve rates for tariff '{tariff_code}'")
+    
+    total_unique_rates = len(get_unique_rates(current_date, rates))
+    await async_save_cached_tariff_total_unique_rates(hass, tariff_code, total_unique_rates)
+
+  return total_unique_rates
 
 async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
@@ -254,7 +265,6 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
           entities.append(OctopusEnergyElectricityNextRate(hass, electricity_rate_coordinator, meter, point))
           entities.append(OctopusEnergyElectricityCurrentStandingCharge(hass, electricity_standing_charges_coordinator, meter, point))
 
-          
           tariff_override = await async_get_tariff_override(hass, mpan, serial_number)
           previous_consumption_coordinator = await async_create_previous_consumption_and_rates_coordinator(
             hass,
@@ -268,12 +278,16 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
             tariff_override
           )
           entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumption(hass, client, previous_consumption_coordinator, account_id, meter, point))
-          entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumptionPeak(hass, previous_consumption_coordinator, meter, point))
-          entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumptionOffPeak(hass, previous_consumption_coordinator, meter, point))
           entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(hass, previous_consumption_coordinator, meter, point))
-          entities.append(OctopusEnergyPreviousAccumulativeElectricityCostPeak(hass, previous_consumption_coordinator, meter, point))
-          entities.append(OctopusEnergyPreviousAccumulativeElectricityCostOffPeak(hass, previous_consumption_coordinator, meter, point))
           entities.append(OctopusEnergyPreviousAccumulativeElectricityCostOverride(hass, account_id, previous_consumption_coordinator, client, electricity_tariff_code, meter, point))
+          
+          # Create a peak override for each available peak type for our tariff
+          total_unique_rates = await get_unique_electricity_rates(hass, client, electricity_tariff_code if tariff_override is None else tariff_override)
+          for unique_rate_index in range(0, total_unique_rates):
+            peak_type = get_peak_type(total_unique_rates, unique_rate_index)
+            if peak_type is not None:
+              entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumption(hass, client, previous_consumption_coordinator, account_id, meter, point, peak_type))
+              entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(hass, previous_consumption_coordinator, meter, point, peak_type))
 
           if meter["is_export"] == False and CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True:
             live_consumption_refresh_in_minutes = CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES
@@ -284,12 +298,15 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
               consumption_coordinator = await async_create_current_consumption_coordinator(hass, account_id, client, meter["device_id"], live_consumption_refresh_in_minutes)
               entities.append(OctopusEnergyCurrentElectricityConsumption(hass, consumption_coordinator, meter, point))
               entities.append(OctopusEnergyCurrentAccumulativeElectricityConsumption(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, meter, point))
-              entities.append(OctopusEnergyCurrentAccumulativeElectricityConsumptionPeak(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, meter, point))
-              entities.append(OctopusEnergyCurrentAccumulativeElectricityConsumptionOffPeak(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, meter, point))
               entities.append(OctopusEnergyCurrentAccumulativeElectricityCost(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, meter, point))
-              entities.append(OctopusEnergyCurrentAccumulativeElectricityCostPeak(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, meter, point))
-              entities.append(OctopusEnergyCurrentAccumulativeElectricityCostOffPeak(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, meter, point))
               entities.append(OctopusEnergyCurrentElectricityDemand(hass, consumption_coordinator, meter, point))
+
+              # Create a peak override for each available peak type for our tariff
+              for unique_rate_index in range(0, total_unique_rates):
+                peak_type = get_peak_type(total_unique_rates, unique_rate_index)
+                if peak_type is not None:
+                  entities.append(OctopusEnergyCurrentAccumulativeElectricityConsumption(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, meter, point, peak_type))
+                  entities.append(OctopusEnergyCurrentAccumulativeElectricityCost(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, meter, point, peak_type))
 
               ir.async_delete_issue(hass, DOMAIN, f"octopus_mini_not_valid_electricity_{mpan}_{serial_number}")
             else:

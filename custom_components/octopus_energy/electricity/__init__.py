@@ -11,6 +11,31 @@ def __sort_consumption(consumption_data):
   sorted.sort(key=__get_to)
   return sorted
 
+# class ElectricityConsumptionAndCost:
+#   standing_charge: float
+#   total_cost_without_standing_charge: float
+#   total_cost: float
+#   total_consumption: float
+#   last_reset: datetime
+#   last_evaluated: datetime
+#   charges: list
+
+#   def __init__(self,
+#                standing_charge: float,
+#                total_cost_without_standing_charge: float,
+#                total_cost: float,
+#                total_consumption: float,
+#                last_reset: datetime,
+#                last_evaluated: datetime,
+#                charges: list):
+#     self.standing_charge = standing_charge
+#     self.total_cost_without_standing_charge = total_cost_without_standing_charge
+#     self.total_cost = total_cost
+#     self.total_consumption = total_consumption
+#     self.last_reset = last_reset
+#     self.last_evaluated = last_evaluated
+#     self.charges = charges
+
 def calculate_electricity_consumption_and_cost(
     current: datetime,
     consumption_data,
@@ -18,7 +43,8 @@ def calculate_electricity_consumption_and_cost(
     standing_charge,
     last_reset,
     minimum_consumption_records = 0,
-    round_cost = True
+    round_cost = True,
+    target_rate = None
   ):
   if (consumption_data is not None and len(consumption_data) >= minimum_consumption_records and rate_data is not None and len(rate_data) > 0 and standing_charge is not None):
 
@@ -51,6 +77,10 @@ def calculate_electricity_consumption_and_cost(
           raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to}")
 
         value = rate["value_inc_vat"]
+
+        if target_rate is not None and value != target_rate:
+          continue
+
         cost = (value * consumption_value)
         total_cost_in_pence = total_cost_in_pence + cost
 

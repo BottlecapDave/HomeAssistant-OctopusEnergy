@@ -224,7 +224,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
         "rate": charge["rate"],
         "consumption": charge["consumption"],
         "cost": charge["cost"]
-      }, tracked_result["charges"]))
+      }, tracked_result.charges))
       
       self._attributes["untracked_charges"] = list(map(lambda charge: {
         "start": charge["start"],
@@ -232,10 +232,10 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
         "rate": charge["rate"],
         "consumption": charge["consumption"],
         "cost": charge["cost"]
-      }, untracked_result["charges"]))
+      }, untracked_result.charges))
       
-      self._attributes["total_consumption"] = tracked_result["total_consumption"] + untracked_result["total_consumption"]
-      self._state = tracked_result["total_cost"]
+      self._attributes["total_consumption"] = tracked_result.total_consumption + untracked_result.total_consumption
+      self._state = tracked_result.total_cost
 
       self.async_write_ha_state()
 
