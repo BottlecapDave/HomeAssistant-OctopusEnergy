@@ -37,7 +37,6 @@ def __sort_consumption(consumption_data):
 #     self.charges = charges
 
 def calculate_electricity_consumption_and_cost(
-    current: datetime,
     consumption_data,
     rate_data,
     standing_charge,
@@ -57,19 +56,10 @@ def calculate_electricity_consumption_and_cost(
       total_cost_in_pence = 0
       total_consumption = 0
 
-      off_peak_cost = get_off_peak_cost(current, rate_data)
-      total_cost_off_peak = 0
-      total_cost_peak = 0
-      total_consumption_off_peak = 0
-      total_consumption_peak = 0
-      peak_charges = []
-      off_peak_charges = []
-
       for consumption in sorted_consumption_data:
         consumption_value = consumption["consumption"]
         consumption_from = consumption["start"]
         consumption_to = consumption["end"]
-        total_consumption = total_consumption + consumption_value
 
         try:
           rate = next(r for r in rate_data if r["start"] == consumption_from and r["end"] == consumption_to)
@@ -81,6 +71,7 @@ def calculate_electricity_consumption_and_cost(
         if target_rate is not None and value != target_rate:
           continue
 
+        total_consumption = total_consumption + consumption_value
         cost = (value * consumption_value)
         total_cost_in_pence = total_cost_in_pence + cost
 
@@ -91,15 +82,6 @@ def calculate_electricity_consumption_and_cost(
           "consumption": consumption_value,
           "cost": round(cost / 100, 2) if round_cost else cost / 100
         }
-
-        if value == off_peak_cost:
-          total_consumption_off_peak = total_consumption_off_peak + consumption_value
-          total_cost_off_peak = total_cost_off_peak + cost
-          off_peak_charges.append(current_charge)
-        else:
-          total_consumption_peak = total_consumption_peak + consumption_value
-          total_cost_peak = total_cost_peak + cost
-          peak_charges.append(current_charge)
 
         charges.append(current_charge)
       
@@ -117,15 +99,7 @@ def calculate_electricity_consumption_and_cost(
         "last_reset": last_reset,
         "last_evaluated": last_calculated_timestamp,
         "charges": charges,
-        "off_peak_charges": off_peak_charges,
-        "peak_charges": peak_charges
       }
-
-      if off_peak_cost is not None:
-        result["total_cost_off_peak"] = round(total_cost_off_peak / 100, 2) if round_cost else total_cost_off_peak / 100
-        result["total_cost_peak"] = round(total_cost_peak / 100, 2) if round_cost else total_cost_peak / 100
-        result["total_consumption_off_peak"] = total_consumption_off_peak
-        result["total_consumption_peak"] = total_consumption_peak
 
       return result
 

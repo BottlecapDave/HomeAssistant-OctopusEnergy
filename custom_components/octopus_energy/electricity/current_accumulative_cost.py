@@ -120,10 +120,9 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
       target_rate = unique_rates[unique_rate_index] if unique_rate_index is not None else None
 
     consumption_and_cost = calculate_electricity_consumption_and_cost(
-      current,
       consumption_data,
       rate_data,
-      standing_charge,
+      standing_charge if target_rate is None else 0,
       None, # We want to always recalculate
       target_rate=target_rate
     )
@@ -139,8 +138,6 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
         "is_export": self._is_export,
         "is_smart_meter": self._is_smart_meter,
         "tariff_code": rate_data[0]["tariff_code"],
-        "standing_charge": consumption_and_cost["standing_charge"],
-        "total_without_standing_charge": consumption_and_cost["total_cost_without_standing_charge"],
         "total": consumption_and_cost["total_cost"],
         "last_evaluated": consumption_and_cost["last_evaluated"],
         "data_last_retrieved": consumption_result.last_retrieved if consumption_result is not None else None,
@@ -152,6 +149,10 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
           "cost": charge["cost"]
         }, consumption_and_cost["charges"]))
       }
+
+      if target_rate is None:
+        self._attributes["standing_charge"] = consumption_and_cost["standing_charge"]
+        self._attributes["total_cost_without_standing_charge"] = consumption_and_cost["total_cost_without_standing_charge"]
 
     super()._handle_coordinator_update()
 

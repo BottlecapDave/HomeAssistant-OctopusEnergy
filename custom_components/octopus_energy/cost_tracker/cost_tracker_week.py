@@ -40,7 +40,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyCostTrackerWeekSensor(RestoreSensor):
   """Sensor for calculating the cost for a given sensor over the course of a week."""
 
-  def __init__(self, hass: HomeAssistant, config_entry, config, tracked_entity_id: str):
+  def __init__(self, hass: HomeAssistant, config_entry, config, tracked_entity_id: str, peak_type = None):
     """Init sensor."""
     # Pass coordinator to base class
 
@@ -52,19 +52,36 @@ class OctopusEnergyCostTrackerWeekSensor(RestoreSensor):
     self._last_reset = None
     self._tracked_entity_id = tracked_entity_id
     self._config_entry = config_entry
+    self._peak_type = peak_type
     
     self._hass = hass
     self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
 
   @property
+  def entity_registry_enabled_default(self) -> bool:
+    """Return if the entity should be enabled when first added.
+
+    This only applies when fist added to the entity registry.
+    """
+    return self._peak_type is None
+
+  @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_cost_tracker_{self._config[CONFIG_COST_NAME]}_week"
+    base_name = f"octopus_energy_cost_tracker_{self._config[CONFIG_COST_NAME]}_week"
+    if self._peak_type is not None:
+      return f"{base_name}_{self._peak_type}"
+    
+    return base_name
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Cost Tracker {self._config[CONFIG_COST_NAME]} Week"
+    base_name = f"Octopus Energy Cost Tracker {self._config[CONFIG_COST_NAME]} Week"
+    if self._peak_type is not None:
+      return f"{base_name} ({self._peak_type})"
+
+    return base_name
 
   @property
   def device_class(self):

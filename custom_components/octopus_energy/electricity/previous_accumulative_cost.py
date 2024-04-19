@@ -129,10 +129,9 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
       target_rate = unique_rates[unique_rate_index] if unique_rate_index is not None else None
 
     consumption_and_cost = calculate_electricity_consumption_and_cost(
-      current,
       consumption_data,
       rate_data,
-      standing_charge,
+      standing_charge if target_rate is None else 0,
       self._last_reset,
       target_rate=target_rate
     )
@@ -159,8 +158,6 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
         "is_export": self._is_export,
         "is_smart_meter": self._is_smart_meter,
         "tariff_code": rate_data[0]["tariff_code"],
-        "standing_charge": consumption_and_cost["standing_charge"],
-        "total_without_standing_charge": consumption_and_cost["total_cost_without_standing_charge"],
         "total": consumption_and_cost["total_cost"],
         "charges": list(map(lambda charge: {
           "start": charge["start"],
@@ -170,6 +167,10 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
           "cost": charge["cost"],
         }, consumption_and_cost["charges"]))
       }
+
+      if target_rate is None:
+        self._attributes["standing_charge"] = consumption_and_cost["standing_charge"]
+        self._attributes["total_cost_without_standing_charge"] = consumption_and_cost["total_cost_without_standing_charge"]
 
       self._attributes["last_evaluated"] = utcnow()
 

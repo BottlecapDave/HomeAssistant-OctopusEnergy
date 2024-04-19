@@ -131,16 +131,16 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
     current = consumption_data[0]["start"] if consumption_data is not None and len(consumption_data) > 0 else None
 
     target_rate = None
+    unique_rates = None
     if current is not None and self._peak_type is not None:
       unique_rates = get_unique_rates(current, rate_data)
       unique_rate_index = get_rate_index(len(unique_rates), self._peak_type)
       target_rate = unique_rates[unique_rate_index] if unique_rate_index is not None else None
 
     consumption_and_cost = calculate_electricity_consumption_and_cost(
-      current,
       consumption_data,
       rate_data,
-      standing_charge,
+      standing_charge if target_rate is None else 0,
       self._last_reset,
       target_rate=target_rate
     )

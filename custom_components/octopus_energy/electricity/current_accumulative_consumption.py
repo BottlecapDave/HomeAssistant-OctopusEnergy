@@ -119,10 +119,9 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(MultiCoordinatorEnt
       target_rate = unique_rates[unique_rate_index] if unique_rate_index is not None else None
 
     consumption_and_cost = calculate_electricity_consumption_and_cost(
-      current,
       consumption_data,
       rate_data,
-      standing_charge,
+      standing_charge if target_rate is None else 0,
       None, # We want to recalculate
       target_rate=target_rate
     )

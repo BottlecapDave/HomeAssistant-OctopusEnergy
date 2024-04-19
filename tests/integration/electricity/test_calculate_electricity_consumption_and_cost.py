@@ -15,7 +15,6 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   account_info = await client.async_get_account(context.account_id)
   assert account_info is not None
 
-  current = datetime.strptime("2022-02-28T00:00:01Z", "%Y-%m-%dT%H:%M:%S%z")
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   expected_tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-L"
@@ -59,7 +58,6 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
 
   # Act
   result = calculate_electricity_consumption_and_cost(
-    current,
     consumption_and_rates_result.consumption,
     consumption_and_rates_result.rates,
     consumption_and_rates_result.standing_charge,

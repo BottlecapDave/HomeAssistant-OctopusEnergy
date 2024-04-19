@@ -146,7 +146,6 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
         _LOGGER.debug(f"Rates and standing charge overrides for '{self._mpan}/{self._serial_number}' ({period_from} - {period_to}) retrieved")
 
         consumption_and_cost = calculate_electricity_consumption_and_cost(
-          current,
           consumption_data,
           rate_data,
           standing_charge["value_inc_vat"] if standing_charge is not None else None,

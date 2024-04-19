@@ -37,7 +37,7 @@ from ..const import (
 from ..coordinators.electricity_rates import ElectricityRatesCoordinatorResult
 from . import add_consumption
 from ..electricity import calculate_electricity_consumption_and_cost
-
+from ..utils.rate_information import get_rate_index, get_unique_rates
 from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
@@ -45,7 +45,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
   """Sensor for calculating the cost for a given sensor."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, config):
+  def __init__(self, hass: HomeAssistant, coordinator, config, peak_type = None):
     """Init sensor."""
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
@@ -57,19 +57,36 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
     self._attributes["tracked_charges"] = []
     self._attributes["untracked_charges"] = []
     self._last_reset = None
+    self._peak_type = peak_type
     
     self._hass = hass
     self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
 
   @property
+  def entity_registry_enabled_default(self) -> bool:
+    """Return if the entity should be enabled when first added.
+
+    This only applies when fist added to the entity registry.
+    """
+    return self._peak_type is None
+
+  @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_cost_tracker_{self._config[CONFIG_COST_NAME]}"
+    base_name = f"octopus_energy_cost_tracker_{self._config[CONFIG_COST_NAME]}"
+    if self._peak_type is not None:
+      return f"{base_name}_{self._peak_type}"
+    
+    return base_name
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Cost Tracker {self._config[CONFIG_COST_NAME]}"
+    base_name = f"Octopus Energy Cost Tracker {self._config[CONFIG_COST_NAME]}"
+    if self._peak_type is not None:
+      return f"{base_name} ({self._peak_type})"
+
+    return base_name
 
   @property
   def device_class(self):
@@ -121,7 +138,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
       # Make sure our attributes don't override any changed settings
       self._attributes.update(self._config)
     
-      _LOGGER.debug(f'Restored OctopusEnergyCostTrackerSensor state: {self._state}')
+      _LOGGER.debug(f'Restored state: {self._state}')
 
     self.async_on_remove(
         async_track_state_change_event(
@@ -197,24 +214,30 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
     self._recalculate_cost(now(), self._attributes["tracked_charges"], self._attributes["untracked_charges"], rates_result.rates)
 
   def _recalculate_cost(self, current: datetime, tracked_consumption_data: list, untracked_consumption_data: list, rates: list):
+    target_rate = None
+    if self._peak_type is not None:
+      unique_rates = get_unique_rates(current, rates)
+      unique_rate_index = get_rate_index(len(unique_rates), self._peak_type)
+      target_rate = unique_rates[unique_rate_index] if unique_rate_index is not None else None
+
     tracked_result = calculate_electricity_consumption_and_cost(
-      current,
       tracked_consumption_data,
       rates,
       0,
       None, # We want to always recalculate
       0,
-      False
+      False,
+      target_rate=target_rate
     )
 
     untracked_result = calculate_electricity_consumption_and_cost(
-      current,
       untracked_consumption_data,
       rates,
       0,
       None, # We want to always recalculate
       0,
-      False
+      False,
+      target_rate=target_rate
     )
 
     if tracked_result is not None and untracked_result is not None:
@@ -224,7 +247,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
         "rate": charge["rate"],
         "consumption": charge["consumption"],
         "cost": charge["cost"]
-      }, tracked_result.charges))
+      }, tracked_result["charges"]))
       
       self._attributes["untracked_charges"] = list(map(lambda charge: {
         "start": charge["start"],
@@ -232,10 +255,10 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
         "rate": charge["rate"],
         "consumption": charge["consumption"],
         "cost": charge["cost"]
-      }, untracked_result.charges))
+      }, untracked_result["charges"]))
       
-      self._attributes["total_consumption"] = tracked_result.total_consumption + untracked_result.total_consumption
-      self._state = tracked_result.total_cost
+      self._attributes["total_consumption"] = tracked_result["total_consumption"] + untracked_result["total_consumption"]
+      self._state = tracked_result["total_cost"]
 
       self.async_write_ha_state()
 
