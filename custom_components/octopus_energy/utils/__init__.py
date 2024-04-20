@@ -73,7 +73,6 @@ def get_off_peak_cost(current: datetime, rates: list):
   if rates is not None:
     for rate in rates:
       if rate["start"] >= today_start and rate["end"] <= today_end:
-        print(rate["start"])
         value = rate["value_inc_vat"]
         rate_charges[value] = (rate_charges[value] if value in rate_charges else value)
         if off_peak_cost is None or off_peak_cost > rate["value_inc_vat"]:

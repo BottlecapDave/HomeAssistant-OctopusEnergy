@@ -151,7 +151,6 @@ async def test_when_planned_smart_charge_dispatch_spans_two_parts_then_rates_adj
   assert len(rates) == len(adjusted_rates)
   for index, rate in enumerate(rates):
     if rate["start"] >= as_utc(parse_datetime("2022-10-10T21:30:00Z")) and rate["end"] <= as_utc(parse_datetime("2022-10-10T23:30:00Z")):
-      print(f"start: {rate['start']}; end: {rate['end']}")
       assert rate["start"] == adjusted_rates[index]["start"]
       assert rate["end"] == adjusted_rates[index]["end"]
       assert rate["tariff_code"] == adjusted_rates[index]["tariff_code"]

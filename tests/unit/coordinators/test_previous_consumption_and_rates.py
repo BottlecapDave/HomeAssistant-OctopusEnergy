@@ -937,7 +937,6 @@ async def test_when_intelligent_dispatches_available_then_adjusted_requested_dat
 
     assert len(result.rates) == len(expected_rates)
     for index, rate in enumerate(result.rates):
-      print(f"start: {result.rates[index]['start']} end: {result.rates[index]['end']}")
       if rate["start"] >= intelligent_dispatches.completed[0].start and rate["end"] <= intelligent_dispatches.completed[0].end:
         assert result.rates[index]["start"] == expected_rates[index]["start"]
         assert result.rates[index]["end"] == expected_rates[index]["end"]
