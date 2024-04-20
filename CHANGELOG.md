@@ -1,3 +1,10 @@
+## [10.3.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.3.0...v10.3.1) (2024-04-20)
+
+
+### Bug Fixes
+
+* Removed excessive logging that did not adhere to log settings ([cb27d6d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cb27d6de4601d36e6527fb76945fec2bb444c0ee))
+
 # [10.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.2.1...v10.3.0) (2024-04-15)
 
 
