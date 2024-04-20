@@ -1,3 +1,22 @@
+# [10.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.2.1...v10.3.0) (2024-04-15)
+
+
+### Bug Fixes
+
+* Fixed account setup descriptions to be clearer ([4107fb7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4107fb714fec41de2286223f5f664fe787f19068))
+* Fixed peak/off peak cost calculations during BST time period ([11d5a9f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/11d5a9f601f937052a9bf0e2785300b06bb4f34f))
+* Fixed peak/offpeak consumption/cost sensors going into negative on energy dashboard ([c167f39](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c167f39a7c99ae5126cfacdedeeab86fd0ec3ac9))
+* Fixed rate min/max/average calculations during BST ([fdccc5b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fdccc5b86031c01afd09cc0fa2613f7c9802411c))
+* Increased minimum required version of home assistant ([e662659](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e662659aea551e9fdbf92268b2d703ab9d3cbd69))
+* Updated electricity rates to not update initially until dispatch rates have been retrieved if on intelligent tariff ([756535e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/756535eb5c950d995a342f344cabf462177febf3))
+
+
+### Features
+
+* Added duration in minutes to saving sessions ([35d17dc](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/35d17dc61df7879557e4ab8ec85cff61f874c9ce))
+* Added redeemable points attribute that determines how many points can be converted into account credit ([9d1233d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9d1233da6db055447aa68b293564ed834b9853cf))
+* Added service for redeeming octoplus points for account credit ([0390a33](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0390a33b89498f05fbeb9c6b413119bea2d43a3a))
+
 ## [10.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.2.0...v10.2.1) (2024-04-07)
 
 
