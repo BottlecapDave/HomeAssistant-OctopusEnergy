@@ -138,7 +138,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
       # Make sure our attributes don't override any changed settings
       self._attributes.update(self._config)
     
-      _LOGGER.debug(f'Restored state: {self._state}')
+      _LOGGER.debug(f'Restored {self.unique_id} state: {self._state}')
 
     self.async_on_remove(
         async_track_state_change_event(
@@ -149,6 +149,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
   async def _async_calculate_cost(self, event: EventType[EventStateChangedData]):
     new_state = event.data["new_state"]
     old_state = event.data["old_state"]
+    _LOGGER.debug(f"State updated for '{self._config[CONFIG_COST_TARGET_ENTITY_ID]}' for '{self.unique_id}': new_state: {new_state}; old_state: {old_state}")
     if new_state is None or new_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) or old_state is None or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
       return
     
@@ -167,6 +168,9 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
                                        self._config[CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE],
                                        self._attributes["is_tracking"],
                                        new_state.attributes["state_class"] if "state_class" in new_state.attributes else None)
+    
+    
+    _LOGGER.debug(f"Consumption calculated for '{self.unique_id}': {consumption_data}")
 
     if (consumption_data is not None and rates_result is not None and rates_result.rates is not None):
       self._reset_if_new_day(current)
@@ -239,6 +243,8 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
       False,
       target_rate=target_rate
     )
+
+    _LOGGER.debug(f"Cost calculated for '{self.unique_id}'; tracked_result: {tracked_result}; untracked_result: {untracked_result}")
 
     if tracked_result is not None and untracked_result is not None:
       self._attributes["tracked_charges"] = list(map(lambda charge: {
