@@ -158,13 +158,27 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
     current = now()
     rates_result: ElectricityRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
 
+    new_last_reset = None
+    if "last_reset" in new_state.attributes and new_state.attributes["last_reset"] is not None:
+      if isinstance(new_state.attributes["last_reset"], datetime):
+        new_last_reset = new_state.attributes["last_reset"]
+      else:
+        new_last_reset = parse_datetime(new_state.attributes["last_reset"])
+
+    old_last_reset = None
+    if "last_reset" in old_state.attributes and old_state.attributes["last_reset"] is not None:
+      if isinstance(old_state.attributes["last_reset"], datetime):
+        old_last_reset = old_state.attributes["last_reset"]
+      else:
+        old_last_reset = parse_datetime(old_state.attributes["last_reset"])
+
     consumption_data = add_consumption(current,
                                        self._attributes["tracked_charges"],
                                        self._attributes["untracked_charges"],
                                        float(new_state.state),
                                        None if old_state.state is None or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else float(old_state.state),
-                                       parse_datetime(new_state.attributes["last_reset"]) if "last_reset" in new_state.attributes and new_state.attributes["last_reset"] is not None else None,
-                                       parse_datetime(old_state.attributes["last_reset"]) if "last_reset" in old_state.attributes and old_state.attributes["last_reset"] is not None else None,
+                                       new_last_reset,
+                                       old_last_reset,
                                        self._config[CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE],
                                        self._attributes["is_tracking"],
                                        new_state.attributes["state_class"] if "state_class" in new_state.attributes else None)

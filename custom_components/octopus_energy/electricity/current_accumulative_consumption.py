@@ -21,7 +21,7 @@ from ..coordinators import MultiCoordinatorEntity
 from ..coordinators.current_consumption import CurrentConsumptionCoordinatorResult
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
-from ..utils.rate_information import get_rate_index, get_unique_rates
+from ..utils.rate_information import get_peak_name, get_rate_index, get_unique_rates
 
 from . import calculate_electricity_consumption_and_cost
 
@@ -65,7 +65,7 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(MultiCoordinatorEnt
     """Name of the sensor."""
     base_name = f"Electricity {self._serial_number} {self._mpan} Current Accumulative Consumption"
     if self._peak_type is not None:
-      return f"{base_name} ({self._peak_type})"
+      return f"{base_name} ({get_peak_name(self._peak_type)})"
 
     return base_name
 

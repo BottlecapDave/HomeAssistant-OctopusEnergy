@@ -25,7 +25,7 @@ from . import (
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
-from ..utils.rate_information import get_rate_index, get_unique_rates
+from ..utils.rate_information import get_peak_name, get_rate_index, get_unique_rates
 
 from ..statistics.cost import async_import_external_statistics_from_cost, get_electricity_cost_statistic_unique_id
 
@@ -67,7 +67,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     """Name of the sensor."""
     base_id = f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Accumulative Cost"
     if self._peak_type is not None:
-      return f"{base_id}_{self._peak_type}"
+      return f"{base_id} ({get_peak_name(self._peak_type)})"
     
     return base_id
 
@@ -138,16 +138,18 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
 
     if (consumption_and_cost is not None):
       _LOGGER.debug(f"Calculated previous electricity consumption cost for '{self._mpan}/{self._serial_number}'...")
-      await async_import_external_statistics_from_cost(
-        current,
-        self._hass,
-        get_electricity_cost_statistic_unique_id(self._serial_number, self._mpan, self._is_export),
-        self.name,
-        consumption_and_cost["charges"],
-        rate_data,
-        "GBP",
-        "consumption"
-      )
+
+      if self._peak_type is None:
+        await async_import_external_statistics_from_cost(
+          current,
+          self._hass,
+          get_electricity_cost_statistic_unique_id(self._serial_number, self._mpan, self._is_export),
+          self.name,
+          consumption_and_cost["charges"],
+          rate_data,
+          "GBP",
+          "consumption"
+        )
 
       self._last_reset = consumption_and_cost["last_reset"]
       self._state = consumption_and_cost["total_cost"]

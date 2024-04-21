@@ -78,7 +78,7 @@ async def async_fetch_consumption_and_rates(
     
     try:
       if (is_electricity == True):
-        tariff_code = get_electricity_meter_tariff_code(period_from, account_info, identifier, serial_number) if tariff_override is None else None
+        tariff_code = get_electricity_meter_tariff_code(period_from, account_info, identifier, serial_number) if tariff_override is None else tariff_override
         if tariff_code is None:
           _LOGGER.error(f"Could not determine tariff code for previous consumption for electricity {identifier}/{serial_number}")
           return previous_data
@@ -100,7 +100,7 @@ async def async_fetch_consumption_and_rates(
                                                 intelligent_dispatches.planned,
                                                 intelligent_dispatches.completed)
       else:
-        tariff_code = get_gas_meter_tariff_code(period_from, account_info, identifier, serial_number) if tariff_override is None else None
+        tariff_code = get_gas_meter_tariff_code(period_from, account_info, identifier, serial_number) if tariff_override is None else tariff_override
         if tariff_code is None:
           _LOGGER.error(f"Could not determine tariff code for previous consumption for gas {identifier}/{serial_number}")
           return previous_data
@@ -209,7 +209,8 @@ async def async_create_previous_consumption_and_rates_coordinator(
       is_electricity,
       is_smart_meter,
       hass.bus.async_fire,
-      dispatches.dispatches if dispatches is not None else None
+      dispatches.dispatches if dispatches is not None else None,
+      tariff_override
     )
 
     if (result is not None):

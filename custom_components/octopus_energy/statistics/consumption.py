@@ -51,9 +51,14 @@ async def async_import_external_statistics_from_consumption(
   statistic_id = f"{DOMAIN}:{unique_id}".lower()
 
   # Our sum needs to be based from the last total, so we need to grab the last record from the previous day
-  total_sum = initial_statistics.total if initial_statistics is not None else await async_get_last_sum(hass, consumptions[0]["start"], statistic_id)
+  latest_total_sum = initial_statistics.total if initial_statistics is not None else await async_get_last_sum(hass, consumptions[0]["start"], statistic_id)
 
-  statistics = build_consumption_statistics(current, consumptions, rates, consumption_key, total_sum)
+  unique_rates = get_unique_rates(current, rates)
+  total_unique_rates = len(unique_rates)
+
+  _LOGGER.debug(f"statistic_id: {statistic_id}; latest_total_sum: {latest_total_sum}; total_unique_rates: {total_unique_rates};")
+
+  statistics = build_consumption_statistics(current, consumptions, rates, consumption_key, latest_total_sum)
 
   async_add_external_statistics(
     hass,
@@ -68,24 +73,25 @@ async def async_import_external_statistics_from_consumption(
     statistics
   )
 
-  unique_rates = get_unique_rates(current, rates)
-  total_unique_rates = len(unique_rates)
-
   peak_totals = {}
   if has_peak_rates(total_unique_rates):
     for index in range(0, total_unique_rates):
       peak_type = get_peak_type(total_unique_rates, index)
+      
+      _LOGGER.debug(f"Importing consumption statistics for '{peak_type}'...")
 
+      target_rate = unique_rates[index]
       peak_statistic_id = f'{statistic_id}_{peak_type}'
-      peak_sum = initial_statistics.peak_totals[peak_type] if initial_statistics is not None and peak_type in initial_statistics.peak_totals else await async_get_last_sum(hass, consumptions[0]["start"], peak_statistic_id)
+      latest_peak_sum = initial_statistics.peak_totals[peak_type] if initial_statistics is not None and peak_type in initial_statistics.peak_totals else await async_get_last_sum(hass, consumptions[0]["start"], peak_statistic_id)
 
-      peak_statistics = build_consumption_statistics(current, consumptions, rates, consumption_key, peak_sum)
+      peak_statistics = build_consumption_statistics(current, consumptions, rates, consumption_key, latest_peak_sum, target_rate)
+      
       async_add_external_statistics(
         hass,
         StatisticMetaData(
           has_mean=False,
           has_sum=True,
-          name=f'{name} {get_peak_name(total_unique_rates, peak_type)}',
+          name=f'{name} {get_peak_name(peak_type)}',
           source=DOMAIN,
           statistic_id=peak_statistic_id,
           unit_of_measurement=unit_of_measurement,
@@ -95,5 +101,5 @@ async def async_import_external_statistics_from_consumption(
 
       peak_totals[peak_type] = peak_statistics[-1]["sum"] if peak_statistics[-1] is not None else 0
 
-  return ImportConsumptionStatisticsResult(statistics["total"][-1]["sum"] if statistics["total"][-1] is not None else 0,
+  return ImportConsumptionStatisticsResult(statistics[-1]["sum"] if statistics[-1] is not None else 0,
                                            peak_totals)

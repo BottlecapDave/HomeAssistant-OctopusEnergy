@@ -222,12 +222,7 @@ def get_rate_index(total_unique_rates: int, peak_type: str | None):
     
   return None
 
-def get_peak_name(total_unique_rates: int, unique_rate_index: int):
-  if has_peak_rates(total_unique_rates) == False:
-    return None
-
-  peak_type = get_peak_type(total_unique_rates, unique_rate_index)
-
+def get_peak_name(peak_type: str):
   if (peak_type == "off_peak"):
     return "Off Peak"
   if (peak_type == "peak"):

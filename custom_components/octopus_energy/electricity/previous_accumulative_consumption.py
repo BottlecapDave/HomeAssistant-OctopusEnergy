@@ -32,7 +32,7 @@ from ..statistics.consumption import async_import_external_statistics_from_consu
 from ..statistics.refresh import async_refresh_previous_electricity_consumption_data
 from ..api_client import OctopusEnergyApiClient
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
-from ..utils.rate_information import get_rate_index, get_unique_rates
+from ..utils.rate_information import get_peak_name, get_rate_index, get_unique_rates
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -75,7 +75,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
     base_name = f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Accumulative Consumption"
     
     if self._peak_type is not None:
-      return f"{base_name} ({self._peak_type})"
+      return f"{base_name} ({get_peak_name(self._peak_type)})"
 
     return base_name
 
@@ -146,18 +146,19 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
     )
 
     if (consumption_and_cost is not None):
-      _LOGGER.debug(f"Calculated previous electricity consumption for '{self._mpan}/{self._serial_number}'...")
+      _LOGGER.debug(f"Calculated previous electricity consumption for '{self._mpan}/{self._serial_number}' ({self.unique_id})...")
 
-      await async_import_external_statistics_from_consumption(
-        current,
-        self._hass,
-        get_electricity_consumption_statistic_unique_id(self._serial_number, self._mpan, self._is_export),
-        self.name,
-        consumption_and_cost["charges"],
-        rate_data,
-        UnitOfEnergy.KILO_WATT_HOUR,
-        "consumption"
-      )
+      if self._peak_type is None:
+        await async_import_external_statistics_from_consumption(
+          current,
+          self._hass,
+          get_electricity_consumption_statistic_unique_id(self._serial_number, self._mpan, self._is_export),
+          self.name,
+          consumption_and_cost["charges"],
+          rate_data,
+          UnitOfEnergy.KILO_WATT_HOUR,
+          "consumption"
+        )
 
       self._state = consumption_and_cost["total_consumption"]
       self._last_reset = consumption_and_cost["last_reset"]
