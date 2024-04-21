@@ -193,6 +193,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
     self._attributes["total_consumption"] = 0
 
     self.async_write_ha_state()
+    _LOGGER.debug(f"Cost tracker '{self.unique_id}' manually reset")
 
   @callback
   async def async_adjust_cost_tracker(self, datetime, consumption: float):
@@ -216,6 +217,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
 
     rates_result: ElectricityRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     self._recalculate_cost(now(), self._attributes["tracked_charges"], self._attributes["untracked_charges"], rates_result.rates)
+    _LOGGER.debug(f"Cost tracker '{self.unique_id}' manually adjusted")
 
   def _recalculate_cost(self, current: datetime, tracked_consumption_data: list, untracked_consumption_data: list, rates: list):
     target_rate = None
@@ -280,6 +282,8 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
       self._attributes["untracked_charges"] = []
       self._attributes["total_consumption"] = 0
       self._last_reset = start_of_day
+      
+      _LOGGER.debug(f"Cost tracker '{self.unique_id}' reset. self._last_reset: {self._last_reset.date()}; current: {current.date()}")
 
       return True
 

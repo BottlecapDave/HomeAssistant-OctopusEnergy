@@ -65,7 +65,7 @@ async def async_import_external_statistics_from_consumption(
       statistic_id=statistic_id,
       unit_of_measurement=unit_of_measurement,
     ),
-    statistics["total"]
+    statistics
   )
 
   unique_rates = get_unique_rates(current, rates)
