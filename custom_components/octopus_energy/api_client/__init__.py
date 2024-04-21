@@ -875,7 +875,6 @@ class OctopusEnergyApiClient:
       query_string = '&'.join(query_params)
 
       url = f"{self._base_url}/v1/gas-meter-points/{mprn}/meters/{serial_number}/consumption{f'?{query_string}' if len(query_string) > 0 else ''}"
-      print(url)
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
         if (data is not None and "results" in data):
