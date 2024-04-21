@@ -568,10 +568,8 @@ class OptionsFlowHandler(OptionsFlow):
   
   async def async_step_cost_tracker(self, user_input):
     """Manage the options for the custom component."""
-    account_ids = get_account_ids(self.hass)
-    account_id = list(account_ids.keys())[0]
-
     config = merge_cost_tracker_config(self._entry.data, self._entry.options, user_input)
+    account_id = config[CONFIG_ACCOUNT_ID] if CONFIG_ACCOUNT_ID in config else None
 
     account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
     if (account_info is None):
