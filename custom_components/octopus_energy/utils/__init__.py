@@ -127,8 +127,8 @@ def private_rates_to_public_rates(rates: list):
 
   for rate in rates:
     new_rate = {
-      "start": rate["start"],
-      "end": rate["end"],
+      "start": as_local(rate["start"]),
+      "end": as_local(rate["end"]),
       "value_inc_vat": value_inc_vat_to_pounds(rate["value_inc_vat"])
     }
 
