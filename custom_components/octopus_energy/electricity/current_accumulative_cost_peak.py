@@ -118,6 +118,7 @@ class OctopusEnergyCurrentAccumulativeElectricityCostPeak(MultiCoordinatorEntity
       self._attributes["last_evaluated"] = consumption_and_cost["last_evaluated"]
       self._attributes["data_last_retrieved"] = consumption_result.last_retrieved if consumption_result is not None else None
 
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

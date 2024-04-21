@@ -236,6 +236,7 @@ class OctopusEnergyCostTrackerOffPeakSensor(CoordinatorEntity, RestoreSensor):
       self._attributes["total_consumption"] = total_tracked_consumption + total_untracked_consumption
       self._state = tracked_result["total_cost_off_peak"] if "total_cost_off_peak" in tracked_result else 0
 
+      self._attributes = dict_to_typed_dict(self._attributes)
       self.async_write_ha_state()
 
   def _reset_if_new_day(self, current: datetime):

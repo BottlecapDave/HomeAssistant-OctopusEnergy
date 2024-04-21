@@ -81,7 +81,8 @@ class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEn
       self._attributes["end"] = standard_charge_result.standing_charge["end"]
     else:
       self._state = None
-
+    
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):
