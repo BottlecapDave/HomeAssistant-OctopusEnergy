@@ -70,43 +70,54 @@ Each item within the `tracked_changes` and `untracked_changes` have the followin
 | `consumption` | `float` | The consumption value of the specified period |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
 
-### Cost sensor (Peak)
+#### Variants
 
-`sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_peak`
+The following variants of the [Cost Sensor](#cost-sensor) are available.
 
-This is the total cost of the tracked entity at peak rate for the current day. This is in pounds and pence (e.g. 1.01 = £1.01).
-
-!!! note
-    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `name` | `string` | The base name of the cost tracker (based on config) |
-| `mpan` | `string` | The mpan of the meter that determines how the cost is calculated (based on config) |
-| `target_entity_id` | `string` | The entity whose consumption data is being tracked (based on config) |
-| `entity_accumulative_value` | `boolean` | Determines if the tracked entity has accumulative data (based on config) |
-| `account_id` | `string` | The id of the account the cost tracker is for (based on config) |
-| `is_tracking` | `boolean` | Determines if the tracker is currently tracking consumption/cost data |
-| `total_consumption` | `float` | The total consumption that has been tracked for the current day at peak rate |
-
-### Cost sensor (Off Peak)
+##### Off Peak
 
 `sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_off_peak`
 
-This is the total cost of the tracked entity at off peak rate for the current day. This is in pounds and pence (e.g. 1.01 = £1.01).
+This is the total cost of the tracked entity for the current day during off peak hours (the lowest available rate).
 
 !!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `name` | `string` | The base name of the cost tracker (based on config) |
-| `mpan` | `string` | The mpan of the meter that determines how the cost is calculated (based on config) |
-| `target_entity_id` | `string` | The entity whose consumption data is being tracked (based on config) |
-| `entity_accumulative_value` | `boolean` | Determines if the tracked entity has accumulative data (based on config) |
-| `account_id` | `string` | The id of the account the cost tracker is for (based on config) |
-| `is_tracking` | `boolean` | Determines if the tracker is currently tracking consumption/cost data |
-| `total_consumption` | `float` | The total consumption that has been tracked for the current day at off peak rate |
+##### Standard
+
+`sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_standard`
+
+This is the total cost of the tracked entity for the current day during standard hours (the middle rate).
+
+!!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+##### Peak
+
+`sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_peak`
+
+This is the total cost of the tracked entity for the current day during peak hours (the highest available rate).
+
+!!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 ### Week cost sensor
 
@@ -135,41 +146,54 @@ Each item within the `accumulated_data` has the following attributes
 | `consumption` | `float` | The consumption value of the specified period |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
 
-### Week cost sensor (Peak)
+#### Variants
 
-`sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_week_peak`
+The following variants of the [Week Cost Sensor](#week-cost-sensor) are available.
 
-This is the total cost of the tracked entity at peak rate for the current week. This is in pounds and pence (e.g. 1.01 = £1.01).
-
-!!! note
-    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `name` | `string` | The base name of the cost tracker (based on config) |
-| `mpan` | `string` | The mpan of the meter that determines how the cost is calculated (based on config) |
-| `target_entity_id` | `string` | The entity whose consumption data is being tracked (based on config) |
-| `entity_accumulative_value` | `boolean` | Determines if the tracked entity has accumulative data (based on config) |
-| `account_id` | `string` | The id of the account the cost tracker is for (based on config) |
-| `total_consumption` | `float` | The total consumption that has been tracked for the current week at peak rate |
-
-### Week cost sensor (Off Peak)
+##### Off Peak
 
 `sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_week_off_peak`
 
-This is the total cost of the tracked entity at off peak rate for the current week. This is in pounds and pence (e.g. 1.01 = £1.01).
+This is the total cost of the tracked entity for the current week during off peak hours (the lowest available rate).
 
 !!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `name` | `string` | The base name of the cost tracker (based on config) |
-| `mpan` | `string` | The mpan of the meter that determines how the cost is calculated (based on config) |
-| `target_entity_id` | `string` | The entity whose consumption data is being tracked (based on config) |
-| `entity_accumulative_value` | `boolean` | Determines if the tracked entity has accumulative data (based on config) |
-| `account_id` | `string` | The id of the account the cost tracker is for (based on config) |
-| `total_consumption` | `float` | The total consumption that has been tracked for the current week at off peak rate |
+##### Standard
+
+`sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_week_standard`
+
+This is the total cost of the tracked entity for the current week during standard hours (the middle rate).
+
+!!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+##### Peak
+
+`sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_week_peak`
+
+This is the total cost of the tracked entity for the current week during peak hours (the highest available rate).
+
+!!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 ### Month cost sensor
 
@@ -198,41 +222,54 @@ Each item within the `accumulated_data` has the following attributes
 | `consumption` | `float` | The consumption value of the specified period |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
 
-### Month cost sensor (Peak)
+#### Variants
 
-`sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_month_peak`
+The following variants of the [Month Cost Sensor](#month-cost-sensor) are available.
 
-This is the total cost of the tracked entity at peak rate for the current month. This is in pounds and pence (e.g. 1.01 = £1.01).
-
-!!! note
-    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `name` | `string` | The base name of the cost tracker (based on config) |
-| `mpan` | `string` | The mpan of the meter that determines how the cost is calculated (based on config) |
-| `target_entity_id` | `string` | The entity whose consumption data is being tracked (based on config) |
-| `entity_accumulative_value` | `boolean` | Determines if the tracked entity has accumulative data (based on config) |
-| `account_id` | `string` | The id of the account the cost tracker is for (based on config) |
-| `total_consumption` | `float` | The total consumption that has been tracked for the current month at peak rate |
-
-### Month cost sensor (Off Peak)
+##### Off Peak
 
 `sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_month_off_peak`
 
-This is the total cost of the tracked entity at off peak rate for the current month. This is in pounds and pence (e.g. 1.01 = £1.01).
+This is the total cost of the tracked entity for the current month during off peak hours (the lowest available rate).
 
 !!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `name` | `string` | The base name of the cost tracker (based on config) |
-| `mpan` | `string` | The mpan of the meter that determines how the cost is calculated (based on config) |
-| `target_entity_id` | `string` | The entity whose consumption data is being tracked (based on config) |
-| `entity_accumulative_value` | `boolean` | Determines if the tracked entity has accumulative data (based on config) |
-| `account_id` | `string` | The id of the account the cost tracker is for (based on config) |
-| `total_consumption` | `float` | The total consumption that has been tracked for the current month at off peak rate |
+##### Standard
+
+`sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_month_standard`
+
+This is the total cost of the tracked entity for the current month during standard hours (the middle rate).
+
+!!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+##### Peak
+
+`sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_month_peak`
+
+This is the total cost of the tracked entity for the current month during peak hours (the highest available rate).
+
+!!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 ## Services
 
