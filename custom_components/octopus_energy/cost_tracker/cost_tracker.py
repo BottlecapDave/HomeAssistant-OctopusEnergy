@@ -1,7 +1,7 @@
 from datetime import datetime
 import logging
 
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util.dt import (now, parse_datetime, as_local)
@@ -19,8 +19,6 @@ from homeassistant.helpers.event import (
   EventStateChangedData,
   async_track_state_change_event,
 )
-
-from homeassistant.helpers.typing import EventType
 
 from homeassistant.const import (
     STATE_UNAVAILABLE,
@@ -146,7 +144,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
         )
     )
 
-  async def _async_calculate_cost(self, event: EventType[EventStateChangedData]):
+  async def _async_calculate_cost(self, event: Event[EventStateChangedData]):
     new_state = event.data["new_state"]
     old_state = event.data["old_state"]
     _LOGGER.debug(f"State updated for '{self._config[CONFIG_COST_TARGET_ENTITY_ID]}' for '{self.unique_id}': new_state: {new_state}; old_state: {old_state}")

@@ -1,7 +1,7 @@
 from datetime import datetime
 import logging
 
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util.dt import (now)
@@ -17,8 +17,6 @@ from homeassistant.helpers.event import (
   async_track_state_change_event,
   async_track_entity_registry_updated_event,
 )
-
-from homeassistant.helpers.typing import EventType
 
 from homeassistant.const import (
     STATE_UNAVAILABLE,
@@ -157,7 +155,7 @@ class OctopusEnergyCostTrackerWeekSensor(RestoreSensor):
       _LOGGER.debug(f"Tracked entity for '{self.entity_id}' updated from '{self._tracked_entity_id}' to '{new_entity_id}'. Reloading...")
       await self._hass.config_entries.async_reload(self._config_entry.entry_id)
 
-  async def _async_calculate_cost(self, event: EventType[EventStateChangedData]):
+  async def _async_calculate_cost(self, event: Event[EventStateChangedData]):
     current = now()
     self._reset_if_new_week(current)
 
