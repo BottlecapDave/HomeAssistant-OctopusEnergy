@@ -96,6 +96,7 @@ DATA_SAVING_SESSIONS_FORCE_UPDATE = "SAVING_SESSIONS_FORCE_UPDATE"
 
 STORAGE_COMPLETED_DISPATCHES_NAME = "octopus_energy.{}-completed-intelligent-dispatches.json"
 STORAGE_ELECTRICITY_TARIFF_OVERRIDE_NAME = "octopus_energy.{}-{}-tariff-override.json"
+STORAGE_TARIFF_CACHE_NAME = "octopus_energy.tariff-{}.json"
 
 INTELLIGENT_SOURCE_SMART_CHARGE = "smart-charge"
 INTELLIGENT_SOURCE_BUMP_CHARGE = "bump-charge"
