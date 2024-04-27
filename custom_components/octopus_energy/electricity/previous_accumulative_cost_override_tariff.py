@@ -55,7 +55,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(OctopusEner
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Cost Override Tariff"
+    return f"Previous Cost Override Tariff {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})"
   
   @property
   def icon(self):

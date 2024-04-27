@@ -48,7 +48,7 @@ from .coordinators.wheel_of_fortune import async_setup_wheel_of_fortune_spins_co
 from .api_client import OctopusEnergyApiClient
 from .utils.tariff_overrides import async_get_tariff_override
 from .utils.tariff_cache import async_get_cached_tariff_total_unique_rates, async_save_cached_tariff_total_unique_rates
-from .utils.rate_information import get_peak_type, get_unique_rates
+from .utils.rate_information import get_peak_type, get_unique_rates, has_peak_rates
 
 from .octoplus.points import OctopusEnergyOctoplusPoints
 
@@ -454,15 +454,16 @@ async def async_setup_cost_sensors(hass: HomeAssistant, entry, config, async_add
           
           tariff_override = await async_get_tariff_override(hass, mpan, serial_number)
           total_unique_rates = await get_unique_electricity_rates(hass, client, tariff_code if tariff_override is None else tariff_override)
-          for unique_rate_index in range(0, total_unique_rates):
-            peak_type = get_peak_type(total_unique_rates, unique_rate_index)
-            if peak_type is not None:
-              peak_sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, config, peak_type)
-              peak_sensor_entity_id = registry.async_get_entity_id("sensor", DOMAIN, peak_sensor.unique_id)
-              
-              entities.append(peak_sensor)
-              entities.append(OctopusEnergyCostTrackerWeekSensor(hass, entry, config, peak_sensor_entity_id if peak_sensor_entity_id is not None else f"sensor.{peak_sensor.unique_id}", peak_type))
-              entities.append(OctopusEnergyCostTrackerMonthSensor(hass, entry, config, peak_sensor_entity_id if peak_sensor_entity_id is not None else f"sensor.{peak_sensor.unique_id}", peak_type))
+          if has_peak_rates(total_unique_rates):
+            for unique_rate_index in range(0, total_unique_rates):
+              peak_type = get_peak_type(total_unique_rates, unique_rate_index)
+              if peak_type is not None:
+                peak_sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, config, peak_type)
+                peak_sensor_entity_id = registry.async_get_entity_id("sensor", DOMAIN, peak_sensor.unique_id)
+                
+                entities.append(peak_sensor)
+                entities.append(OctopusEnergyCostTrackerWeekSensor(hass, entry, config, peak_sensor_entity_id if peak_sensor_entity_id is not None else f"sensor.{peak_sensor.unique_id}", peak_type))
+                entities.append(OctopusEnergyCostTrackerMonthSensor(hass, entry, config, peak_sensor_entity_id if peak_sensor_entity_id is not None else f"sensor.{peak_sensor.unique_id}", peak_type))
 
           async_add_entities(entities)
           break

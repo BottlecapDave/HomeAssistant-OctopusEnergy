@@ -46,7 +46,7 @@ class OctopusEnergyWheelOfFortuneElectricitySpins(CoordinatorEntity, RestoreSens
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy {self._account_id} Wheel Of Fortune Spins Electricity"
+    return f"Wheel Of Fortune Spins Electricity ({self._account_id})"
 
   @property
   def icon(self):

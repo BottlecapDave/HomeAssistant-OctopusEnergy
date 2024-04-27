@@ -66,7 +66,7 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Gas {self._serial_number} {self._mprn} Previous Accumulative Cost Override"
+    return f"Previous Accumulative Cost Override Gas ({self._serial_number}/{self._mprn})"
   
   @property
   def entity_registry_enabled_default(self) -> bool:

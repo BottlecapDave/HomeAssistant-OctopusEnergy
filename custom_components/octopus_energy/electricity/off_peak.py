@@ -52,7 +52,7 @@ class OctopusEnergyElectricityOffPeak(CoordinatorEntity, OctopusEnergyElectricit
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Off Peak"
+    return f"Off Peak {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})"
 
   @property
   def icon(self):

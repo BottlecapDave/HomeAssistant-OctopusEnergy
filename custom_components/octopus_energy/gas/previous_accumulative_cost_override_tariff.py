@@ -55,7 +55,7 @@ class OctopusEnergyPreviousAccumulativeGasCostTariffOverride(OctopusEnergyGasSen
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Gas {self._serial_number} {self._mprn} Previous Cost Override Tariff"
+    return f"Previous Cost Override Tariff Gas ({self._serial_number}/{self._mprn})"
   
   @property
   def icon(self):

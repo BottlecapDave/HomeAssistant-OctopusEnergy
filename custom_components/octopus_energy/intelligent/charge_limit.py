@@ -49,7 +49,7 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy {self._account_id} Intelligent Charge Limit"
+    return f"Intelligent Charge Limit ({self._account_id})"
 
   @property
   def icon(self):

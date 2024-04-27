@@ -64,7 +64,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy {self._account_id} Intelligent Dispatching"
+    return f"Intelligent Dispatching ({self._account_id})"
 
   @property
   def icon(self):

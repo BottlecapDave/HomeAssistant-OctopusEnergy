@@ -45,7 +45,7 @@ class OctopusEnergyIntelligentSmartCharge(CoordinatorEntity, SwitchEntity, Octop
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy {self._account_id} Intelligent Smart Charge"
+    return f"Intelligent Smart Charge ({self._account_id})"
 
   @property
   def icon(self):

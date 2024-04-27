@@ -49,7 +49,7 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy {self._account_id} Octoplus Points"
+    return f"Octoplus Points ({self._account_id})"
 
   @property
   def icon(self):

@@ -47,7 +47,7 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy {self._account_id} Intelligent Ready Time"
+    return f"Intelligent Ready Time ({self._account_id})"
 
   @property
   def icon(self):

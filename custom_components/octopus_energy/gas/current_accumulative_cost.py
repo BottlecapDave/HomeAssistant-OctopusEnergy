@@ -55,7 +55,7 @@ class OctopusEnergyCurrentAccumulativeGasCost(MultiCoordinatorEntity, OctopusEne
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Gas {self._serial_number} {self._mprn} Current Accumulative Cost"
+    return f"Current Accumulative Cost Gas ({self._serial_number}/{self._mprn})"
 
   @property
   def device_class(self):

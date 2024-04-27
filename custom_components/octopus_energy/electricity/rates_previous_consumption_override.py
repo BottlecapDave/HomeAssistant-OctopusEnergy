@@ -36,7 +36,7 @@ class OctopusEnergyElectricityPreviousConsumptionOverrideRates(OctopusEnergyElec
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Consumption Override Rates"
+    return f"Previous Consumption Override Rates {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})"
   
   @property
   def entity_registry_enabled_default(self) -> bool:

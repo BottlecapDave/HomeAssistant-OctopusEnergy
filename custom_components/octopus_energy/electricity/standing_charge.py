@@ -39,7 +39,7 @@ class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEn
   @property
   def name(self):
     """Name of the sensor."""
-    return f'Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Current Standing Charge'
+    return f'Current Standing Charge {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})'
 
   @property
   def device_class(self):

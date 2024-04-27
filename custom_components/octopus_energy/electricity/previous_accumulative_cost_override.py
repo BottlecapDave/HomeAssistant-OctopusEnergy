@@ -65,7 +65,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Accumulative Cost Override"
+    return f"Previous Accumulative Cost Override {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})"
   
   @property
   def entity_registry_enabled_default(self) -> bool:

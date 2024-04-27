@@ -61,7 +61,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Current Rate"
+    return f"Current Rate {self._export_name_addition}Electricity ({self._serial_number} {self._mpan})"
   
   @property
   def state_class(self):

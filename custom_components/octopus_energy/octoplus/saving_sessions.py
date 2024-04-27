@@ -58,7 +58,7 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy {self._account_id} Octoplus Saving Session"
+    return f"Octoplus Saving Session ({self._account_id})"
 
   @property
   def icon(self):
