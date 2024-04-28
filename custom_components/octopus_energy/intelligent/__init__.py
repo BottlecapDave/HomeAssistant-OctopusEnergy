@@ -12,6 +12,7 @@ from ..const import DOMAIN, INTELLIGENT_SOURCE_BUMP_CHARGE, INTELLIGENT_SOURCE_S
 
 from ..api_client.intelligent_settings import IntelligentSettings
 from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
+from ..api_client.intelligent_device import IntelligentDevice
 
 mock_intelligent_data_key = "MOCK_INTELLIGENT_DATA"
 
@@ -97,16 +98,16 @@ def mock_intelligent_settings():
   )
 
 def mock_intelligent_device():
-  return {
-    "krakenflexDeviceId": "1",
-    "provider": FULLY_SUPPORTED_INTELLIGENT_PROVIDERS[0],
-		"vehicleMake": "Tesla",
-		"vehicleModel": "Model Y",
-    "vehicleBatterySizeInKwh": 75.0,
-		"chargePointMake": "MyEnergi",
-		"chargePointModel": "Zappi",
-    "chargePointPowerInKw": 6.5 
-  }
+  return IntelligentDevice(
+    "1",
+    FULLY_SUPPORTED_INTELLIGENT_PROVIDERS[0],
+		"Tesla",
+		"Model Y",
+    75.0,
+		"MyEnergi",
+		"Zappi",
+    6.5 
+  )
 
 def is_intelligent_tariff(tariff_code: str):
   parts = get_tariff_parts(tariff_code.upper())

@@ -12,6 +12,7 @@ from .intelligent.dispatching import OctopusEnergyIntelligentDispatching
 from .greenness_forecast.highlighted import OctopusEnergyGreennessForecastHighlighted
 from .utils import get_active_tariff_code
 from .intelligent import get_intelligent_features
+from .api_client.intelligent_device import IntelligentDevice
 
 from .const import (
   CONFIG_KIND,
@@ -98,11 +99,11 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
           
           entities.append(OctopusEnergyElectricityOffPeak(hass, electricity_rate_coordinator, meter, point))
 
-  intelligent_device = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
+  intelligent_device: IntelligentDevice = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
   intelligent_mpan = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] if DATA_INTELLIGENT_MPAN in hass.data[DOMAIN][account_id] else None
   intelligent_serial_number = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] if DATA_INTELLIGENT_SERIAL_NUMBER in hass.data[DOMAIN][account_id] else None
   if intelligent_device is not None and intelligent_mpan is not None and intelligent_serial_number is not None:
-    intelligent_features = get_intelligent_features(intelligent_device["provider"])
+    intelligent_features = get_intelligent_features(intelligent_device.provider)
     coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR]
     electricity_rate_coordinator = hass.data[DOMAIN][account_id][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(intelligent_mpan, intelligent_serial_number)]
     entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, intelligent_device, account_id, intelligent_features.planned_dispatches_supported))
