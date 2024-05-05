@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+import math
 
 import voluptuous as vol
 
@@ -39,6 +40,9 @@ from ..const import (
   CONFIG_TARGET_LAST_RATES,
   CONFIG_TARGET_INVERT_TARGET_RATES,
   CONFIG_TARGET_OFFSET,
+  CONFIG_TARGET_TYPE_CONTINUOUS,
+  CONFIG_TARGET_TYPE_INTERMITTENT,
+  CONFIG_TARGET_WEIGHTING,
   DATA_ACCOUNT,
   DOMAIN,
 )
@@ -46,6 +50,7 @@ from ..const import (
 from . import (
   calculate_continuous_times,
   calculate_intermittent_times,
+  create_weighting,
   get_applicable_rates,
   get_target_rate_info
 )
@@ -190,17 +195,21 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
             all_rates,
             is_rolling_target
           )
+          
+          number_of_slots = math.ceil(target_hours * 2)
+          weighting = create_weighting(self._config[CONFIG_TARGET_WEIGHTING] if CONFIG_TARGET_WEIGHTING in self._config else None, number_of_slots)
 
-          if (self._config[CONFIG_TARGET_TYPE] == "Continuous"):
+          if (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_CONTINUOUS):
             self._target_rates = calculate_continuous_times(
               applicable_rates,
               target_hours,
               find_highest_rates,
               find_last_rates,
               min_rate,
-              max_rate
+              max_rate,
+              weighting
             )
-          elif (self._config[CONFIG_TARGET_TYPE] == "Intermittent"):
+          elif (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_INTERMITTENT):
             self._target_rates = calculate_intermittent_times(
               applicable_rates,
               target_hours,

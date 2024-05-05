@@ -35,6 +35,8 @@ from .const import (
   CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET,
   CONFIG_TARGET_MAX_RATE,
   CONFIG_TARGET_MIN_RATE,
+  CONFIG_TARGET_TYPE_CONTINUOUS,
+  CONFIG_TARGET_TYPE_INTERMITTENT,
   CONFIG_VERSION,
   DATA_ACCOUNT,
   DOMAIN,
@@ -155,11 +157,11 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     return vol.Schema({
       vol.Required(CONFIG_TARGET_NAME): str,
       vol.Required(CONFIG_TARGET_HOURS): str,
-      vol.Required(CONFIG_TARGET_TYPE, default="Continuous"): selector.SelectSelector(
+      vol.Required(CONFIG_TARGET_TYPE, default=CONFIG_TARGET_TYPE_CONTINUOUS): selector.SelectSelector(
           selector.SelectSelectorConfig(
               options=[
-                selector.SelectOptionDict(value="Continuous", label="Continuous"),
-                selector.SelectOptionDict(value="Intermittent", label="Intermittent"),
+                selector.SelectOptionDict(value=CONFIG_TARGET_TYPE_CONTINUOUS, label="Continuous"),
+                selector.SelectOptionDict(value=CONFIG_TARGET_TYPE_INTERMITTENT, label="Intermittent"),
               ],
               mode=selector.SelectSelectorMode.DROPDOWN,
           )
@@ -382,11 +384,11 @@ class OptionsFlowHandler(OptionsFlow):
           vol.Schema({
             vol.Required(CONFIG_TARGET_NAME): str,
             vol.Required(CONFIG_TARGET_HOURS): str,
-            vol.Required(CONFIG_TARGET_TYPE, default="Continuous"): selector.SelectSelector(
+            vol.Required(CONFIG_TARGET_TYPE, default=CONFIG_TARGET_TYPE_CONTINUOUS): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=[
-                      selector.SelectOptionDict(value="Continuous", label="Continuous"),
-                      selector.SelectOptionDict(value="Intermittent", label="Intermittent"),
+                      selector.SelectOptionDict(value=CONFIG_TARGET_TYPE_CONTINUOUS, label="Continuous"),
+                      selector.SelectOptionDict(value=CONFIG_TARGET_TYPE_INTERMITTENT, label="Intermittent"),
                     ],
                     mode=selector.SelectSelectorMode.DROPDOWN,
                 )
