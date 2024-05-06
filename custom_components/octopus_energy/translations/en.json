@@ -38,7 +38,7 @@
           "target_invert_target_rates": "Invert targeted rates",
           "minimum_rate": "The optional minimum rate for target hours",
           "maximum_rate": "The optional maximum rate for target hours",
-          "weighting": "The optional weighting to apply the discovered rates"
+          "weighting": "The optional weighting to apply to the discovered rates"
         }
       },
       "target_rate_account": {
@@ -124,7 +124,7 @@
           "target_invert_target_rates": "Invert targeted rates",
           "minimum_rate": "The optional minimum rate for target hours",
           "maximum_rate": "The optional maximum rate for target hours",
-          "weighting": "The optional weighting to apply the discovered rates"
+          "weighting": "The optional weighting to apply to the discovered rates"
         }
       },
       "cost_tracker": {

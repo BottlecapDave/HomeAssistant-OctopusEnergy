@@ -37,6 +37,7 @@ from .const import (
   CONFIG_TARGET_MIN_RATE,
   CONFIG_TARGET_TYPE_CONTINUOUS,
   CONFIG_TARGET_TYPE_INTERMITTENT,
+  CONFIG_TARGET_WEIGHTING,
   CONFIG_VERSION,
   DATA_ACCOUNT,
   DOMAIN,
@@ -180,6 +181,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Optional(CONFIG_TARGET_INVERT_TARGET_RATES, default=False): bool,
       vol.Optional(CONFIG_TARGET_MIN_RATE): float,
       vol.Optional(CONFIG_TARGET_MAX_RATE): float,
+      vol.Optional(CONFIG_TARGET_WEIGHTING): str,
     })
   
   async def __async_setup_cost_tracker_schema__(self, account_id: str):
@@ -407,6 +409,7 @@ class OptionsFlowHandler(OptionsFlow):
             vol.Optional(CONFIG_TARGET_INVERT_TARGET_RATES): bool,
             vol.Optional(CONFIG_TARGET_MIN_RATE): float,
             vol.Optional(CONFIG_TARGET_MAX_RATE): float,
+            vol.Optional(CONFIG_TARGET_WEIGHTING): str,
           }),
           {
             CONFIG_TARGET_NAME: config[CONFIG_TARGET_NAME],
@@ -417,7 +420,8 @@ class OptionsFlowHandler(OptionsFlow):
             CONFIG_TARGET_LAST_RATES: find_last_rates,
             CONFIG_TARGET_INVERT_TARGET_RATES: invert_target_rates,
             CONFIG_TARGET_MIN_RATE: config[CONFIG_TARGET_MIN_RATE] if CONFIG_TARGET_MIN_RATE in config else None,
-            CONFIG_TARGET_MAX_RATE: config[CONFIG_TARGET_MAX_RATE] if CONFIG_TARGET_MAX_RATE in config else None
+            CONFIG_TARGET_MAX_RATE: config[CONFIG_TARGET_MAX_RATE] if CONFIG_TARGET_MAX_RATE in config else None,
+            CONFIG_TARGET_WEIGHTING: config[CONFIG_TARGET_WEIGHTING] if CONFIG_TARGET_WEIGHTING in config else None,
           }
       ),
       errors=errors
