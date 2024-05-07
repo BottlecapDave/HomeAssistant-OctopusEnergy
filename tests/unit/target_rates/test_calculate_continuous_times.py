@@ -608,12 +608,17 @@ async def test_when_max_rate_is_provided_then_result_does_not_include_any_rate_a
     assert result[index]["value_inc_vat"] == expected_rates[index]
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("weighting,expected_first_valid_from,expected_rates",[
-  ([1,2,1], datetime.strptime("2022-10-22T11:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.191, 0.151, 0.20]),
-  ([1,2,2], datetime.strptime("2022-10-22T10:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.189, 0.191, 0.151]),
-  ([1,0,0], datetime.strptime("2022-10-22T11:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.151, 0.20, 0.191]),
+@pytest.mark.parametrize("weighting,possible_rates,expected_first_valid_from,expected_rates",[
+  ([1, 2, 1], [19.1, 18.9, 19.1, 15.1, 20], datetime.strptime("2022-10-22T11:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.191, 0.151, 0.20]),
+  ([1, 2, 2], [19.1, 18.9, 19.1, 15.1, 20], datetime.strptime("2022-10-22T10:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.189, 0.191, 0.151]),
+  ([1, 0, 0], [19.1, 18.9, 19.1, 15.1, 20], datetime.strptime("2022-10-22T11:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.151, 0.20, 0.191]),
+
+  # Examples defined in https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/807
+  (None, [14, 14, 10, 7, 15, 21], datetime.strptime("2022-10-22T09:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.14, 0.1, 0.07]),
+  ([1, 1, 2], [14, 14, 10, 7, 15, 21], datetime.strptime("2022-10-22T09:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.14, 0.1, 0.07]),
+  ([5, 1, 1], [14, 14, 10, 7, 15, 21], datetime.strptime("2022-10-22T10:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.07, 0.15, 0.21]),
 ])
-async def test_when_weighting_specified_then_result_is_adjusted(weighting: list, expected_first_valid_from: datetime, expected_rates: list):
+async def test_when_weighting_specified_then_result_is_adjusted(weighting: list, possible_rates: list, expected_first_valid_from: datetime, expected_rates: list):
   # Arrange
   current_date = datetime.strptime("2022-10-22T09:10:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
   target_start_time = "09:00"
@@ -622,7 +627,7 @@ async def test_when_weighting_specified_then_result_is_adjusted(weighting: list,
   rates = create_rate_data(
     datetime.strptime("2022-10-22T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
     datetime.strptime("2022-10-23T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
-    [19.1, 18.9, 19.1, 15.1, 20]
+    possible_rates
   )
 
   applicable_rates = get_applicable_rates(
