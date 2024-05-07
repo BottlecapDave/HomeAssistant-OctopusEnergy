@@ -92,6 +92,8 @@ There may be times when the device you're wanting the target rate sensor to turn
 
 Each slot weighting must be a whole number and positive.
 
+You can also use weightings to ignore slots. This can be done by assigning a value of 0 for the desired slot.
+
 ## Attributes
 
 The following attributes are available on each sensor

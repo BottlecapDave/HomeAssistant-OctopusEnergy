@@ -268,7 +268,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       _LOGGER.debug(f'Restored OctopusEnergyTargetRate state: {self._state}')
 
   @callback
-  async def async_update_config(self, target_start_time=None, target_end_time=None, target_hours=None, target_offset=None, target_minimum_rate=None, target_maximum_rate=None):
+  async def async_update_config(self, target_start_time=None, target_end_time=None, target_hours=None, target_offset=None, target_minimum_rate=None, target_maximum_rate=None, target_weighting=None):
     """Update sensors config"""
 
     config = dict(self._config)
@@ -312,6 +312,13 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       trimmed_target_maximum_rate = target_maximum_rate.strip('\"')
       config.update({
         CONFIG_TARGET_MAX_RATE: trimmed_target_maximum_rate if trimmed_target_maximum_rate != "" else None
+      })
+
+    if target_weighting is not None:
+      # Inputs from automations can include quotes, so remove these
+      trimmed_target_weighting = target_weighting.strip('\"')
+      config.update({
+        CONFIG_TARGET_WEIGHTING: trimmed_target_weighting if trimmed_target_weighting != "" else None
       })
 
     account_result = self._hass.data[DOMAIN][self._account_id][DATA_ACCOUNT]

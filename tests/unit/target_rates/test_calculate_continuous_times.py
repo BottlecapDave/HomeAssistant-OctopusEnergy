@@ -611,6 +611,7 @@ async def test_when_max_rate_is_provided_then_result_does_not_include_any_rate_a
 @pytest.mark.parametrize("weighting,expected_first_valid_from,expected_rates",[
   ([1,2,1], datetime.strptime("2022-10-22T11:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.191, 0.151, 0.20]),
   ([1,2,2], datetime.strptime("2022-10-22T10:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.189, 0.191, 0.151]),
+  ([1,0,0], datetime.strptime("2022-10-22T11:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.151, 0.20, 0.191]),
 ])
 async def test_when_weighting_specified_then_result_is_adjusted(weighting: list, expected_first_valid_from: datetime, expected_rates: list):
   # Arrange

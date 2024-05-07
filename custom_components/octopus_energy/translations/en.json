@@ -81,7 +81,7 @@
       "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)",
       "invalid_price": "Price must be in the form pounds and pence (e.g. 0.10)",
       "invalid_weighting": "The weighting format is not supported.",
-      "invalid_weighting_slots": "The number of weighting blocks does not mention the specified number of hours.",
+      "invalid_weighting_slots": "The number of weighting blocks does not equal the specified number of hours.",
       "weighting_not_supported": "Weighting is only supported for continuous target rates"
     },
     "abort": {
@@ -153,7 +153,7 @@
       "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)",
       "invalid_price": "Price must be in the form pounds and pence (e.g. 0.10)",
       "invalid_weighting": "The weighting format is not supported.",
-      "invalid_weighting_slots": "The number of weighting blocks does not mention the specified number of hours.",
+      "invalid_weighting_slots": "The number of weighting blocks does not equal the specified number of hours.",
       "weighting_not_supported": "Weighting is only supported for continuous target rates"
     },
     "abort": {

@@ -100,6 +100,9 @@ def merge_target_rate_config(data: dict, options: dict, updated_config: dict = N
     if CONFIG_TARGET_MAX_RATE not in updated_config and CONFIG_TARGET_MAX_RATE in config:
       config[CONFIG_TARGET_MAX_RATE] = None
 
+    if CONFIG_TARGET_WEIGHTING not in updated_config and CONFIG_TARGET_WEIGHTING in config:
+      config[CONFIG_TARGET_WEIGHTING] = None
+
   return config
 
 def is_time_frame_long_enough(hours, start_time, end_time):

@@ -32,6 +32,7 @@ For updating a given [target rate's](./setup/target_rate.md) config. This allows
 | `data.target_offset`     | `yes`    | The optional offset to apply to the target rate when it starts. Must be in the format `(+/-)HH:MM:SS`.                |
 | `data.target_minimum_rate`     | `yes`    | The optional minimum rate the selected rates should not go below. |
 | `data.target_maximum_rate`     | `yes`    | The optional maximum rate the selected rates should not go above. |
+| `data.target_weighting`     | `yes`    | The optional weighting that should be applied to the selected rates. |
 
 ### Automation Example
 

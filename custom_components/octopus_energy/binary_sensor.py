@@ -55,6 +55,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
             vol.Optional("target_offset"): str,
             vol.Optional("target_minimum_rate"): str,
             vol.Optional("target_maximum_rate"): str,
+            vol.Optional("target_weighting"): str,
           },
           extra=vol.ALLOW_EXTRA,
         ),
