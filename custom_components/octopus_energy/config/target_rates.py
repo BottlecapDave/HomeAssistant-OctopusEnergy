@@ -22,16 +22,20 @@ from ..const import (
   CONFIG_TARGET_OLD_TYPE,
   CONFIG_TARGET_START_TIME,
   CONFIG_TARGET_TYPE,
+  CONFIG_TARGET_TYPE_CONTINUOUS,
+  CONFIG_TARGET_WEIGHTING,
   DOMAIN,
   REGEX_ENTITY_NAME,
   REGEX_HOURS,
   REGEX_OFFSET_PARTS,
   REGEX_PRICE,
-  REGEX_TIME
+  REGEX_TIME,
+  REGEX_WEIGHTING
 )
 
 from . import get_meter_tariffs
 from ..utils.tariff_check import is_agile_tariff
+from ..target_rates import create_weighting
 
 async def async_migrate_target_config(version: int, data: {}, get_entries):
   new_data = {**data}
@@ -95,6 +99,9 @@ def merge_target_rate_config(data: dict, options: dict, updated_config: dict = N
 
     if CONFIG_TARGET_MAX_RATE not in updated_config and CONFIG_TARGET_MAX_RATE in config:
       config[CONFIG_TARGET_MAX_RATE] = None
+
+    if CONFIG_TARGET_WEIGHTING not in updated_config and CONFIG_TARGET_WEIGHTING in config:
+      config[CONFIG_TARGET_WEIGHTING] = None
 
   return config
 
@@ -170,6 +177,21 @@ def validate_target_rate_config(data, account_info, now):
         errors[CONFIG_TARGET_MAX_RATE] = "invalid_price"
       else:
         data[CONFIG_TARGET_MAX_RATE] = float(data[CONFIG_TARGET_MAX_RATE])
+
+  if CONFIG_TARGET_WEIGHTING in data and data[CONFIG_TARGET_WEIGHTING] is not None:
+    matches = re.search(REGEX_WEIGHTING, data[CONFIG_TARGET_WEIGHTING])
+    if matches is None:
+      errors[CONFIG_TARGET_WEIGHTING] = "invalid_weighting"
+    
+    if CONFIG_TARGET_WEIGHTING not in errors:
+      number_of_slots = int(data[CONFIG_TARGET_HOURS] * 2)
+      weighting = create_weighting(data[CONFIG_TARGET_WEIGHTING], number_of_slots)
+
+      if (len(weighting) != number_of_slots):
+        errors[CONFIG_TARGET_WEIGHTING] = "invalid_weighting_slots"
+
+    if data[CONFIG_TARGET_TYPE] != CONFIG_TARGET_TYPE_CONTINUOUS:
+      errors[CONFIG_TARGET_WEIGHTING] = "weighting_not_supported"
 
   start_time = data[CONFIG_TARGET_START_TIME] if CONFIG_TARGET_START_TIME in data else "00:00"
   end_time = data[CONFIG_TARGET_END_TIME] if CONFIG_TARGET_END_TIME in data else "00:00"

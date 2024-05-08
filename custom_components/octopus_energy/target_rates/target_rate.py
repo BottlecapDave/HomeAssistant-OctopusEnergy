@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+import math
 
 import voluptuous as vol
 
@@ -39,6 +40,9 @@ from ..const import (
   CONFIG_TARGET_LAST_RATES,
   CONFIG_TARGET_INVERT_TARGET_RATES,
   CONFIG_TARGET_OFFSET,
+  CONFIG_TARGET_TYPE_CONTINUOUS,
+  CONFIG_TARGET_TYPE_INTERMITTENT,
+  CONFIG_TARGET_WEIGHTING,
   DATA_ACCOUNT,
   DOMAIN,
 )
@@ -46,6 +50,7 @@ from ..const import (
 from . import (
   calculate_continuous_times,
   calculate_intermittent_times,
+  create_weighting,
   get_applicable_rates,
   get_target_rate_info
 )
@@ -190,17 +195,21 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
             all_rates,
             is_rolling_target
           )
+          
+          number_of_slots = math.ceil(target_hours * 2)
+          weighting = create_weighting(self._config[CONFIG_TARGET_WEIGHTING] if CONFIG_TARGET_WEIGHTING in self._config else None, number_of_slots)
 
-          if (self._config[CONFIG_TARGET_TYPE] == "Continuous"):
+          if (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_CONTINUOUS):
             self._target_rates = calculate_continuous_times(
               applicable_rates,
               target_hours,
               find_highest_rates,
               find_last_rates,
               min_rate,
-              max_rate
+              max_rate,
+              weighting
             )
-          elif (self._config[CONFIG_TARGET_TYPE] == "Intermittent"):
+          elif (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_INTERMITTENT):
             self._target_rates = calculate_intermittent_times(
               applicable_rates,
               target_hours,
@@ -259,7 +268,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       _LOGGER.debug(f'Restored OctopusEnergyTargetRate state: {self._state}')
 
   @callback
-  async def async_update_config(self, target_start_time=None, target_end_time=None, target_hours=None, target_offset=None, target_minimum_rate=None, target_maximum_rate=None):
+  async def async_update_config(self, target_start_time=None, target_end_time=None, target_hours=None, target_offset=None, target_minimum_rate=None, target_maximum_rate=None, target_weighting=None):
     """Update sensors config"""
 
     config = dict(self._config)
@@ -303,6 +312,13 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       trimmed_target_maximum_rate = target_maximum_rate.strip('\"')
       config.update({
         CONFIG_TARGET_MAX_RATE: trimmed_target_maximum_rate if trimmed_target_maximum_rate != "" else None
+      })
+
+    if target_weighting is not None:
+      # Inputs from automations can include quotes, so remove these
+      trimmed_target_weighting = target_weighting.strip('\"')
+      config.update({
+        CONFIG_TARGET_WEIGHTING: trimmed_target_weighting if trimmed_target_weighting != "" else None
       })
 
     account_result = self._hass.data[DOMAIN][self._account_id][DATA_ACCOUNT]

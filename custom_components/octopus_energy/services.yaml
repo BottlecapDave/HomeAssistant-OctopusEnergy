@@ -44,6 +44,13 @@ update_target_config:
       example: '0.10'
       selector:
         text:
+    target_weighting:
+      name: Weighting
+      description:
+        The optional weighting that should be applied to the selected rates
+      example: '1,2,1'
+      selector:
+        text:
 
 purge_invalid_external_statistic_ids:
   name: Purge invalid external statistics

@@ -77,6 +77,23 @@ If this is checked, then the normal behaviour of the sensor will be reversed. Th
 
 There may be times that you want the target rate sensors to not take into account rates that are above or below a certain value (e.g. you don't want the sensor to turn on when rates go crazy or where it would be more beneficial to export).
 
+### Weighting
+
+!!! info
+
+    This is only available for continuous target rate sensors
+
+There may be times when the device you're wanting the target rate sensor to turn on doesn't have a consistent power draw. You can specify a weighting which can be applied to each discovered 30 minute slot. This can be specified in a few different ways. Take the following example weighting for a required 2 hours.
+
+* `1,1,2,1` - This applies a weighting of 1 to the first, second and forth slot and a weighting of 2 to the third slot. This will try and make the cheapest slot fall on the third slot, as long as the surrounding slots are cheaper than other continuous slots.
+* `*,2,1` - This applies a weighting of 1 to the first, second and forth slot and a weighting of 2 to the third slot. The `*` can be used as a placeholder for the standard weighting of 1 for all slots before the ones specified.
+* `1,1,2,*` - This applies a weighting of 1 to the first, second and forth slot and a weighting of 2 to the third slot. The `*` can be used as a placeholder for the standard weighting of 1 for all slots after the ones specified.
+* `2,*,2` - This applies a weighting of 2 to the first and forth slot and a weighting of 1 to all slots in between. The `*` can be used as a placeholder for the standard weighting of 1 for all slots in between the specified slots.
+
+Each slot weighting must be a whole number and positive.
+
+You can also use weightings to ignore slots. This can be done by assigning a value of 0 for the desired slot.
+
 ## Attributes
 
 The following attributes are available on each sensor
