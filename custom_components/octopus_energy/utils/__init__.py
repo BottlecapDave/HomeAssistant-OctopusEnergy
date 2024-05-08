@@ -116,6 +116,11 @@ def get_off_peak_times(current: datetime, rates: list, include_intelligent_adjus
         if end >= current:
           times.append(OffPeakTime(start, end))
         start = None
+    
+    if start is not None:
+      end = rates[-1]["end"]
+      if end >= current:
+        times.append(OffPeakTime(start, end))
 
   return times
 
