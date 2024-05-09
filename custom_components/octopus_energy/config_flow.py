@@ -179,8 +179,8 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Optional(CONFIG_TARGET_ROLLING_TARGET, default=False): bool,
       vol.Optional(CONFIG_TARGET_LAST_RATES, default=False): bool,
       vol.Optional(CONFIG_TARGET_INVERT_TARGET_RATES, default=False): bool,
-      vol.Optional(CONFIG_TARGET_MIN_RATE): float,
-      vol.Optional(CONFIG_TARGET_MAX_RATE): float,
+      vol.Optional(CONFIG_TARGET_MIN_RATE): str,
+      vol.Optional(CONFIG_TARGET_MAX_RATE): str,
       vol.Optional(CONFIG_TARGET_WEIGHTING): str,
     })
   
@@ -231,15 +231,16 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       return self.async_abort(reason="account_not_found")
 
     now = utcnow()
-    errors = validate_target_rate_config(user_input, account_info.account, now) if user_input is not None else {}
+    config = dict(user_input) if user_input is not None else None
+    errors = validate_target_rate_config(config, account_info.account, now) if config is not None else {}
 
     if len(errors) < 1 and user_input is not None:
-      user_input[CONFIG_KIND] = CONFIG_KIND_TARGET_RATE
-      user_input[CONFIG_ACCOUNT_ID] = self._account_id
+      config[CONFIG_KIND] = CONFIG_KIND_TARGET_RATE
+      config[CONFIG_ACCOUNT_ID] = self._account_id
       # Setup our targets sensor
       return self.async_create_entry(
-        title=f"{user_input[CONFIG_TARGET_NAME]} (target)", 
-        data=user_input
+        title=f"{config[CONFIG_TARGET_NAME]} (target)", 
+        data=config
       )
 
     # Reshow our form with raised logins
@@ -407,8 +408,8 @@ class OptionsFlowHandler(OptionsFlow):
             vol.Optional(CONFIG_TARGET_ROLLING_TARGET): bool,
             vol.Optional(CONFIG_TARGET_LAST_RATES): bool,
             vol.Optional(CONFIG_TARGET_INVERT_TARGET_RATES): bool,
-            vol.Optional(CONFIG_TARGET_MIN_RATE): float,
-            vol.Optional(CONFIG_TARGET_MAX_RATE): float,
+            vol.Optional(CONFIG_TARGET_MIN_RATE): str,
+            vol.Optional(CONFIG_TARGET_MAX_RATE): str,
             vol.Optional(CONFIG_TARGET_WEIGHTING): str,
           }),
           {
