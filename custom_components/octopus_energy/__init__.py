@@ -55,6 +55,12 @@ _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(minutes=1)
 
+async def async_remove_config_entry_device(
+  hass, config_entry, device_entry
+) -> bool:
+  """Remove a config entry from a device."""
+  return True
+
 async def async_migrate_entry(hass, config_entry):
   """Migrate old entry."""
   if (config_entry.version < CONFIG_VERSION):
