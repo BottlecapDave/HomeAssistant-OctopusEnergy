@@ -8,6 +8,10 @@ If you're wanting to display upcoming prices in a nice readable format, then mig
 
 <img src="https://github.com/lozzd/octopus-energy-rates-card/raw/main/assets/screenshot_1.png" height="300"/>
 
+## Home battery and prediction and charging
+
+If you use OE with a home battery, you might be interested in [predbat](https://github.com/springfall2008/batpred), which can take advantage of the data available through this integration.
+
 ## Import and Export Rates Charts
 
 Thanks to @fboundy you can use [ApexCharts Card](https://github.com/RomRider/apexcharts-card) to plot the import and export rates for the current day using the following configuration. 
