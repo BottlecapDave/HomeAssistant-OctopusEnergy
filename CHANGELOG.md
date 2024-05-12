@@ -1,3 +1,39 @@
+# [11.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.3.1...v11.0.0) (2024-05-12)
+
+
+### Bug Fixes
+
+* Accounted when intelligent device can come back with null data from OE ([53db610](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/53db610134fbb4356603b76634c56f71304280f7))
+* Fixed issue when str error reported if config of target rate sensor fails first time ([c5cfd83](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c5cfd8310ad196b666d6ff3ed5c28fc6587e2b1b))
+* Fixed issue with dispatching sensor if rate is off peak from now until the end of the available rate data ([c583b8b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c583b8b54c483ab6e6770e01b13b886511aa1596))
+* fixed tariff override data having rate value in pounds and pence for consistency ([48f832a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/48f832afd9cb5ea846d655e7eb3ea7937520822b))
+* Fixed updating cost tracker config ([c934614](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c934614ccd0a9b5ee471280be2c0d565000a9c52))
+* Fixed warning for deprecated EventType reference ([e8786df](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e8786df9fb476a56fd4a4347f03ab46075c02be7))
+* Limited backoff logic to 30 minutes between attempts so it doesn't increase forever ([f2de64d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f2de64d2ac176c26e7224b6ddeae04cf5f85d6ea))
+* Updated attributes and events to have datetimes in local time (UTC in winter, BST in summer) ([19ac60f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/19ac60f10ae81f4a81bedbd448c5563c41e35805))
+
+
+### Features
+
+* Added ability to configure optional minimum/maximum rates for target rate sensors ([95ac448](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/95ac4489653a97cd2a3d3274908543d73ff5827f))
+* Added support for applying weightings to target rate slots ([80bbb52](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/80bbb52b413aa722a5a4a5eac654901fd51185f7))
+* Added support for tracking 3 rate tariffs (e.g. Cosy) via separate sensors ([40d21d1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/40d21d1815ceb9f1e1eff1be7362b42b15950668))
+* Added the ability to delete devices manually ([404d2e9](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/404d2e9edef494348dfc9e95c86d0b410746f548))
+* updated the default names of various sensors to be more useful in areas of HA when space is limited ([870c917](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/870c917fd4a166ea71a51971df9b98e7d75957bd))
+
+
+### BREAKING CHANGES
+
+* If you are relying on the previous default names of sensors then you will need to update your
+sensors manually. Only the visual default name of the sensors have changed; the entity ids will
+remain the same and therefore will not effect any automatmations. If you have manually changed the
+names of the sensors, this should not effect you.
+* For 3 rate tariffs (e.g. Cosy), the peak based sensors will no longer track consumption/cost for both peak and standard rates. There is now a third sensor (standard) which tracks the middle rate. In addition, if you are on a tariff that doesn't have off peak, standard or peak rates, the current off peak/peak based sensors will no longer be provided by the integration.
+* If you were relying on datetime based sensor attributes or event properties being in UTC, you will
+need to adapt accordingly
+* If you were using tariff override rate information, you may need to adjust your use due to changes
+in how value is reported
+
 ## [10.3.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.3.0...v10.3.1) (2024-04-20)
 
 
