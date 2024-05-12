@@ -2,7 +2,7 @@ import pytest
 
 from homeassistant.util.dt import (as_utc, parse_datetime)
 from custom_components.octopus_energy.config.target_rates import validate_target_rate_config
-from custom_components.octopus_energy.const import CONFIG_TARGET_END_TIME, CONFIG_TARGET_HOURS, CONFIG_TARGET_MPAN, CONFIG_TARGET_NAME, CONFIG_TARGET_OFFSET, CONFIG_TARGET_START_TIME
+from custom_components.octopus_energy.const import CONFIG_TARGET_END_TIME, CONFIG_TARGET_HOURS, CONFIG_TARGET_MAX_RATE, CONFIG_TARGET_MIN_RATE, CONFIG_TARGET_MPAN, CONFIG_TARGET_NAME, CONFIG_TARGET_OFFSET, CONFIG_TARGET_START_TIME, CONFIG_TARGET_TYPE, CONFIG_TARGET_TYPE_CONTINUOUS, CONFIG_TARGET_TYPE_INTERMITTENT, CONFIG_TARGET_WEIGHTING
 
 non_agile_tariff = "E-1R-SUPER-GREEN-24M-21-07-30-C"
 agile_tariff = "E-1R-AGILE-FLEX-22-11-25-B"
@@ -28,6 +28,38 @@ def get_account_info(tariff_code: str = "E-1R-SUPER-GREEN-24M-21-07-30-C", is_ac
   }
 
 @pytest.mark.asyncio
+async def test_when_config_is_valid_no_errors_returned():
+  # Arrange
+  data = {
+    CONFIG_TARGET_TYPE: CONFIG_TARGET_TYPE_CONTINUOUS,
+    CONFIG_TARGET_NAME: "test",
+    CONFIG_TARGET_MPAN: mpan,
+    CONFIG_TARGET_HOURS: "1.5",
+    CONFIG_TARGET_START_TIME: "00:00",
+    CONFIG_TARGET_END_TIME: "00:00",
+    CONFIG_TARGET_OFFSET: "-00:30:00",
+    CONFIG_TARGET_MIN_RATE: "0",
+    CONFIG_TARGET_MAX_RATE: "10",
+    CONFIG_TARGET_WEIGHTING: "2,*,2"
+  }
+
+  account_info = get_account_info()
+
+  # Act
+  errors = validate_target_rate_config(data, account_info, now)
+
+  # Assert
+  assert CONFIG_TARGET_NAME not in errors
+  assert CONFIG_TARGET_MPAN not in errors
+  assert CONFIG_TARGET_HOURS not in errors
+  assert CONFIG_TARGET_START_TIME not in errors
+  assert CONFIG_TARGET_END_TIME not in errors
+  assert CONFIG_TARGET_OFFSET not in errors
+  assert CONFIG_TARGET_MIN_RATE not in errors
+  assert CONFIG_TARGET_MAX_RATE not in errors
+  assert CONFIG_TARGET_WEIGHTING not in errors
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("name,tariff",[
   ("", non_agile_tariff),
   ("Test", non_agile_tariff),
@@ -39,6 +71,7 @@ def get_account_info(tariff_code: str = "E-1R-SUPER-GREEN-24M-21-07-30-C", is_ac
 async def test_when_config_has_invalid_name_then_errors_returned(name, tariff):
   # Arrange
   data = {
+    CONFIG_TARGET_TYPE: CONFIG_TARGET_TYPE_CONTINUOUS,
     CONFIG_TARGET_NAME: name,
     CONFIG_TARGET_MPAN: mpan,
     CONFIG_TARGET_HOURS: "1.5",
@@ -61,6 +94,9 @@ async def test_when_config_has_invalid_name_then_errors_returned(name, tariff):
   assert CONFIG_TARGET_START_TIME not in errors
   assert CONFIG_TARGET_END_TIME not in errors
   assert CONFIG_TARGET_OFFSET not in errors
+  assert CONFIG_TARGET_MIN_RATE not in errors
+  assert CONFIG_TARGET_MAX_RATE not in errors
+  assert CONFIG_TARGET_WEIGHTING not in errors
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("hours,tariff",[
@@ -82,6 +118,7 @@ async def test_when_config_has_invalid_name_then_errors_returned(name, tariff):
 async def test_when_config_has_invalid_hours_then_errors_returned(hours, tariff):
   # Arrange
   data = {
+    CONFIG_TARGET_TYPE: CONFIG_TARGET_TYPE_CONTINUOUS,
     CONFIG_TARGET_NAME: "test",
     CONFIG_TARGET_MPAN: mpan,
     CONFIG_TARGET_HOURS: hours,
@@ -103,6 +140,9 @@ async def test_when_config_has_invalid_hours_then_errors_returned(hours, tariff)
   assert CONFIG_TARGET_START_TIME not in errors
   assert CONFIG_TARGET_END_TIME not in errors
   assert CONFIG_TARGET_OFFSET not in errors
+  assert CONFIG_TARGET_MIN_RATE not in errors
+  assert CONFIG_TARGET_MAX_RATE not in errors
+  assert CONFIG_TARGET_WEIGHTING not in errors
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("start_time,tariff",[
@@ -125,6 +165,7 @@ async def test_when_config_has_invalid_hours_then_errors_returned(hours, tariff)
 async def test_when_config_has_invalid_start_time_then_errors_returned(start_time, tariff):
   # Arrange
   data = {
+    CONFIG_TARGET_TYPE: CONFIG_TARGET_TYPE_CONTINUOUS,
     CONFIG_TARGET_NAME: "test",
     CONFIG_TARGET_MPAN: mpan,
     CONFIG_TARGET_HOURS: "1.5",
@@ -146,6 +187,9 @@ async def test_when_config_has_invalid_start_time_then_errors_returned(start_tim
   assert CONFIG_TARGET_HOURS not in errors
   assert CONFIG_TARGET_END_TIME not in errors
   assert CONFIG_TARGET_OFFSET not in errors
+  assert CONFIG_TARGET_MIN_RATE not in errors
+  assert CONFIG_TARGET_MAX_RATE not in errors
+  assert CONFIG_TARGET_WEIGHTING not in errors
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("end_time,tariff",[
@@ -168,6 +212,7 @@ async def test_when_config_has_invalid_start_time_then_errors_returned(start_tim
 async def test_when_config_has_invalid_end_time_then_errors_returned(end_time, tariff):
   # Arrange
   data = {
+    CONFIG_TARGET_TYPE: CONFIG_TARGET_TYPE_CONTINUOUS,
     CONFIG_TARGET_NAME: "test",
     CONFIG_TARGET_MPAN: mpan,
     CONFIG_TARGET_HOURS: "1.5",
@@ -189,6 +234,9 @@ async def test_when_config_has_invalid_end_time_then_errors_returned(end_time, t
   assert CONFIG_TARGET_HOURS not in errors
   assert CONFIG_TARGET_START_TIME not in errors
   assert CONFIG_TARGET_OFFSET not in errors
+  assert CONFIG_TARGET_MIN_RATE not in errors
+  assert CONFIG_TARGET_MAX_RATE not in errors
+  assert CONFIG_TARGET_WEIGHTING not in errors
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("offset,tariff",[
@@ -221,6 +269,7 @@ async def test_when_config_has_invalid_end_time_then_errors_returned(end_time, t
 async def test_when_config_has_invalid_offset_then_errors_returned(offset, tariff):
   # Arrange
   data = {
+    CONFIG_TARGET_TYPE: CONFIG_TARGET_TYPE_CONTINUOUS,
     CONFIG_TARGET_NAME: "test",
     CONFIG_TARGET_MPAN: mpan,
     CONFIG_TARGET_HOURS: "1.5",
@@ -242,6 +291,9 @@ async def test_when_config_has_invalid_offset_then_errors_returned(offset, tarif
   assert CONFIG_TARGET_HOURS not in errors
   assert CONFIG_TARGET_START_TIME not in errors
   assert CONFIG_TARGET_END_TIME not in errors
+  assert CONFIG_TARGET_MIN_RATE not in errors
+  assert CONFIG_TARGET_MAX_RATE not in errors
+  assert CONFIG_TARGET_WEIGHTING not in errors
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("start_time,end_time,tariff",[
@@ -253,6 +305,7 @@ async def test_when_config_has_invalid_offset_then_errors_returned(offset, tarif
 async def test_when_hours_exceed_selected_time_frame_then_errors_returned(start_time, end_time, tariff):
   # Arrange
   data = {
+    CONFIG_TARGET_TYPE: CONFIG_TARGET_TYPE_CONTINUOUS,
     CONFIG_TARGET_NAME: "test",
     CONFIG_TARGET_MPAN: mpan,
     CONFIG_TARGET_HOURS: "1.5",
@@ -274,6 +327,9 @@ async def test_when_hours_exceed_selected_time_frame_then_errors_returned(start_
   assert CONFIG_TARGET_START_TIME not in errors
   assert CONFIG_TARGET_END_TIME not in errors
   assert CONFIG_TARGET_OFFSET not in errors
+  assert CONFIG_TARGET_MIN_RATE not in errors
+  assert CONFIG_TARGET_MAX_RATE not in errors
+  assert CONFIG_TARGET_WEIGHTING not in errors
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("tariff",[
@@ -283,6 +339,7 @@ async def test_when_hours_exceed_selected_time_frame_then_errors_returned(start_
 async def test_when_mpan_not_found_then_errors_returned(tariff):
   # Arrange
   data = {
+    CONFIG_TARGET_TYPE: CONFIG_TARGET_TYPE_CONTINUOUS,
     CONFIG_TARGET_NAME: "test",
     CONFIG_TARGET_MPAN: mpan,
     CONFIG_TARGET_HOURS: "1.5",
@@ -304,6 +361,9 @@ async def test_when_mpan_not_found_then_errors_returned(tariff):
   assert CONFIG_TARGET_START_TIME not in errors
   assert CONFIG_TARGET_END_TIME not in errors
   assert CONFIG_TARGET_OFFSET not in errors
+  assert CONFIG_TARGET_MIN_RATE not in errors
+  assert CONFIG_TARGET_MAX_RATE not in errors
+  assert CONFIG_TARGET_WEIGHTING not in errors
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("start_time,end_time",[
@@ -314,6 +374,7 @@ async def test_when_mpan_not_found_then_errors_returned(tariff):
 async def test_when_select_mpan_agile_tariff_and_invalid_hours_picked_not_found_then_errors_returned(start_time, end_time):
   # Arrange
   data = {
+    CONFIG_TARGET_TYPE: CONFIG_TARGET_TYPE_CONTINUOUS,
     CONFIG_TARGET_NAME: "test",
     CONFIG_TARGET_MPAN: mpan,
     CONFIG_TARGET_HOURS: "1.5",
@@ -335,6 +396,9 @@ async def test_when_select_mpan_agile_tariff_and_invalid_hours_picked_not_found_
   assert CONFIG_TARGET_HOURS not in errors
   assert CONFIG_TARGET_START_TIME not in errors
   assert CONFIG_TARGET_OFFSET not in errors
+  assert CONFIG_TARGET_MIN_RATE not in errors
+  assert CONFIG_TARGET_MAX_RATE not in errors
+  assert CONFIG_TARGET_WEIGHTING not in errors
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("start_time,end_time,offset",[
@@ -344,6 +408,7 @@ async def test_when_select_mpan_agile_tariff_and_invalid_hours_picked_not_found_
 async def test_when_config_is_valid_and_not_agile_then_no_errors_returned(start_time, end_time, offset):
   # Arrange
   data = {
+    CONFIG_TARGET_TYPE: CONFIG_TARGET_TYPE_CONTINUOUS,
     CONFIG_TARGET_NAME: "test",
     CONFIG_TARGET_MPAN: mpan,
     CONFIG_TARGET_HOURS: "1.5",
@@ -370,6 +435,9 @@ async def test_when_config_is_valid_and_not_agile_then_no_errors_returned(start_
   assert CONFIG_TARGET_START_TIME not in errors
   assert CONFIG_TARGET_END_TIME not in errors
   assert CONFIG_TARGET_OFFSET not in errors
+  assert CONFIG_TARGET_MIN_RATE not in errors
+  assert CONFIG_TARGET_MAX_RATE not in errors
+  assert CONFIG_TARGET_WEIGHTING not in errors
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("start_time,end_time,offset",[
@@ -413,3 +481,74 @@ async def test_when_config_is_valid_and_agile_then_no_errors_returned(start_time
   assert CONFIG_TARGET_START_TIME not in errors
   assert CONFIG_TARGET_END_TIME not in errors
   assert CONFIG_TARGET_OFFSET not in errors
+  assert CONFIG_TARGET_MIN_RATE not in errors
+  assert CONFIG_TARGET_MAX_RATE not in errors
+  assert CONFIG_TARGET_WEIGHTING not in errors
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("weighting,expected_error",[
+  ("*", "invalid_weighting"),
+  ("*,*", "invalid_weighting"),
+  ("1,*,1,*", "invalid_weighting"),
+  ("1,2", "invalid_weighting_slots"),
+  ("1,2,3,4", "invalid_weighting_slots"),
+])
+async def test_when_weighting_is_invalid_then_weighting_error_returned(weighting, expected_error):
+  # Arrange
+  data = {
+    CONFIG_TARGET_TYPE: CONFIG_TARGET_TYPE_CONTINUOUS,
+    CONFIG_TARGET_NAME: "test",
+    CONFIG_TARGET_MPAN: mpan,
+    CONFIG_TARGET_HOURS: "1.5",
+    CONFIG_TARGET_WEIGHTING: weighting
+  }
+
+  account_info = get_account_info()
+
+  # Act
+  errors = validate_target_rate_config(data, account_info, now)
+
+  # Assert
+  assert CONFIG_TARGET_WEIGHTING in errors
+  assert errors[CONFIG_TARGET_WEIGHTING] == expected_error
+
+  assert CONFIG_TARGET_NAME not in errors
+  assert CONFIG_TARGET_MPAN not in errors
+  assert CONFIG_TARGET_HOURS not in errors
+  assert CONFIG_TARGET_START_TIME not in errors
+  assert CONFIG_TARGET_END_TIME not in errors
+  assert CONFIG_TARGET_OFFSET not in errors
+  assert CONFIG_TARGET_MIN_RATE not in errors
+  assert CONFIG_TARGET_MAX_RATE not in errors
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("type",[
+  (CONFIG_TARGET_TYPE_INTERMITTENT),
+])
+async def test_when_weighting_set_and_type_invalid_then_weighting_error_returned(type):
+  # Arrange
+  data = {
+    CONFIG_TARGET_TYPE: type,
+    CONFIG_TARGET_NAME: "test",
+    CONFIG_TARGET_MPAN: mpan,
+    CONFIG_TARGET_HOURS: "1.5",
+    CONFIG_TARGET_WEIGHTING: "1,2,3"
+  }
+
+  account_info = get_account_info()
+
+  # Act
+  errors = validate_target_rate_config(data, account_info, now)
+
+  # Assert
+  assert CONFIG_TARGET_WEIGHTING in errors
+  assert errors[CONFIG_TARGET_WEIGHTING] == "weighting_not_supported"
+
+  assert CONFIG_TARGET_NAME not in errors
+  assert CONFIG_TARGET_MPAN not in errors
+  assert CONFIG_TARGET_HOURS not in errors
+  assert CONFIG_TARGET_START_TIME not in errors
+  assert CONFIG_TARGET_END_TIME not in errors
+  assert CONFIG_TARGET_OFFSET not in errors
+  assert CONFIG_TARGET_MIN_RATE not in errors
+  assert CONFIG_TARGET_MAX_RATE not in errors

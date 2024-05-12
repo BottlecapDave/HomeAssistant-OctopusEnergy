@@ -61,7 +61,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Gas {self._serial_number} {self._mprn} Previous Accumulative Consumption (kWh)"
+    return f"Previous Accumulative Consumption (kWh) Gas ({self._serial_number}/{self._mprn})"
 
   @property
   def device_class(self):
@@ -133,8 +133,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
         consumption_and_cost["charges"],
         rate_data,
         UnitOfEnergy.KILO_WATT_HOUR,
-        "consumption_kwh",
-        False
+        "consumption_kwh"
       )
 
       self._state = consumption_and_cost["total_consumption_kwh"]
@@ -158,6 +157,8 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
     if result is not None:
       self._attributes["data_last_retrieved"] = result.last_retrieved
       self._attributes["latest_available_data_timestamp"] = result.latest_available_timestamp
+    
+    self._attributes = dict_to_typed_dict(self._attributes)
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

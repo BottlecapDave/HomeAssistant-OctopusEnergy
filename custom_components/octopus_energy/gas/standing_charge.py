@@ -40,7 +40,7 @@ class OctopusEnergyGasCurrentStandingCharge(CoordinatorEntity, OctopusEnergyGasS
   @property
   def name(self):
     """Name of the sensor."""
-    return f'Gas {self._serial_number} {self._mprn} Current Standing Charge'
+    return f'Current Standing Charge Gas ({self._serial_number}/{self._mprn})'
   
   @property
   def state_class(self):
@@ -88,6 +88,7 @@ class OctopusEnergyGasCurrentStandingCharge(CoordinatorEntity, OctopusEnergyGasS
     else:
       self._state = None
 
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

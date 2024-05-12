@@ -1,5 +1,7 @@
 from datetime import (datetime, timedelta)
 
+from homeassistant.util.dt import (as_local, as_utc)
+
 from ..utils.conversions import value_inc_vat_to_pounds
 
 def get_current_rate_information(rates, now: datetime):
@@ -167,3 +169,65 @@ def get_min_max_average_rates(rates: list):
     # Round as there can be some minor inaccuracies with floats :(
     "average": round(average_rate / len(rates) if rates is not None and len(rates) > 0 else 1, 8)
   }
+
+def get_unique_rates(current: datetime, rates: list):
+  # Need to use as local to ensure we get the correct from/to periods relative to our local time
+  today_start = as_utc(as_local(current).replace(hour=0, minute=0, second=0, microsecond=0))
+  today_end = today_start + timedelta(days=1)
+
+  rate_charges = []
+  if rates is not None:
+    for rate in rates:
+      if rate["start"] >= today_start and rate["end"] <= today_end:
+        value = rate["value_inc_vat"]
+        if value not in rate_charges:
+          rate_charges.append(value)
+
+  rate_charges.sort()
+
+  return rate_charges
+
+def has_peak_rates(total_unique_rates: int):
+  return total_unique_rates == 2 or total_unique_rates == 3
+
+def get_peak_type(total_unique_rates: int, unique_rate_index: int):
+  if has_peak_rates(total_unique_rates) == False:
+    return None
+
+  if unique_rate_index == 0:
+    return "off_peak"
+  elif unique_rate_index == 1:
+    if (total_unique_rates == 2):
+      return "peak"
+    else:
+      return "standard"
+  elif total_unique_rates > 2 and unique_rate_index == 2:
+    return "peak"
+  
+  return None
+
+def get_rate_index(total_unique_rates: int, peak_type: str | None):
+  if has_peak_rates(total_unique_rates) == False:
+    return None
+
+  if peak_type == "off_peak":
+    return 0
+  if peak_type == "standard":
+    return 1
+  if peak_type == "peak":
+    if total_unique_rates == 2:
+      return 1
+    else:
+      return 2
+    
+  return None
+
+def get_peak_name(peak_type: str):
+  if (peak_type == "off_peak"):
+    return "Off Peak"
+  if (peak_type == "peak"):
+    return "Peak"
+  if (peak_type == "standard"):
+    return "Standard"
+  
+  return None

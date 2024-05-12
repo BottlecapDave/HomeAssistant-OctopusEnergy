@@ -24,16 +24,18 @@ from ..utils import get_off_peak_times
 from .base import OctopusEnergyIntelligentSensor
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
+from ..api_client.intelligent_device import IntelligentDevice
+from ..coordinators import MultiCoordinatorEntity
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
+class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
   """Sensor for determining if an intelligent is dispatching."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, mpan: str, device, account_id: str, planned_dispatches_supported: bool):
+  def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, mpan: str, device: IntelligentDevice, account_id: str, planned_dispatches_supported: bool):
     """Init sensor."""
 
-    CoordinatorEntity.__init__(self, coordinator)
+    MultiCoordinatorEntity.__init__(self, coordinator, [rates_coordinator])
     OctopusEnergyIntelligentSensor.__init__(self, device)
   
     self._rates_coordinator = rates_coordinator
@@ -41,18 +43,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
     self._account_id = account_id
     self._state = None
     self._planned_dispatches_supported = planned_dispatches_supported
-    self._attributes = {
-      "planned_dispatches": [],
-      "completed_dispatches": [],
-      "last_evaluated": None,
-      "provider": device["provider"],
-      "vehicle_battery_size_in_kwh": device["vehicleBatterySizeInKwh"],
-      "charge_point_power_in_kw": device["chargePointPowerInKw"],
-      "current_start": None,
-      "current_end": None,
-      "next_start": None,
-      "next_end": None,
-    }
+    self.__init_attributes__([], [], None, None)
 
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
 
@@ -64,7 +55,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy {self._account_id} Intelligent Dispatching"
+    return f"Intelligent Dispatching ({self._account_id})"
 
   @property
   def icon(self):
@@ -80,6 +71,21 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
   def is_on(self):
     return self._state
   
+  def __init_attributes__(self, planned_dispatches, completed_dispatches, data_last_retrieved, last_evaluated):
+    self._attributes = {
+      "planned_dispatches": planned_dispatches,
+      "completed_dispatches": completed_dispatches,
+      "data_last_retrieved": data_last_retrieved,
+      "last_evaluated": last_evaluated,
+      "provider": self._device.provider,
+      "vehicle_battery_size_in_kwh": self._device.vehicleBatterySizeInKwh,
+      "charge_point_power_in_kw": self._device.chargePointPowerInKw,
+      "current_start": None,
+      "current_end": None,
+      "next_start": None,
+      "next_end": None,
+    }
+  
   @callback
   def _handle_coordinator_update(self) -> None:
     """Determine if OE is currently dispatching energy."""
@@ -89,16 +95,12 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
     current_date = utcnow()
     planned_dispatches = result.dispatches.planned if result is not None and result.dispatches is not None and self._planned_dispatches_supported else []
     
-    self._attributes = {
-      "planned_dispatches": dispatches_to_dictionary_list(planned_dispatches) if result is not None else [],
-      "completed_dispatches": dispatches_to_dictionary_list(result.dispatches.completed if result is not None and result.dispatches is not None else []) if result is not None else [],
-      "data_last_retrieved": result.last_retrieved if result is not None else None,
-      "last_evaluated": current_date,
-      "current_start": None,
-      "current_end": None,
-      "next_start": None,
-      "next_end": None,
-    }
+    self.__init_attributes__(
+      dispatches_to_dictionary_list(planned_dispatches) if result is not None else [],
+      dispatches_to_dictionary_list(result.dispatches.completed if result is not None and result.dispatches is not None else []) if result is not None else [],
+      result.last_retrieved if result is not None else None,
+      current_date
+    )
 
     off_peak_times = get_off_peak_times(current_date, rates, True)
     is_dispatching = False
@@ -119,6 +121,7 @@ class OctopusEnergyIntelligentDispatching(CoordinatorEntity, BinarySensorEntity,
 
     self._state = is_dispatching
 
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

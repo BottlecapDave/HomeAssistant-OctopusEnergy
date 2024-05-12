@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+import math
 
 import voluptuous as vol
 
@@ -22,6 +23,8 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers import translation
 
 from ..const import (
+  CONFIG_TARGET_MAX_RATE,
+  CONFIG_TARGET_MIN_RATE,
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_HOURS,
   CONFIG_TARGET_OLD_END_TIME,
@@ -37,6 +40,9 @@ from ..const import (
   CONFIG_TARGET_LAST_RATES,
   CONFIG_TARGET_INVERT_TARGET_RATES,
   CONFIG_TARGET_OFFSET,
+  CONFIG_TARGET_TYPE_CONTINUOUS,
+  CONFIG_TARGET_TYPE_INTERMITTENT,
+  CONFIG_TARGET_WEIGHTING,
   DATA_ACCOUNT,
   DOMAIN,
 )
@@ -44,6 +50,7 @@ from ..const import (
 from . import (
   calculate_continuous_times,
   calculate_intermittent_times,
+  create_weighting,
   get_applicable_rates,
   get_target_rate_info
 )
@@ -171,6 +178,14 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
           if (CONFIG_TARGET_INVERT_TARGET_RATES in self._config):
             invert_target_rates = self._config[CONFIG_TARGET_INVERT_TARGET_RATES]
 
+          min_rate = None
+          if CONFIG_TARGET_MIN_RATE in self._config:
+            min_rate = self._config[CONFIG_TARGET_MIN_RATE]
+
+          max_rate = None
+          if CONFIG_TARGET_MAX_RATE in self._config:
+            max_rate = self._config[CONFIG_TARGET_MAX_RATE]
+
           find_highest_rates = (self._is_export and invert_target_rates == False) or (self._is_export == False and invert_target_rates)
 
           applicable_rates = get_applicable_rates(
@@ -180,20 +195,28 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
             all_rates,
             is_rolling_target
           )
+          
+          number_of_slots = math.ceil(target_hours * 2)
+          weighting = create_weighting(self._config[CONFIG_TARGET_WEIGHTING] if CONFIG_TARGET_WEIGHTING in self._config else None, number_of_slots)
 
-          if (self._config[CONFIG_TARGET_TYPE] == "Continuous"):
+          if (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_CONTINUOUS):
             self._target_rates = calculate_continuous_times(
               applicable_rates,
               target_hours,
               find_highest_rates,
-              find_last_rates
+              find_last_rates,
+              min_rate,
+              max_rate,
+              weighting
             )
-          elif (self._config[CONFIG_TARGET_TYPE] == "Intermittent"):
+          elif (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_INTERMITTENT):
             self._target_rates = calculate_intermittent_times(
               applicable_rates,
               target_hours,
               find_highest_rates,
-              find_last_rates
+              find_last_rates,
+              min_rate,
+              max_rate
             )
           else:
             _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")
@@ -224,6 +247,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     self._state = active_result["is_active"]
 
     _LOGGER.debug(f"calculated: {self._state}")
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
   
   async def async_added_to_hass(self):
@@ -244,7 +268,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       _LOGGER.debug(f'Restored OctopusEnergyTargetRate state: {self._state}')
 
   @callback
-  async def async_update_config(self, target_start_time=None, target_end_time=None, target_hours=None, target_offset=None):
+  async def async_update_config(self, target_start_time=None, target_end_time=None, target_hours=None, target_offset=None, target_minimum_rate=None, target_maximum_rate=None, target_weighting=None):
     """Update sensors config"""
 
     config = dict(self._config)
@@ -274,6 +298,27 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       trimmed_target_offset = target_offset.strip('\"')
       config.update({
         CONFIG_TARGET_OFFSET: trimmed_target_offset
+      })
+
+    if target_minimum_rate is not None:
+      # Inputs from automations can include quotes, so remove these
+      trimmed_target_minimum_rate = target_minimum_rate.strip('\"')
+      config.update({
+        CONFIG_TARGET_MIN_RATE: trimmed_target_minimum_rate if trimmed_target_minimum_rate != "" else None
+      })
+
+    if target_maximum_rate is not None:
+      # Inputs from automations can include quotes, so remove these
+      trimmed_target_maximum_rate = target_maximum_rate.strip('\"')
+      config.update({
+        CONFIG_TARGET_MAX_RATE: trimmed_target_maximum_rate if trimmed_target_maximum_rate != "" else None
+      })
+
+    if target_weighting is not None:
+      # Inputs from automations can include quotes, so remove these
+      trimmed_target_weighting = target_weighting.strip('\"')
+      config.update({
+        CONFIG_TARGET_WEIGHTING: trimmed_target_weighting if trimmed_target_weighting != "" else None
       })
 
     account_result = self._hass.data[DOMAIN][self._account_id][DATA_ACCOUNT]

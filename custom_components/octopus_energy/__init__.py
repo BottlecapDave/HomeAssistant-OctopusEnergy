@@ -55,6 +55,12 @@ _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(minutes=1)
 
+async def async_remove_config_entry_device(
+  hass, config_entry, device_entry
+) -> bool:
+  """Remove a config entry from a device."""
+  return True
+
 async def async_migrate_entry(hass, config_entry):
   """Migrate old entry."""
   if (config_entry.version < CONFIG_VERSION):
@@ -254,9 +260,10 @@ async def async_setup_dependencies(hass, config):
     else:
       intelligent_device = await client.async_get_intelligent_device(account_id)
 
-    hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] = intelligent_device
-    hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] = intelligent_mpan
-    hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] = intelligent_serial_number
+    if intelligent_device is not None:
+      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] = intelligent_device
+      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] = intelligent_mpan
+      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] = intelligent_serial_number
 
   for point in account_info["electricity_meter_points"]:
     # We only care about points that have active agreements
@@ -268,7 +275,7 @@ async def async_setup_dependencies(hass, config):
         is_export_meter = meter["is_export"]
         is_smart_meter = meter["is_smart_meter"]
         tariff_override = await async_get_tariff_override(hass, mpan, serial_number)
-        planned_dispatches_supported = get_intelligent_features(intelligent_device["provider"]).planned_dispatches_supported if intelligent_device is not None else True
+        planned_dispatches_supported = get_intelligent_features(intelligent_device.provider).planned_dispatches_supported if intelligent_device is not None else True
         await async_setup_electricity_rates_coordinator(hass, account_id, mpan, serial_number, is_smart_meter, is_export_meter, planned_dispatches_supported, tariff_override)
 
   await async_setup_account_info_coordinator(hass, account_id)

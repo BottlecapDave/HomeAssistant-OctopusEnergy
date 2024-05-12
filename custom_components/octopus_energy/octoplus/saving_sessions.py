@@ -58,7 +58,7 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy {self._account_id} Octoplus Saving Session"
+    return f"Octoplus Saving Session ({self._account_id})"
 
   @property
   def icon(self):
@@ -112,6 +112,7 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
       self._attributes["next_joined_event_duration_in_minutes"] = next_event.duration_in_minutes
 
     self._attributes["last_evaluated"] = current_date
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

@@ -207,61 +207,54 @@ Each charge item has the following attributes
 | `end` | `datetime` | The date/time when the consumption ends |
 | `consumption` | `float` | The consumption value of the specified period |
 
-### Previous Accumulative Consumptions (Peak Rate) 
+#### Variants
 
-`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_peak`
+The following variants of the [Previous Accumulative Consumption](#previous-accumulative-consumption) are available.
 
-The total consumption reported by the meter for the previous day that applied during peak hours. This will only be populated if you're on a tariff with two available rates.
-
-!!! note
-    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
-
-!!! info
-
-    This retrieves the data reported directly by the meter which is used to calculate your bill. If you have an Octopus Home Mini (or similar), then data reported by this device will not be exposed in this sensor. This is to avoid confusion when comparing the data against your bill and to provide consistency between users with and without an Octopus Home Mini.
-
-!!! warning
-
-    This data won't necessarily be available at the stroke of midnight. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. 
-    
-    Because this sensor only looks at the previous day, if the data takes longer than 24 hours to populate then the sensor will not update. This can be determined by looking at the `data_last_retrieved` attribute which indicates when the data was last retrieved. For example, if the current day is 02/01/2024, it will look at data for 01/01/2024. If the data for 01/01/2024 doesn't populate until 03/01/2024 then the sensor will not update.
-
-    If your data is always behind, you can adjust the number of days that the sensor looks back by [updating integrations config](../setup/account.md#previous-consumption-days-offset).
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `mpan` | `string` | The mpan for the associated meter |
-| `serial_number` | `string` | The serial for the associated meter |
-| `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
-| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
-
-### Previous Accumulative Consumption (Off Peak Rate) 
+##### Off Peak
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_off_peak`
 
-The total consumption reported by the meter for the previous day that applied during off peak hours. This will only be populated if you're on a tariff with two available rates.
+The total consumption reported by the meter for the previous day during off peak hours (the lowest available rate).
 
 !!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
-!!! info
+##### Standard
 
-    This retrieves the data reported directly by the meter which is used to calculate your bill. If you have an Octopus Home Mini (or similar), then data reported by this device will not be exposed in this sensor. This is to avoid confusion when comparing the data against your bill and to provide consistency between users with and without an Octopus Home Mini.
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_standard`
 
-!!! warning
+The total consumption reported by the meter for the previous day during standard hours (the middle rate).
 
-    This data won't necessarily be available at the stroke of midnight. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. 
+!!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
     
-    Because this sensor only looks at the previous day, if the data takes longer than 24 hours to populate then the sensor will not update. This can be determined by looking at the `data_last_retrieved` attribute which indicates when the data was last retrieved. For example, if the current day is 02/01/2024, it will look at data for 01/01/2024. If the data for 01/01/2024 doesn't populate until 03/01/2024 then the sensor will not update.
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
 
-    If your data is always behind, you can adjust the number of days that the sensor looks back by [updating integrations config](../setup/account.md#previous-consumption-days-offset).
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `mpan` | `string` | The mpan for the associated meter |
-| `serial_number` | `string` | The serial for the associated meter |
-| `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
-| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+##### Peak
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_peak`
+
+The total consumption reported by the meter for the previous day during peak hours (the highest available rate).
+
+!!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 ### Previous Accumulative Cost
 
@@ -305,61 +298,54 @@ Each charge item has the following attributes
 | `consumption` | `float` | The consumption value of the specified period |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
 
-### Previous Accumulative Cost (Peak Rate) 
+#### Variants
 
-`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_peak`
+The following variants of the [Previous Accumulative Cost](#previous-accumulative-cost) are available.
 
-The total cost for the previous day that applied during peak hours. This will only be populated if you're on a tariff with two available rates.
-
-!!! note
-    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
-
-!!! info
-
-    This retrieves the data reported directly by the meter which is used to calculate your bill. If you have an Octopus Home Mini (or similar), then data reported by this device will not be exposed in this sensor. This is to avoid confusion when comparing the data against your bill and to provide consistency between users with and without an Octopus Home Mini.
-
-!!! warning
-
-    This data won't necessarily be available at the stroke of midnight. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. 
-    
-    Because this sensor only looks at the previous day, if the data takes longer than 24 hours to populate then the sensor will not update. This can be determined by looking at the `data_last_retrieved` attribute which indicates when the data was last retrieved. For example, if the current day is 02/01/2024, it will look at data for 01/01/2024. If the data for 01/01/2024 doesn't populate until 03/01/2024 then the sensor will not update.
-
-    If your data is always behind, you can adjust the number of days that the sensor looks back by [updating integrations config](../setup/account.md#previous-consumption-days-offset).
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `mpan` | `string` | The mpan for the associated meter |
-| `serial_number` | `string` | The serial for the associated meter |
-| `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
-| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
-
-### Previous Accumulative Cost (Off Peak Rate) 
+##### Off Peak
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_off_peak`
 
-The total cost for the previous day that applied during off peak hours. This will only be populated if you're on a tariff with two available rates.
+The total cost reported by the meter for the previous day during off peak hours (the lowest available rate).
 
 !!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
-!!! info
+##### Standard
 
-    This retrieves the data reported directly by the meter which is used to calculate your bill. If you have an Octopus Home Mini (or similar), then data reported by this device will not be exposed in this sensor. This is to avoid confusion when comparing the data against your bill and to provide consistency between users with and without an Octopus Home Mini.
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_standard`
 
-!!! warning
+The total cost reported by the meter for the previous day during standard hours (the middle rate).
 
-    This data won't necessarily be available at the stroke of midnight. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. 
+!!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
     
-    Because this sensor only looks at the previous day, if the data takes longer than 24 hours to populate then the sensor will not update. This can be determined by looking at the `data_last_retrieved` attribute which indicates when the data was last retrieved. For example, if the current day is 02/01/2024, it will look at data for 01/01/2024. If the data for 01/01/2024 doesn't populate until 03/01/2024 then the sensor will not update.
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
 
-    If your data is always behind, you can adjust the number of days that the sensor looks back by [updating integrations config](../setup/account.md#previous-consumption-days-offset).
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `mpan` | `string` | The mpan for the associated meter |
-| `serial_number` | `string` | The serial for the associated meter |
-| `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
-| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+##### Peak
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_peak`
+
+The total cost reported by the meter for the previous day during peak hours (the highest available rate).
+
+!!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 ## Previous Consumption Day Rates
 
@@ -453,49 +439,72 @@ Each charge item has the following attributes
 | `end` | `datetime` | The date/time when the consumption ends |
 | `consumption` | `float` | The consumption value of the specified period |
 
-### Current Accumulative Consumptions (Peak Rate) 
+#### Variants
 
-`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption_peak`
+The following variants of the [Current Accumulative Consumption](#current-accumulative-consumption) are available.
 
-!!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
-
-!!! info
-    An export equivalent of this sensor does not exist because the data is not available
-
-The total consumption reported by the meter for the current day that applied during peak hours. This will only be populated if you're on a tariff with two available rates.
-
-!!! note
-    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `mpan` | `string` | The mpan for the associated meter |
-| `serial_number` | `string` | The serial for the associated meter |
-| `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
-| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
-
-### Current Accumulative Consumption (Off Peak Rate) 
+##### Off Peak
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption_off_peak`
 
+The total consumption reported by the meter for the current day during off peak hours (the lowest available rate).
+
+!!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
 !!! warning
     This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
 
-The total consumption reported by the meter for the current day that applied during off peak hours. This will only be populated if you're on a tariff with two available rates.
+##### Standard
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption_standard`
+
+The total consumption reported by the meter for the current day during standard hours (the middle rate).
 
 !!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `mpan` | `string` | The mpan for the associated meter |
-| `serial_number` | `string` | The serial for the associated meter |
-| `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
-| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
+
+##### Peak
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption_peak`
+
+The total consumption reported by the meter for the current day during peak hours (the highest available rate).
+
+!!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
 
 ### Current Accumulative Cost
 
@@ -531,49 +540,72 @@ Each charge item has the following attributes
 | `consumption` | `float` | The consumption value of the specified period |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
 
-### Current Accumulative Cost (Peak Rate) 
+#### Variants
 
-`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost_peak`
+The following variants of the [Current Accumulative Cost](#current-accumulative-cost) are available.
 
-!!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
-
-!!! info
-    An export equivalent of this sensor does not exist because the data is not available
-
-The total cost for the current day that applied during peak hours. This will only be populated if you're on a tariff with two available rates.
-
-!!! note
-    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `mpan` | `string` | The mpan for the associated meter |
-| `serial_number` | `string` | The serial for the associated meter |
-| `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
-| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
-
-### Current Accumulative Cost (Off Peak Rate) 
+##### Off Peak
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost_off_peak`
 
+The total cost reported by the meter for the current day during off peak hours (the lowest available rate).
+
+!!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
 !!! warning
     This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
 
-The total cost for the current day that applied during off peak hours. This will only be populated if you're on a tariff with two available rates.
+##### Standard
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost_standard`
+
+The total cost reported by the meter for the current day during standard hours (the middle rate).
 
 !!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `mpan` | `string` | The mpan for the associated meter |
-| `serial_number` | `string` | The serial for the associated meter |
-| `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
-| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
+
+##### Peak
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost_peak`
+
+The total cost reported by the meter for the current day during peak hours (the highest available rate).
+
+!!! note
+    This is only available when on a tariff with 2 or 3 unique rates during a given day. 
+    
+    If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.
+
+    If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
+
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
 
 ## Tariff Overrides
 

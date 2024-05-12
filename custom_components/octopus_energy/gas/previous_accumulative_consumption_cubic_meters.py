@@ -66,7 +66,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEnti
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Gas {self._serial_number} {self._mprn} Previous Accumulative Consumption"
+    return f"Previous Accumulative Consumption Gas ({self._serial_number}/{self._mprn})"
 
   @property
   def device_class(self):
@@ -138,8 +138,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEnti
         consumption_and_cost["charges"],
         rate_data,
         UnitOfVolume.CUBIC_METERS,
-        "consumption_m3",
-        False
+        "consumption_m3"
       )
 
       self._state = consumption_and_cost["total_consumption_m3"]
@@ -166,6 +165,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEnti
       self._attributes["data_last_retrieved"] = result.last_retrieved
       self._attributes["latest_available_data_timestamp"] = result.latest_available_timestamp
 
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

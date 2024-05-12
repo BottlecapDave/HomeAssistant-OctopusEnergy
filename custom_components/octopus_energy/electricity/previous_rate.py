@@ -53,7 +53,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Rate"
+    return f"Previous Rate {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})"
 
   @property
   def state_class(self):
@@ -125,6 +125,7 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
       self._attributes["data_last_retrieved"] = rates_result.last_retrieved
 
     self._attributes["last_evaluated"] = current
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

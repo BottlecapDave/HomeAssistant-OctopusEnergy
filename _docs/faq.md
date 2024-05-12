@@ -16,7 +16,7 @@ Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-
 | Wheel of fortune | 60 | Doesn't change that frequently, and not fundamental for a smart home (other than knowledge) so no need to request too often. |
 | Greenness Forecast | 180 | Doesn't change frequently |
 
-If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly waiting longer between each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.
+If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly waiting longer between each attempt, to a maximum of 30 minutes between each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.
 
 | Attempt | Target time |
 |-|-|
@@ -84,7 +84,7 @@ Naming things are hard. The entity ids are long for the following reasons
 
 * The serial number and mpan/mprn is present because the data that comes back from OE is in an array of arrays. I am only on an import tariff, so couldn't guarantee that any of these were unique and didn't want to assume anything. Turns out one of these is duplicated between import/export meters so if I had picked one of these I would have been wrong and had a clash.
 
-* The account id is present in other sensors because it is on the roadmap to support multiple accounts (which the serial number/mpan/mprn also play apart in).
+* The account id is present in other sensors in order to support multiple accounts (which the serial number/mpan/mprn also play apart in).
 
 The names of the entities are equally long for consistency with the entity id and so that you can tell one entity apart from another in the above scenarios.
 

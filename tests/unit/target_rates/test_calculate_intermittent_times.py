@@ -306,3 +306,88 @@ async def test_when_available_rates_are_too_low_then_no_times_are_returned():
   # Assert
   assert result is not None
   assert len(result) == 0
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("target_hours,expected_valid_froms,expected_rates",[
+  (0.5, [datetime.strptime("2022-10-22T16:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")], [0.191]),
+  (1, [datetime.strptime("2022-10-22T16:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2022-10-22T19:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")], [0.191, 0.191]),
+])
+async def test_when_min_rate_is_provided_then_result_does_not_include_any_rate_below_min_rate(target_hours: float, expected_valid_froms: datetime, expected_rates: list):
+  # Arrange
+  current_date = datetime.strptime("2022-10-22T16:10:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  target_start_time = "16:00"
+  target_end_time = "16:00"
+  min_rate = 0.19
+
+  rates = create_rate_data(
+    datetime.strptime("2022-10-22T16:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2022-10-23T16:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    [19.1, 18.9, 19.5, 17.9, 16.5, 20.1]
+  )
+
+  applicable_rates = get_applicable_rates(
+    current_date,
+    target_start_time,
+    target_end_time,
+    rates,
+    False
+  )
+
+  # Act
+  result = calculate_intermittent_times(
+    applicable_rates,
+    target_hours,
+    min_rate=min_rate
+  )
+
+  # Assert
+  assert result is not None
+  assert len(result) == len(expected_rates)
+
+  for index in range(0, len(expected_rates)):
+    assert result[index]["start"] == expected_valid_froms[index]
+    assert result[index]["end"] == expected_valid_froms[index] + timedelta(minutes=30)
+    assert result[index]["value_inc_vat"] == expected_rates[index]
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("target_hours,expected_valid_froms,expected_rates",[
+  (0.5, [datetime.strptime("2022-10-22T17:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")], [0.195]),
+  (1, [datetime.strptime("2022-10-22T17:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2022-10-22T20:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")], [0.195, 0.195]),
+])
+async def test_when_max_rate_is_provided_then_result_does_not_include_any_rate_below_max_rate(target_hours: float, expected_valid_froms: datetime, expected_rates: list):
+  # Arrange
+  current_date = datetime.strptime("2022-10-22T16:10:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  target_start_time = "16:00"
+  target_end_time = "16:00"
+  max_rate = 0.20
+
+  rates = create_rate_data(
+    datetime.strptime("2022-10-22T16:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2022-10-23T16:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    [19.1, 18.9, 19.5, 17.9, 16.5, 20.1]
+  )
+
+  applicable_rates = get_applicable_rates(
+    current_date,
+    target_start_time,
+    target_end_time,
+    rates,
+    False
+  )
+
+  # Act
+  result = calculate_intermittent_times(
+    applicable_rates,
+    target_hours,
+    True,
+    max_rate=max_rate
+  )
+
+  # Assert
+  assert result is not None
+  assert len(result) == len(expected_rates)
+
+  for index in range(0, len(expected_rates)):
+    assert result[index]["start"] == expected_valid_froms[index]
+    assert result[index]["end"] == expected_valid_froms[index] + timedelta(minutes=30)
+    assert result[index]["value_inc_vat"] == expected_rates[index]

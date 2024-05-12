@@ -118,6 +118,9 @@ def accumulate_cost(current: datetime, accumulative_data: list, new_cost: float,
       "consumption": new_consumption,
     })
 
+    total_consumption += new_consumption
+    total_cost += new_cost
+
   return AccumulativeCostTrackerResult(new_accumulative_data, total_consumption, total_cost)
 
   

@@ -66,7 +66,6 @@ async def async_refresh_previous_electricity_consumption_data(
     rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
 
     consumption_and_cost = calculate_electricity_consumption_and_cost(
-      period_from,
       consumption_data,
       rates,
       0,

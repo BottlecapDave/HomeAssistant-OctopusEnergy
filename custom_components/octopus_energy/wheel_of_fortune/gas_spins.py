@@ -46,7 +46,7 @@ class OctopusEnergyWheelOfFortuneGasSpins(CoordinatorEntity, RestoreSensor):
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy {self._account_id} Wheel Of Fortune Spins Gas"
+    return f"Wheel Of Fortune Spins Gas ({self._account_id})"
 
   @property
   def icon(self):
@@ -75,6 +75,7 @@ class OctopusEnergyWheelOfFortuneGasSpins(CoordinatorEntity, RestoreSensor):
       self._attributes["data_last_retrieved"] = result.last_retrieved
 
     self._attributes["last_evaluated"] = utcnow()
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

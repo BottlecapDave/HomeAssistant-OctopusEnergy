@@ -116,6 +116,11 @@ def get_off_peak_times(current: datetime, rates: list, include_intelligent_adjus
         if end >= current:
           times.append(OffPeakTime(start, end))
         start = None
+    
+    if start is not None:
+      end = rates[-1]["end"]
+      if end >= current:
+        times.append(OffPeakTime(start, end))
 
   return times
 
@@ -127,8 +132,8 @@ def private_rates_to_public_rates(rates: list):
 
   for rate in rates:
     new_rate = {
-      "start": rate["start"],
-      "end": rate["end"],
+      "start": as_local(rate["start"]),
+      "end": as_local(rate["end"]),
       "value_inc_vat": value_inc_vat_to_pounds(rate["value_inc_vat"])
     }
 

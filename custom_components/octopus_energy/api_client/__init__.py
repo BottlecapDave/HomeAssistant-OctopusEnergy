@@ -14,6 +14,7 @@ from ..utils import (
 )
 
 
+from .intelligent_device import IntelligentDevice
 from .octoplus import RedeemOctoplusPointsResponse
 from .intelligent_settings import IntelligentSettings
 from .intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
@@ -1203,7 +1204,7 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
   
-  async def async_get_intelligent_device(self, account_id: str):
+  async def async_get_intelligent_device(self, account_id: str) -> IntelligentDevice:
     """Get the user's intelligent dispatches"""
     await self.async_refresh_token()
 
@@ -1219,17 +1220,17 @@ class OctopusEnergyApiClient:
         if (response_body is not None and "data" in response_body and
             "registeredKrakenflexDevice" in response_body["data"]):
           device = response_body["data"]["registeredKrakenflexDevice"]
-          return {
-            "krakenflexDeviceId": device["krakenflexDeviceId"],
-            "provider": device["provider"],
-            "vehicleMake": device["vehicleMake"],
-            "vehicleModel": device["vehicleModel"],
-            "vehicleBatterySizeInKwh": float(device["vehicleBatterySizeInKwh"]) if "vehicleBatterySizeInKwh" in device and device["vehicleBatterySizeInKwh"] is not None else None,
-            "chargePointMake": device["chargePointMake"],
-            "chargePointModel": device["chargePointModel"],
-            "chargePointPowerInKw": float(device["chargePointPowerInKw"]) if "chargePointPowerInKw" in device and device["chargePointPowerInKw"] is not None else None,
-            
-          }
+          if device["krakenflexDeviceId"] is not None:
+            return IntelligentDevice(
+              device["krakenflexDeviceId"],
+              device["provider"],
+              device["vehicleMake"],
+              device["vehicleModel"],
+              float(device["vehicleBatterySizeInKwh"]) if "vehicleBatterySizeInKwh" in device and device["vehicleBatterySizeInKwh"] is not None else None,
+              device["chargePointMake"],
+              device["chargePointModel"],
+              float(device["chargePointPowerInKw"]) if "chargePointPowerInKw" in device and device["chargePointPowerInKw"] is not None else None
+            )
         else:
           _LOGGER.error("Failed to retrieve intelligent device")
       

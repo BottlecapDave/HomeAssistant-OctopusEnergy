@@ -30,7 +30,7 @@ If you wish to customise how the notification is delivered, you should install [
 
 ### Automatically redeem Octoplus points for account credit
 
-[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%octopus_energy_octoplus_redeem_points_for_account_credit.yml) | [Source](./blueprints/octopus_energy_octoplus_redeem_points_for_account_credit.yml)
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_redeem_points_for_account_credit.yml) | [Source](./blueprints/octopus_energy_octoplus_redeem_points_for_account_credit.yml)
 
 This blueprint will automatically redeem all redeemable points for account credit when the number of redeemable points exceeds a configurable threshold.
 

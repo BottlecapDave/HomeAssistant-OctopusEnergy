@@ -49,7 +49,7 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy {self._account_id} Octoplus Points"
+    return f"Octoplus Points ({self._account_id})"
 
   @property
   def icon(self):
@@ -76,6 +76,7 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
       await self.async_refresh_points()
     
     self._attributes["last_evaluated"] = now
+    self._attributes = dict_to_typed_dict(self._attributes)
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

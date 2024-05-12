@@ -30,6 +30,27 @@ update_target_config:
         The optional offset to apply to the target rate when it starts
       selector:
         text:
+    target_minimum_rate:
+      name: Minimum rate
+      description:
+        The optional minimum rate the selected rates should not go below
+      example: '0.10'
+      selector:
+        text:
+    target_maximum_rate:
+      name: Maximum rate
+      description:
+        The optional maximum rate the selected rates should not go above
+      example: '0.10'
+      selector:
+        text:
+    target_weighting:
+      name: Weighting
+      description:
+        The optional weighting that should be applied to the selected rates
+      example: '1,2,1'
+      selector:
+        text:
 
 purge_invalid_external_statistic_ids:
   name: Purge invalid external statistics

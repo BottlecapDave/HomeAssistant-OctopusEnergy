@@ -49,7 +49,7 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy {self._account_id} Intelligent Charge Limit"
+    return f"Intelligent Charge Limit ({self._account_id})"
 
   @property
   def icon(self):
@@ -89,6 +89,7 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
       self._state = settings_result.settings.charge_limit_weekday
       self._attributes["last_evaluated"] = utcnow()
 
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_set_native_value(self, value: float) -> None:

@@ -1,7 +1,7 @@
 from datetime import datetime
 import logging
 
-from homeassistant.core import HomeAssistant, callback
+from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util.dt import (now, parse_datetime, as_local)
@@ -20,8 +20,6 @@ from homeassistant.helpers.event import (
   async_track_state_change_event,
 )
 
-from homeassistant.helpers.typing import EventType
-
 from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
@@ -37,7 +35,7 @@ from ..const import (
 from ..coordinators.electricity_rates import ElectricityRatesCoordinatorResult
 from . import add_consumption
 from ..electricity import calculate_electricity_consumption_and_cost
-
+from ..utils.rate_information import get_rate_index, get_unique_rates
 from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
@@ -45,7 +43,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
   """Sensor for calculating the cost for a given sensor."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, config):
+  def __init__(self, hass: HomeAssistant, coordinator, config, peak_type = None):
     """Init sensor."""
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
@@ -57,19 +55,36 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
     self._attributes["tracked_charges"] = []
     self._attributes["untracked_charges"] = []
     self._last_reset = None
+    self._peak_type = peak_type
     
     self._hass = hass
     self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
 
   @property
+  def entity_registry_enabled_default(self) -> bool:
+    """Return if the entity should be enabled when first added.
+
+    This only applies when fist added to the entity registry.
+    """
+    return self._peak_type is None
+
+  @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_cost_tracker_{self._config[CONFIG_COST_NAME]}"
+    base_name = f"octopus_energy_cost_tracker_{self._config[CONFIG_COST_NAME]}"
+    if self._peak_type is not None:
+      return f"{base_name}_{self._peak_type}"
+    
+    return base_name
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Cost Tracker {self._config[CONFIG_COST_NAME]}"
+    base_name = f"Octopus Energy Cost Tracker {self._config[CONFIG_COST_NAME]}"
+    if self._peak_type is not None:
+      return f"{base_name} ({self._peak_type})"
+
+    return base_name
 
   @property
   def device_class(self):
@@ -121,7 +136,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
       # Make sure our attributes don't override any changed settings
       self._attributes.update(self._config)
     
-      _LOGGER.debug(f'Restored OctopusEnergyCostTrackerSensor state: {self._state}')
+      _LOGGER.debug(f'Restored {self.unique_id} state: {self._state}')
 
     self.async_on_remove(
         async_track_state_change_event(
@@ -129,9 +144,10 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
         )
     )
 
-  async def _async_calculate_cost(self, event: EventType[EventStateChangedData]):
+  async def _async_calculate_cost(self, event: Event[EventStateChangedData]):
     new_state = event.data["new_state"]
     old_state = event.data["old_state"]
+    _LOGGER.debug(f"State updated for '{self._config[CONFIG_COST_TARGET_ENTITY_ID]}' for '{self.unique_id}': new_state: {new_state}; old_state: {old_state}")
     if new_state is None or new_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) or old_state is None or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
       return
     
@@ -140,16 +156,33 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
     current = now()
     rates_result: ElectricityRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
 
+    new_last_reset = None
+    if "last_reset" in new_state.attributes and new_state.attributes["last_reset"] is not None:
+      if isinstance(new_state.attributes["last_reset"], datetime):
+        new_last_reset = new_state.attributes["last_reset"]
+      else:
+        new_last_reset = parse_datetime(new_state.attributes["last_reset"])
+
+    old_last_reset = None
+    if "last_reset" in old_state.attributes and old_state.attributes["last_reset"] is not None:
+      if isinstance(old_state.attributes["last_reset"], datetime):
+        old_last_reset = old_state.attributes["last_reset"]
+      else:
+        old_last_reset = parse_datetime(old_state.attributes["last_reset"])
+
     consumption_data = add_consumption(current,
                                        self._attributes["tracked_charges"],
                                        self._attributes["untracked_charges"],
                                        float(new_state.state),
                                        None if old_state.state is None or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else float(old_state.state),
-                                       parse_datetime(new_state.attributes["last_reset"]) if "last_reset" in new_state.attributes and new_state.attributes["last_reset"] is not None else None,
-                                       parse_datetime(old_state.attributes["last_reset"]) if "last_reset" in old_state.attributes and old_state.attributes["last_reset"] is not None else None,
+                                       new_last_reset,
+                                       old_last_reset,
                                        self._config[CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE],
                                        self._attributes["is_tracking"],
                                        new_state.attributes["state_class"] if "state_class" in new_state.attributes else None)
+    
+    
+    _LOGGER.debug(f"Consumption calculated for '{self.unique_id}': {consumption_data}")
 
     if (consumption_data is not None and rates_result is not None and rates_result.rates is not None):
       self._reset_if_new_day(current)
@@ -172,6 +205,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
     self._attributes["total_consumption"] = 0
 
     self.async_write_ha_state()
+    _LOGGER.debug(f"Cost tracker '{self.unique_id}' manually reset")
 
   @callback
   async def async_adjust_cost_tracker(self, datetime, consumption: float):
@@ -195,27 +229,36 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
 
     rates_result: ElectricityRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     self._recalculate_cost(now(), self._attributes["tracked_charges"], self._attributes["untracked_charges"], rates_result.rates)
+    _LOGGER.debug(f"Cost tracker '{self.unique_id}' manually adjusted")
 
   def _recalculate_cost(self, current: datetime, tracked_consumption_data: list, untracked_consumption_data: list, rates: list):
+    target_rate = None
+    if self._peak_type is not None:
+      unique_rates = get_unique_rates(current, rates)
+      unique_rate_index = get_rate_index(len(unique_rates), self._peak_type)
+      target_rate = unique_rates[unique_rate_index] if unique_rate_index is not None else None
+
     tracked_result = calculate_electricity_consumption_and_cost(
-      current,
       tracked_consumption_data,
       rates,
       0,
       None, # We want to always recalculate
       0,
-      False
+      False,
+      target_rate=target_rate
     )
 
     untracked_result = calculate_electricity_consumption_and_cost(
-      current,
       untracked_consumption_data,
       rates,
       0,
       None, # We want to always recalculate
       0,
-      False
+      False,
+      target_rate=target_rate
     )
+
+    _LOGGER.debug(f"Cost calculated for '{self.unique_id}'; tracked_result: {tracked_result}; untracked_result: {untracked_result}")
 
     if tracked_result is not None and untracked_result is not None:
       self._attributes["tracked_charges"] = list(map(lambda charge: {
@@ -237,6 +280,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
       self._attributes["total_consumption"] = tracked_result["total_consumption"] + untracked_result["total_consumption"]
       self._state = tracked_result["total_cost"]
 
+      self._attributes = dict_to_typed_dict(self._attributes)
       self.async_write_ha_state()
 
   def _reset_if_new_day(self, current: datetime):
@@ -251,6 +295,8 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
       self._attributes["untracked_charges"] = []
       self._attributes["total_consumption"] = 0
       self._last_reset = start_of_day
+      
+      _LOGGER.debug(f"Cost tracker '{self.unique_id}' reset. self._last_reset: {self._last_reset.date()}; current: {current.date()}")
 
       return True
 

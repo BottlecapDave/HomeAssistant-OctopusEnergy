@@ -30,6 +30,7 @@ from .base import (OctopusEnergyGasSensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..utils.requests import calculate_next_refresh
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
+from ..utils import private_rates_to_public_rates
 
 from ..const import DOMAIN, EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, MINIMUM_CONSUMPTION_DATA_LENGTH, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION
 
@@ -65,7 +66,7 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Gas {self._serial_number} {self._mprn} Previous Accumulative Cost Override"
+    return f"Previous Accumulative Cost Override Gas ({self._serial_number}/{self._mprn})"
   
   @property
   def entity_registry_enabled_default(self) -> bool:
@@ -177,7 +178,13 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
             "calorific_value": self._calorific_value
           }
           
-          self._hass.bus.async_fire(EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mprn": self._mprn, "serial_number": self._serial_number, "tariff_code": self._tariff_code, "rates": rate_data })
+          self._hass.bus.async_fire(EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES,
+                                    dict_to_typed_dict({
+                                      "mprn": self._mprn,
+                                      "serial_number": self._serial_number,
+                                      "tariff_code": self._tariff_code,
+                                      "rates": private_rates_to_public_rates(rate_data) 
+                                    }))
 
           self._attributes["last_evaluated"] = current
           self._attempts_to_retrieve = 1
@@ -199,6 +206,8 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
     
     if result is not None:
       self._attributes["data_last_retrieved"] = result.last_retrieved
+
+    self._attributes = dict_to_typed_dict(self._attributes)
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

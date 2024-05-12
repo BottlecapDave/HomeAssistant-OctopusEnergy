@@ -10,6 +10,8 @@ on:
       - 'mkdocs.yml'
       - '_docs/**'
   pull_request:
+    branches-ignore:
+      - main
     paths-ignore:
       - 'mkdocs.yml'
       - '_docs/**'

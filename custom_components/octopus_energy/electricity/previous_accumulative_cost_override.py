@@ -27,6 +27,7 @@ from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..utils.requests import calculate_next_refresh
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
+from ..utils import private_rates_to_public_rates
 
 from ..api_client import (ApiException, OctopusEnergyApiClient)
 
@@ -64,7 +65,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Accumulative Cost Override"
+    return f"Previous Accumulative Cost Override {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})"
   
   @property
   def entity_registry_enabled_default(self) -> bool:
@@ -145,7 +146,6 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
         _LOGGER.debug(f"Rates and standing charge overrides for '{self._mpan}/{self._serial_number}' ({period_from} - {period_to}) retrieved")
 
         consumption_and_cost = calculate_electricity_consumption_and_cost(
-          current,
           consumption_data,
           rate_data,
           standing_charge["value_inc_vat"] if standing_charge is not None else None,
@@ -178,7 +178,13 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
             }, consumption_and_cost["charges"]))
           }
 
-          self._hass.bus.async_fire(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, { "mpan": self._mpan, "serial_number": self._serial_number, "tariff_code": self._tariff_code, "rates": rate_data })
+          self._hass.bus.async_fire(EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, 
+                                    dict_to_typed_dict({ 
+                                      "mpan": self._mpan,
+                                      "serial_number": self._serial_number,
+                                      "tariff_code": self._tariff_code,
+                                      "rates": private_rates_to_public_rates(rate_data) 
+                                    }))
 
           self._attributes["last_evaluated"] = current
           self._request_attempts = 1
@@ -200,6 +206,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
 
     if result is not None:
       self._attributes["data_last_retrieved"] = result.last_retrieved
+
+    self._attributes = dict_to_typed_dict(self._attributes)
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

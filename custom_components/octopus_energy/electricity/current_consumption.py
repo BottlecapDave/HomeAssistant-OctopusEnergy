@@ -50,7 +50,7 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan} Current Consumption"
+    return f"Current Consumption Electricity ({self._serial_number}/{self._mpan})"
 
   @property
   def device_class(self):
@@ -106,6 +106,7 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
     self._attributes["last_evaluated"] = result.last_evaluated
     self._attributes["data_last_retrieved"] = result.data_last_retrieved
 
+    self._attributes = dict_to_typed_dict(self._attributes)
     _LOGGER.debug('Updated OctopusEnergyCurrentElectricityConsumption')
     super()._handle_coordinator_update()
 

@@ -33,6 +33,11 @@ from .const import (
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET,
   CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET,
+  CONFIG_TARGET_MAX_RATE,
+  CONFIG_TARGET_MIN_RATE,
+  CONFIG_TARGET_TYPE_CONTINUOUS,
+  CONFIG_TARGET_TYPE_INTERMITTENT,
+  CONFIG_TARGET_WEIGHTING,
   CONFIG_VERSION,
   DATA_ACCOUNT,
   DOMAIN,
@@ -153,11 +158,11 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     return vol.Schema({
       vol.Required(CONFIG_TARGET_NAME): str,
       vol.Required(CONFIG_TARGET_HOURS): str,
-      vol.Required(CONFIG_TARGET_TYPE, default="Continuous"): selector.SelectSelector(
+      vol.Required(CONFIG_TARGET_TYPE, default=CONFIG_TARGET_TYPE_CONTINUOUS): selector.SelectSelector(
           selector.SelectSelectorConfig(
               options=[
-                selector.SelectOptionDict(value="Continuous", label="Continuous"),
-                selector.SelectOptionDict(value="Intermittent", label="Intermittent"),
+                selector.SelectOptionDict(value=CONFIG_TARGET_TYPE_CONTINUOUS, label="Continuous"),
+                selector.SelectOptionDict(value=CONFIG_TARGET_TYPE_INTERMITTENT, label="Intermittent"),
               ],
               mode=selector.SelectSelectorMode.DROPDOWN,
           )
@@ -174,6 +179,9 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Optional(CONFIG_TARGET_ROLLING_TARGET, default=False): bool,
       vol.Optional(CONFIG_TARGET_LAST_RATES, default=False): bool,
       vol.Optional(CONFIG_TARGET_INVERT_TARGET_RATES, default=False): bool,
+      vol.Optional(CONFIG_TARGET_MIN_RATE): str,
+      vol.Optional(CONFIG_TARGET_MAX_RATE): str,
+      vol.Optional(CONFIG_TARGET_WEIGHTING): str,
     })
   
   async def __async_setup_cost_tracker_schema__(self, account_id: str):
@@ -223,15 +231,16 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       return self.async_abort(reason="account_not_found")
 
     now = utcnow()
-    errors = validate_target_rate_config(user_input, account_info.account, now) if user_input is not None else {}
+    config = dict(user_input) if user_input is not None else None
+    errors = validate_target_rate_config(config, account_info.account, now) if config is not None else {}
 
     if len(errors) < 1 and user_input is not None:
-      user_input[CONFIG_KIND] = CONFIG_KIND_TARGET_RATE
-      user_input[CONFIG_ACCOUNT_ID] = self._account_id
+      config[CONFIG_KIND] = CONFIG_KIND_TARGET_RATE
+      config[CONFIG_ACCOUNT_ID] = self._account_id
       # Setup our targets sensor
       return self.async_create_entry(
-        title=f"{user_input[CONFIG_TARGET_NAME]} (target)", 
-        data=user_input
+        title=f"{config[CONFIG_TARGET_NAME]} (target)", 
+        data=config
       )
 
     # Reshow our form with raised logins
@@ -378,11 +387,11 @@ class OptionsFlowHandler(OptionsFlow):
           vol.Schema({
             vol.Required(CONFIG_TARGET_NAME): str,
             vol.Required(CONFIG_TARGET_HOURS): str,
-            vol.Required(CONFIG_TARGET_TYPE, default="Continuous"): selector.SelectSelector(
+            vol.Required(CONFIG_TARGET_TYPE, default=CONFIG_TARGET_TYPE_CONTINUOUS): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=[
-                      selector.SelectOptionDict(value="Continuous", label="Continuous"),
-                      selector.SelectOptionDict(value="Intermittent", label="Intermittent"),
+                      selector.SelectOptionDict(value=CONFIG_TARGET_TYPE_CONTINUOUS, label="Continuous"),
+                      selector.SelectOptionDict(value=CONFIG_TARGET_TYPE_INTERMITTENT, label="Intermittent"),
                     ],
                     mode=selector.SelectSelectorMode.DROPDOWN,
                 )
@@ -399,6 +408,9 @@ class OptionsFlowHandler(OptionsFlow):
             vol.Optional(CONFIG_TARGET_ROLLING_TARGET): bool,
             vol.Optional(CONFIG_TARGET_LAST_RATES): bool,
             vol.Optional(CONFIG_TARGET_INVERT_TARGET_RATES): bool,
+            vol.Optional(CONFIG_TARGET_MIN_RATE): str,
+            vol.Optional(CONFIG_TARGET_MAX_RATE): str,
+            vol.Optional(CONFIG_TARGET_WEIGHTING): str,
           }),
           {
             CONFIG_TARGET_NAME: config[CONFIG_TARGET_NAME],
@@ -408,6 +420,9 @@ class OptionsFlowHandler(OptionsFlow):
             CONFIG_TARGET_ROLLING_TARGET: is_rolling_target,
             CONFIG_TARGET_LAST_RATES: find_last_rates,
             CONFIG_TARGET_INVERT_TARGET_RATES: invert_target_rates,
+            CONFIG_TARGET_MIN_RATE: config[CONFIG_TARGET_MIN_RATE] if CONFIG_TARGET_MIN_RATE in config else None,
+            CONFIG_TARGET_MAX_RATE: config[CONFIG_TARGET_MAX_RATE] if CONFIG_TARGET_MAX_RATE in config else None,
+            CONFIG_TARGET_WEIGHTING: config[CONFIG_TARGET_WEIGHTING] if CONFIG_TARGET_WEIGHTING in config else None,
           }
       ),
       errors=errors
@@ -560,10 +575,8 @@ class OptionsFlowHandler(OptionsFlow):
   
   async def async_step_cost_tracker(self, user_input):
     """Manage the options for the custom component."""
-    account_ids = get_account_ids(self.hass)
-    account_id = list(account_ids.keys())[0]
-
     config = merge_cost_tracker_config(self._entry.data, self._entry.options, user_input)
+    account_id = config[CONFIG_ACCOUNT_ID] if CONFIG_ACCOUNT_ID in config else None
 
     account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
     if (account_info is None):

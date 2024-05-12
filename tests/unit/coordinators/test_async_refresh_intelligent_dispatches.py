@@ -5,6 +5,7 @@ import mock
 from custom_components.octopus_energy.const import REFRESH_RATE_IN_MINUTES_INTELLIGENT
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatches
+from custom_components.octopus_energy.api_client.intelligent_device import IntelligentDevice
 from custom_components.octopus_energy.intelligent import mock_intelligent_dispatches
 from custom_components.octopus_energy.coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult, async_refresh_intelligent_dispatches
 
@@ -14,6 +15,8 @@ last_retrieved = datetime.strptime("2023-07-14T00:00:00+01:00", "%Y-%m-%dT%H:%M:
 tariff_code = "E-1R-INTELLI-VAR-22-10-14-C"
 mpan = "1234567890"
 serial_number = "abcdefgh"
+
+intelligent_device = IntelligentDevice("1", "2", "3", "4", 1, "5", "6", 2)
 
 def get_account_info(is_active_agreement = True, active_tariff_code = tariff_code):
   return {
@@ -66,6 +69,7 @@ async def test_when_account_info_is_none_then_existing_settings_returned():
       current,
       client,
       account_info,
+      intelligent_device,
       existing_settings,
       False,
       async_merge_dispatch_data
@@ -73,6 +77,38 @@ async def test_when_account_info_is_none_then_existing_settings_returned():
 
     assert retrieved_dispatches == existing_settings
     assert mock_api_called == False
+
+@pytest.mark.asyncio
+async def test_when_intelligent_device_is_none_then_none_returned():
+  expected_dispatches = IntelligentDispatches([], [])
+  mock_api_called = False
+  async def async_mock_get_intelligent_dispatches(*args, **kwargs):
+    nonlocal mock_api_called
+    mock_api_called = True
+    return expected_dispatches
+  
+  async def async_merge_dispatch_data(*args, **kwargs):
+    account_id, completed_dispatches = args
+    return completed_dispatches
+  
+  account_info = get_account_info(True, "E-1R-GO-18-06-12-A")
+  existing_settings = None
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_dispatches: IntelligentDispatchesCoordinatorResult = await async_refresh_intelligent_dispatches(
+      current,
+      client,
+      account_info,
+      None,
+      existing_settings,
+      False,
+      async_merge_dispatch_data
+    )
+
+    assert mock_api_called == False
+    assert retrieved_dispatches is not None
+    assert retrieved_dispatches.dispatches is None
 
 @pytest.mark.asyncio
 async def test_when_not_on_intelligent_tariff_then_none_returned():
@@ -96,6 +132,7 @@ async def test_when_not_on_intelligent_tariff_then_none_returned():
       current,
       client,
       account_info,
+      intelligent_device,
       existing_settings,
       False,
       async_merge_dispatch_data
@@ -126,6 +163,7 @@ async def test_when_mock_is_true_then_none_returned():
       current,
       client,
       account_info,
+      intelligent_device,
       existing_settings,
       True,
       async_merge_dispatch_data
@@ -175,6 +213,7 @@ async def test_when_next_refresh_is_in_the_past_then_existing_settings_returned(
       current,
       client,
       account_info,
+      intelligent_device,
       existing_settings,
       False,
       async_merge_dispatch_data
@@ -211,6 +250,7 @@ async def test_when_existing_settings_is_none_then_settings_retrieved(existing_s
       current,
       client,
       account_info,
+      intelligent_device,
       existing_settings,
       False,
       async_merge_dispatch_data
@@ -244,6 +284,7 @@ async def test_when_existing_settings_is_old_then_settings_retrieved():
       current,
       client,
       account_info,
+      intelligent_device,
       existing_settings,
       False,
       async_merge_dispatch_data
@@ -276,6 +317,7 @@ async def test_when_settings_not_retrieved_then_existing_settings_returned():
       current,
       client,
       account_info,
+      intelligent_device,
       existing_settings,
       False,
       async_merge_dispatch_data

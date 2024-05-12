@@ -4,6 +4,7 @@ from .intelligent.smart_charge import OctopusEnergyIntelligentSmartCharge
 from .intelligent.bump_charge import OctopusEnergyIntelligentBumpCharge
 from .api_client import OctopusEnergyApiClient
 from .intelligent import get_intelligent_features
+from .api_client.intelligent_device import IntelligentDevice
 
 from .const import (
   CONFIG_ACCOUNT_ID,
@@ -44,9 +45,9 @@ async def async_setup_intelligent_sensors(hass, config, async_add_entities):
 
   account_id = account_info["id"]
   client = hass.data[DOMAIN][account_id][DATA_CLIENT]
-  intelligent_device = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
+  intelligent_device: IntelligentDevice = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
   if intelligent_device is not None:
-    intelligent_features = get_intelligent_features(intelligent_device["provider"])
+    intelligent_features = get_intelligent_features(intelligent_device.provider)
     settings_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS_COORDINATOR]
     dispatches_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR]
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]

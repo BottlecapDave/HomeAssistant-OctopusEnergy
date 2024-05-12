@@ -48,7 +48,7 @@ class OctopusEnergyCurrentAccumulativeGasConsumptionCubicMeters(MultiCoordinator
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Gas {self._serial_number} {self._mprn} Current Accumulative Consumption ({UnitOfVolume.CUBIC_METERS})"
+    return f"Current Accumulative Consumption ({UnitOfVolume.CUBIC_METERS}) Gas ({self._serial_number}/{self._mprn})"
 
   @property
   def device_class(self):
@@ -121,6 +121,7 @@ class OctopusEnergyCurrentAccumulativeGasConsumptionCubicMeters(MultiCoordinator
         "calorific_value": self._calorific_value
       }
 
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

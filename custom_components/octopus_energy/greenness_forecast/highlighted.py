@@ -100,6 +100,7 @@ class OctopusEnergyGreennessForecastHighlighted(CoordinatorEntity, BinarySensorE
 
         self._state = current_and_next.current is not None
 
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

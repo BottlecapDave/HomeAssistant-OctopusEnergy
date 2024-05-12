@@ -17,7 +17,7 @@ class OctopusEnergyElectricitySensor:
     self._is_export = meter["is_export"]
     self._is_smart_meter = meter["is_smart_meter"]
     self._export_id_addition = "_export" if self._is_export == True else ""
-    self._export_name_addition = " Export" if self._is_export == True else ""
+    self._export_name_addition = "Export " if self._is_export == True else ""
 
     self._attributes = {
       "mpan": self._mpan,

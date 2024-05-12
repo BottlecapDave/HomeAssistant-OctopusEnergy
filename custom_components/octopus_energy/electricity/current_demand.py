@@ -45,7 +45,7 @@ class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElec
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan} Current Demand"
+    return f"Current Demand Electricity ({self._serial_number}/{self._mpan})"
 
   @property
   def device_class(self):
@@ -88,6 +88,7 @@ class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElec
       self._attributes["last_evaluated"] = now()
       self._attributes["data_last_retrieved"] = consumption_result.last_retrieved if consumption_result is not None else None
 
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):
