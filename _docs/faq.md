@@ -179,6 +179,22 @@ If you've installed via HACS, then you can keep an eye on `sensor.hacs` to see t
 
 If you've installed the integration manually, then you should keep an eye on the [GitHub releases](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases). You could even subscribe to the [RSS feed](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases.atom).
 
+## There's a beta release of the integration that I would like to take part in, how do I do this?
+
+If you install the integration manually, it's just a case of getting the source of the [beta release](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases), replacing the old installation with the new one and restarting Home Assistant.
+
+If you install the integration via HACS, then you will need to
+
+* Go to [HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=BottlecapDave&repository=homeassistant-octopusenergy&category=integration), click on the three dots and then click redownload
+
+![Redownload screen in HACS](./assets/beta-hacs-redownload.png)
+
+* Toggle on `Show beta versions` and select the target beta. Once selected, click `Download`.
+
+![Beta toggle in HACS](./assets/beta-hacs-beta-toggle.png)
+
+* Once downloaded, you'll need to restart Home Assistant for the new version to take effect.
+
 ## How do I increase the logs for the integration?
 
 If you are having issues, it would be helpful to include Home Assistant logs as part of any raised issue. This can be done by following the [instructions](https://www.home-assistant.io/docs/configuration/troubleshooting/#enabling-debug-logging) outlined by Home Assistant.
