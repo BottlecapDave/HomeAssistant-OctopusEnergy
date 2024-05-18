@@ -1,3 +1,10 @@
+## [11.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.0.1...v11.0.2) (2024-05-18)
+
+
+### Bug Fixes
+
+* Reverted requirement for target sensor to have target hours above zero (30 minutes dev) ([0098efa](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0098efa7151808deb9b2a73a69b39a19f7b86208))
+
 ## [11.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.0.0...v11.0.1) (2024-05-18)
 
 
