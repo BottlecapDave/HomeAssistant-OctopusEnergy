@@ -6,7 +6,7 @@ import logging
 from homeassistant.util.dt import (as_utc, parse_datetime)
 
 from ..utils.conversions import value_inc_vat_to_pounds
-from ..const import REGEX_OFFSET_PARTS, REGEX_WEIGHTING
+from ..const import CONFIG_TARGET_KEYS, REGEX_OFFSET_PARTS, REGEX_WEIGHTING
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -296,7 +296,7 @@ def get_target_rate_info(current_date: datetime, applicable_rates, offset: str =
   }
 
 def create_weighting(config: str, number_of_slots: int):
-  if config is None or config == "":
+  if config is None or config == "" or config.isspace():
     weighting = []
     for index in range(number_of_slots):
       weighting.append(1)
@@ -322,3 +322,15 @@ def create_weighting(config: str, number_of_slots: int):
     weighting.append(int(parts[index]))
 
   return weighting
+
+def compare_config(current_config: dict, existing_config: dict):
+  if current_config is None or existing_config is None:
+    return False
+
+  for key in CONFIG_TARGET_KEYS:
+    if ((key not in existing_config and key in current_config) or 
+        (key in existing_config and key not in current_config) or
+        (key in existing_config and key in current_config and current_config[key] != existing_config[key])):
+      return False
+    
+  return True

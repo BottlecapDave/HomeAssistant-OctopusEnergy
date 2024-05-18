@@ -11,6 +11,7 @@
 * Fixed warning for deprecated EventType reference ([e8786df](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e8786df9fb476a56fd4a4347f03ab46075c02be7))
 * Limited backoff logic to 30 minutes between attempts so it doesn't increase forever ([f2de64d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f2de64d2ac176c26e7224b6ddeae04cf5f85d6ea))
 * Updated attributes and events to have datetimes in local time (UTC in winter, BST in summer) ([19ac60f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/19ac60f10ae81f4a81bedbd448c5563c41e35805))
+* Updated minimum Home Assistant version to 2024.5.0
 
 
 ### Features

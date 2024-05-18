@@ -356,18 +356,6 @@ class OptionsFlowHandler(OptionsFlow):
     if (CONFIG_TARGET_MPAN not in config):
       config[CONFIG_TARGET_MPAN] = meters[0]
 
-    start_time_key = vol.Optional(CONFIG_TARGET_START_TIME)
-    if (CONFIG_TARGET_START_TIME in config):
-      start_time_key = vol.Optional(CONFIG_TARGET_START_TIME, default=config[CONFIG_TARGET_START_TIME])
-
-    end_time_key = vol.Optional(CONFIG_TARGET_END_TIME)
-    if (CONFIG_TARGET_END_TIME in config):
-      end_time_key = vol.Optional(CONFIG_TARGET_END_TIME, default=config[CONFIG_TARGET_END_TIME])
-
-    offset_key = vol.Optional(CONFIG_TARGET_OFFSET)
-    if (CONFIG_TARGET_OFFSET in config):
-      offset_key = vol.Optional(CONFIG_TARGET_OFFSET, default=config[CONFIG_TARGET_OFFSET])
-
     # True by default for backwards compatibility
     is_rolling_target = True
     if (CONFIG_TARGET_ROLLING_TARGET in config):
@@ -402,9 +390,9 @@ class OptionsFlowHandler(OptionsFlow):
                     mode=selector.SelectSelectorMode.DROPDOWN,
                 )
             ),
-            start_time_key: str,
-            end_time_key: str,
-            offset_key: str,
+            vol.Optional(CONFIG_TARGET_START_TIME): str,
+            vol.Optional(CONFIG_TARGET_END_TIME): str,
+            vol.Optional(CONFIG_TARGET_OFFSET): str,
             vol.Optional(CONFIG_TARGET_ROLLING_TARGET): bool,
             vol.Optional(CONFIG_TARGET_LAST_RATES): bool,
             vol.Optional(CONFIG_TARGET_INVERT_TARGET_RATES): bool,
@@ -417,6 +405,9 @@ class OptionsFlowHandler(OptionsFlow):
             CONFIG_TARGET_HOURS: f'{config[CONFIG_TARGET_HOURS]}',
             CONFIG_TARGET_TYPE: config[CONFIG_TARGET_TYPE],
             CONFIG_TARGET_MPAN: config[CONFIG_TARGET_MPAN],
+            CONFIG_TARGET_START_TIME: config[CONFIG_TARGET_START_TIME] if CONFIG_TARGET_START_TIME in config else None,
+            CONFIG_TARGET_END_TIME: config[CONFIG_TARGET_END_TIME] if CONFIG_TARGET_END_TIME in config else None,
+            CONFIG_TARGET_OFFSET: config[CONFIG_TARGET_OFFSET] if CONFIG_TARGET_OFFSET in config else None,
             CONFIG_TARGET_ROLLING_TARGET: is_rolling_target,
             CONFIG_TARGET_LAST_RATES: find_last_rates,
             CONFIG_TARGET_INVERT_TARGET_RATES: invert_target_rates,

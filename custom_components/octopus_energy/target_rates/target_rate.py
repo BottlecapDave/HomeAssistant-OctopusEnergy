@@ -50,6 +50,7 @@ from ..const import (
 from . import (
   calculate_continuous_times,
   calculate_intermittent_times,
+  compare_config,
   create_weighting,
   get_applicable_rates,
   get_target_rate_info
@@ -262,8 +263,12 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
         state.attributes,
         [CONFIG_TARGET_OLD_NAME, CONFIG_TARGET_OLD_HOURS, CONFIG_TARGET_OLD_TYPE, CONFIG_TARGET_OLD_START_TIME, CONFIG_TARGET_OLD_END_TIME, CONFIG_TARGET_OLD_MPAN]
       )
-      # Make sure our attributes don't override any changed settings
-      self._attributes.update(self._config)
+
+      # Reset everything if our settings have changed
+      if compare_config(self._config, self._attributes) == False:
+        self._state = False
+        self._attributes = self._config.copy()
+        self._attributes["is_target_export"] = self._is_export
     
       _LOGGER.debug(f'Restored OctopusEnergyTargetRate state: {self._state}')
 
