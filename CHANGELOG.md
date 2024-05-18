@@ -1,3 +1,14 @@
+## [11.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.0.0...v11.0.1) (2024-05-18)
+
+
+### Bug Fixes
+
+* Fixed export suffix for electricity meter device (1 minute) ([7c7d999](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7c7d999c05254f8a272dbc90d50ac689db932407))
+* Fixed issue where old target rates are present when config is updated (45 minutes) ([6aeada6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6aeada69944802e25b29309e393d5a8b27a8da15))
+* Fixed issue where start, end and offset could not be unset for target rate config (15 minutes) ([cb170af](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cb170afa78de0940c17b333b76708ef5e9c834e8))
+* Fixed refreshing gas consumption data service (15 minutes) ([fbe3f46](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fbe3f468c2a35928dd1142be346590e47fa444e3))
+* Fixed target rate sensor not being able to set zero hours (20 minutes) ([022f30d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/022f30db7895f986cfd94fdefa5a51b2b1c8a0d5))
+
 # [11.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.3.1...v11.0.0) (2024-05-12)
 
 
