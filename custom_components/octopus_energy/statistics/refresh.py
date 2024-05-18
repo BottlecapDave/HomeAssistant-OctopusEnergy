@@ -170,7 +170,6 @@ async def async_refresh_previous_gas_consumption_data(
         rates,
         UnitOfVolume.CUBIC_METERS,
         "consumption_m3",
-        False,
         initial_statistics=previous_m3_consumption_result
       )
 
@@ -183,7 +182,6 @@ async def async_refresh_previous_gas_consumption_data(
         rates,
         UnitOfEnergy.KILO_WATT_HOUR,
         "consumption_kwh",
-        False,
         initial_statistics=previous_kwh_consumption_result
       )
 
@@ -196,7 +194,6 @@ async def async_refresh_previous_gas_consumption_data(
         rates,
         "GBP",
         "consumption_kwh",
-        False,
         previous_cost_result
       )
 
