@@ -132,8 +132,39 @@ async def test_when_config_has_invalid_name_then_errors_returned(name, tariff):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("hours,tariff",[
-  ("", non_agile_tariff),
   ("0", non_agile_tariff),
+  ("0", agile_tariff),
+])
+async def test_when_config_has_valid_hours_then_no_errors_returned(hours, tariff):
+  # Arrange
+  data = {
+    CONFIG_TARGET_TYPE: CONFIG_TARGET_TYPE_CONTINUOUS,
+    CONFIG_TARGET_NAME: "test",
+    CONFIG_TARGET_MPAN: mpan,
+    CONFIG_TARGET_HOURS: hours,
+    CONFIG_TARGET_START_TIME: "00:00",
+    CONFIG_TARGET_END_TIME: "16:00",
+    CONFIG_TARGET_OFFSET: "-00:00:00",
+  }
+  account_info = get_account_info(tariff)
+
+  # Act
+  errors = validate_target_rate_config(data, account_info, now)
+
+  # Assert
+  assert CONFIG_TARGET_HOURS not in errors
+  assert CONFIG_TARGET_NAME not in errors
+  assert CONFIG_TARGET_MPAN not in errors
+  assert CONFIG_TARGET_START_TIME not in errors
+  assert CONFIG_TARGET_END_TIME not in errors
+  assert CONFIG_TARGET_OFFSET not in errors
+  assert CONFIG_TARGET_MIN_RATE not in errors
+  assert CONFIG_TARGET_MAX_RATE not in errors
+  assert CONFIG_TARGET_WEIGHTING not in errors
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("hours,tariff",[
+  ("", non_agile_tariff),
   ("-1.0", non_agile_tariff),
   ("s", non_agile_tariff),
   ("1.01", non_agile_tariff),
@@ -141,7 +172,6 @@ async def test_when_config_has_invalid_name_then_errors_returned(name, tariff):
   ("1.51", non_agile_tariff),
   ("1.99", non_agile_tariff),
   ("", agile_tariff),
-  ("0", agile_tariff),
   ("-1.0", agile_tariff),
   ("s", agile_tariff),
   ("1.01", agile_tariff),
