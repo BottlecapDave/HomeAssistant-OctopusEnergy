@@ -101,6 +101,7 @@ async def test_when_config_has_invalid_name_then_errors_returned(name, tariff):
 @pytest.mark.asyncio
 @pytest.mark.parametrize("hours,tariff",[
   ("", non_agile_tariff),
+  ("0", non_agile_tariff),
   ("-1.0", non_agile_tariff),
   ("s", non_agile_tariff),
   ("1.01", non_agile_tariff),
@@ -108,6 +109,7 @@ async def test_when_config_has_invalid_name_then_errors_returned(name, tariff):
   ("1.51", non_agile_tariff),
   ("1.99", non_agile_tariff),
   ("", agile_tariff),
+  ("0", agile_tariff),
   ("-1.0", agile_tariff),
   ("s", agile_tariff),
   ("1.01", agile_tariff),

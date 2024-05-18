@@ -296,7 +296,7 @@ def get_target_rate_info(current_date: datetime, applicable_rates, offset: str =
   }
 
 def create_weighting(config: str, number_of_slots: int):
-  if config is None or config == "":
+  if config is None or config == "" or config.isspace():
     weighting = []
     for index in range(number_of_slots):
       weighting.append(1)
