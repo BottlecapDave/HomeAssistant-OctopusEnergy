@@ -147,10 +147,6 @@ def validate_target_rate_config(data, account_info, now):
     if data[CONFIG_TARGET_HOURS] % 0.5 != 0:
       errors[CONFIG_TARGET_HOURS] = "invalid_target_hours"
 
-  if CONFIG_TARGET_HOURS not in errors:
-    if data[CONFIG_TARGET_HOURS] < 0.5:
-      errors[CONFIG_TARGET_HOURS] = "invalid_target_hours"
-
   if CONFIG_TARGET_START_TIME in data and data[CONFIG_TARGET_START_TIME] is not None:
     matches = re.search(REGEX_TIME, data[CONFIG_TARGET_START_TIME])
     if matches is None:

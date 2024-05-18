@@ -658,3 +658,42 @@ async def test_when_weighting_specified_then_result_is_adjusted(weighting: list,
     expected_from = expected_from + timedelta(minutes=30)
     assert result[index]["end"] == expected_from
     assert result[index]["value_inc_vat"] == expected_rates[index]
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("weighting",[
+  (None),
+  ([]),
+])
+async def test_when_target_hours_zero_then_result_is_adjusted(weighting):
+  # Arrange
+  current_date = datetime.strptime("2022-10-22T09:10:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  target_start_time = "09:00"
+  target_end_time = "22:00"
+
+  rates = create_rate_data(
+    datetime.strptime("2022-10-22T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2022-10-23T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    [19.1, 18.9, 19.1, 15.1, 20]
+  )
+
+  applicable_rates = get_applicable_rates(
+    current_date,
+    target_start_time,
+    target_end_time,
+    rates,
+    True
+  )
+
+  # Act
+  result = calculate_continuous_times(
+    applicable_rates,
+    0,
+    False,
+    False,
+    None,
+    weighting=weighting
+  )
+
+  # Assert
+  assert result is not None
+  assert len(result) == 0

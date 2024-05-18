@@ -7,6 +7,7 @@ from custom_components.octopus_energy.target_rates import create_weighting
   (None, 3, [1,1,1]),
   ("", 3, [1,1,1]),
   (" ", 3, [1,1,1]),
+  ("", 0, []),
   ("1", 3, [1]),
   ("1,2,3", 3, [1,2,3]),
   ("2,*,3", 4, [2,1,1,3]),
