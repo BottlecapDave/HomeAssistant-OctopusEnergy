@@ -111,8 +111,8 @@ live_consumption_query = '''query {{
 
 intelligent_dispatches_query = '''query {{
 	plannedDispatches(accountNumber: "{account_id}") {{
-		startDt
-		endDt
+		start
+		end
     delta
     meta {{
 			source
@@ -120,8 +120,8 @@ intelligent_dispatches_query = '''query {{
 		}}
 	}}
 	completedDispatches(accountNumber: "{account_id}") {{
-		startDt
-		endDt
+		start
+		end
     delta
     meta {{
 			source
@@ -983,8 +983,8 @@ class OctopusEnergyApiClient:
         if (response_body is not None and "data" in response_body):
           return IntelligentDispatches(
             list(map(lambda ev: IntelligentDispatchItem(
-                as_utc(parse_datetime(ev["startDt"])),
-                as_utc(parse_datetime(ev["endDt"])),
+                as_utc(parse_datetime(ev["start"])),
+                as_utc(parse_datetime(ev["end"])),
                 float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
                 ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
                 ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
@@ -993,8 +993,8 @@ class OctopusEnergyApiClient:
               else [])
             ),
             list(map(lambda ev: IntelligentDispatchItem(
-                as_utc(parse_datetime(ev["startDt"])),
-                as_utc(parse_datetime(ev["endDt"])),
+                as_utc(parse_datetime(ev["start"])),
+                as_utc(parse_datetime(ev["end"])),
                 float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
                 ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
                 ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
