@@ -128,13 +128,19 @@ Enabling entities is easy. All you need to do is
 5. Click on the `enable` button or toggle the `Enabled` toggle to on
 6. Click on `update`
 
-## I have entities that are missing
+## I have entities that are missing. Is the integration broken?
 
 The integration only looks at the first property associated with your account that doesn't have a moved out date attached to it. If you are still missing entities, follow the instructions to [increase the logs](#how-do-i-increase-the-logs-for-the-integration).
 
 You should then see entries associated with this component stating either entities were added, skipped or no entities were available at all.
 
 The identifiers of the entities should then be checked against your Octopus Energy dashboard to verify the correct entities are being picked up. If this is producing unexpected results, then you should raise an issue.
+
+## I have meters that are missing. Is the integration broken?
+
+The integration will only surface entities associated with meters in your first active property. Each meter must also have an active tariff associated with it. 
+
+If you [follow the instructions](#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this) to download diagnostics, you can see all agreements associated with each of your meters. You will need an agreement with a start date in the past and an end date either set to `null` or in the future for the meter to be picked up by the integration.
 
 ## I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?
 
