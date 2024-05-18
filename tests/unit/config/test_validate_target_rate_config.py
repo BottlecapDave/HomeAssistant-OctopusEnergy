@@ -60,6 +60,38 @@ async def test_when_config_is_valid_no_errors_returned():
   assert CONFIG_TARGET_WEIGHTING not in errors
 
 @pytest.mark.asyncio
+async def test_when_optional_config_is_valid_no_errors_returned():
+  # Arrange
+  data = {
+    CONFIG_TARGET_TYPE: CONFIG_TARGET_TYPE_CONTINUOUS,
+    CONFIG_TARGET_NAME: "test",
+    CONFIG_TARGET_MPAN: mpan,
+    CONFIG_TARGET_HOURS: "1.5",
+    CONFIG_TARGET_START_TIME: None,
+    CONFIG_TARGET_END_TIME: None,
+    CONFIG_TARGET_OFFSET: None,
+    CONFIG_TARGET_MIN_RATE: None,
+    CONFIG_TARGET_MAX_RATE: None,
+    CONFIG_TARGET_WEIGHTING: None
+  }
+
+  account_info = get_account_info()
+
+  # Act
+  errors = validate_target_rate_config(data, account_info, now)
+
+  # Assert
+  assert CONFIG_TARGET_NAME not in errors
+  assert CONFIG_TARGET_MPAN not in errors
+  assert CONFIG_TARGET_HOURS not in errors
+  assert CONFIG_TARGET_START_TIME not in errors
+  assert CONFIG_TARGET_END_TIME not in errors
+  assert CONFIG_TARGET_OFFSET not in errors
+  assert CONFIG_TARGET_MIN_RATE not in errors
+  assert CONFIG_TARGET_MAX_RATE not in errors
+  assert CONFIG_TARGET_WEIGHTING not in errors
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("name,tariff",[
   ("", non_agile_tariff),
   ("Test", non_agile_tariff),

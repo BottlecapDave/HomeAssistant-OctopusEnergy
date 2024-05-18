@@ -151,17 +151,17 @@ def validate_target_rate_config(data, account_info, now):
     if data[CONFIG_TARGET_HOURS] < 0.5:
       errors[CONFIG_TARGET_HOURS] = "invalid_target_hours"
 
-  if CONFIG_TARGET_START_TIME in data:
+  if CONFIG_TARGET_START_TIME in data and data[CONFIG_TARGET_START_TIME] is not None:
     matches = re.search(REGEX_TIME, data[CONFIG_TARGET_START_TIME])
     if matches is None:
       errors[CONFIG_TARGET_START_TIME] = "invalid_target_time"
 
-  if CONFIG_TARGET_END_TIME in data:
+  if CONFIG_TARGET_END_TIME in data and data[CONFIG_TARGET_END_TIME] is not None:
     matches = re.search(REGEX_TIME, data[CONFIG_TARGET_END_TIME])
     if matches is None:
       errors[CONFIG_TARGET_END_TIME] = "invalid_target_time"
 
-  if CONFIG_TARGET_OFFSET in data:
+  if CONFIG_TARGET_OFFSET in data and data[CONFIG_TARGET_OFFSET] is not None:
     matches = re.search(REGEX_OFFSET_PARTS, data[CONFIG_TARGET_OFFSET])
     if matches is None:
       errors[CONFIG_TARGET_OFFSET] = "invalid_offset"
@@ -197,8 +197,8 @@ def validate_target_rate_config(data, account_info, now):
     if data[CONFIG_TARGET_TYPE] != CONFIG_TARGET_TYPE_CONTINUOUS:
       errors[CONFIG_TARGET_WEIGHTING] = "weighting_not_supported"
 
-  start_time = data[CONFIG_TARGET_START_TIME] if CONFIG_TARGET_START_TIME in data else "00:00"
-  end_time = data[CONFIG_TARGET_END_TIME] if CONFIG_TARGET_END_TIME in data else "00:00"
+  start_time = data[CONFIG_TARGET_START_TIME] if CONFIG_TARGET_START_TIME in data and data[CONFIG_TARGET_START_TIME] is not None else "00:00"
+  end_time = data[CONFIG_TARGET_END_TIME] if CONFIG_TARGET_END_TIME in data and data[CONFIG_TARGET_END_TIME] is not None else "00:00"
 
   is_time_valid = CONFIG_TARGET_START_TIME not in errors and CONFIG_TARGET_END_TIME not in errors
 
