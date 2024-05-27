@@ -21,7 +21,7 @@ from ..const import (
   REFRESH_RATE_IN_MINUTES_ACCOUNT,
 )
 
-from ..api_client import ApiException, OctopusEnergyApiClient
+from ..api_client import ApiException, AuthenticationException, OctopusEnergyApiClient
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -59,6 +59,7 @@ async def async_refresh_account(
         _LOGGER.debug('Account information retrieved')
 
         ir.async_delete_issue(hass, DOMAIN, f"account_not_found_{account_id}")
+        ir.async_delete_issue(hass, DOMAIN, f"invalid_api_key_{account_id}")
 
         if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
           for point in account_info["electricity_meter_points"]:
@@ -74,6 +75,17 @@ async def async_refresh_account(
     except Exception as e:
       if isinstance(e, ApiException) == False:
         raise
+
+      if isinstance(e, AuthenticationException):
+        ir.async_create_issue(
+          hass,
+          DOMAIN,
+          f"invalid_api_key_{account_id}",
+          is_fixable=False,
+          severity=ir.IssueSeverity.ERROR,
+          translation_key="invalid_api_key",
+          translation_placeholders={ "account_id": account_id },
+        )
       
       result = AccountCoordinatorResult(
         previous_request.last_retrieved,

@@ -372,6 +372,8 @@ class RequestException(ApiException):
     super().__init__(message)
     self.errors = errors
 
+class AuthenticationException(RequestException): ...
+
 class OctopusEnergyApiClient:
   _refresh_token_lock = RLock()
   _session_lock = RLock()
@@ -1349,7 +1351,11 @@ class OctopusEnergyApiClient:
         msg = f'DO NOT REPORT - Octopus Energy server error ({url}): {response.status}; {text}'
         _LOGGER.warning(msg)
         raise ServerException(msg)
-      elif response.status not in [401, 403, 404]:
+      elif response.status in [401, 403]:
+        msg = f'Failed to send request ({url}): {response.status}; {text}'
+        _LOGGER.warning(msg)
+        raise AuthenticationException(msg, [])
+      elif response.status not in [404]:
         msg = f'Failed to send request ({url}): {response.status}; {text}'
         _LOGGER.warning(msg)
         raise RequestException(msg, [])
@@ -1367,6 +1373,11 @@ class OctopusEnergyApiClient:
       msg = f'Errors in request ({url}): {data_as_json["errors"]}'
       errors = list(map(lambda error: error["message"], data_as_json["errors"]))
       _LOGGER.warning(msg)
+
+      for error in data_as_json["errors"]:
+        if (error["extensions"]["errorCode"] in ("KT-CT-1139", "KT-CT-1111", "KT-CT-1143")):
+          raise AuthenticationException(msg, errors)
+
       raise RequestException(msg, errors)
     
     return data_as_json

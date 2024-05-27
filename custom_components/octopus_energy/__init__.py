@@ -8,6 +8,7 @@ from homeassistant.util.dt import (utcnow)
 from homeassistant.const import (
     EVENT_HOMEASSISTANT_STOP
 )
+from homeassistant.helpers import issue_registry as ir
 
 from .coordinators.account import AccountCoordinatorResult, async_setup_account_info_coordinator
 from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatches_coordinator
@@ -49,7 +50,7 @@ ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "text", "number", "switch", "tim
 TARGET_RATE_PLATFORMS = ["binary_sensor"]
 COST_TRACKER_PLATFORMS = ["sensor"]
 
-from .api_client import OctopusEnergyApiClient, RequestException
+from .api_client import AuthenticationException, OctopusEnergyApiClient, RequestException
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -187,11 +188,23 @@ async def async_setup_dependencies(hass, config):
 
   try:
     account_info = await client.async_get_account(config[CONFIG_ACCOUNT_ID])
+    ir.async_delete_issue(hass, DOMAIN, f"invalid_api_key_{account_id}")
     if (account_info is None):
       raise ConfigEntryNotReady(f"Failed to retrieve account information")
   except Exception as e:
     if isinstance(e, RequestException) == False:
       raise
+
+    if isinstance(e, AuthenticationException):
+      ir.async_create_issue(
+        hass,
+        DOMAIN,
+        f"invalid_api_key_{account_id}",
+        is_fixable=False,
+        severity=ir.IssueSeverity.ERROR,
+        translation_key="invalid_api_key",
+        translation_placeholders={ "account_id": account_id },
+      )
     
     raise ConfigEntryNotReady(f"Failed to retrieve account information")
 

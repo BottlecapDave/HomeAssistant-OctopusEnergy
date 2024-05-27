@@ -192,6 +192,10 @@
     "octopus_mini_not_valid": {
       "title": "Octopus Mini not valid for {type} meter",
       "description": "Octopus Mini has been configured for account \"{account_id}\", but it's not available for {type} meter {mpan_mprn}/{serial_number}. If this is expected, you can ignore this notice, otherwise click \"Learn More\" with instructions on what to do next."
+    },
+    "invalid_api_key": {
+      "title": "Invalid API key for account \"{account_id}\"",
+      "description": "The configured API key appears to be invalid for the configured account \"{account_id}\". Please reconfigure to fix this issue."
     }
   }
 }
