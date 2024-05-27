@@ -171,8 +171,8 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
         old_last_reset = parse_datetime(old_state.attributes["last_reset"])
 
     consumption_data = add_consumption(current,
-                                       self._attributes["tracked_charges"],
-                                       self._attributes["untracked_charges"],
+                                       self._attributes["tracked_charges"] if "tracked_charges" in self._attributes else [],
+                                       self._attributes["untracked_charges"] if "untracked_charges" in self._attributes else [],
                                        float(new_state.state),
                                        None if old_state.state is None or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else float(old_state.state),
                                        new_last_reset,
