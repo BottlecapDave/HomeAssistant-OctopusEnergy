@@ -224,7 +224,7 @@ async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
   async def async_mocked_get_electricity_rates(*args, **kwargs):
     nonlocal requested_period_from, requested_period_to, mock_api_called, expected_rates
 
-    requested_client, requested_tariff_code, is_smart_meter, requested_period_from, requested_period_to = args
+    requested_client, requested_product_code, requested_tariff_code, is_smart_meter, requested_period_from, requested_period_to = args
     mock_api_called = True
     return expected_rates
   
@@ -293,7 +293,7 @@ async def test_when_dispatches_is_not_defined_and_existing_rates_is_none_then_ra
   async def async_mocked_get_electricity_rates(*args, **kwargs):
     nonlocal requested_period_from, requested_period_to, mock_api_called, expected_rates
 
-    requested_client, requested_tariff_code, is_smart_meter, requested_period_from, requested_period_to = args
+    requested_client, requested_product_code, requested_tariff_code, is_smart_meter, requested_period_from, requested_period_to = args
     mock_api_called = True
     return expected_rates
   

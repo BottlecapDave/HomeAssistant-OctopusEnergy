@@ -46,7 +46,7 @@ async def async_refresh_gas_standing_charges_data(
     new_standing_charge = None
     if (existing_standing_charges_result is None or current >= existing_standing_charges_result.next_refresh):
       try:
-        new_standing_charge = await client.async_get_gas_standing_charge(tariff.code, period_from, period_to)
+        new_standing_charge = await client.async_get_gas_standing_charge(tariff.product, tariff.code, period_from, period_to)
         _LOGGER.debug(f'Gas standing charges retrieved for {target_mprn}/{target_serial_number} ({tariff.code})')
       except Exception as e:
         if isinstance(e, ApiException) == False:

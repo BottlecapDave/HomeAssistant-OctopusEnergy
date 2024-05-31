@@ -9,14 +9,14 @@ from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 default_period_from = datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 default_period_to = datetime.strptime("2022-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
-async def async_assert_electricity_data(tariff, is_smart_meter, price_cap, period_from = default_period_from, period_to = default_period_to, expected_rates = None):
+async def async_assert_electricity_data(product_code, tariff_code, is_smart_meter, price_cap, period_from = default_period_from, period_to = default_period_to, expected_rates = None):
     # Arrange
     context = get_test_context()
 
     client = OctopusEnergyApiClient(context.api_key, price_cap)
 
     # Act
-    data = await client.async_get_electricity_rates(tariff, is_smart_meter, period_from, period_to)
+    data = await client.async_get_electricity_rates(product_code, tariff_code, is_smart_meter, period_from, period_to)
 
     diff = period_to - period_from
 
@@ -51,22 +51,22 @@ async def async_assert_electricity_data(tariff, is_smart_meter, price_cap, perio
     return data
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("tariff,price_cap,period_from,period_to",[
-    ("E-1R-SUPER-GREEN-24M-21-07-30-A", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-GO-18-06-12-A", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-VAR-21-09-29-A", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-AGILE-18-02-21-A", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-AGILE-FLEX-22-11-25-D", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-SILVER-FLEX-22-11-25-C", None, datetime.strptime("2023-07-01T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2023-07-02T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-SUPER-GREEN-24M-21-07-30-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-GO-18-06-12-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-VAR-21-09-29-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-AGILE-18-02-21-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-AGILE-FLEX-22-11-25-D", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("E-1R-SILVER-FLEX-22-11-25-C", 10, datetime.strptime("2023-07-01T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2023-07-04T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
+@pytest.mark.parametrize("product_code,tariff_code,price_cap,period_from,period_to",[
+    ("SUPER-GREEN-24M-21-07-30", "E-1R-SUPER-GREEN-24M-21-07-30-A", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("GO-18-06-12", "E-1R-GO-18-06-12-A", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("VAR-21-09-29", "E-1R-VAR-21-09-29-A", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("AGILE-18-02-21", "E-1R-AGILE-18-02-21-A", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("AGILE-FLEX-22-11-25", "E-1R-AGILE-FLEX-22-11-25-D", None, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("SILVER-FLEX-22-11-25", "E-1R-SILVER-FLEX-22-11-25-C", None, datetime.strptime("2023-07-01T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2023-07-02T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
+    ("SUPER-GREEN-24M-21-07-30", "E-1R-SUPER-GREEN-24M-21-07-30-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("GO-18-06-12", "E-1R-GO-18-06-12-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("VAR-21-09-29", "E-1R-VAR-21-09-29-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("AGILE-18-02-21", "E-1R-AGILE-18-02-21-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("AGILE-FLEX-22-11-25", "E-1R-AGILE-FLEX-22-11-25-D", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("SILVER-FLEX-22-11-25", "E-1R-SILVER-FLEX-22-11-25-C", 10, datetime.strptime("2023-07-01T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2023-07-04T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
 ])
-async def test_when_get_electricity_rates_is_called_with_tariff_then_data_is_returned_in_thirty_minute_increments(tariff, price_cap, period_from,period_to):
-    await async_assert_electricity_data(tariff, False, price_cap, period_from, period_to)
+async def test_when_get_electricity_rates_is_called_with_tariff_then_data_is_returned_in_thirty_minute_increments(product_code, tariff_code, price_cap, period_from,period_to):
+    await async_assert_electricity_data(product_code, tariff_code, False, price_cap, period_from, period_to)
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("price_cap",[
@@ -106,6 +106,7 @@ async def test_when_get_electricity_rates_is_called_with_flux_tariff_then_data_i
     }]
 
     await async_assert_electricity_data(
+        "FLUX-IMPORT-23-02-14",
         "E-1R-FLUX-IMPORT-23-02-14-E",
         False,
         price_cap,
@@ -117,8 +118,9 @@ async def test_when_get_electricity_rates_is_called_with_flux_tariff_then_data_i
 @pytest.mark.asyncio
 @pytest.mark.parametrize("price_cap",[(None), (15)])
 async def test_when_get_electricity_rates_is_called_with_duel_rate_tariff_dumb_meter_then_data_is_returned_in_thirty_minute_increments(price_cap):
-    tariff = "E-2R-SUPER-GREEN-24M-21-07-30-A"
-    data = await async_assert_electricity_data(tariff, False, price_cap)
+    product_code = "SUPER-GREEN-24M-21-07-30"
+    tariff_code = "E-2R-SUPER-GREEN-24M-21-07-30-A"
+    data = await async_assert_electricity_data(product_code, tariff_code, False, price_cap)
 
     cheapest_rate_from = datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     cheapest_rate_to = datetime.strptime("2022-12-01T07:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -141,8 +143,9 @@ async def test_when_get_electricity_rates_is_called_with_duel_rate_tariff_dumb_m
 @pytest.mark.asyncio
 @pytest.mark.parametrize("price_cap",[(None), (15)])
 async def test_when_get_electricity_rates_is_called_with_duel_rate_tariff_smart_meter_then_data_is_returned_in_thirty_minute_increments(price_cap):
-    tariff = "E-2R-SUPER-GREEN-24M-21-07-30-A"
-    data = await async_assert_electricity_data(tariff, True, price_cap)
+    product_code = "SUPER-GREEN-24M-21-07-30"
+    tariff_code = "E-2R-SUPER-GREEN-24M-21-07-30-A"
+    data = await async_assert_electricity_data(product_code, tariff_code, True, price_cap)
 
     cheapest_rate_from = datetime.strptime("2022-12-01T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
     cheapest_rate_to = datetime.strptime("2022-12-01T07:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -163,15 +166,20 @@ async def test_when_get_electricity_rates_is_called_with_duel_rate_tariff_smart_
             assert item["value_inc_vat"] != cheapest_rate
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("tariff",[("E-2R-NOT-A-TARIFF-A"), ("E-1R-NOT-A-TARIFF-A"), ("NOT-A-TARIFF")])
-async def test_when_get_electricity_rates_is_called_for_non_existent_tariff_then_none_is_returned(tariff):
+@pytest.mark.parametrize("product_code,tariff_code",[
+    ("SUPER-GREEN-24M-21-07-30", "E-2R-NOT-A-TARIFF-A"),
+    ("SUPER-GREEN-24M-21-07-30", "E-1R-NOT-A-TARIFF-A"),
+    ("SUPER-GREEN-24M-21-07-30", "NOT-A-TARIFF"),
+    ("NOT-A-PRODUCT", "E-1R-SUPER-GREEN-24M-21-07-30-A")
+])
+async def test_when_get_electricity_rates_is_called_for_non_existent_tariff_then_none_is_returned(product_code, tariff_code):
     # Arrange
     context = get_test_context()
 
     client = OctopusEnergyApiClient(context.api_key)
 
     # Act
-    data = await client.async_get_electricity_rates(tariff, True, default_period_from, default_period_to)
+    data = await client.async_get_electricity_rates(product_code, tariff_code, True, default_period_from, default_period_to)
 
     # Assert
     assert data is None
@@ -179,12 +187,13 @@ async def test_when_get_electricity_rates_is_called_for_non_existent_tariff_then
 @pytest.mark.asyncio
 async def test_when_get_electricity_rates_is_called_with_cosy_tariff_then_data_is_returned_in_thirty_minute_increments():
     # Arrange
-    tariff = "E-1R-COSY-22-12-08-H"
+    product_code = "COSY-22-12-08"
+    tariff_code = "E-1R-COSY-22-12-08-H"
     period_from = datetime.strptime("2023-10-15T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     period_to = datetime.strptime("2023-10-17T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     
     # Act
-    data = await async_assert_electricity_data(tariff, False, None, period_from, period_to)
+    data = await async_assert_electricity_data(product_code, tariff_code, False, None, period_from, period_to)
 
     # Assert
     cheapest_rate = None

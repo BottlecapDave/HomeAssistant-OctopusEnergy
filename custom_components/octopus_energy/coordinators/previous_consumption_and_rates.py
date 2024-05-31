@@ -90,8 +90,8 @@ async def async_fetch_consumption_and_rates(
         [consumption_data, latest_consumption_data, rate_data, standing_charge] = await asyncio.gather(
           client.async_get_electricity_consumption(identifier, serial_number, period_from, period_to),
           client.async_get_electricity_consumption(identifier, serial_number, None, None, 1),
-          client.async_get_electricity_rates(tariff.code, is_smart_meter, period_from, period_to),
-          client.async_get_electricity_standing_charge(tariff.code, period_from, period_to)
+          client.async_get_electricity_rates(tariff.product, tariff.code, is_smart_meter, period_from, period_to),
+          client.async_get_electricity_standing_charge(tariff.product, tariff.code, period_from, period_to)
         )
 
         if intelligent_dispatches is not None:
@@ -108,8 +108,8 @@ async def async_fetch_consumption_and_rates(
         [consumption_data, latest_consumption_data, rate_data, standing_charge] = await asyncio.gather(
           client.async_get_gas_consumption(identifier, serial_number, period_from, period_to),
           client.async_get_gas_consumption(identifier, serial_number, None, None, 1),
-          client.async_get_gas_rates(tariff.code, period_from, period_to),
-          client.async_get_gas_standing_charge(tariff.code, period_from, period_to)
+          client.async_get_gas_rates(tariff.product, tariff.code, period_from, period_to),
+          client.async_get_gas_standing_charge(tariff.product, tariff.code, period_from, period_to)
         )
       
       if consumption_data is not None and len(consumption_data) >= MINIMUM_CONSUMPTION_DATA_LENGTH and rate_data is not None and len(rate_data) > 0 and standing_charge is not None:

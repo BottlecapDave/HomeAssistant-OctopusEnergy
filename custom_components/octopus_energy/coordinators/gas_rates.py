@@ -52,7 +52,7 @@ async def async_refresh_gas_rates_data(
     
     if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
       try:
-        new_rates = await client.async_get_gas_rates(tariff.code, period_from, period_to)
+        new_rates = await client.async_get_gas_rates(tariff.product, tariff.code, period_from, period_to)
       except Exception as e:
         if isinstance(e, ApiException) == False:
           raise

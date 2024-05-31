@@ -63,7 +63,7 @@ async def async_refresh_previous_electricity_consumption_data(
       return
 
     consumption_data = await client.async_get_electricity_consumption(mpan, serial_number, period_from, period_to)
-    rates = await client.async_get_electricity_rates(tariff.code, is_smart_meter, period_from, period_to)
+    rates = await client.async_get_electricity_rates(tariff.product, tariff.code, is_smart_meter, period_from, period_to)
 
     consumption_and_cost = calculate_electricity_consumption_and_cost(
       consumption_data,
@@ -149,7 +149,7 @@ async def async_refresh_previous_gas_consumption_data(
       return
 
     consumption_data = await client.async_get_gas_consumption(mprn, serial_number, period_from, period_to)
-    rates = await client.async_get_gas_rates(tariff.code, period_from, period_to)
+    rates = await client.async_get_gas_rates(tariff.product, tariff.code, period_from, period_to)
 
     consumption_and_cost = calculate_gas_consumption_and_cost(
       consumption_data,

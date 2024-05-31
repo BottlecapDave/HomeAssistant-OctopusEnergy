@@ -199,7 +199,7 @@ async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
   async def async_mocked_get_gas_rates(*args, **kwargs):
     nonlocal requested_period_from, requested_period_to, mock_api_called
 
-    requested_client, requested_tariff_code, requested_period_from, requested_period_to = args
+    requested_client, requested_product_code, requested_tariff_code, requested_period_from, requested_period_to = args
     mock_api_called = True
     return expected_rates
   

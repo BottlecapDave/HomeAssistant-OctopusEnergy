@@ -235,7 +235,7 @@ async def test_when_next_refresh_is_in_the_past_and_gas_sensor_then_requested_da
   async def async_mocked_get_gas_rates(*args, **kwargs):
     nonlocal requested_rate_tariff_code
 
-    requested_client, requested_rate_tariff_code, period_from, period_to = args
+    requested_client, requested_rate_product_code, requested_rate_tariff_code, period_from, period_to = args
     return expected_rates
   
   expected_standing_charge = 100.2
@@ -243,7 +243,7 @@ async def test_when_next_refresh_is_in_the_past_and_gas_sensor_then_requested_da
   async def async_mocked_get_gas_standing_charge(*args, **kwargs):
     nonlocal requested_standing_charge_tariff_code
 
-    requested_client, requested_standing_charge_tariff_code, period_from, period_to = args
+    requested_client, requested_standing_charge_product_code, requested_standing_charge_tariff_code, period_from, period_to = args
     return {
       "value_inc_vat": expected_standing_charge
     }
@@ -349,7 +349,7 @@ async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requ
   async def async_mocked_get_electricity_rates(*args, **kwargs):
     nonlocal requested_rate_tariff_code
 
-    requested_client, requested_rate_tariff_code, is_smart_meter, period_from, period_to = args
+    requested_client, requested_product_code, requested_rate_tariff_code, is_smart_meter, period_from, period_to = args
     return expected_rates
   
   expected_standing_charge = 100.2
@@ -357,7 +357,7 @@ async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requ
   async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
     nonlocal requested_standing_charge_tariff_code
 
-    requested_client, requested_standing_charge_tariff_code, period_from, period_to = args
+    requested_client, requested_standing_charge_product_code, requested_standing_charge_tariff_code, period_from, period_to = args
     return {
       "value_inc_vat": expected_standing_charge
     }

@@ -21,6 +21,7 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
 
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  expected_product_code = "SUPER-GREEN-24M-21-07-30"
   expected_tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-L"
   latest_date = None
 
@@ -53,7 +54,7 @@ async def test_when_calculate_gas_cost_using_real_data_then_calculation_returned
 
   # Make sure we have standing charges available
 
-  standard_charge_result = await client.async_get_gas_standing_charge(expected_tariff_code, period_from, period_to)
+  standard_charge_result = await client.async_get_gas_standing_charge(expected_product_code, expected_tariff_code, period_from, period_to)
   assert standard_charge_result is not None
 
   # Act
