@@ -26,7 +26,7 @@ def get_account_info(tariff_code: str, is_active_agreement = True):
             "start": "2023-07-01T00:00:00+01:00" if is_active_agreement else "2023-08-01T00:00:00+01:00",
             "end": "2023-08-01T00:00:00+01:00" if is_active_agreement else "2023-09-01T00:00:00+01:00",
             "tariff_code": tariff_code,
-            "product": "SUPER-GREEN-24M-21-07-30"
+            "product_code": "SUPER-GREEN-24M-21-07-30"
           }
         ]
       }

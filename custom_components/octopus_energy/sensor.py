@@ -52,7 +52,7 @@ from .utils.rate_information import get_peak_type, get_unique_rates, has_peak_ra
 
 from .octoplus.points import OctopusEnergyOctoplusPoints
 
-from .utils import (get_active_tariff_code)
+from .utils import (Tariff, get_active_tariff)
 from .const import (
   CONFIG_COST_MPAN,
   CONFIG_ACCOUNT_ID,
@@ -81,18 +81,18 @@ from .const import (
 
 _LOGGER = logging.getLogger(__name__)
 
-async def get_unique_electricity_rates(hass, client: OctopusEnergyApiClient, tariff_code: str):
-  total_unique_rates = await async_get_cached_tariff_total_unique_rates(hass, tariff_code)
+async def get_unique_electricity_rates(hass, client: OctopusEnergyApiClient, tariff: Tariff):
+  total_unique_rates = await async_get_cached_tariff_total_unique_rates(hass, tariff)
   if total_unique_rates is None:
     current_date = now()
     period_from = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
     period_to = period_from + timedelta(days=1)
-    rates = await client.async_get_electricity_rates(tariff_code, True, period_from, period_to)
+    rates = await client.async_get_electricity_rates(tariff.code, True, period_from, period_to)
     if rates is None:
-      raise Exception(f"Failed to retrieve rates for tariff '{tariff_code}'")
+      raise Exception(f"Failed to retrieve rates for tariff '{tariff.code}'")
     
     total_unique_rates = len(get_unique_rates(current_date, rates))
-    await async_save_cached_tariff_total_unique_rates(hass, tariff_code, total_unique_rates)
+    await async_save_cached_tariff_total_unique_rates(hass, tariff.code, total_unique_rates)
 
   return total_unique_rates
 
@@ -243,8 +243,8 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
 
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
-      electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
-      if electricity_tariff_code is not None:
+      electricity_tariff = get_active_tariff(now, point["agreements"])
+      if electricity_tariff is not None:
         for meter in point["meters"]:
           mpan = point["mpan"]
           serial_number = meter["serial_number"]
@@ -273,10 +273,10 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
           )
           entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumption(hass, client, previous_consumption_coordinator, account_id, meter, point))
           entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(hass, previous_consumption_coordinator, meter, point))
-          entities.append(OctopusEnergyPreviousAccumulativeElectricityCostOverride(hass, account_id, previous_consumption_coordinator, client, electricity_tariff_code, meter, point))
+          entities.append(OctopusEnergyPreviousAccumulativeElectricityCostOverride(hass, account_id, previous_consumption_coordinator, client, electricity_tariff, meter, point))
           
           # Create a peak override for each available peak type for our tariff
-          total_unique_rates = await get_unique_electricity_rates(hass, client, electricity_tariff_code if tariff_override is None else tariff_override)
+          total_unique_rates = await get_unique_electricity_rates(hass, client, electricity_tariff if tariff_override is None else tariff_override)
           for unique_rate_index in range(0, total_unique_rates):
             peak_type = get_peak_type(total_unique_rates, unique_rate_index)
             if peak_type is not None:
@@ -337,8 +337,8 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
 
     for point in account_info["gas_meter_points"]:
       # We only care about points that have active agreements
-      gas_tariff_code = get_active_tariff_code(now, point["agreements"])
-      if gas_tariff_code is not None:
+      gas_tariff = get_active_tariff(now, point["agreements"])
+      if gas_tariff is not None:
         for meter in point["meters"]:
           mprn = point["mprn"]
           serial_number = meter["serial_number"]
@@ -368,7 +368,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
           entities.append(OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(hass, client, previous_consumption_coordinator, account_id, meter, point, calorific_value))
           entities.append(OctopusEnergyPreviousAccumulativeGasConsumptionKwh(hass, previous_consumption_coordinator, meter, point, calorific_value))
           entities.append(OctopusEnergyPreviousAccumulativeGasCost(hass, previous_consumption_coordinator, meter, point, calorific_value))
-          entities.append(OctopusEnergyPreviousAccumulativeGasCostOverride(hass,  account_id, previous_consumption_coordinator, client, gas_tariff_code, meter, point, calorific_value))
+          entities.append(OctopusEnergyPreviousAccumulativeGasCostOverride(hass,  account_id, previous_consumption_coordinator, client, gas_tariff.code, meter, point, calorific_value))
 
           entity_ids_to_migrate.append({
             "old": f"octopus_energy_gas_{serial_number}_{mprn}_previous_accumulative_consumption",
@@ -435,8 +435,8 @@ async def async_setup_cost_sensors(hass: HomeAssistant, entry, config, async_add
 
   now = utcnow()
   for point in account_info["electricity_meter_points"]:
-    tariff_code = get_active_tariff_code(now, point["agreements"])
-    if tariff_code is not None:
+    tariff = get_active_tariff(now, point["agreements"])
+    if tariff is not None:
       # For backwards compatibility, pick the first applicable meter
       if point["mpan"] == mpan or mpan is None:
         for meter in point["meters"]:
@@ -453,7 +453,7 @@ async def async_setup_cost_sensors(hass: HomeAssistant, entry, config, async_add
           ]
           
           tariff_override = await async_get_tariff_override(hass, mpan, serial_number)
-          total_unique_rates = await get_unique_electricity_rates(hass, client, tariff_code if tariff_override is None else tariff_override)
+          total_unique_rates = await get_unique_electricity_rates(hass, client, tariff if tariff_override is None else tariff_override)
           if has_peak_rates(total_unique_rates):
             for unique_rate_index in range(0, total_unique_rates):
               peak_type = get_peak_type(total_unique_rates, unique_rate_index)

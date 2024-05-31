@@ -21,7 +21,7 @@ from .intelligent import async_mock_intelligent_data, get_intelligent_features, 
 
 from .config.main import async_migrate_main_config
 from .config.target_rates import async_migrate_target_config
-from .utils import get_active_tariff_code
+from .utils import get_active_tariff
 from .utils.tariff_overrides import async_get_tariff_override
 
 from .const import (
@@ -132,8 +132,8 @@ async def async_setup_entry(hass, entry):
     account_info = account_result.account if account_result is not None else None
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
-      electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
-      if electricity_tariff_code is not None:
+      electricity_tariff = get_active_tariff(now, point["agreements"])
+      if electricity_tariff is not None:
         for meter in point["meters"]:
           mpan = point["mpan"]
           serial_number = meter["serial_number"]
@@ -151,8 +151,8 @@ async def async_setup_entry(hass, entry):
     account_info = account_result.account if account_result is not None else None
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
-      electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
-      if electricity_tariff_code is not None:
+      electricity_tariff = get_active_tariff(now, point["agreements"])
+      if electricity_tariff is not None:
         for meter in point["meters"]:
           mpan = point["mpan"]
           serial_number = meter["serial_number"]
@@ -219,8 +219,8 @@ async def async_setup_dependencies(hass, config):
       for meter in point["meters"]:
         serial_number = meter["serial_number"]
 
-        tariff_code = get_active_tariff_code(now, point["agreements"])
-        if tariff_code is None:
+        tariff = get_active_tariff(now, point["agreements"])
+        if tariff is None:
           gas_device = device_registry.async_get_device(identifiers={(DOMAIN, f"gas_{serial_number}_{mprn}")})
           if gas_device is not None:
             _LOGGER.debug(f'Removed gas device {serial_number}/{mprn} due to no active tariff')
@@ -236,14 +236,14 @@ async def async_setup_dependencies(hass, config):
   intelligent_serial_number = None
   for point in account_info["electricity_meter_points"]:
     mpan = point["mpan"]
-    electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
+    electricity_tariff = get_active_tariff(now, point["agreements"])
 
     for meter in point["meters"]:  
       serial_number = meter["serial_number"]
       
-      if electricity_tariff_code is not None:
+      if electricity_tariff is not None:
         if meter["is_export"] == False:
-          if is_intelligent_tariff(electricity_tariff_code):
+          if is_intelligent_tariff(electricity_tariff.code):
             intelligent_mpan = mpan
             intelligent_serial_number = serial_number
             has_intelligent_tariff = True
@@ -257,8 +257,8 @@ async def async_setup_dependencies(hass, config):
   if should_mock_intelligent_data:
     # Pick the first meter if we're mocking our intelligent data
     for point in account_info["electricity_meter_points"]:
-      tariff_code = get_active_tariff_code(now, point["agreements"])
-      if tariff_code is not None:
+      tariff = get_active_tariff(now, point["agreements"])
+      if tariff is not None:
         for meter in point["meters"]:
           intelligent_mpan = point["mpan"]
           intelligent_serial_number = meter["serial_number"]
@@ -280,8 +280,8 @@ async def async_setup_dependencies(hass, config):
 
   for point in account_info["electricity_meter_points"]:
     # We only care about points that have active agreements
-    electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
-    if electricity_tariff_code is not None:
+    electricity_tariff = get_active_tariff(now, point["agreements"])
+    if electricity_tariff is not None:
       for meter in point["meters"]:
         mpan = point["mpan"]
         serial_number = meter["serial_number"]

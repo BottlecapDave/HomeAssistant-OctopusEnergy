@@ -30,17 +30,20 @@ def get_account_info(current: datetime, electricity_tariff_code = default_electr
           {
             "start": (current + timedelta(days=7)).isoformat(),
             "end": (current + timedelta(days=14)).isoformat(),
-            "tariff_code": "E-1R-FUTURE-TARIFF-A"
+            "tariff_code": "E-1R-FUTURE-TARIFF-A",
+            "product_code": "FUTURE-TARIFF"
           },
           {
             "start": (current - timedelta(days=7)).isoformat(),
             "end": (current + timedelta(days=7)).isoformat(),
-            "tariff_code": electricity_tariff_code
+            "tariff_code": electricity_tariff_code,
+            "product_code": "SUPER-GREEN-24M-21-07"
           },
           {
             "start": (current - timedelta(days=14)).isoformat(),
             "end": (current - timedelta(days=7)).isoformat(),
-            "tariff_code": "E-1R-AGILE-TARIFF-A"
+            "tariff_code": "E-1R-AGILE-TARIFF-A",
+            "product_code": "AGILE-TARIFF"
           }
         ]
       }
@@ -57,17 +60,20 @@ def get_account_info(current: datetime, electricity_tariff_code = default_electr
           {
             "start": (current + timedelta(days=7)).isoformat(),
             "end": (current + timedelta(days=14)).isoformat(),
-            "tariff_code": "G-1R-FUTURE-TARIFF-A"
+            "tariff_code": "G-1R-FUTURE-TARIFF-A",
+            "product_code": "FUTURE-TARIFF"
           },
           {
             "start": (current - timedelta(days=7)).isoformat(),
             "end": (current + timedelta(days=7)).isoformat(),
-            "tariff_code": gas_tariff_code
+            "tariff_code": gas_tariff_code,
+            "product_code": "SUPER-GREEN-24M-21-07-30"
           },
           {
             "start": (current - timedelta(days=14)).isoformat(),
             "end": (current - timedelta(days=7)).isoformat(),
-            "tariff_code": "G-1R-AGILE-TARIFF-A"
+            "tariff_code": "G-1R-AGILE-TARIFF-A",
+            "product_code": "AGILE-TARIFF"
           }
         ]
       }

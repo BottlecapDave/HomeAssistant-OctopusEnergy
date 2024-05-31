@@ -207,7 +207,7 @@ def validate_target_rate_config(data, account_info, now):
     errors[CONFIG_TARGET_MPAN] = "invalid_mpan"
   elif is_time_valid:
     tariff = meter_tariffs[data[CONFIG_TARGET_MPAN]]
-    if is_agile_tariff(tariff):
+    if is_agile_tariff(tariff.code):
       if is_in_agile_darkzone(start_time, end_time):
         errors[CONFIG_TARGET_END_TIME] = "invalid_end_time_agile"
 

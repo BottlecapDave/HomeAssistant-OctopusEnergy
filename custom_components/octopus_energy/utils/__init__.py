@@ -37,7 +37,15 @@ def get_tariff_parts(tariff_code) -> TariffParts:
 
   return TariffParts(energy, rate, product_code, region)
 
-def get_active_tariff_code(utcnow: datetime, agreements):
+class Tariff:
+  product: str
+  code: str
+
+  def __init__(self, product: str, code: str):
+    self.product = product
+    self.code = code
+
+def get_active_tariff(utcnow: datetime, agreements):
   latest_agreement = None
   latest_valid_from = None
 
@@ -59,7 +67,7 @@ def get_active_tariff_code(utcnow: datetime, agreements):
         latest_valid_from = valid_from
 
   if latest_agreement is not None:
-    return latest_agreement["tariff_code"]
+    return Tariff(latest_agreement["product_code"], latest_agreement["tariff_code"])
   
   return None
 

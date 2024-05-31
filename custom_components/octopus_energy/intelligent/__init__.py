@@ -6,7 +6,7 @@ from homeassistant.util.dt import (utcnow, parse_datetime)
 
 from homeassistant.helpers import storage
 
-from ..utils import OffPeakTime, get_active_tariff_code, get_tariff_parts
+from ..utils import OffPeakTime, get_active_tariff, get_tariff_parts
 
 from ..const import DOMAIN, INTELLIGENT_SOURCE_BUMP_CHARGE, INTELLIGENT_SOURCE_SMART_CHARGE, REFRESH_RATE_IN_MINUTES_INTELLIGENT
 
@@ -122,8 +122,8 @@ def is_intelligent_tariff(tariff_code: str):
 def has_intelligent_tariff(current: datetime, account_info):
   if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
-      tariff_code = get_active_tariff_code(current, point["agreements"])
-      if tariff_code is not None and is_intelligent_tariff(tariff_code):
+      tariff = get_active_tariff(current, point["agreements"])
+      if tariff is not None and is_intelligent_tariff(tariff.code):
         return True
 
   return False
