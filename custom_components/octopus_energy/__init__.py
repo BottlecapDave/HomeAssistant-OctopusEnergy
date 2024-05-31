@@ -17,7 +17,7 @@ from .coordinators.electricity_rates import async_setup_electricity_rates_coordi
 from .coordinators.saving_sessions import async_setup_saving_sessions_coordinators
 from .coordinators.greenness_forecast import async_setup_greenness_forecast_coordinator
 from .statistics import get_statistic_ids_to_remove
-from .intelligent import async_mock_intelligent_data, get_intelligent_features, is_intelligent_tariff, mock_intelligent_device
+from .intelligent import async_mock_intelligent_data, get_intelligent_features, is_intelligent_product, mock_intelligent_device
 
 from .config.main import async_migrate_main_config
 from .config.target_rates import async_migrate_target_config
@@ -243,7 +243,7 @@ async def async_setup_dependencies(hass, config):
       
       if electricity_tariff is not None:
         if meter["is_export"] == False:
-          if is_intelligent_tariff(electricity_tariff.code):
+          if is_intelligent_product(electricity_tariff.product):
             intelligent_mpan = mpan
             intelligent_serial_number = serial_number
             has_intelligent_tariff = True

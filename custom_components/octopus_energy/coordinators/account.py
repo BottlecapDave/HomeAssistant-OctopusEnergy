@@ -1,7 +1,7 @@
 import logging
 from datetime import datetime, timedelta
 
-from . import BaseCoordinatorResult, async_check_valid_tariff
+from . import BaseCoordinatorResult, async_check_valid_product
 from ..utils import get_active_tariff
 
 from homeassistant.util.dt import (now)
@@ -64,12 +64,12 @@ async def async_refresh_account(
         if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
           for point in account_info["electricity_meter_points"]:
             active_tariff = get_active_tariff(current, point["agreements"])
-            await async_check_valid_tariff(hass, account_id, client, active_tariff.code, True)
+            await async_check_valid_product(hass, account_id, client, active_tariff.product, True)
 
         if account_info is not None and len(account_info["gas_meter_points"]) > 0:
           for point in account_info["gas_meter_points"]:
             active_tariff = get_active_tariff(current, point["agreements"])
-            await async_check_valid_tariff(hass, account_id, client, active_tariff.code, False)
+            await async_check_valid_product(hass, account_id, client, active_tariff.product, False)
 
         return AccountCoordinatorResult(current, 1, account_info)
     except Exception as e:

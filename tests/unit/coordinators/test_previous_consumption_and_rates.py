@@ -15,8 +15,14 @@ sensor_serial_number = "123456"
 
 default_electricity_tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
 default_gas_tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
+default_electricity_product_code = "SUPER-GREEN-24M-21-07-30"
+default_gas_product_code = "SUPER-GREEN-24M-21-07-30"
 
-def get_account_info(current: datetime, electricity_tariff_code = default_electricity_tariff_code, gas_tariff_code = default_gas_tariff_code):
+def get_account_info(current: datetime,
+                     electricity_product_code = default_electricity_product_code,
+                     electricity_tariff_code = default_electricity_tariff_code,
+                     gas_product_code = default_gas_product_code,
+                     gas_tariff_code = default_gas_tariff_code):
   return {
     "electricity_meter_points": [
       {
@@ -37,7 +43,7 @@ def get_account_info(current: datetime, electricity_tariff_code = default_electr
             "start": (current - timedelta(days=7)).isoformat(),
             "end": (current + timedelta(days=7)).isoformat(),
             "tariff_code": electricity_tariff_code,
-            "product_code": "SUPER-GREEN-24M-21-07"
+            "product_code": electricity_product_code
           },
           {
             "start": (current - timedelta(days=14)).isoformat(),
@@ -67,7 +73,7 @@ def get_account_info(current: datetime, electricity_tariff_code = default_electr
             "start": (current - timedelta(days=7)).isoformat(),
             "end": (current + timedelta(days=7)).isoformat(),
             "tariff_code": gas_tariff_code,
-            "product_code": "SUPER-GREEN-24M-21-07-30"
+            "product_code": gas_product_code
           },
           {
             "start": (current - timedelta(days=14)).isoformat(),
@@ -876,7 +882,7 @@ async def test_when_intelligent_dispatches_available_then_adjusted_requested_dat
     
     current_utc_timestamp = datetime.strptime(f'2022-02-12T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
 
-    account_info = get_account_info(period_from, "E-1R-INTELLI-BB-VAR-23-03-01-C")
+    account_info = get_account_info(period_from, electricity_product_code="INTELLI-BB-VAR-23-03-01", electricity_tariff_code="E-1R-INTELLI-BB-VAR-23-03-01-C")
 
     previous_data = PreviousConsumptionCoordinatorResult(
       current_utc_timestamp - timedelta(days=1),
@@ -1000,7 +1006,7 @@ async def test_when_intelligent_tariff_and_no_dispatches_available_then_previous
     
     current_utc_timestamp = datetime.strptime(f'2022-02-12T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
 
-    account_info = get_account_info(period_from, "E-1R-INTELLI-BB-VAR-23-03-01-C")
+    account_info = get_account_info(period_from, electricity_product_code="INTELLI-BB-VAR-23-03-01", electricity_tariff_code="E-1R-INTELLI-BB-VAR-23-03-01-C")
 
     previous_data = PreviousConsumptionCoordinatorResult(
       current_utc_timestamp - timedelta(days=1),
