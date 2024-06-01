@@ -10,9 +10,8 @@ from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime)
 from ..const import INTEGRATION_VERSION
 
 from ..utils import (
-  get_tariff_parts,
+  is_day_night_tariff,
 )
-
 
 from .intelligent_device import IntelligentDevice
 from .octoplus import RedeemOctoplusPointsResponse
@@ -777,15 +776,11 @@ class OctopusEnergyApiClient:
   async def async_get_electricity_rates(self, product_code: str, tariff_code: str, is_smart_meter: bool, period_from: datetime, period_to: datetime):
     """Get the current rates"""
 
-    tariff_parts = get_tariff_parts(tariff_code)
-    if tariff_parts is None:
-      return None
-
-    if (tariff_parts.rate.startswith("1")):
-      return await self.async_get_electricity_standard_rates(product_code, tariff_code, period_from, period_to)
-    else:
+    if is_day_night_tariff(tariff_code):
       return await self.async_get_electricity_day_night_rates(product_code, tariff_code, is_smart_meter, period_from, period_to)
-
+    else:
+      return await self.async_get_electricity_standard_rates(product_code, tariff_code, period_from, period_to)
+      
   async def async_get_electricity_consumption(self, mpan, serial_number, period_from, period_to, page_size: int | None = None):
     """Get the current electricity consumption"""
 

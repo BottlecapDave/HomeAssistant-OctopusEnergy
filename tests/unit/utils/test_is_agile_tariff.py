@@ -13,6 +13,6 @@ async def test_when_tariff_code_is_valid_then_true_returned(tariff_code: str, ex
   assert is_agile_tariff(tariff_code.lower()) == expected_result
 
 @pytest.mark.asyncio
-async def test_when_invalid_then_none_returned():
+async def test_when_invalid_then_false_returned():
   # Act
   assert is_agile_tariff("invalid-tariff-code") == False

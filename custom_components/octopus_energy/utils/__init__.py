@@ -23,7 +23,7 @@ class TariffParts:
     self.product_code = product_code
     self.region = region
 
-def get_tariff_parts(tariff_code) -> TariffParts:
+def get_tariff_parts(tariff_code: str) -> TariffParts:
   matches = re.search(REGEX_TARIFF_PARTS, tariff_code)
   if matches is None:
     return None
@@ -44,6 +44,11 @@ class Tariff:
   def __init__(self, product: str, code: str):
     self.product = product
     self.code = code
+
+def is_day_night_tariff(tariff_code: str) -> bool:
+  tariff_parts = get_tariff_parts(tariff_code)
+  print(tariff_parts)
+  return tariff_parts is not None and tariff_parts.rate.startswith("2")
 
 def get_active_tariff(utcnow: datetime, agreements):
   latest_agreement = None
