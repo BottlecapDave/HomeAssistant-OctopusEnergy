@@ -251,7 +251,7 @@ This is fired when the next day rates are updated.
 
 `octopus_energy_gas_previous_consumption_rates`
 
-This is fired when the [previous consumption's](./entities/gas.md#previous-accumulative-consumption) rates are updated.
+This is fired when the [previous consumption's](./entities/gas.md#previous-accumulative-consumption-m3) rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -315,7 +315,7 @@ This event is raised when a new saving session is discovered.
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `account_id` | `string` | The id of the account the new saving session is for |
-| `event_code` | `string` | The code of the new saving session event. This is required if you wishing to use the [join event service](./services.md#join_octoplus_saving_session_event) |
+| `event_code` | `string` | The code of the new saving session event. This is required if you wishing to use the [join event service](./services.md#octopus_energyjoin_octoplus_saving_session_event) |
 | `event_id` | `string` | The id of the event |
 | `event_start` | `datetime` | The date/time the event starts |
 | `event_end` | `datetime` | The date/time the event ends |
