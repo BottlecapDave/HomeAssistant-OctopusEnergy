@@ -129,7 +129,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
           extra=vol.ALLOW_EXTRA,
         ),
       ),
-      "async_redeem_points",
+      "async_spin_wheel",
       # supports_response=SupportsResponse.OPTIONAL
     )
 
