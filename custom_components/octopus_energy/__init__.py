@@ -21,12 +21,14 @@ from .intelligent import async_mock_intelligent_data, get_intelligent_features, 
 
 from .config.main import async_migrate_main_config
 from .config.target_rates import async_migrate_target_config
+from .config.cost_tracker import async_migrate_cost_tracker_config
 from .utils import get_active_tariff
 from .utils.tariff_overrides import async_get_tariff_override
 
 from .const import (
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
+  CONFIG_KIND_TARIFF_COMPARISON,
   CONFIG_KIND_COST_TRACKER,
   CONFIG_KIND_TARGET_RATE,
   CONFIG_MAIN_OLD_API_KEY,
@@ -74,9 +76,15 @@ async def async_migrate_entry(hass, config_entry):
       new_data = await async_migrate_main_config(config_entry.version, config_entry.data)
       new_options = await async_migrate_main_config(config_entry.version, config_entry.options)
       title = new_data[CONFIG_ACCOUNT_ID]
-    else:
+    elif CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
       new_data = await async_migrate_target_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
       new_options = await async_migrate_target_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
+    elif CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
+      new_data = await async_migrate_cost_tracker_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
+      new_options = await async_migrate_cost_tracker_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
+    elif CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:
+      new_data = await async_migrate_cost_tracker_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
+      new_options = await async_migrate_cost_tracker_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
     
     config_entry.version = CONFIG_VERSION
     hass.config_entries.async_update_entry(config_entry, title=title, data=new_data, options=new_options)

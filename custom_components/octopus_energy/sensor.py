@@ -54,7 +54,7 @@ from .octoplus.points import OctopusEnergyOctoplusPoints
 
 from .utils import (Tariff, get_active_tariff)
 from .const import (
-  CONFIG_COST_MPAN,
+  CONFIG_COST_TRACKER_MPAN,
   CONFIG_ACCOUNT_ID,
   CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
@@ -429,7 +429,7 @@ async def async_setup_cost_sensors(hass: HomeAssistant, entry, config, async_add
   account_info = account_result.account if account_result is not None else None
   client = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
-  mpan = config[CONFIG_COST_MPAN]
+  mpan = config[CONFIG_COST_TRACKER_MPAN]
 
   registry = er.async_get(hass)
 
