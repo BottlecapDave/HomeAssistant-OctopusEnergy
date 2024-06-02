@@ -24,8 +24,8 @@ from ..const import (
 from ..api_client import ApiException, OctopusEnergyApiClient
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 from ..utils import private_rates_to_public_rates
-from . import BaseCoordinatorResult, get_electricity_meter_tariff_code, raise_rate_events
-from ..intelligent import adjust_intelligent_rates, is_intelligent_tariff
+from . import BaseCoordinatorResult, get_electricity_meter_tariff, raise_rate_events
+from ..intelligent import adjust_intelligent_rates, is_intelligent_product
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -58,26 +58,26 @@ async def async_refresh_electricity_rates_data(
     period_from = as_utc((current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
     period_to = as_utc((current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0))
 
-    tariff_code = get_electricity_meter_tariff_code(current, account_info, target_mpan, target_serial_number) if tariff_override is None else tariff_override
-    if tariff_code is None:
+    tariff = get_electricity_meter_tariff(current, account_info, target_mpan, target_serial_number) if tariff_override is None else tariff_override
+    if tariff is None:
       return None
     
     # We'll calculate the wrong value if we don't have our intelligent dispatches
-    if is_intelligent_tariff(tariff_code) and (dispatches_result is None or dispatches_result.dispatches is None):
+    if is_intelligent_product(tariff.product) and (dispatches_result is None or dispatches_result.dispatches is None):
       return existing_rates_result
 
     new_rates = None
     if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
       try:
-        new_rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
+        new_rates = await client.async_get_electricity_rates(tariff.product, tariff.code, is_smart_meter, period_from, period_to)
       except Exception as e:
         if isinstance(e, ApiException) == False:
           raise
         
-        _LOGGER.debug(f'Failed to retrieve electricity rates for {target_mpan}/{target_serial_number} ({tariff_code})')
+        _LOGGER.debug(f'Failed to retrieve electricity rates for {target_mpan}/{target_serial_number} ({tariff.code})')
       
       if new_rates is not None:
-        _LOGGER.debug(f'Electricity rates retrieved for {target_mpan}/{target_serial_number} ({tariff_code});')
+        _LOGGER.debug(f'Electricity rates retrieved for {target_mpan}/{target_serial_number} ({tariff.code});')
         
         original_rates = new_rates.copy()
         original_rates.sort(key=lambda rate: rate["start"])
@@ -94,7 +94,7 @@ async def async_refresh_electricity_rates_data(
         
         raise_rate_events(current,
                           private_rates_to_public_rates(new_rates),
-                          { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": tariff_code },
+                          { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": tariff.code },
                           fire_event,
                           EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
                           EVENT_ELECTRICITY_CURRENT_DAY_RATES,
@@ -144,7 +144,7 @@ async def async_refresh_electricity_rates_data(
       
       raise_rate_events(current,
                         private_rates_to_public_rates(new_rates),
-                        { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": tariff_code, "intelligent_dispatches_updated": True },
+                        { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": tariff.code, "intelligent_dispatches_updated": True },
                         fire_event,
                         EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
                         EVENT_ELECTRICITY_CURRENT_DAY_RATES,

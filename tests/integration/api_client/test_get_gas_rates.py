@@ -7,20 +7,20 @@ from integration import (get_test_context)
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("tariff,price_cap,period_from,period_to",[
-    ("G-1R-SUPER-GREEN-24M-21-07-30-A", None, datetime.strptime("2021-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2021-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("G-1R-SUPER-GREEN-24M-21-07-30-A", 2, datetime.strptime("2021-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2021-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
-    ("G-1R-SILVER-FLEX-22-11-25-C", None, datetime.strptime("2023-06-01T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2023-06-02T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
-    ("G-1R-SILVER-FLEX-22-11-25-C", 2, datetime.strptime("2023-06-01T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2023-06-02T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
+@pytest.mark.parametrize("product_code,tariff_code,price_cap,period_from,period_to",[
+    ("SUPER-GREEN-24M-21-07-30", "G-1R-SUPER-GREEN-24M-21-07-30-A", None, datetime.strptime("2021-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2021-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("SUPER-GREEN-24M-21-07-30", "G-1R-SUPER-GREEN-24M-21-07-30-A", 2, datetime.strptime("2021-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2021-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    ("SILVER-FLEX-22-11-25", "G-1R-SILVER-FLEX-22-11-25-C", None, datetime.strptime("2023-06-01T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2023-06-02T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
+    ("SILVER-FLEX-22-11-25", "G-1R-SILVER-FLEX-22-11-25-C", 2, datetime.strptime("2023-06-01T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2023-06-02T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
 ])
-async def test_when_get_gas_rates_is_called_for_existent_tariff_then_rates_are_returned(tariff, price_cap, period_from, period_to):
+async def test_when_get_gas_rates_is_called_for_existent_tariff_then_rates_are_returned(product_code, tariff_code, price_cap, period_from, period_to):
     # Arrange
     context = get_test_context()
 
     client = OctopusEnergyApiClient(context.api_key, None, price_cap)
 
     # Act
-    data = await client.async_get_gas_rates(tariff, period_from, period_to)
+    data = await client.async_get_gas_rates(product_code, tariff_code, period_from, period_to)
 
     # Assert
     assert data is not None
@@ -43,8 +43,12 @@ async def test_when_get_gas_rates_is_called_for_existent_tariff_then_rates_are_r
         expected_valid_from = expected_valid_to
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("tariff",[("G-1R-NOT-A-TARIFF-A"), ("NOT-A-TARIFF")])
-async def test_when_get_gas_rates_is_called_for_non_existent_tariff_then_none_is_returned(tariff):
+@pytest.mark.parametrize("product_code,tariff_code",[
+    ("NOT-A-PRODUCT", "G-1R-NOT-A-PRODUCT-A"),
+    ("SUPER-GREEN-24M-21-07-30", "NOT-A-TARIFF"),
+    ("NOT-A-PRODUCT", "G-1R-SUPER-GREEN-24M-21-07-30-A")
+])
+async def test_when_get_gas_rates_is_called_for_non_existent_tariff_then_none_is_returned(product_code, tariff_code):
     # Arrange
     context = get_test_context()
     period_from = now().replace(hour=0, minute=0, second=0, microsecond=0)
@@ -53,7 +57,7 @@ async def test_when_get_gas_rates_is_called_for_non_existent_tariff_then_none_is
     client = OctopusEnergyApiClient(context.api_key)
 
     # Act
-    data = await client.async_get_gas_rates(tariff, period_from, period_to)
+    data = await client.async_get_gas_rates(product_code, tariff_code, period_from, period_to)
 
     # Assert
     assert data is None

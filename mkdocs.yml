@@ -22,8 +22,7 @@ nav:
     - ./repairs/account_not_found.md
     - ./repairs/invalid_target_rate.md
     - ./repairs/octopus_mini_not_valid.md
-    - ./repairs/unknown_tariff_format.md
-    - ./repairs/unknown_tariff.md
+    - ./repairs/unknown_product.md
   - Community: community.md
   - blueprints.md
   - faq.md

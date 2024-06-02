@@ -611,7 +611,7 @@ The total cost reported by the meter for the current day during peak hours (the 
 
 You may be on an existing tariff but want to know if the grass is greener (or cheaper) on the other side. The following entities are available in a disabled state, which when enabled can give you an indication what you'd be paying if you were on a different tariff and didn't change your energy habits.
 
-See [below](#previous-accumulative-cost-override-tariff-electricity) for instructions on how to set up.
+See [below](#previous-accumulative-cost-override-tariff) for instructions on how to set up.
 
 !!! info
     

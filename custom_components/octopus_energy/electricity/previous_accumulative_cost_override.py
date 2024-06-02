@@ -27,7 +27,7 @@ from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..utils.requests import calculate_next_refresh
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
-from ..utils import private_rates_to_public_rates
+from ..utils import get_tariff_parts, private_rates_to_public_rates
 
 from ..api_client import (ApiException, OctopusEnergyApiClient)
 
@@ -136,11 +136,15 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
       period_from = consumption_data[0]["start"]
       period_to = consumption_data[-1]["end"]
 
+      tariff_parts = get_tariff_parts(tariff_override)
+      if tariff_parts is None:
+        return None
+
       try:
         _LOGGER.debug(f"Retrieving rates and standing charge overrides for '{self._mpan}/{self._serial_number}' ({period_from} - {period_to})...")
         [rate_data, standing_charge] = await asyncio.gather(
-          self._client.async_get_electricity_rates(tariff_override, self._is_smart_meter, period_from, period_to),
-          self._client.async_get_electricity_standing_charge(tariff_override, period_from, period_to)
+          self._client.async_get_electricity_rates(tariff_parts.product_code, tariff_override, self._is_smart_meter, period_from, period_to),
+          self._client.async_get_electricity_standing_charge(tariff_parts.product_code, tariff_override, period_from, period_to)
         )
 
         _LOGGER.debug(f"Rates and standing charge overrides for '{self._mpan}/{self._serial_number}' ({period_from} - {period_to}) retrieved")

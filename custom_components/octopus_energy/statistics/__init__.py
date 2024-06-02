@@ -9,7 +9,7 @@ from homeassistant.components.recorder.statistics import (
 )
 
 from ..const import DOMAIN
-from ..utils import get_active_tariff_code
+from ..utils import get_active_tariff
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -121,8 +121,8 @@ def get_statistic_ids_to_remove(now, account_info):
   if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
-      electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
-      if electricity_tariff_code is None:
+      electricity_tariff = get_active_tariff(now, point["agreements"])
+      if electricity_tariff is None:
         for meter in point["meters"]:
           external_statistic_ids_to_remove.append(f"{DOMAIN}:electricity_{meter['serial_number']}_{point['mpan']}{'_export' if meter['is_export'] == True else ''}_previous_accumulative_consumption")
           external_statistic_ids_to_remove.append(f"{DOMAIN}:electricity_{meter['serial_number']}_{point['mpan']}{'_export' if meter['is_export'] == True else ''}_previous_accumulative_cost")
@@ -134,8 +134,8 @@ def get_statistic_ids_to_remove(now, account_info):
   if len(account_info["gas_meter_points"]) > 0:
     for point in account_info["gas_meter_points"]:
       # We only care about points that have active agreements
-      gas_tariff_code = get_active_tariff_code(now, point["agreements"])
-      if gas_tariff_code is None:
+      gas_tariff = get_active_tariff(now, point["agreements"])
+      if gas_tariff is None:
         for meter in point["meters"]:
           external_statistic_ids_to_remove.append(f"{DOMAIN}:gas_{meter['serial_number']}_{point['mprn']}_previous_accumulative_consumption")
           external_statistic_ids_to_remove.append(f"{DOMAIN}:gas_{meter['serial_number']}_{point['mprn']}_previous_accumulative_cost")

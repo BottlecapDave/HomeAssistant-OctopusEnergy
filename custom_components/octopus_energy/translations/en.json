@@ -181,9 +181,9 @@
       "title": "Invalid format - {type} - {tariff_code}",
       "description": "The tariff \"{tariff_code}\" associated with your {type} meter is not in an expected format. Click on \"Learn More\" with instructions on what to do next."
     },
-    "unknown_tariff": {
-      "title": "Unknown tariff - {type} - {tariff_code}",
-      "description": "The tariff \"{tariff_code}\" associated with your {type} meter has not been found. Click on \"Learn More\" with instructions on what to do next."
+    "unknown_product": {
+      "title": "Unknown product - {type} - {product_code}",
+      "description": "The product \"{product_code}\" associated with your {type} meter has not been found. Click on \"Learn More\" with instructions on what to do next."
     },
     "invalid_target_rate": {
       "title": "Invalid target rate \"{name}\"",

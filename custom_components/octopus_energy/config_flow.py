@@ -62,7 +62,7 @@ from .const import (
   DATA_SCHEMA_ACCOUNT,
 )
 
-from .utils import get_active_tariff_code
+from .utils import get_active_tariff
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -70,7 +70,7 @@ def get_target_rate_meters(account_info, now):
   meters = []
   if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
-      active_tariff_code = get_active_tariff_code(now, point["agreements"])
+      active_tariff = get_active_tariff(now, point["agreements"])
 
       is_export = False
       for meter in point["meters"]:
@@ -78,7 +78,7 @@ def get_target_rate_meters(account_info, now):
           is_export = True
           break
 
-      if active_tariff_code is not None:
+      if active_tariff is not None:
         meters.append(selector.SelectOptionDict(value=point["mpan"], label= f'{point["mpan"]} ({"Export" if is_export == True else "Import"})'))
 
   return meters
