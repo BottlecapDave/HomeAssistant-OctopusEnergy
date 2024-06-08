@@ -28,7 +28,7 @@ from ..utils import Tariff, private_rates_to_public_rates
 from . import BaseCoordinatorResult, get_electricity_meter_tariff, raise_rate_events
 from ..intelligent import adjust_intelligent_rates, is_intelligent_product
 from ..utils.rate_information import get_unique_rates, has_peak_rates
-from ..utils.tariff_cache import async_get_cached_tariff_total_unique_rates, async_save_cached_tariff_total_unique_rates
+from ..utils.tariff_cache import async_save_cached_tariff_total_unique_rates
 
 _LOGGER = logging.getLogger(__name__)
 

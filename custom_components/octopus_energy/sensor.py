@@ -72,7 +72,6 @@ from .const import (
   CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET,
   CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET,
   CONFIG_TARIFF_COMPARISON_MPAN_MPRN,
-  DATA_GAS_RATES_COORDINATOR_KEY,
   DATA_GREENNESS_FORECAST_COORDINATOR,
   DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY,
   DEFAULT_CALORIFIC_VALUE,
@@ -91,8 +90,10 @@ from .const import (
 _LOGGER = logging.getLogger(__name__)
 
 async def get_unique_electricity_rates(hass, client: OctopusEnergyApiClient, tariff: Tariff):
-  total_unique_rates = await async_get_cached_tariff_total_unique_rates(hass, tariff)
+  total_unique_rates = await async_get_cached_tariff_total_unique_rates(hass, tariff.code)
   if total_unique_rates is None:
+    _LOGGER.info(f"Retrieving electricity rates '{tariff.code}' to determine number of unique rates")
+
     current_date = now()
     # Look at yesterdays rates so we have a complete picture
     period_from = current_date.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
