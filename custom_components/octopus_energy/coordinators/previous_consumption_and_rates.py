@@ -11,6 +11,7 @@ from homeassistant.helpers.update_coordinator import (
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
   DATA_ACCOUNT,
+  DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY,
   DOMAIN,
   DATA_INTELLIGENT_DISPATCHES,
   EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES,
@@ -232,6 +233,6 @@ async def async_create_previous_consumption_and_rates_coordinator(
     always_update=True
   )
 
-  hass.data[DOMAIN][account_id][f'{identifier}_{serial_number}_previous_consumption_and_cost_coordinator'] = coordinator
+  hass.data[DOMAIN][account_id][DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY.format(identifier, serial_number)] = coordinator
 
   return coordinator
