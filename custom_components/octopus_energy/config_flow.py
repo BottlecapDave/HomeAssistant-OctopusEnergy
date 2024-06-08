@@ -47,6 +47,7 @@ from .const import (
   CONFIG_VERSION,
   DATA_ACCOUNT,
   DATA_CLIENT,
+  DEFAULT_CALORIFIC_VALUE,
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
@@ -534,7 +535,7 @@ class OptionsFlowHandler(OptionsFlow):
     if CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET in config:
       previous_gas_consumption_days_offset = config[CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET]
     
-    calorific_value = 40
+    calorific_value = DEFAULT_CALORIFIC_VALUE
     if CONFIG_MAIN_CALORIFIC_VALUE in config:
       calorific_value = config[CONFIG_MAIN_CALORIFIC_VALUE]
     

@@ -354,6 +354,10 @@ Instructions on how to find tariffs can be found in the [faq](../faq.md#i-want-t
   
     When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
 
+!!! warning
+
+    This approach to tariff overrides has been marked as deprecated in favour of [tariff comparisons](../setup/tariff_comparison.md).
+
 ### Previous Accumulative Cost Override Tariff
 
 `text.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost_override_tariff`

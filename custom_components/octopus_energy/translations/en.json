@@ -71,10 +71,6 @@
           "mpan_mprn": "The meter of the data that should be compared to",
           "product_code": "The product code of the tariff to compare.",
           "tariff_code": "The tariff code of the tariff to compare."
-        },
-        "data_description": {
-          "product_code": "For help on finding this, please visit https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/faq/#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff",
-          "tariff_code": "For help on finding this, please visit https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/faq/#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff"
         }
       },
       "tariff_comparison_account": {
@@ -165,10 +161,6 @@
           "mpan_mprn": "The meter of the data that should be compared to",
           "product_code": "The product code of the tariff to compare.",
           "tariff_code": "The tariff code of the tariff to compare."
-        },
-        "data_description": {
-          "product_code": "For help on finding this, please visit https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/faq/#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff",
-          "tariff_code": "For help on finding this, please visit https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/faq/#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff"
         }
       }
     },
@@ -230,6 +222,10 @@
     "invalid_api_key": {
       "title": "Invalid API key for account \"{account_id}\"",
       "description": "The configured API key appears to be invalid for the configured account \"{account_id}\". Please reconfigure to fix this issue."
+    },
+    "cost_override_obsolete": {
+      "title": "Cost override has been deprecated",
+      "description": "It looks like you've setup the cost override entities for {type} meter {mpan_mprn}/{serial_number}. These cost override entities have been deprecated in favour of setting them up via the integrations page. Please click \"Learn More\" with instructions on what to do next."
     }
   }
 }

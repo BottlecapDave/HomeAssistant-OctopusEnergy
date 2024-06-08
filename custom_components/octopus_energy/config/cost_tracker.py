@@ -1,6 +1,6 @@
 import re
 
-from . import get_meter_tariffs
+from . import get_electricity_meter_tariffs
 
 from ..const import (
   CONFIG_COST_TRACKER_MONTH_DAY_RESET,
@@ -32,7 +32,7 @@ def validate_cost_tracker_config(data, account_info, now):
   if matches is None:
     errors[CONFIG_COST_TRACKER_NAME] = "invalid_target_name"
 
-  meter_tariffs = get_meter_tariffs(account_info, now)
+  meter_tariffs = get_electricity_meter_tariffs(account_info, now)
   if (data[CONFIG_COST_TRACKER_MPAN] not in meter_tariffs):
     errors[CONFIG_COST_TRACKER_MPAN] = "invalid_mpan"
 

@@ -116,6 +116,7 @@ DATA_WHEEL_OF_FORTUNE_SPINS = "WHEEL_OF_FORTUNE_SPINS"
 DATA_CURRENT_CONSUMPTION_KEY = "CURRENT_CONSUMPTION_{}"
 DATA_GREENNESS_FORECAST_COORDINATOR = "GREENNESS_FORECAST_COORDINATOR"
 DATA_GREENNESS_FORECAST = "GREENNESS_FORECAST"
+DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY = "DATA_PREVIOUS_CONSUMPTION_AND_COST_COORDINATOR_{}_{}"
 
 DATA_SAVING_SESSIONS_FORCE_UPDATE = "SAVING_SESSIONS_FORCE_UPDATE"
 
@@ -142,6 +143,8 @@ REGEX_WEIGHTING_MIDDLE = "([0-9](,[0-9]+)*(,\\*)(,[0-9]+)+)"
 REGEX_WEIGHTING_END = "([0-9](,[0-9]+)*(,\\*))"
 REGEX_WEIGHTING = f"^({REGEX_WEIGHTING_NUMBERS}|{REGEX_WEIGHTING_START}|{REGEX_WEIGHTING_MIDDLE}|{REGEX_WEIGHTING_END})$"
 
+DEFAULT_CALORIFIC_VALUE = 40.0
+
 DATA_SCHEMA_ACCOUNT = vol.Schema({
   vol.Required(CONFIG_ACCOUNT_ID): str,
   vol.Required(CONFIG_MAIN_API_KEY): str,
@@ -150,7 +153,7 @@ DATA_SCHEMA_ACCOUNT = vol.Schema({
   vol.Required(CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES, default=CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
   vol.Required(CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET, default=CONFIG_DEFAULT_PREVIOUS_CONSUMPTION_OFFSET_IN_DAYS): cv.positive_int,
   vol.Required(CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET, default=CONFIG_DEFAULT_PREVIOUS_CONSUMPTION_OFFSET_IN_DAYS): cv.positive_int,
-  vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=40.0): cv.positive_float,
+  vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=DEFAULT_CALORIFIC_VALUE): cv.positive_float,
   vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP): cv.positive_float,
   vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float
 })
@@ -160,12 +163,14 @@ EVENT_ELECTRICITY_CURRENT_DAY_RATES = "octopus_energy_electricity_current_day_ra
 EVENT_ELECTRICITY_NEXT_DAY_RATES = "octopus_energy_electricity_next_day_rates"
 EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES = "octopus_energy_electricity_previous_consumption_rates"
 EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_OVERRIDE_RATES = "octopus_energy_electricity_previous_consumption_override_rates"
+EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_TARIFF_COMPARISON_RATES = "octopus_energy_electricity_previous_consumption_tariff_comparison_rates"
 
 EVENT_GAS_PREVIOUS_DAY_RATES = "octopus_energy_gas_previous_day_rates"
 EVENT_GAS_CURRENT_DAY_RATES = "octopus_energy_gas_current_day_rates"
 EVENT_GAS_NEXT_DAY_RATES = "octopus_energy_gas_next_day_rates"
 EVENT_GAS_PREVIOUS_CONSUMPTION_RATES = "octopus_energy_gas_previous_consumption_rates"
 EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES = "octopus_energy_gas_previous_consumption_override_rates"
+EVENT_GAS_PREVIOUS_CONSUMPTION_TARIFF_COMPARISON_RATES = "octopus_energy_gas_previous_consumption_tariff_comparison_rates"
 
 EVENT_NEW_SAVING_SESSION = "octopus_energy_new_octoplus_saving_session"
 EVENT_ALL_SAVING_SESSIONS = "octopus_energy_all_octoplus_saving_sessions"

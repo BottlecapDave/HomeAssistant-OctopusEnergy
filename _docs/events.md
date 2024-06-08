@@ -385,3 +385,61 @@ Each joined event item will include the following attributes
       message: >
         Saving session events updated. The latest joined event awarded {{ trigger.event.data.joined_events[0]["rewarded_octopoints"] }}
 ```
+
+## Electricity Previous Consumption Tariff Comparison Rates
+
+`octopus_energy_electricity_previous_consumption_tariff_comparison_rates`
+
+This is fired when the [tariff comparison](./setup/tariff_comparison.md) rates are updated.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `rates` | `array` | The list of rates applicable for the previous consumption tariff comparison |
+| `product_code` | `string` | The product code associated with previous consumption tariff comparison rates |
+| `tariff_code` | `string` | The tariff code associated with previous consumption tariff comparison rates |
+| `mprn` | `string` | The mprn of the meter associated with these rates |
+| `serial_number` | `string` | The serial number of the meter associated with these rates |
+
+### Automation Example
+
+```yaml
+- trigger:
+  - platform: event
+    event_type: octopus_energy_electricity_previous_consumption_tariff_comparison_rates
+  condition: []
+  action:
+  - service: persistent_notification.create
+    data:
+      title: "Rates Updated"
+      message: >
+        New rates available for {{ trigger.event.data.mprn }}. Starting value is {{ trigger.event.data.rates[0]["value_inc_vat"] }}
+```
+
+## Gas Previous Consumption Tariff Comparison Rates
+
+`octopus_energy_gas_previous_consumption_tariff_comparison_rates`
+
+This is fired when the [tariff comparison](./setup/tariff_comparison.md) rates are updated.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `rates` | `array` | The list of rates applicable for the previous consumption tariff comparison |
+| `product_code` | `string` | The product code associated with previous consumption tariff comparison rates |
+| `tariff_code` | `string` | The tariff code associated with previous consumption tariff comparison rates |
+| `mprn` | `string` | The mprn of the meter associated with these rates |
+| `serial_number` | `string` | The serial number of the meter associated with these rates |
+
+### Automation Example
+
+```yaml
+- trigger:
+  - platform: event
+    event_type: octopus_energy_gas_previous_consumption_tariff_comparison_rates
+  condition: []
+  action:
+  - service: persistent_notification.create
+    data:
+      title: "Rates Updated"
+      message: >
+        New rates available for {{ trigger.event.data.mprn }}. Starting value is {{ trigger.event.data.rates[0]["value_inc_vat"] }}
+```
