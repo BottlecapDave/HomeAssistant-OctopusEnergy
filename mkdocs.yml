@@ -8,6 +8,7 @@ nav:
     - ./setup/account.md
     - ./setup/target_rate.md
     - ./setup/cost_tracker.md
+    - ./setup/tariff_comparison.md
     - ./setup/energy_dashboard.md
   - Entities:
     - Electricity: ./entities/electricity.md
