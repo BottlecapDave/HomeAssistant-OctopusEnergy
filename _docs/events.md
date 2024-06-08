@@ -388,7 +388,7 @@ Each joined event item will include the following attributes
 
 ## Electricity Previous Consumption Tariff Comparison Rates
 
-`octopus_energy_electricity_previous_consumption_tariff_comparison_rates`
+`octopus_energy_elec_previous_consumption_tariff_comparison_rates`
 
 This is fired when the [tariff comparison](./setup/tariff_comparison.md) rates are updated.
 
@@ -405,7 +405,7 @@ This is fired when the [tariff comparison](./setup/tariff_comparison.md) rates a
 ```yaml
 - trigger:
   - platform: event
-    event_type: octopus_energy_electricity_previous_consumption_tariff_comparison_rates
+    event_type: octopus_energy_elec_previous_consumption_tariff_comparison_rates
   condition: []
   action:
   - service: persistent_notification.create
