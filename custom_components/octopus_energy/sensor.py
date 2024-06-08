@@ -85,13 +85,17 @@ async def get_unique_electricity_rates(hass, client: OctopusEnergyApiClient, tar
   total_unique_rates = await async_get_cached_tariff_total_unique_rates(hass, tariff)
   if total_unique_rates is None:
     current_date = now()
-    period_from = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
+    # Look at yesterdays rates so we have a complete picture
+    period_from = current_date.replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
     period_to = period_from + timedelta(days=1)
     rates = await client.async_get_electricity_rates(tariff.product, tariff.code, True, period_from, period_to)
     if rates is None:
       raise Exception(f"Failed to retrieve rates for tariff '{tariff.code}'")
     
-    total_unique_rates = len(get_unique_rates(current_date, rates))
+    total_unique_rates = len(get_unique_rates(current_date - timedelta(days=1), rates))
+    if total_unique_rates < 1:
+      raise Exception(f"Unique rates for tariff '{tariff.code}' is less than 1")
+
     await async_save_cached_tariff_total_unique_rates(hass, tariff.code, total_unique_rates)
 
   return total_unique_rates
