@@ -21,19 +21,23 @@ from .intelligent import async_mock_intelligent_data, get_intelligent_features, 
 
 from .config.main import async_migrate_main_config
 from .config.target_rates import async_migrate_target_config
+from .config.cost_tracker import async_migrate_cost_tracker_config
 from .utils import get_active_tariff
 from .utils.tariff_overrides import async_get_tariff_override
 
 from .const import (
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
+  CONFIG_KIND_TARIFF_COMPARISON,
   CONFIG_KIND_COST_TRACKER,
   CONFIG_KIND_TARGET_RATE,
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_VERSION,
+  DATA_GAS_RATES_COORDINATOR_KEY,
   DATA_INTELLIGENT_DEVICE,
   DATA_INTELLIGENT_MPAN,
   DATA_INTELLIGENT_SERIAL_NUMBER,
+  DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY,
   DOMAIN,
 
   CONFIG_MAIN_API_KEY,
@@ -49,6 +53,7 @@ from .const import (
 ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "text", "number", "switch", "time", "event"]
 TARGET_RATE_PLATFORMS = ["binary_sensor"]
 COST_TRACKER_PLATFORMS = ["sensor"]
+TARIFF_COMPARISON_PLATFORMS = ["sensor"]
 
 from .api_client import AuthenticationException, OctopusEnergyApiClient, RequestException
 
@@ -74,9 +79,15 @@ async def async_migrate_entry(hass, config_entry):
       new_data = await async_migrate_main_config(config_entry.version, config_entry.data)
       new_options = await async_migrate_main_config(config_entry.version, config_entry.options)
       title = new_data[CONFIG_ACCOUNT_ID]
-    else:
+    elif CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
       new_data = await async_migrate_target_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
       new_options = await async_migrate_target_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
+    elif CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
+      new_data = await async_migrate_cost_tracker_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
+      new_options = await async_migrate_cost_tracker_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
+    elif CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:
+      new_data = await async_migrate_cost_tracker_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
+      new_options = await async_migrate_cost_tracker_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
     
     config_entry.version = CONFIG_VERSION
     hass.config_entries.async_update_entry(config_entry, title=title, data=new_data, options=new_options)
@@ -137,11 +148,12 @@ async def async_setup_entry(hass, entry):
         for meter in point["meters"]:
           mpan = point["mpan"]
           serial_number = meter["serial_number"]
-          electricity_rates_coordinator_key = DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)
-          if electricity_rates_coordinator_key not in hass.data[DOMAIN][account_id]:
+          previous_consumption_coordinator_key = DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)
+          if previous_consumption_coordinator_key not in hass.data[DOMAIN][account_id]:
             raise ConfigEntryNotReady(f"Electricity rates have not been setup for {mpan}/{serial_number}")
 
     await hass.config_entries.async_forward_entry_setups(entry, TARGET_RATE_PLATFORMS)
+  
   elif config[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
     if DOMAIN not in hass.data or account_id not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN][account_id]:
       raise ConfigEntryNotReady("Account has not been setup")
@@ -156,11 +168,42 @@ async def async_setup_entry(hass, entry):
         for meter in point["meters"]:
           mpan = point["mpan"]
           serial_number = meter["serial_number"]
-          electricity_rates_coordinator_key = DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)
-          if electricity_rates_coordinator_key not in hass.data[DOMAIN][account_id]:
+          previous_consumption_coordinator_key = DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)
+          if previous_consumption_coordinator_key not in hass.data[DOMAIN][account_id]:
             raise ConfigEntryNotReady(f"Electricity rates have not been setup for {mpan}/{serial_number}")
 
     await hass.config_entries.async_forward_entry_setups(entry, COST_TRACKER_PLATFORMS)
+  
+  elif config[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:
+    if DOMAIN not in hass.data or account_id not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN][account_id]:
+      raise ConfigEntryNotReady("Account has not been setup")
+    
+    now = utcnow()
+    account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+    account_info = account_result.account if account_result is not None else None
+    for point in account_info["electricity_meter_points"]:
+      # We only care about points that have active agreements
+      electricity_tariff = get_active_tariff(now, point["agreements"])
+      if electricity_tariff is not None:
+        for meter in point["meters"]:
+          mpan = point["mpan"]
+          serial_number = meter["serial_number"]
+          previous_consumption_coordinator_key = DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY.format(mpan, serial_number)
+          if previous_consumption_coordinator_key not in hass.data[DOMAIN][account_id]:
+            raise ConfigEntryNotReady(f"Previous electricity consumption has not been setup for {mpan}/{serial_number}")
+          
+    for point in account_info["gas_meter_points"]:
+      # We only care about points that have active agreements
+      gas_tariff = get_active_tariff(now, point["agreements"])
+      if gas_tariff is not None:
+        for meter in point["meters"]:
+          mprn = point["mprn"]
+          serial_number = meter["serial_number"]
+          previous_consumption_coordinator_key = DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY.format(mprn, serial_number)
+          if previous_consumption_coordinator_key not in hass.data[DOMAIN][account_id]:
+            raise ConfigEntryNotReady(f"Previous gas consumption has not been setup for {mprn}/{serial_number}")
+
+    await hass.config_entries.async_forward_entry_setups(entry, TARIFF_COMPARISON_PLATFORMS)
   
   entry.async_on_unload(entry.add_update_listener(options_update_listener))
 

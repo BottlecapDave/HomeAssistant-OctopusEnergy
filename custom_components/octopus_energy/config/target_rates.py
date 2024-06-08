@@ -33,7 +33,7 @@ from ..const import (
   REGEX_WEIGHTING
 )
 
-from . import get_meter_tariffs
+from . import get_electricity_meter_tariffs
 from ..utils.tariff_check import is_agile_tariff
 from ..target_rates import create_weighting
 
@@ -202,7 +202,7 @@ def validate_target_rate_config(data, account_info, now):
     if is_time_frame_long_enough(data[CONFIG_TARGET_HOURS], start_time, end_time) == False:
       errors[CONFIG_TARGET_HOURS] = "invalid_hours_time_frame"
 
-  meter_tariffs = get_meter_tariffs(account_info, now)
+  meter_tariffs = get_electricity_meter_tariffs(account_info, now)
   if (data[CONFIG_TARGET_MPAN] not in meter_tariffs):
     errors[CONFIG_TARGET_MPAN] = "invalid_mpan"
   elif is_time_valid:

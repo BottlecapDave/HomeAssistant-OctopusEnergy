@@ -8,6 +8,8 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from homeassistant.helpers.entity import generate_entity_id, DeviceInfo
 
+from homeassistant.helpers import issue_registry as ir
+
 from ..const import (DOMAIN, REGEX_TARIFF_PARTS)
 
 from . import get_electricity_tariff_override_key
@@ -71,6 +73,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(OctopusEner
     self._attr_native_value = value
     self._hass.data[DOMAIN][self._account_id][get_electricity_tariff_override_key(self._serial_number, self._mpan)] = value
     self.async_write_ha_state()
+    await self.async_check_is_used()
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
@@ -87,3 +90,21 @@ class OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride(OctopusEner
       self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeElectricityCostTariffOverride state: {self._attr_state}')
+    
+    await self.async_check_is_used()
+
+  async def async_check_is_used(self):
+    key = f"cost_override_obsolete_{self._serial_number}_{self._mpan}"
+    if self._tariff_code != self._attr_native_value:
+      ir.async_create_issue(
+        self._hass,
+        DOMAIN,
+        key,
+        is_fixable=False,
+        severity=ir.IssueSeverity.ERROR,
+        learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/repairs/cost_override_obsolete",
+        translation_key="cost_override_obsolete",
+        translation_placeholders={ "type": "electricity", "account_id": self._account_id, "mpan_mprn": self._mpan, "serial_number": self._serial_number },
+      )
+    else:
+      ir.async_delete_issue(self._hass, DOMAIN, key)
