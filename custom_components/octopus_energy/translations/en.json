@@ -196,6 +196,10 @@
     "invalid_api_key": {
       "title": "Invalid API key for account \"{account_id}\"",
       "description": "The configured API key appears to be invalid for the configured account \"{account_id}\". Please reconfigure to fix this issue."
+    },
+    "electricity_unique_rates_updated": {
+      "title": "\"{account_id}\" requires reloading",
+      "description": "The electricity rates for \"{account_id}\" have updated which result in either entities no longer updating correctly or new entities becoming available. Please reload the integration associated with this account to fix this issue."
     }
   }
 }

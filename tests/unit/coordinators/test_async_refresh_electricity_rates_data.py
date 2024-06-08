@@ -836,3 +836,59 @@ async def test_when_rate_is_intelligent_and_dispatches_not_available_then_existi
     assert retrieved_rates == existing_rates
     assert mock_api_called == False
     assert len(actual_fired_events.keys()) == 0
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("current_unique_rates,previous_unique_rates,expected_unique_rates_changed_event_fired",[
+  ([1, 2, 3], [1, 2, 3], False),
+  ([1, 2], [1, 2], False),
+  ([1], [1, 2, 3, 4], False),
+  ([1, 2, 3, 4], [1], False),
+  ([1], [1, 2, 3], True),
+  ([1, 2], [1, 2, 3], True),
+  ([1, 2, 3], [1, 2], True),
+  ([1, 2, 3], [1], True),
+])
+async def test_when_rates_change_correctly_then_unique_rates_changed_event_fired(current_unique_rates: list, previous_unique_rates: list, expected_unique_rates_changed_event_fired: bool):
+  expected_period_from = (current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+  expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
+  expected_rates = create_rate_data(expected_period_from, expected_period_to, current_unique_rates)
+  
+  # Put rates into reverse order to make sure sorting works
+  expected_rates.sort(key=lambda rate: rate["start"], reverse=True)
+
+  assert expected_rates[-1]["start"] == expected_period_from
+  assert expected_rates[0]["end"] == expected_period_to
+  async def async_mocked_get_electricity_rates(*args, **kwargs):
+    mock_api_called = True
+    return expected_rates
+  
+  def fire_event(name, metadata):
+    return None
+  
+  unique_rates_changed_called = False
+  async def unique_rates_changed(name, metadata):
+    nonlocal unique_rates_changed_called
+    unique_rates_changed_called = True
+    return None
+  
+  account_info = get_account_info()
+  existing_rates = ElectricityRatesCoordinatorResult(period_from, 1, create_rate_data(period_from, period_to, previous_unique_rates))
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_rates=async_mocked_get_electricity_rates):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_rates: ElectricityRatesCoordinatorResult = await async_refresh_electricity_rates_data(
+      current,
+      client,
+      account_info,
+      mpan,
+      serial_number,
+      True,
+      False,
+      existing_rates,
+      None,
+      True,
+      fire_event,
+      unique_rates_changed=unique_rates_changed
+    )
+
+  assert unique_rates_changed_called == expected_unique_rates_changed_event_fired

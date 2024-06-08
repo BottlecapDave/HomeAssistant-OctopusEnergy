@@ -1,11 +1,12 @@
 import logging
 from datetime import datetime, timedelta
-from typing import Callable, Any
+from typing import Awaitable, Callable, Any
 
 from homeassistant.util.dt import (now, as_utc)
 from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
 )
+from homeassistant.helpers import issue_registry as ir
 
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
@@ -23,9 +24,11 @@ from ..const import (
 
 from ..api_client import ApiException, OctopusEnergyApiClient
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
-from ..utils import private_rates_to_public_rates
+from ..utils import Tariff, private_rates_to_public_rates
 from . import BaseCoordinatorResult, get_electricity_meter_tariff, raise_rate_events
 from ..intelligent import adjust_intelligent_rates, is_intelligent_product
+from ..utils.rate_information import get_unique_rates, has_peak_rates
+from ..utils.tariff_cache import async_get_cached_tariff_total_unique_rates, async_save_cached_tariff_total_unique_rates
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -52,7 +55,8 @@ async def async_refresh_electricity_rates_data(
     dispatches_result: IntelligentDispatchesCoordinatorResult,
     planned_dispatches_supported: bool,
     fire_event: Callable[[str, "dict[str, Any]"], None],
-    tariff_override = None
+    tariff_override = None,
+    unique_rates_changed: Callable[[Tariff, int], Awaitable[None]] = None
   ) -> ElectricityRatesCoordinatorResult: 
   if (account_info is not None):
     period_from = as_utc((current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
@@ -99,6 +103,16 @@ async def async_refresh_electricity_rates_data(
                           EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
                           EVENT_ELECTRICITY_CURRENT_DAY_RATES,
                           EVENT_ELECTRICITY_NEXT_DAY_RATES)
+        
+        current_unique_rates = len(get_unique_rates(current, new_rates))
+        previous_unique_rates = len(get_unique_rates(current, existing_rates_result.rates)) if existing_rates_result is not None and existing_rates_result.rates is not None else None
+
+        # Check if rates have changed
+        if ((has_peak_rates(current_unique_rates) and has_peak_rates(previous_unique_rates) == False) or
+            (has_peak_rates(current_unique_rates) == False and has_peak_rates(previous_unique_rates)) or
+            (has_peak_rates(current_unique_rates) and has_peak_rates(previous_unique_rates) and current_unique_rates != previous_unique_rates)):
+          if unique_rates_changed is not None:
+            await unique_rates_changed(tariff, current_unique_rates)
         
         return ElectricityRatesCoordinatorResult(current, 1, new_rates, original_rates, current)
       
@@ -159,6 +173,18 @@ async def async_refresh_electricity_rates_data(
       )
   return existing_rates_result
 
+async def async_update_unique_rates(hass, account_id: str, tariff: Tariff, total_unique_rates: int):
+  await async_save_cached_tariff_total_unique_rates(hass, tariff.code, total_unique_rates)
+  ir.async_create_issue(
+    hass,
+    DOMAIN,
+    f"electricity_unique_rates_updated_{account_id}",
+    is_fixable=False,
+    severity=ir.IssueSeverity.WARNING,
+    translation_key="electricity_unique_rates_updated",
+    translation_placeholders={ "account_id": account_id },
+  )
+
 async def async_setup_electricity_rates_coordinator(hass,
                                                     account_id: str,
                                                     target_mpan: str,
@@ -193,7 +219,8 @@ async def async_setup_electricity_rates_coordinator(hass,
       dispatches,
       planned_dispatches_supported,
       hass.bus.async_fire,
-      tariff_override
+      tariff_override,
+      lambda tariff, total_unique_rates: async_update_unique_rates(hass, account_id, tariff, total_unique_rates)
     )
 
     return hass.data[DOMAIN][account_id][key]
