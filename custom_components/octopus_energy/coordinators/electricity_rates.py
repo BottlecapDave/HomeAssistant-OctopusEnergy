@@ -20,6 +20,7 @@ from ..const import (
   EVENT_ELECTRICITY_NEXT_DAY_RATES,
   EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
   REFRESH_RATE_IN_MINUTES_RATES,
+  REPAIR_UNIQUE_RATES_CHANGED_KEY,
 )
 
 from ..api_client import ApiException, OctopusEnergyApiClient
@@ -111,7 +112,7 @@ async def async_refresh_electricity_rates_data(
         if ((has_peak_rates(current_unique_rates) and has_peak_rates(previous_unique_rates) == False) or
             (has_peak_rates(current_unique_rates) == False and has_peak_rates(previous_unique_rates)) or
             (has_peak_rates(current_unique_rates) and has_peak_rates(previous_unique_rates) and current_unique_rates != previous_unique_rates)):
-          if unique_rates_changed is not None:
+          if previous_unique_rates is not None and unique_rates_changed is not None:
             await unique_rates_changed(tariff, current_unique_rates)
         
         return ElectricityRatesCoordinatorResult(current, 1, new_rates, original_rates, current)
@@ -178,7 +179,7 @@ async def async_update_unique_rates(hass, account_id: str, tariff: Tariff, total
   ir.async_create_issue(
     hass,
     DOMAIN,
-    f"electricity_unique_rates_updated_{account_id}",
+    REPAIR_UNIQUE_RATES_CHANGED_KEY.format(account_id),
     is_fixable=False,
     severity=ir.IssueSeverity.WARNING,
     translation_key="electricity_unique_rates_updated",

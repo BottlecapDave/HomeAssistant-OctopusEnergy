@@ -19,6 +19,8 @@ from ..const import (
   DATA_ACCOUNT,
   DATA_ACCOUNT_COORDINATOR,
   REFRESH_RATE_IN_MINUTES_ACCOUNT,
+  REPAIR_ACCOUNT_NOT_FOUND,
+  REPAIR_INVALID_API_KEY,
 )
 
 from ..api_client import ApiException, AuthenticationException, OctopusEnergyApiClient
@@ -48,7 +50,7 @@ async def async_refresh_account(
         ir.async_create_issue(
           hass,
           DOMAIN,
-          f"account_not_found_{account_id}",
+          REPAIR_ACCOUNT_NOT_FOUND.format(account_id),
           is_fixable=False,
           severity=ir.IssueSeverity.ERROR,
           learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/repairs/account_not_found",
@@ -58,8 +60,8 @@ async def async_refresh_account(
       else:
         _LOGGER.debug('Account information retrieved')
 
-        ir.async_delete_issue(hass, DOMAIN, f"account_not_found_{account_id}")
-        ir.async_delete_issue(hass, DOMAIN, f"invalid_api_key_{account_id}")
+        ir.async_delete_issue(hass, DOMAIN, REPAIR_ACCOUNT_NOT_FOUND.format(account_id))
+        ir.async_delete_issue(hass, DOMAIN, REPAIR_INVALID_API_KEY.format(account_id))
 
         if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
           for point in account_info["electricity_meter_points"]:
@@ -80,7 +82,7 @@ async def async_refresh_account(
         ir.async_create_issue(
           hass,
           DOMAIN,
-          f"invalid_api_key_{account_id}",
+          REPAIR_INVALID_API_KEY.format(account_id),
           is_fixable=False,
           severity=ir.IssueSeverity.ERROR,
           translation_key="invalid_api_key",

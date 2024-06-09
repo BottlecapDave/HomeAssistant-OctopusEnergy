@@ -47,7 +47,10 @@ from .const import (
 
   DATA_CLIENT,
   DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
-  DATA_ACCOUNT
+  DATA_ACCOUNT,
+  REPAIR_ACCOUNT_NOT_FOUND,
+  REPAIR_INVALID_API_KEY,
+  REPAIR_UNIQUE_RATES_CHANGED_KEY
 )
 
 ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "text", "number", "switch", "time", "event"]
@@ -229,9 +232,13 @@ async def async_setup_dependencies(hass, config):
   client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap)
   hass.data[DOMAIN][account_id][DATA_CLIENT] = client
 
+  # Delete any issues that may have been previously raised
+  ir.async_delete_issue(hass, DOMAIN, REPAIR_UNIQUE_RATES_CHANGED_KEY.format(account_id))
+  ir.async_delete_issue(hass, DOMAIN, REPAIR_ACCOUNT_NOT_FOUND.format(account_id))
+
   try:
     account_info = await client.async_get_account(config[CONFIG_ACCOUNT_ID])
-    ir.async_delete_issue(hass, DOMAIN, f"invalid_api_key_{account_id}")
+    ir.async_delete_issue(hass, DOMAIN, REPAIR_INVALID_API_KEY.format(account_id))
     if (account_info is None):
       raise ConfigEntryNotReady(f"Failed to retrieve account information")
   except Exception as e:
@@ -242,7 +249,7 @@ async def async_setup_dependencies(hass, config):
       ir.async_create_issue(
         hass,
         DOMAIN,
-        f"invalid_api_key_{account_id}",
+        REPAIR_INVALID_API_KEY.format(account_id),
         is_fixable=False,
         severity=ir.IssueSeverity.ERROR,
         translation_key="invalid_api_key",

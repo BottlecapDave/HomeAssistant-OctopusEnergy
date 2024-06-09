@@ -175,6 +175,10 @@ EVENT_GAS_PREVIOUS_CONSUMPTION_TARIFF_COMPARISON_RATES = "octopus_energy_gas_pre
 EVENT_NEW_SAVING_SESSION = "octopus_energy_new_octoplus_saving_session"
 EVENT_ALL_SAVING_SESSIONS = "octopus_energy_all_octoplus_saving_sessions"
 
+REPAIR_UNIQUE_RATES_CHANGED_KEY = "electricity_unique_rates_updated_{}"
+REPAIR_INVALID_API_KEY = "invalid_api_key_{}"
+REPAIR_ACCOUNT_NOT_FOUND = "account_not_found_{}"
+
 # During BST, two records are returned before the rest of the data is available
 MINIMUM_CONSUMPTION_DATA_LENGTH = 3
 
