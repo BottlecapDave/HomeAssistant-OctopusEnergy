@@ -13,7 +13,7 @@ class RequestHandler(BaseHTTPRequestHandler):
     query = urlparse(self.path).query
     params = dict(qc.split("=") for qc in query.split("&"))
 
-    auth_header = self.headers.getheader('Authorization')
+    auth_header = self.headers.get('Authorization')
     if auth_header == None or auth_header != auth_token:
       self.send_response(401)
       self.send_header('Content-type', 'text/html')
@@ -73,7 +73,8 @@ def to_response(response: requests.Response, result_name: str):
   return output.encode("utf8")
 
 if __name__ == "__main__":
-  server_address = ("", 8000)
+  target_port = 8000
+  server_address = ("", target_port)
   httpd = HTTPServer(server_address, RequestHandler)
-  print("Secure server started on port 8000...")
+  print(f"Secure server started on port {target_port}...")
   httpd.serve_forever()
