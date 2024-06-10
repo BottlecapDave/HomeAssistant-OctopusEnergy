@@ -1,0 +1,1812 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      
+        <link rel="prev" href="../account/">
+      
+      
+        <link rel="next" href="../cost_tracker/">
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
+    
+    
+      
+        <title>Target Rate Sensor(s) - Home Assistant Octopus Energy</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.6543a935.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="light-blue" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#target-rate-sensors" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Home Assistant Octopus Energy" class="md-header__button md-logo" aria-label="Home Assistant Octopus Energy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Home Assistant Octopus Energy
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Target Rate Sensor(s)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="light-blue" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="light-blue" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/bottlecapdave/homeassistant-octopusenergy" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Home Assistant Octopus Energy" class="md-nav__button md-logo" aria-label="Home Assistant Octopus Energy" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    Home Assistant Octopus Energy
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/bottlecapdave/homeassistant-octopusenergy" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Home
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Setup
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            Setup
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../account/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Account
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Target Rate Sensor(s)
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Target Rate Sensor(s)
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setup
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#target-timeframe" class="md-nav__link">
+    <span class="md-ellipsis">
+      Target Timeframe
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Target Timeframe">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agile-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      Agile Users
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hours" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hours
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#offset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Offset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rolling-target" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rolling Target
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#latest-period" class="md-nav__link">
+    <span class="md-ellipsis">
+      Latest Period
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#invert-target-rates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Invert Target Rates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimummaximum-rates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Minimum/Maximum Rates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#weighting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Weighting
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Attributes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Services
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#continuous" class="md-nav__link">
+    <span class="md-ellipsis">
+      Continuous
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#intermittent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Intermittent
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_tracker/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cost Tracker Sensor(s)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tariff_comparison/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tariff Comparison
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../energy_dashboard/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Energy Dashboard
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Entities
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            Entities
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entities/electricity/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Electricity
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entities/gas/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Gas
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entities/octoplus/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Octoplus
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entities/intelligent/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Intelligent
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entities/wheel_of_fortune/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Wheel Of Fortune
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entities/greenness_forecast/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Greenness Forecast
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../services/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Services
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../events/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Events
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Repairs
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            Repairs
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../repairs/account_not_found/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - Account not found
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../repairs/invalid_target_rate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - Invalid Target Rate
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../repairs/octopus_mini_not_valid/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - Octopus Mini not valid
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../repairs/unknown_product/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - Unknown product
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../community/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Community
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../blueprints/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Blueprints
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../faq/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FAQ
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../sponsorship/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Sponsorship
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup" class="md-nav__link">
+    <span class="md-ellipsis">
+      Setup
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#target-timeframe" class="md-nav__link">
+    <span class="md-ellipsis">
+      Target Timeframe
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Target Timeframe">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#agile-users" class="md-nav__link">
+    <span class="md-ellipsis">
+      Agile Users
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#hours" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hours
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#offset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Offset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rolling-target" class="md-nav__link">
+    <span class="md-ellipsis">
+      Rolling Target
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#latest-period" class="md-nav__link">
+    <span class="md-ellipsis">
+      Latest Period
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#invert-target-rates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Invert Target Rates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimummaximum-rates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Minimum/Maximum Rates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#weighting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Weighting
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Attributes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Services
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      Examples
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#continuous" class="md-nav__link">
+    <span class="md-ellipsis">
+      Continuous
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#intermittent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Intermittent
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="target-rate-sensors">Target Rate Sensor(s)<a class="headerlink" href="#target-rate-sensors" title="Permanent link">#</a></h1>
+<p>After you've configured your <a href="../account/">account</a>, you'll be able to configure target rate sensors. These are configured by adding subsequent instances of the integration going through the <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy">normal flow</a>, and selecting <code>Target Rate</code> in the provided menu.</p>
+<p>These sensors calculate the lowest continuous or intermittent rates <strong>within a 24 hour period</strong> and turn on when these periods are active. If you are targeting an export meter, then the sensors will calculate the highest continuous or intermittent rates <strong>within a 24 hour period</strong> and turn on when these periods are active.</p>
+<p>These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money. You can go through this flow as many times as you need target rate sensors.</p>
+<p>Each sensor will be in the form <code>binary_sensor.octopus_energy_target_{{TARGET_RATE_NAME}}</code>.</p>
+<h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">#</a></h2>
+<h3 id="target-timeframe">Target Timeframe<a class="headerlink" href="#target-timeframe" title="Permanent link">#</a></h3>
+<p>If you're wanting your devices to come on during a certain timeframe, for example while you're at work, you can set the minimum and/or maximum times for your target rate sensor. These are specified in 24 hour clock format and will attempt to find the optimum discovered period during these times.</p>
+<p>The <code>from/start</code> time can be set in the field <code>The minimum time to start the device</code> and the <code>to/end</code> time can be set in the field <code>The maximum time to stop the device</code>.</p>
+<p>If not specified, these default from <code>00:00:00</code> to <code>00:00:00</code> the following day.</p>
+<p>If for example you want to look at prices overnight you could set the minimum time to something like <code>20:00</code> and your maximum time to something like <code>05:00</code>. If the minimum time is "before" the maximum time, then it will treat the maximum time as the time for the following day.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>The target rate will not be evaluated until <strong>all rates</strong> are available for the specified timeframe. Therefore if we're looking between <code>00:00</code> and <code>00:00</code>, full rate information must exist between this time. Whereas if times are between <code>10:00</code> and <code>16:00</code>, then rate information is only needed between these times before it can be calculated.</p>
+</div>
+<h4 id="agile-users">Agile Users<a class="headerlink" href="#agile-users" title="Permanent link">#</a></h4>
+<p>If you are an agile user, then agile prices are available from <a href="https://developer.octopus.energy/docs/api/#agile-octopus">11pm to 11pm UK time</a> and published at <code>16:00</code> UK time. Therefore, you cannot specify a timeframe that starts before <code>16:00</code> and ends after <code>23:00</code> because the target rate(s) will not be able to be calculated until part way through the specified timeframe as this is when the full set will become available. We recommend you set your timeframes to <code>16:00</code>/<code>16:00</code> or <code>23:00</code>/<code>23:00</code> if you're wanting to target a full 24 hours, but other valid times might include</p>
+<table>
+<thead>
+<tr>
+<th>from/start</th>
+<th>to/end</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>10:00</code></td>
+<td><code>23:00</code></td>
+<td>our start time is before 4pm, but our end time is not after 11pm.</td>
+</tr>
+<tr>
+<td><code>16:30</code></td>
+<td><code>23:30</code></td>
+<td>our start time is after 4pm, so our end time can be after 11pm.</td>
+</tr>
+<tr>
+<td><code>17:00</code></td>
+<td><code>14:00</code></td>
+<td>our start time is after 4pm and our end time is before our start time so therefore for the next day. Doing this might delay when the target rate sensor is calculated depending on when the rates are made available for the next day (e.g. if they're late for publishing).</td>
+</tr>
+</tbody>
+</table>
+<p>This is not automatically done by the integration as I didn't want to cause confusion for users when they didn't set anything nor did I want behaviour to implicitly change when users switch tariffs.</p>
+<p>See the examples below for how this can be used and how rates will be selected.</p>
+<h3 id="hours">Hours<a class="headerlink" href="#hours" title="Permanent link">#</a></h3>
+<p>The hours that you require for the sensor to find. This should be in decimal format and represent 30 minute increments. For example 30 minutes would be <code>0.5</code>, 1 hour would be <code>1</code> or <code>1.0</code>, 1 hour and 30 minutes would be <code>1.5</code>, etc.</p>
+<h3 id="offset">Offset<a class="headerlink" href="#offset" title="Permanent link">#</a></h3>
+<p>You may want your target rate sensors to turn on a period of time before the optimum discovered period. For example, you may be turning on a robot vacuum cleaner for a 30 minute clean and want it to charge during the optimum period. For this, you'd use the <code>offset</code> field and set it to <code>-00:30:00</code>, which can be both positive and negative and go up to a maximum of 24 hours. This will shift when the sensor turns on relative to the optimum period. For example, if the optimum period is between <code>2023-01-18T10:00</code> and <code>2023-01-18T11:00</code> with an offset of <code>-00:30:00</code>, the sensor will turn on between <code>2023-01-18T09:30</code> and <code>2023-01-18T10:30</code>.</p>
+<h3 id="rolling-target">Rolling Target<a class="headerlink" href="#rolling-target" title="Permanent link">#</a></h3>
+<p>Depending on how you're going to use the sensor, you might want the best period to be found throughout the day so it's always available. For example, you might be using the sensor to turn on a washing machine which you might want to come on at the best time regardless of when you use the washing machine. You can activate this behaviour by setting the <code>Re-evaluate multiple times a day</code> checkbox.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Using this can result in the sensor coming on more than the target hours, and therefore should be used in conjunction with other sensors. </p>
+</div>
+<p>However, you might also only want the target time to occur once a day so once the best time for that day has passed it won't turn on again. For example, you might be using the sensor to turn on something that isn't time critical and could wait till the next day like a charger. This is the default behaviour and is done by not setting the <code>Re-evaluate multiple times a day</code> checkbox.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>The next set of target times will not be calculated until all target times are in the past. This will have an effect on the <code>next</code> set of attributes on the sensor.</p>
+</div>
+<h3 id="latest-period">Latest Period<a class="headerlink" href="#latest-period" title="Permanent link">#</a></h3>
+<p>Depending on how you're going to use the sensor, you might want the best period at the latest possible time. For example, you might be using the sensor to turn on an immersion heater which you'll want to come on at the end of the cheapest found period. </p>
+<p>For instance if you turn this on and the cheapest period is between <code>2023-01-01T00:30</code> and <code>2023-01-01T05:00</code> and your target rate is for 1 hour, then it will come on between <code>2023-01-01T04:00</code> and <code>2023-01-01T05:00</code> instead of <code>2023-01-01T00:30</code> and <code>2023-01-01T01:30</code>.</p>
+<p>This feature is toggled on by the <code>Find last applicable rates</code> checkbox.</p>
+<h3 id="invert-target-rates">Invert Target Rates<a class="headerlink" href="#invert-target-rates" title="Permanent link">#</a></h3>
+<p>If this is checked, then the normal behaviour of the sensor will be reversed. This means if you target an <strong>import</strong> sensor, with this checked it will find the most expensive rates. Similarly if you target an <strong>export</strong> meter, with this checked it will find the cheapest rates.</p>
+<h3 id="minimummaximum-rates">Minimum/Maximum Rates<a class="headerlink" href="#minimummaximum-rates" title="Permanent link">#</a></h3>
+<p>There may be times that you want the target rate sensors to not take into account rates that are above or below a certain value (e.g. you don't want the sensor to turn on when rates go crazy or where it would be more beneficial to export).</p>
+<h3 id="weighting">Weighting<a class="headerlink" href="#weighting" title="Permanent link">#</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>This is only available for continuous target rate sensors</p>
+</div>
+<p>There may be times when the device you're wanting the target rate sensor to turn on doesn't have a consistent power draw. You can specify a weighting which can be applied to each discovered 30 minute slot. This can be specified in a few different ways. Take the following example weighting for a required 2 hours.</p>
+<ul>
+<li><code>1,1,2,1</code> - This applies a weighting of 1 to the first, second and forth slot and a weighting of 2 to the third slot. This will try and make the cheapest slot fall on the third slot, as long as the surrounding slots are cheaper than other continuous slots.</li>
+<li><code>*,2,1</code> - This applies a weighting of 1 to the first, second and forth slot and a weighting of 2 to the third slot. The <code>*</code> can be used as a placeholder for the standard weighting of 1 for all slots before the ones specified.</li>
+<li><code>1,1,2,*</code> - This applies a weighting of 1 to the first, second and forth slot and a weighting of 2 to the third slot. The <code>*</code> can be used as a placeholder for the standard weighting of 1 for all slots after the ones specified.</li>
+<li><code>2,*,2</code> - This applies a weighting of 2 to the first and forth slot and a weighting of 1 to all slots in between. The <code>*</code> can be used as a placeholder for the standard weighting of 1 for all slots in between the specified slots.</li>
+</ul>
+<p>Each slot weighting must be a whole number and positive.</p>
+<p>You can also use weightings to ignore slots. This can be done by assigning a value of 0 for the desired slot.</p>
+<h2 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">#</a></h2>
+<p>The following attributes are available on each sensor</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>name</code></td>
+<td><code>string</code></td>
+<td>The name of the sensor.</td>
+</tr>
+<tr>
+<td><code>hours</code></td>
+<td><code>string</code></td>
+<td>The total hours are being discovered.</td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td><code>string</code></td>
+<td>The type/mode for the target rate sensor. This will be either <code>continuous</code> or <code>intermittent</code>.</td>
+</tr>
+<tr>
+<td><code>mpan</code></td>
+<td><code>string</code></td>
+<td>The <code>mpan</code> of the meter being used to determine the rates.</td>
+</tr>
+<tr>
+<td><code>rolling_target</code></td>
+<td><code>boolean</code></td>
+<td>Determines if <code>Re-evaluate multiple times a day</code> is turned on for the sensor.</td>
+</tr>
+<tr>
+<td><code>last_rates</code></td>
+<td><code>boolean</code></td>
+<td>Determines if <code>Find last applicable rates</code> is turned off for the sensor.</td>
+</tr>
+<tr>
+<td><code>offset</code></td>
+<td><code>string</code></td>
+<td>The offset configured for the sensor.</td>
+</tr>
+<tr>
+<td><code>start_time</code></td>
+<td><code>string</code></td>
+<td>The start time configured for the sensor.</td>
+</tr>
+<tr>
+<td><code>end_time</code></td>
+<td><code>string</code></td>
+<td>The end time configured for the sensor.</td>
+</tr>
+<tr>
+<td><code>is_target_export</code></td>
+<td><code>boolean</code></td>
+<td>Determines if the meter being targeted is exporting energy. This will change the behaviour of the sensor to look for the highest rates.</td>
+</tr>
+<tr>
+<td><code>rates_incomplete</code></td>
+<td><code>boolean</code></td>
+<td>True if rate information is incomplete and therefore target times cannot be calculated; False otherwise.</td>
+</tr>
+<tr>
+<td><code>target_times</code></td>
+<td><code>array</code></td>
+<td>The discovered times and rates the sensor will come on for.</td>
+</tr>
+<tr>
+<td><code>overall_average_cost</code></td>
+<td><code>float</code></td>
+<td>The average cost/rate of all discovered times during the current <strong>24 hour period</strong>.</td>
+</tr>
+<tr>
+<td><code>overall_min_cost</code></td>
+<td><code>float</code></td>
+<td>The minimum cost/rate of all discovered times during the current <strong>24 hour period</strong>.</td>
+</tr>
+<tr>
+<td><code>overall_max_cost</code></td>
+<td><code>float</code></td>
+<td>The maximum cost/rate of all discovered times during the current <strong>24 hour period</strong>.</td>
+</tr>
+<tr>
+<td><code>current_duration_in_hours</code></td>
+<td><code>float</code></td>
+<td>The duration the sensor will be on for, for the current continuous discovered period. For <code>continuous</code> sensors, this will be the entire period. For <code>intermittent</code> sensors, this could be the entire period or a portion of it, depending on the discovered times. This could be <code>none</code>/<code>unknown</code> if the sensor is not currently in a discovered period.</td>
+</tr>
+<tr>
+<td><code>current_average_cost</code></td>
+<td><code>float</code></td>
+<td>The average cost/rate for the current continuous discovered period. This could be <code>none</code>/<code>unknown</code> if the sensor is not currently in a discovered period.</td>
+</tr>
+<tr>
+<td><code>current_min_cost</code></td>
+<td><code>float</code></td>
+<td>The min cost/rate for the current continuous discovered period. This could be <code>none</code>/<code>unknown</code> if the sensor is not currently in a discovered period.</td>
+</tr>
+<tr>
+<td><code>current_max_cost</code></td>
+<td><code>float</code></td>
+<td>The max cost/rate for the current continuous discovered period. This could be <code>none</code>/<code>unknown</code> if the sensor is not currently in a discovered period.</td>
+</tr>
+<tr>
+<td><code>next_time</code></td>
+<td><code>datetime</code></td>
+<td>The next date/time the sensor will come on. This will only be populated if <code>target_times</code> has been calculated and at least one period/block is in the future.</td>
+</tr>
+<tr>
+<td><code>next_duration_in_hours</code></td>
+<td><code>float</code></td>
+<td>The duration the sensor will be on for, for the next continuous discovered period. For <code>continuous</code> sensors, this will be the entire period. For <code>intermittent</code> sensors, this could be the entire period or a portion of it, depending on the discovered times. This will only be populated if <code>target_times</code> has been calculated and at least one period/block is in the future.</td>
+</tr>
+<tr>
+<td><code>next_average_cost</code></td>
+<td><code>float</code></td>
+<td>The average cost/rate for the next continuous discovered period. For <code>continuous</code> sensors, this will be the entire period. For <code>intermittent</code> sensors, this could be the entire period or a portion of it, depending on the discovered times. This will only be populated if <code>target_times</code> has been calculated and at least one period/block is in the future.</td>
+</tr>
+<tr>
+<td><code>next_min_cost</code></td>
+<td><code>float</code></td>
+<td>The average cost/rate for the next continuous discovered period. This will only be populated if <code>target_times</code> has been calculated and at least one period/block is in the future.</td>
+</tr>
+<tr>
+<td><code>next_max_cost</code></td>
+<td><code>float</code></td>
+<td>The average cost/rate for the next continuous discovered period. This will only be populated if <code>target_times</code> has been calculated and at least one period/block is in the future.</td>
+</tr>
+<tr>
+<td><code>target_times_last_evaluated</code></td>
+<td>datetime</td>
+<td>The datetime the target times collection was last evaluated. This will occur if all previous target times are in the past and all rates are available for the requested future time period. For example, if you are targeting 16:00 (day 1) to 16:00 (day 2), and you only have rates up to 23:00 (day 1), then the target rates won't be calculated.</td>
+</tr>
+<tr>
+<td><code>last_evaluated</code></td>
+<td><code>datetime</code></td>
+<td>The datetime the state of the sensor was last evaluated based on the current specified target times. This should update every minute</td>
+</tr>
+</tbody>
+</table>
+<h2 id="services">Services<a class="headerlink" href="#services" title="Permanent link">#</a></h2>
+<p>There are services available associated with target rate sensors. Please review them in the <a href="../../services/">services doc</a>.</p>
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">#</a></h2>
+<p>Let's look at a few examples. Let's say we have the the following (unrealistic) set of rates:</p>
+<table>
+<thead>
+<tr>
+<th>start</th>
+<th>end</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2023-01-01T00:00</code></td>
+<td><code>2023-01-01T00:30</code></td>
+<td>6</td>
+</tr>
+<tr>
+<td><code>2023-01-01T00:30</code></td>
+<td><code>2023-01-01T05:00</code></td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>2023-01-01T05:00</code></td>
+<td><code>2023-01-01T05:30</code></td>
+<td>7</td>
+</tr>
+<tr>
+<td><code>2023-01-01T05:30</code></td>
+<td><code>2023-01-01T18:00</code></td>
+<td>20</td>
+</tr>
+<tr>
+<td><code>2023-01-01T18:00</code></td>
+<td><code>2023-01-01T23:30</code></td>
+<td>34</td>
+</tr>
+<tr>
+<td><code>2023-01-01T23:30</code></td>
+<td><code>2023-01-02T00:30</code></td>
+<td>5</td>
+</tr>
+<tr>
+<td><code>2023-01-02T00:30</code></td>
+<td><code>2023-01-02T05:00</code></td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>2023-01-02T05:00</code></td>
+<td><code>2023-01-02T05:30</code></td>
+<td>7</td>
+</tr>
+<tr>
+<td><code>2023-01-02T05:30</code></td>
+<td><code>2023-01-02T18:00</code></td>
+<td>20</td>
+</tr>
+<tr>
+<td><code>2023-01-02T18:00</code></td>
+<td><code>2023-01-02T23:00</code></td>
+<td>34</td>
+</tr>
+<tr>
+<td><code>2023-01-02T23:30</code></td>
+<td><code>2023-01-03T00:00</code></td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+<h3 id="continuous">Continuous<a class="headerlink" href="#continuous" title="Permanent link">#</a></h3>
+<p>If we look at a continuous sensor that we want on for 1 hour.</p>
+<p>If we set no from/to times, then our 24 hour period being looked at ranges from <code>00:00:00</code> to <code>23:59:59</code>.</p>
+<p>The following table shows what this would be like.</p>
+<table>
+<thead>
+<tr>
+<th>current date/time</th>
+<th>period</th>
+<th><code>Re-evaluate multiple times a day</code></th>
+<th>reasoning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2023-01-01T00:00</code></td>
+<td><code>2023-01-01T00:00</code> - <code>2023-01-01T01:00</code></td>
+<td><code>false</code></td>
+<td>While 5 is our lowest rate within the current 24 hour period, it doesn't cover our whole 1 hour and is next to a high 34 rate. A rate of 6 is the next available rate with a low following rate.</td>
+</tr>
+<tr>
+<td><code>2023-01-01T01:00</code></td>
+<td><code>2023-01-02T00:00</code> - <code>2023-01-02T01:00</code></td>
+<td><code>false</code></td>
+<td>Our lowest period is in the past, so we have to wait until our target period has passed to look at the next evaluation period.</td>
+</tr>
+<tr>
+<td><code>2023-01-01T01:00</code></td>
+<td><code>2023-01-01T04:30</code> - <code>2023-01-01T05:30</code></td>
+<td><code>true</code></td>
+<td>The rate of 6 is in the past, so 7 is our next lowest rate. 12 is smaller rate than 20 so we start in the rate period before to fill our desired hour.</td>
+</tr>
+<tr>
+<td><code>2023-01-01T23:30</code></td>
+<td>None</td>
+<td><code>true</code></td>
+<td>There is no longer enough time available in the current 24 hour period, so we have to wait until our target period has passed to look at the next evaluation period.</td>
+</tr>
+</tbody>
+</table>
+<p>If we set our from/to times for <code>05:00</code> to <code>19:00</code>, we then limit the period that we look at. The following table shows what this would be like.</p>
+<table>
+<thead>
+<tr>
+<th>current date/time</th>
+<th>period</th>
+<th><code>Re-evaluate multiple times a day</code></th>
+<th>reasoning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2023-01-01T00:00</code></td>
+<td><code>2023-01-01T05:00</code> - <code>2023-01-01T06:00</code></td>
+<td><code>false</code></td>
+<td>The rate of 12 is no longer available as it's outside of our <code>from</code> time.</td>
+</tr>
+<tr>
+<td><code>2023-01-01T06:30</code></td>
+<td><code>2023-01-02T05:00</code> - <code>2023-01-02T06:00</code></td>
+<td><code>false</code></td>
+<td>Our lowest period is in the past, so we have to wait until our target period has passed to look at the next evaluation period.</td>
+</tr>
+<tr>
+<td><code>2023-01-01T06:30</code></td>
+<td><code>2023-01-01T06:30</code> - <code>2023-01-01T07:30</code></td>
+<td><code>true</code></td>
+<td>The rate of 7 is in the past, so we must look for the next lowest combined rate.</td>
+</tr>
+<tr>
+<td><code>2023-01-01T18:00</code></td>
+<td><code>2023-01-01T18:00</code> - <code>2023-01-01T19:00</code></td>
+<td><code>true</code></td>
+<td>The rate of 20 is in the past, so we must look for the next lowest combined rate which is 34.</td>
+</tr>
+<tr>
+<td><code>2023-01-01T18:30</code></td>
+<td>None</td>
+<td><code>true</code></td>
+<td>There is no longer enough time available within our restricted time, so we have to wait until our target period has passed to look at the next evaluation period.</td>
+</tr>
+</tbody>
+</table>
+<p>If we set our from/to times to look over two days, from <code>20:00</code> to <code>06:00</code>, we then limit the period that we look at to overnight. The following table shows what this would be like.</p>
+<table>
+<thead>
+<tr>
+<th>current date/time</th>
+<th>period</th>
+<th><code>Re-evaluate multiple times a day</code></th>
+<th>reasoning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2023-01-01T20:00</code></td>
+<td><code>2023-01-01T23:30</code> - <code>2023-01-02T01:30</code></td>
+<td><code>false</code></td>
+<td>Our lowest rate of 5 now falls between our overnight time period so is available.</td>
+</tr>
+<tr>
+<td><code>2023-01-02T02:00</code></td>
+<td><code>2023-01-01T23:30</code> - <code>2023-01-02T01:30</code></td>
+<td><code>false</code></td>
+<td>Our lowest period is in the past, so we have to wait until our target period has passed to look at the next evaluation period.</td>
+</tr>
+<tr>
+<td><code>2023-01-02T02:00</code></td>
+<td><code>2023-01-02T04:30</code> - <code>2023-01-02T05:30</code></td>
+<td><code>true</code></td>
+<td>The rate of 5 is in the past, so we must look for the next lowest combined rate, which includes our half hour rate at 7.</td>
+</tr>
+<tr>
+<td><code>2023-01-02T05:30</code></td>
+<td>None</td>
+<td><code>true</code></td>
+<td>There is no longer enough time available within our restricted time, so we have to wait until our target period has passed to look at the next evaluation period.</td>
+</tr>
+</tbody>
+</table>
+<p>If we set an offset of <code>-00:30:00</code>, then while the times might be the same, the target rate sensor will turn on 30 minutes before the select rate period starts. Any set time restrictions <strong>will not</strong> include the offset.</p>
+<h3 id="intermittent">Intermittent<a class="headerlink" href="#intermittent" title="Permanent link">#</a></h3>
+<p>If we look at an intermittent sensor that we want on for 1 hour total (but not necessarily together).</p>
+<p>If we set no from/to times, then our 24 hour period being looked at ranges from <code>00:00:00</code> to <code>23:59:59</code>.</p>
+<p>The following table shows what this would be like.</p>
+<table>
+<thead>
+<tr>
+<th>current date/time</th>
+<th>period</th>
+<th><code>Re-evaluate multiple times a day</code></th>
+<th>reasoning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2023-01-01T00:00</code></td>
+<td><code>2023-01-01T00:00</code> - <code>2023-01-01T00:30</code>, <code>2023-01-01T23:30</code> - <code>2023-01-02T00:00</code></td>
+<td><code>false</code></td>
+<td>Our sensor will go on for 30 minutes at the cheapest rate, then 30 minutes at the next cheapest rate.</td>
+</tr>
+<tr>
+<td><code>2023-01-01T01:00</code></td>
+<td><code>2023-01-01T00:00</code> - <code>2023-01-01T00:30</code>, <code>2023-01-01T23:30</code> - <code>2023-01-02T00:00</code></td>
+<td><code>false</code></td>
+<td>Our sensor will go on for 30 minutes at the cheapest rate, which will be in the past, then 30 minutes at the next cheapest rate.</td>
+</tr>
+<tr>
+<td><code>2023-01-01T01:00</code></td>
+<td><code>2023-01-01T05:00</code> - <code>2023-01-01T05:30</code>, <code>2023-01-01T23:30</code> - <code>2023-01-02T00:00</code></td>
+<td><code>true</code></td>
+<td>Our sensor will go on for 30 minutes at the second cheapest rate, then 30 minutes at the third cheapest rate.</td>
+</tr>
+<tr>
+<td><code>2023-01-01T23:30</code></td>
+<td>None</td>
+<td><code>true</code></td>
+<td>There is no longer enough time available in the current 24 hour period, so we have to wait until our target period has passed to look at the next evaluation period.</td>
+</tr>
+</tbody>
+</table>
+<p>If we set our from/to times for <code>05:00</code> to <code>19:00</code>, we then limit the period that we look at. The following table shows what this would be like.</p>
+<table>
+<thead>
+<tr>
+<th>current date/time</th>
+<th>period</th>
+<th><code>Re-evaluate multiple times a day</code></th>
+<th>reasoning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2023-01-01T00:00</code></td>
+<td><code>2023-01-01T05:00</code> - <code>2023-01-01T05:30</code>, <code>2023-01-01T05:30</code> - <code>2023-01-01T06:00</code></td>
+<td><code>false</code></td>
+<td>Our cheapest rates are outside our target range, so we need to look at the next cheapest. Luckily on our scenario the two cheapest rates are next to each other.</td>
+</tr>
+<tr>
+<td><code>2023-01-01T06:30</code></td>
+<td><code>2023-01-01T05:00</code> - <code>2023-01-01T05:30</code>, <code>2023-01-01T05:30</code> - <code>2023-01-01T06:00</code></td>
+<td><code>false</code></td>
+<td>Both of our cheapest rates in the target range are in the past.</td>
+</tr>
+<tr>
+<td><code>2023-01-01T06:30</code></td>
+<td><code>2023-01-01T06:30</code> - <code>2023-01-01T07:00</code>, <code>2023-01-01T07:00</code> - <code>2023-01-01T07:30</code></td>
+<td><code>true</code></td>
+<td>Both of our cheapest rates in the target range are in the past, so we must look for the next lowest combined rate.</td>
+</tr>
+<tr>
+<td><code>2023-01-01T18:30</code></td>
+<td>None</td>
+<td><code>true</code></td>
+<td>There is no longer enough time available within our restricted time, so we have to wait until our target period has passed to look at the next evaluation period.</td>
+</tr>
+</tbody>
+</table>
+<p>If we set our from/to times to look over two days, from <code>20:00</code> to <code>06:00</code>, we then limit the period that we look at to overnight. The following table shows what this would be like.</p>
+<table>
+<thead>
+<tr>
+<th>current date/time</th>
+<th>period</th>
+<th><code>Re-evaluate multiple times a day</code></th>
+<th>reasoning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2023-01-01T20:00</code></td>
+<td><code>2023-01-01T23:30</code> - <code>2023-01-02T00:30</code>, <code>2023-01-02T05:00</code> - <code>2023-01-02T05:30</code></td>
+<td><code>false</code></td>
+<td>Our lowest rate of 5 now falls between our overnight time period so is available.</td>
+</tr>
+<tr>
+<td><code>2023-01-02T02:00</code></td>
+<td><code>2023-01-01T23:30</code> - <code>2023-01-02T00:30</code>, <code>2023-01-02T05:00</code> - <code>2023-01-02T05:30</code></td>
+<td><code>false</code></td>
+<td>Our lowest period is in the past, but we still have a rate in the future so our sensor will only come on once.</td>
+</tr>
+<tr>
+<td><code>2023-01-02T02:00</code></td>
+<td><code>2023-01-02T02:00</code> - <code>2023-01-02T02:30</code>, <code>2023-01-02T05:00</code> - <code>2023-01-02T05:30</code></td>
+<td><code>true</code></td>
+<td>The rate of 5 is in the past, so we must look for the next lowest combined rate, which includes our half hour rate at 7.</td>
+</tr>
+<tr>
+<td><code>2023-01-02T05:30</code></td>
+<td>None</td>
+<td><code>true</code></td>
+<td>There is no longer enough time available within our restricted time, so we have to wait until our target period has passed to look at the next evaluation period.</td>
+</tr>
+</tbody>
+</table>
+<p>If we set an offset of <code>-00:30:00</code>, then while the times might be the same, the target rate sensor will turn on 30 minutes before the select rate period starts. Any set time restrictions <strong>will not</strong> include the offset.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12Z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "../..", "features": ["navigation.top", "search.suggest", "search.highlight", "toc.follow"], "search": "../../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.ad660dcc.min.js"></script>
+      
+    
+  </body>
+</html>
