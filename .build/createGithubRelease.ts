@@ -55,7 +55,7 @@ async function createGithubRelease(githubToken: string, githubOwnerRepo: string,
   }
 }
 
-const minimumHAVersionNote = `\\n**Minimum HA Version**: ${getMinimumHomeAssistantVersion()}\n\n`;
+const minimumHAVersionNote = `\n**Minimum HA Version**: ${getMinimumHomeAssistantVersion()}\n\n`;
 createGithubRelease(
   process.env.GITHUB_TOKEN,
   process.env.GITHUB_REPOSITORY,
