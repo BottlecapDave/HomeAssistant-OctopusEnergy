@@ -26,9 +26,9 @@ from homeassistant.const import (
 )
 
 from ..const import (
-  CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE,
-  CONFIG_COST_TARGET_ENTITY_ID,
-  CONFIG_COST_NAME,
+  CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE,
+  CONFIG_COST_TRACKER_TARGET_ENTITY_ID,
+  CONFIG_COST_TRACKER_NAME,
   DOMAIN,
 )
 
@@ -71,7 +71,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
   @property
   def unique_id(self):
     """The id of the sensor."""
-    base_name = f"octopus_energy_cost_tracker_{self._config[CONFIG_COST_NAME]}"
+    base_name = f"octopus_energy_cost_tracker_{self._config[CONFIG_COST_TRACKER_NAME]}"
     if self._peak_type is not None:
       return f"{base_name}_{self._peak_type}"
     
@@ -80,7 +80,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
   @property
   def name(self):
     """Name of the sensor."""
-    base_name = f"Octopus Energy Cost Tracker {self._config[CONFIG_COST_NAME]}"
+    base_name = f"Octopus Energy Cost Tracker {self._config[CONFIG_COST_TRACKER_NAME]}"
     if self._peak_type is not None:
       return f"{base_name} ({self._peak_type})"
 
@@ -140,14 +140,14 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
 
     self.async_on_remove(
         async_track_state_change_event(
-            self.hass, [self._config[CONFIG_COST_TARGET_ENTITY_ID]], self._async_calculate_cost
+            self.hass, [self._config[CONFIG_COST_TRACKER_TARGET_ENTITY_ID]], self._async_calculate_cost
         )
     )
 
   async def _async_calculate_cost(self, event: Event[EventStateChangedData]):
     new_state = event.data["new_state"]
     old_state = event.data["old_state"]
-    _LOGGER.debug(f"State updated for '{self._config[CONFIG_COST_TARGET_ENTITY_ID]}' for '{self.unique_id}': new_state: {new_state}; old_state: {old_state}")
+    _LOGGER.debug(f"State updated for '{self._config[CONFIG_COST_TRACKER_TARGET_ENTITY_ID]}' for '{self.unique_id}': new_state: {new_state}; old_state: {old_state}")
     if new_state is None or new_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) or old_state is None or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN):
       return
     
@@ -171,14 +171,14 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
         old_last_reset = parse_datetime(old_state.attributes["last_reset"])
 
     consumption_data = add_consumption(current,
-                                       self._attributes["tracked_charges"],
-                                       self._attributes["untracked_charges"],
+                                       self._attributes["tracked_charges"] if "tracked_charges" in self._attributes else [],
+                                       self._attributes["untracked_charges"] if "untracked_charges" in self._attributes else [],
                                        float(new_state.state),
                                        None if old_state.state is None or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else float(old_state.state),
                                        new_last_reset,
                                        old_last_reset,
-                                       self._config[CONFIG_COST_ENTITY_ACCUMULATIVE_VALUE],
-                                       self._attributes["is_tracking"],
+                                       self._config[CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE],
+                                       self._attributes["is_tracking"] if "is_tracking" in self._attributes else True,
                                        new_state.attributes["state_class"] if "state_class" in new_state.attributes else None)
     
     

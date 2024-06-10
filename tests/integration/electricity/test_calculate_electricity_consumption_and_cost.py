@@ -17,6 +17,7 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
 
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  expected_product_code = "SUPER-GREEN-24M-21-07-30"
   expected_tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-L"
   latest_date = None
   is_smart_meter = True
@@ -49,11 +50,11 @@ async def test_when_calculate_electricity_cost_uses_real_data_then_calculation_r
   assert consumption_and_rates_result is not None
 
   # Make sure we have rates and standing charges available
-  rates = await client.async_get_electricity_rates(expected_tariff_code, False, period_from, period_to)
+  rates = await client.async_get_electricity_rates(expected_product_code, expected_tariff_code, False, period_from, period_to)
   assert rates is not None
   assert len(rates) > 0
 
-  standard_charge_result = await client.async_get_electricity_standing_charge(expected_tariff_code, period_from, period_to)
+  standard_charge_result = await client.async_get_electricity_standing_charge(expected_product_code, expected_tariff_code, period_from, period_to)
   assert standard_charge_result is not None
 
   # Act

@@ -37,7 +37,7 @@ def get_account_info(is_active_agreement = True):
             "start": "2023-07-01T00:00:00+01:00" if is_active_agreement else "2023-08-01T00:00:00+01:00",
             "end": "2023-08-01T00:00:00+01:00" if is_active_agreement else "2023-09-01T00:00:00+01:00",
             "tariff_code": tariff_code,
-            "product": "SUPER-GREEN-24M-21-07-30"
+            "product_code": "SUPER-GREEN-24M-21-07-30"
           }
         ]
       }
@@ -199,7 +199,7 @@ async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
   async def async_mocked_get_gas_rates(*args, **kwargs):
     nonlocal requested_period_from, requested_period_to, mock_api_called
 
-    requested_client, requested_tariff_code, requested_period_from, requested_period_to = args
+    requested_client, requested_product_code, requested_tariff_code, requested_period_from, requested_period_to = args
     mock_api_called = True
     return expected_rates
   

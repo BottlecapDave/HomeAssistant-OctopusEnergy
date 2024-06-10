@@ -10,9 +10,8 @@ from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime)
 from ..const import INTEGRATION_VERSION
 
 from ..utils import (
-  get_tariff_parts,
+  is_day_night_tariff,
 )
-
 
 from .intelligent_device import IntelligentDevice
 from .octoplus import RedeemOctoplusPointsResponse
@@ -371,6 +370,8 @@ class RequestException(ApiException):
   def __init__(self, message: str, errors: list[str]):
     super().__init__(message)
     self.errors = errors
+
+class AuthenticationException(RequestException): ...
 
 class OctopusEnergyApiClient:
   _refresh_token_lock = RLock()
@@ -772,20 +773,14 @@ class OctopusEnergyApiClient:
 
     return results
 
-  async def async_get_electricity_rates(self, tariff_code: str, is_smart_meter: bool, period_from: datetime, period_to: datetime):
+  async def async_get_electricity_rates(self, product_code: str, tariff_code: str, is_smart_meter: bool, period_from: datetime, period_to: datetime):
     """Get the current rates"""
 
-    tariff_parts = get_tariff_parts(tariff_code)
-    if tariff_parts is None:
-      return None
-    
-    product_code = tariff_parts.product_code
-
-    if (tariff_parts.rate.startswith("1")):
-      return await self.async_get_electricity_standard_rates(product_code, tariff_code, period_from, period_to)
-    else:
+    if is_day_night_tariff(tariff_code):
       return await self.async_get_electricity_day_night_rates(product_code, tariff_code, is_smart_meter, period_from, period_to)
-
+    else:
+      return await self.async_get_electricity_standard_rates(product_code, tariff_code, period_from, period_to)
+      
   async def async_get_electricity_consumption(self, mpan, serial_number, period_from, period_to, page_size: int | None = None):
     """Get the current electricity consumption"""
 
@@ -829,14 +824,8 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
-  async def async_get_gas_rates(self, tariff_code, period_from, period_to):
+  async def async_get_gas_rates(self, product_code: str, tariff_code: str, period_from, period_to):
     """Get the gas rates"""
-    tariff_parts = get_tariff_parts(tariff_code)
-    if tariff_parts is None:
-      return None
-    
-    product_code = tariff_parts.product_code
-
     results = []
 
     try:
@@ -910,14 +899,8 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
-  async def async_get_electricity_standing_charge(self, tariff_code, period_from, period_to):
+  async def async_get_electricity_standing_charge(self, product_code, tariff_code, period_from, period_to):
     """Get the electricity standing charges"""
-    tariff_parts = get_tariff_parts(tariff_code)
-    if tariff_parts is None:
-      return None
-    
-    product_code = tariff_parts.product_code
-    
     result = None
 
     try:
@@ -938,14 +921,8 @@ class OctopusEnergyApiClient:
         _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
         raise TimeoutException()
 
-  async def async_get_gas_standing_charge(self, tariff_code, period_from, period_to):
+  async def async_get_gas_standing_charge(self, product_code, tariff_code, period_from, period_to):
     """Get the gas standing charges"""
-    tariff_parts = get_tariff_parts(tariff_code)
-    if tariff_parts is None:
-      return None
-    
-    product_code = tariff_parts.product_code
-
     result = None
 
     try:
@@ -1349,7 +1326,11 @@ class OctopusEnergyApiClient:
         msg = f'DO NOT REPORT - Octopus Energy server error ({url}): {response.status}; {text}'
         _LOGGER.warning(msg)
         raise ServerException(msg)
-      elif response.status not in [401, 403, 404]:
+      elif response.status in [401, 403]:
+        msg = f'Failed to send request ({url}): {response.status}; {text}'
+        _LOGGER.warning(msg)
+        raise AuthenticationException(msg, [])
+      elif response.status not in [404]:
         msg = f'Failed to send request ({url}): {response.status}; {text}'
         _LOGGER.warning(msg)
         raise RequestException(msg, [])
@@ -1367,6 +1348,11 @@ class OctopusEnergyApiClient:
       msg = f'Errors in request ({url}): {data_as_json["errors"]}'
       errors = list(map(lambda error: error["message"], data_as_json["errors"]))
       _LOGGER.warning(msg)
+
+      for error in data_as_json["errors"]:
+        if (error["extensions"]["errorCode"] in ("KT-CT-1139", "KT-CT-1111", "KT-CT-1143")):
+          raise AuthenticationException(msg, errors)
+
       raise RequestException(msg, errors)
     
     return data_as_json

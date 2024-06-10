@@ -17,7 +17,7 @@ from .consumption import async_import_external_statistics_from_consumption, get_
 from .cost import async_import_external_statistics_from_cost, get_electricity_cost_statistic_name, get_electricity_cost_statistic_unique_id, get_gas_cost_statistic_name, get_gas_cost_statistic_unique_id
 from ..electricity import calculate_electricity_consumption_and_cost
 from ..gas import calculate_gas_consumption_and_cost
-from ..coordinators import get_electricity_meter_tariff_code, get_gas_meter_tariff_code
+from ..coordinators import get_electricity_meter_tariff, get_gas_meter_tariff
 
 async def async_refresh_previous_electricity_consumption_data(
   hass: HomeAssistant,
@@ -53,8 +53,8 @@ async def async_refresh_previous_electricity_consumption_data(
   while period_from < now():
     period_to = period_from + timedelta(days=1)
 
-    tariff_code = get_electricity_meter_tariff_code(period_from, account_info, mpan, serial_number)
-    if tariff_code is None:
+    tariff = get_electricity_meter_tariff(period_from, account_info, mpan, serial_number)
+    if tariff is None:
       persistent_notification.async_create(
         hass,
         title="Failed to find tariff information",
@@ -63,7 +63,7 @@ async def async_refresh_previous_electricity_consumption_data(
       return
 
     consumption_data = await client.async_get_electricity_consumption(mpan, serial_number, period_from, period_to)
-    rates = await client.async_get_electricity_rates(tariff_code, is_smart_meter, period_from, period_to)
+    rates = await client.async_get_electricity_rates(tariff.product, tariff.code, is_smart_meter, period_from, period_to)
 
     consumption_and_cost = calculate_electricity_consumption_and_cost(
       consumption_data,
@@ -139,8 +139,8 @@ async def async_refresh_previous_gas_consumption_data(
   while period_from < now():
     period_to = period_from + timedelta(days=1)
 
-    tariff_code = get_gas_meter_tariff_code(period_from, account_info, mprn, serial_number)
-    if tariff_code is None:
+    tariff = get_gas_meter_tariff(period_from, account_info, mprn, serial_number)
+    if tariff is None:
       persistent_notification.async_create(
         hass,
         title="Failed to find tariff information",
@@ -149,7 +149,7 @@ async def async_refresh_previous_gas_consumption_data(
       return
 
     consumption_data = await client.async_get_gas_consumption(mprn, serial_number, period_from, period_to)
-    rates = await client.async_get_gas_rates(tariff_code, period_from, period_to)
+    rates = await client.async_get_gas_rates(tariff.product, tariff.code, period_from, period_to)
 
     consumption_and_cost = calculate_gas_consumption_and_cost(
       consumption_data,

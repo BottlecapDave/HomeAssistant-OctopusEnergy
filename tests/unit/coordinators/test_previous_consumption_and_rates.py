@@ -15,8 +15,14 @@ sensor_serial_number = "123456"
 
 default_electricity_tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
 default_gas_tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
+default_electricity_product_code = "SUPER-GREEN-24M-21-07-30"
+default_gas_product_code = "SUPER-GREEN-24M-21-07-30"
 
-def get_account_info(current: datetime, electricity_tariff_code = default_electricity_tariff_code, gas_tariff_code = default_gas_tariff_code):
+def get_account_info(current: datetime,
+                     electricity_product_code = default_electricity_product_code,
+                     electricity_tariff_code = default_electricity_tariff_code,
+                     gas_product_code = default_gas_product_code,
+                     gas_tariff_code = default_gas_tariff_code):
   return {
     "electricity_meter_points": [
       {
@@ -30,17 +36,20 @@ def get_account_info(current: datetime, electricity_tariff_code = default_electr
           {
             "start": (current + timedelta(days=7)).isoformat(),
             "end": (current + timedelta(days=14)).isoformat(),
-            "tariff_code": "E-1R-FUTURE-TARIFF-A"
+            "tariff_code": "E-1R-FUTURE-TARIFF-A",
+            "product_code": "FUTURE-TARIFF"
           },
           {
             "start": (current - timedelta(days=7)).isoformat(),
             "end": (current + timedelta(days=7)).isoformat(),
-            "tariff_code": electricity_tariff_code
+            "tariff_code": electricity_tariff_code,
+            "product_code": electricity_product_code
           },
           {
             "start": (current - timedelta(days=14)).isoformat(),
             "end": (current - timedelta(days=7)).isoformat(),
-            "tariff_code": "E-1R-AGILE-TARIFF-A"
+            "tariff_code": "E-1R-AGILE-TARIFF-A",
+            "product_code": "AGILE-TARIFF"
           }
         ]
       }
@@ -57,17 +66,20 @@ def get_account_info(current: datetime, electricity_tariff_code = default_electr
           {
             "start": (current + timedelta(days=7)).isoformat(),
             "end": (current + timedelta(days=14)).isoformat(),
-            "tariff_code": "G-1R-FUTURE-TARIFF-A"
+            "tariff_code": "G-1R-FUTURE-TARIFF-A",
+            "product_code": "FUTURE-TARIFF"
           },
           {
             "start": (current - timedelta(days=7)).isoformat(),
             "end": (current + timedelta(days=7)).isoformat(),
-            "tariff_code": gas_tariff_code
+            "tariff_code": gas_tariff_code,
+            "product_code": gas_product_code
           },
           {
             "start": (current - timedelta(days=14)).isoformat(),
             "end": (current - timedelta(days=7)).isoformat(),
-            "tariff_code": "G-1R-AGILE-TARIFF-A"
+            "tariff_code": "G-1R-AGILE-TARIFF-A",
+            "product_code": "AGILE-TARIFF"
           }
         ]
       }
@@ -229,7 +241,7 @@ async def test_when_next_refresh_is_in_the_past_and_gas_sensor_then_requested_da
   async def async_mocked_get_gas_rates(*args, **kwargs):
     nonlocal requested_rate_tariff_code
 
-    requested_client, requested_rate_tariff_code, period_from, period_to = args
+    requested_client, requested_rate_product_code, requested_rate_tariff_code, period_from, period_to = args
     return expected_rates
   
   expected_standing_charge = 100.2
@@ -237,7 +249,7 @@ async def test_when_next_refresh_is_in_the_past_and_gas_sensor_then_requested_da
   async def async_mocked_get_gas_standing_charge(*args, **kwargs):
     nonlocal requested_standing_charge_tariff_code
 
-    requested_client, requested_standing_charge_tariff_code, period_from, period_to = args
+    requested_client, requested_standing_charge_product_code, requested_standing_charge_tariff_code, period_from, period_to = args
     return {
       "value_inc_vat": expected_standing_charge
     }
@@ -343,7 +355,7 @@ async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requ
   async def async_mocked_get_electricity_rates(*args, **kwargs):
     nonlocal requested_rate_tariff_code
 
-    requested_client, requested_rate_tariff_code, is_smart_meter, period_from, period_to = args
+    requested_client, requested_product_code, requested_rate_tariff_code, is_smart_meter, period_from, period_to = args
     return expected_rates
   
   expected_standing_charge = 100.2
@@ -351,7 +363,7 @@ async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requ
   async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
     nonlocal requested_standing_charge_tariff_code
 
-    requested_client, requested_standing_charge_tariff_code, period_from, period_to = args
+    requested_client, requested_standing_charge_product_code, requested_standing_charge_tariff_code, period_from, period_to = args
     return {
       "value_inc_vat": expected_standing_charge
     }
@@ -870,7 +882,7 @@ async def test_when_intelligent_dispatches_available_then_adjusted_requested_dat
     
     current_utc_timestamp = datetime.strptime(f'2022-02-12T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
 
-    account_info = get_account_info(period_from, "E-1R-INTELLI-BB-VAR-23-03-01-C")
+    account_info = get_account_info(period_from, electricity_product_code="INTELLI-BB-VAR-23-03-01", electricity_tariff_code="E-1R-INTELLI-BB-VAR-23-03-01-C")
 
     previous_data = PreviousConsumptionCoordinatorResult(
       current_utc_timestamp - timedelta(days=1),
@@ -994,7 +1006,7 @@ async def test_when_intelligent_tariff_and_no_dispatches_available_then_previous
     
     current_utc_timestamp = datetime.strptime(f'2022-02-12T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
 
-    account_info = get_account_info(period_from, "E-1R-INTELLI-BB-VAR-23-03-01-C")
+    account_info = get_account_info(period_from, electricity_product_code="INTELLI-BB-VAR-23-03-01", electricity_tariff_code="E-1R-INTELLI-BB-VAR-23-03-01-C")
 
     previous_data = PreviousConsumptionCoordinatorResult(
       current_utc_timestamp - timedelta(days=1),

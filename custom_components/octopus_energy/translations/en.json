@@ -63,6 +63,21 @@
         "data": {
           "account_id": "Account"
         }
+      },
+      "tariff_comparison": {
+        "description": "Compare your cost with another tariff to see if you're on the best tariff for your energy use. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/tariff_comparison.",
+        "data": {
+          "name": "The name of your tariff comparison",
+          "mpan_mprn": "The meter of the data that should be compared to",
+          "product_code": "The product code of the tariff to compare.",
+          "tariff_code": "The tariff code of the tariff to compare."
+        }
+      },
+      "tariff_comparison_account": {
+        "description": "Select the account your tariff comparison will be using for its calculations",
+        "data": {
+          "account_id": "Account"
+        }
       }
     },
     "error": {
@@ -82,7 +97,8 @@
       "invalid_price": "Price must be in the form pounds and pence (e.g. 0.10)",
       "invalid_weighting": "The weighting format is not supported.",
       "invalid_weighting_slots": "The number of weighting blocks does not equal the specified number of hours.",
-      "weighting_not_supported": "Weighting is only supported for continuous target rates"
+      "weighting_not_supported": "Weighting is only supported for continuous target rates",
+      "invalid_product_or_tariff": "Product or tariff code does not exist"
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",
@@ -137,6 +153,15 @@
           "weekday_reset": "The day when the week cost sensor should reset",
           "month_day_reset": "The day when the month cost sensor should reset"
         }
+      },
+      "tariff_comparison": {
+        "description": "Compare your cost with another tariff to see if you're on the best tariff for your energy use. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/tariff_comparison.",
+        "data": {
+          "name": "The name of your tariff comparison",
+          "mpan_mprn": "The meter of the data that should be compared to",
+          "product_code": "The product code of the tariff to compare.",
+          "tariff_code": "The tariff code of the tariff to compare."
+        }
       }
     },
     "error": {
@@ -154,7 +179,8 @@
       "invalid_price": "Price must be in the form pounds and pence (e.g. 0.10)",
       "invalid_weighting": "The weighting format is not supported.",
       "invalid_weighting_slots": "The number of weighting blocks does not equal the specified number of hours.",
-      "weighting_not_supported": "Weighting is only supported for continuous target rates"
+      "weighting_not_supported": "Weighting is only supported for continuous target rates",
+      "invalid_product_or_tariff": "Product or tariff code does not exist"
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",
@@ -181,9 +207,9 @@
       "title": "Invalid format - {type} - {tariff_code}",
       "description": "The tariff \"{tariff_code}\" associated with your {type} meter is not in an expected format. Click on \"Learn More\" with instructions on what to do next."
     },
-    "unknown_tariff": {
-      "title": "Unknown tariff - {type} - {tariff_code}",
-      "description": "The tariff \"{tariff_code}\" associated with your {type} meter has not been found. Click on \"Learn More\" with instructions on what to do next."
+    "unknown_product": {
+      "title": "Unknown product - {type} - {product_code}",
+      "description": "The product \"{product_code}\" associated with your {type} meter has not been found. Click on \"Learn More\" with instructions on what to do next."
     },
     "invalid_target_rate": {
       "title": "Invalid target rate \"{name}\"",
@@ -192,6 +218,18 @@
     "octopus_mini_not_valid": {
       "title": "Octopus Mini not valid for {type} meter",
       "description": "Octopus Mini has been configured for account \"{account_id}\", but it's not available for {type} meter {mpan_mprn}/{serial_number}. If this is expected, you can ignore this notice, otherwise click \"Learn More\" with instructions on what to do next."
+    },
+    "invalid_api_key": {
+      "title": "Invalid API key for account \"{account_id}\"",
+      "description": "The configured API key appears to be invalid for the configured account \"{account_id}\". Please reconfigure to fix this issue."
+    },
+    "electricity_unique_rates_updated": {
+      "title": "\"{account_id}\" requires reloading",
+      "description": "The electricity rates for \"{account_id}\" have updated which result in either entities no longer updating correctly or new entities becoming available. Please reload the integration associated with this account to fix this issue."
+    },
+    "cost_override_obsolete": {
+      "title": "Cost override has been deprecated",
+      "description": "It looks like you've setup the cost override entities for {type} meter {mpan_mprn}/{serial_number}. These cost override entities have been deprecated in favour of setting them up via the integrations page. Please click \"Learn More\" with instructions on what to do next."
     }
   }
 }
