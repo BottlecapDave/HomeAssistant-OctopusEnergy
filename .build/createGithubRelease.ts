@@ -4,10 +4,10 @@ import { join } from 'path';
 const bodySuffix = "---\nEnjoying the integration? Why not make a one time or monthly [GitHub sponsorship](https://github.com/sponsors/bottlecapdave) or use my [Octopus Energy referral link](https://share.octopus.energy/gray-jade-372)?"
 
 function getMinimumHomeAssistantVersion() {
-  const hacsFilePath = join(__dirname, 'hacs.json');
+  const hacsFilePath = join(__dirname, '../hacs.json');
   const buffer = readFileSync(hacsFilePath);
   const content = JSON.parse(buffer.toString());
-  return content.homeassistant
+  return content.homeassistant;
 }
 
 async function createGithubRelease(githubToken: string, githubOwnerRepo: string, tag: string, notes: string) {
