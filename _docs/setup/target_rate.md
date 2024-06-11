@@ -157,12 +157,12 @@ If we set no from/to times, then our 24 hour period being looked at ranges from 
 
 The following table shows what this would be like.
 
-| current date/time  | period                                | `Re-evaluate multiple times a day` | reasoning |
-| ------------------ | ------------------------------------- | ---------------------------------- | --------- |
-| `2023-01-01T00:00` | `2023-01-01T00:00` - `2023-01-01T01:00` | `false`                            | While 5 is our lowest rate within the current 24 hour period, it doesn't cover our whole 1 hour and is next to a high 34 rate. A rate of 6 is the next available rate with a low following rate. |
-| `2023-01-01T01:00` | `2023-01-02T00:00` - `2023-01-02T01:00` | `false`                            | Our lowest period is in the past, so we have to wait until our target period has passed to look at the next evaluation period. |
-| `2023-01-01T01:00` | `2023-01-01T04:30` - `2023-01-01T05:30` | `true`                             | The rate of 6 is in the past, so 7 is our next lowest rate. 12 is smaller rate than 20 so we start in the rate period before to fill our desired hour. |
-| `2023-01-01T23:30` | None | `true`                             | There is no longer enough time available in the current 24 hour period, so we have to wait until our target period has passed to look at the next evaluation period. |
+| current date/time  | period                                | `Re-evaluate multiple times a day` | reasoning | example |
+| ------------------ | ------------------------------------- | ---------------------------------- | --------- |---------|
+| `2023-01-01T00:00` | `2023-01-01T00:00` - `2023-01-01T01:00` | `false`                            | While 5 is our lowest rate within the current 24 hour period, it doesn't cover our whole 1 hour and is next to a high 34 rate. A rate of 6 is the next available rate with a low following rate. |![image](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/assets/6813309/6be1061b-b671-41b6-b9d6-48472ca9345c)|
+| `2023-01-01T01:00` | `2023-01-02T00:00` - `2023-01-02T01:00` | `false`                            | Our lowest period is in the past, so we have to wait until our target period has passed to look at the next evaluation period. |![image](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/assets/6813309/81b46012-fe2d-4817-8cdb-06d29f10c6fc)|
+| `2023-01-01T01:00` | `2023-01-01T04:30` - `2023-01-01T05:30` | `true`                             | The rate of 6 is in the past, so 7 is our next lowest rate. 12 is smaller rate than 20 so we start in the rate period before to fill our desired hour. |![image](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/assets/6813309/ab9d8ae0-3d79-4c06-9d1f-dc0eb2d2b3e8)|
+| `2023-01-01T23:30` | None | `true`                             | There is no longer enough time available in the current 24 hour period, so we have to wait until our target period has passed to look at the next evaluation period. ||
 
 If we set our from/to times for `05:00` to `19:00`, we then limit the period that we look at. The following table shows what this would be like.
 
