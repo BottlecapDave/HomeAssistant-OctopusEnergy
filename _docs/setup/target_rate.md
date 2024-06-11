@@ -166,21 +166,21 @@ The following table shows what this would be like.
 
 If we set our from/to times for `05:00` to `19:00`, we then limit the period that we look at. The following table shows what this would be like.
 
-| current date/time  | period                                | `Re-evaluate multiple times a day` | reasoning |
-| ------------------ | ------------------------------------- | ---------------------------------- | --------- |
-| `2023-01-01T00:00` | `2023-01-01T05:00` - `2023-01-01T06:00` | `false`                            | The rate of 12 is no longer available as it's outside of our `from` time. |
-| `2023-01-01T06:30` | `2023-01-02T05:00` - `2023-01-02T06:00` | `false`                            | Our lowest period is in the past, so we have to wait until our target period has passed to look at the next evaluation period. |
-| `2023-01-01T06:30` | `2023-01-01T06:30` - `2023-01-01T07:30` | `true`                             | The rate of 7 is in the past, so we must look for the next lowest combined rate. |
-| `2023-01-01T18:00` | `2023-01-01T18:00` - `2023-01-01T19:00` | `true`                             | The rate of 20 is in the past, so we must look for the next lowest combined rate which is 34. |
+| current date/time  | period                                | `Re-evaluate multiple times a day` | reasoning | example |
+| ------------------ | ------------------------------------- | ---------------------------------- | --------- |---------|
+| `2023-01-01T00:00` | `2023-01-01T05:00` - `2023-01-01T06:00` | `false`                            | The rate of 12 is no longer available as it's outside of our `from` time. |![image](https://github.com/eugeneniemand/HomeAssistant-OctopusEnergy/assets/6813309/847586ef-3e46-43dd-ad55-7dd0908daa3c)|
+| `2023-01-01T06:30` | `2023-01-02T05:00` - `2023-01-02T06:00` | `false`                            | Our lowest period is in the past, so we have to wait until our target period has passed to look at the next evaluation period. |![image](https://github.com/eugeneniemand/HomeAssistant-OctopusEnergy/assets/6813309/4c91e17c-091c-4afb-a711-522ffa011ee4)|
+| `2023-01-01T06:30` | `2023-01-01T06:30` - `2023-01-01T07:30` | `true`                             | The rate of 7 is in the past, so we must look for the next lowest combined rate. |![image](https://github.com/eugeneniemand/HomeAssistant-OctopusEnergy/assets/6813309/69f0525a-c9f1-4590-9243-309feff2d7fa)|
+| `2023-01-01T18:00` | `2023-01-01T18:00` - `2023-01-01T19:00` | `true`                             | The rate of 20 is in the past, so we must look for the next lowest combined rate which is 34. |![image](https://github.com/eugeneniemand/HomeAssistant-OctopusEnergy/assets/6813309/1dda9a65-5677-4c24-8a5d-5a8f496f84d6)|
 | `2023-01-01T18:30` | None | `true`                            | There is no longer enough time available within our restricted time, so we have to wait until our target period has passed to look at the next evaluation period. |
 
 If we set our from/to times to look over two days, from `20:00` to `06:00`, we then limit the period that we look at to overnight. The following table shows what this would be like.
 
-| current date/time  | period                                | `Re-evaluate multiple times a day` | reasoning |
-| ------------------ | ------------------------------------- | ---------------------------------- | --------- |
-| `2023-01-01T20:00` | `2023-01-01T23:30` - `2023-01-02T01:30` | `false`                            | Our lowest rate of 5 now falls between our overnight time period so is available. |
-| `2023-01-02T02:00` | `2023-01-01T23:30` - `2023-01-02T01:30` | `false`                            | Our lowest period is in the past, so we have to wait until our target period has passed to look at the next evaluation period. |
-| `2023-01-02T02:00` | `2023-01-02T04:30` - `2023-01-02T05:30` | `true`                             | The rate of 5 is in the past, so we must look for the next lowest combined rate, which includes our half hour rate at 7. |
+| current date/time  | period                                | `Re-evaluate multiple times a day` | reasoning | example |
+| ------------------ | ------------------------------------- | ---------------------------------- | --------- |---------|
+| `2023-01-01T20:00` | `2023-01-01T23:30` - `2023-01-02T01:30` | `false`                            | Our lowest rate of 5 now falls between our overnight time period so is available. |![image](https://github.com/eugeneniemand/HomeAssistant-OctopusEnergy/assets/6813309/9e213df8-4f37-4d5f-805d-0cfa4a5408c0)|
+| `2023-01-02T02:00` | `2023-01-01T23:30` - `2023-01-02T01:30` | `false`                            | Our lowest period is in the past, so we have to wait until our target period has passed to look at the next evaluation period. |![image](https://github.com/eugeneniemand/HomeAssistant-OctopusEnergy/assets/6813309/f1a20b31-3844-42fe-9805-42f5fda9a427)|
+| `2023-01-02T02:00` | `2023-01-02T04:30` - `2023-01-02T05:30` | `true`                             | The rate of 5 is in the past, so we must look for the next lowest combined rate, which includes our half hour rate at 7. |![image](https://github.com/eugeneniemand/HomeAssistant-OctopusEnergy/assets/6813309/7a34c1d4-e351-4ce2-89be-cb2385474960)|
 | `2023-01-02T05:30` | None | `true`                             | There is no longer enough time available within our restricted time, so we have to wait until our target period has passed to look at the next evaluation period. |
 
 If we set an offset of `-00:30:00`, then while the times might be the same, the target rate sensor will turn on 30 minutes before the select rate period starts. Any set time restrictions **will not** include the offset.
