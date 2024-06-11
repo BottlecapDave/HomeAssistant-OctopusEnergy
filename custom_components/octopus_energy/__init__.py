@@ -10,6 +10,7 @@ from homeassistant.const import (
 )
 from homeassistant.helpers import issue_registry as ir
 
+from .api_client_home_pro import OctopusEnergyHomeProApiClient
 from .coordinators.account import AccountCoordinatorResult, async_setup_account_info_coordinator
 from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatches_coordinator
 from .coordinators.intelligent_settings import async_setup_intelligent_settings_coordinator
@@ -31,9 +32,11 @@ from .const import (
   CONFIG_KIND_TARIFF_COMPARISON,
   CONFIG_KIND_COST_TRACKER,
   CONFIG_KIND_TARGET_RATE,
+  CONFIG_MAIN_HOME_PRO_ADDRESS,
+  CONFIG_MAIN_HOME_PRO_API_KEY,
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_VERSION,
-  DATA_GAS_RATES_COORDINATOR_KEY,
+  DATA_HOME_PRO_CLIENT,
   DATA_INTELLIGENT_DEVICE,
   DATA_INTELLIGENT_MPAN,
   DATA_INTELLIGENT_SERIAL_NUMBER,
@@ -100,11 +103,18 @@ async def async_migrate_entry(hass, config_entry):
   return True
 
 async def _async_close_client(hass, account_id: str):
-  if account_id in hass.data[DOMAIN] and DATA_CLIENT in hass.data[DOMAIN][account_id]:
-    _LOGGER.debug('Closing client...')
-    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
-    await client.async_close()
-    _LOGGER.debug('Client closed.')
+  if account_id in hass.data[DOMAIN]:
+    if DATA_CLIENT in hass.data[DOMAIN][account_id]:
+      _LOGGER.debug('Closing client...')
+      client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
+      await client.async_close()
+      _LOGGER.debug('Client closed.')
+
+    if DATA_HOME_PRO_CLIENT in hass.data[DOMAIN][account_id]:
+      _LOGGER.debug('Closing home pro client...')
+      client: OctopusEnergyHomeProApiClient = hass.data[DOMAIN][account_id][DATA_HOME_PRO_CLIENT]
+      await client.async_close()
+      _LOGGER.debug('Home pro client closed.')
 
 async def async_setup_entry(hass, entry):
   """This is called from the config flow."""
@@ -231,6 +241,10 @@ async def async_setup_dependencies(hass, config):
   await _async_close_client(hass, account_id)
   client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap)
   hass.data[DOMAIN][account_id][DATA_CLIENT] = client
+
+  if CONFIG_MAIN_HOME_PRO_ADDRESS in config and CONFIG_MAIN_HOME_PRO_API_KEY in config:
+    home_pro_client = OctopusEnergyHomeProApiClient(config[CONFIG_MAIN_HOME_PRO_ADDRESS], config[CONFIG_MAIN_HOME_PRO_API_KEY])
+    hass.data[DOMAIN][account_id][DATA_HOME_PRO_CLIENT] = home_pro_client
 
   # Delete any issues that may have been previously raised
   ir.async_delete_issue(hass, DOMAIN, REPAIR_UNIQUE_RATES_CHANGED_KEY.format(account_id))

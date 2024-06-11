@@ -15,12 +15,16 @@
           "previous_gas_consumption_days_offset": "Previous consumption gas days offset",
           "calorific_value": "Gas calorific value.",
           "electricity_price_cap": "Optional electricity price cap in pence",
-          "gas_price_cap": "Optional gas price cap in pence"
+          "gas_price_cap": "Optional gas price cap in pence",
+          "home_pro_address": "Home Pro address and port (e.g. http://localhost:8000)",
+          "home_pro_api_key": "Home Pro API key"
         },
         "data_description": {
           "account_id": "You account ID can be found on your bill or at the top of https://octopus.energy/dashboard",
           "api_key": "You API key can be found at https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
-          "calorific_value": "This can be found on your gas statement and can change from time to time"
+          "calorific_value": "This can be found on your gas statement and can change from time to time",
+          "home_pro_address": "WARNING: This is experimental",
+          "home_pro_api_key": "WARNING: This is experimental"
         }
       },
       "target_rate": {
@@ -119,11 +123,15 @@
           "previous_gas_consumption_days_offset": "Previous consumption gas days offset",
           "calorific_value": "Gas calorific value",
           "electricity_price_cap": "Optional electricity price cap in pence",
-          "gas_price_cap": "Optional gas price cap in pence"
+          "gas_price_cap": "Optional gas price cap in pence",
+          "home_pro_address": "Home Pro address and port (e.g. http://localhost:8000)",
+          "home_pro_api_key": "Home Pro API key"
         },
         "data_description": {
           "api_key": "You API key can be found at https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
-          "calorific_value": "This can be found on your gas statement and can change from time to time"
+          "calorific_value": "This can be found on your gas statement and can change from time to time",
+          "home_pro_address": "WARNING: This is experimental",
+          "home_pro_api_key": "WARNING: This is experimental"
         }
       },
       "target_rate": {
