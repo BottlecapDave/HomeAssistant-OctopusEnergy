@@ -1,3 +1,10 @@
+## [11.1.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.1.0...v11.1.1) (2024-06-12)
+
+
+### Bug Fixes
+
+* Fixed support for duel rate tariff that doesn't conform to normal structure (30 minutes dev work) ([3951db9](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3951db981f1c9dfefa3d780159e8d91ebc5676ea))
+
 # [11.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.0.2...v11.1.0) (2024-06-10)
 
 
