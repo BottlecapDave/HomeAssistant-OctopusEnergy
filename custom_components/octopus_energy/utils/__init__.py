@@ -2,7 +2,6 @@
 import re
 from datetime import datetime, timedelta
 
-
 from homeassistant.util.dt import (as_local, as_utc, parse_datetime)
 
 from ..const import (
@@ -48,7 +47,7 @@ class Tariff:
 def is_day_night_tariff(tariff_code: str) -> bool:
   tariff_parts = get_tariff_parts(tariff_code)
   print(tariff_parts)
-  return tariff_parts is not None and tariff_parts.rate.startswith("2")
+  return tariff_parts is not None and "2" in tariff_parts.rate
 
 def get_active_tariff(utcnow: datetime, agreements):
   latest_agreement = None
