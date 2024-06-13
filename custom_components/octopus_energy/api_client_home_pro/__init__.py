@@ -51,7 +51,7 @@ class OctopusEnergyHomeProApiClient:
         if (response_body is not None and "meter_consump" in response_body and "consum" in response_body["meter_consump"]):
           data = response_body["meter_consump"]["consum"]
           return [{
-            "consumption": int(data["consumption"]),
+            "total_consumption": int(data["consumption"]) / (1000 if is_electricity else 1),
             "demand": int(data["instdmand"]) if "instdmand" in data else 0,
             "start": datetime.utcfromtimestamp(int(response_body["meter_consump"]["time"])),
             "end": datetime.utcfromtimestamp(int(response_body["meter_consump"]["time"]))
