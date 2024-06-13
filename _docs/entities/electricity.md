@@ -439,6 +439,25 @@ Each charge item has the following attributes
 | `end` | `datetime` | The date/time when the consumption ends |
 | `consumption` | `float` | The consumption value of the specified period |
 
+### Current Total Consumption
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_total_consumption`
+
+!!! warning
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
+
+The total consumption reported by the meter for all time.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `mpan` | `string` | The mpan for the associated meter |
+| `serial_number` | `string` | The serial for the associated meter |
+| `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
+| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+
 #### Variants
 
 The following variants of the [Current Accumulative Consumption](#current-accumulative-consumption) are available.
