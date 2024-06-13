@@ -16,7 +16,7 @@ from homeassistant.components.sensor import (
   SensorStateClass,
 )
 from homeassistant.const import (
-    UnitOfEnergy
+    UnitOfVolume
 )
 
 from homeassistant.util.dt import (now)
@@ -72,7 +72,7 @@ class OctopusEnergyCurrentTotalGasConsumptionCubicMeters(CoordinatorEntity, Octo
   @property
   def native_unit_of_measurement(self):
     """The unit of measurement of sensor"""
-    return UnitOfEnergy.CUBIC_METERS
+    return UnitOfVolume.CUBIC_METERS
 
   @property
   def icon(self):
@@ -96,14 +96,13 @@ class OctopusEnergyCurrentTotalGasConsumptionCubicMeters(CoordinatorEntity, Octo
     consumption_data = consumption_result.data if consumption_result is not None else None
 
     if (consumption_data is not None and len(consumption_data) > 0):
-      _LOGGER.debug(f"Calculated total gas consumption for '{self._mpan}/{self._serial_number}'...")
+      _LOGGER.debug(f"Calculated total gas consumption for '{self._mprn}/{self._serial_number}'...")
 
       self._state = convert_kwh_to_m3(consumption_data[-1]["total_consumption"], self._calorific_value) if consumption_data[-1]["total_consumption"] is not None else None
 
       self._attributes = {
         "mprn": self._mprn,
         "serial_number": self._serial_number,
-        "is_export": self._is_export,
         "is_smart_meter": self._is_smart_meter,
         "last_evaluated": current,
         "data_last_retrieved": consumption_result.last_retrieved if consumption_result is not None else None
