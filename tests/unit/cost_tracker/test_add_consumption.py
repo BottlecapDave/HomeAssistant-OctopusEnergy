@@ -175,7 +175,7 @@ async def test_when_last_reset_changed_then_new_value_recorded_as_is(is_tracking
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("is_tracking", [(True),(False)])
-async def test_when_state_class_total_increasing_and_new_value_less_than_old_value_then_new_value_recorded_as_is(is_tracking: bool):
+async def test_when_state_class_total_increasing_and_new_value_less_than_old_value_and_greater_than_ten_percent_different_then_new_value_recorded_as_is(is_tracking: bool):
   # Arrange
   current = datetime.strptime("2022-02-28T10:15:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
   tracked_consumption_data = []
@@ -207,6 +207,42 @@ async def test_when_state_class_total_increasing_and_new_value_less_than_old_val
   else:
     assert len(result.tracked_consumption_data) == 0
     assert_consumption(result.untracked_consumption_data, datetime.strptime("2022-02-28T10:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-02-28T10:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), new_value)
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("is_tracking", [(True),(False)])
+async def test_when_state_class_total_increasing_and_new_value_less_than_old_value_and_less_than_ten_percent_different_then_difference_is_recorded(is_tracking: bool):
+  # Arrange
+  current = datetime.strptime("2022-02-28T10:15:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  tracked_consumption_data = []
+  untracked_consumption_data = []
+  new_value = 1.35
+  old_value = 1.5
+  expected_value = new_value - old_value
+  new_last_reset = datetime.strptime("2022-02-28T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  old_last_reset = datetime.strptime("2022-02-28T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  is_accumulative_value = True
+
+  # Act
+  result = add_consumption(current,
+                           tracked_consumption_data,
+                           untracked_consumption_data,
+                           new_value,
+                           old_value,
+                           new_last_reset,
+                           old_last_reset,
+                           is_accumulative_value,
+                           is_tracking,
+                           "total_increasing")
+
+  # Assert
+  assert result is not None
+
+  if is_tracking:
+    assert_consumption(result.tracked_consumption_data, datetime.strptime("2022-02-28T10:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-02-28T10:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), expected_value)
+    assert len(result.untracked_consumption_data) == 0
+  else:
+    assert len(result.tracked_consumption_data) == 0
+    assert_consumption(result.untracked_consumption_data, datetime.strptime("2022-02-28T10:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-02-28T10:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), expected_value)
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("is_tracking", [(True),(False)])
