@@ -149,6 +149,9 @@ intelligent_device_query = '''query {{
 		id
 		provider
 		deviceType
+    status {{
+      current
+    }}
 		__typename
 		... on SmartFlexVehicle {{
 			make
@@ -161,15 +164,32 @@ intelligent_device_query = '''query {{
 	}}
 }}'''
 
-intelligent_settings_query = '''query vehicleChargingPreferences {{
-  vehicleChargingPreferences(accountNumber: "{account_id}") {{
-    weekdayTargetTime
-    weekdayTargetSoc
-    weekendTargetTime
-    weekendTargetSoc
-  }}
-  registeredKrakenflexDevice(accountNumber: "{account_id}") {{
-    suspended
+intelligent_settings_query = '''query {{
+  devices(accountNumber: "{account_id}", device_id: "{device_id}") {{
+		id
+    status {{
+      isSuspended
+    }}
+		... on SmartFlexVehicle {{
+			chargingPreferences {{
+				weekdayTargetTime
+				weekdayTargetSoc
+				weekendTargetTime
+				weekendTargetSoc
+				minimumSoc
+				maximumSoc
+			}}
+		}}
+		... on SmartFlexChargePoint {{
+			chargingPreferences {{
+				weekdayTargetTime
+				weekdayTargetSoc
+				weekendTargetTime
+				weekendTargetSoc
+				minimumSoc
+				maximumSoc
+			}}
+		}}
 	}}
 }}'''
 
@@ -1008,39 +1028,41 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
   
-  async def async_get_intelligent_settings(self, account_id: str):
+  async def async_get_intelligent_settings(self, account_id: str, device_id: str):
     """Get the user's intelligent settings"""
     await self.async_refresh_token()
 
     try:
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
-      payload = { "query": intelligent_settings_query.format(account_id=account_id) }
+      payload = { "query": intelligent_settings_query.format(account_id=account_id, device_id=device_id) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
         _LOGGER.debug(f'async_get_intelligent_settings: {response_body}')
 
         _LOGGER.debug(f'Intelligent Settings: {response_body}')
-        if (response_body is not None and "data" in response_body):
+        if (response_body is not None and "data" in response_body and "devices" in response_body["data"]):
 
-          return IntelligentSettings(
-            response_body["data"]["registeredKrakenflexDevice"]["suspended"] == False
-            if "registeredKrakenflexDevice" in response_body["data"] and "suspended" in response_body["data"]["registeredKrakenflexDevice"]
-            else None,
-            int(response_body["data"]["vehicleChargingPreferences"]["weekdayTargetSoc"])
-            if "vehicleChargingPreferences" in response_body["data"] and "weekdayTargetSoc" in response_body["data"]["vehicleChargingPreferences"]
-            else None,
-            int(response_body["data"]["vehicleChargingPreferences"]["weekendTargetSoc"])
-            if "vehicleChargingPreferences" in response_body["data"] and "weekendTargetSoc" in response_body["data"]["vehicleChargingPreferences"]
-            else None,
-            self.__ready_time_to_time__(response_body["data"]["vehicleChargingPreferences"]["weekdayTargetTime"])
-            if "vehicleChargingPreferences" in response_body["data"] and "weekdayTargetTime" in response_body["data"]["vehicleChargingPreferences"]
-            else None,
-            self.__ready_time_to_time__(response_body["data"]["vehicleChargingPreferences"]["weekendTargetTime"])
-            if "vehicleChargingPreferences" in response_body["data"] and "weekendTargetTime" in response_body["data"]["vehicleChargingPreferences"]
-            else None
-          )
+          devices = list(response_body["data"]["devices"])
+          if len(devices) == 1:
+            suspended = devices[0]["status"]["isSuspended"] if "status" in devices[0] and "isSuspended" in devices[0]["status"] else None
+            charging_preferences = devices[0]["chargingPreferences"] if "chargingPreferences" in devices[0] else None
+            return IntelligentSettings(
+              suspended,
+              int(charging_preferences["weekdayTargetSoc"])
+              if charging_preferences is not None and "weekdayTargetSoc" in charging_preferences
+              else None,
+              int(charging_preferences["weekendTargetSoc"])
+              if charging_preferences is not None and "weekendTargetSoc" in charging_preferences
+              else None,
+              self.__ready_time_to_time__(charging_preferences["weekdayTargetTime"])
+              if charging_preferences is not None and "weekdayTargetTime" in charging_preferences
+              else None,
+              self.__ready_time_to_time__(charging_preferences["weekendTargetTime"])
+              if charging_preferences is not None and "weekendTargetTime" in charging_preferences
+              else None
+            )
         else:
           _LOGGER.error("Failed to retrieve intelligent settings")
       
@@ -1063,12 +1085,13 @@ class OctopusEnergyApiClient:
   async def async_update_intelligent_car_target_percentage(
       self, 
       account_id: str,
+      device_id: str,
       target_percentage: int
     ):
     """Update a user's intelligent car target percentage"""
     await self.async_refresh_token()
 
-    settings = await self.async_get_intelligent_settings(account_id)
+    settings = await self.async_get_intelligent_settings(account_id, device_id)
 
     try:
       client = self._create_client_session()
@@ -1090,13 +1113,15 @@ class OctopusEnergyApiClient:
       raise TimeoutException()
 
   async def async_update_intelligent_car_target_time(
-      self, account_id: str,
+      self,
+      account_id: str,
+      device_id: str,
       target_time: time,
     ):
     """Update a user's intelligent car target time"""
     await self.async_refresh_token()
     
-    settings = await self.async_get_intelligent_settings(account_id)
+    settings = await self.async_get_intelligent_settings(account_id, device_id)
 
     try:
       client = self._create_client_session()
@@ -1219,7 +1244,7 @@ class OctopusEnergyApiClient:
           devices: list = response_body["data"]["devices"]
 
           for device in devices:
-            if (device["deviceType"] != "ELECTRIC_VEHICLES"):
+            if (device["deviceType"] != "ELECTRIC_VEHICLES" or device["status"]["current"] != "LIVE"):
               continue
 
             is_charger = device["__typename"] == "SmartFlexChargePoint"

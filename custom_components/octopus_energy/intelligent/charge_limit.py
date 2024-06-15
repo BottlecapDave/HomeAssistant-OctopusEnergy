@@ -96,6 +96,7 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
     """Set new value."""
     await self._client.async_update_intelligent_car_target_percentage(
       self._account_id,
+      self._device.id,
       int(value)
     )
     self._state = value
