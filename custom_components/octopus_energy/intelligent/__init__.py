@@ -6,7 +6,7 @@ from homeassistant.util.dt import (utcnow, parse_datetime)
 
 from homeassistant.helpers import storage
 
-from ..utils import OffPeakTime, get_active_tariff_code, get_tariff_parts
+from ..utils import get_active_tariff
 
 from ..const import DOMAIN, INTELLIGENT_SOURCE_BUMP_CHARGE, INTELLIGENT_SOURCE_SMART_CHARGE, REFRESH_RATE_IN_MINUTES_INTELLIGENT
 
@@ -109,21 +109,19 @@ def mock_intelligent_device():
     6.5 
   )
 
-def is_intelligent_tariff(tariff_code: str):
-  parts = get_tariff_parts(tariff_code.upper())
-
+def is_intelligent_product(product_code: str):
   # Need to ignore Octopus Intelligent Go tariffs
-  return parts is not None and (
-    "INTELLI-BB-VAR" in parts.product_code or
-    "INTELLI-VAR" in parts.product_code or
-    re.search("INTELLI-[0-9]", parts.product_code) is not None
+  return product_code is not None and (
+    "INTELLI-BB-VAR" in product_code.upper() or
+    "INTELLI-VAR" in product_code.upper() or
+    re.search("INTELLI-[0-9]", product_code.upper()) is not None
   )
 
 def has_intelligent_tariff(current: datetime, account_info):
   if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
-      tariff_code = get_active_tariff_code(current, point["agreements"])
-      if tariff_code is not None and is_intelligent_tariff(tariff_code):
+      tariff = get_active_tariff(current, point["agreements"])
+      if tariff is not None and is_intelligent_product(tariff.product):
         return True
 
   return False

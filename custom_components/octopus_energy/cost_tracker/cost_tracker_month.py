@@ -24,8 +24,8 @@ from homeassistant.const import (
 )
 
 from ..const import (
-  CONFIG_COST_MONTH_DAY_RESET,
-  CONFIG_COST_NAME,
+  CONFIG_COST_TRACKER_MONTH_DAY_RESET,
+  CONFIG_COST_TRACKER_NAME,
   DOMAIN,
 )
 
@@ -66,7 +66,7 @@ class OctopusEnergyCostTrackerMonthSensor(RestoreSensor):
   @property
   def unique_id(self):
     """The id of the sensor."""
-    base_name = f"octopus_energy_cost_tracker_{self._config[CONFIG_COST_NAME]}_month"
+    base_name = f"octopus_energy_cost_tracker_{self._config[CONFIG_COST_TRACKER_NAME]}_month"
     if self._peak_type is not None:
       return f"{base_name}_{self._peak_type}"
     
@@ -75,7 +75,7 @@ class OctopusEnergyCostTrackerMonthSensor(RestoreSensor):
   @property
   def name(self):
     """Name of the sensor."""
-    base_name = f"Octopus Energy Cost Tracker {self._config[CONFIG_COST_NAME]} Month"
+    base_name = f"Octopus Energy Cost Tracker {self._config[CONFIG_COST_TRACKER_NAME]} Month"
     if self._peak_type is not None:
       return f"{base_name} ({self._peak_type})"
 
@@ -212,7 +212,7 @@ class OctopusEnergyCostTrackerMonthSensor(RestoreSensor):
       self._last_reset = start_of_day
       return True
     
-    target_day = self._config[CONFIG_COST_MONTH_DAY_RESET] if CONFIG_COST_MONTH_DAY_RESET in self._config else 1
+    target_day = self._config[CONFIG_COST_TRACKER_MONTH_DAY_RESET] if CONFIG_COST_TRACKER_MONTH_DAY_RESET in self._config else 1
     if self._last_reset.day != current.day and current.day == target_day:
       self._state = 0
       self._attributes["total_consumption"] = 0

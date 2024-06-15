@@ -1,5 +1,4 @@
 import logging
-from datetime import (datetime)
 import asyncio
 
 from homeassistant.const import (
@@ -20,8 +19,7 @@ from homeassistant.components.sensor import (
 from homeassistant.util.dt import (utcnow)
 
 from . import (
-  calculate_gas_consumption_and_cost,
-  get_gas_tariff_override_key,
+  calculate_gas_consumption_and_cost
 )
 
 from ..api_client import (ApiException, OctopusEnergyApiClient)
@@ -30,23 +28,21 @@ from .base import (OctopusEnergyGasSensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..utils.requests import calculate_next_refresh
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
-from ..utils import private_rates_to_public_rates
+from ..utils import get_tariff_parts, private_rates_to_public_rates
 
-from ..const import DOMAIN, EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES, MINIMUM_CONSUMPTION_DATA_LENGTH, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION
+from ..const import CONFIG_TARIFF_COMPARISON_NAME, CONFIG_TARIFF_COMPARISON_PRODUCT_CODE, CONFIG_TARIFF_COMPARISON_TARIFF_CODE, EVENT_GAS_PREVIOUS_CONSUMPTION_TARIFF_COMPARISON_RATES, MINIMUM_CONSUMPTION_DATA_LENGTH, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION
 
 _LOGGER = logging.getLogger(__name__)
   
 class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative gas cost for a different tariff."""
 
-  def __init__(self, hass: HomeAssistant, account_id: str, coordinator, client: OctopusEnergyApiClient, tariff_code, meter, point, calorific_value):
+  def __init__(self, hass: HomeAssistant, account_id: str, coordinator, client: OctopusEnergyApiClient, meter, point, calorific_value, config):
     """Init sensor."""
-    CoordinatorEntity.__init__(self, coordinator)
-    OctopusEnergyGasSensor.__init__(self, hass, meter, point)
     
     self._hass = hass
     self._client = client
-    self._tariff_code = tariff_code
+    self._config = config
     self._native_consumption_units = meter["consumption_units"]
     self._account_id = account_id
 
@@ -58,23 +54,18 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
     self._last_retrieved  = None
     self._request_attempts = 1
 
+    CoordinatorEntity.__init__(self, coordinator)
+    OctopusEnergyGasSensor.__init__(self, hass, meter, point)
+
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_gas_{self._serial_number}_{self._mprn}_previous_accumulative_cost_override"
+    return f"octopus_energy_gas_{self._serial_number}_{self._mprn}_previous_accumulative_cost_{self._config[CONFIG_TARIFF_COMPARISON_NAME]}"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Previous Accumulative Cost Override Gas ({self._serial_number}/{self._mprn})"
-  
-  @property
-  def entity_registry_enabled_default(self) -> bool:
-    """Return if the entity should be enabled when first added.
-
-    This only applies when fist added to the entity registry.
-    """
-    return False
+    return f"{self._config[CONFIG_TARIFF_COMPARISON_NAME]} Previous Accumulative Cost Override Gas ({self._serial_number}/{self._mprn})"
 
   @property
   def device_class(self):
@@ -125,21 +116,19 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
     result: PreviousConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     consumption_data = result.consumption if result is not None and result.consumption is not None and len(result.consumption) > 0 else None
 
-    tariff_override_key = get_gas_tariff_override_key(self._serial_number, self._mprn)
     is_old_data = (result is not None and (self._last_retrieved is None or result.last_retrieved >= self._last_retrieved)) and (self._next_refresh is None or current >= self._next_refresh)
-    is_tariff_present = tariff_override_key in self._hass.data[DOMAIN][self._account_id]
-    has_tariff_changed = is_tariff_present and self._hass.data[DOMAIN][self._account_id][tariff_override_key] != self._tariff_code
 
-    if (consumption_data is not None and len(consumption_data) >= MINIMUM_CONSUMPTION_DATA_LENGTH and is_tariff_present and (is_old_data or has_tariff_changed)):
-      tariff_override = self._hass.data[DOMAIN][self._account_id][tariff_override_key]
+    if (consumption_data is not None and len(consumption_data) >= MINIMUM_CONSUMPTION_DATA_LENGTH and is_old_data):
       period_from = consumption_data[0]["start"]
       period_to = consumption_data[-1]["end"]
+      target_product_code = self._config[CONFIG_TARIFF_COMPARISON_PRODUCT_CODE]
+      target_tariff_code = self._config[CONFIG_TARIFF_COMPARISON_TARIFF_CODE]
 
       try:
         _LOGGER.debug(f"Retrieving rates and standing charge overrides for '{self._mprn}/{self._serial_number}' ({period_from} - {period_to})...")
         [rate_data, standing_charge] = await asyncio.gather(
-          self._client.async_get_gas_rates(tariff_override, period_from, period_to),
-          self._client.async_get_gas_standing_charge(tariff_override, period_from, period_to)
+          self._client.async_get_gas_rates(target_product_code, target_tariff_code, period_from, period_to),
+          self._client.async_get_gas_standing_charge(target_product_code, target_tariff_code, period_from, period_to)
         )
 
         _LOGGER.debug(f"Rates and standing charge overrides for '{self._mprn}/{self._serial_number}' ({period_from} - {period_to}) retrieved")
@@ -153,8 +142,6 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
           self._calorific_value
         )
 
-        self._tariff_code = tariff_override
-
         if (consumption_and_cost is not None):
           _LOGGER.debug(f"Calculated previous gas consumption cost override for '{self._mprn}/{self._serial_number}'...")
 
@@ -164,7 +151,8 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
           self._attributes = {
             "mprn": self._mprn,
             "serial_number": self._serial_number,
-            "tariff_code": self._tariff_code,
+            "product_code": target_product_code,
+            "tariff_code": target_tariff_code,
             "standing_charge": consumption_and_cost["standing_charge"],
             "total_without_standing_charge": consumption_and_cost["total_cost_without_standing_charge"],
             "total": consumption_and_cost["total_cost"],
@@ -178,11 +166,12 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
             "calorific_value": self._calorific_value
           }
           
-          self._hass.bus.async_fire(EVENT_GAS_PREVIOUS_CONSUMPTION_OVERRIDE_RATES,
+          self._hass.bus.async_fire(EVENT_GAS_PREVIOUS_CONSUMPTION_TARIFF_COMPARISON_RATES,
                                     dict_to_typed_dict({
                                       "mprn": self._mprn,
                                       "serial_number": self._serial_number,
-                                      "tariff_code": self._tariff_code,
+                                      "product_code": target_product_code,
+                                      "tariff_code": target_tariff_code,
                                       "rates": private_rates_to_public_rates(rate_data) 
                                     }))
 

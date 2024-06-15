@@ -147,7 +147,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
           break
       
       if all_rates_in_past:
-        if self.coordinator is not None and self.coordinator.data is not None:
+        if self.coordinator is not None and self.coordinator.data is not None and self.coordinator.data.rates is not None:
           all_rates = self.coordinator.data.rates
         else:
           _LOGGER.debug(f"Rate data missing. Setting to empty array")

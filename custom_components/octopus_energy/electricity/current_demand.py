@@ -79,7 +79,7 @@ class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElec
   @callback
   def _handle_coordinator_update(self) -> None:
     """Handle updated data from the coordinator."""
-    _LOGGER.debug('Updating OctopusEnergyCurrentElectricityConsumption')
+    _LOGGER.debug('Updating OctopusEnergyCurrentElectricityDemand')
     consumption_result: CurrentConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     consumption_data = consumption_result.data if consumption_result is not None else None
 

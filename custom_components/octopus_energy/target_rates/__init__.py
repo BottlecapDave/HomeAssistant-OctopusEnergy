@@ -90,7 +90,7 @@ def calculate_continuous_times(
     max_rate = None,
     weighting: list = None
   ):
-  if (applicable_rates is None):
+  if (applicable_rates is None or target_hours <= 0):
     return []
   
   applicable_rates.sort(key=__get_valid_to, reverse=find_last_rates)
@@ -115,7 +115,7 @@ def calculate_continuous_times(
       continue
 
     continuous_rates = [rate]
-    continuous_rates_total = rate["value_inc_vat"] * (weighting[0] if weighting is not None else 1)
+    continuous_rates_total = rate["value_inc_vat"] * (weighting[0] if weighting is not None and len(weighting) > 0 else 1)
     
     for offset in range(1, total_required_rates):
       if (index + offset) < applicable_rates_count:

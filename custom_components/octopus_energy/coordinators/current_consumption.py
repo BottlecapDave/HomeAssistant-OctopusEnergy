@@ -20,7 +20,7 @@ _LOGGER = logging.getLogger(__name__)
 class CurrentConsumptionCoordinatorResult(BaseCoordinatorResult):
   data: list
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, refresh_rate_in_minutes: int, data: list):
+  def __init__(self, last_retrieved: datetime, request_attempts: int, refresh_rate_in_minutes: float, data: list):
     super().__init__(last_retrieved, request_attempts, refresh_rate_in_minutes)
     self.data = data
 
@@ -29,7 +29,7 @@ async def async_get_live_consumption(
   client: OctopusEnergyApiClient,
   device_id: str,
   previous_consumption: CurrentConsumptionCoordinatorResult,
-  refresh_rate_in_minutes: int
+  refresh_rate_in_minutes: float
 ):
   if previous_consumption is None or current_date >= previous_consumption.next_refresh:
     period_from = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -67,7 +67,7 @@ async def async_get_live_consumption(
   
   return previous_consumption
 
-async def async_create_current_consumption_coordinator(hass, account_id: str, client: OctopusEnergyApiClient, device_id: str, refresh_rate_in_minutes: int):
+async def async_create_current_consumption_coordinator(hass, account_id: str, client: OctopusEnergyApiClient, device_id: str, refresh_rate_in_minutes: float):
   """Create current consumption coordinator"""
   key = DATA_CURRENT_CONSUMPTION_KEY.format(device_id)
 

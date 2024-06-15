@@ -1,0 +1,3 @@
+# Repairs - Unknown product
+
+If you receive this error around one or more of your tariffs, it's because the Octopus Energy API can not find the product associated with your tariff. This usually occurs if you're on a tariff which is currently internal and has not been exposed. In this scenario, you should [raise an issue](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues) with the tariff code and your meter information, which can be obtained by following the [FAQ](../faq.md#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this).

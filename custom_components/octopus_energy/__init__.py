@@ -8,7 +8,9 @@ from homeassistant.util.dt import (utcnow)
 from homeassistant.const import (
     EVENT_HOMEASSISTANT_STOP
 )
+from homeassistant.helpers import issue_registry as ir
 
+from .api_client_home_pro import OctopusEnergyHomeProApiClient
 from .coordinators.account import AccountCoordinatorResult, async_setup_account_info_coordinator
 from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatches_coordinator
 from .coordinators.intelligent_settings import async_setup_intelligent_settings_coordinator
@@ -16,23 +18,29 @@ from .coordinators.electricity_rates import async_setup_electricity_rates_coordi
 from .coordinators.saving_sessions import async_setup_saving_sessions_coordinators
 from .coordinators.greenness_forecast import async_setup_greenness_forecast_coordinator
 from .statistics import get_statistic_ids_to_remove
-from .intelligent import async_mock_intelligent_data, get_intelligent_features, is_intelligent_tariff, mock_intelligent_device
+from .intelligent import async_mock_intelligent_data, get_intelligent_features, is_intelligent_product, mock_intelligent_device
 
 from .config.main import async_migrate_main_config
 from .config.target_rates import async_migrate_target_config
-from .utils import get_active_tariff_code
+from .config.cost_tracker import async_migrate_cost_tracker_config
+from .utils import get_active_tariff
 from .utils.tariff_overrides import async_get_tariff_override
 
 from .const import (
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
+  CONFIG_KIND_TARIFF_COMPARISON,
   CONFIG_KIND_COST_TRACKER,
   CONFIG_KIND_TARGET_RATE,
+  CONFIG_MAIN_HOME_PRO_ADDRESS,
+  CONFIG_MAIN_HOME_PRO_API_KEY,
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_VERSION,
+  DATA_HOME_PRO_CLIENT,
   DATA_INTELLIGENT_DEVICE,
   DATA_INTELLIGENT_MPAN,
   DATA_INTELLIGENT_SERIAL_NUMBER,
+  DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY,
   DOMAIN,
 
   CONFIG_MAIN_API_KEY,
@@ -42,14 +50,18 @@ from .const import (
 
   DATA_CLIENT,
   DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
-  DATA_ACCOUNT
+  DATA_ACCOUNT,
+  REPAIR_ACCOUNT_NOT_FOUND,
+  REPAIR_INVALID_API_KEY,
+  REPAIR_UNIQUE_RATES_CHANGED_KEY
 )
 
 ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "text", "number", "switch", "time", "event"]
 TARGET_RATE_PLATFORMS = ["binary_sensor"]
 COST_TRACKER_PLATFORMS = ["sensor"]
+TARIFF_COMPARISON_PLATFORMS = ["sensor"]
 
-from .api_client import OctopusEnergyApiClient, RequestException
+from .api_client import AuthenticationException, OctopusEnergyApiClient, RequestException
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -73,9 +85,15 @@ async def async_migrate_entry(hass, config_entry):
       new_data = await async_migrate_main_config(config_entry.version, config_entry.data)
       new_options = await async_migrate_main_config(config_entry.version, config_entry.options)
       title = new_data[CONFIG_ACCOUNT_ID]
-    else:
+    elif CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
       new_data = await async_migrate_target_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
       new_options = await async_migrate_target_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
+    elif CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
+      new_data = await async_migrate_cost_tracker_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
+      new_options = await async_migrate_cost_tracker_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
+    elif CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:
+      new_data = await async_migrate_cost_tracker_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
+      new_options = await async_migrate_cost_tracker_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
     
     config_entry.version = CONFIG_VERSION
     hass.config_entries.async_update_entry(config_entry, title=title, data=new_data, options=new_options)
@@ -85,11 +103,18 @@ async def async_migrate_entry(hass, config_entry):
   return True
 
 async def _async_close_client(hass, account_id: str):
-  if account_id in hass.data[DOMAIN] and DATA_CLIENT in hass.data[DOMAIN][account_id]:
-    _LOGGER.debug('Closing client...')
-    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
-    await client.async_close()
-    _LOGGER.debug('Client closed.')
+  if account_id in hass.data[DOMAIN]:
+    if DATA_CLIENT in hass.data[DOMAIN][account_id]:
+      _LOGGER.debug('Closing client...')
+      client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
+      await client.async_close()
+      _LOGGER.debug('Client closed.')
+
+    if DATA_HOME_PRO_CLIENT in hass.data[DOMAIN][account_id]:
+      _LOGGER.debug('Closing home pro client...')
+      client: OctopusEnergyHomeProApiClient = hass.data[DOMAIN][account_id][DATA_HOME_PRO_CLIENT]
+      await client.async_close()
+      _LOGGER.debug('Home pro client closed.')
 
 async def async_setup_entry(hass, entry):
   """This is called from the config flow."""
@@ -131,16 +156,17 @@ async def async_setup_entry(hass, entry):
     account_info = account_result.account if account_result is not None else None
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
-      electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
-      if electricity_tariff_code is not None:
+      electricity_tariff = get_active_tariff(now, point["agreements"])
+      if electricity_tariff is not None:
         for meter in point["meters"]:
           mpan = point["mpan"]
           serial_number = meter["serial_number"]
-          electricity_rates_coordinator_key = DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)
-          if electricity_rates_coordinator_key not in hass.data[DOMAIN][account_id]:
+          previous_consumption_coordinator_key = DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)
+          if previous_consumption_coordinator_key not in hass.data[DOMAIN][account_id]:
             raise ConfigEntryNotReady(f"Electricity rates have not been setup for {mpan}/{serial_number}")
 
     await hass.config_entries.async_forward_entry_setups(entry, TARGET_RATE_PLATFORMS)
+  
   elif config[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
     if DOMAIN not in hass.data or account_id not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN][account_id]:
       raise ConfigEntryNotReady("Account has not been setup")
@@ -150,16 +176,47 @@ async def async_setup_entry(hass, entry):
     account_info = account_result.account if account_result is not None else None
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
-      electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
-      if electricity_tariff_code is not None:
+      electricity_tariff = get_active_tariff(now, point["agreements"])
+      if electricity_tariff is not None:
         for meter in point["meters"]:
           mpan = point["mpan"]
           serial_number = meter["serial_number"]
-          electricity_rates_coordinator_key = DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)
-          if electricity_rates_coordinator_key not in hass.data[DOMAIN][account_id]:
+          previous_consumption_coordinator_key = DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)
+          if previous_consumption_coordinator_key not in hass.data[DOMAIN][account_id]:
             raise ConfigEntryNotReady(f"Electricity rates have not been setup for {mpan}/{serial_number}")
 
     await hass.config_entries.async_forward_entry_setups(entry, COST_TRACKER_PLATFORMS)
+  
+  elif config[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:
+    if DOMAIN not in hass.data or account_id not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN][account_id]:
+      raise ConfigEntryNotReady("Account has not been setup")
+    
+    now = utcnow()
+    account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+    account_info = account_result.account if account_result is not None else None
+    for point in account_info["electricity_meter_points"]:
+      # We only care about points that have active agreements
+      electricity_tariff = get_active_tariff(now, point["agreements"])
+      if electricity_tariff is not None:
+        for meter in point["meters"]:
+          mpan = point["mpan"]
+          serial_number = meter["serial_number"]
+          previous_consumption_coordinator_key = DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY.format(mpan, serial_number)
+          if previous_consumption_coordinator_key not in hass.data[DOMAIN][account_id]:
+            raise ConfigEntryNotReady(f"Previous electricity consumption has not been setup for {mpan}/{serial_number}")
+          
+    for point in account_info["gas_meter_points"]:
+      # We only care about points that have active agreements
+      gas_tariff = get_active_tariff(now, point["agreements"])
+      if gas_tariff is not None:
+        for meter in point["meters"]:
+          mprn = point["mprn"]
+          serial_number = meter["serial_number"]
+          previous_consumption_coordinator_key = DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY.format(mprn, serial_number)
+          if previous_consumption_coordinator_key not in hass.data[DOMAIN][account_id]:
+            raise ConfigEntryNotReady(f"Previous gas consumption has not been setup for {mprn}/{serial_number}")
+
+    await hass.config_entries.async_forward_entry_setups(entry, TARIFF_COMPARISON_PLATFORMS)
   
   entry.async_on_unload(entry.add_update_listener(options_update_listener))
 
@@ -185,13 +242,33 @@ async def async_setup_dependencies(hass, config):
   client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap)
   hass.data[DOMAIN][account_id][DATA_CLIENT] = client
 
+  if CONFIG_MAIN_HOME_PRO_ADDRESS in config and CONFIG_MAIN_HOME_PRO_API_KEY in config:
+    home_pro_client = OctopusEnergyHomeProApiClient(config[CONFIG_MAIN_HOME_PRO_ADDRESS], config[CONFIG_MAIN_HOME_PRO_API_KEY])
+    hass.data[DOMAIN][account_id][DATA_HOME_PRO_CLIENT] = home_pro_client
+
+  # Delete any issues that may have been previously raised
+  ir.async_delete_issue(hass, DOMAIN, REPAIR_UNIQUE_RATES_CHANGED_KEY.format(account_id))
+  ir.async_delete_issue(hass, DOMAIN, REPAIR_ACCOUNT_NOT_FOUND.format(account_id))
+
   try:
     account_info = await client.async_get_account(config[CONFIG_ACCOUNT_ID])
+    ir.async_delete_issue(hass, DOMAIN, REPAIR_INVALID_API_KEY.format(account_id))
     if (account_info is None):
       raise ConfigEntryNotReady(f"Failed to retrieve account information")
   except Exception as e:
     if isinstance(e, RequestException) == False:
       raise
+
+    if isinstance(e, AuthenticationException):
+      ir.async_create_issue(
+        hass,
+        DOMAIN,
+        REPAIR_INVALID_API_KEY.format(account_id),
+        is_fixable=False,
+        severity=ir.IssueSeverity.ERROR,
+        translation_key="invalid_api_key",
+        translation_placeholders={ "account_id": account_id },
+      )
     
     raise ConfigEntryNotReady(f"Failed to retrieve account information")
 
@@ -206,8 +283,8 @@ async def async_setup_dependencies(hass, config):
       for meter in point["meters"]:
         serial_number = meter["serial_number"]
 
-        tariff_code = get_active_tariff_code(now, point["agreements"])
-        if tariff_code is None:
+        tariff = get_active_tariff(now, point["agreements"])
+        if tariff is None:
           gas_device = device_registry.async_get_device(identifiers={(DOMAIN, f"gas_{serial_number}_{mprn}")})
           if gas_device is not None:
             _LOGGER.debug(f'Removed gas device {serial_number}/{mprn} due to no active tariff')
@@ -223,14 +300,14 @@ async def async_setup_dependencies(hass, config):
   intelligent_serial_number = None
   for point in account_info["electricity_meter_points"]:
     mpan = point["mpan"]
-    electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
+    electricity_tariff = get_active_tariff(now, point["agreements"])
 
     for meter in point["meters"]:  
       serial_number = meter["serial_number"]
       
-      if electricity_tariff_code is not None:
+      if electricity_tariff is not None:
         if meter["is_export"] == False:
-          if is_intelligent_tariff(electricity_tariff_code):
+          if is_intelligent_product(electricity_tariff.product):
             intelligent_mpan = mpan
             intelligent_serial_number = serial_number
             has_intelligent_tariff = True
@@ -244,8 +321,8 @@ async def async_setup_dependencies(hass, config):
   if should_mock_intelligent_data:
     # Pick the first meter if we're mocking our intelligent data
     for point in account_info["electricity_meter_points"]:
-      tariff_code = get_active_tariff_code(now, point["agreements"])
-      if tariff_code is not None:
+      tariff = get_active_tariff(now, point["agreements"])
+      if tariff is not None:
         for meter in point["meters"]:
           intelligent_mpan = point["mpan"]
           intelligent_serial_number = meter["serial_number"]
@@ -267,8 +344,8 @@ async def async_setup_dependencies(hass, config):
 
   for point in account_info["electricity_meter_points"]:
     # We only care about points that have active agreements
-    electricity_tariff_code = get_active_tariff_code(now, point["agreements"])
-    if electricity_tariff_code is not None:
+    electricity_tariff = get_active_tariff(now, point["agreements"])
+    if electricity_tariff is not None:
       for meter in point["meters"]:
         mpan = point["mpan"]
         serial_number = meter["serial_number"]

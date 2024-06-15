@@ -24,8 +24,8 @@ from homeassistant.const import (
 )
 
 from ..const import (
-  CONFIG_COST_NAME,
-  CONFIG_COST_WEEKDAY_RESET,
+  CONFIG_COST_TRACKER_NAME,
+  CONFIG_COST_TRACKER_WEEKDAY_RESET,
   DOMAIN,
 )
 
@@ -66,7 +66,7 @@ class OctopusEnergyCostTrackerWeekSensor(RestoreSensor):
   @property
   def unique_id(self):
     """The id of the sensor."""
-    base_name = f"octopus_energy_cost_tracker_{self._config[CONFIG_COST_NAME]}_week"
+    base_name = f"octopus_energy_cost_tracker_{self._config[CONFIG_COST_TRACKER_NAME]}_week"
     if self._peak_type is not None:
       return f"{base_name}_{self._peak_type}"
     
@@ -75,7 +75,7 @@ class OctopusEnergyCostTrackerWeekSensor(RestoreSensor):
   @property
   def name(self):
     """Name of the sensor."""
-    base_name = f"Octopus Energy Cost Tracker {self._config[CONFIG_COST_NAME]} Week"
+    base_name = f"Octopus Energy Cost Tracker {self._config[CONFIG_COST_TRACKER_NAME]} Week"
     if self._peak_type is not None:
       return f"{base_name} ({self._peak_type})"
 
@@ -211,7 +211,7 @@ class OctopusEnergyCostTrackerWeekSensor(RestoreSensor):
       self._last_reset = start_of_day
       return True
     
-    target_weekday = self._config[CONFIG_COST_WEEKDAY_RESET] if CONFIG_COST_WEEKDAY_RESET in self._config else 0
+    target_weekday = self._config[CONFIG_COST_TRACKER_WEEKDAY_RESET] if CONFIG_COST_TRACKER_WEEKDAY_RESET in self._config else 0
     if self._last_reset.weekday() != current.weekday() and current.weekday() == target_weekday:
       self._state = 0
       self._attributes["total_consumption"] = 0

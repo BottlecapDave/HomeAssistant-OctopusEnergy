@@ -12,13 +12,14 @@ from custom_components.octopus_energy.coordinators.intelligent_dispatches import
 current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
 last_retrieved = datetime.strptime("2023-07-14T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
 
+product_code = "INTELLI-VAR-22-10-14"
 tariff_code = "E-1R-INTELLI-VAR-22-10-14-C"
 mpan = "1234567890"
 serial_number = "abcdefgh"
 
 intelligent_device = IntelligentDevice("1", "2", "3", "4", 1, "5", "6", 2)
 
-def get_account_info(is_active_agreement = True, active_tariff_code = tariff_code):
+def get_account_info(is_active_agreement = True, active_product_code = product_code, active_tariff_code = tariff_code):
   return {
     "id": "A-XXXXXX",
     "electricity_meter_points": [
@@ -40,7 +41,7 @@ def get_account_info(is_active_agreement = True, active_tariff_code = tariff_cod
             "start": "2023-07-01T00:00:00+01:00" if is_active_agreement else "2023-08-01T00:00:00+01:00",
             "end": "2023-08-01T00:00:00+01:00" if is_active_agreement else "2023-09-01T00:00:00+01:00",
             "tariff_code": active_tariff_code,
-            "product": "SUPER-GREEN-24M-21-07-30"
+            "product_code": active_product_code
           }
         ]
       }
@@ -91,7 +92,7 @@ async def test_when_intelligent_device_is_none_then_none_returned():
     account_id, completed_dispatches = args
     return completed_dispatches
   
-  account_info = get_account_info(True, "E-1R-GO-18-06-12-A")
+  account_info = get_account_info(True, active_product_code="GO-18-06-12")
   existing_settings = None
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
@@ -123,7 +124,7 @@ async def test_when_not_on_intelligent_tariff_then_none_returned():
     account_id, completed_dispatches = args
     return completed_dispatches
   
-  account_info = get_account_info(True, "E-1R-GO-18-06-12-A")
+  account_info = get_account_info(True, active_product_code="GO-18-06-12")
   existing_settings = None
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
