@@ -5,11 +5,7 @@ from custom_components.octopus_energy.api_client import AuthenticationException
 from custom_components.octopus_energy.api_client_home_pro import OctopusEnergyHomeProApiClient
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("is_electricity",[
-  (True),
-  (False)
-])
-async def test_when_get_consumption_is_called_and_api_key_is_invalid_then_exception_is_raised(is_electricity: bool):
+async def test_when_ping_is_called_and_api_key_is_invalid_then_exception_is_raised():
   # Arrange
   context = get_test_context()
   
@@ -18,7 +14,7 @@ async def test_when_get_consumption_is_called_and_api_key_is_invalid_then_except
   # Act
   exception_raised = False
   try:
-    await client.async_get_consumption(is_electricity)
+    await client.async_ping()
   except AuthenticationException:
     exception_raised = True
 
@@ -26,26 +22,14 @@ async def test_when_get_consumption_is_called_and_api_key_is_invalid_then_except
   assert exception_raised == True
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("is_electricity",[
-  (True),
-  (False)
-])
-async def test_when_get_consumption_is_called_then_data_is_returned(is_electricity: bool):
+async def test_when_ping_is_called_then_data_is_returned():
   # Arrange
   context = get_test_context()
   
   client = OctopusEnergyHomeProApiClient(context.base_url, context.api_key)
 
   # Act
-  data = await client.async_get_consumption(is_electricity)
+  result = await client.async_ping()
 
   # Assert
-  assert data is not None
-
-  assert len(data) == 1
-
-  assert "demand" in data[0]
-  assert data[0]["demand"] >= 0
-
-  assert "total_consumption" in data[0]
-  assert data[0]["total_consumption"] >= 0
+  assert result == True

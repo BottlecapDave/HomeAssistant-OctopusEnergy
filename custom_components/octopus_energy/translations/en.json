@@ -102,7 +102,9 @@
       "invalid_weighting": "The weighting format is not supported.",
       "invalid_weighting_slots": "The number of weighting blocks does not equal the specified number of hours.",
       "weighting_not_supported": "Weighting is only supported for continuous target rates",
-      "invalid_product_or_tariff": "Product or tariff code does not exist"
+      "invalid_product_or_tariff": "Product or tariff code does not exist",
+      "all_home_pro_values_not_set": "Either both Home Pro address and API key must be set, or neither must be set",
+      "home_pro_connection_failed": "Cannot connect to Home Pro device"
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",
@@ -188,7 +190,9 @@
       "invalid_weighting": "The weighting format is not supported.",
       "invalid_weighting_slots": "The number of weighting blocks does not equal the specified number of hours.",
       "weighting_not_supported": "Weighting is only supported for continuous target rates",
-      "invalid_product_or_tariff": "Product or tariff code does not exist"
+      "invalid_product_or_tariff": "Product or tariff code does not exist",
+      "all_home_pro_values_not_set": "Either both Home Pro address and API key must be set, or neither must be set",
+      "home_pro_connection_failed": "Cannot connect to Home Pro device"
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",

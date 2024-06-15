@@ -38,6 +38,23 @@ class OctopusEnergyHomeProApiClient:
       self._session = aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers)
       return self._session
     
+  async def async_ping(self):
+    try:
+      client = self._create_client_session()
+      url = f'{self._base_url}/get_meter_info?meter_type=elec'
+      headers = { "Authorization": self._api_key }
+      async with client.get(url, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        if (response_body is not None and "Status" in response_body):
+          status: str = response_body["Status"]
+          return status.lower() == "success"
+      
+      return False
+    
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
   async def async_get_consumption(self, is_electricity: bool) -> list | None:
     """Get the latest consumption"""
 
