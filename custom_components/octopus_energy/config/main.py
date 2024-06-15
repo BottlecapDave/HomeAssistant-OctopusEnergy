@@ -11,9 +11,12 @@ from ..const import (
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET,
   CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET,
-  CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION
+  CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
+  CONFIG_MAIN_HOME_PRO_ADDRESS,
+  CONFIG_MAIN_HOME_PRO_API_KEY
 )
 from ..api_client import OctopusEnergyApiClient, RequestException, ServerException
+from ..api_client_home_pro import OctopusEnergyHomeProApiClient
 
 async def async_migrate_main_config(version: int, data: {}):
   new_data = {**data}
@@ -92,5 +95,21 @@ async def async_validate_main_config(data, account_ids = []):
 
   if data[CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET] < 1:
     errors[CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET] = "value_greater_than_zero"
+
+  if ((CONFIG_MAIN_HOME_PRO_ADDRESS in data and CONFIG_MAIN_HOME_PRO_API_KEY not in data) or
+      (CONFIG_MAIN_HOME_PRO_ADDRESS not in data and CONFIG_MAIN_HOME_PRO_API_KEY in data)):
+    errors[CONFIG_MAIN_HOME_PRO_ADDRESS] = "all_home_pro_values_not_set"
+
+  if (CONFIG_MAIN_HOME_PRO_ADDRESS in data and CONFIG_MAIN_HOME_PRO_API_KEY in data):
+    home_pro_client = OctopusEnergyHomeProApiClient(data[CONFIG_MAIN_HOME_PRO_ADDRESS], data[CONFIG_MAIN_HOME_PRO_API_KEY])
+
+    can_connect = False
+    try:
+      can_connect = await home_pro_client.async_ping()
+    except:
+      can_connect = False
+
+    if can_connect == False:
+      errors[CONFIG_MAIN_HOME_PRO_ADDRESS] = "home_pro_connection_failed"
 
   return errors

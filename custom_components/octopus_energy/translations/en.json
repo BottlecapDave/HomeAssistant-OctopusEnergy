@@ -3,7 +3,7 @@
   "config": {
     "step": {
       "account": {
-        "description": "Setup your basic account information.",
+        "description": "Setup your basic account information. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account",
         "data": {
           "account_id": "Account ID (e.g. A-AAAA1111)",
           "api_key": "Api key",
@@ -15,12 +15,16 @@
           "previous_gas_consumption_days_offset": "Previous consumption gas days offset",
           "calorific_value": "Gas calorific value.",
           "electricity_price_cap": "Optional electricity price cap in pence",
-          "gas_price_cap": "Optional gas price cap in pence"
+          "gas_price_cap": "Optional gas price cap in pence",
+          "home_pro_address": "Home Pro address and port (e.g. http://localhost:8000)",
+          "home_pro_api_key": "Home Pro API key"
         },
         "data_description": {
           "account_id": "You account ID can be found on your bill or at the top of https://octopus.energy/dashboard",
           "api_key": "You API key can be found at https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
-          "calorific_value": "This can be found on your gas statement and can change from time to time"
+          "calorific_value": "This can be found on your gas statement and can change from time to time",
+          "home_pro_address": "WARNING: This is experimental.",
+          "home_pro_api_key": "WARNING: This is experimental"
         }
       },
       "target_rate": {
@@ -98,7 +102,9 @@
       "invalid_weighting": "The weighting format is not supported.",
       "invalid_weighting_slots": "The number of weighting blocks does not equal the specified number of hours.",
       "weighting_not_supported": "Weighting is only supported for continuous target rates",
-      "invalid_product_or_tariff": "Product or tariff code does not exist"
+      "invalid_product_or_tariff": "Product or tariff code does not exist",
+      "all_home_pro_values_not_set": "Either both Home Pro address and API key must be set, or neither must be set",
+      "home_pro_connection_failed": "Cannot connect to Home Pro device"
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",
@@ -109,7 +115,7 @@
     "step": {
       "user": {
         "title": "Update Account Info",
-        "description": "Update your basic account information.",
+        "description": "Update your basic account information. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account",
         "data": {
           "api_key": "Api key",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
@@ -119,11 +125,15 @@
           "previous_gas_consumption_days_offset": "Previous consumption gas days offset",
           "calorific_value": "Gas calorific value",
           "electricity_price_cap": "Optional electricity price cap in pence",
-          "gas_price_cap": "Optional gas price cap in pence"
+          "gas_price_cap": "Optional gas price cap in pence",
+          "home_pro_address": "Home Pro address and port (e.g. http://localhost:8000)",
+          "home_pro_api_key": "Home Pro API key"
         },
         "data_description": {
           "api_key": "You API key can be found at https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
-          "calorific_value": "This can be found on your gas statement and can change from time to time"
+          "calorific_value": "This can be found on your gas statement and can change from time to time",
+          "home_pro_address": "WARNING: This is experimental",
+          "home_pro_api_key": "WARNING: This is experimental"
         }
       },
       "target_rate": {
@@ -180,7 +190,9 @@
       "invalid_weighting": "The weighting format is not supported.",
       "invalid_weighting_slots": "The number of weighting blocks does not equal the specified number of hours.",
       "weighting_not_supported": "Weighting is only supported for continuous target rates",
-      "invalid_product_or_tariff": "Product or tariff code does not exist"
+      "invalid_product_or_tariff": "Product or tariff code does not exist",
+      "all_home_pro_values_not_set": "Either both Home Pro address and API key must be set, or neither must be set",
+      "home_pro_connection_failed": "Cannot connect to Home Pro device"
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",

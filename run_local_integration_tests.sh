@@ -1,1 +1,0 @@
-HOME_PRO_BASE_URL=http://10.0.0.28:8000 HOME_PRO_API_KEY=2516b8c28d3f46d284310f9207fe7594 python -m pytest tests/local_integration

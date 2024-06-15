@@ -16,6 +16,8 @@ from .config.cost_tracker import merge_cost_tracker_config, validate_cost_tracke
 from .config.target_rates import merge_target_rate_config, validate_target_rate_config
 from .config.main import async_validate_main_config, merge_main_config
 from .const import (
+  CONFIG_MAIN_HOME_PRO_ADDRESS,
+  CONFIG_MAIN_HOME_PRO_API_KEY,
   CONFIG_TARIFF_COMPARISON_MPAN_MPRN,
   CONFIG_TARIFF_COMPARISON_NAME,
   CONFIG_TARIFF_COMPARISON_PRODUCT_CODE,
@@ -552,6 +554,8 @@ class OptionsFlowHandler(OptionsFlow):
           vol.Required(CONFIG_MAIN_CALORIFIC_VALUE): cv.positive_float,
           vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP): cv.positive_float,
           vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float,
+          vol.Optional(CONFIG_MAIN_HOME_PRO_ADDRESS): str,
+          vol.Optional(CONFIG_MAIN_HOME_PRO_API_KEY): str,
         }),
         {
           CONFIG_MAIN_API_KEY: config[CONFIG_MAIN_API_KEY],
@@ -563,6 +567,8 @@ class OptionsFlowHandler(OptionsFlow):
           CONFIG_MAIN_CALORIFIC_VALUE: calorific_value,
           CONFIG_MAIN_ELECTRICITY_PRICE_CAP: config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP] if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config else None,
           CONFIG_MAIN_GAS_PRICE_CAP: config[CONFIG_MAIN_GAS_PRICE_CAP] if CONFIG_MAIN_GAS_PRICE_CAP in config else None,
+          CONFIG_MAIN_HOME_PRO_ADDRESS: config[CONFIG_MAIN_HOME_PRO_ADDRESS] if CONFIG_MAIN_HOME_PRO_ADDRESS in config else None,
+          CONFIG_MAIN_HOME_PRO_API_KEY: config[CONFIG_MAIN_HOME_PRO_API_KEY] if CONFIG_MAIN_HOME_PRO_API_KEY in config else None,
         }
       ),
       errors=errors

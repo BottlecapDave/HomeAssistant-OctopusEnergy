@@ -6,7 +6,7 @@ def triangle_number(n):
       sum += i * (i + 1) / 2
   return sum
 
-def calculate_next_refresh(current: datetime, request_attempts: int, refresh_rate_in_minutes: int):
+def calculate_next_refresh(current: datetime, request_attempts: int, refresh_rate_in_minutes: float):
   next_rate = current + timedelta(minutes=refresh_rate_in_minutes)
   if (request_attempts > 1):
     i = request_attempts - 1
