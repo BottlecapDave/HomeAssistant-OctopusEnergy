@@ -131,15 +131,33 @@ intelligent_dispatches_query = '''query {{
 }}'''
 
 intelligent_device_query = '''query {{
-	registeredKrakenflexDevice(accountNumber: "{account_id}") {{
-		krakenflexDeviceId
-    provider
-		vehicleMake
-		vehicleModel
-    vehicleBatterySizeInKwh
-		chargePointMake
-		chargePointModel
-    chargePointPowerInKw
+  electricVehicles {{
+		make
+		models {{
+			model
+			batterySize
+		}}
+	}}
+	chargePointVariants {{
+		make
+		models {{
+			model
+			powerInKw
+		}}
+	}}
+  devices(accountNumber: "{account_id}") {{
+		id
+		provider
+		deviceType
+		__typename
+		... on SmartFlexVehicle {{
+			make
+			model
+		}}
+		... on SmartFlexChargePoint {{
+			make
+			model
+		}}
 	}}
 }}'''
 
@@ -1196,20 +1214,58 @@ class OctopusEnergyApiClient:
         response_body = await self.__async_read_response__(response, url)
         _LOGGER.debug(f'async_get_intelligent_device: {response_body}')
 
-        if (response_body is not None and "data" in response_body and
-            "registeredKrakenflexDevice" in response_body["data"]):
-          device = response_body["data"]["registeredKrakenflexDevice"]
-          if device["krakenflexDeviceId"] is not None:
-            return IntelligentDevice(
-              device["krakenflexDeviceId"],
+        result = []
+        if (response_body is not None and "data" in response_body and "devices" in response_body["data"]):
+          devices: list = response_body["data"]["devices"]
+
+          for device in devices:
+            if (device["deviceType"] != "ELECTRIC_VEHICLES"):
+              continue
+
+            is_charger = device["__typename"] == "SmartFlexChargePoint"
+
+            make = device["make"]
+            model = device["model"]
+            vehicleBatterySizeInKwh = None
+            chargePointPowerInKw = None
+
+            if is_charger:
+              if "chargePointVariants" in response_body["data"] and response_body["data"]["chargePointVariants"] is not None:
+                for charger in response_body["data"]["chargePointVariants"]:
+                  if charger["make"] == make:
+                    if "models" in charger and charger["models"] is not None:
+                      for charger_model in charger["models"]:
+                        if charger_model["model"] == model:
+                          chargePointPowerInKw = float(charger_model["powerInKw"]) if "powerInKw" in charger_model and charger_model["powerInKw"] is not None else 0
+                          break
+
+                    break
+            else:
+              if "electricVehicles" in response_body["data"] and response_body["data"]["electricVehicles"] is not None:
+                for charger in response_body["data"]["electricVehicles"]:
+                  if charger["make"] == make:
+                    if "models" in charger and charger["models"] is not None:
+                      for charger_model in charger["models"]:
+                        if charger_model["model"] == model:
+                          vehicleBatterySizeInKwh = float(charger_model["batterySize"]) if "batterySize" in charger_model and charger_model["batterySize"] is not None else 0
+                          break
+
+                    break
+
+            result.append(IntelligentDevice(
+              device["id"],
               device["provider"],
-              device["vehicleMake"],
-              device["vehicleModel"],
-              float(device["vehicleBatterySizeInKwh"]) if "vehicleBatterySizeInKwh" in device and device["vehicleBatterySizeInKwh"] is not None else None,
-              device["chargePointMake"],
-              device["chargePointModel"],
-              float(device["chargePointPowerInKw"]) if "chargePointPowerInKw" in device and device["chargePointPowerInKw"] is not None else None
-            )
+              make,
+              model,
+              vehicleBatterySizeInKwh,
+              chargePointPowerInKw,
+              is_charger
+            ))
+
+          if len(result) > 1:
+            _LOGGER.warning("Multiple intelligent devices discovered. Picking first one")
+
+          return result[0] if len(result) > 0 else None
         else:
           _LOGGER.error("Failed to retrieve intelligent device")
       
