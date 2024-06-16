@@ -324,7 +324,7 @@ Each charge item has the following attributes
 
 The total consumption reported by the meter for for all time in m3. This is calculated/estimated using your set [calorific value](../setup/account.md#calorific-value) from the kWh data reported by Octopus Energy.
 
-!!! info
+!!! warning
 
     Because this is calculated from your set calorific value across the lifetime of your meter, the value will not be 100% accurate due to calorific values changing over time which cannot be captured.
 
