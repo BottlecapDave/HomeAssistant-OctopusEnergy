@@ -1,3 +1,17 @@
+# [11.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.1.1...v11.2.0) (2024-06-16)
+
+
+### Bug Fixes
+
+* Add threshold for cost tracker to allow tradcked total_increasing sensor to decrease slightly without treating it as a reset (30 minutes dev) ([0de0bb3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0de0bb3f36bf92d0abc1a78e7148ce179bd09dc0))
+
+
+### Features
+
+* Added experimental support for Octopus Home Pro (3 hours dev time) ([2560b6b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2560b6b6597d4e1e6e4c66c9e2aeadcf95a0c5be))
+* Added sensors for displaying current total consumption (40 minutes dev) ([dbb2b5d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/dbb2b5da5956aa07a77211e0acbe5f6590a13351))
+* Updated intelligent charge limit to be an input box rather than slider ([778f197](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/778f19774794f0506d2936524ec7d04feb0ce84f))
+
 ## [11.1.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.1.0...v11.1.1) (2024-06-12)
 
 
