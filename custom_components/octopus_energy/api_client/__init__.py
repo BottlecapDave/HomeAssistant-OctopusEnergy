@@ -165,7 +165,7 @@ intelligent_device_query = '''query {{
 }}'''
 
 intelligent_settings_query = '''query {{
-  devices(accountNumber: "{account_id}", device_id: "{device_id}") {{
+  devices(accountNumber: "{account_id}", deviceId: "{device_id}") {{
 		id
     status {{
       isSuspended
