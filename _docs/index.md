@@ -7,6 +7,7 @@ Below are the main features of the integration
 * [Electricity](./entities/electricity.md) and [gas](./entities/gas.md) meter support including consumption data and rate information
 * [Custom sensor support to target cheapest rates](./setup/target_rate.md)
 * [Custom sensor support for tracking costs of other entities](./setup/cost_tracker.md)
+* [Custom sensor support for comparing to other tariffs](./setup/tariff_comparison.md)
 * [Octopus Home mini support](./setup/account.md#home-mini)
 * [Intelligent tariff settings support](./entities/intelligent.md)
 * [Saving sessions support](./entities/octoplus.md#saving-sessions)

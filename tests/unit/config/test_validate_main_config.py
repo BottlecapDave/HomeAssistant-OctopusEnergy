@@ -4,10 +4,13 @@ import mock
 from homeassistant.util.dt import (as_utc, parse_datetime)
 
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException, ServerException
+from custom_components.octopus_energy.api_client_home_pro import OctopusEnergyHomeProApiClient
 from custom_components.octopus_energy.config.main import async_validate_main_config
 from custom_components.octopus_energy.const import (
   CONFIG_ACCOUNT_ID,
-  CONFIG_MAIN_API_KEY, 
+  CONFIG_MAIN_API_KEY,
+  CONFIG_MAIN_HOME_PRO_ADDRESS,
+  CONFIG_MAIN_HOME_PRO_API_KEY, 
   CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
@@ -17,6 +20,7 @@ from custom_components.octopus_energy.const import (
   CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
   CONFIG_MAIN_GAS_PRICE_CAP
 )
+from . import assert_errors_not_present
 
 now = as_utc(parse_datetime("2023-08-20T10:00:00Z"))
 mpan = "selected-mpan"
@@ -37,6 +41,20 @@ def get_account_info(tariff_code: str = "E-1R-SUPER-GREEN-24M-21-07-30-C"):
       }
     ]
   }
+
+config_keys = [
+  CONFIG_MAIN_API_KEY, 
+  CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
+  CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
+  CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
+  CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET,
+  CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET,
+  CONFIG_MAIN_CALORIFIC_VALUE,
+  CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
+  CONFIG_MAIN_GAS_PRICE_CAP,
+  CONFIG_MAIN_HOME_PRO_ADDRESS,
+  CONFIG_MAIN_HOME_PRO_API_KEY,
+]
 
 @pytest.mark.asyncio
 async def test_when_data_is_valid_then_no_errors_returned():
@@ -63,16 +81,7 @@ async def test_when_data_is_valid_then_no_errors_returned():
     errors = await async_validate_main_config(data)
 
     # Assert
-    assert CONFIG_ACCOUNT_ID not in errors
-    assert CONFIG_MAIN_API_KEY not in errors 
-    assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
-    assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_CALORIFIC_VALUE not in errors
-    assert CONFIG_MAIN_ELECTRICITY_PRICE_CAP not in errors
-    assert CONFIG_MAIN_GAS_PRICE_CAP not in errors
+    assert_errors_not_present(errors, config_keys)
 
 @pytest.mark.asyncio
 async def test_when_account_info_not_found_then_errors_returned():
@@ -100,16 +109,8 @@ async def test_when_account_info_not_found_then_errors_returned():
     # Assert
     assert CONFIG_MAIN_API_KEY in errors
     assert errors[CONFIG_MAIN_API_KEY] == "account_not_found"
-
-    assert CONFIG_ACCOUNT_ID not in errors
-    assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
-    assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_CALORIFIC_VALUE not in errors
-    assert CONFIG_MAIN_ELECTRICITY_PRICE_CAP not in errors
-    assert CONFIG_MAIN_GAS_PRICE_CAP not in errors
+    
+    assert_errors_not_present(errors, config_keys, CONFIG_MAIN_API_KEY)
 
 @pytest.mark.asyncio
 async def test_when_account_info_raises_server_error_then_errors_returned():
@@ -137,16 +138,8 @@ async def test_when_account_info_raises_server_error_then_errors_returned():
     # Assert
     assert CONFIG_MAIN_API_KEY in errors
     assert errors[CONFIG_MAIN_API_KEY] == "server_error"
-
-    assert CONFIG_ACCOUNT_ID not in errors
-    assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
-    assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_CALORIFIC_VALUE not in errors
-    assert CONFIG_MAIN_ELECTRICITY_PRICE_CAP not in errors
-    assert CONFIG_MAIN_GAS_PRICE_CAP not in errors
+    
+    assert_errors_not_present(errors, config_keys, CONFIG_MAIN_API_KEY)
 
 @pytest.mark.asyncio
 async def test_when_account_info_raises_request_error_then_errors_returned():
@@ -174,16 +167,8 @@ async def test_when_account_info_raises_request_error_then_errors_returned():
     # Assert
     assert CONFIG_MAIN_API_KEY in errors
     assert errors[CONFIG_MAIN_API_KEY] == "account_not_found"
-
-    assert CONFIG_ACCOUNT_ID not in errors
-    assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
-    assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_CALORIFIC_VALUE not in errors
-    assert CONFIG_MAIN_ELECTRICITY_PRICE_CAP not in errors
-    assert CONFIG_MAIN_GAS_PRICE_CAP not in errors
+    
+    assert_errors_not_present(errors, config_keys, CONFIG_MAIN_API_KEY)
 
 @pytest.mark.asyncio
 async def test_when_live_electricity_less_than_one_and_supports_live_consumption_is_false_then_no_errors_returned():
@@ -210,16 +195,7 @@ async def test_when_live_electricity_less_than_one_and_supports_live_consumption
     errors = await async_validate_main_config(data)
 
     # Assert
-    assert CONFIG_ACCOUNT_ID not in errors
-    assert CONFIG_MAIN_API_KEY not in errors 
-    assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
-    assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_CALORIFIC_VALUE not in errors
-    assert CONFIG_MAIN_ELECTRICITY_PRICE_CAP not in errors
-    assert CONFIG_MAIN_GAS_PRICE_CAP not in errors
+    assert_errors_not_present(errors, config_keys)
 
 @pytest.mark.asyncio
 async def test_when_live_gas_less_than_one_and_supports_live_consumption_is_false_then_no_errors_returned():
@@ -246,16 +222,7 @@ async def test_when_live_gas_less_than_one_and_supports_live_consumption_is_fals
     errors = await async_validate_main_config(data)
 
     # Assert
-    assert CONFIG_ACCOUNT_ID not in errors
-    assert CONFIG_MAIN_API_KEY not in errors 
-    assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
-    assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_CALORIFIC_VALUE not in errors
-    assert CONFIG_MAIN_ELECTRICITY_PRICE_CAP not in errors
-    assert CONFIG_MAIN_GAS_PRICE_CAP not in errors
+    assert_errors_not_present(errors, config_keys)
 
 @pytest.mark.asyncio
 async def test_when_live_electricity_less_than_one_and_supports_live_consumption_is_true_then_errors_returned():
@@ -284,16 +251,8 @@ async def test_when_live_electricity_less_than_one_and_supports_live_consumption
     # Assert
     assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES in errors
     assert errors[CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES] == "value_greater_than_zero"
-
-    assert CONFIG_ACCOUNT_ID not in errors
-    assert CONFIG_MAIN_API_KEY not in errors 
-    assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
-    assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_CALORIFIC_VALUE not in errors
-    assert CONFIG_MAIN_ELECTRICITY_PRICE_CAP not in errors
-    assert CONFIG_MAIN_GAS_PRICE_CAP not in errors
+    
+    assert_errors_not_present(errors, config_keys, CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES)
 
 @pytest.mark.asyncio
 async def test_when_live_gas_less_than_one_and_supports_live_consumption_is_true_then_errors_returned():
@@ -322,16 +281,8 @@ async def test_when_live_gas_less_than_one_and_supports_live_consumption_is_true
     # Assert
     assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES in errors
     assert errors[CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES] == "value_greater_than_zero"
-
-    assert CONFIG_ACCOUNT_ID not in errors
-    assert CONFIG_MAIN_API_KEY not in errors 
-    assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
-    assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_CALORIFIC_VALUE not in errors
-    assert CONFIG_MAIN_ELECTRICITY_PRICE_CAP not in errors
-    assert CONFIG_MAIN_GAS_PRICE_CAP not in errors
+    
+    assert_errors_not_present(errors, config_keys, CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES)
 
 @pytest.mark.asyncio
 async def test_when_previous_electricity_offset_less_than_one_then_errors_returned():
@@ -360,16 +311,8 @@ async def test_when_previous_electricity_offset_less_than_one_then_errors_return
     # Assert
     assert CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET in errors
     assert errors[CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET] == "value_greater_than_zero"
-
-    assert CONFIG_ACCOUNT_ID not in errors
-    assert CONFIG_MAIN_API_KEY not in errors 
-    assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
-    assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_CALORIFIC_VALUE not in errors
-    assert CONFIG_MAIN_ELECTRICITY_PRICE_CAP not in errors
-    assert CONFIG_MAIN_GAS_PRICE_CAP not in errors
+    
+    assert_errors_not_present(errors, config_keys, CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET)
 
 @pytest.mark.asyncio
 async def test_when_previous_gas_offset_less_than_one_then_errors_returned():
@@ -398,16 +341,8 @@ async def test_when_previous_gas_offset_less_than_one_then_errors_returned():
     # Assert
     assert CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET in errors
     assert errors[CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET] == "value_greater_than_zero"
-
-    assert CONFIG_ACCOUNT_ID not in errors
-    assert CONFIG_MAIN_API_KEY not in errors 
-    assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
-    assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_CALORIFIC_VALUE not in errors
-    assert CONFIG_MAIN_ELECTRICITY_PRICE_CAP not in errors
-    assert CONFIG_MAIN_GAS_PRICE_CAP not in errors
+    
+    assert_errors_not_present(errors, config_keys, CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET)
 
 @pytest.mark.asyncio
 async def test_when_account_has_been_setup_already_than_one_then_errors_returned():
@@ -436,13 +371,172 @@ async def test_when_account_has_been_setup_already_than_one_then_errors_returned
     # Assert
     assert CONFIG_ACCOUNT_ID in errors
     assert errors[CONFIG_ACCOUNT_ID] == "duplicate_account"
+    
+    assert_errors_not_present(errors, config_keys, CONFIG_ACCOUNT_ID)
 
-    assert CONFIG_MAIN_API_KEY not in errors 
-    assert CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION not in errors
-    assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES not in errors
-    assert CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET not in errors
-    assert CONFIG_MAIN_CALORIFIC_VALUE not in errors
-    assert CONFIG_MAIN_ELECTRICITY_PRICE_CAP not in errors
-    assert CONFIG_MAIN_GAS_PRICE_CAP not in errors
+@pytest.mark.asyncio
+async def test_when_home_pro_address_is_set_and_home_pro_api_key_is_not_set_then_error_returned():
+  # Arrange
+  data = {
+    CONFIG_MAIN_API_KEY: "test-api-key",
+    CONFIG_ACCOUNT_ID: "A-123",
+    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET: 1,
+    CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET: 1,
+    CONFIG_MAIN_CALORIFIC_VALUE: 40,
+    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000"
+  }
+
+  account_info = get_account_info()
+  async def async_mocked_get_account(*args, **kwargs):
+    return account_info
+
+  # Act
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_account=async_mocked_get_account):
+    errors = await async_validate_main_config(data)
+
+    # Assert
+    assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors
+    assert errors[CONFIG_MAIN_HOME_PRO_ADDRESS] == "all_home_pro_values_not_set"
+
+    assert_errors_not_present(errors, config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
+
+@pytest.mark.asyncio
+async def test_when_home_pro_address_is_not_set_and_home_pro_api_key_is_set_then_error_returned():
+  # Arrange
+  data = {
+    CONFIG_MAIN_API_KEY: "test-api-key",
+    CONFIG_ACCOUNT_ID: "A-123",
+    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET: 1,
+    CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET: 1,
+    CONFIG_MAIN_CALORIFIC_VALUE: 40,
+    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret"
+  }
+
+  account_info = get_account_info()
+  async def async_mocked_get_account(*args, **kwargs):
+    return account_info
+
+  # Act
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_account=async_mocked_get_account):
+    errors = await async_validate_main_config(data)
+
+    # Assert
+    assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors
+    assert errors[CONFIG_MAIN_HOME_PRO_ADDRESS] == "all_home_pro_values_not_set"
+
+    assert_errors_not_present(errors, config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
+
+@pytest.mark.asyncio
+async def test_when_cannot_connect_to_home_pro_then_error_returned():
+  # Arrange
+  data = {
+    CONFIG_MAIN_API_KEY: "test-api-key",
+    CONFIG_ACCOUNT_ID: "A-123",
+    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET: 1,
+    CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET: 1,
+    CONFIG_MAIN_CALORIFIC_VALUE: 40,
+    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000",
+    CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret"
+  }
+
+  account_info = get_account_info()
+  async def async_mocked_get_account(*args, **kwargs):
+    return account_info
+  
+  async def async_mocked_ping_home_pro(*args, **kwargs):
+    return False
+
+  # Act
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_account=async_mocked_get_account):
+    with mock.patch.multiple(OctopusEnergyHomeProApiClient, async_ping=async_mocked_ping_home_pro):
+      errors = await async_validate_main_config(data)
+
+      # Assert
+      assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors
+      assert errors[CONFIG_MAIN_HOME_PRO_ADDRESS] == "home_pro_connection_failed"
+
+      assert_errors_not_present(errors, config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
+
+@pytest.mark.asyncio
+async def test_when_connect_to_home_pro_throws_exception_then_error_returned():
+  # Arrange
+  data = {
+    CONFIG_MAIN_API_KEY: "test-api-key",
+    CONFIG_ACCOUNT_ID: "A-123",
+    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET: 1,
+    CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET: 1,
+    CONFIG_MAIN_CALORIFIC_VALUE: 40,
+    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000",
+    CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret"
+  }
+
+  account_info = get_account_info()
+  async def async_mocked_get_account(*args, **kwargs):
+    return account_info
+  
+  async def async_mocked_ping_home_pro(*args, **kwargs):
+    raise SystemError("cannot connect")
+
+  # Act
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_account=async_mocked_get_account):
+    with mock.patch.multiple(OctopusEnergyHomeProApiClient, async_ping=async_mocked_ping_home_pro):
+      errors = await async_validate_main_config(data)
+
+      # Assert
+      assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors
+      assert errors[CONFIG_MAIN_HOME_PRO_ADDRESS] == "home_pro_connection_failed"
+
+      assert_errors_not_present(errors, config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
+
+@pytest.mark.asyncio
+async def test_when_can_connect_to_home_pro_then_no_errors_returned():
+  # Arrange
+  data = {
+    CONFIG_MAIN_API_KEY: "test-api-key",
+    CONFIG_ACCOUNT_ID: "A-123",
+    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET: 1,
+    CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET: 1,
+    CONFIG_MAIN_CALORIFIC_VALUE: 40,
+    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000",
+    CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret"
+  }
+
+  account_info = get_account_info()
+  async def async_mocked_get_account(*args, **kwargs):
+    return account_info
+  
+  async def async_mocked_ping_home_pro(*args, **kwargs):
+    return True
+
+  # Act
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_account=async_mocked_get_account):
+    with mock.patch.multiple(OctopusEnergyHomeProApiClient, async_ping=async_mocked_ping_home_pro):
+      errors = await async_validate_main_config(data)
+
+      # Assert
+      assert_errors_not_present(errors, config_keys)

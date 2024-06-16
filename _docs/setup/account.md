@@ -37,3 +37,39 @@ There has been inconsistencies across tariffs on whether government pricing caps
 !!! info
 
     While rates are reflected straight away, consumption based sensors may take up to 24 hours to reflect. This is due to how they look at data and cannot be changed.
+
+## Home Pro
+
+If you are lucky enough to own an [Octopus Home Pro](https://forum.octopus.energy/t/for-the-pro-user/8453/2352/), you can now receive this data locally from within Home Assistant. 
+
+!!! warning
+
+    Integrating with the Octopus Home Pro is currently experimental. Use at your own risk.
+
+### Prerequisites
+
+The Octopus Home Pro has an internal API which is not currently exposed. In order to make this data available for consumption by this integration you will need to expose a custom API on your device by following the instructions below
+
+1. Follow [the instructions](https://github.com/OctopusSmartEnergy/Home-Pro-SDK-Public/blob/main/Home.md#sdk) to connect to your Octopus Home Pro via SSH
+2. Run the command `wget -O setup_ha.sh https://raw.githubusercontent.com/BottlecapDave/HomeAssistant-OctopusEnergy/main/home_pro_server/setup.sh` to download the installation script
+3. Run the command `chmod +x setup_ha.sh` to make the script executable
+4. Run the command `./setup_ha.sh` to run the installation script
+5. Edit `startup.sh` and add the following before the line `# Start the ssh server`
+
+```
+export SERVER_AUTH_TOKEN=thisisasecrettoken # Replace with your own unique string 
+(cd /root/bottlecapdave_homeassistant_octopus_energy && ./start_server.sh)
+```
+
+6. Restart your Octopus Home Pro
+
+### Settings
+
+Once the API has been configured, you will need to set the address to the IP address of your Octopus Home Pro followed by the port 8000 (e.g. `http://192.168.1.2:8000`) and the api key to the value you set `SERVER_AUTH_TOKEN` to.
+
+Once configured, the following entities will retrieve data from your Octopus Home Pro at a target rate of every 10 seconds.
+
+* [Electricity - Current Demand](../entities/electricity.md#current-demand)
+* [Electricity - Current Total Consumption](../entities/electricity.md#current-total-consumption)
+* [Gas - Current Total Consumption kWh](../entities/gas.md#current-total-consumption-kwh)
+* [Gas - Current Total Consumption m3](../entities/gas.md#current-total-consumption-m3)

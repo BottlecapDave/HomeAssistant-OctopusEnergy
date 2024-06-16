@@ -318,6 +318,38 @@ Each charge item has the following attributes
 | `end` | `datetime` | The date/time when the consumption ends |
 | `consumption` | `float` | The consumption value of the specified period |
 
+### Current Total Consumption (m3)
+
+`sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_total_consumption_m3`
+
+The total consumption reported by the meter for for all time in m3. This is calculated/estimated using your set [calorific value](../setup/account.md#calorific-value) from the kWh data reported by Octopus Energy.
+
+!!! info
+
+    Because this is calculated from your set calorific value across the lifetime of your meter, the value will not be 100% accurate due to calorific values changing over time which cannot be captured.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `mprn` | `string` | The mprn for the associated meter |
+| `serial_number` | `string` | The serial for the associated meter |
+| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
+| `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
+| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
+
+### Current Total Consumption (kWh)
+
+`sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_total_consumption_kwh`
+
+The total consumption reported by the meter for for all time in kWh. This is natively reported by Octopus Energy.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `mprn` | `string` | The mprn for the associated meter |
+| `serial_number` | `string` | The serial for the associated meter |
+| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
+| `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
+| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
+
 ### Current Accumulative Cost
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_cost`

@@ -16,7 +16,7 @@ This is the unique name for the cost trackers
 
 ### Meter
 
-This is the meter whose tariff will determine the rate the entity consumption is calculated at. This can be either an import or export based meter, meaning that you can track the money you're potentially making from your exports.
+This is the meter whose tariff will determine the rate the entity consumption is calculated at. This can be either an import or export based meter, meaning that you can track the money you're potentially making from your exports. 
 
 ### Entity
 
@@ -25,6 +25,12 @@ This is the entity whose consumption should be tracked and the cost calculated a
 ### Tracked entity state is accumulative
 
 This should be true if the tracked entity's state increases over time (true) or if it's the difference between updates (false).
+
+!!! info
+
+    If you are tracking a "total_increasing" sensor, then based on [HA documentation](https://developers.home-assistant.io/docs/core/entity/sensor#available-state-classes) any decrease in value will be treated as a reset and the new state will be recorded as is. 
+    
+    However, there have [been reports](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/901) of some sensors misbehaving. To counteract this, if there is less than a 10% decrease, then the difference between the new and old state will be recorded.
 
 ### Week sensor day reset
 
