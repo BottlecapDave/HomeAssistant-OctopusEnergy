@@ -388,7 +388,8 @@ async def test_when_home_pro_address_is_set_and_home_pro_api_key_is_not_set_then
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
     CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
     CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
-    CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000"
+    CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000",
+    CONFIG_MAIN_HOME_PRO_API_KEY: None
   }
 
   account_info = get_account_info()
@@ -419,7 +420,8 @@ async def test_when_home_pro_address_is_not_set_and_home_pro_api_key_is_set_then
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
     CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
     CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
-    CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret"
+    CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret",
+    CONFIG_MAIN_HOME_PRO_ADDRESS: None
   }
 
   account_info = get_account_info()
