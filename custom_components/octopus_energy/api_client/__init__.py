@@ -5,7 +5,7 @@ from asyncio import TimeoutError
 from datetime import (datetime, timedelta, time)
 from threading import RLock
 
-from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime)
+from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime, parse_date)
 
 from ..const import INTEGRATION_VERSION
 
@@ -38,6 +38,8 @@ account_query = '''query {{
 			meterPoint {{
 				mpan
 				meters(includeInactive: false) {{
+          activeFrom
+          activeTo
           makeAndType
 					serialNumber
           makeAndType
@@ -71,6 +73,8 @@ account_query = '''query {{
 			meterPoint {{
 				mprn
 				meters(includeInactive: false) {{
+          activeFrom
+          activeTo
 					serialNumber
           consumptionUnits
           modelName
@@ -400,7 +404,8 @@ class OctopusEnergyApiClient:
 
   async def async_close(self):
     with self._session_lock:
-      await self._session.close()
+      if self._session is not None:
+        await self._session.close()
 
   def _create_client_session(self):
     if self._session is not None:
@@ -467,6 +472,8 @@ class OctopusEnergyApiClient:
             "electricity_meter_points": list(map(lambda mp: {
                 "mpan": mp["meterPoint"]["mpan"],
                 "meters": list(map(lambda m: {
+                    "active_from": parse_date(m["activeFrom"]) if m["activeFrom"] is not None else None,
+                    "active_to": parse_date(m["activeTo"]) if m["activeTo"] is not None else None,
                     "serial_number": m["serialNumber"],
                     "is_export": m["smartExportElectricityMeter"] is not None,
                     "is_smart_meter": f'{m["meterType"]}'.startswith("S1") or f'{m["meterType"]}'.startswith("S2"),
@@ -509,6 +516,8 @@ class OctopusEnergyApiClient:
             "gas_meter_points": list(map(lambda mp: {
               "mprn": mp["meterPoint"]["mprn"],
               "meters": list(map(lambda m: {
+                  "active_from": parse_date(m["activeFrom"]) if m["activeFrom"] is not None else None,
+                  "active_to": parse_date(m["activeTo"]) if m["activeTo"] is not None else None,
                   "serial_number": m["serialNumber"],
                   "consumption_units": m["consumptionUnits"],
                   "is_smart_meter": m["mechanism"] == "S1" or m["mechanism"] == "S2",
