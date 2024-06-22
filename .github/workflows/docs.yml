@@ -5,6 +5,9 @@ on:
     paths:
       - 'mkdocs.yml'
       - '_docs/**'
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 jobs:
   build_docs:
     if: ${{ (github.repository_owner == 'BottlecapDave' && (github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main')) == false }}

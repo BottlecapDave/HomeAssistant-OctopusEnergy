@@ -47,7 +47,7 @@ plugins:
       enabled: true
       repository: bottlecapdave/homeassistant-octopusenergy
       branch: main
-      token: !ENV ["GH_TOKEN"]
+      token: !ENV ["GITHUB_TOKEN"]
       docs_path: _docs
 
 theme:
