@@ -8,6 +8,7 @@ on:
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
 jobs:
   build_docs:
     if: ${{ (github.repository_owner == 'BottlecapDave' && (github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main')) == false }}
@@ -40,6 +41,10 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          sparse-checkout: |
+            _docs
       - uses: actions/setup-python@v4
         with:
           python-version: 3.x
