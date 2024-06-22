@@ -104,7 +104,9 @@
       "weighting_not_supported": "Weighting is only supported for continuous target rates",
       "invalid_product_or_tariff": "Product or tariff code does not exist",
       "all_home_pro_values_not_set": "Either both Home Pro address and API key must be set, or neither must be set",
-      "home_pro_connection_failed": "Cannot connect to Home Pro device"
+      "home_pro_connection_failed": "Cannot connect to Home Pro device.",
+      "home_pro_authentication_failed": "Cannot authenticate with API on Home Pro device. Please check authentication token.",
+      "home_pro_not_responding": "Connected to Home Pro device, but responding with unsuccessful status"
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",
@@ -192,7 +194,9 @@
       "weighting_not_supported": "Weighting is only supported for continuous target rates",
       "invalid_product_or_tariff": "Product or tariff code does not exist",
       "all_home_pro_values_not_set": "Either both Home Pro address and API key must be set, or neither must be set",
-      "home_pro_connection_failed": "Cannot connect to Home Pro device"
+      "home_pro_connection_failed": "Cannot connect to Home Pro device.",
+      "home_pro_authentication_failed": "Cannot authenticate with API on Home Pro device. Please check authentication token.",
+      "home_pro_not_responding": "Connected to Home Pro device, but responding with unsuccessful status"
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",

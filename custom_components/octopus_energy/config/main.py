@@ -15,7 +15,7 @@ from ..const import (
   CONFIG_MAIN_HOME_PRO_ADDRESS,
   CONFIG_MAIN_HOME_PRO_API_KEY
 )
-from ..api_client import OctopusEnergyApiClient, RequestException, ServerException
+from ..api_client import AuthenticationException, OctopusEnergyApiClient, RequestException, ServerException
 from ..api_client_home_pro import OctopusEnergyHomeProApiClient
 
 async def async_migrate_main_config(version: int, data: {}):
@@ -117,13 +117,13 @@ async def async_validate_main_config(data, account_ids = []):
       data[CONFIG_MAIN_HOME_PRO_API_KEY] is not None):
     home_pro_client = OctopusEnergyHomeProApiClient(data[CONFIG_MAIN_HOME_PRO_ADDRESS], data[CONFIG_MAIN_HOME_PRO_API_KEY])
 
-    can_connect = False
     try:
       can_connect = await home_pro_client.async_ping()
+      if can_connect == False:
+        errors[CONFIG_MAIN_HOME_PRO_ADDRESS] = "home_pro_not_responding"
+    except AuthenticationException:
+      errors[CONFIG_MAIN_HOME_PRO_ADDRESS] = "home_pro_authentication_failed"
     except:
-      can_connect = False
-
-    if can_connect == False:
       errors[CONFIG_MAIN_HOME_PRO_ADDRESS] = "home_pro_connection_failed"
 
   return errors
