@@ -12,6 +12,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          sparse-checkout: |
+            _docs
       - uses: actions/setup-python@v4
         with:
           python-version: 3.x
@@ -22,7 +26,7 @@ jobs:
           path: .cache
           restore-keys: |
             mkdocs-material-
-      - run: pip install mkdocs-material
+      - run: pip install -r requirements.txt
       - run: mkdocs build --strict 
   
   deploy_docs:

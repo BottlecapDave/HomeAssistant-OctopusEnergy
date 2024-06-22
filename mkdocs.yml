@@ -24,6 +24,7 @@ nav:
     - ./repairs/invalid_target_rate.md
     - ./repairs/octopus_mini_not_valid.md
     - ./repairs/unknown_product.md
+    - ./repairs/cost_override_obsolete.md
   - Community: community.md
   - blueprints.md
   - faq.md
@@ -41,8 +42,17 @@ markdown_extensions:
   - toc:
       permalink: "#"
 
+plugins:
+  - git-committers:
+      enabled: true
+      repository: bottlecapdave/homeassistant-octopusenergy
+      branch: main
+      token: !ENV ["GH_TOKEN"]
+      docs_path: _docs
+
 theme:
   name: material
+  custom_dir: _docs/overrides
   features:
     - navigation.top
     - search.suggest
