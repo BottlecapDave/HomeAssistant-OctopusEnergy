@@ -3,7 +3,7 @@ import mock
 
 from homeassistant.util.dt import (as_utc, parse_datetime)
 
-from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException, ServerException
+from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException, ServerException, AuthenticationException
 from custom_components.octopus_energy.api_client_home_pro import OctopusEnergyHomeProApiClient
 from custom_components.octopus_energy.config.main import async_validate_main_config
 from custom_components.octopus_energy.const import (
@@ -388,7 +388,8 @@ async def test_when_home_pro_address_is_set_and_home_pro_api_key_is_not_set_then
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
     CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
     CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
-    CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000"
+    CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000",
+    CONFIG_MAIN_HOME_PRO_API_KEY: None
   }
 
   account_info = get_account_info()
@@ -419,7 +420,8 @@ async def test_when_home_pro_address_is_not_set_and_home_pro_api_key_is_set_then
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
     CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
     CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
-    CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret"
+    CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret",
+    CONFIG_MAIN_HOME_PRO_ADDRESS: None
   }
 
   account_info = get_account_info()
@@ -468,12 +470,48 @@ async def test_when_cannot_connect_to_home_pro_then_error_returned():
 
       # Assert
       assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors
-      assert errors[CONFIG_MAIN_HOME_PRO_ADDRESS] == "home_pro_connection_failed"
+      assert errors[CONFIG_MAIN_HOME_PRO_ADDRESS] == "home_pro_not_responding"
 
       assert_errors_not_present(errors, config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
 
 @pytest.mark.asyncio
-async def test_when_connect_to_home_pro_throws_exception_then_error_returned():
+async def test_when_connect_to_home_pro_throws_authentication_exception_then_error_returned():
+  # Arrange
+  data = {
+    CONFIG_MAIN_API_KEY: "test-api-key",
+    CONFIG_ACCOUNT_ID: "A-123",
+    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET: 1,
+    CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET: 1,
+    CONFIG_MAIN_CALORIFIC_VALUE: 40,
+    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000",
+    CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret"
+  }
+
+  account_info = get_account_info()
+  async def async_mocked_get_account(*args, **kwargs):
+    return account_info
+  
+  async def async_mocked_ping_home_pro(*args, **kwargs):
+    raise AuthenticationException("cannot connect", [])
+
+  # Act
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_account=async_mocked_get_account):
+    with mock.patch.multiple(OctopusEnergyHomeProApiClient, async_ping=async_mocked_ping_home_pro):
+      errors = await async_validate_main_config(data)
+
+      # Assert
+      assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors
+      assert errors[CONFIG_MAIN_HOME_PRO_ADDRESS] == "home_pro_authentication_failed"
+
+      assert_errors_not_present(errors, config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
+
+@pytest.mark.asyncio
+async def test_when_connect_to_home_pro_throws_general_exception_then_error_returned():
   # Arrange
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
