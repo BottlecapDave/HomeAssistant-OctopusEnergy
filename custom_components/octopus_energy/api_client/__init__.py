@@ -1075,10 +1075,10 @@ class OctopusEnergyApiClient:
   def __ready_time_to_time__(self, time_str: str) -> time:
     if time_str is not None:
       parts = time_str.split(':')
-      if len(parts) != 2:
+      if len(parts) != 3:
         raise Exception(f"Unexpected number of parts in '{time_str}'")
       
-      return time(int(parts[0]), int(parts[1]))
+      return time(int(parts[0]), int(parts[1]), int(parts[2]))
 
     return None
   
