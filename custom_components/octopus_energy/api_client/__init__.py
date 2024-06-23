@@ -1066,10 +1066,10 @@ class OctopusEnergyApiClient:
 
           devices = list(response_body["data"]["devices"])
           if len(devices) == 1:
-            suspended = devices[0]["status"]["isSuspended"] if "status" in devices[0] and "isSuspended" in devices[0]["status"] else None
+            smart_charge = devices[0]["status"]["isSuspended"] == 'false' if "status" in devices[0] and "isSuspended" in devices[0]["status"] else None
             charging_preferences = devices[0]["chargingPreferences"] if "chargingPreferences" in devices[0] else None
             return IntelligentSettings(
-              suspended,
+              smart_charge,
               int(charging_preferences["weekdayTargetSoc"])
               if charging_preferences is not None and "weekdayTargetSoc" in charging_preferences
               else None,
