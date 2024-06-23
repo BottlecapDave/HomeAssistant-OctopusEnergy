@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
     
     
       
@@ -666,6 +666,24 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#current-total-consumption-m3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Total Consumption (m3)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-total-consumption-kwh" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Total Consumption (kWh)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#current-accumulative-cost" class="md-nav__link">
     <span class="md-ellipsis">
       Current Accumulative Cost
@@ -995,6 +1013,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../repairs/cost_override_obsolete/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - Cost override deprecated
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1251,6 +1290,24 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#current-total-consumption-m3" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Total Consumption (m3)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-total-consumption-kwh" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Total Consumption (kWh)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#current-accumulative-cost" class="md-nav__link">
     <span class="md-ellipsis">
       Current Accumulative Cost
@@ -1333,6 +1390,7 @@
             <div class="md-content" data-md-component="content">
               <article class="md-content__inner md-typeset">
                 
+    
                   
 
   
@@ -2181,6 +2239,88 @@
 </tr>
 </tbody>
 </table>
+<h3 id="current-total-consumption-m3">Current Total Consumption (m3)<a class="headerlink" href="#current-total-consumption-m3" title="Permanent link">#</a></h3>
+<p><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_total_consumption_m3</code></p>
+<p>The total consumption reported by the meter for for all time in m3. This is calculated/estimated using your set <a href="../../setup/account/#calorific-value">calorific value</a> from the kWh data reported by Octopus Energy.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Because this is calculated from your set calorific value across the lifetime of your meter, the value will not be 100% accurate due to calorific values changing over time which cannot be captured.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mprn</code></td>
+<td><code>string</code></td>
+<td>The mprn for the associated meter</td>
+</tr>
+<tr>
+<td><code>serial_number</code></td>
+<td><code>string</code></td>
+<td>The serial for the associated meter</td>
+</tr>
+<tr>
+<td><code>last_evaluated</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp determining when the consumption was last calculated.</td>
+</tr>
+<tr>
+<td><code>calorific_value</code></td>
+<td><code>float</code></td>
+<td>The calorific value used for the calculations, as set in your <a href="../../setup/account/#calorific-value">account</a>.</td>
+</tr>
+<tr>
+<td><code>data_last_retrieved</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp when the underlying data was last refreshed from the OE servers</td>
+</tr>
+</tbody>
+</table>
+<h3 id="current-total-consumption-kwh">Current Total Consumption (kWh)<a class="headerlink" href="#current-total-consumption-kwh" title="Permanent link">#</a></h3>
+<p><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_total_consumption_kwh</code></p>
+<p>The total consumption reported by the meter for for all time in kWh. This is natively reported by Octopus Energy.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mprn</code></td>
+<td><code>string</code></td>
+<td>The mprn for the associated meter</td>
+</tr>
+<tr>
+<td><code>serial_number</code></td>
+<td><code>string</code></td>
+<td>The serial for the associated meter</td>
+</tr>
+<tr>
+<td><code>last_evaluated</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp determining when the consumption was last calculated.</td>
+</tr>
+<tr>
+<td><code>calorific_value</code></td>
+<td><code>float</code></td>
+<td>The calorific value used for the calculations, as set in your <a href="../../setup/account/#calorific-value">account</a>.</td>
+</tr>
+<tr>
+<td><code>data_last_retrieved</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp when the underlying data was last refreshed from the OE servers</td>
+</tr>
+</tbody>
+</table>
 <h3 id="current-accumulative-cost">Current Accumulative Cost<a class="headerlink" href="#current-accumulative-cost" title="Permanent link">#</a></h3>
 <p><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_cost</code></p>
 <p>The total cost for the current day, including the standing charge.</p>
@@ -2363,6 +2503,27 @@
 
 
 
+
+  <aside class="md-source-file">
+    
+    
+    
+      
+  
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Contributors">
+      
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4Z"/></svg>
+      
+    </span>
+    <nav>
+      Not Committed Yet
+    </nav>
+  </span>
+
+    
+    
+  </aside>
 
 
 

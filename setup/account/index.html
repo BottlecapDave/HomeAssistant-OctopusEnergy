@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.26">
+      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
     
     
       
@@ -403,6 +403,39 @@
       Pricing Caps
     </span>
   </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#home-pro" class="md-nav__link">
+    <span class="md-ellipsis">
+      Home Pro
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Home Pro">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Settings
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -833,6 +866,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../repairs/cost_override_obsolete/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - Cost override deprecated
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -997,6 +1051,39 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#home-pro" class="md-nav__link">
+    <span class="md-ellipsis">
+      Home Pro
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Home Pro">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      Prerequisites
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#settings" class="md-nav__link">
+    <span class="md-ellipsis">
+      Settings
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1009,6 +1096,7 @@
             <div class="md-content" data-md-component="content">
               <article class="md-content__inner md-typeset">
                 
+    
                   
 
   
@@ -1041,6 +1129,36 @@
 <p class="admonition-title">Info</p>
 <p>While rates are reflected straight away, consumption based sensors may take up to 24 hours to reflect. This is due to how they look at data and cannot be changed.</p>
 </div>
+<h2 id="home-pro">Home Pro<a class="headerlink" href="#home-pro" title="Permanent link">#</a></h2>
+<p>If you are lucky enough to own an <a href="https://forum.octopus.energy/t/for-the-pro-user/8453/2352/">Octopus Home Pro</a>, you can now receive this data locally from within Home Assistant. </p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Integrating with the Octopus Home Pro is currently experimental. Use at your own risk.</p>
+</div>
+<h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">#</a></h3>
+<p>The Octopus Home Pro has an internal API which is not currently exposed. In order to make this data available for consumption by this integration you will need to expose a custom API on your device by following the instructions below</p>
+<ol>
+<li>Follow <a href="https://github.com/OctopusSmartEnergy/Home-Pro-SDK-Public/blob/main/Home.md#sdk">the instructions</a> to connect to your Octopus Home Pro via SSH</li>
+<li>Run the command <code>wget -O setup_ha.sh https://raw.githubusercontent.com/BottlecapDave/HomeAssistant-OctopusEnergy/main/home_pro_server/setup.sh</code> to download the installation script</li>
+<li>Run the command <code>chmod +x setup_ha.sh</code> to make the script executable</li>
+<li>Run the command <code>./setup_ha.sh</code> to run the installation script</li>
+<li>Edit <code>startup.sh</code> and add the following before the line <code># Start the ssh server</code></li>
+</ol>
+<div class="highlight"><pre><span></span><code>export SERVER_AUTH_TOKEN=thisisasecrettoken # Replace with your own unique string 
+(cd /root/bottlecapdave_homeassistant_octopus_energy &amp;&amp; ./start_server.sh)
+</code></pre></div>
+<ol>
+<li>Restart your Octopus Home Pro</li>
+</ol>
+<h3 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">#</a></h3>
+<p>Once the API has been configured, you will need to set the address to the IP address of your Octopus Home Pro followed by the port 8000 (e.g. <code>http://192.168.1.2:8000</code>) and the api key to the value you set <code>SERVER_AUTH_TOKEN</code> to.</p>
+<p>Once configured, the following entities will retrieve data from your Octopus Home Pro at a target rate of every 10 seconds.</p>
+<ul>
+<li><a href="../../entities/electricity/#current-demand">Electricity - Current Demand</a></li>
+<li><a href="../../entities/electricity/#current-total-consumption">Electricity - Current Total Consumption</a></li>
+<li><a href="../../entities/gas/#current-total-consumption-kwh">Gas - Current Total Consumption kWh</a></li>
+<li><a href="../../entities/gas/#current-total-consumption-m3">Gas - Current Total Consumption m3</a></li>
+</ul>
 
 
 
@@ -1048,6 +1166,27 @@
 
 
 
+
+  <aside class="md-source-file">
+    
+    
+    
+      
+  
+  <span class="md-source-file__fact">
+    <span class="md-icon" title="Contributors">
+      
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.536 5.536 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13v-1.75M0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20H0m24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9V20Z"/></svg>
+      
+    </span>
+    <nav>
+      David Kendall, Not Committed Yet
+    </nav>
+  </span>
+
+    
+    
+  </aside>
 
 
 
