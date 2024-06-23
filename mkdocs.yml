@@ -43,6 +43,7 @@ markdown_extensions:
       permalink: "#"
 
 plugins:
+  - search
   - git-committers:
       enabled: true
       repository: bottlecapdave/homeassistant-octopusenergy
