@@ -68,11 +68,13 @@ class OctopusEnergyHomeProApiClient:
         response_body = await self.__async_read_response__(response, url)
         if (response_body is not None and "meter_consump" in response_body and "consum" in response_body["meter_consump"]):
           data = response_body["meter_consump"]["consum"]
+          divisor = int(data["raw"]["divisor"], 16)
           return [{
-            "total_consumption": int(data["consumption"]) / 1000,
+            "total_consumption": int(data["consumption"]) / divisor if divisor > 0 else None,
             "demand": float(data["instdmand"]) if "instdmand" in data else None,
             "start": datetime.fromtimestamp(int(response_body["meter_consump"]["time"]), timezone.utc),
-            "end": datetime.fromtimestamp(int(response_body["meter_consump"]["time"]), timezone.utc)
+            "end": datetime.fromtimestamp(int(response_body["meter_consump"]["time"]), timezone.utc),
+            "is_kwh": data["unit"] == 0
           }]
         
         return None
