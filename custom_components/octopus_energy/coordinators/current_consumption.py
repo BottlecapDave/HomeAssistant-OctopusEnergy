@@ -33,7 +33,7 @@ async def async_get_live_consumption(
 ):
   if previous_consumption is None or current_date >= previous_consumption.next_refresh:
     period_from = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
-    period_to = current_date + timedelta(days=1)
+    period_to = period_from + timedelta(days=1)
     
     try:
       data = await client.async_get_smart_meter_consumption(device_id, period_from, period_to)

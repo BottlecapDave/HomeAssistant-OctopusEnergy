@@ -2,3 +2,4 @@ node_modules/
 **/__pycache__/**
 run_*tests.sh
 site
+.cache/

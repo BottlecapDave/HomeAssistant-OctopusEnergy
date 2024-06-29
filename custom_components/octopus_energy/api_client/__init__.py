@@ -5,7 +5,7 @@ from asyncio import TimeoutError
 from datetime import (datetime, timedelta, time)
 from threading import RLock
 
-from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime)
+from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime, parse_date)
 
 from ..const import INTEGRATION_VERSION
 
@@ -38,6 +38,8 @@ account_query = '''query {{
 			meterPoint {{
 				mpan
 				meters(includeInactive: false) {{
+          activeFrom
+          activeTo
           makeAndType
 					serialNumber
           makeAndType
@@ -71,6 +73,8 @@ account_query = '''query {{
 			meterPoint {{
 				mprn
 				meters(includeInactive: false) {{
+          activeFrom
+          activeTo
 					serialNumber
           consumptionUnits
           modelName
@@ -400,7 +404,8 @@ class OctopusEnergyApiClient:
 
   async def async_close(self):
     with self._session_lock:
-      await self._session.close()
+      if self._session is not None:
+        await self._session.close()
 
   def _create_client_session(self):
     if self._session is not None:
@@ -444,6 +449,9 @@ class OctopusEnergyApiClient:
     """Get the user's account"""
     await self.async_refresh_token()
 
+    local_now: datetime = now()
+    local_date = local_now.date()
+
     try:
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
@@ -466,31 +474,37 @@ class OctopusEnergyApiClient:
             else False,
             "electricity_meter_points": list(map(lambda mp: {
                 "mpan": mp["meterPoint"]["mpan"],
-                "meters": list(map(lambda m: {
-                    "serial_number": m["serialNumber"],
-                    "is_export": m["smartExportElectricityMeter"] is not None,
-                    "is_smart_meter": f'{m["meterType"]}'.startswith("S1") or f'{m["meterType"]}'.startswith("S2"),
-                    "device_id": m["smartImportElectricityMeter"]["deviceId"] if m["smartImportElectricityMeter"] is not None else None,
-                    "manufacturer": m["smartImportElectricityMeter"]["manufacturer"] 
-                      if m["smartImportElectricityMeter"] is not None 
-                      else m["smartExportElectricityMeter"]["manufacturer"] 
-                      if m["smartExportElectricityMeter"] is not None
-                      else m["makeAndType"],
-                    "model": m["smartImportElectricityMeter"]["model"] 
-                      if m["smartImportElectricityMeter"] is not None 
-                      else m["smartExportElectricityMeter"]["model"] 
-                      if m["smartExportElectricityMeter"] is not None
-                      else None,
-                    "firmware": m["smartImportElectricityMeter"]["firmwareVersion"] 
-                      if m["smartImportElectricityMeter"] is not None 
-                      else m["smartExportElectricityMeter"]["firmwareVersion"] 
-                      if m["smartExportElectricityMeter"] is not None
-                      else None
-                  },
-                  mp["meterPoint"]["meters"]
-                  if "meterPoint" in mp and "meters" in mp["meterPoint"] and mp["meterPoint"]["meters"] is not None
-                  else []
-                )),
+                "meters": list(filter(
+                    lambda m: (m["active_from"] is None or m["active_from"] <= local_date) and (m["active_to"] is None or m["active_to"] >= local_date),
+                    map(lambda m: {
+                        "active_from": parse_date(m["activeFrom"]) if m["activeFrom"] is not None else None,
+                        "active_to": parse_date(m["activeTo"]) if m["activeTo"] is not None else None,
+                        "serial_number": m["serialNumber"],
+                        "is_export": m["smartExportElectricityMeter"] is not None,
+                        "is_smart_meter": f'{m["meterType"]}'.startswith("S1") or f'{m["meterType"]}'.startswith("S2"),
+                        "device_id": m["smartImportElectricityMeter"]["deviceId"] if m["smartImportElectricityMeter"] is not None else None,
+                        "manufacturer": m["smartImportElectricityMeter"]["manufacturer"] 
+                          if m["smartImportElectricityMeter"] is not None 
+                          else m["smartExportElectricityMeter"]["manufacturer"] 
+                          if m["smartExportElectricityMeter"] is not None
+                          else m["makeAndType"],
+                        "model": m["smartImportElectricityMeter"]["model"] 
+                          if m["smartImportElectricityMeter"] is not None 
+                          else m["smartExportElectricityMeter"]["model"] 
+                          if m["smartExportElectricityMeter"] is not None
+                          else None,
+                        "firmware": m["smartImportElectricityMeter"]["firmwareVersion"] 
+                          if m["smartImportElectricityMeter"] is not None 
+                          else m["smartExportElectricityMeter"]["firmwareVersion"] 
+                          if m["smartExportElectricityMeter"] is not None
+                          else None
+                      },
+                      mp["meterPoint"]["meters"]
+                      if "meterPoint" in mp and "meters" in mp["meterPoint"] and mp["meterPoint"]["meters"] is not None
+                      else []
+                    )
+                  )
+                ),
                 "agreements": list(map(lambda a: {
                   "start": a["validFrom"],
                   "end": a["validTo"],
@@ -508,25 +522,31 @@ class OctopusEnergyApiClient:
           )),
             "gas_meter_points": list(map(lambda mp: {
               "mprn": mp["meterPoint"]["mprn"],
-              "meters": list(map(lambda m: {
-                  "serial_number": m["serialNumber"],
-                  "consumption_units": m["consumptionUnits"],
-                  "is_smart_meter": m["mechanism"] == "S1" or m["mechanism"] == "S2",
-                  "device_id": m["smartGasMeter"]["deviceId"] if m["smartGasMeter"] is not None else None,
-                  "manufacturer": m["smartGasMeter"]["manufacturer"] 
-                    if m["smartGasMeter"] is not None 
-                    else m["modelName"],
-                  "model": m["smartGasMeter"]["model"] 
-                    if m["smartGasMeter"] is not None 
-                    else None,
-                  "firmware": m["smartGasMeter"]["firmwareVersion"] 
-                    if m["smartGasMeter"] is not None 
-                    else None
-                },
-                mp["meterPoint"]["meters"]
-                if "meterPoint" in mp and "meters" in mp["meterPoint"] and mp["meterPoint"]["meters"] is not None
-                else []
-              )),
+              "meters": list(filter(
+                  lambda m: (m["active_from"] is None or m["active_from"] <= local_date) and (m["active_to"] is None or m["active_to"] >= local_date),
+                  map(lambda m: {
+                    "active_from": parse_date(m["activeFrom"]) if m["activeFrom"] is not None else None,
+                    "active_to": parse_date(m["activeTo"]) if m["activeTo"] is not None else None,
+                    "serial_number": m["serialNumber"],
+                    "consumption_units": m["consumptionUnits"],
+                    "is_smart_meter": m["mechanism"] == "S1" or m["mechanism"] == "S2",
+                    "device_id": m["smartGasMeter"]["deviceId"] if m["smartGasMeter"] is not None else None,
+                    "manufacturer": m["smartGasMeter"]["manufacturer"] 
+                      if m["smartGasMeter"] is not None 
+                      else m["modelName"],
+                    "model": m["smartGasMeter"]["model"] 
+                      if m["smartGasMeter"] is not None 
+                      else None,
+                    "firmware": m["smartGasMeter"]["firmwareVersion"] 
+                      if m["smartGasMeter"] is not None 
+                      else None
+                  },
+                  mp["meterPoint"]["meters"]
+                  if "meterPoint" in mp and "meters" in mp["meterPoint"] and mp["meterPoint"]["meters"] is not None
+                  else []
+                  )
+                )
+              ),
               "agreements": list(map(lambda a: {
                   "start": a["validFrom"],
                   "end": a["validTo"],

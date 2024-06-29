@@ -24,18 +24,20 @@ from homeassistant.util.dt import (now)
 from ..coordinators.current_consumption import CurrentConsumptionCoordinatorResult
 from .base import (OctopusEnergyGasSensor)
 from ..utils.attributes import dict_to_typed_dict
+from . import convert_m3_to_kwh
 
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyCurrentTotalGasConsumptionKwh(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the current total gas consumption in kwh."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, meter, point):
+  def __init__(self, hass: HomeAssistant, coordinator, meter, point, calorific_value: float):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
 
     self._state = None
     self._last_reset = None
+    self._calorific_value = calorific_value
     
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
 
@@ -97,6 +99,11 @@ class OctopusEnergyCurrentTotalGasConsumptionKwh(CoordinatorEntity, OctopusEnerg
       _LOGGER.debug(f"Calculated total gas consumption for '{self._mprn}/{self._serial_number}'...")
 
       self._state = consumption_data[-1]["total_consumption"]
+
+      if "is_kwh" not in consumption_data[-1] or consumption_data[-1]["is_kwh"] == True:
+        self._state = consumption_data[-1]["total_consumption"]
+      else:
+        self._state = convert_m3_to_kwh(consumption_data[-1]["total_consumption"], self._calorific_value) if consumption_data[-1]["total_consumption"] is not None else None
 
       self._attributes = {
         "mprn": self._mprn,

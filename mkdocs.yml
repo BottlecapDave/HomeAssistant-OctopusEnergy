@@ -24,6 +24,7 @@ nav:
     - ./repairs/invalid_target_rate.md
     - ./repairs/octopus_mini_not_valid.md
     - ./repairs/unknown_product.md
+    - ./repairs/cost_override_obsolete.md
   - Community: community.md
   - blueprints.md
   - faq.md
@@ -40,6 +41,11 @@ markdown_extensions:
   - attr_list
   - toc:
       permalink: "#"
+
+plugins:
+  - search
+  - git-authors:
+      show_email_address: false
 
 theme:
   name: material
