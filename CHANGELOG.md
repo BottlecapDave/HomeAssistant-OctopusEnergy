@@ -1,3 +1,16 @@
+## [11.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.2.0...v11.2.1) (2024-06-29)
+
+
+### Bug Fixes
+
+* Fixed calculating total gas consumption from Home Pro when reported in cubic meters (1 hour dev time) ([09965b5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/09965b5d90b8bdd8606880ecbacb2de908d48190))
+* Fixed issue where home pro could not be unset ([2d419c9](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2d419c99df7d642d8d1d6e2e975a09eb53bf7294))
+* Fixed issue where old inactive meters were being registered (1 hour dev time) ([9ab2bf7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9ab2bf79954bd3f94c45e51cc52dbd5e0591d035))
+* Improved Home Pro connection errors (30 minutes dev time) ([40582ae](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/40582ae801e770e854a5727cca628906dc679019))
+* Updated home pro installation command (Thanks @DJBenson) ([5502619](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/55026196aaa6e8744b63a81a4fe5274f15d4b305))
+* Updated home pro to ignore total_consumption of zero (15 minutes dev) ([4a110f3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4a110f36b96c0bb018df08468c87df22f4bc190b))
+* Updated home pro to report None if demand not available ([fd4cbbb](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fd4cbbb0abc946aef84e4c9eabf8fe3f8bc3ade6))
+
 # [11.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.1.1...v11.2.0) (2024-06-16)
 
 
