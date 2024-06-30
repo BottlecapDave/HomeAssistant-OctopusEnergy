@@ -385,7 +385,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
           entities.append(OctopusEnergyGasNextRate(hass, gas_rate_coordinator, meter, point))
           entities.append(OctopusEnergyGasCurrentStandingCharge(hass, gas_standing_charges_coordinator, meter, point))
 
-          tariff_override = await async_get_tariff_override(hass, mpan, serial_number)
+          tariff_override = await async_get_tariff_override(hass, mprn, serial_number)
           previous_consumption_coordinator = await async_create_previous_consumption_and_rates_coordinator(
             hass,
             account_id,
