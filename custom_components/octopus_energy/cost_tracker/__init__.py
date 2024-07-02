@@ -44,8 +44,10 @@ def add_consumption(current: datetime,
   # Some total increasing sensors are misbehaving and sometimes drop slightly (https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/901),
   # so we'll have a threshold based on https://github.com/home-assistant/core/issues/57551#issuecomment-942130660
   mean = (new_value if new_value is not None else 0) + (old_value if old_value is not None else 0) / 2
+  if mean == 0:
+    return
+
   diff_percentage = abs((diff / mean) * 100)
-  
   if (is_accumulative_value == False or 
       (new_last_reset is not None and old_last_reset is not None and new_last_reset > old_last_reset) or
       # Based on https://developers.home-assistant.io/docs/core/entity/sensor/#available-state-classes, when the new value is less than the old value
