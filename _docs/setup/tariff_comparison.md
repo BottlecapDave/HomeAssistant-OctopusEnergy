@@ -20,15 +20,23 @@ This is the meter whose consumption will be used as the basis for the calculatio
 
 To find the product code, you can use the Octopus Energy API to search for current [home](https://api.octopus.energy/v1/products/) or [business](https://api.octopus.energy/v1/products/?is_business=true) products. Once your target product has been found, you will want to set this value to the value of the `code` property in the list of products.
 
+For example if I wanted to check `Flexible Octopus November 2022 v1`. I would look up all of the [products](https://api.octopus.energy/v1/products) and look for my target under `full_name` or `display_name`.
+
+![All products example](../assets/product_lookup.png)
+
+I would then set my product code to `VAR-22-11-01`.
+
 ### Tariff Code
 
 To find the tariff code, you can use the Octopus Energy API to search for the available tariffs for your target product.
 
-For example if I wanted to check `Flexible Octopus November 2022 v1`. I would look up all of the [products](https://api.octopus.energy/v1/products) and look for my target under `full_name` or `display_name`. I would then look up the product by taking the specified `code` and putting it at the end of the [products url](https://api.octopus.energy/v1/products). Alternatively, you can follow the link that is present in the product listing.
+For example if I wanted to check `Flexible Octopus November 2022 v1`. I would look up all of the [products](https://api.octopus.energy/v1/products) and look for my target under `full_name` or `display_name`. I would then look up the product by taking the value specified in the `code` field and putting it at the end of the [products url](https://api.octopus.energy/v1/products). Alternatively, you can follow the link that is present in the product listing.
 
 ![All products example](../assets/product_lookup.png)
 
-In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https://api.octopus.energy/v1/products/VAR-22-11-01](https://api.octopus.energy/v1/products/VAR-22-11-01). From this list, I would then look up the tariff for my region (e.g. `A` defined at the end of my current tariff) which is defined in the `code` field. Once your target tariff has been found, you will want to set this value to the value of the `code` property. In this example, I want the duel electricity tariff version, so will pick `E-2R-VAR-22-11-01-A`.
+In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https://api.octopus.energy/v1/products/VAR-22-11-01](https://api.octopus.energy/v1/products/VAR-22-11-01). From this list, I would then look up the tariff for my region (e.g. `A` defined at the end of my current tariff) which is defined in the `code` field. Once your target tariff has been found, you will want to set this property in the configuration to the value of the `code` property. In this example, I want the duel electricity tariff version, so will pick `E-2R-VAR-22-11-01-A`.
+
+![All products example](../assets/product_tariff_lookup.png)
 
 ## Entities
 
