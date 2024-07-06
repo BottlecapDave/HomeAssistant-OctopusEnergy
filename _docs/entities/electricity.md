@@ -375,14 +375,14 @@ Each rate item has the following attributes
 
 If you export energy, then unless specified otherwise, in addition you'll gain the above entities with the name `export` present. E.g. `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_rate`.
 
-## Home Mini Entities
+## Home Mini/Pro Entities
 
 ### Current Consumption
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_consumption`
 
 !!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
@@ -402,7 +402,7 @@ If current consumption data is unable to be retrieved, then the integration will
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_demand`
 
 !!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
 
 The current demand reported by the Home Mini. This will try and update every minute.
 
@@ -415,7 +415,7 @@ The current demand reported by the Home Mini. This will try and update every min
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption`
 
 !!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
@@ -444,7 +444,7 @@ Each charge item has the following attributes
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_total_consumption`
 
 !!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
@@ -463,7 +463,7 @@ The total consumption reported by the meter for all time.
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost`
 
 !!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
@@ -512,7 +512,7 @@ The total cost reported by the meter for the current day during off peak hours (
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 !!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
@@ -533,7 +533,7 @@ The total cost reported by the meter for the current day during standard hours (
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 !!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
@@ -554,7 +554,7 @@ The total cost reported by the meter for the current day during peak hours (the 
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 !!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
