@@ -629,13 +629,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#home-mini-entities" class="md-nav__link">
+  <a href="#home-minipro-entities" class="md-nav__link">
     <span class="md-ellipsis">
-      Home Mini Entities
+      Home Mini/Pro Entities
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Home Mini Entities">
+    <nav class="md-nav" aria-label="Home Mini/Pro Entities">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1253,13 +1253,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#home-mini-entities" class="md-nav__link">
+  <a href="#home-minipro-entities" class="md-nav__link">
     <span class="md-ellipsis">
-      Home Mini Entities
+      Home Mini/Pro Entities
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Home Mini Entities">
+    <nav class="md-nav" aria-label="Home Mini/Pro Entities">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -2067,12 +2067,13 @@
 </tr>
 </tbody>
 </table>
-<h2 id="home-mini-entities">Home Mini Entities<a class="headerlink" href="#home-mini-entities" title="Permanent link">#</a></h2>
+<h2 id="home-minipro-entities">Home Mini/Pro Entities<a class="headerlink" href="#home-minipro-entities" title="Permanent link">#</a></h2>
 <h3 id="current-consumption">Current Consumption<a class="headerlink" href="#current-consumption" title="Permanent link">#</a></h3>
-<blockquote>
-<p>This will only be available if you have specified you have a <a href="../../setup/account/#home-mini">Octopus Home Mini</a>. Do not set unless you have one</p>
-</blockquote>
 <p><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_consumption</code></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This will only be available if you have specified you have a <a href="../../setup/account/#home-mini">Octopus Home Mini</a> or have configured an <a href="../../setup/account/#home-pro">Octopus Home Pro</a>. Do not set unless you have one.</p>
+</div>
 <p>The latest gas consumption sent to Octopus Energy. By default, this will update every minute. This has been built to see the accumulation within the energy dashboard. If you are wanting a sensor to see the current day's accumulation, then you will need to use something like <a href="https://www.home-assistant.io/integrations/utility_meter/">utility meter</a>. It has been noticed that daily consumption reported in Home Assistant can differ to when looking at past data within Octopus Energy. It looks like this is because Octopus Energy will favour "official" data from your smart meter over the data they collect.</p>
 <p>If current consumption data is unable to be retrieved, then the integration will attempt to retrieve missing data. This will be done up to 5 days behind to give a buffer before the API requires a higher interval and will not be changed.</p>
 <table>
@@ -2098,6 +2099,10 @@
 </table>
 <h3 id="current-accumulative-consumption-m3">Current Accumulative Consumption (m3)<a class="headerlink" href="#current-accumulative-consumption-m3" title="Permanent link">#</a></h3>
 <p><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption_m3</code></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This will only be available if you have specified you have a <a href="../../setup/account/#home-mini">Octopus Home Mini</a> or have configured an <a href="../../setup/account/#home-pro">Octopus Home Pro</a>. Do not set unless you have one.</p>
+</div>
 <p>The total consumption reported by the meter for the current day in m3. This is calculated/estimated using your set <a href="../../setup/account/#calorific-value">calorific value</a> from the kWh data reported by Octopus Energy.</p>
 <table>
 <thead>
@@ -2169,6 +2174,10 @@
 </table>
 <h3 id="current-accumulative-consumption-kwh">Current Accumulative Consumption (kWh)<a class="headerlink" href="#current-accumulative-consumption-kwh" title="Permanent link">#</a></h3>
 <p><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption_kwh</code></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This will only be available if you have specified you have a <a href="../../setup/account/#home-mini">Octopus Home Mini</a> or have configured an <a href="../../setup/account/#home-pro">Octopus Home Pro</a>. Do not set unless you have one.</p>
+</div>
 <p>The total consumption reported by the meter for the current day in kWh. This is natively reported by Octopus Energy.</p>
 <table>
 <thead>
@@ -2240,6 +2249,10 @@
 </table>
 <h3 id="current-total-consumption-m3">Current Total Consumption (m3)<a class="headerlink" href="#current-total-consumption-m3" title="Permanent link">#</a></h3>
 <p><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_total_consumption_m3</code></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This will only be available if you have specified you have a <a href="../../setup/account/#home-mini">Octopus Home Mini</a> or have configured an <a href="../../setup/account/#home-pro">Octopus Home Pro</a>. Do not set unless you have one.</p>
+</div>
 <p>The total consumption reported by the meter for for all time in m3. This is calculated/estimated using your set <a href="../../setup/account/#calorific-value">calorific value</a> from the kWh data reported by Octopus Energy.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -2283,6 +2296,10 @@
 </table>
 <h3 id="current-total-consumption-kwh">Current Total Consumption (kWh)<a class="headerlink" href="#current-total-consumption-kwh" title="Permanent link">#</a></h3>
 <p><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_total_consumption_kwh</code></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This will only be available if you have specified you have a <a href="../../setup/account/#home-mini">Octopus Home Mini</a> or have configured an <a href="../../setup/account/#home-pro">Octopus Home Pro</a>. Do not set unless you have one.</p>
+</div>
 <p>The total consumption reported by the meter for for all time in kWh. This is natively reported by Octopus Energy.</p>
 <table>
 <thead>
@@ -2322,6 +2339,10 @@
 </table>
 <h3 id="current-accumulative-cost">Current Accumulative Cost<a class="headerlink" href="#current-accumulative-cost" title="Permanent link">#</a></h3>
 <p><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_cost</code></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This will only be available if you have specified you have a <a href="../../setup/account/#home-mini">Octopus Home Mini</a> or have configured an <a href="../../setup/account/#home-pro">Octopus Home Pro</a>. Do not set unless you have one.</p>
+</div>
 <p>The total cost for the current day, including the standing charge.</p>
 <table>
 <thead>

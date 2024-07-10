@@ -434,6 +434,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      Entities
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1079,6 +1088,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#entities" class="md-nav__link">
+    <span class="md-ellipsis">
+      Entities
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1109,6 +1127,10 @@
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>You will only have the same data exposed in the integration that is available within the app. There has been reports of gas not appearing within the app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the app, if you reload the integration (or restart Home Assistant) then the entities should become available.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Export sensors are not provided as the data is not available</p>
 </div>
 <p>See <a href="../../entities/electricity/#home-mini-entities">electricity entities</a> and <a href="../../entities/gas/#home-mini-entities">gas entities</a> for more information.</p>
 <h3 id="refresh-rate-in-minutes">Refresh Rate In Minutes<a class="headerlink" href="#refresh-rate-in-minutes" title="Permanent link">#</a></h3>
@@ -1141,17 +1163,31 @@
 <li>Run the command <code>wget -O setup_ha.sh https://raw.githubusercontent.com/BottlecapDave/HomeAssistant-OctopusEnergy/main/home_pro_server/setup.sh</code> to download the installation script</li>
 <li>Run the command <code>chmod +x setup_ha.sh</code> to make the script executable</li>
 <li>Run the command <code>./setup_ha.sh</code> to run the installation script</li>
-<li>Edit <code>startup.sh</code> and add the following before the line <code># Start the ssh server</code></li>
+<li>Edit <code>startup.sh</code> and add the following <strong>before</strong> the line <code># Start the ssh server</code></li>
 </ol>
-<div class="highlight"><pre><span></span><code>export SERVER_AUTH_TOKEN=thisisasecrettoken # Replace with your own unique string 
+<div class="highlight"><pre><span></span><code>export SERVER_AUTH_TOKEN=thisisasecrettoken # Replace with your own unique string. This can be anything you wish. 
 (cd /root/bottlecapdave_homeassistant_octopus_energy &amp;&amp; ./start_server.sh)
+</code></pre></div>
+<p>At the time of writing, your <code>startup.sh</code> should now look <em>something</em> like the following</p>
+<div class="highlight"><pre><span></span><code>#!/bin/bash
+
+# Ensure our main env shows up in ssh sessions
+# we&#39;re passing on API host info
+env | grep _ &gt;&gt; /etc/environment
+
+export SERVER_AUTH_TOKEN=thisisasecrettoken # Replace with your own unique string. This can be anything you wish.
+(cd /root/bottlecapdave_homeassistant_octopus_energy &amp;&amp; ./start_server.sh)
+
+# Start the ssh server
+/usr/sbin/sshd -D
 </code></pre></div>
 <ol>
 <li>Restart your Octopus Home Pro</li>
 </ol>
 <h3 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">#</a></h3>
 <p>Once the API has been configured, you will need to set the address to the IP address of your Octopus Home Pro followed by the port 8000 (e.g. <code>http://192.168.1.2:8000</code>) and the api key to the value you set <code>SERVER_AUTH_TOKEN</code> to.</p>
-<p>Once configured, the following entities will retrieve data from your Octopus Home Pro at a target rate of every 10 seconds.</p>
+<h3 id="entities">Entities<a class="headerlink" href="#entities" title="Permanent link">#</a></h3>
+<p>Once configured, the following entities will retrieve data locally from your Octopus Home Pro instead of via the Octopus Energy APIs at a target rate of every 10 seconds.</p>
 <ul>
 <li><a href="../../entities/electricity/#current-demand">Electricity - Current Demand</a></li>
 <li><a href="../../entities/electricity/#current-total-consumption">Electricity - Current Total Consumption</a></li>
