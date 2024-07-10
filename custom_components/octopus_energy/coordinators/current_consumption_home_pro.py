@@ -31,8 +31,6 @@ async def async_get_home_pro_consumption(
     try:
       data = await client.async_get_consumption(is_electricity)
       if data is not None:
-        if len(data) < 1 or data[0]["total_consumption"] is None or data[0]["total_consumption"] <= 0:
-          raise ApiException('total_consumption invalid')
         _LOGGER.debug(f'Retrieved current consumption data from home pro for {"electricity" if is_electricity else "gas"}')
         return CurrentConsumptionCoordinatorResult(current_date, 1, REFRESH_RATE_IN_MINUTES_HOME_PRO_CONSUMPTION, data)
     except Exception as e:

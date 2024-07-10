@@ -10,6 +10,10 @@ If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blo
 
     You will only have the same data exposed in the integration that is available within the app. There has been reports of gas not appearing within the app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the app, if you reload the integration (or restart Home Assistant) then the entities should become available.
 
+!!! warning
+
+    Export sensors are not provided as the data is not available
+
 See [electricity entities](../entities/electricity.md#home-mini-entities) and [gas entities](../entities/gas.md#home-mini-entities) for more information.
 
 ### Refresh Rate In Minutes
@@ -54,11 +58,27 @@ The Octopus Home Pro has an internal API which is not currently exposed. In orde
 2. Run the command `wget -O setup_ha.sh https://raw.githubusercontent.com/BottlecapDave/HomeAssistant-OctopusEnergy/main/home_pro_server/setup.sh` to download the installation script
 3. Run the command `chmod +x setup_ha.sh` to make the script executable
 4. Run the command `./setup_ha.sh` to run the installation script
-5. Edit `startup.sh` and add the following before the line `# Start the ssh server`
+5. Edit `startup.sh` and add the following **before** the line `# Start the ssh server`
 
 ```
-export SERVER_AUTH_TOKEN=thisisasecrettoken # Replace with your own unique string 
+export SERVER_AUTH_TOKEN=thisisasecrettoken # Replace with your own unique string. This can be anything you wish. 
 (cd /root/bottlecapdave_homeassistant_octopus_energy && ./start_server.sh)
+```
+
+At the time of writing, your `startup.sh` should now look _something_ like the following
+
+```
+#!/bin/bash
+
+# Ensure our main env shows up in ssh sessions
+# we're passing on API host info
+env | grep _ >> /etc/environment
+
+export SERVER_AUTH_TOKEN=thisisasecrettoken # Replace with your own unique string. This can be anything you wish.
+(cd /root/bottlecapdave_homeassistant_octopus_energy && ./start_server.sh)
+
+# Start the ssh server
+/usr/sbin/sshd -D
 ```
 
 6. Restart your Octopus Home Pro
@@ -67,7 +87,10 @@ export SERVER_AUTH_TOKEN=thisisasecrettoken # Replace with your own unique strin
 
 Once the API has been configured, you will need to set the address to the IP address of your Octopus Home Pro followed by the port 8000 (e.g. `http://192.168.1.2:8000`) and the api key to the value you set `SERVER_AUTH_TOKEN` to.
 
-Once configured, the following entities will retrieve data from your Octopus Home Pro at a target rate of every 10 seconds.
+
+### Entities
+
+Once configured, the following entities will retrieve data locally from your Octopus Home Pro instead of via the Octopus Energy APIs at a target rate of every 10 seconds.
 
 * [Electricity - Current Demand](../entities/electricity.md#current-demand)
 * [Electricity - Current Total Consumption](../entities/electricity.md#current-total-consumption)
