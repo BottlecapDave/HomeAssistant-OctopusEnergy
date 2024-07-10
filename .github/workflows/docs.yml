@@ -20,11 +20,10 @@ jobs:
           fetch-depth: 0
           sparse-checkout: |
             _docs
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.x
+      - name: asdf_install
+        uses: asdf-vm/actions/install@v3
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           key: mkdocs-material-${{ env.cache_id }}
           path: .cache
@@ -45,11 +44,10 @@ jobs:
           fetch-depth: 0
           sparse-checkout: |
             _docs
-      - uses: actions/setup-python@v4
-        with:
-          python-version: 3.x
+      - name: asdf_install
+        uses: asdf-vm/actions/install@v3
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         with:
           key: mkdocs-material-${{ env.cache_id }}
           path: .cache

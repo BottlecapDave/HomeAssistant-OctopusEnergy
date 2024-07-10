@@ -21,7 +21,7 @@ jobs:
     name: Validate
     runs-on: "ubuntu-latest"
     steps:
-      - uses: "actions/checkout@v2"
+      - uses: actions/checkout@v4
       - uses: "home-assistant/actions/hassfest@master"
       - name: HACS Action
         uses: "hacs/action@main"
@@ -33,11 +33,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: asdf_install
-        uses: asdf-vm/actions/install@v1
+        uses: asdf-vm/actions/install@v3
       - name: Install Python modules
         run: |
           pip install -r requirements.test.txt
@@ -51,11 +51,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: asdf_install
-        uses: asdf-vm/actions/install@v1
+        uses: asdf-vm/actions/install@v3
       - name: Install Python modules
         run: |
           pip install -r requirements.test.txt
@@ -79,11 +79,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: asdf_install
-        uses: asdf-vm/actions/install@v1
+        uses: asdf-vm/actions/install@v3
       - name: Install dependencies
         run: npm ci
       - name: Release
