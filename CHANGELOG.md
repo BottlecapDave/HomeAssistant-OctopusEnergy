@@ -3,10 +3,10 @@
 
 ### Bug Fixes
 
-* Fixed division issue with cost tracker when an update event is fired but no change is detected ([c0eba23](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c0eba23f44a749711b689f396efc276ae05c81d3))
+* Fixed division issue with cost tracker when an update event is fired but no change is detected (30 minutes dev tim) ([c0eba23](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c0eba23f44a749711b689f396efc276ae05c81d3))
 * Fixed initialisation issue when only gas is supplied by OE (Thanks [@ksimuk](https://github.com/ksimuk)) ([1823628](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1823628193ee3be1a050d6a2bfeffada39138c3f))
-* Fixed issue where current consumption sensors were not available if you configured only a Home Pro ([6499cc1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6499cc1d72bdb43a27b2ad1e157853eef462ec01))
-* Improved Home Pro error messages ([c5e6968](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c5e69686ce4b25c0487c1524376310e06ddcebd6))
+* Fixed issue where current consumption sensors were not available if you configured only a Home Pro (30 minutes dev tim) ([6499cc1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6499cc1d72bdb43a27b2ad1e157853eef462ec01))
+* Improved Home Pro error messages (5 minutes dev time) ([c5e6968](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c5e69686ce4b25c0487c1524376310e06ddcebd6))
 * Separate stopping demand sensor from updating if total consumption is not available from Home Pro (30 minutes dev time) ([a03cfab](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a03cfab83baa7a8d5c1519a98a5215d8b060676b))
 * Sort meters by most recently active to account for switching meters (15 minutes dev) ([27c39af](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/27c39af46e749f6b0e8a313ce338d956975bfd06))
 
