@@ -48,6 +48,12 @@ The following entities will be available for each entry
 
 This will display the cost of your previous accumulative consumption against the elected tariff.
 
+!!! info
+
+    These sensors will compare the same time period as the [electricity previous accumulative consumption](../entities/electricity.md#previous-accumulative-consumption) or [gas previous accumulative consumption](../entities/gas.md#previous-accumulative-consumption-m3). 
+    
+    If you have changed the [offset](./account.md#previous-consumption-days-offset), then this sensor will use the same offset.
+
 ### Previous Consumption Override Day Rates
 
 `event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_consumption_rates_{{TARIFF COMPARISON NAME}}` for electricity based meters; `event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_consumption_rates_{{TARIFF COMPARISON NAME}}` for gas based meters.
@@ -56,6 +62,12 @@ The state of this sensor states when the previous consumption tariff comparison 
 
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+!!! info
+
+    These sensors will provide rates for the same time period as the [electricity previous accumulative consumption](../entities/electricity.md#previous-accumulative-consumption) or [gas previous accumulative consumption](../entities/gas.md#previous-accumulative-consumption-m3). 
+    
+    If you have changed the [offset](./account.md#previous-consumption-days-offset), then this sensor will use the same offset.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
