@@ -26,8 +26,27 @@ If for example you want to look at prices overnight you could set the minimum ti
 
 #### Agile Users
 
-If you are an agile user, then agile prices are available from [11pm to 11pm UK time](https://developer.octopus.energy/docs/api/#agile-octopus) and published at `16:00` UK time. Therefore, you cannot specify a timeframe that starts before `16:00` and ends after `23:00` because the target rate(s) will not be able to be calculated until part way through the specified timeframe as this is when the full set will become available. We recommend you set your timeframes to `16:00`/`16:00` or `23:00`/`23:00` if you're wanting to target a full 24 hours, but other valid times might include
+If you are an agile user, then agile prices are available from **11pm to 11pm UK time** and published between [`16:00` and `20:00` UK time](https://octopus.energy/smart/agile/). 
 
+Therefore, you cannot specify a timeframe that starts before `16:00` and ends after `23:00` because the target rate(s) will not be able to be calculated until part way through the specified timeframe as this is when the full set of rate information will become available. This is best illustrated with the following example, where lets say you wanted a target rate sensor to look at between `00:00` and `00:00` the next day (24 hours). Your initial available data would potentially look like the following
+
+| start | end | value |
+| ----- | --- | ----- |
+| `2023-01-01T00:00` | `2023-01-01T00:30` | 6 |
+| `2023-01-01T00:30` | `2023-01-01T05:00` | 12 |
+| `2023-01-01T05:00` | `2023-01-01T05:30` | 7 |
+| `2023-01-01T05:30` | `2023-01-01T18:00` | 20 |
+| `2023-01-01T18:00` | `2023-01-01T23:00` | 34 |
+
+Where the last hour of data isn't available (because agile doesn't provide this data in the initial batch), which means the target rate sensor can't calculate the best time because it doesn't have the full data set available. If agile rate data for the next 24 hour period then became available at `16:30` and looked like the following
+
+| start | end | value |
+| ----- | --- | ----- |
+| `2023-01-01T23:00` | `2023-01-02T00:00` | 19 |
+
+We now have the full data set available for the target rate sensor to calculate the best time, which would be done close to when the agile data became available (e.g. around `16:30`). The result would be the target rate sensor would pick `2023-01-01T00:00` to `2023-01-01T00:30` or `2023-01-01T05:00` to `2023-01-01T05:30` because these are the cheapest times. However, these times are in the past because we're now at `16:30` and so our target rate sensor will never turn on. If a time in the future was picked to counteract this, then people would question why it didn't turn on during the cheapest times.
+
+Therefore, we recommend you set your timeframes to `16:00`/`16:00` or `23:00`/`23:00` if you're wanting to target a full 24 hours, however other valid times might include
 
 | from/start | to/end | Notes |
 |-|-|-|
