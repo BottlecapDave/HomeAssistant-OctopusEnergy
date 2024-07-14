@@ -1,29 +1,18 @@
 class IntelligentDevice:
-  krakenflexDeviceId: str
-  provider: str
-  vehicleMake:str
-  vehicleModel: str
-  vehicleBatterySizeInKwh: float | None
-  chargePointMake: str
-  chargePointModel: str
-  chargePointPowerInKw: float | None
-
   def __init__(
     self,
-    krakenflexDeviceId: str,
+    id: str,
     provider: str,
-    vehicleMake:str,
-    vehicleModel: str,
+    make:str,
+    model: str,
     vehicleBatterySizeInKwh: float | None,
-    chargePointMake: str,
-    chargePointModel: str,
-    chargePointPowerInKw: float | None
+    chargePointPowerInKw: float | None,
+    is_charger: bool
   ):
-    self.krakenflexDeviceId = krakenflexDeviceId
+    self.id = id
     self.provider = provider
-    self.vehicleMake = vehicleMake
-    self.vehicleModel = vehicleModel
+    self.make = make
+    self.model = model
     self.vehicleBatterySizeInKwh = vehicleBatterySizeInKwh
-    self.chargePointMake = chargePointMake
-    self.chargePointModel = chargePointModel
     self.chargePointPowerInKw = chargePointPowerInKw
+    self.is_charger = is_charger
