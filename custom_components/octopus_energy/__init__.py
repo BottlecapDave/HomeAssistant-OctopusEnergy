@@ -378,8 +378,14 @@ async def async_unload_entry(hass, entry):
     unload_ok = False
     if entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
       unload_ok = await hass.config_entries.async_unload_platforms(entry, ACCOUNT_PLATFORMS)
+      if unload_ok:
+        account_id = entry.data[CONFIG_ACCOUNT_ID]
+        await _async_close_client(hass, account_id)
+        hass.data[DOMAIN].pop(account_id)
+
     elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
       unload_ok = await hass.config_entries.async_unload_platforms(entry, TARGET_RATE_PLATFORMS)
+    
     elif entry.data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
       unload_ok = await hass.config_entries.async_unload_platforms(entry, COST_TRACKER_PLATFORMS)
 

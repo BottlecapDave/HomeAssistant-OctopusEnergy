@@ -33,7 +33,7 @@ trigger:
   entity_id: !input saving_session_event_entity
 condition:
 - condition: template
-  value_template: "{{ state_attr(saving_session_event_entity, 'available_events') | length > 0 }}"
+  value_template: "{{ state_attr(saving_session_event_entity, 'available_events') != None and state_attr(saving_session_event_entity, 'available_events') | length > 0 }}"
 action:
 - service: octopus_energy.join_octoplus_saving_session_event
   data:
