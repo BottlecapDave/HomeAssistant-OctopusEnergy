@@ -404,7 +404,7 @@ If current consumption data is unable to be retrieved, then the integration will
 !!! warning
     This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
 
-The current demand reported by the Home Mini. This will try and update every minute.
+The current demand reported by the Home Mini/Pro. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -449,7 +449,7 @@ Each charge item has the following attributes
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
 
-The total consumption reported by the meter for all time.
+The total consumption reported by the meter for all time. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|

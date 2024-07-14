@@ -332,7 +332,7 @@ Each charge item has the following attributes
 !!! warning
     This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
 
-The total consumption reported by the meter for for all time in m3. This is calculated/estimated using your set [calorific value](../setup/account.md#calorific-value) from the kWh data reported by Octopus Energy.
+The total consumption reported by the meter for for all time in m3. This is calculated/estimated using your set [calorific value](../setup/account.md#calorific-value) from the kWh data reported by Octopus Energy. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.
 
 !!! info
 
@@ -353,7 +353,7 @@ The total consumption reported by the meter for for all time in m3. This is calc
 !!! warning
     This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
 
-The total consumption reported by the meter for for all time in kWh. This is natively reported by Octopus Energy.
+The total consumption reported by the meter for for all time in kWh. This is natively reported by Octopus Energy. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|

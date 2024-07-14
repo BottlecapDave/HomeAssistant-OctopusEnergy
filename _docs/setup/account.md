@@ -96,3 +96,5 @@ Once configured, the following entities will retrieve data locally from your Oct
 * [Electricity - Current Total Consumption](../entities/electricity.md#current-total-consumption)
 * [Gas - Current Total Consumption kWh](../entities/gas.md#current-total-consumption-kwh)
 * [Gas - Current Total Consumption m3](../entities/gas.md#current-total-consumption-m3)
+
+In addition, the following [electricity](../entities/electricity.md#home-minipro-entities) and [gas](../entities/gas.md#home-minipro-entities) sensors will be available where data will be retrieved via Octopus Energy APIs.
