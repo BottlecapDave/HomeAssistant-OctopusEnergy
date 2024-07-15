@@ -20,7 +20,7 @@ class OctopusEnergyElectricityPreviousDayRates(OctopusEnergyElectricitySensor, E
   def __init__(self, hass: HomeAssistant, meter, point):
     """Init sensor."""
     # Pass coordinator to base class
-    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
+    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point, "event")
 
     self._hass = hass
     self._state = None

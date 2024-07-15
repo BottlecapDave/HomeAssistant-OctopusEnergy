@@ -26,7 +26,7 @@ class OctopusEnergyGasPreviousConsumptionOverrideRates(OctopusEnergyGasSensor, E
     self._last_updated = None
 
     self._attr_event_types = [EVENT_GAS_PREVIOUS_CONSUMPTION_TARIFF_COMPARISON_RATES]
-    OctopusEnergyGasSensor.__init__(self, hass, meter, point)
+    OctopusEnergyGasSensor.__init__(self, hass, meter, point, "event")
 
   @property
   def unique_id(self):
