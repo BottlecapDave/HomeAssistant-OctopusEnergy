@@ -33,6 +33,7 @@
         "data": {
           "name": "The name of your target",
           "hours": "The hours you require in decimal format.",
+          "hours_mode": "How the defined hours should be interpreted",
           "type": "The type of target you're after",
           "mpan": "The MPAN number of the meter to apply the target to",
           "start_time": "The minimum time to start the device",
@@ -146,6 +147,7 @@
         "description": "Update the settings for your target rate sensor, which can be used to help you save energy and money. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/target_rate",
         "data": {
           "hours": "The hours you require in decimal format.",
+          "hours_mode": "How the defined hours should be interpreted",
           "mpan": "The MPAN number of the meter to apply the target to",
           "start_time": "The minimum time to start the device",
           "end_time": "The maximum time to stop the device",

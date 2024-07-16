@@ -697,3 +697,9 @@ async def test_when_target_hours_zero_then_result_is_adjusted(weighting):
   # Assert
   assert result is not None
   assert len(result) == 0
+
+# maximum hour mode, not enough hours, target rates returned
+# maximum hour mode, more than target hours, maximum target rates returned
+
+# minimum hour mode, not enough hours, target rates not returned
+# minimum hour mode, more than target hours, target rates returned

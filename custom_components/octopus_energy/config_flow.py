@@ -18,6 +18,10 @@ from .config.main import async_validate_main_config, merge_main_config
 from .const import (
   CONFIG_MAIN_HOME_PRO_ADDRESS,
   CONFIG_MAIN_HOME_PRO_API_KEY,
+  CONFIG_TARGET_HOURS_MODE,
+  CONFIG_TARGET_HOURS_MODE_EXACT,
+  CONFIG_TARGET_HOURS_MODE_MAXIMUM,
+  CONFIG_TARGET_HOURS_MODE_MINIMUM,
   CONFIG_TARIFF_COMPARISON_MPAN_MPRN,
   CONFIG_TARIFF_COMPARISON_NAME,
   CONFIG_TARIFF_COMPARISON_PRODUCT_CODE,
@@ -192,6 +196,16 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     return vol.Schema({
       vol.Required(CONFIG_TARGET_NAME): str,
       vol.Required(CONFIG_TARGET_HOURS): str,
+      vol.Required(CONFIG_TARGET_HOURS_MODE, default=CONFIG_TARGET_HOURS_MODE_EXACT): selector.SelectSelector(
+          selector.SelectSelectorConfig(
+              options=[
+                selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_EXACT, label="Exact"),
+                selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_MINIMUM, label="Minimum"),
+                selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_MAXIMUM, label="Maximum"),
+              ],
+              mode=selector.SelectSelectorMode.DROPDOWN,
+          )
+      ),
       vol.Required(CONFIG_TARGET_TYPE, default=CONFIG_TARGET_TYPE_CONTINUOUS): selector.SelectSelector(
           selector.SelectSelectorConfig(
               options=[
@@ -472,6 +486,16 @@ class OptionsFlowHandler(OptionsFlow):
           vol.Schema({
             vol.Required(CONFIG_TARGET_NAME): str,
             vol.Required(CONFIG_TARGET_HOURS): str,
+            vol.Required(CONFIG_TARGET_HOURS_MODE, default=CONFIG_TARGET_HOURS_MODE_EXACT): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                      selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_EXACT, label="Exact"),
+                      selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_MINIMUM, label="Minimum"),
+                      selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_MAXIMUM, label="Maximum"),
+                    ],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
             vol.Required(CONFIG_TARGET_TYPE, default=CONFIG_TARGET_TYPE_CONTINUOUS): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=[
@@ -500,6 +524,7 @@ class OptionsFlowHandler(OptionsFlow):
           {
             CONFIG_TARGET_NAME: config[CONFIG_TARGET_NAME],
             CONFIG_TARGET_HOURS: f'{config[CONFIG_TARGET_HOURS]}',
+            CONFIG_TARGET_HOURS: config[CONFIG_TARGET_HOURS_MODE],
             CONFIG_TARGET_TYPE: config[CONFIG_TARGET_TYPE],
             CONFIG_TARGET_MPAN: config[CONFIG_TARGET_MPAN],
             CONFIG_TARGET_START_TIME: config[CONFIG_TARGET_START_TIME] if CONFIG_TARGET_START_TIME in config else None,

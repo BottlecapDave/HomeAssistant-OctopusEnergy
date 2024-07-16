@@ -9,6 +9,8 @@ from ..const import (
   CONFIG_ACCOUNT_ID,
   CONFIG_TARGET_END_TIME,
   CONFIG_TARGET_HOURS,
+  CONFIG_TARGET_HOURS_MODE,
+  CONFIG_TARGET_HOURS_MODE_EXACT,
   CONFIG_TARGET_MAX_RATE,
   CONFIG_TARGET_MIN_RATE,
   CONFIG_TARGET_MPAN,
@@ -74,6 +76,10 @@ async def async_migrate_target_config(version: int, data: {}, get_entries):
     for entry in entries:
       if CONFIG_ACCOUNT_ID in entry.data:
         new_data[CONFIG_ACCOUNT_ID] = entry.data[CONFIG_ACCOUNT_ID]
+
+  if (version <= 4):
+    if CONFIG_TARGET_HOURS_MODE not in new_data:
+      new_data[CONFIG_TARGET_HOURS_MODE] = CONFIG_TARGET_HOURS_MODE_EXACT
 
   return new_data
 
