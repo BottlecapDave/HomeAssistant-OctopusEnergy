@@ -198,7 +198,10 @@ def validate_target_rate_config(data, account_info, now):
         errors[CONFIG_TARGET_WEIGHTING] = "invalid_weighting_slots"
 
     if data[CONFIG_TARGET_TYPE] != CONFIG_TARGET_TYPE_CONTINUOUS:
-      errors[CONFIG_TARGET_WEIGHTING] = "weighting_not_supported"
+      errors[CONFIG_TARGET_WEIGHTING] = "weighting_not_supported_for_type"
+    
+    if CONFIG_TARGET_HOURS_MODE in data and data[CONFIG_TARGET_HOURS_MODE] == CONFIG_TARGET_HOURS_MODE_MINIMUM:
+      errors[CONFIG_TARGET_WEIGHTING] = "weighting_not_supported_for_hour_mode"
 
   if CONFIG_TARGET_HOURS_MODE in data and data[CONFIG_TARGET_HOURS_MODE] == CONFIG_TARGET_HOURS_MODE_MINIMUM:
     if (CONFIG_TARGET_MIN_RATE not in data or data[CONFIG_TARGET_MIN_RATE] is None) and (CONFIG_TARGET_MAX_RATE not in data or data[CONFIG_TARGET_MAX_RATE] is None):

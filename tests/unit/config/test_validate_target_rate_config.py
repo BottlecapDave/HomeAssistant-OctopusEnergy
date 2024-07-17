@@ -635,7 +635,7 @@ async def test_when_weighting_set_and_type_invalid_then_weighting_error_returned
 
   # Assert
   assert CONFIG_TARGET_WEIGHTING in errors
-  assert errors[CONFIG_TARGET_WEIGHTING] == "weighting_not_supported"
+  assert errors[CONFIG_TARGET_WEIGHTING] == "weighting_not_supported_for_type"
 
   assert CONFIG_TARGET_NAME not in errors
   assert CONFIG_TARGET_MPAN not in errors
@@ -665,7 +665,6 @@ async def test_when_hour_mode_is_minimum_and_minimum_or_maximum_rate_is_specifie
     CONFIG_TARGET_OFFSET: "-00:30:00",
     CONFIG_TARGET_MIN_RATE: min_rate,
     CONFIG_TARGET_MAX_RATE: max_rate,
-    CONFIG_TARGET_WEIGHTING: "2,*,2",
     CONFIG_TARGET_HOURS_MODE: CONFIG_TARGET_HOURS_MODE_MINIMUM
   }
 
@@ -687,7 +686,7 @@ async def test_when_hour_mode_is_minimum_and_minimum_or_maximum_rate_is_specifie
   assert CONFIG_TARGET_HOURS_MODE not in errors
 
 @pytest.mark.asyncio
-async def test_when_hour_mode_is_minimum_and_minimum_and_maximum_rate_is_not_specified_then_error_returned():
+async def test_when_hour_mode_is_minimum_and_weighting_specified_then_error_returned():
   # Arrange
   data = {
     CONFIG_TARGET_TYPE: CONFIG_TARGET_TYPE_CONTINUOUS,
@@ -698,6 +697,40 @@ async def test_when_hour_mode_is_minimum_and_minimum_and_maximum_rate_is_not_spe
     CONFIG_TARGET_END_TIME: "00:00",
     CONFIG_TARGET_OFFSET: "-00:30:00",
     CONFIG_TARGET_WEIGHTING: "2,*,2",
+    CONFIG_TARGET_MIN_RATE: "0.18",
+    CONFIG_TARGET_HOURS_MODE: CONFIG_TARGET_HOURS_MODE_MINIMUM
+  }
+
+  account_info = get_account_info()
+
+  # Act
+  errors = validate_target_rate_config(data, account_info, now)
+
+  # Assert
+  assert CONFIG_TARGET_WEIGHTING in errors
+  assert errors[CONFIG_TARGET_WEIGHTING] == "weighting_not_supported_for_hour_mode"
+
+  assert CONFIG_TARGET_NAME not in errors
+  assert CONFIG_TARGET_MPAN not in errors
+  assert CONFIG_TARGET_HOURS not in errors
+  assert CONFIG_TARGET_START_TIME not in errors
+  assert CONFIG_TARGET_END_TIME not in errors
+  assert CONFIG_TARGET_OFFSET not in errors
+  assert CONFIG_TARGET_MIN_RATE not in errors
+  assert CONFIG_TARGET_MAX_RATE not in errors
+  assert CONFIG_TARGET_HOURS_MODE not in errors
+
+@pytest.mark.asyncio
+async def test_when_hour_mode_is_minimum_and_minimum_and_maximum_rate_is_not_specified_then_error_returned():
+  # Arrange
+  data = {
+    CONFIG_TARGET_TYPE: CONFIG_TARGET_TYPE_CONTINUOUS,
+    CONFIG_TARGET_NAME: "test",
+    CONFIG_TARGET_MPAN: mpan,
+    CONFIG_TARGET_HOURS: "1.5",
+    CONFIG_TARGET_START_TIME: "00:00",
+    CONFIG_TARGET_END_TIME: "00:00",
+    CONFIG_TARGET_OFFSET: "-00:30:00",
     CONFIG_TARGET_HOURS_MODE: CONFIG_TARGET_HOURS_MODE_MINIMUM
   }
 

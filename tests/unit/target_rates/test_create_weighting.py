@@ -4,10 +4,10 @@ from custom_components.octopus_energy.target_rates import create_weighting
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("config,number_of_slots,expected_weighting",[
-  (None, 3, [1,1,1]),
-  ("", 3, [1,1,1]),
-  (" ", 3, [1,1,1]),
-  ("", 0, []),
+  (None, 3, None),
+  ("", 3, None),
+  (" ", 3, None),
+  ("", 0, None),
   ("1", 3, [1]),
   ("1,2,3", 3, [1,2,3]),
   ("2,*,3", 4, [2,1,1,3]),
