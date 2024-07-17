@@ -524,7 +524,7 @@ class OptionsFlowHandler(OptionsFlow):
           {
             CONFIG_TARGET_NAME: config[CONFIG_TARGET_NAME],
             CONFIG_TARGET_HOURS: f'{config[CONFIG_TARGET_HOURS]}',
-            CONFIG_TARGET_HOURS: config[CONFIG_TARGET_HOURS_MODE],
+            CONFIG_TARGET_HOURS_MODE: config[CONFIG_TARGET_HOURS_MODE],
             CONFIG_TARGET_TYPE: config[CONFIG_TARGET_TYPE],
             CONFIG_TARGET_MPAN: config[CONFIG_TARGET_MPAN],
             CONFIG_TARGET_START_TIME: config[CONFIG_TARGET_START_TIME] if CONFIG_TARGET_START_TIME in config else None,
