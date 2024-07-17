@@ -18,7 +18,7 @@ The `from/start` time can be set in the field `The minimum time to start the dev
 
 If not specified, these default from `00:00:00` to `00:00:00` the following day.
 
-If for example you want to look at prices overnight you could set the minimum time to something like `20:00` and your maximum time to something like `05:00`. If the minimum time is "before" the maximum time, then it will treat the maximum time as the time for the following day.
+If for example you want to look at prices overnight you could set the minimum time to something like `20:00` and your maximum time to something like `05:00`. If the minimum time is "after" the maximum time, then it will treat the maximum time as the time for the following day.
 
 !!! info
 
