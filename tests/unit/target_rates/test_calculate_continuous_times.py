@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from custom_components.octopus_energy.const import CONFIG_TARGET_HOURS_MODE_MAXIMUM, CONFIG_TARGET_HOURS_MODE_MINIMUM
 import pytest
 
 from unit import (create_rate_data, agile_rates)
@@ -698,8 +699,166 @@ async def test_when_target_hours_zero_then_result_is_adjusted(weighting):
   assert result is not None
   assert len(result) == 0
 
-# maximum hour mode, not enough hours, target rates returned
-# maximum hour mode, more than target hours, maximum target rates returned
+def test_when_hour_mode_is_maximum_and_not_enough_hours_available_then_reduced_target_rates_returned():
+  # Arrange
+  current_date = datetime.strptime("2022-10-22T09:10:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  target_start_time = "09:00"
+  target_end_time = "22:00"
+  possible_rates = [19.1, 18.9, 21.1, 15.1, 20]
+  expected_rates = [0.191, 0.189]
 
-# minimum hour mode, not enough hours, target rates not returned
-# minimum hour mode, more than target hours, target rates returned
+  rates = create_rate_data(
+    datetime.strptime("2022-10-22T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2022-10-23T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    possible_rates
+  )
+
+  applicable_rates = get_applicable_rates(
+    current_date,
+    target_start_time,
+    target_end_time,
+    rates,
+    True
+  )
+
+  # Act
+  result = calculate_continuous_times(
+    applicable_rates,
+    1.5,
+    False,
+    False,
+    max_rate=0.199,
+    hours_mode=CONFIG_TARGET_HOURS_MODE_MAXIMUM
+  )
+
+  # Assert
+  assert result is not None
+  assert len(result) == 2
+
+  expected_from = datetime.strptime("2022-10-22T10:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  for index in range(0, 2):
+    assert result[index]["start"] == expected_from
+    expected_from = expected_from + timedelta(minutes=30)
+    assert result[index]["end"] == expected_from
+    assert result[index]["value_inc_vat"] == expected_rates[index]
+
+def test_when_hour_mode_is_maximum_and_more_than_enough_hours_available_then_target_rates_returned():
+  # Arrange
+  current_date = datetime.strptime("2022-10-22T09:10:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  target_start_time = "09:00"
+  target_end_time = "22:00"
+  possible_rates = [19.1, 18.9, 19.1, 15.1, 20]
+  expected_rates = [0.189, 0.191, 0.151]
+
+  rates = create_rate_data(
+    datetime.strptime("2022-10-22T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2022-10-23T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    possible_rates
+  )
+
+  applicable_rates = get_applicable_rates(
+    current_date,
+    target_start_time,
+    target_end_time,
+    rates,
+    True
+  )
+
+  # Act
+  result = calculate_continuous_times(
+    applicable_rates,
+    1.5,
+    False,
+    False,
+    hours_mode=CONFIG_TARGET_HOURS_MODE_MAXIMUM
+  )
+
+  # Assert
+  assert result is not None
+  assert len(result) == 3
+
+  expected_from = datetime.strptime("2022-10-22T10:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  for index in range(0, 3):
+    assert result[index]["start"] == expected_from
+    expected_from = expected_from + timedelta(minutes=30)
+    assert result[index]["end"] == expected_from
+    assert result[index]["value_inc_vat"] == expected_rates[index]
+
+def test_when_hour_mode_is_minimum_and_not_enough_hours_available_then_no_target_rates_returned():
+  # Arrange
+  current_date = datetime.strptime("2022-10-22T09:10:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  target_start_time = "09:00"
+  target_end_time = "22:00"
+  possible_rates = [19.1, 18.9, 21.1, 15.1, 20]
+  expected_rates = [0.191, 0.189]
+
+  rates = create_rate_data(
+    datetime.strptime("2022-10-22T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2022-10-23T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    possible_rates
+  )
+
+  applicable_rates = get_applicable_rates(
+    current_date,
+    target_start_time,
+    target_end_time,
+    rates,
+    True
+  )
+
+  # Act
+  result = calculate_continuous_times(
+    applicable_rates,
+    1.5,
+    False,
+    False,
+    max_rate=0.199,
+    hours_mode=CONFIG_TARGET_HOURS_MODE_MINIMUM
+  )
+
+  # Assert
+  assert result is not None
+  assert len(result) == 0
+
+def test_when_hour_mode_is_minimum_and_more_than_enough_hours_available_then_target_rates_returned():
+  # Arrange
+  current_date = datetime.strptime("2022-10-22T09:10:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  target_start_time = "09:00"
+  target_end_time = "22:00"
+  possible_rates = [19.1, 18.9, 19.1, 15.1, 20]
+  expected_rates = [0.191, 0.189, 0.191, 0.151]
+
+  rates = create_rate_data(
+    datetime.strptime("2022-10-22T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2022-10-23T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    possible_rates
+  )
+
+  applicable_rates = get_applicable_rates(
+    current_date,
+    target_start_time,
+    target_end_time,
+    rates,
+    True
+  )
+
+  # Act
+  result = calculate_continuous_times(
+    applicable_rates,
+    1.5,
+    False,
+    False,
+    max_rate=0.199,
+    hours_mode=CONFIG_TARGET_HOURS_MODE_MINIMUM
+  )
+
+  # Assert
+  assert result is not None
+  assert len(result) == 4
+
+  expected_from = datetime.strptime("2022-10-22T10:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  for index in range(0, 3):
+    assert result[index]["start"] == expected_from
+    expected_from = expected_from + timedelta(minutes=30)
+    assert result[index]["end"] == expected_from
+    assert result[index]["value_inc_vat"] == expected_rates[index]

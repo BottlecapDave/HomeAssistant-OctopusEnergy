@@ -11,6 +11,7 @@ from ..const import (
   CONFIG_TARGET_HOURS,
   CONFIG_TARGET_HOURS_MODE,
   CONFIG_TARGET_HOURS_MODE_EXACT,
+  CONFIG_TARGET_HOURS_MODE_MINIMUM,
   CONFIG_TARGET_MAX_RATE,
   CONFIG_TARGET_MIN_RATE,
   CONFIG_TARGET_MPAN,
@@ -198,6 +199,10 @@ def validate_target_rate_config(data, account_info, now):
 
     if data[CONFIG_TARGET_TYPE] != CONFIG_TARGET_TYPE_CONTINUOUS:
       errors[CONFIG_TARGET_WEIGHTING] = "weighting_not_supported"
+
+  if CONFIG_TARGET_HOURS_MODE in data and data[CONFIG_TARGET_HOURS_MODE] == CONFIG_TARGET_HOURS_MODE_MINIMUM:
+    if (CONFIG_TARGET_MIN_RATE not in data or data[CONFIG_TARGET_MIN_RATE] is None) and (CONFIG_TARGET_MAX_RATE not in data or data[CONFIG_TARGET_MAX_RATE] is None):
+      errors[CONFIG_TARGET_HOURS_MODE] = "minimum_or_maximum_rate_not_specified"
 
   start_time = data[CONFIG_TARGET_START_TIME] if CONFIG_TARGET_START_TIME in data and data[CONFIG_TARGET_START_TIME] is not None else "00:00"
   end_time = data[CONFIG_TARGET_END_TIME] if CONFIG_TARGET_END_TIME in data and data[CONFIG_TARGET_END_TIME] is not None else "00:00"

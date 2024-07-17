@@ -185,16 +185,24 @@ def calculate_intermittent_times(
       applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], rate["end"]))
 
   applicable_rates = list(filter(lambda rate: (min_rate is None or rate["value_inc_vat"] >= min_rate) and (max_rate is None or rate["value_inc_vat"] <= max_rate), applicable_rates))
-  applicable_rates = applicable_rates[:total_required_rates]
   
   _LOGGER.debug(f'{len(applicable_rates)} applicable rates found')
-  
-  if (len(applicable_rates) < total_required_rates):
-    return []
 
-  # Make sure our rates are in ascending order before returning
-  applicable_rates.sort(key=__get_valid_to)
-  return applicable_rates
+  if ((hours_mode == CONFIG_TARGET_HOURS_MODE_EXACT and len(applicable_rates) >= total_required_rates) or hours_mode == CONFIG_TARGET_HOURS_MODE_MAXIMUM):
+    applicable_rates = applicable_rates[:total_required_rates]
+    print(applicable_rates)
+
+    # Make sure our rates are in ascending order before returning
+    applicable_rates.sort(key=__get_valid_to)
+
+    return applicable_rates
+  elif len(applicable_rates) >= total_required_rates:
+    # Make sure our rates are in ascending order before returning
+    applicable_rates.sort(key=__get_valid_to)
+
+    return applicable_rates
+  
+  return []
 
 def get_target_rate_info(current_date: datetime, applicable_rates, offset: str = None):
   is_active = False
