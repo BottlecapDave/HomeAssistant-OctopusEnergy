@@ -200,7 +200,7 @@ def validate_target_rate_config(data, account_info, now):
     if data[CONFIG_TARGET_TYPE] != CONFIG_TARGET_TYPE_CONTINUOUS:
       errors[CONFIG_TARGET_WEIGHTING] = "weighting_not_supported_for_type"
     
-    if CONFIG_TARGET_HOURS_MODE in data and data[CONFIG_TARGET_HOURS_MODE] == CONFIG_TARGET_HOURS_MODE_MINIMUM:
+    if CONFIG_TARGET_HOURS_MODE in data and data[CONFIG_TARGET_HOURS_MODE] != CONFIG_TARGET_HOURS_MODE_EXACT:
       errors[CONFIG_TARGET_WEIGHTING] = "weighting_not_supported_for_hour_mode"
 
   if CONFIG_TARGET_HOURS_MODE in data and data[CONFIG_TARGET_HOURS_MODE] == CONFIG_TARGET_HOURS_MODE_MINIMUM:

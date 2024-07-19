@@ -2,7 +2,7 @@ import pytest
 
 from homeassistant.util.dt import (as_utc, parse_datetime)
 from custom_components.octopus_energy.config.target_rates import validate_target_rate_config
-from custom_components.octopus_energy.const import CONFIG_TARGET_END_TIME, CONFIG_TARGET_HOURS, CONFIG_TARGET_HOURS_MODE, CONFIG_TARGET_HOURS_MODE_EXACT, CONFIG_TARGET_HOURS_MODE_MINIMUM, CONFIG_TARGET_MAX_RATE, CONFIG_TARGET_MIN_RATE, CONFIG_TARGET_MPAN, CONFIG_TARGET_NAME, CONFIG_TARGET_OFFSET, CONFIG_TARGET_START_TIME, CONFIG_TARGET_TYPE, CONFIG_TARGET_TYPE_CONTINUOUS, CONFIG_TARGET_TYPE_INTERMITTENT, CONFIG_TARGET_WEIGHTING
+from custom_components.octopus_energy.const import CONFIG_TARGET_END_TIME, CONFIG_TARGET_HOURS, CONFIG_TARGET_HOURS_MODE, CONFIG_TARGET_HOURS_MODE_EXACT, CONFIG_TARGET_HOURS_MODE_MAXIMUM, CONFIG_TARGET_HOURS_MODE_MINIMUM, CONFIG_TARGET_MAX_RATE, CONFIG_TARGET_MIN_RATE, CONFIG_TARGET_MPAN, CONFIG_TARGET_NAME, CONFIG_TARGET_OFFSET, CONFIG_TARGET_START_TIME, CONFIG_TARGET_TYPE, CONFIG_TARGET_TYPE_CONTINUOUS, CONFIG_TARGET_TYPE_INTERMITTENT, CONFIG_TARGET_WEIGHTING
 
 non_agile_tariff = "E-1R-SUPER-GREEN-24M-21-07-30-C"
 agile_tariff = "E-1R-AGILE-FLEX-22-11-25-B"
@@ -686,7 +686,11 @@ async def test_when_hour_mode_is_minimum_and_minimum_or_maximum_rate_is_specifie
   assert CONFIG_TARGET_HOURS_MODE not in errors
 
 @pytest.mark.asyncio
-async def test_when_hour_mode_is_minimum_and_weighting_specified_then_error_returned():
+@pytest.mark.parametrize("hour_mode",[
+  (CONFIG_TARGET_HOURS_MODE_MINIMUM),
+  (CONFIG_TARGET_HOURS_MODE_MAXIMUM),
+])
+async def test_when_hour_mode_is_not_exact_and_weighting_specified_then_error_returned(hour_mode: str):
   # Arrange
   data = {
     CONFIG_TARGET_TYPE: CONFIG_TARGET_TYPE_CONTINUOUS,
@@ -698,7 +702,7 @@ async def test_when_hour_mode_is_minimum_and_weighting_specified_then_error_retu
     CONFIG_TARGET_OFFSET: "-00:30:00",
     CONFIG_TARGET_WEIGHTING: "2,*,2",
     CONFIG_TARGET_MIN_RATE: "0.18",
-    CONFIG_TARGET_HOURS_MODE: CONFIG_TARGET_HOURS_MODE_MINIMUM
+    CONFIG_TARGET_HOURS_MODE: hour_mode
   }
 
   account_info = get_account_info()
