@@ -62,6 +62,28 @@ See the examples below for how this can be used and how rates will be selected.
 
 The hours that you require for the sensor to find. This should be in decimal format and represent 30 minute increments. For example 30 minutes would be `0.5`, 1 hour would be `1` or `1.0`, 1 hour and 30 minutes would be `1.5`, etc.
 
+### Hours Mode
+
+There are three different modes that the target rate sensor can be set to, which determines how the specified hours should be interpreted
+
+#### Exact (default)
+
+The target rate sensor will try to find the best times for the specified hours. If less than the target hours are discovered, the sensor will not come on at all. If there are more hours than required that meet the specified requirements (e.g. below a certain rate), then it will come on for the cheapest available times up to the specified hours.
+
+For instance if the cheapest period is between `2023-01-01T00:30` and `2023-01-01T05:00` and your target rate is for 1 hour, then it will come on between  `2023-01-01T00:30` and `2023-01-01T01:30`. If the available times are between `2023-01-01T00:30` and `2023-01-01T01:00`, then the sensor will not come on at all.
+
+#### Minimum
+
+The target rate sensor will try to find the best times for the specified hours. If less than the target hours are discovered, the sensor will not come on at all. If there are more hours than required that meet the specified requirements (e.g. below a certain rate), then it will come on for all discovered times.
+
+For instance if the cheapest period is between `2023-01-01T00:30` and `2023-01-01T05:00` and your target rate is for 1 hour, then it will come on between  `2023-01-01T00:30` and `2023-01-01T05:00`. If the available times are between `2023-01-01T00:30` and `2023-01-01T01:00`, then the sensor will not come on at all.
+
+#### Maximum
+
+The target rate sensor will try to find the best times for the specified hours. If less than the target hours are discovered, the sensor will come on for all times that are discovered. If there are more hours than required that meet the specified requirements (e.g. below a certain rate), then it will come on for the cheapest available times up to the specified hours.
+
+For instance if the cheapest period is between `2023-01-01T00:30` and `2023-01-01T05:00` and your target rate is for 1 hour, then it will come on between  `2023-01-01T00:30` and `2023-01-01T01:30`. If the available times are between `2023-01-01T00:30` and `2023-01-01T01:00`, then the sensor will come on between  `2023-01-01T00:30` and `2023-01-01T01:00`.
+
 ### Offset
 
 You may want your target rate sensors to turn on a period of time before the optimum discovered period. For example, you may be turning on a robot vacuum cleaner for a 30 minute clean and want it to charge during the optimum period. For this, you'd use the `offset` field and set it to `-00:30:00`, which can be both positive and negative and go up to a maximum of 24 hours. This will shift when the sensor turns on relative to the optimum period. For example, if the optimum period is between `2023-01-18T10:00` and `2023-01-18T11:00` with an offset of `-00:30:00`, the sensor will turn on between `2023-01-18T09:30` and `2023-01-18T10:30`.
@@ -96,11 +118,15 @@ If this is checked, then the normal behaviour of the sensor will be reversed. Th
 
 There may be times that you want the target rate sensors to not take into account rates that are above or below a certain value (e.g. you don't want the sensor to turn on when rates go crazy or where it would be more beneficial to export).
 
+!!! info
+
+    If hours mode is set to **minimum**, then a minimum and/or maximum rate must be specified in order for the target rate sensor to know what the cut off is for discovered times.
+
 ### Weighting
 
 !!! info
 
-    This is only available for continuous target rate sensors
+    This is only available for **continuous** target rate sensors in **exact** hours mode.
 
 There may be times when the device you're wanting the target rate sensor to turn on doesn't have a consistent power draw. You can specify a weighting which can be applied to each discovered 30 minute slot. This can be specified in a few different ways. Take the following example weighting for a required 2 hours.
 
