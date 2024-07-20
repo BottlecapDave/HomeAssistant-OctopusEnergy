@@ -56,7 +56,7 @@ from .const import (
   REPAIR_UNIQUE_RATES_CHANGED_KEY
 )
 
-ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "text", "number", "switch", "time", "event"]
+ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "number", "switch", "time", "event"]
 TARGET_RATE_PLATFORMS = ["binary_sensor"]
 COST_TRACKER_PLATFORMS = ["sensor"]
 TARIFF_COMPARISON_PLATFORMS = ["sensor"]
