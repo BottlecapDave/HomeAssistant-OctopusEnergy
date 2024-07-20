@@ -32,9 +32,6 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
     self._client = client
     self._account_id = account_id
     self._state = None
-    self._attributes = {
-      "last_evaluated": None
-    }
     self._last_evaluated = None
     self._next_refresh = None
     self._request_attempts = 1
@@ -75,7 +72,6 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
     if self._next_refresh is None or now >= self._next_refresh:
       await self.async_refresh_points()
     
-    self._attributes["last_evaluated"] = now
     self._attributes = dict_to_typed_dict(self._attributes)
 
   async def async_added_to_hass(self):

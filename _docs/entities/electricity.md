@@ -195,7 +195,6 @@ The total consumption reported by the meter for the previous day.
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
 | `total` | `float` | The total energy value for the previous day. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
-| `last_evaluated` | `datetime` | The date/time that the consumption sensor was last evaluated. |
 | `latest_available_data_timestamp` | `datetime` | The date/time of the latest available consumption data via the API. This is only for data reported directly by the meter and won't include data reported by other devices (e.g. Octopus Home Mini) |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
@@ -285,7 +284,6 @@ The total cost for the previous day, including the standing charge.
 | `total_without_standing_charge` | `float` | The total cost of the previous day excluding the standing charge. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `total` | `float` | The total cost for the previous day. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `charges` | `array` | Collection of consumption periods and costs for the previous day broken down into 30 minute periods. |
-| `last_evaluated` | `datetime` | The timestamp determining when the cost was last evaluated. |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
 Each charge item has the following attributes
@@ -395,7 +393,7 @@ If current consumption data is unable to be retrieved, then the integration will
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `last_evaluated` | `datetime` | The datetime the data was last evaluated |
+| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
 ### Current Demand
 
@@ -408,7 +406,7 @@ The current demand reported by the Home Mini/Pro. This will try and update every
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `last_evaluated` | `datetime` | The datetime the data was last evaluated |
+| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers or Home Pro device |
 
 ### Current Accumulative Consumption
 

@@ -174,8 +174,6 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
         self._attributes["standing_charge"] = consumption_and_cost["standing_charge"]
         self._attributes["total_cost_without_standing_charge"] = consumption_and_cost["total_cost_without_standing_charge"]
 
-      self._attributes["last_evaluated"] = utcnow()
-
     if result is not None:
       self._attributes["data_last_retrieved"] = result.last_retrieved
 

@@ -73,7 +73,6 @@ class OctopusEnergyIntelligentSmartCharge(CoordinatorEntity, SwitchEntity, Octop
 
     if settings_result.settings is not None:
       self._state = settings_result.settings.smart_charge
-      self._attributes["last_evaluated"] = utcnow()
     
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()

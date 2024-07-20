@@ -247,7 +247,6 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     self._attributes["next_min_cost"] = active_result["next_min_cost"]
     self._attributes["next_max_cost"] = active_result["next_max_cost"]
     
-    self._attributes["last_evaluated"] = current_date
     self._state = active_result["is_active"]
 
     _LOGGER.debug(f"calculated: {self._state}")
