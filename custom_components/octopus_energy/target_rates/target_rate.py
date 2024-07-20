@@ -23,6 +23,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers import translation
 
 from ..const import (
+  CONFIG_TARGET_HOURS_MODE,
   CONFIG_TARGET_MAX_RATE,
   CONFIG_TARGET_MIN_RATE,
   CONFIG_TARGET_NAME,
@@ -208,7 +209,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
               find_last_rates,
               min_rate,
               max_rate,
-              weighting
+              weighting,
+              hours_mode = self._config[CONFIG_TARGET_HOURS_MODE]
             )
           elif (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_INTERMITTENT):
             self._target_rates = calculate_intermittent_times(
@@ -217,7 +219,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
               find_highest_rates,
               find_last_rates,
               min_rate,
-              max_rate
+              max_rate,
+              hours_mode = self._config[CONFIG_TARGET_HOURS_MODE]
             )
           else:
             _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")

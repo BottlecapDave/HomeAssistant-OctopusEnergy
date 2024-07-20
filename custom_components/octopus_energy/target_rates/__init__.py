@@ -6,7 +6,7 @@ import logging
 from homeassistant.util.dt import (as_utc, parse_datetime)
 
 from ..utils.conversions import value_inc_vat_to_pounds
-from ..const import CONFIG_TARGET_KEYS, REGEX_OFFSET_PARTS, REGEX_WEIGHTING
+from ..const import CONFIG_TARGET_HOURS_MODE_EXACT, CONFIG_TARGET_HOURS_MODE_MAXIMUM, CONFIG_TARGET_HOURS_MODE_MINIMUM, CONFIG_TARGET_KEYS, REGEX_OFFSET_PARTS, REGEX_WEIGHTING
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -88,7 +88,8 @@ def calculate_continuous_times(
     find_last_rates = False,
     min_rate = None,
     max_rate = None,
-    weighting: list = None
+    weighting: list = None,
+    hours_mode = CONFIG_TARGET_HOURS_MODE_EXACT
   ):
   if (applicable_rates is None or target_hours <= 0):
     return []
@@ -117,7 +118,7 @@ def calculate_continuous_times(
     continuous_rates = [rate]
     continuous_rates_total = rate["value_inc_vat"] * (weighting[0] if weighting is not None and len(weighting) > 0 else 1)
     
-    for offset in range(1, total_required_rates):
+    for offset in range(1, total_required_rates if hours_mode != CONFIG_TARGET_HOURS_MODE_MINIMUM else applicable_rates_count):
       if (index + offset) < applicable_rates_count:
         offset_rate = applicable_rates[(index + offset)]
 
@@ -131,8 +132,21 @@ def calculate_continuous_times(
         continuous_rates_total += offset_rate["value_inc_vat"] * (weighting[offset] if weighting is not None else 1)
       else:
         break
+
+    current_continuous_rates_length = len(continuous_rates)
+    best_continuous_rates_length = len(best_continuous_rates) if best_continuous_rates is not None else 0
     
-    if ((best_continuous_rates is None or (search_for_highest_rate == False and continuous_rates_total < best_continuous_rates_total) or (search_for_highest_rate and continuous_rates_total > best_continuous_rates_total)) and len(continuous_rates) == total_required_rates):
+    if ((best_continuous_rates is None or 
+         (search_for_highest_rate == False and continuous_rates_total < best_continuous_rates_total) or
+         (search_for_highest_rate and continuous_rates_total > best_continuous_rates_total)
+        )
+        and
+        (
+          (hours_mode == CONFIG_TARGET_HOURS_MODE_EXACT and current_continuous_rates_length == total_required_rates) or
+          (hours_mode == CONFIG_TARGET_HOURS_MODE_MINIMUM and current_continuous_rates_length >= total_required_rates and current_continuous_rates_length >= best_continuous_rates_length) or
+          (hours_mode == CONFIG_TARGET_HOURS_MODE_MAXIMUM and current_continuous_rates_length <= total_required_rates and current_continuous_rates_length >= best_continuous_rates_length)
+        )
+      ):
       best_continuous_rates = continuous_rates
       best_continuous_rates_total = continuous_rates_total
     else:
@@ -151,7 +165,8 @@ def calculate_intermittent_times(
     search_for_highest_rate = False,
     find_last_rates = False,
     min_rate = None,
-    max_rate = None
+    max_rate = None,
+    hours_mode = CONFIG_TARGET_HOURS_MODE_EXACT
   ):
   if (applicable_rates is None):
     return []
@@ -170,16 +185,24 @@ def calculate_intermittent_times(
       applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], rate["end"]))
 
   applicable_rates = list(filter(lambda rate: (min_rate is None or rate["value_inc_vat"] >= min_rate) and (max_rate is None or rate["value_inc_vat"] <= max_rate), applicable_rates))
-  applicable_rates = applicable_rates[:total_required_rates]
   
   _LOGGER.debug(f'{len(applicable_rates)} applicable rates found')
-  
-  if (len(applicable_rates) < total_required_rates):
-    return []
 
-  # Make sure our rates are in ascending order before returning
-  applicable_rates.sort(key=__get_valid_to)
-  return applicable_rates
+  if ((hours_mode == CONFIG_TARGET_HOURS_MODE_EXACT and len(applicable_rates) >= total_required_rates) or hours_mode == CONFIG_TARGET_HOURS_MODE_MAXIMUM):
+    applicable_rates = applicable_rates[:total_required_rates]
+    print(applicable_rates)
+
+    # Make sure our rates are in ascending order before returning
+    applicable_rates.sort(key=__get_valid_to)
+
+    return applicable_rates
+  elif len(applicable_rates) >= total_required_rates:
+    # Make sure our rates are in ascending order before returning
+    applicable_rates.sort(key=__get_valid_to)
+
+    return applicable_rates
+  
+  return []
 
 def get_target_rate_info(current_date: datetime, applicable_rates, offset: str = None):
   is_active = False
@@ -297,11 +320,7 @@ def get_target_rate_info(current_date: datetime, applicable_rates, offset: str =
 
 def create_weighting(config: str, number_of_slots: int):
   if config is None or config == "" or config.isspace():
-    weighting = []
-    for index in range(number_of_slots):
-      weighting.append(1)
-    
-    return weighting
+    return None
 
   matches = re.search(REGEX_WEIGHTING, config)
   if matches is None:
