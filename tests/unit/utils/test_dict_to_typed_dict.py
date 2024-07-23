@@ -74,7 +74,7 @@ async def test_when_default_ignore_key_is_present_then_not_returned():
 
   assert result is not None
   assert "last_evaluated" not in result
-  assert "mpan" in result
+  assert "mprn" in result
 
 @pytest.mark.asyncio
 async def test_when_int_is_present_then_converted_to_int():
