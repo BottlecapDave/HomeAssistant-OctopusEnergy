@@ -25,6 +25,8 @@ _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyOctoplusPoints(RestoreSensor):
   """Sensor for determining octoplus points"""
+  
+  _unrecorded_attributes = frozenset({"data_last_retrieved", "mpan", "mprn", "serial_number", "is_export", "is_smart_meter"})
 
   def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, account_id: str):
     """Init sensor."""
