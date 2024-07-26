@@ -16,6 +16,7 @@ from .config.cost_tracker import merge_cost_tracker_config, validate_cost_tracke
 from .config.target_rates import merge_target_rate_config, validate_target_rate_config
 from .config.main import async_validate_main_config, merge_main_config
 from .const import (
+  CONFIG_FAVOUR_DIRECT_DEBIT_RATES,
   CONFIG_MAIN_HOME_PRO_ADDRESS,
   CONFIG_MAIN_HOME_PRO_API_KEY,
   CONFIG_TARGET_HOURS_MODE,
@@ -581,6 +582,7 @@ class OptionsFlowHandler(OptionsFlow):
           vol.Required(CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
           vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP): cv.positive_float,
           vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float,
+          vol.Required(CONFIG_FAVOUR_DIRECT_DEBIT_RATES): bool,
         }),
         {
           CONFIG_MAIN_API_KEY: config[CONFIG_MAIN_API_KEY],
@@ -594,6 +596,7 @@ class OptionsFlowHandler(OptionsFlow):
           CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: live_gas_consumption_refresh_in_minutes,
           CONFIG_MAIN_ELECTRICITY_PRICE_CAP: config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP] if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config else None,
           CONFIG_MAIN_GAS_PRICE_CAP: config[CONFIG_MAIN_GAS_PRICE_CAP] if CONFIG_MAIN_GAS_PRICE_CAP in config else None,
+          CONFIG_FAVOUR_DIRECT_DEBIT_RATES: config[CONFIG_FAVOUR_DIRECT_DEBIT_RATES] if CONFIG_FAVOUR_DIRECT_DEBIT_RATES in config else True
         }
       ),
       errors=errors

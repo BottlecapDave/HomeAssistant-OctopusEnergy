@@ -27,6 +27,7 @@ from .utils import get_active_tariff
 from .utils.tariff_overrides import async_get_tariff_override
 
 from .const import (
+  CONFIG_FAVOUR_DIRECT_DEBIT_RATES,
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
   CONFIG_KIND_TARIFF_COMPARISON,
@@ -234,12 +235,16 @@ async def async_setup_dependencies(hass, config):
   if CONFIG_MAIN_GAS_PRICE_CAP in config:
     gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
 
+  favour_direct_debit_rates = True
+  if CONFIG_FAVOUR_DIRECT_DEBIT_RATES in config:
+    favour_direct_debit_rates = config[CONFIG_FAVOUR_DIRECT_DEBIT_RATES]
+
   _LOGGER.info(f'electricity_price_cap: {electricity_price_cap}')
   _LOGGER.info(f'gas_price_cap: {gas_price_cap}')
 
   # Close any existing clients, as our new client may have changed
   await _async_close_client(hass, account_id)
-  client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap)
+  client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap, favour_direct_debit_rates=favour_direct_debit_rates)
   hass.data[DOMAIN][account_id][DATA_CLIENT] = client
 
   if (CONFIG_MAIN_HOME_PRO_ADDRESS in config and
