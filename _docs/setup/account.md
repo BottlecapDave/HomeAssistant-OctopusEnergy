@@ -42,6 +42,15 @@ There has been inconsistencies across tariffs on whether government pricing caps
 
     While rates are reflected straight away, consumption based sensors may take up to 24 hours to reflect. This is due to how they look at data and cannot be changed.
 
+## Favour direct debit rates
+
+There are some tariffs where direct debit and non direct debit rates are available. This toggle determines which rate to use in these situations.
+
+
+!!! info
+
+    It might take a couple of minutes for these changes to reflect once changed.
+
 ## Home Pro
 
 If you are lucky enough to own an [Octopus Home Pro](https://forum.octopus.energy/t/for-the-pro-user/8453/2352/), you can now receive this data locally from within Home Assistant. 

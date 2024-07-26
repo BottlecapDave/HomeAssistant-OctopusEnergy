@@ -16,7 +16,8 @@
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence",
           "home_pro_address": "Home Pro address and port (e.g. http://localhost:8000)",
-          "home_pro_api_key": "Home Pro API key"
+          "home_pro_api_key": "Home Pro API key",
+          "favour_direct_debit_rates": "Favour direct debit rates where available"
         },
         "data_description": {
           "account_id": "You account ID can be found on your bill or at the top of https://octopus.energy/dashboard",
@@ -133,7 +134,8 @@
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence",
           "home_pro_address": "Home Pro address and port (e.g. http://localhost:8000)",
-          "home_pro_api_key": "Home Pro API key"
+          "home_pro_api_key": "Home Pro API key",
+          "favour_direct_debit_rates": "Favour direct debit rates where available"
         },
         "data_description": {
           "api_key": "You API key can be found at https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
