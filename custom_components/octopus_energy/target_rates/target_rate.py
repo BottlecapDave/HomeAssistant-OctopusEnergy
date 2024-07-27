@@ -65,6 +65,8 @@ _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
   """Sensor for calculating when a target should be turned on or off."""
+  
+  _unrecorded_attributes = frozenset({"data_last_retrieved", "target_times_last_evaluated"})
 
   def __init__(self, hass: HomeAssistant, account_id: str, coordinator, config, is_export):
     """Init sensor."""
@@ -247,7 +249,6 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     self._attributes["next_min_cost"] = active_result["next_min_cost"]
     self._attributes["next_max_cost"] = active_result["next_max_cost"]
     
-    self._attributes["last_evaluated"] = current_date
     self._state = active_result["is_active"]
 
     _LOGGER.debug(f"calculated: {self._state}")

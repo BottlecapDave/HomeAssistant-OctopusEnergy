@@ -7,6 +7,8 @@ from ..const import (
 )
 
 class OctopusEnergyElectricitySensor:
+  _unrecorded_attributes = frozenset({"data_last_retrieved"})
+
   def __init__(self, hass: HomeAssistant, meter, point, entity_domain = "sensor"):
     """Init sensor"""
     self._point = point

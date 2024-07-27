@@ -140,7 +140,6 @@ The total consumption reported by the meter for the previous day in m3. If your 
 | `is_estimated` | `boolean` | Determines if the consumption was estimated. This can occur if your meter reports in `kwh`. |
 | `total_kwh` | `float` | The total energy value for the previous day in `kwh`. If your meter reports in `m3`, then this will be estimated using your set [calorific value](../setup/account.md#calorific-value) |
 | `total_m3` | `float` | The total energy value for the previous day in `m3`. If your meter reports in `kwh`, then this will be estimated using your set [calorific value](../setup/account.md#calorific-value) |
-| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
@@ -177,7 +176,6 @@ The total consumption reported by the meter for the previous day in kwh. If your
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
 | `is_estimated` | `boolean` | Determines if the consumption was estimated. This can occur if your meter reports in `m3`. |
-| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
@@ -218,7 +216,6 @@ The total cost for the previous day, including the standing charge.
 | `total_without_standing_charge` | `float` | The total cost of the previous day excluding the standing charge. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `total` | `float` | The total cost for the previous day. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `charges` | `array` | Collection of consumption periods and costs for the previous day broken down into 30 minute periods. |
-| `last_evaluated` | `datetime` | The timestamp determining when the cost was last calculated. |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 
@@ -286,7 +283,6 @@ The total consumption reported by the meter for the current day in m3. This is c
 |-----------|------|-------------|
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
-| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `charges` | `array` | Collection of consumption periods for the current day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
@@ -312,7 +308,6 @@ The total consumption reported by the meter for the current day in kWh. This is 
 |-----------|------|-------------|
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
-| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `charges` | `array` | Collection of consumption periods for the current day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
@@ -342,7 +337,6 @@ The total consumption reported by the meter for for all time in m3. This is calc
 |-----------|------|-------------|
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
-| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
@@ -359,7 +353,6 @@ The total consumption reported by the meter for for all time in kWh. This is nat
 |-----------|------|-------------|
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
-| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 

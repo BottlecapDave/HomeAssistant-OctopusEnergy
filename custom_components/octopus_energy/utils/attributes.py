@@ -4,6 +4,7 @@ from datetime import datetime
 from homeassistant.util.dt import (as_local)
 
 attribute_keys_to_skip = ['mpan', 'mprn']
+default_keys_to_ignore = ['last_evaluated']
 
 def dict_to_typed_dict(data: dict, keys_to_ignore = []):
   if data is not None:
@@ -15,7 +16,7 @@ def dict_to_typed_dict(data: dict, keys_to_ignore = []):
     keys = list(new_data.keys())
 
     for key in keys:
-      if key in keys_to_ignore:
+      if key in keys_to_ignore or key in default_keys_to_ignore:
         del new_data[key]
         continue
 

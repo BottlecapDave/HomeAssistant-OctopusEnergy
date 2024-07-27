@@ -33,9 +33,6 @@ class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElec
 
     self._state = None
     self._latest_date = None
-    self._attributes = {
-      "last_evaluated": None
-    }
 
   @property
   def unique_id(self):
@@ -85,7 +82,6 @@ class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElec
 
     if (consumption_data is not None):
       self._state = consumption_data[-1]["demand"]
-      self._attributes["last_evaluated"] = now()
       self._attributes["data_last_retrieved"] = consumption_result.last_retrieved if consumption_result is not None else None
 
     self._attributes = dict_to_typed_dict(self._attributes)

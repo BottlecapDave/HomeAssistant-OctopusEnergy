@@ -11,31 +11,6 @@ def __sort_consumption(consumption_data):
   sorted.sort(key=__get_to)
   return sorted
 
-# class ElectricityConsumptionAndCost:
-#   standing_charge: float
-#   total_cost_without_standing_charge: float
-#   total_cost: float
-#   total_consumption: float
-#   last_reset: datetime
-#   last_evaluated: datetime
-#   charges: list
-
-#   def __init__(self,
-#                standing_charge: float,
-#                total_cost_without_standing_charge: float,
-#                total_cost: float,
-#                total_consumption: float,
-#                last_reset: datetime,
-#                last_evaluated: datetime,
-#                charges: list):
-#     self.standing_charge = standing_charge
-#     self.total_cost_without_standing_charge = total_cost_without_standing_charge
-#     self.total_cost = total_cost
-#     self.total_consumption = total_consumption
-#     self.last_reset = last_reset
-#     self.last_evaluated = last_evaluated
-#     self.charges = charges
-
 def calculate_electricity_consumption_and_cost(
     consumption_data,
     rate_data,

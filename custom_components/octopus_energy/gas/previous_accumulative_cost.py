@@ -157,8 +157,6 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
         "calorific_value": self._calorific_value
       }
 
-      self._attributes["last_evaluated"] = current
-
     if result is not None:
       self._attributes["data_last_retrieved"] = result.last_retrieved
     

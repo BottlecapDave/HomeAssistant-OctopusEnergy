@@ -172,8 +172,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
                                       "tariff_code": target_tariff_code,
                                       "rates": private_rates_to_public_rates(rate_data) 
                                     }))
-
-          self._attributes["last_evaluated"] = current
+          
           self._request_attempts = 1
           self._last_retrieved = current
           self._next_refresh = calculate_next_refresh(current, self._request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION)
