@@ -30,11 +30,9 @@ This sensor is used to determine if you're currently in a planned dispatch perio
 |-----------|------|-------------|
 | `planned_dispatches` | `array` | An array of the dispatches that are currently planned by Octopus Energy. |
 | `completed_dispatches` | `array` | An array of the dispatches that have been completed by Octopus Energy. This will only store up to the last 3 days worth of completed dispatches. |
-| `last_evaluated` | `datetime` | The date/time the dispatching information was last evaluated. |
 | `provider` | `string` | The provider of the intelligent features |
 | `vehicle_battery_size_in_kwh` | `float` | The size of the target vehicle battery in kWh. |
 | `charge_point_power_in_kw` | `float` | The power of the charge point battery in kW. |
-| `last_evaluated` | `datetime` | The date/time the value was last evaluated |
 | `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
 | `current_start` | `datetime` | The date/time when the dispatching or off peak rate started |
 | `current_end` | `datetime` | The date/time when the dispatching or off peak rate ends |
@@ -65,7 +63,6 @@ This sensor is used to turn on/off bump ("on-demand") charging.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `last_evaluated` | `datetime` | The date/time the value was last evaluated |
 | `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
 
 ### Smart Charge
@@ -82,7 +79,6 @@ This sensor is used to turn on/off intelligent smart charging.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `last_evaluated` | `datetime` | The date/time the value was last evaluated |
 | `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
 
 ### Charge Limit
@@ -99,7 +95,6 @@ This sensor is used to see and set the charge limit for your future intelligent 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `last_evaluated` | `datetime` | The date/time the value was last evaluated |
 | `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
 
 ### Ready Time
@@ -116,7 +111,6 @@ This sensor is used to see and set the ready time for your future intelligent ch
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `last_evaluated` | `datetime` | The date/time the value was last evaluated |
 | `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
 
 ## Migrating from megakid/ha_octopus_intelligent?

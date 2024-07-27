@@ -26,7 +26,7 @@ class OctopusEnergyElectricityPreviousConsumptionOverrideRates(OctopusEnergyElec
     self._last_updated = None
 
     self._attr_event_types = [EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_TARIFF_COMPARISON_RATES]
-    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
+    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point, "event")
 
   @property
   def unique_id(self):

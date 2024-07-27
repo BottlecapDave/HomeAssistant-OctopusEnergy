@@ -23,6 +23,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers import translation
 
 from ..const import (
+  CONFIG_TARGET_HOURS_MODE,
   CONFIG_TARGET_MAX_RATE,
   CONFIG_TARGET_MIN_RATE,
   CONFIG_TARGET_NAME,
@@ -64,6 +65,8 @@ _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
   """Sensor for calculating when a target should be turned on or off."""
+  
+  _unrecorded_attributes = frozenset({"data_last_retrieved", "target_times_last_evaluated"})
 
   def __init__(self, hass: HomeAssistant, account_id: str, coordinator, config, is_export):
     """Init sensor."""
@@ -208,7 +211,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
               find_last_rates,
               min_rate,
               max_rate,
-              weighting
+              weighting,
+              hours_mode = self._config[CONFIG_TARGET_HOURS_MODE]
             )
           elif (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_INTERMITTENT):
             self._target_rates = calculate_intermittent_times(
@@ -217,7 +221,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
               find_highest_rates,
               find_last_rates,
               min_rate,
-              max_rate
+              max_rate,
+              hours_mode = self._config[CONFIG_TARGET_HOURS_MODE]
             )
           else:
             _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")
@@ -244,7 +249,6 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     self._attributes["next_min_cost"] = active_result["next_min_cost"]
     self._attributes["next_max_cost"] = active_result["next_max_cost"]
     
-    self._attributes["last_evaluated"] = current_date
     self._state = active_result["is_active"]
 
     _LOGGER.debug(f"calculated: {self._state}")

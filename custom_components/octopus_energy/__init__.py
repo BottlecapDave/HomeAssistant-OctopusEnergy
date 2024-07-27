@@ -27,6 +27,7 @@ from .utils import get_active_tariff
 from .utils.tariff_overrides import async_get_tariff_override
 
 from .const import (
+  CONFIG_FAVOUR_DIRECT_DEBIT_RATES,
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
   CONFIG_KIND_TARIFF_COMPARISON,
@@ -56,7 +57,7 @@ from .const import (
   REPAIR_UNIQUE_RATES_CHANGED_KEY
 )
 
-ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "text", "number", "switch", "time", "event"]
+ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "number", "switch", "time", "event"]
 TARGET_RATE_PLATFORMS = ["binary_sensor"]
 COST_TRACKER_PLATFORMS = ["sensor"]
 TARIFF_COMPARISON_PLATFORMS = ["sensor"]
@@ -234,12 +235,16 @@ async def async_setup_dependencies(hass, config):
   if CONFIG_MAIN_GAS_PRICE_CAP in config:
     gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
 
+  favour_direct_debit_rates = True
+  if CONFIG_FAVOUR_DIRECT_DEBIT_RATES in config:
+    favour_direct_debit_rates = config[CONFIG_FAVOUR_DIRECT_DEBIT_RATES]
+
   _LOGGER.info(f'electricity_price_cap: {electricity_price_cap}')
   _LOGGER.info(f'gas_price_cap: {gas_price_cap}')
 
   # Close any existing clients, as our new client may have changed
   await _async_close_client(hass, account_id)
-  client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap)
+  client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap, favour_direct_debit_rates=favour_direct_debit_rates)
   hass.data[DOMAIN][account_id][DATA_CLIENT] = client
 
   if (CONFIG_MAIN_HOME_PRO_ADDRESS in config and
@@ -378,8 +383,14 @@ async def async_unload_entry(hass, entry):
     unload_ok = False
     if entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
       unload_ok = await hass.config_entries.async_unload_platforms(entry, ACCOUNT_PLATFORMS)
+      if unload_ok:
+        account_id = entry.data[CONFIG_ACCOUNT_ID]
+        await _async_close_client(hass, account_id)
+        hass.data[DOMAIN].pop(account_id)
+
     elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
       unload_ok = await hass.config_entries.async_unload_platforms(entry, TARGET_RATE_PLATFORMS)
+    
     elif entry.data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
       unload_ok = await hass.config_entries.async_unload_platforms(entry, COST_TRACKER_PLATFORMS)
 

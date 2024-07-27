@@ -6,6 +6,9 @@ from ..const import (
 from ..api_client.intelligent_device import IntelligentDevice
 
 class OctopusEnergyIntelligentSensor:
+  
+  _unrecorded_attributes = frozenset({"data_last_retrieved"})
+  
   def __init__(self, device: IntelligentDevice):
     """Init sensor"""
 

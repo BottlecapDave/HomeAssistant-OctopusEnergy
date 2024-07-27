@@ -20,7 +20,7 @@ class OctopusEnergyGasPreviousDayRates(OctopusEnergyGasSensor, EventEntity, Rest
   def __init__(self, hass: HomeAssistant, meter, point):
     """Init sensor."""
     # Pass coordinator to base class
-    OctopusEnergyGasSensor.__init__(self, hass, meter, point)
+    OctopusEnergyGasSensor.__init__(self, hass, meter, point, "event")
 
     self._hass = hass
     self._state = None

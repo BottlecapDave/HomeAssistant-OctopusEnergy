@@ -310,7 +310,7 @@ def get_valid_from(rate):
 def get_start(rate):
   return rate["start"]
     
-def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: datetime, tariff_code: str, price_cap: float = None):
+def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: datetime, tariff_code: str, price_cap: float = None, favour_direct_debit_rates = True):
   """Process the collection of rates to ensure they're in 30 minute periods"""
   starting_period_from = period_from
   results = []
@@ -321,6 +321,15 @@ def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: da
     # We need to normalise our data into 30 minute increments so that all of our rates across all tariffs are the same and it's 
     # easier to calculate our target rate sensors
     for item in items:
+
+      if ("payment_method" in item and
+          item["payment_method"] is not None and
+          (
+            (item["payment_method"].lower() == "direct_debit" and favour_direct_debit_rates != True) or
+            (item["payment_method"].lower() != "direct_debit" and favour_direct_debit_rates != False)
+          )):
+        continue
+
       value_inc_vat = float(item["value_inc_vat"])
 
       is_capped = False
@@ -382,7 +391,7 @@ class OctopusEnergyApiClient:
   _refresh_token_lock = RLock()
   _session_lock = RLock()
 
-  def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None, timeout_in_seconds = 20):
+  def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None, timeout_in_seconds = 20, favour_direct_debit_rates = True):
     if (api_key is None):
       raise Exception('API KEY is not set')
 
@@ -396,6 +405,7 @@ class OctopusEnergyApiClient:
 
     self._electricity_price_cap = electricity_price_cap
     self._gas_price_cap = gas_price_cap
+    self._favour_direct_debit_rates = favour_direct_debit_rates
 
     self._timeout = aiohttp.ClientTimeout(total=None, sock_connect=timeout_in_seconds, sock_read=timeout_in_seconds)
     self._default_headers = { "user-agent": f'{user_agent_value}/{INTEGRATION_VERSION}' }
@@ -754,7 +764,7 @@ class OctopusEnergyApiClient:
           if data is None:
             return None
           else:
-            results = results + rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap)
+            results = results + rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap, self._favour_direct_debit_rates)
             has_more_rates = "next" in data and data["next"] is not None
             if has_more_rates:
               page = page + 1
@@ -780,9 +790,9 @@ class OctopusEnergyApiClient:
           return None
         else:
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our day period 
-          day_rates = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap)
+          day_rates = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap, self._favour_direct_debit_rates)
           for rate in day_rates:
-            if (self.__is_night_rate(rate, is_smart_meter)) == False:
+            if self.__is_night_rate(rate, is_smart_meter) == False:
               results.append(rate)
 
       url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/night-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
@@ -792,9 +802,9 @@ class OctopusEnergyApiClient:
           return None
 
         # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our night period 
-        night_rates = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap)
+        night_rates = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap, self._favour_direct_debit_rates)
         for rate in night_rates:
-          if (self.__is_night_rate(rate, is_smart_meter)) == True:
+          if self.__is_night_rate(rate, is_smart_meter) == True:
             results.append(rate)
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
@@ -869,7 +879,7 @@ class OctopusEnergyApiClient:
         if data is None:
           return None
         else:
-          results = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._gas_price_cap)
+          results = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._gas_price_cap, self._favour_direct_debit_rates)
 
       return results
     

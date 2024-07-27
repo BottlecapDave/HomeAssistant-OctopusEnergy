@@ -9,6 +9,9 @@ from ..const import (
   CONFIG_ACCOUNT_ID,
   CONFIG_TARGET_END_TIME,
   CONFIG_TARGET_HOURS,
+  CONFIG_TARGET_HOURS_MODE,
+  CONFIG_TARGET_HOURS_MODE_EXACT,
+  CONFIG_TARGET_HOURS_MODE_MINIMUM,
   CONFIG_TARGET_MAX_RATE,
   CONFIG_TARGET_MIN_RATE,
   CONFIG_TARGET_MPAN,
@@ -74,6 +77,10 @@ async def async_migrate_target_config(version: int, data: {}, get_entries):
     for entry in entries:
       if CONFIG_ACCOUNT_ID in entry.data:
         new_data[CONFIG_ACCOUNT_ID] = entry.data[CONFIG_ACCOUNT_ID]
+
+  if (version <= 4):
+    if CONFIG_TARGET_HOURS_MODE not in new_data:
+      new_data[CONFIG_TARGET_HOURS_MODE] = CONFIG_TARGET_HOURS_MODE_EXACT
 
   return new_data
 
@@ -191,7 +198,14 @@ def validate_target_rate_config(data, account_info, now):
         errors[CONFIG_TARGET_WEIGHTING] = "invalid_weighting_slots"
 
     if data[CONFIG_TARGET_TYPE] != CONFIG_TARGET_TYPE_CONTINUOUS:
-      errors[CONFIG_TARGET_WEIGHTING] = "weighting_not_supported"
+      errors[CONFIG_TARGET_WEIGHTING] = "weighting_not_supported_for_type"
+    
+    if CONFIG_TARGET_HOURS_MODE in data and data[CONFIG_TARGET_HOURS_MODE] != CONFIG_TARGET_HOURS_MODE_EXACT:
+      errors[CONFIG_TARGET_WEIGHTING] = "weighting_not_supported_for_hour_mode"
+
+  if CONFIG_TARGET_HOURS_MODE in data and data[CONFIG_TARGET_HOURS_MODE] == CONFIG_TARGET_HOURS_MODE_MINIMUM:
+    if (CONFIG_TARGET_MIN_RATE not in data or data[CONFIG_TARGET_MIN_RATE] is None) and (CONFIG_TARGET_MAX_RATE not in data or data[CONFIG_TARGET_MAX_RATE] is None):
+      errors[CONFIG_TARGET_HOURS_MODE] = "minimum_or_maximum_rate_not_specified"
 
   start_time = data[CONFIG_TARGET_START_TIME] if CONFIG_TARGET_START_TIME in data and data[CONFIG_TARGET_START_TIME] is not None else "00:00"
   end_time = data[CONFIG_TARGET_END_TIME] if CONFIG_TARGET_END_TIME in data and data[CONFIG_TARGET_END_TIME] is not None else "00:00"

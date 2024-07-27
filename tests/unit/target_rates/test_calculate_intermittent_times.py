@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from custom_components.octopus_energy.const import CONFIG_TARGET_HOURS_MODE_MAXIMUM, CONFIG_TARGET_HOURS_MODE_MINIMUM
 import pytest
 
 from unit import (create_rate_data, agile_rates)
@@ -391,3 +392,162 @@ async def test_when_max_rate_is_provided_then_result_does_not_include_any_rate_b
     assert result[index]["start"] == expected_valid_froms[index]
     assert result[index]["end"] == expected_valid_froms[index] + timedelta(minutes=30)
     assert result[index]["value_inc_vat"] == expected_rates[index]
+
+@pytest.mark.asyncio
+async def test_when_hour_mode_is_maximum_and_not_enough_hours_available_then_reduced_target_rates_returned():
+  # Arrange
+  current_date = datetime.strptime("2022-10-22T16:10:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  target_start_time = "12:00"
+  target_end_time = "16:00"
+  max_rate = 0.19
+
+  rates = create_rate_data(
+    datetime.strptime("2022-10-22T16:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2022-10-23T16:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    [19.1, 18.9, 19.5, 18.9, 20.1, 18.9]
+  )
+
+  applicable_rates = get_applicable_rates(
+    current_date,
+    target_start_time,
+    target_end_time,
+    rates,
+    False
+  )
+
+  # Act
+  result = calculate_intermittent_times(
+    applicable_rates,
+    3,
+    True,
+    max_rate=max_rate,
+    hours_mode=CONFIG_TARGET_HOURS_MODE_MAXIMUM
+  )
+
+  # Assert
+  assert result is not None
+  assert len(result) == 4
+
+  expected_valid_from = datetime.strptime("2022-10-23T12:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  for index in range(0, 4):
+    assert result[index]["start"] == expected_valid_from
+    assert result[index]["end"] == expected_valid_from + timedelta(minutes=30)
+    expected_valid_from = expected_valid_from + timedelta(minutes=60)
+    assert result[index]["value_inc_vat"] == 0.189
+
+@pytest.mark.asyncio
+async def test_when_hour_mode_is_maximum_and_more_than_enough_hours_available_then_target_rates_returned():
+  # Arrange
+  current_date = datetime.strptime("2022-10-22T16:10:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  target_start_time = "16:00"
+  target_end_time = "16:00"
+
+  rates = create_rate_data(
+    datetime.strptime("2022-10-22T16:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2022-10-23T16:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    [19.1, 18.9, 19.5, 18.9, 20.1, 18.9]
+  )
+
+  applicable_rates = get_applicable_rates(
+    current_date,
+    target_start_time,
+    target_end_time,
+    rates,
+    False
+  )
+
+  # Act
+  result = calculate_intermittent_times(
+    applicable_rates,
+    3,
+    False,
+    hours_mode=CONFIG_TARGET_HOURS_MODE_MAXIMUM
+  )
+
+  # Assert
+  assert result is not None
+  assert len(result) == 6
+
+  expected_valid_from = datetime.strptime("2022-10-22T16:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  for index in range(0, 6):
+    assert result[index]["start"] == expected_valid_from
+    assert result[index]["end"] == expected_valid_from + timedelta(minutes=30)
+    expected_valid_from = expected_valid_from + timedelta(minutes=60)
+    assert result[index]["value_inc_vat"] == 0.189
+
+@pytest.mark.asyncio
+async def test_when_hour_mode_is_minimum_and_not_enough_hours_available_then_no_target_rates_returned():
+  # Arrange
+  current_date = datetime.strptime("2022-10-22T16:10:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  target_start_time = "12:00"
+  target_end_time = "16:00"
+  max_rate = 0.19
+
+  rates = create_rate_data(
+    datetime.strptime("2022-10-22T16:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2022-10-23T16:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    [19.1, 18.9, 19.5, 18.9, 20.1, 18.9]
+  )
+
+  applicable_rates = get_applicable_rates(
+    current_date,
+    target_start_time,
+    target_end_time,
+    rates,
+    False
+  )
+
+  # Act
+  result = calculate_intermittent_times(
+    applicable_rates,
+    3,
+    False,
+    max_rate=max_rate,
+    hours_mode=CONFIG_TARGET_HOURS_MODE_MINIMUM
+  )
+
+  # Assert
+  assert result is not None
+  assert len(result) == 0
+
+@pytest.mark.asyncio
+async def test_when_hour_mode_is_minimum_and_more_than_enough_hours_available_then_target_rates_returned():
+  # Arrange
+  current_date = datetime.strptime("2022-10-22T16:10:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  target_start_time = "16:00"
+  target_end_time = "16:00"
+  max_rate = 0.19
+
+  rates = create_rate_data(
+    datetime.strptime("2022-10-22T16:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2022-10-23T16:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+    [19.1, 18.9, 19.5, 18.9, 20.1, 18.9]
+  )
+
+  applicable_rates = get_applicable_rates(
+    current_date,
+    target_start_time,
+    target_end_time,
+    rates,
+    False
+  )
+
+  # Act
+  result = calculate_intermittent_times(
+    applicable_rates,
+    3,
+    False,
+    max_rate=max_rate,
+    hours_mode=CONFIG_TARGET_HOURS_MODE_MINIMUM
+  )
+
+  # Assert
+  assert result is not None
+  assert len(result) == 24
+
+  expected_valid_from = datetime.strptime("2022-10-22T16:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  for index in range(0, 24):
+    assert result[index]["start"] == expected_valid_from
+    assert result[index]["end"] == expected_valid_from + timedelta(minutes=30)
+    expected_valid_from = expected_valid_from + timedelta(minutes=60)
+    assert result[index]["value_inc_vat"] == 0.189
