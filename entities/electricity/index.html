@@ -820,63 +820,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#tariff-overrides" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tariff Overrides
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Tariff Overrides">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#previous-accumulative-cost-override-tariff" class="md-nav__link">
-    <span class="md-ellipsis">
-      Previous Accumulative Cost Override Tariff
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Previous Accumulative Cost Override Tariff">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#how-to-use" class="md-nav__link">
-    <span class="md-ellipsis">
-      How To Use
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#previous-accumulative-cost-override" class="md-nav__link">
-    <span class="md-ellipsis">
-      Previous Accumulative Cost Override
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#previous-consumption-override-day-rates" class="md-nav__link">
-    <span class="md-ellipsis">
-      Previous Consumption Override Day Rates
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -1609,63 +1552,6 @@
   
 </li>
       
-        <li class="md-nav__item">
-  <a href="#tariff-overrides" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tariff Overrides
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Tariff Overrides">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#previous-accumulative-cost-override-tariff" class="md-nav__link">
-    <span class="md-ellipsis">
-      Previous Accumulative Cost Override Tariff
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Previous Accumulative Cost Override Tariff">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#how-to-use" class="md-nav__link">
-    <span class="md-ellipsis">
-      How To Use
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#previous-accumulative-cost-override" class="md-nav__link">
-    <span class="md-ellipsis">
-      Previous Accumulative Cost Override
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#previous-consumption-override-day-rates" class="md-nav__link">
-    <span class="md-ellipsis">
-      Previous Consumption Override Day Rates
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
     </ul>
   
 </nav>
@@ -2198,11 +2084,6 @@
 <td>Collection of consumption periods for the previous day broken down into 30 minute periods.</td>
 </tr>
 <tr>
-<td><code>last_evaluated</code></td>
-<td><code>datetime</code></td>
-<td>The date/time that the consumption sensor was last evaluated.</td>
-</tr>
-<tr>
 <td><code>latest_available_data_timestamp</code></td>
 <td><code>datetime</code></td>
 <td>The date/time of the latest available consumption data via the API. This is only for data reported directly by the meter and won't include data reported by other devices (e.g. Octopus Home Mini)</td>
@@ -2339,11 +2220,6 @@
 <td><code>charges</code></td>
 <td><code>array</code></td>
 <td>Collection of consumption periods and costs for the previous day broken down into 30 minute periods.</td>
-</tr>
-<tr>
-<td><code>last_evaluated</code></td>
-<td><code>datetime</code></td>
-<td>The timestamp determining when the cost was last evaluated.</td>
 </tr>
 <tr>
 <td><code>data_last_retrieved</code></td>
@@ -2493,7 +2369,7 @@
 <p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_consumption</code></p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>This will only be available if you have specified you have a <a href="../../setup/account/#home-mini">Octopus Home Mini</a> or have configured an <a href="../../setup/account/#home-pro">Octopus Home Pro</a>. Do not set unless you have one.</p>
+<p>This will only be available if you have specified you have an <a href="../../setup/account/#home-mini">Octopus Home Mini</a>. Do not set unless you have one.</p>
 </div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -2512,9 +2388,9 @@
 </thead>
 <tbody>
 <tr>
-<td><code>last_evaluated</code></td>
+<td><code>data_last_retrieved</code></td>
 <td><code>datetime</code></td>
-<td>The datetime the data was last evaluated</td>
+<td>The timestamp when the underlying data was last refreshed from the OE servers</td>
 </tr>
 </tbody>
 </table>
@@ -2522,9 +2398,9 @@
 <p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_demand</code></p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>This will only be available if you have specified you have a <a href="../../setup/account/#home-mini">Octopus Home Mini</a> or have configured an <a href="../../setup/account/#home-pro">Octopus Home Pro</a>. Do not set unless you have one.</p>
+<p>This will only be available if you have specified you have an <a href="../../setup/account/#home-mini">Octopus Home Mini</a> or have configured an <a href="../../setup/account/#home-pro">Octopus Home Pro</a>. Do not set unless you have one.</p>
 </div>
-<p>The current demand reported by the Home Mini. This will try and update every minute.</p>
+<p>The current demand reported by the Home Mini/Pro. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.</p>
 <table>
 <thead>
 <tr>
@@ -2535,9 +2411,9 @@
 </thead>
 <tbody>
 <tr>
-<td><code>last_evaluated</code></td>
+<td><code>data_last_retrieved</code></td>
 <td><code>datetime</code></td>
-<td>The datetime the data was last evaluated</td>
+<td>The timestamp when the underlying data was last refreshed from the OE servers or Home Pro device</td>
 </tr>
 </tbody>
 </table>
@@ -2545,7 +2421,7 @@
 <p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption</code></p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>This will only be available if you have specified you have a <a href="../../setup/account/#home-mini">Octopus Home Mini</a> or have configured an <a href="../../setup/account/#home-pro">Octopus Home Pro</a>. Do not set unless you have one.</p>
+<p>This will only be available if you have specified you have an <a href="../../setup/account/#home-mini">Octopus Home Mini</a>. Do not set unless you have one.</p>
 </div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -2624,13 +2500,13 @@
 <p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_total_consumption</code></p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>This will only be available if you have specified you have a <a href="../../setup/account/#home-mini">Octopus Home Mini</a> or have configured an <a href="../../setup/account/#home-pro">Octopus Home Pro</a>. Do not set unless you have one.</p>
+<p>This will only be available if you have specified you have an <a href="../../setup/account/#home-mini">Octopus Home Mini</a> or have configured an <a href="../../setup/account/#home-pro">Octopus Home Pro</a>. Do not set unless you have one.</p>
 </div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>An export equivalent of this sensor does not exist because the data is not available</p>
 </div>
-<p>The total consumption reported by the meter for all time.</p>
+<p>The total consumption reported by the meter for all time. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.</p>
 <table>
 <thead>
 <tr>
@@ -2666,7 +2542,7 @@
 <p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost</code></p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>This will only be available if you have specified you have a <a href="../../setup/account/#home-mini">Octopus Home Mini</a> or have configured an <a href="../../setup/account/#home-pro">Octopus Home Pro</a>. Do not set unless you have one.</p>
+<p>This will only be available if you have specified you have an <a href="../../setup/account/#home-mini">Octopus Home Mini</a>. Do not set unless you have one.</p>
 </div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -2822,100 +2698,6 @@
 <p class="admonition-title">Info</p>
 <p>An export equivalent of this sensor does not exist because the data is not available</p>
 </div>
-<h2 id="tariff-overrides">Tariff Overrides<a class="headerlink" href="#tariff-overrides" title="Permanent link">#</a></h2>
-<p>You may be on an existing tariff but want to know if the grass is greener (or cheaper) on the other side. The following entities are available in a disabled state, which when enabled can give you an indication what you'd be paying if you were on a different tariff and didn't change your energy habits.</p>
-<p>See <a href="#previous-accumulative-cost-override-tariff">below</a> for instructions on how to set up.</p>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
-<p>When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.</p>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This approach to tariff overrides has been marked as deprecated in favour of <a href="../../setup/tariff_comparison/">tariff comparisons</a>.</p>
-</div>
-<h3 id="previous-accumulative-cost-override-tariff">Previous Accumulative Cost Override Tariff<a class="headerlink" href="#previous-accumulative-cost-override-tariff" title="Permanent link">#</a></h3>
-<p><code>text.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_override_tariff</code></p>
-<p>This is used to define the electricity tariff you want to compare.</p>
-<h4 id="how-to-use">How To Use<a class="headerlink" href="#how-to-use" title="Permanent link">#</a></h4>
-<p>Instructions on how to find tariffs can be found in the <a href="../../faq/#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff">faq</a>.</p>
-<p>Once you have found your target tariff</p>
-<ol>
-<li>Click on this entity to open the info dialog.</li>
-<li>Enter your tariff in the text box, and hit <code>enter</code> on your keyboard to confirm</li>
-</ol>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
-<p>When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.</p>
-</div>
-<h3 id="previous-accumulative-cost-override">Previous Accumulative Cost Override<a class="headerlink" href="#previous-accumulative-cost-override" title="Permanent link">#</a></h3>
-<p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_override</code></p>
-<p>This is the cost of the previous electricity accumulation based on the specified tariff override.</p>
-<p>For attributes, see <a href="#previous-accumulative-cost">Previous Accumulative Cost</a>.</p>
-<h3 id="previous-consumption-override-day-rates">Previous Consumption Override Day Rates<a class="headerlink" href="#previous-consumption-override-day-rates" title="Permanent link">#</a></h3>
-<p><code>event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_consumption_override_rates</code></p>
-<p>The state of this sensor states when the previous consumption override's rates were last updated. The attributes of this sensor exposes the previous consumption override's rates. </p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>.</p>
-</div>
-<table>
-<thead>
-<tr>
-<th>Attribute</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>rates</code></td>
-<td><code>array</code></td>
-<td>The list of rates applicable for the previous consumption override</td>
-</tr>
-<tr>
-<td><code>tariff_code</code></td>
-<td><code>string</code></td>
-<td>The tariff code associated with previous consumption override's rates</td>
-</tr>
-</tbody>
-</table>
-<p>Each rate item has the following attributes</p>
-<table>
-<thead>
-<tr>
-<th>Attribute</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>start</code></td>
-<td><code>datetime</code></td>
-<td>The date/time when the rate starts</td>
-</tr>
-<tr>
-<td><code>end</code></td>
-<td><code>datetime</code></td>
-<td>The date/time when the rate ends</td>
-</tr>
-<tr>
-<td><code>value_inc_vat</code></td>
-<td><code>float</code></td>
-<td>The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01)</td>
-</tr>
-<tr>
-<td><code>is_capped</code></td>
-<td><code>boolean</code></td>
-<td>Indicates if the rate has been capped by a <a href="../../setup/account/#pricing-caps">configured price cap</a></td>
-</tr>
-<tr>
-<td><code>is_intelligent_adjusted</code></td>
-<td><code>boolean</code></td>
-<td>Indicates if the rate has been adjusted due to a dispatch organised by an intelligent tariff</td>
-</tr>
-</tbody>
-</table>
 
 
 

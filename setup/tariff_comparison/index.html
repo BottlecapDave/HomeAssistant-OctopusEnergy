@@ -1111,12 +1111,22 @@
 <h2 id="cost-override">Cost Override<a class="headerlink" href="#cost-override" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_{{TARIFF COMPARISON NAME}}</code> for electricity based meters; <code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost_{{TARIFF COMPARISON NAME}}</code> for gas based meters.</p>
 <p>This will display the cost of your previous accumulative consumption against the elected tariff.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>These sensors will compare the same time period as the <a href="../../entities/electricity/#previous-accumulative-consumption">electricity previous accumulative consumption</a> or <a href="../../entities/gas/#previous-accumulative-consumption-m3">gas previous accumulative consumption</a>. </p>
+<p>If you have changed the <a href="../account/#previous-consumption-days-offset">offset</a>, then this sensor will use the same offset.</p>
+</div>
 <h3 id="previous-consumption-override-day-rates">Previous Consumption Override Day Rates<a class="headerlink" href="#previous-consumption-override-day-rates" title="Permanent link">#</a></h3>
 <p><code>event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_consumption_rates_{{TARIFF COMPARISON NAME}}</code> for electricity based meters; <code>event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_consumption_rates_{{TARIFF COMPARISON NAME}}</code> for gas based meters.</p>
 <p>The state of this sensor states when the previous consumption tariff comparison rates were last updated. The attributes of this sensor exposes the previous consumption tariff comparison rates. </p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>These sensors will provide rates for the same time period as the <a href="../../entities/electricity/#previous-accumulative-consumption">electricity previous accumulative consumption</a> or <a href="../../entities/gas/#previous-accumulative-consumption-m3">gas previous accumulative consumption</a>. </p>
+<p>If you have changed the <a href="../account/#previous-consumption-days-offset">offset</a>, then this sensor will use the same offset.</p>
 </div>
 <table>
 <thead>

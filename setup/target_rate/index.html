@@ -420,6 +420,48 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#hours-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hours Mode
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Hours Mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#exact-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exact (default)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimum" class="md-nav__link">
+    <span class="md-ellipsis">
+      Minimum
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#maximum" class="md-nav__link">
+    <span class="md-ellipsis">
+      Maximum
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#offset" class="md-nav__link">
     <span class="md-ellipsis">
       Offset
@@ -1113,6 +1155,48 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#hours-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Hours Mode
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Hours Mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#exact-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      Exact (default)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimum" class="md-nav__link">
+    <span class="md-ellipsis">
+      Minimum
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#maximum" class="md-nav__link">
+    <span class="md-ellipsis">
+      Maximum
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#offset" class="md-nav__link">
     <span class="md-ellipsis">
       Offset
@@ -1250,13 +1334,69 @@
 <p>If you're wanting your devices to come on during a certain timeframe, for example while you're at work, you can set the minimum and/or maximum times for your target rate sensor. These are specified in 24 hour clock format and will attempt to find the optimum discovered period during these times.</p>
 <p>The <code>from/start</code> time can be set in the field <code>The minimum time to start the device</code> and the <code>to/end</code> time can be set in the field <code>The maximum time to stop the device</code>.</p>
 <p>If not specified, these default from <code>00:00:00</code> to <code>00:00:00</code> the following day.</p>
-<p>If for example you want to look at prices overnight you could set the minimum time to something like <code>20:00</code> and your maximum time to something like <code>05:00</code>. If the minimum time is "before" the maximum time, then it will treat the maximum time as the time for the following day.</p>
+<p>If for example you want to look at prices overnight you could set the minimum time to something like <code>20:00</code> and your maximum time to something like <code>05:00</code>. If the minimum time is "after" the maximum time, then it will treat the maximum time as the time for the following day.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>The target rate will not be evaluated until <strong>all rates</strong> are available for the specified timeframe. Therefore if we're looking between <code>00:00</code> and <code>00:00</code>, full rate information must exist between this time. Whereas if times are between <code>10:00</code> and <code>16:00</code>, then rate information is only needed between these times before it can be calculated.</p>
 </div>
 <h4 id="agile-users">Agile Users<a class="headerlink" href="#agile-users" title="Permanent link">#</a></h4>
-<p>If you are an agile user, then agile prices are available from <a href="https://developer.octopus.energy/docs/api/#agile-octopus">11pm to 11pm UK time</a> and published at <code>16:00</code> UK time. Therefore, you cannot specify a timeframe that starts before <code>16:00</code> and ends after <code>23:00</code> because the target rate(s) will not be able to be calculated until part way through the specified timeframe as this is when the full set will become available. We recommend you set your timeframes to <code>16:00</code>/<code>16:00</code> or <code>23:00</code>/<code>23:00</code> if you're wanting to target a full 24 hours, but other valid times might include</p>
+<p>If you are an agile user, then agile prices are available from <strong>11pm to 11pm UK time</strong> and published between <a href="https://octopus.energy/smart/agile/"><code>16:00</code> and <code>20:00</code> UK time</a>. </p>
+<p>Therefore, you cannot specify a timeframe that starts before <code>16:00</code> and ends after <code>23:00</code> because the target rate(s) will not be able to be calculated until part way through the specified timeframe as this is when the full set of rate information will become available. This is best illustrated with the following example, where lets say you wanted a target rate sensor to look at between <code>00:00</code> and <code>00:00</code> the next day (24 hours). Your initial available data would potentially look like the following</p>
+<table>
+<thead>
+<tr>
+<th>start</th>
+<th>end</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2023-01-01T00:00</code></td>
+<td><code>2023-01-01T00:30</code></td>
+<td>6</td>
+</tr>
+<tr>
+<td><code>2023-01-01T00:30</code></td>
+<td><code>2023-01-01T05:00</code></td>
+<td>12</td>
+</tr>
+<tr>
+<td><code>2023-01-01T05:00</code></td>
+<td><code>2023-01-01T05:30</code></td>
+<td>7</td>
+</tr>
+<tr>
+<td><code>2023-01-01T05:30</code></td>
+<td><code>2023-01-01T18:00</code></td>
+<td>20</td>
+</tr>
+<tr>
+<td><code>2023-01-01T18:00</code></td>
+<td><code>2023-01-01T23:00</code></td>
+<td>34</td>
+</tr>
+</tbody>
+</table>
+<p>Where the last hour of data isn't available (because agile doesn't provide this data in the initial batch), which means the target rate sensor can't calculate the best time because it doesn't have the full data set available. If agile rate data for the next 24 hour period then became available at <code>16:30</code> and looked like the following</p>
+<table>
+<thead>
+<tr>
+<th>start</th>
+<th>end</th>
+<th>value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2023-01-01T23:00</code></td>
+<td><code>2023-01-02T00:00</code></td>
+<td>19</td>
+</tr>
+</tbody>
+</table>
+<p>We now have the full data set available for the target rate sensor to calculate the best time, which would be done close to when the agile data became available (e.g. around <code>16:30</code>). The result would be the target rate sensor would pick <code>2023-01-01T00:00</code> to <code>2023-01-01T00:30</code> or <code>2023-01-01T05:00</code> to <code>2023-01-01T05:30</code> because these are the cheapest times. However, these times are in the past because we're now at <code>16:30</code> and so our target rate sensor will never turn on. If a time in the future was picked to counteract this, then people would question why it didn't turn on during the cheapest times.</p>
+<p>Therefore, we recommend you set your timeframes to <code>16:00</code>/<code>16:00</code> or <code>23:00</code>/<code>23:00</code> if you're wanting to target a full 24 hours, however other valid times might include</p>
 <table>
 <thead>
 <tr>
@@ -1287,6 +1427,17 @@
 <p>See the examples below for how this can be used and how rates will be selected.</p>
 <h3 id="hours">Hours<a class="headerlink" href="#hours" title="Permanent link">#</a></h3>
 <p>The hours that you require for the sensor to find. This should be in decimal format and represent 30 minute increments. For example 30 minutes would be <code>0.5</code>, 1 hour would be <code>1</code> or <code>1.0</code>, 1 hour and 30 minutes would be <code>1.5</code>, etc.</p>
+<h3 id="hours-mode">Hours Mode<a class="headerlink" href="#hours-mode" title="Permanent link">#</a></h3>
+<p>There are three different modes that the target rate sensor can be set to, which determines how the specified hours should be interpreted</p>
+<h4 id="exact-default">Exact (default)<a class="headerlink" href="#exact-default" title="Permanent link">#</a></h4>
+<p>The target rate sensor will try to find the best times for the specified hours. If less than the target hours are discovered, the sensor will not come on at all. If there are more hours than required that meet the specified requirements (e.g. below a certain rate), then it will come on for the cheapest available times up to the specified hours.</p>
+<p>For instance if the cheapest period is between <code>2023-01-01T00:30</code> and <code>2023-01-01T05:00</code> and your target rate is for 1 hour, then it will come on between  <code>2023-01-01T00:30</code> and <code>2023-01-01T01:30</code>. If the available times are between <code>2023-01-01T00:30</code> and <code>2023-01-01T01:00</code>, then the sensor will not come on at all.</p>
+<h4 id="minimum">Minimum<a class="headerlink" href="#minimum" title="Permanent link">#</a></h4>
+<p>The target rate sensor will try to find the best times for the specified hours. If less than the target hours are discovered, the sensor will not come on at all. If there are more hours than required that meet the specified requirements (e.g. below a certain rate), then it will come on for all discovered times.</p>
+<p>For instance if the cheapest period is between <code>2023-01-01T00:30</code> and <code>2023-01-01T05:00</code> and your target rate is for 1 hour, then it will come on between  <code>2023-01-01T00:30</code> and <code>2023-01-01T05:00</code>. If the available times are between <code>2023-01-01T00:30</code> and <code>2023-01-01T01:00</code>, then the sensor will not come on at all.</p>
+<h4 id="maximum">Maximum<a class="headerlink" href="#maximum" title="Permanent link">#</a></h4>
+<p>The target rate sensor will try to find the best times for the specified hours. If less than the target hours are discovered, the sensor will come on for all times that are discovered. If there are more hours than required that meet the specified requirements (e.g. below a certain rate), then it will come on for the cheapest available times up to the specified hours.</p>
+<p>For instance if the cheapest period is between <code>2023-01-01T00:30</code> and <code>2023-01-01T05:00</code> and your target rate is for 1 hour, then it will come on between  <code>2023-01-01T00:30</code> and <code>2023-01-01T01:30</code>. If the available times are between <code>2023-01-01T00:30</code> and <code>2023-01-01T01:00</code>, then the sensor will come on between  <code>2023-01-01T00:30</code> and <code>2023-01-01T01:00</code>.</p>
 <h3 id="offset">Offset<a class="headerlink" href="#offset" title="Permanent link">#</a></h3>
 <p>You may want your target rate sensors to turn on a period of time before the optimum discovered period. For example, you may be turning on a robot vacuum cleaner for a 30 minute clean and want it to charge during the optimum period. For this, you'd use the <code>offset</code> field and set it to <code>-00:30:00</code>, which can be both positive and negative and go up to a maximum of 24 hours. This will shift when the sensor turns on relative to the optimum period. For example, if the optimum period is between <code>2023-01-18T10:00</code> and <code>2023-01-18T11:00</code> with an offset of <code>-00:30:00</code>, the sensor will turn on between <code>2023-01-18T09:30</code> and <code>2023-01-18T10:30</code>.</p>
 <h3 id="rolling-target">Rolling Target<a class="headerlink" href="#rolling-target" title="Permanent link">#</a></h3>
@@ -1308,10 +1459,14 @@
 <p>If this is checked, then the normal behaviour of the sensor will be reversed. This means if you target an <strong>import</strong> sensor, with this checked it will find the most expensive rates. Similarly if you target an <strong>export</strong> meter, with this checked it will find the cheapest rates.</p>
 <h3 id="minimummaximum-rates">Minimum/Maximum Rates<a class="headerlink" href="#minimummaximum-rates" title="Permanent link">#</a></h3>
 <p>There may be times that you want the target rate sensors to not take into account rates that are above or below a certain value (e.g. you don't want the sensor to turn on when rates go crazy or where it would be more beneficial to export).</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>If hours mode is set to <strong>minimum</strong>, then a minimum and/or maximum rate must be specified in order for the target rate sensor to know what the cut off is for discovered times.</p>
+</div>
 <h3 id="weighting">Weighting<a class="headerlink" href="#weighting" title="Permanent link">#</a></h3>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>This is only available for continuous target rate sensors</p>
+<p>This is only available for <strong>continuous</strong> target rate sensors in <strong>exact</strong> hours mode.</p>
 </div>
 <p>There may be times when the device you're wanting the target rate sensor to turn on doesn't have a consistent power draw. You can specify a weighting which can be applied to each discovered 30 minute slot. This can be specified in a few different ways. Take the following example weighting for a required 2 hours.</p>
 <ul>
@@ -1457,11 +1612,6 @@
 <td><code>target_times_last_evaluated</code></td>
 <td>datetime</td>
 <td>The datetime the target times collection was last evaluated. This will occur if all previous target times are in the past and all rates are available for the requested future time period. For example, if you are targeting 16:00 (day 1) to 16:00 (day 2), and you only have rates up to 23:00 (day 1), then the target rates won't be calculated.</td>
-</tr>
-<tr>
-<td><code>last_evaluated</code></td>
-<td><code>datetime</code></td>
-<td>The datetime the state of the sensor was last evaluated based on the current specified target times. This should update every minute</td>
 </tr>
 </tbody>
 </table>
@@ -1792,7 +1942,7 @@
       
     </span>
     <nav>
-      BottlecapDave, Ian Gibbs, Sam Reed
+      BottlecapDave, Ian Gibbs, Sam Reed, justwatchme
     </nav>
   </span>
 
