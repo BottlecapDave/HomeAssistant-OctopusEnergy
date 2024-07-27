@@ -25,7 +25,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyGreennessForecastHighlighted(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
   """Sensor for determining if the current forecast has been highlighted."""
   
-  _unrecorded_attributes = frozenset({"data_last_retrieved", "mpan", "mprn", "serial_number", "is_export", "is_smart_meter"})
+  _unrecorded_attributes = frozenset({"data_last_retrieved"})
 
   def __init__(self, hass: HomeAssistant, coordinator, account_id: str):
     """Init sensor."""

@@ -7,7 +7,7 @@ from ..api_client.intelligent_device import IntelligentDevice
 
 class OctopusEnergyIntelligentSensor:
   
-  _unrecorded_attributes = frozenset({"data_last_retrieved", "mpan", "mprn", "serial_number", "is_export", "is_smart_meter"})
+  _unrecorded_attributes = frozenset({"data_last_retrieved"})
   
   def __init__(self, device: IntelligentDevice):
     """Init sensor"""
