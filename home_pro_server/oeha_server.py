@@ -6,6 +6,8 @@ import requests
 
 han_host = os.getenv("HAN_API_HOST")
 auth_token = os.getenv("SERVER_AUTH_TOKEN")
+screen_host = os.getenv('SCREEN_API_HOST')
+app_name = os.getenv('APPLICATION_NAME')
 
 class RequestHandler(BaseHTTPRequestHandler):
   # Handle GET requests
@@ -20,13 +22,13 @@ class RequestHandler(BaseHTTPRequestHandler):
       self.end_headers()
       return
 
-    if self.path.startswith("/get_meter_consumption"):
+    if self.path.startswith(f"/get_meter_consumption"):
       # Set response status code
       self.send_response(200)
       # Set headers
       self.send_header("Content-type", "application/json")
       self.end_headers()
-      response = request_get_response("get_meter_consumption", params)
+      response = request_get_response(f"{han_host}/get_meter_consumption", params)
       if response.ok:
         self.wfile.write(to_response(response, "meter_consump"))
         return
@@ -37,7 +39,7 @@ class RequestHandler(BaseHTTPRequestHandler):
       # Set headers
       self.send_header("Content-type", "application/json")
       self.end_headers()
-      response = request_get_response("get_meter_status", params)
+      response = request_get_response(f"{han_host}/get_meter_status", params)
       if response.ok:
         self.wfile.write(to_response(response, "meter_status"))
         return
@@ -48,7 +50,7 @@ class RequestHandler(BaseHTTPRequestHandler):
       # Set headers
       self.send_header("Content-type", "application/json")
       self.end_headers()
-      response = request_get_response("get_meter_info", params)
+      response = request_get_response(f"{han_host}/get_meter_info", params)
       if response.ok:
         self.wfile.write(to_response(response, "meter_info"))
         return
@@ -56,10 +58,58 @@ class RequestHandler(BaseHTTPRequestHandler):
       self.send_response(404)
       self.send_header("Content-type", "text/plain")
       self.end_headers()
+  
+  def do_POST(self):
+    auth_header = self.headers.get('Authorization')
+    if auth_header == None or auth_header != auth_token:
+      self.send_response(401)
+      self.send_header('Content-type', 'text/html')
+      self.end_headers()
+      return
+    
+    if self.path.startswith("/screen"):
+      headers = {
+        "Authorization": f"Basic {os.environ['AUTH_TOKEN']}",
+        "Content-Type": "application/json"
+      }
 
-def request_get_response(api, params):
-  print(f"Calling API: {api}")
-  url = f"{han_host}/" + f"{api}"
+      response = requests.get(f"{screen_host}/api/v1/screen/application/{app_name}", headers=headers)
+      if not response.ok:
+        print("Failed to get screen info")
+        self.send_response(400)
+        # Set headers
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        return
+      
+      # Get first screen
+      first_screen = response.json()[0]
+      screen_id = first_screen['_id']
+      
+      screen_url = f"{screen_host}/api/v1/screen/{screen_id}"
+      print(f"Calling API (PATCH): {screen_url}")
+      data = (self.rfile.read(int(self.headers['content-length']))).decode('utf-8')
+      response = requests.patch(screen_url, headers=headers, data=data)
+      print(f"Response: {response.text}")
+      if not response.ok:
+        self.send_response(400)
+        # Set headers
+        self.send_header("Content-type", "application/json")
+        self.end_headers()
+        return
+      
+      # Set response status code
+      self.send_response(200)
+      # Set headers
+      self.send_header("Content-type", "application/json")
+      self.end_headers()
+    else:
+      self.send_response(404)
+      self.send_header("Content-type", "text/plain")
+      self.end_headers()
+
+def request_get_response(url, params):
+  print(f"Calling API (GET): {url}")
   response = requests.get(url, json=params)
   print(f"Response: {response.text}")
   return response
