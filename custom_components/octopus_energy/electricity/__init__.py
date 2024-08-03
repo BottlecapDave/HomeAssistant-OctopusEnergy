@@ -1,7 +1,10 @@
 import datetime
+import logging
 
 from ..utils.conversions import value_inc_vat_to_pounds
 from ..utils import get_off_peak_cost
+
+_LOGGER = logging.getLogger(__name__)
 
 def __get_to(item):
     return item["end"]
@@ -77,6 +80,10 @@ def calculate_electricity_consumption_and_cost(
       }
 
       return result
+    else:
+      _LOGGER.debug('Skipping electricity consumption and cost calculation as last reset has not changed')
+  else:
+    _LOGGER.debug(f'Skipping electricity consumption and cost calculation due to lack of data; consumption: {len(consumption_data) if consumption_data is not None else 0}; rates: {len(rate_data) if rate_data is not None else 0}; standing_charge: {standing_charge}')
 
 def get_electricity_tariff_override_key(serial_number: str, mpan: str) -> str:
   return f'electricity_previous_consumption_tariff_{serial_number}_{mpan}'
