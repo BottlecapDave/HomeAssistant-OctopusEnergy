@@ -1250,6 +1250,8 @@ class OctopusEnergyApiClient:
               device["chargePointModel"],
               float(device["chargePointPowerInKw"]) if "chargePointPowerInKw" in device and device["chargePointPowerInKw"] is not None else None
             )
+          else:
+            _LOGGER.debug('Skipping intelligent device as id is not available')
         else:
           _LOGGER.error("Failed to retrieve intelligent device")
       

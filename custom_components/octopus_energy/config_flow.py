@@ -1,4 +1,3 @@
-from custom_components.octopus_energy.config.tariff_comparison import async_validate_tariff_comparison_config, merge_tariff_comparison_config
 import voluptuous as vol
 import logging
 
@@ -76,6 +75,7 @@ from .const import (
 
   DATA_SCHEMA_ACCOUNT,
 )
+from .config.tariff_comparison import async_validate_tariff_comparison_config, merge_tariff_comparison_config
 
 from .utils import get_active_tariff
 
