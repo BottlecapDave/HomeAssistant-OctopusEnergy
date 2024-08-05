@@ -1,3 +1,10 @@
+## [12.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v12.0.0...v12.0.1) (2024-08-05)
+
+
+### Bug Fixes
+
+* Fixed issue where rate information wasn't retrieved for intelligent tariffs where an intelligent device wasn't available (2 hours dev time) ([50a7bdf](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/50a7bdf8c2b5d09b0d8d08820fae0db90c422718))
+
 # [12.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.2.2...v12.0.0) (2024-07-27)
 
 
