@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from custom_components.octopus_energy.api_client.intelligent_device import IntelligentDevice
 import pytest
 import mock
 
@@ -900,6 +901,17 @@ async def test_when_intelligent_dispatches_available_then_adjusted_requested_dat
       datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
+    intelligent_device = IntelligentDevice(
+      "1",
+      "TESLA",
+      "Tesla",
+      "Model Y",
+      75.0,
+      "MyEnergi",
+      "Zappi",
+      6.5 
+    )
+
     intelligent_dispatches = IntelligentDispatches(
       [], 
       [
@@ -926,6 +938,7 @@ async def test_when_intelligent_dispatches_available_then_adjusted_requested_dat
       is_electricity,
       is_smart_meter,
       fire_event,
+      intelligent_device,
       intelligent_dispatches
     )
 
@@ -968,7 +981,7 @@ async def test_when_intelligent_dispatches_available_then_adjusted_requested_dat
                          sensor_identifier)
     
 @pytest.mark.asyncio
-async def test_when_intelligent_tariff_and_no_dispatches_available_then_previous_result_returned():
+async def test_when_intelligent_tariff_and_intelligent_device_and_no_dispatches_available_then_previous_result_returned():
   # Arrange
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -1024,6 +1037,16 @@ async def test_when_intelligent_tariff_and_no_dispatches_available_then_previous
       datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
+    intelligent_device = IntelligentDevice(
+      "1",
+      "TESLA",
+      "Tesla",
+      "Model Y",
+      75.0,
+      "MyEnergi",
+      "Zappi",
+      6.5 
+    )
     intelligent_dispatches = None
 
     # Act
@@ -1039,12 +1062,122 @@ async def test_when_intelligent_tariff_and_no_dispatches_available_then_previous
       is_electricity,
       is_smart_meter,
       fire_event,
+      intelligent_device,
       intelligent_dispatches
     )
 
     # Assert
     assert result == previous_data
     assert len(actual_fired_events) == 0
+
+@pytest.mark.asyncio
+async def test_when_intelligent_tariff_and_intelligent_device_is_none_and_no_dispatches_available_then_rates_returned():
+  # Arrange
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+
+  async def async_mocked_get_electricity_consumption(*args, **kwargs):
+    return create_consumption_data(period_from, period_to)
+  
+  expected_rates = (
+    create_rate_data(period_from, datetime.strptime("2022-02-28T05:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), [1]) +
+    create_rate_data(datetime.strptime("2022-02-28T05:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), period_to, [2])
+  )
+  async def async_mocked_get_electricity_rates(*args, **kwargs):
+    return expected_rates
+  
+  expected_standing_charge = 100.2
+  async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
+    return {
+      "value_inc_vat": expected_standing_charge
+    }
+  
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_consumption=async_mocked_get_electricity_consumption, async_get_electricity_rates=async_mocked_get_electricity_rates, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
+    client = OctopusEnergyApiClient("NOT_REAL")
+
+    is_electricity = True
+    is_smart_meter = True
+
+    period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    
+    current_utc_timestamp = datetime.strptime(f'2022-02-12T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
+
+    account_info = get_account_info(period_from, electricity_product_code="INTELLI-BB-VAR-23-03-01", electricity_tariff_code="E-1R-INTELLI-BB-VAR-23-03-01-C")
+
+    previous_data = PreviousConsumptionCoordinatorResult(
+      current_utc_timestamp - timedelta(days=1),
+      1,
+      create_consumption_data(
+        datetime.strptime("2022-02-27T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+      ),
+      create_rate_data(
+        datetime.strptime("2022-02-27T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        [1, 2]
+      ),
+      10.1,
+      datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    )
+
+    intelligent_device = None
+    intelligent_dispatches = None
+
+    # Act
+    result = await async_fetch_consumption_and_rates(
+      previous_data,
+      current_utc_timestamp,
+      account_info,
+      client,
+      period_from,
+      period_to,
+      sensor_identifier,
+      sensor_serial_number,
+      is_electricity,
+      is_smart_meter,
+      fire_event,
+      intelligent_device,
+      intelligent_dispatches
+    )
+
+    # Assert
+    assert result is not None
+    assert result.last_retrieved == current_utc_timestamp
+
+    assert len(result.consumption) == 48
+
+    # Make sure our data is returned in 30 minute increments
+    expected_valid_from = period_from
+    for item in result.consumption:
+      expected_valid_to = expected_valid_from + timedelta(minutes=30)
+
+      assert "start" in item
+      assert item["start"] == expected_valid_from
+      assert "end" in item
+      assert item["end"] == expected_valid_to
+
+      expected_valid_from = expected_valid_to
+
+    assert len(result.rates) == len(expected_rates)
+    for index, rate in enumerate(result.rates):
+      assert result.rates[index] == expected_rates[index]
+    
+    assert result.standing_charge == expected_standing_charge
+
+    assert len(actual_fired_events) == 1
+    assert_raised_events(actual_fired_events,
+                         EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES,
+                         period_from,
+                         period_to,
+                         "mpan",
+                         sensor_identifier)
 
 @pytest.mark.asyncio
 async def test_when_electricity_tariff_not_found_then_previous_result_returned():
@@ -1108,8 +1241,6 @@ async def test_when_electricity_tariff_not_found_then_previous_result_returned()
       datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
-    intelligent_dispatches = None
-
     # Act
     result = await async_fetch_consumption_and_rates(
       previous_data,
@@ -1122,8 +1253,7 @@ async def test_when_electricity_tariff_not_found_then_previous_result_returned()
       sensor_serial_number,
       is_electricity,
       is_smart_meter,
-      fire_event,
-      intelligent_dispatches
+      fire_event
     )
 
     # Assert
@@ -1196,8 +1326,6 @@ async def test_when_gas_tariff_not_found_then_previous_result_returned():
       datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
-    intelligent_dispatches = None
-
     # Act
     result = await async_fetch_consumption_and_rates(
       previous_data,
@@ -1210,8 +1338,7 @@ async def test_when_gas_tariff_not_found_then_previous_result_returned():
       sensor_serial_number,
       is_electricity,
       is_smart_meter,
-      fire_event,
-      intelligent_dispatches
+      fire_event
     )
 
     # Assert
