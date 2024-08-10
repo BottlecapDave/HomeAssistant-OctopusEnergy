@@ -37,6 +37,7 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
     self._last_evaluated = None
     self._next_refresh = None
     self._request_attempts = 1
+    self._attributes = {}
 
     self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
 
