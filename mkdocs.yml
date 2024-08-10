@@ -17,6 +17,7 @@ nav:
     - Intelligent: ./entities/intelligent.md
     - Wheel Of Fortune: ./entities/wheel_of_fortune.md
     - Greenness Forecast: ./entities/greenness_forecast.md
+    - Home Pro: ./entities/home_pro.md
   - services.md
   - events.md
   - Repairs:

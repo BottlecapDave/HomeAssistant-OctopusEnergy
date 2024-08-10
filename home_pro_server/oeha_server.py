@@ -68,8 +68,29 @@ class RequestHandler(BaseHTTPRequestHandler):
       return
     
     if self.path.startswith("/screen"):
+      screen_auth_token = os.environ['AUTH_TOKEN']
+      if screen_auth_token is None or screen_auth_token == "":
+        self.send_response(401)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        output = json.dumps({
+          "error": "AUTH_TOKEN not set",
+        })
+        self.wfile.write(output.encode("utf8"))
+        return 
+      
+      if app_name is None or app_name == "":
+        self.send_response(401)
+        self.send_header('Content-type', 'text/html')
+        self.end_headers()
+        output = json.dumps({
+          "error": "APPLICATION_NAME not set",
+        })
+        self.wfile.write(output.encode("utf8"))
+        return
+
       headers = {
-        "Authorization": f"Basic {os.environ['AUTH_TOKEN']}",
+        "Authorization": f"Basic {screen_auth_token}",
         "Content-Type": "application/json"
       }
 
@@ -80,6 +101,11 @@ class RequestHandler(BaseHTTPRequestHandler):
         # Set headers
         self.send_header("Content-type", "application/json")
         self.end_headers()
+        output = json.dumps({
+          "error": "Failed to get screen info",
+          "native_response": response.text,
+        })
+        self.wfile.write(output.encode("utf8"))
         return
       
       # Get first screen
@@ -96,6 +122,11 @@ class RequestHandler(BaseHTTPRequestHandler):
         # Set headers
         self.send_header("Content-type", "application/json")
         self.end_headers()
+        output = json.dumps({
+          "error": "Failed to set screen screen info",
+          "native_response": response.text,
+        })
+        self.wfile.write(output.encode("utf8"))
         return
       
       # Set response status code
