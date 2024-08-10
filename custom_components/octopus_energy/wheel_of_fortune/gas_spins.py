@@ -33,6 +33,7 @@ class OctopusEnergyWheelOfFortuneGasSpins(CoordinatorEntity, RestoreSensor):
     self._account_id = account_id
     self._client = client
     self._state = None
+    self._attributes = {}
 
     self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
 

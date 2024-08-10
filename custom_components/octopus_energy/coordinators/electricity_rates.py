@@ -10,6 +10,7 @@ from homeassistant.helpers import issue_registry as ir
 
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
+  DATA_INTELLIGENT_DEVICE,
   DOMAIN,
   DATA_CLIENT,
   DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
@@ -30,6 +31,8 @@ from . import BaseCoordinatorResult, get_electricity_meter_tariff, raise_rate_ev
 from ..intelligent import adjust_intelligent_rates, is_intelligent_product
 from ..utils.rate_information import get_unique_rates, has_peak_rates
 from ..utils.tariff_cache import async_save_cached_tariff_total_unique_rates
+from ..api_client.intelligent_device import IntelligentDevice
+from ..api_client.intelligent_dispatches import IntelligentDispatches
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -52,8 +55,9 @@ async def async_refresh_electricity_rates_data(
     target_serial_number: str,
     is_smart_meter: bool,
     is_export_meter: bool,
-    existing_rates_result: ElectricityRatesCoordinatorResult,
-    dispatches_result: IntelligentDispatchesCoordinatorResult,
+    existing_rates_result: ElectricityRatesCoordinatorResult | None,
+    intelligent_device: IntelligentDevice | None,
+    dispatches_result: IntelligentDispatchesCoordinatorResult | None,
     planned_dispatches_supported: bool,
     fire_event: Callable[[str, "dict[str, Any]"], None],
     tariff_override = None,
@@ -68,7 +72,8 @@ async def async_refresh_electricity_rates_data(
       return None
     
     # We'll calculate the wrong value if we don't have our intelligent dispatches
-    if is_intelligent_product(tariff.product) and (dispatches_result is None or dispatches_result.dispatches is None):
+    if is_intelligent_product(tariff.product) and intelligent_device is not None and (dispatches_result is None or dispatches_result.dispatches is None):
+      _LOGGER.debug("Dispatches not available for intelligent tariff. Using existing rate information")
       return existing_rates_result
 
     new_rates = None
@@ -205,8 +210,9 @@ async def async_setup_electricity_rates_coordinator(hass,
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
     account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN][account_id] else None
     account_info = account_result.account if account_result is not None else None
-    dispatches: IntelligentDispatchesCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None
-    rates = hass.data[DOMAIN][account_id][key] if key in hass.data[DOMAIN][account_id] else None
+    intelligent_device: IntelligentDevice | None = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
+    dispatches: IntelligentDispatchesCoordinatorResult | None = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None
+    rates: ElectricityRatesCoordinatorResult | None = hass.data[DOMAIN][account_id][key] if key in hass.data[DOMAIN][account_id] else None
 
     hass.data[DOMAIN][account_id][key] = await async_refresh_electricity_rates_data(
       current,
@@ -217,6 +223,7 @@ async def async_setup_electricity_rates_coordinator(hass,
       is_smart_meter,
       is_export_meter,
       rates,
+      intelligent_device,
       dispatches,
       planned_dispatches_supported,
       hass.bus.async_fire,
