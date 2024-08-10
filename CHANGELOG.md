@@ -1,3 +1,11 @@
+## [12.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v12.0.1...v12.0.2) (2024-08-10)
+
+
+### Bug Fixes
+
+* Fixed issue where attributes were not initialised properly for certain sensors (15 minutes dev time) ([a21ec7d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a21ec7dfbcb8256d0d6de9beb28f2f156a53cf94))
+* Fixed issue where previous rate information wasn't retrieved for intelligent tariffs where an intelligent device wasn't available (30 minutes dev time) ([60aa853](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/60aa85389edde64ca7f8be7da69fefa91de6e0b3))
+
 ## [12.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v12.0.0...v12.0.1) (2024-08-05)
 
 
