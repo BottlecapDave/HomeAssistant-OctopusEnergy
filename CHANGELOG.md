@@ -3,7 +3,7 @@
 
 ### Features
 
-* Added support for setting Home Pro screen (3 hours dev time) ([a620052](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a620052fcff83c6a4c1a91c20c332970515b7bda))
+* Added support for setting Home Pro screen. You will need to [reinstall](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account/#prerequisites) the API on the Home Pro device to support this feature (3 hours dev time) ([a620052](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a620052fcff83c6a4c1a91c20c332970515b7bda))
 
 ## [12.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v12.0.1...v12.0.2) (2024-08-10)
 
