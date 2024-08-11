@@ -44,7 +44,11 @@ class OctopusEnergyHomeProScreenText(TextEntity, RestoreEntity):
   async def async_set_value(self, value: str) -> None:
     """Update the value."""
     self._attr_native_value = value
-    await self._client.async_set_screen(self._attr_native_value, "scroll", "text", 200, 100)
+    animation_type = "static"
+    if value is not None and len(value) > 3:
+      animation_type = "scroll"
+
+    await self._client.async_set_screen(self._attr_native_value, animation_type, "text", 200, 100)
     self.async_write_ha_state()
 
   async def async_added_to_hass(self):
