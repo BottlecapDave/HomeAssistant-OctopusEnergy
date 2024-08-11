@@ -83,6 +83,29 @@ class OctopusEnergyHomeProApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
     
+  async def async_set_screen(self, value: str, animation_type: str, type: str, brightness: int, animation_interval: int):
+    """Get the latest consumption"""
+
+    try:
+      client = self._create_client_session()
+      url = f'{self._base_url}/screen'
+      headers = { "Authorization": self._api_key }
+      payload = {
+        # API doesn't support none or empty string as a valid value
+        "value": f"{value}" if value is not None and value != "" else " ",
+        "animationType": f"{animation_type}",
+        "type": f"{type}",
+        "brightness": brightness,
+        "animationInterval": animation_interval
+      }
+
+      async with client.post(url, json=payload, headers=headers) as response:
+        await self.__async_read_response__(response, url)
+    
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+    
   async def __async_read_response__(self, response, url):
     """Reads the response, logging any json errors"""
 
@@ -102,12 +125,13 @@ class OctopusEnergyHomeProApiClient:
         _LOGGER.warning(msg)
         raise RequestException(msg, [])
       
-      _LOGGER.info(f"Response {response.status} for '{url}' received")
+      _LOGGER.info(f"Response {response.status} for '{url}' receivedL {text}")
       return None
 
     data_as_json = None
     try:
-      data_as_json = json.loads(text)
+      if text is not None and text != "":
+        data_as_json = json.loads(text)
     except:
       raise Exception(f'Failed to extract response json: {url}; {text}')
     
