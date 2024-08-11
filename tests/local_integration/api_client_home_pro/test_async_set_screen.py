@@ -30,3 +30,14 @@ async def test_when_set_screen_is_called_then_successful():
 
   # Act
   await client.async_set_screen("hello world", "scroll", "text", 200, 100)
+
+@pytest.mark.asyncio
+async def test_when_set_screen_is_called_with_empty_value_then_successful():
+  # Arrange
+  context = get_test_context()
+  
+  client = OctopusEnergyHomeProApiClient(context.base_url, context.api_key)
+
+  # Act
+  await client.async_set_screen("", "scroll", "text", 200, 100)
+  await client.async_set_screen(None, "scroll", "text", 200, 100)

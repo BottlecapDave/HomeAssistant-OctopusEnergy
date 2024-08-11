@@ -91,7 +91,8 @@ class OctopusEnergyHomeProApiClient:
       url = f'{self._base_url}/screen'
       headers = { "Authorization": self._api_key }
       payload = {
-        "value": f"{value}",
+        # API doesn't support none or empty string as a valid value
+        "value": f"{value}" if value is not None and value != "" else " ",
         "animationType": f"{animation_type}",
         "type": f"{type}",
         "brightness": brightness,
