@@ -11,6 +11,9 @@ The greenness index for the current period.
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
+!!! info
+    If you are wanting a nice way to display the upcoming forecast, then why not try a [community card](../community.md#greenness-forecast)?
+
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `start` | `datetime` | The time the current forecast period started |
