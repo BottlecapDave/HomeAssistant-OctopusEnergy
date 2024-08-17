@@ -28,6 +28,8 @@ _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
   """Sensor for determining if a saving session is active."""
+  
+  _unrecorded_attributes = frozenset({"data_last_retrieved"})
 
   def __init__(self, hass: HomeAssistant, coordinator, account_id: str):
     """Init sensor."""
@@ -45,7 +47,6 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
       "next_joined_event_end": None,
       "next_joined_event_duration_in_minutes": None,
       "data_last_retrieved": None,
-      "last_evaluated": None
     }
 
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
@@ -84,8 +85,7 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
       "next_joined_event_start": None,
       "next_joined_event_end": None,
       "next_joined_event_duration_in_minutes": None,
-      "data_last_retrieved": None,
-      "last_evaluated": None
+      "data_last_retrieved": None
     }
 
     saving_session: SavingSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
@@ -111,7 +111,6 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
       self._attributes["next_joined_event_end"] = next_event.end
       self._attributes["next_joined_event_duration_in_minutes"] = next_event.duration_in_minutes
 
-    self._attributes["last_evaluated"] = current_date
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 

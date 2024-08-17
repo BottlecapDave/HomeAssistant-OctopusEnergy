@@ -7,7 +7,9 @@ from ..const import (
 )
 
 class OctopusEnergyGasSensor:
-  def __init__(self, hass: HomeAssistant, meter, point):
+  _unrecorded_attributes = frozenset({"data_last_retrieved"})
+
+  def __init__(self, hass: HomeAssistant, meter, point, entity_domain = "sensor"):
     """Init sensor"""
     self._point = point
     self._meter = meter
@@ -21,7 +23,7 @@ class OctopusEnergyGasSensor:
       "serial_number": self._serial_number
     }
 
-    self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
+    self.entity_id = generate_entity_id(entity_domain + ".{}", self.unique_id, hass=hass)
 
     self._attr_device_info = DeviceInfo(
       identifiers={(DOMAIN, f"gas_{self._serial_number}_{self._mprn}")},

@@ -7,7 +7,9 @@ from ..const import (
 )
 
 class OctopusEnergyElectricitySensor:
-  def __init__(self, hass: HomeAssistant, meter, point):
+  _unrecorded_attributes = frozenset({"data_last_retrieved"})
+
+  def __init__(self, hass: HomeAssistant, meter, point, entity_domain = "sensor"):
     """Init sensor"""
     self._point = point
     self._meter = meter
@@ -26,7 +28,7 @@ class OctopusEnergyElectricitySensor:
       "is_smart_meter": self._is_smart_meter
     }
 
-    self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
+    self.entity_id = generate_entity_id(entity_domain + ".{}", self.unique_id, hass=hass)
 
     export_name_suffix = " Export" if self._is_export == True else ""
     self._attr_device_info = DeviceInfo(

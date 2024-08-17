@@ -195,7 +195,6 @@ The total consumption reported by the meter for the previous day.
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
 | `total` | `float` | The total energy value for the previous day. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
-| `last_evaluated` | `datetime` | The date/time that the consumption sensor was last evaluated. |
 | `latest_available_data_timestamp` | `datetime` | The date/time of the latest available consumption data via the API. This is only for data reported directly by the meter and won't include data reported by other devices (e.g. Octopus Home Mini) |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
@@ -285,7 +284,6 @@ The total cost for the previous day, including the standing charge.
 | `total_without_standing_charge` | `float` | The total cost of the previous day excluding the standing charge. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `total` | `float` | The total cost for the previous day. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `charges` | `array` | Collection of consumption periods and costs for the previous day broken down into 30 minute periods. |
-| `last_evaluated` | `datetime` | The timestamp determining when the cost was last evaluated. |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
 Each charge item has the following attributes
@@ -375,14 +373,14 @@ Each rate item has the following attributes
 
 If you export energy, then unless specified otherwise, in addition you'll gain the above entities with the name `export` present. E.g. `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_export_current_rate`.
 
-## Home Mini Entities
+## Home Mini/Pro Entities
 
 ### Current Consumption
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_consumption`
 
 !!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one.
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
@@ -395,27 +393,27 @@ If current consumption data is unable to be retrieved, then the integration will
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `last_evaluated` | `datetime` | The datetime the data was last evaluated |
+| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
 ### Current Demand
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_demand`
 
 !!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
 
-The current demand reported by the Home Mini. This will try and update every minute.
+The current demand reported by the Home Mini/Pro. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `last_evaluated` | `datetime` | The datetime the data was last evaluated |
+| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers or Home Pro device |
 
 ### Current Accumulative Consumption
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption`
 
 !!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one.
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
@@ -444,12 +442,12 @@ Each charge item has the following attributes
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_total_consumption`
 
 !!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
 
-The total consumption reported by the meter for all time.
+The total consumption reported by the meter for all time. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -463,7 +461,7 @@ The total consumption reported by the meter for all time.
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost`
 
 !!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one.
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
@@ -512,7 +510,7 @@ The total cost reported by the meter for the current day during off peak hours (
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 !!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
@@ -533,7 +531,7 @@ The total cost reported by the meter for the current day during standard hours (
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 !!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
@@ -554,72 +552,7 @@ The total cost reported by the meter for the current day during peak hours (the 
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
 !!! warning
-    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
+    This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
-
-## Tariff Overrides
-
-You may be on an existing tariff but want to know if the grass is greener (or cheaper) on the other side. The following entities are available in a disabled state, which when enabled can give you an indication what you'd be paying if you were on a different tariff and didn't change your energy habits.
-
-See [below](#previous-accumulative-cost-override-tariff) for instructions on how to set up.
-
-!!! info
-    
-    When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
-
-!!! warning
-
-    This approach to tariff overrides has been marked as deprecated in favour of [tariff comparisons](../setup/tariff_comparison.md).
-
-### Previous Accumulative Cost Override Tariff
-
-`text.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_override_tariff`
-
-This is used to define the electricity tariff you want to compare.
-
-#### How To Use
-
-Instructions on how to find tariffs can be found in the [faq](../faq.md#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff).
-
-Once you have found your target tariff
-
-1. Click on this entity to open the info dialog.
-2. Enter your tariff in the text box, and hit `enter` on your keyboard to confirm
-
-!!! info
-
-    When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
-
-### Previous Accumulative Cost Override
-
-`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_override`
-
-This is the cost of the previous electricity accumulation based on the specified tariff override.
-
-For attributes, see [Previous Accumulative Cost](#previous-accumulative-cost).
-
-### Previous Consumption Override Day Rates
-
-`event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_consumption_override_rates`
-
-The state of this sensor states when the previous consumption override's rates were last updated. The attributes of this sensor exposes the previous consumption override's rates. 
-
-!!! note
-    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `rates` | `array` | The list of rates applicable for the previous consumption override |
-| `tariff_code` | `string` | The tariff code associated with previous consumption override's rates |
-
-Each rate item has the following attributes
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `start` | `datetime` | The date/time when the rate starts |
-| `end` | `datetime` | The date/time when the rate ends |
-| `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup/account.md#pricing-caps) |
-| `is_intelligent_adjusted` | `boolean` | Indicates if the rate has been adjusted due to a dispatch organised by an intelligent tariff |

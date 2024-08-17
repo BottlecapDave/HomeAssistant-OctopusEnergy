@@ -45,7 +45,16 @@ async def test_when_get_consumption_is_called_then_data_is_returned(is_electrici
   assert len(data) == 1
 
   assert "demand" in data[0]
-  assert data[0]["demand"] >= 0
+  if is_electricity:
+    assert data[0]["demand"] >= 0
+  else:
+    assert data[0]["demand"] is None
 
   assert "total_consumption" in data[0]
-  assert data[0]["total_consumption"] >= 0
+  assert data[0]["total_consumption"] is None or data[0]["total_consumption"] >= 0
+
+  assert "start" in data[0]
+  assert "end" in data[0]
+
+  assert "is_kwh" in data[0]
+  assert data[0]["is_kwh"] == True

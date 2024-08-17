@@ -11,7 +11,6 @@ Determines the current Octoplus points balance. This sensor will only be availab
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `redeemable_points` | `integer` | The number of points that can be redeemed into account credit |
-| `last_evaluated` | `datetime` | The date/time the value was last evaluated |
 | `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
 
 ## Saving Sessions
@@ -28,7 +27,6 @@ Binary sensor to indicate if a saving session that the account has joined is act
 | `next_joined_event_start` | `datetime` | The datetime the next saving session will start |
 | `next_joined_event_end` | `datetime` | The datetime the next saving session will end |
 | `next_joined_event_duration_in_minutes` | `float` | The duration in minutes of the next saving session |
-| `last_evaluated` | `datetime` | The date/time the value was last evaluated |
 | `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
 
 ## Saving Session Events

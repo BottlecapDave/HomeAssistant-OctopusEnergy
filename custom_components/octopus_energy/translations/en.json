@@ -8,21 +8,23 @@
           "account_id": "Account ID (e.g. A-AAAA1111)",
           "api_key": "Api key",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
-          "live_consumption_refresh_in_minutes": "Home Mini refresh rate in minutes",
-          "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
-          "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
+          "live_electricity_consumption_refresh_in_minutes": "Home Mini/Pro electricity refresh rate in minutes",
+          "live_gas_consumption_refresh_in_minutes": "Home Mini/Pro gas refresh rate in minutes",
           "previous_electricity_consumption_days_offset": "Previous consumption electricity days offset",
           "previous_gas_consumption_days_offset": "Previous consumption gas days offset",
           "calorific_value": "Gas calorific value.",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence",
           "home_pro_address": "Home Pro address and port (e.g. http://localhost:8000)",
-          "home_pro_api_key": "Home Pro API key"
+          "home_pro_api_key": "Home Pro API key",
+          "favour_direct_debit_rates": "Favour direct debit rates where available"
         },
         "data_description": {
           "account_id": "You account ID can be found on your bill or at the top of https://octopus.energy/dashboard",
           "api_key": "You API key can be found at https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
           "calorific_value": "This can be found on your gas statement and can change from time to time",
+          "electricity_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
+          "gas_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
           "home_pro_address": "WARNING: This is experimental.",
           "home_pro_api_key": "WARNING: This is experimental"
         }
@@ -32,6 +34,7 @@
         "data": {
           "name": "The name of your target",
           "hours": "The hours you require in decimal format.",
+          "hours_mode": "How the defined hours should be interpreted",
           "type": "The type of target you're after",
           "mpan": "The MPAN number of the meter to apply the target to",
           "start_time": "The minimum time to start the device",
@@ -101,12 +104,14 @@
       "invalid_price": "Price must be in the form pounds and pence (e.g. 0.10)",
       "invalid_weighting": "The weighting format is not supported.",
       "invalid_weighting_slots": "The number of weighting blocks does not equal the specified number of hours.",
-      "weighting_not_supported": "Weighting is only supported for continuous target rates",
+      "weighting_not_supported_for_type": "Weighting is only supported for continuous target rates",
+      "weighting_not_supported_for_hour_mode": "Weighting is not supported for this hour mode",
       "invalid_product_or_tariff": "Product or tariff code does not exist",
+      "minimum_or_maximum_rate_not_specified": "Either minimum and/or maximum rate must be specified for minimum hours mode",
       "all_home_pro_values_not_set": "Either both Home Pro address and API key must be set, or neither must be set",
-      "home_pro_connection_failed": "Cannot connect to Home Pro device.",
-      "home_pro_authentication_failed": "Cannot authenticate with API on Home Pro device. Please check authentication token.",
-      "home_pro_not_responding": "Connected to Home Pro device, but responding with unsuccessful status"
+      "home_pro_connection_failed": "Cannot connect to Home Pro device. Please check the specified address is correct and that you've installed the custom API as per the instructions.",
+      "home_pro_authentication_failed": "Cannot authenticate with API on Home Pro device. Please check authentication token matches the value you configured.",
+      "home_pro_not_responding": "Connected to Home Pro device, but responding with unsuccessful status. This implies the Home Pro failed to connect to your meter."
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",
@@ -121,19 +126,22 @@
         "data": {
           "api_key": "Api key",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
-          "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
-          "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
+          "live_electricity_consumption_refresh_in_minutes": "Home Mini/Pro electricity refresh rate in minutes",
+          "live_gas_consumption_refresh_in_minutes": "Home Mini/Pro gas refresh rate in minutes",
           "previous_electricity_consumption_days_offset": "Previous consumption electricity days offset",
           "previous_gas_consumption_days_offset": "Previous consumption gas days offset",
           "calorific_value": "Gas calorific value",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence",
           "home_pro_address": "Home Pro address and port (e.g. http://localhost:8000)",
-          "home_pro_api_key": "Home Pro API key"
+          "home_pro_api_key": "Home Pro API key",
+          "favour_direct_debit_rates": "Favour direct debit rates where available"
         },
         "data_description": {
           "api_key": "You API key can be found at https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
           "calorific_value": "This can be found on your gas statement and can change from time to time",
+          "electricity_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
+          "gas_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
           "home_pro_address": "WARNING: This is experimental",
           "home_pro_api_key": "WARNING: This is experimental"
         }
@@ -143,6 +151,7 @@
         "description": "Update the settings for your target rate sensor, which can be used to help you save energy and money. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/target_rate",
         "data": {
           "hours": "The hours you require in decimal format.",
+          "hours_mode": "How the defined hours should be interpreted",
           "mpan": "The MPAN number of the meter to apply the target to",
           "start_time": "The minimum time to start the device",
           "end_time": "The maximum time to stop the device",
@@ -191,12 +200,14 @@
       "invalid_price": "Price must be in the form pounds and pence (e.g. 0.10)",
       "invalid_weighting": "The weighting format is not supported.",
       "invalid_weighting_slots": "The number of weighting blocks does not equal the specified number of hours.",
-      "weighting_not_supported": "Weighting is only supported for continuous target rates",
+      "weighting_not_supported_for_type": "Weighting is only supported for continuous target rates",
+      "weighting_not_supported_for_hour_mode": "Weighting is not supported for this hour mode",
       "invalid_product_or_tariff": "Product or tariff code does not exist",
+      "minimum_or_maximum_rate_not_specified": "Either minimum and/or maximum rate must be specified for minimum hours mode",
       "all_home_pro_values_not_set": "Either both Home Pro address and API key must be set, or neither must be set",
-      "home_pro_connection_failed": "Cannot connect to Home Pro device.",
-      "home_pro_authentication_failed": "Cannot authenticate with API on Home Pro device. Please check authentication token.",
-      "home_pro_not_responding": "Connected to Home Pro device, but responding with unsuccessful status"
+      "home_pro_connection_failed": "Cannot connect to Home Pro device. Please check the specified address is correct and that you've installed the custom API as per the instructions.",
+      "home_pro_authentication_failed": "Cannot authenticate with API on Home Pro device. Please check authentication token matches the value you configured.",
+      "home_pro_not_responding": "Connected to Home Pro device, but responding with unsuccessful status. This implies the Home Pro failed to connect to your meter."
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",

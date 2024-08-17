@@ -5,14 +5,15 @@
 Below are the main features of the integration
 
 * [Electricity](./entities/electricity.md) and [gas](./entities/gas.md) meter support including consumption data and rate information
-* [Custom sensor support to target cheapest rates](./setup/target_rate.md)
-* [Custom sensor support for tracking costs of other entities](./setup/cost_tracker.md)
-* [Custom sensor support for comparing to other tariffs](./setup/tariff_comparison.md)
-* [Octopus Home mini support](./setup/account.md#home-mini)
-* [Intelligent tariff settings support](./entities/intelligent.md)
-* [Saving sessions support](./entities/octoplus.md#saving-sessions)
-* [Wheel of fortune support](./entities/wheel_of_fortune.md)
-* [Greener days support](./entities/greenness_forecast.md)
+* [Custom sensor support to target cheapest rates](#target-rate-sensors)
+* [Custom sensor support for tracking costs of other entities](#cost-tracker-sensors)
+* [Custom sensor support for comparing to other tariffs](#tariff-comparison-sensors)
+* [Octopus Home mini support](#home-mini)
+* [Octopus Home Pro support (Experimental)](#home-pro)
+* [Intelligent tariff settings support](#intelligent)
+* [Saving sessions support](#octoplus)
+* [Wheel of fortune support](#wheel-of-fortune)
+* [Greener days support](#greenness-forecast)
 
 ## How to install
 
@@ -49,13 +50,27 @@ Please follow the [setup guide](./setup/account.md) to setup your initial accoun
 
 ### Home Mini
 
-If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to check the box next to `I have a Home Mini`. This will gain the following entities which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/):
+If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to check the box next to `I have a Home Mini`. This will gain [electricity entities](./entities/electricity.md#home-minipro-entities) and [gas entities](./entities/gas.md#home-minipro-entities) which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/).
 
 !!! info
 
     You will only have the same data exposed in the integration that is available within the Octopus app. There has been reports of gas not appearing within the Octopus app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the Octopus app, if you reload the integration (or restart Home Assistant) then the entities should become available.
 
-See [electricity entities](./entities/electricity.md#home-mini-entities) and [gas entities](./entities/gas.md#home-mini-entities) for more information.
+!!! warning
+
+    Export sensors are not provided as the data is not available.
+
+### Home Pro
+
+If you are lucky enough to own an Octopus Home Pro, you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to configure your [Home Pro](./setup/account.md#home-pro). This will gain [electricity entities](./entities/electricity.md#home-minipro-entities) and [gas entities](./entities/gas.md#home-minipro-entities) which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/).
+
+!!! info
+
+    You will only have the same data exposed in the integration that is available within the Octopus app. There has been reports of gas not appearing within the Octopus app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the Octopus app, if you reload the integration (or restart Home Assistant) then the entities should become available.
+
+!!! warning
+
+    Export sensors are not provided as the data is not available.
 
 ### Intelligent
 
@@ -92,6 +107,12 @@ Please follow the [setup guide](./setup/target_rate.md).
 These sensors track the consumption of other existing sensors and provide a daily cost of those sensors.
 
 Please follow the [setup guide](./setup/cost_tracker.md).
+
+## Tariff Comparison Sensors
+
+These sensors compare the cost of the previous consumption to another tariff to see if you're on the best tariff.
+
+Please follow the [setup guide](./setup/tariff_comparison.md).
 
 ## Events
 

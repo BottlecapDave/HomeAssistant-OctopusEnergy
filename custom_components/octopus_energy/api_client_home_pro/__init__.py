@@ -68,14 +68,39 @@ class OctopusEnergyHomeProApiClient:
         response_body = await self.__async_read_response__(response, url)
         if (response_body is not None and "meter_consump" in response_body and "consum" in response_body["meter_consump"]):
           data = response_body["meter_consump"]["consum"]
+          divisor = int(data["raw"]["divisor"], 16)
           return [{
-            "total_consumption": int(data["consumption"]) / 1000,
+            "total_consumption": int(data["consumption"]) / divisor if divisor > 0 else None,
             "demand": float(data["instdmand"]) if "instdmand" in data else None,
             "start": datetime.fromtimestamp(int(response_body["meter_consump"]["time"]), timezone.utc),
-            "end": datetime.fromtimestamp(int(response_body["meter_consump"]["time"]), timezone.utc)
+            "end": datetime.fromtimestamp(int(response_body["meter_consump"]["time"]), timezone.utc),
+            "is_kwh": data["unit"] == 0
           }]
         
         return None
+    
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+    
+  async def async_set_screen(self, value: str, animation_type: str, type: str, brightness: int, animation_interval: int):
+    """Get the latest consumption"""
+
+    try:
+      client = self._create_client_session()
+      url = f'{self._base_url}/screen'
+      headers = { "Authorization": self._api_key }
+      payload = {
+        # API doesn't support none or empty string as a valid value
+        "value": f"{value}" if value is not None and value != "" else " ",
+        "animationType": f"{animation_type}",
+        "type": f"{type}",
+        "brightness": brightness,
+        "animationInterval": animation_interval
+      }
+
+      async with client.post(url, json=payload, headers=headers) as response:
+        await self.__async_read_response__(response, url)
     
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
@@ -100,12 +125,13 @@ class OctopusEnergyHomeProApiClient:
         _LOGGER.warning(msg)
         raise RequestException(msg, [])
       
-      _LOGGER.info(f"Response {response.status} for '{url}' received")
+      _LOGGER.info(f"Response {response.status} for '{url}' receivedL {text}")
       return None
 
     data_as_json = None
     try:
-      data_as_json = json.loads(text)
+      if text is not None and text != "":
+        data_as_json = json.loads(text)
     except:
       raise Exception(f'Failed to extract response json: {url}; {text}')
     

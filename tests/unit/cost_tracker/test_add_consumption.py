@@ -384,3 +384,32 @@ async def test_when_consumption_exists_and_new_day_starts_then_consumption_added
   else:
     assert len(result.tracked_consumption_data) == 0
     assert_consumption(result.untracked_consumption_data, datetime.strptime("2022-02-28T10:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-02-28T10:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), 0.1)
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("new_value,old_value", [(None, None),
+                                                 (0, None),
+                                                 (None, 0),
+                                                 (0, 0)
+                                                 ])
+async def test_when_mean_cannot_be_calculated_then_none_is_returned(new_value: float, old_value: float):
+  # Arrange
+  current = datetime.strptime("2022-02-28T10:15:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  tracked_consumption_data = []
+  untracked_consumption_data = []
+  new_last_reset = None
+  old_last_reset = None
+  is_accumulative_value = False
+
+  # Act
+  result = add_consumption(current,
+                           tracked_consumption_data,
+                           untracked_consumption_data,
+                           new_value,
+                           old_value,
+                           new_last_reset,
+                           old_last_reset,
+                           is_accumulative_value,
+                           True)
+
+  # Assert
+  assert result is None

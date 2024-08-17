@@ -140,7 +140,6 @@ The total consumption reported by the meter for the previous day in m3. If your 
 | `is_estimated` | `boolean` | Determines if the consumption was estimated. This can occur if your meter reports in `kwh`. |
 | `total_kwh` | `float` | The total energy value for the previous day in `kwh`. If your meter reports in `m3`, then this will be estimated using your set [calorific value](../setup/account.md#calorific-value) |
 | `total_m3` | `float` | The total energy value for the previous day in `m3`. If your meter reports in `kwh`, then this will be estimated using your set [calorific value](../setup/account.md#calorific-value) |
-| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
@@ -177,7 +176,6 @@ The total consumption reported by the meter for the previous day in kwh. If your
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
 | `is_estimated` | `boolean` | Determines if the consumption was estimated. This can occur if your meter reports in `m3`. |
-| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
@@ -218,7 +216,6 @@ The total cost for the previous day, including the standing charge.
 | `total_without_standing_charge` | `float` | The total cost of the previous day excluding the standing charge. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `total` | `float` | The total cost for the previous day. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `charges` | `array` | Collection of consumption periods and costs for the previous day broken down into 30 minute periods. |
-| `last_evaluated` | `datetime` | The timestamp determining when the cost was last calculated. |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 
@@ -255,13 +252,14 @@ Each rate item has the following attributes
 | `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup/account.md#pricing-caps) |
 
-## Home Mini Entities
+## Home Mini/Pro Entities
 
 ### Current Consumption
 
-> This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one
-
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_consumption`
+
+!!! warning
+    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one.
 
 The latest gas consumption sent to Octopus Energy. By default, this will update every minute. This has been built to see the accumulation within the energy dashboard. If you are wanting a sensor to see the current day's accumulation, then you will need to use something like [utility meter](https://www.home-assistant.io/integrations/utility_meter/). It has been noticed that daily consumption reported in Home Assistant can differ to when looking at past data within Octopus Energy. It looks like this is because Octopus Energy will favour "official" data from your smart meter over the data they collect.
 
@@ -276,13 +274,15 @@ If current consumption data is unable to be retrieved, then the integration will
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption_m3`
 
+!!! warning
+    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one.
+
 The total consumption reported by the meter for the current day in m3. This is calculated/estimated using your set [calorific value](../setup/account.md#calorific-value) from the kWh data reported by Octopus Energy.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
-| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `charges` | `array` | Collection of consumption periods for the current day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
@@ -299,13 +299,15 @@ Each charge item has the following attributes
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption_kwh`
 
+!!! warning
+    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one.
+
 The total consumption reported by the meter for the current day in kWh. This is natively reported by Octopus Energy.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
-| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `charges` | `array` | Collection of consumption periods for the current day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
@@ -322,7 +324,10 @@ Each charge item has the following attributes
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_total_consumption_m3`
 
-The total consumption reported by the meter for for all time in m3. This is calculated/estimated using your set [calorific value](../setup/account.md#calorific-value) from the kWh data reported by Octopus Energy.
+!!! warning
+    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
+
+The total consumption reported by the meter for for all time in m3. This is calculated/estimated using your set [calorific value](../setup/account.md#calorific-value) from the kWh data reported by Octopus Energy. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.
 
 !!! warning
 
@@ -332,7 +337,6 @@ The total consumption reported by the meter for for all time in m3. This is calc
 |-----------|------|-------------|
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
-| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
@@ -340,19 +344,24 @@ The total consumption reported by the meter for for all time in m3. This is calc
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_total_consumption_kwh`
 
-The total consumption reported by the meter for for all time in kWh. This is natively reported by Octopus Energy.
+!!! warning
+    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
+
+The total consumption reported by the meter for for all time in kWh. This is natively reported by Octopus Energy. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
-| `last_evaluated` | `datetime` | The timestamp determining when the consumption was last calculated. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
 ### Current Accumulative Cost
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_cost`
+
+!!! warning
+    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one.
 
 The total cost for the current day, including the standing charge.
 
@@ -375,67 +384,3 @@ Each charge item has the following attributes
 | `rate` | `float` | The rate the consumption is charged at. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `consumption` | `float` | The consumption value of the specified period |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
-
-## Tariff Overrides
-
-You may be on an existing tariff but want to know if the grass is greener (or cheaper) on the other side. The following entities are available in a disabled state, which when enabled can give you an indication what you'd be paying if you were on a different tariff and didn't change your energy habits.
-
-Instructions on how to find tariffs can be found in the [faq](../faq.md#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff).
-
-!!! info
-  
-    When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
-
-!!! warning
-
-    This approach to tariff overrides has been marked as deprecated in favour of [tariff comparisons](../setup/tariff_comparison.md).
-
-### Previous Accumulative Cost Override Tariff
-
-`text.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost_override_tariff`
-
-This is used to define the gas tariff you want to compare
-
-#### How To Use
-
-Instructions on how to find tariffs can be found in the [faq](../faq.md#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff).
-
-Once you have found your target tariff
-
-1. Click on this entity to open the info dialog.
-2. Enter your tariff in the text box, and hit `enter` on your keyboard to confirm
-
-!!! info
-
-    When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
-
-### Previous Accumulative Cost Override
-
-`sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost_override`
-
-This is the cost of the previous gas accumulation based on the specified tariff override.
-
-For attributes, see [Previous Accumulative Cost](#previous-accumulative-cost).
-
-### Previous Consumption Override Day Rates
-
-`event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_consumption_override_rates`
-
-The state of this sensor states when the previous consumption override's rates were last updated. The attributes of this sensor exposes the previous consumption override's rates. 
-
-!!! note
-    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `rates` | `array` | The list of rates applicable for the previous consumption override |
-| `tariff_code` | `string` | The tariff code associated with previous consumption override's rates |
-
-Each rate item has the following attributes
-
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `start` | `datetime` | The date/time when the rate starts |
-| `end` | `datetime` | The date/time when the rate ends |
-| `value_inc_vat` | `float` | The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `is_capped` | `boolean` | Indicates if the rate has been capped by a [configured price cap](../setup/account.md#pricing-caps) |

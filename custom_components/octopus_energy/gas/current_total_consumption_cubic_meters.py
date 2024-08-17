@@ -98,15 +98,18 @@ class OctopusEnergyCurrentTotalGasConsumptionCubicMeters(CoordinatorEntity, Octo
     if (consumption_data is not None and len(consumption_data) > 0):
       _LOGGER.debug(f"Calculated total gas consumption for '{self._mprn}/{self._serial_number}'...")
 
-      self._state = convert_kwh_to_m3(consumption_data[-1]["total_consumption"], self._calorific_value) if consumption_data[-1]["total_consumption"] is not None else None
+      if consumption_data[-1]["total_consumption"] is not None:
+        if "is_kwh" not in consumption_data[-1] or consumption_data[-1]["is_kwh"] == True:
+          self._state = convert_kwh_to_m3(consumption_data[-1]["total_consumption"], self._calorific_value) if consumption_data[-1]["total_consumption"] is not None else None
+        else:
+          self._state = consumption_data[-1]["total_consumption"]
 
-      self._attributes = {
-        "mprn": self._mprn,
-        "serial_number": self._serial_number,
-        "is_smart_meter": self._is_smart_meter,
-        "last_evaluated": current,
-        "data_last_retrieved": consumption_result.last_retrieved if consumption_result is not None else None
-      }
+        self._attributes = {
+          "mprn": self._mprn,
+          "serial_number": self._serial_number,
+          "is_smart_meter": self._is_smart_meter,
+          "data_last_retrieved": consumption_result.last_retrieved if consumption_result is not None else None
+        }
 
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()

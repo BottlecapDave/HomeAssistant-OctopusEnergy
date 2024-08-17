@@ -7,6 +7,7 @@ from homeassistant.components.event import (
     EventExtraStoredData,
 )
 from homeassistant.helpers.restore_state import RestoreEntity
+from homeassistant.helpers.entity import generate_entity_id
 
 from ..const import DATA_SAVING_SESSIONS_FORCE_UPDATE, DOMAIN, EVENT_ALL_SAVING_SESSIONS
 
@@ -28,6 +29,7 @@ class OctopusEnergyOctoplusSavingSessionEvents(EventEntity, RestoreEntity):
     self._last_updated = None
 
     self._attr_event_types = [EVENT_ALL_SAVING_SESSIONS]
+    self.entity_id = generate_entity_id("event.{}", self.unique_id, hass=hass)
 
   @property
   def unique_id(self):

@@ -4,11 +4,17 @@ These are a few contributions by the community.
 
 ## Agile Price Table
 
-If you're wanting to display upcoming prices in a nice readable format, then might I suggest you utilise the [Octopus Energy Rates card](https://github.com/lozzd/octopus-energy-rates-card) developed by @lozzd.
+If you're wanting to display upcoming prices in a nice readable format, then you can utilise the [Octopus Energy Rates card](https://github.com/lozzd/octopus-energy-rates-card) developed by [@lozzd](https://github.com/lozzd).
 
 <img src="https://github.com/lozzd/octopus-energy-rates-card/raw/main/assets/screenshot_1.png" height="300"/>
 
-## Home battery and prediction and charging
+## Greenness Forecast
+
+If you're wanting to display [greenness forecast](./entities/greenness_forecast.md) in a nice readable format, then you can utilise the [Octopus Energy Greenness Forecast Card](https://github.com/elyobelyob/octopus-energy-greenness-forecast-card) developed by [@elyobelyob](https://github.com/elyobelyob).
+
+<img src="https://github.com/elyobelyob/octopus-energy-greenness-forecast-card/raw/main/assets/screenshot_1.png" height="300"/>
+
+## Home battery prediction and charging
 
 If you use OE with a home battery, you might be interested in [predbat](https://github.com/springfall2008/batpred), which can take advantage of the data available through this integration.
 

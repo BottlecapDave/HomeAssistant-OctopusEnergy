@@ -20,15 +20,23 @@ This is the meter whose consumption will be used as the basis for the calculatio
 
 To find the product code, you can use the Octopus Energy API to search for current [home](https://api.octopus.energy/v1/products/) or [business](https://api.octopus.energy/v1/products/?is_business=true) products. Once your target product has been found, you will want to set this value to the value of the `code` property in the list of products.
 
+For example if I wanted to check `Flexible Octopus November 2022 v1`. I would look up all of the [products](https://api.octopus.energy/v1/products) and look for my target under `full_name` or `display_name`.
+
+![All products example](../assets/product_lookup.png)
+
+I would then set my product code to `VAR-22-11-01`.
+
 ### Tariff Code
 
 To find the tariff code, you can use the Octopus Energy API to search for the available tariffs for your target product.
 
-For example if I wanted to check `Flexible Octopus November 2022 v1`. I would look up all of the [products](https://api.octopus.energy/v1/products) and look for my target under `full_name` or `display_name`. I would then look up the product by taking the specified `code` and putting it at the end of the [products url](https://api.octopus.energy/v1/products). Alternatively, you can follow the link that is present in the product listing.
+For example if I wanted to check `Flexible Octopus November 2022 v1`. I would look up all of the [products](https://api.octopus.energy/v1/products) and look for my target under `full_name` or `display_name`. I would then look up the product by taking the value specified in the `code` field and putting it at the end of the [products url](https://api.octopus.energy/v1/products). Alternatively, you can follow the link that is present in the product listing.
 
 ![All products example](../assets/product_lookup.png)
 
-In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https://api.octopus.energy/v1/products/VAR-22-11-01](https://api.octopus.energy/v1/products/VAR-22-11-01). From this list, I would then look up the tariff for my region (e.g. `A` defined at the end of my current tariff) which is defined in the `code` field. Once your target tariff has been found, you will want to set this value to the value of the `code` property. In this example, I want the duel electricity tariff version, so will pick `E-2R-VAR-22-11-01-A`.
+In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https://api.octopus.energy/v1/products/VAR-22-11-01](https://api.octopus.energy/v1/products/VAR-22-11-01). From this list, I would then look up the tariff for my region (e.g. `A` defined at the end of my current tariff) which is defined in the `code` field. Once your target tariff has been found, you will want to set this property in the configuration to the value of the `code` property. In this example, I want the duel electricity tariff version, so will pick `E-2R-VAR-22-11-01-A`.
+
+![All products example](../assets/product_tariff_lookup.png)
 
 ## Entities
 
@@ -40,6 +48,12 @@ The following entities will be available for each entry
 
 This will display the cost of your previous accumulative consumption against the elected tariff.
 
+!!! info
+
+    These sensors will compare the same time period as the [electricity previous accumulative consumption](../entities/electricity.md#previous-accumulative-consumption) or [gas previous accumulative consumption](../entities/gas.md#previous-accumulative-consumption-m3). 
+    
+    If you have changed the [offset](./account.md#previous-consumption-days-offset), then this sensor will use the same offset.
+
 ### Previous Consumption Override Day Rates
 
 `event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_consumption_rates_{{TARIFF COMPARISON NAME}}` for electricity based meters; `event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_consumption_rates_{{TARIFF COMPARISON NAME}}` for gas based meters.
@@ -48,6 +62,12 @@ The state of this sensor states when the previous consumption tariff comparison 
 
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+!!! info
+
+    These sensors will provide rates for the same time period as the [electricity previous accumulative consumption](../entities/electricity.md#previous-accumulative-consumption) or [gas previous accumulative consumption](../entities/gas.md#previous-accumulative-consumption-m3). 
+    
+    If you have changed the [offset](./account.md#previous-consumption-days-offset), then this sensor will use the same offset.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|

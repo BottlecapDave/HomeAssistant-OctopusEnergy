@@ -11,6 +11,7 @@ from homeassistant.helpers.update_coordinator import (
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
   DATA_ACCOUNT,
+  DATA_INTELLIGENT_DEVICE,
   DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY,
   DOMAIN,
   DATA_INTELLIGENT_DISPATCHES,
@@ -22,6 +23,7 @@ from ..const import (
 
 from ..api_client import (ApiException, OctopusEnergyApiClient)
 from ..api_client.intelligent_dispatches import IntelligentDispatches
+from ..api_client.intelligent_device import IntelligentDevice
 from ..utils import Tariff, private_rates_to_public_rates
 
 from ..intelligent import adjust_intelligent_rates, is_intelligent_product
@@ -53,7 +55,7 @@ class PreviousConsumptionCoordinatorResult(BaseCoordinatorResult):
     self.latest_available_timestamp = latest_available_timestamp
 
 async def async_fetch_consumption_and_rates(
-  previous_data: PreviousConsumptionCoordinatorResult,
+  previous_data: PreviousConsumptionCoordinatorResult | None,
   current: datetime,
   account_info,
   client: OctopusEnergyApiClient,
@@ -64,7 +66,8 @@ async def async_fetch_consumption_and_rates(
   is_electricity: bool,
   is_smart_meter: bool,
   fire_event: Callable[[str, "dict[str, Any]"], None],
-  intelligent_dispatches: IntelligentDispatches = None,
+  intelligent_device: IntelligentDevice | None = None,
+  intelligent_dispatches: IntelligentDispatches | None = None,
   tariff_override: Tariff = None
 
 ):
@@ -85,7 +88,8 @@ async def async_fetch_consumption_and_rates(
           return previous_data
 
         # We'll calculate the wrong value if we don't have our intelligent dispatches
-        if is_intelligent_product(tariff.product) and intelligent_dispatches is None:
+        if is_intelligent_product(tariff.product) and intelligent_device is not None and intelligent_dispatches is None:
+          _LOGGER.debug("Dispatches not available for intelligent tariff. Using existing rate information")
           return previous_data
 
         [consumption_data, latest_consumption_data, rate_data, standing_charge] = await asyncio.gather(
@@ -196,6 +200,7 @@ async def async_create_previous_consumption_and_rates_coordinator(
     period_to = period_from + timedelta(days=1)
     account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN][account_id] else None
     account_info = account_result.account if account_result is not None else None
+    intelligent_device: IntelligentDevice | None = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
     dispatches: IntelligentDispatchesCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None
     
     result = await async_fetch_consumption_and_rates(
@@ -210,6 +215,7 @@ async def async_create_previous_consumption_and_rates_coordinator(
       is_electricity,
       is_smart_meter,
       hass.bus.async_fire,
+      intelligent_device,
       dispatches.dispatches if dispatches is not None else None,
       tariff_override
     )

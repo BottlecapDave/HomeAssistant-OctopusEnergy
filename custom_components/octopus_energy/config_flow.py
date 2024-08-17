@@ -1,4 +1,3 @@
-from custom_components.octopus_energy.config.tariff_comparison import async_validate_tariff_comparison_config, merge_tariff_comparison_config
 import voluptuous as vol
 import logging
 
@@ -16,8 +15,13 @@ from .config.cost_tracker import merge_cost_tracker_config, validate_cost_tracke
 from .config.target_rates import merge_target_rate_config, validate_target_rate_config
 from .config.main import async_validate_main_config, merge_main_config
 from .const import (
+  CONFIG_FAVOUR_DIRECT_DEBIT_RATES,
   CONFIG_MAIN_HOME_PRO_ADDRESS,
   CONFIG_MAIN_HOME_PRO_API_KEY,
+  CONFIG_TARGET_HOURS_MODE,
+  CONFIG_TARGET_HOURS_MODE_EXACT,
+  CONFIG_TARGET_HOURS_MODE_MAXIMUM,
+  CONFIG_TARGET_HOURS_MODE_MINIMUM,
   CONFIG_TARIFF_COMPARISON_MPAN_MPRN,
   CONFIG_TARIFF_COMPARISON_NAME,
   CONFIG_TARIFF_COMPARISON_PRODUCT_CODE,
@@ -71,6 +75,7 @@ from .const import (
 
   DATA_SCHEMA_ACCOUNT,
 )
+from .config.tariff_comparison import async_validate_tariff_comparison_config, merge_tariff_comparison_config
 
 from .utils import get_active_tariff
 
@@ -192,6 +197,16 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     return vol.Schema({
       vol.Required(CONFIG_TARGET_NAME): str,
       vol.Required(CONFIG_TARGET_HOURS): str,
+      vol.Required(CONFIG_TARGET_HOURS_MODE, default=CONFIG_TARGET_HOURS_MODE_EXACT): selector.SelectSelector(
+          selector.SelectSelectorConfig(
+              options=[
+                selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_EXACT, label="Exact"),
+                selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_MINIMUM, label="Minimum"),
+                selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_MAXIMUM, label="Maximum"),
+              ],
+              mode=selector.SelectSelectorMode.DROPDOWN,
+          )
+      ),
       vol.Required(CONFIG_TARGET_TYPE, default=CONFIG_TARGET_TYPE_CONTINUOUS): selector.SelectSelector(
           selector.SelectSelectorConfig(
               options=[
@@ -472,6 +487,16 @@ class OptionsFlowHandler(OptionsFlow):
           vol.Schema({
             vol.Required(CONFIG_TARGET_NAME): str,
             vol.Required(CONFIG_TARGET_HOURS): str,
+            vol.Required(CONFIG_TARGET_HOURS_MODE, default=CONFIG_TARGET_HOURS_MODE_EXACT): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                      selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_EXACT, label="Exact"),
+                      selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_MINIMUM, label="Minimum"),
+                      selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_MAXIMUM, label="Maximum"),
+                    ],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
             vol.Required(CONFIG_TARGET_TYPE, default=CONFIG_TARGET_TYPE_CONTINUOUS): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=[
@@ -500,6 +525,7 @@ class OptionsFlowHandler(OptionsFlow):
           {
             CONFIG_TARGET_NAME: config[CONFIG_TARGET_NAME],
             CONFIG_TARGET_HOURS: f'{config[CONFIG_TARGET_HOURS]}',
+            CONFIG_TARGET_HOURS_MODE: config[CONFIG_TARGET_HOURS_MODE],
             CONFIG_TARGET_TYPE: config[CONFIG_TARGET_TYPE],
             CONFIG_TARGET_MPAN: config[CONFIG_TARGET_MPAN],
             CONFIG_TARGET_START_TIME: config[CONFIG_TARGET_START_TIME] if CONFIG_TARGET_START_TIME in config else None,
@@ -546,29 +572,31 @@ class OptionsFlowHandler(OptionsFlow):
       data_schema=self.add_suggested_values_to_schema(
         vol.Schema({
           vol.Required(CONFIG_MAIN_API_KEY): str,
-          vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION): bool,
-          vol.Required(CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
-          vol.Required(CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
           vol.Required(CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET): cv.positive_int,
           vol.Required(CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET): cv.positive_int,
           vol.Required(CONFIG_MAIN_CALORIFIC_VALUE): cv.positive_float,
-          vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP): cv.positive_float,
-          vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float,
+          vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION): bool,
           vol.Optional(CONFIG_MAIN_HOME_PRO_ADDRESS): str,
           vol.Optional(CONFIG_MAIN_HOME_PRO_API_KEY): str,
+          vol.Required(CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
+          vol.Required(CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
+          vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP): cv.positive_float,
+          vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float,
+          vol.Required(CONFIG_FAVOUR_DIRECT_DEBIT_RATES): bool,
         }),
         {
           CONFIG_MAIN_API_KEY: config[CONFIG_MAIN_API_KEY],
-          CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: supports_live_consumption,
-          CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: live_electricity_consumption_refresh_in_minutes,
-          CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: live_gas_consumption_refresh_in_minutes,
           CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET: previous_electricity_consumption_days_offset,
           CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET: previous_gas_consumption_days_offset,
           CONFIG_MAIN_CALORIFIC_VALUE: calorific_value,
-          CONFIG_MAIN_ELECTRICITY_PRICE_CAP: config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP] if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config else None,
-          CONFIG_MAIN_GAS_PRICE_CAP: config[CONFIG_MAIN_GAS_PRICE_CAP] if CONFIG_MAIN_GAS_PRICE_CAP in config else None,
+          CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: supports_live_consumption,
           CONFIG_MAIN_HOME_PRO_ADDRESS: config[CONFIG_MAIN_HOME_PRO_ADDRESS] if CONFIG_MAIN_HOME_PRO_ADDRESS in config else None,
           CONFIG_MAIN_HOME_PRO_API_KEY: config[CONFIG_MAIN_HOME_PRO_API_KEY] if CONFIG_MAIN_HOME_PRO_API_KEY in config else None,
+          CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: live_electricity_consumption_refresh_in_minutes,
+          CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: live_gas_consumption_refresh_in_minutes,
+          CONFIG_MAIN_ELECTRICITY_PRICE_CAP: config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP] if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config else None,
+          CONFIG_MAIN_GAS_PRICE_CAP: config[CONFIG_MAIN_GAS_PRICE_CAP] if CONFIG_MAIN_GAS_PRICE_CAP in config else None,
+          CONFIG_FAVOUR_DIRECT_DEBIT_RATES: config[CONFIG_FAVOUR_DIRECT_DEBIT_RATES] if CONFIG_FAVOUR_DIRECT_DEBIT_RATES in config else True
         }
       ),
       errors=errors

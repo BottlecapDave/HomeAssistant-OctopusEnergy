@@ -17,6 +17,7 @@ nav:
     - Intelligent: ./entities/intelligent.md
     - Wheel Of Fortune: ./entities/wheel_of_fortune.md
     - Greenness Forecast: ./entities/greenness_forecast.md
+    - Home Pro: ./entities/home_pro.md
   - services.md
   - events.md
   - Repairs:
@@ -24,6 +25,7 @@ nav:
     - ./repairs/invalid_target_rate.md
     - ./repairs/octopus_mini_not_valid.md
     - ./repairs/unknown_product.md
+    - ./repairs/cost_override_obsolete.md
   - Community: community.md
   - blueprints.md
   - faq.md
@@ -40,6 +42,11 @@ markdown_extensions:
   - attr_list
   - toc:
       permalink: "#"
+
+plugins:
+  - search
+  - git-authors:
+      show_email_address: false
 
 theme:
   name: material
