@@ -8,8 +8,8 @@ async def test_when_get_intelligent_dispatches_is_called_for_account_on_differen
     # Arrange
     context = get_test_context()
 
-    client = OctopusEnergyApiClient(context["api_key"])
-    account_id = context["account_id"]
+    client = OctopusEnergyApiClient(context.api_key)
+    account_id = context.account_id
 
     # Act
     exception_raised = False

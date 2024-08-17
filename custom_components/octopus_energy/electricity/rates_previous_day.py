@@ -20,7 +20,7 @@ class OctopusEnergyElectricityPreviousDayRates(OctopusEnergyElectricitySensor, E
   def __init__(self, hass: HomeAssistant, meter, point):
     """Init sensor."""
     # Pass coordinator to base class
-    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
+    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point, "event")
 
     self._hass = hass
     self._state = None
@@ -36,7 +36,7 @@ class OctopusEnergyElectricityPreviousDayRates(OctopusEnergyElectricitySensor, E
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Day Rates"
+    return f"Previous Day Rates {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})"
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

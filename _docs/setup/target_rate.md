@@ -18,7 +18,7 @@ The `from/start` time can be set in the field `The minimum time to start the dev
 
 If not specified, these default from `00:00:00` to `00:00:00` the following day.
 
-If for example you want to look at prices overnight you could set the minimum time to something like `20:00` and your maximum time to something like `05:00`. If the minimum time is "before" the maximum time, then it will treat the maximum time as the time for the following day.
+If for example you want to look at prices overnight you could set the minimum time to something like `20:00` and your maximum time to something like `05:00`. If the minimum time is "after" the maximum time, then it will treat the maximum time as the time for the following day.
 
 !!! info
 
@@ -26,8 +26,27 @@ If for example you want to look at prices overnight you could set the minimum ti
 
 #### Agile Users
 
-If you are an agile user, then agile prices are available from [11pm to 11pm UK time](https://developer.octopus.energy/docs/api/#agile-octopus) and published at `16:00` UK time. Therefore, you cannot specify a timeframe that starts before `16:00` and ends after `23:00` because the target rate(s) will not be able to be calculated until part way through the specified timeframe as this is when the full set will become available. We recommend you set your timeframes to `16:00`/`16:00` or `23:00`/`23:00` if you're wanting to target a full 24 hours, but other valid times might include
+If you are an agile user, then agile prices are available from **11pm to 11pm UK time** and published between [`16:00` and `20:00` UK time](https://octopus.energy/smart/agile/). 
 
+Therefore, you cannot specify a timeframe that starts before `16:00` and ends after `23:00` because the target rate(s) will not be able to be calculated until part way through the specified timeframe as this is when the full set of rate information will become available. This is best illustrated with the following example, where lets say you wanted a target rate sensor to look at between `00:00` and `00:00` the next day (24 hours). Your initial available data would potentially look like the following
+
+| start | end | value |
+| ----- | --- | ----- |
+| `2023-01-01T00:00` | `2023-01-01T00:30` | 6 |
+| `2023-01-01T00:30` | `2023-01-01T05:00` | 12 |
+| `2023-01-01T05:00` | `2023-01-01T05:30` | 7 |
+| `2023-01-01T05:30` | `2023-01-01T18:00` | 20 |
+| `2023-01-01T18:00` | `2023-01-01T23:00` | 34 |
+
+Where the last hour of data isn't available (because agile doesn't provide this data in the initial batch), which means the target rate sensor can't calculate the best time because it doesn't have the full data set available. If agile rate data for the next 24 hour period then became available at `16:30` and looked like the following
+
+| start | end | value |
+| ----- | --- | ----- |
+| `2023-01-01T23:00` | `2023-01-02T00:00` | 19 |
+
+We now have the full data set available for the target rate sensor to calculate the best time, which would be done close to when the agile data became available (e.g. around `16:30`). The result would be the target rate sensor would pick `2023-01-01T00:00` to `2023-01-01T00:30` or `2023-01-01T05:00` to `2023-01-01T05:30` because these are the cheapest times. However, these times are in the past because we're now at `16:30` and so our target rate sensor will never turn on. If a time in the future was picked to counteract this, then people would question why it didn't turn on during the cheapest times.
+
+Therefore, we recommend you set your timeframes to `16:00`/`16:00` or `23:00`/`23:00` if you're wanting to target a full 24 hours, however other valid times might include
 
 | from/start | to/end | Notes |
 |-|-|-|
@@ -42,6 +61,28 @@ See the examples below for how this can be used and how rates will be selected.
 ### Hours
 
 The hours that you require for the sensor to find. This should be in decimal format and represent 30 minute increments. For example 30 minutes would be `0.5`, 1 hour would be `1` or `1.0`, 1 hour and 30 minutes would be `1.5`, etc.
+
+### Hours Mode
+
+There are three different modes that the target rate sensor can be set to, which determines how the specified hours should be interpreted
+
+#### Exact (default)
+
+The target rate sensor will try to find the best times for the specified hours. If less than the target hours are discovered, the sensor will not come on at all. If there are more hours than required that meet the specified requirements (e.g. below a certain rate), then it will come on for the cheapest available times up to the specified hours.
+
+For instance if the cheapest period is between `2023-01-01T00:30` and `2023-01-01T05:00` and your target rate is for 1 hour, then it will come on between  `2023-01-01T00:30` and `2023-01-01T01:30`. If the available times are between `2023-01-01T00:30` and `2023-01-01T01:00`, then the sensor will not come on at all.
+
+#### Minimum
+
+The target rate sensor will try to find the best times for the specified hours. If less than the target hours are discovered, the sensor will not come on at all. If there are more hours than required that meet the specified requirements (e.g. below a certain rate), then it will come on for all discovered times.
+
+For instance if the cheapest period is between `2023-01-01T00:30` and `2023-01-01T05:00` and your target rate is for 1 hour, then it will come on between  `2023-01-01T00:30` and `2023-01-01T05:00`. If the available times are between `2023-01-01T00:30` and `2023-01-01T01:00`, then the sensor will not come on at all.
+
+#### Maximum
+
+The target rate sensor will try to find the best times for the specified hours. If less than the target hours are discovered, the sensor will come on for all times that are discovered. If there are more hours than required that meet the specified requirements (e.g. below a certain rate), then it will come on for the cheapest available times up to the specified hours.
+
+For instance if the cheapest period is between `2023-01-01T00:30` and `2023-01-01T05:00` and your target rate is for 1 hour, then it will come on between  `2023-01-01T00:30` and `2023-01-01T01:30`. If the available times are between `2023-01-01T00:30` and `2023-01-01T01:00`, then the sensor will come on between  `2023-01-01T00:30` and `2023-01-01T01:00`.
 
 ### Offset
 
@@ -73,6 +114,31 @@ This feature is toggled on by the `Find last applicable rates` checkbox.
 
 If this is checked, then the normal behaviour of the sensor will be reversed. This means if you target an **import** sensor, with this checked it will find the most expensive rates. Similarly if you target an **export** meter, with this checked it will find the cheapest rates.
 
+### Minimum/Maximum Rates
+
+There may be times that you want the target rate sensors to not take into account rates that are above or below a certain value (e.g. you don't want the sensor to turn on when rates go crazy or where it would be more beneficial to export).
+
+!!! info
+
+    If hours mode is set to **minimum**, then a minimum and/or maximum rate must be specified in order for the target rate sensor to know what the cut off is for discovered times.
+
+### Weighting
+
+!!! info
+
+    This is only available for **continuous** target rate sensors in **exact** hours mode.
+
+There may be times when the device you're wanting the target rate sensor to turn on doesn't have a consistent power draw. You can specify a weighting which can be applied to each discovered 30 minute slot. This can be specified in a few different ways. Take the following example weighting for a required 2 hours.
+
+* `1,1,2,1` - This applies a weighting of 1 to the first, second and forth slot and a weighting of 2 to the third slot. This will try and make the cheapest slot fall on the third slot, as long as the surrounding slots are cheaper than other continuous slots.
+* `*,2,1` - This applies a weighting of 1 to the first, second and forth slot and a weighting of 2 to the third slot. The `*` can be used as a placeholder for the standard weighting of 1 for all slots before the ones specified.
+* `1,1,2,*` - This applies a weighting of 1 to the first, second and forth slot and a weighting of 2 to the third slot. The `*` can be used as a placeholder for the standard weighting of 1 for all slots after the ones specified.
+* `2,*,2` - This applies a weighting of 2 to the first and forth slot and a weighting of 1 to all slots in between. The `*` can be used as a placeholder for the standard weighting of 1 for all slots in between the specified slots.
+
+Each slot weighting must be a whole number and positive.
+
+You can also use weightings to ignore slots. This can be done by assigning a value of 0 for the desired slot.
+
 ## Attributes
 
 The following attributes are available on each sensor
@@ -90,7 +156,7 @@ The following attributes are available on each sensor
 | `end_time` | `string` | The end time configured for the sensor. |
 | `is_target_export` | `boolean` | Determines if the meter being targeted is exporting energy. This will change the behaviour of the sensor to look for the highest rates. |
 | `rates_incomplete` | `boolean` | True if rate information is incomplete and therefore target times cannot be calculated; False otherwise. |
-| `target_times` | `list` | The discovered times and rates the sensor will come on for. |
+| `target_times` | `array` | The discovered times and rates the sensor will come on for. |
 | `overall_average_cost` | `float` | The average cost/rate of all discovered times during the current **24 hour period**. |
 | `overall_min_cost` | `float` | The minimum cost/rate of all discovered times during the current **24 hour period**. |
 | `overall_max_cost` | `float` | The maximum cost/rate of all discovered times during the current **24 hour period**. |
@@ -104,7 +170,6 @@ The following attributes are available on each sensor
 | `next_min_cost` | `float` | The average cost/rate for the next continuous discovered period. This will only be populated if `target_times` has been calculated and at least one period/block is in the future. |
 | `next_max_cost` | `float` | The average cost/rate for the next continuous discovered period. This will only be populated if `target_times` has been calculated and at least one period/block is in the future. |
 | `target_times_last_evaluated` | datetime | The datetime the target times collection was last evaluated. This will occur if all previous target times are in the past and all rates are available for the requested future time period. For example, if you are targeting 16:00 (day 1) to 16:00 (day 2), and you only have rates up to 23:00 (day 1), then the target rates won't be calculated. |
-| `last_evaluated` | `datetime` | The datetime the state of the sensor was last evaluated based on the current specified target times. This should update every minute |
 
 ## Services
 

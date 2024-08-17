@@ -4,13 +4,13 @@ To support the wheel of fortune that is awarded every month to customers.
 
 ## Electricity Spins
 
-`octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity`
+`sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity`
 
 The number of spins remaining for electricity supply
 
 ## Gas Spins
 
-`octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_gas`
+`sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_gas`
 
 The number of spins remaining for gas supply
 

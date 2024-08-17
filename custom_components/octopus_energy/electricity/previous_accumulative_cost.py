@@ -25,6 +25,7 @@ from . import (
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
+from ..utils.rate_information import get_peak_name, get_rate_index, get_unique_rates
 
 from ..statistics.cost import async_import_external_statistics_from_cost, get_electricity_cost_statistic_unique_id
 
@@ -33,16 +34,16 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative electricity cost."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point):
+  def __init__(self, hass: HomeAssistant, coordinator, meter, point, peak_type = None):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
-    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._hass = hass
-    self._tariff_code = tariff_code
-
     self._state = None
     self._last_reset = None
+    self._peak_type = peak_type
+
+    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
   @property
   def entity_registry_enabled_default(self) -> bool:
@@ -50,17 +51,25 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
 
     This only applies when fist added to the entity registry.
     """
-    return self._is_smart_meter
+    return self._is_smart_meter and self._peak_type is None
 
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_previous_accumulative_cost"
+    base_name = f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_previous_accumulative_cost"
+    if self._peak_type is not None:
+      return f"{base_name}_{self._peak_type}"
+    
+    return base_name
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Previous Accumulative Cost"
+    base_id = f"Previous Accumulative Cost {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})"
+    if self._peak_type is not None:
+      return f"{base_id} ({get_peak_name(self._peak_type)})"
+    
+    return base_id
 
   @property
   def device_class(self):
@@ -113,27 +122,34 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
     standing_charge = result.standing_charge if result is not None else None
     current = consumption_data[0]["start"] if consumption_data is not None and len(consumption_data) > 0 else None
 
+    target_rate = None
+    if current is not None and self._peak_type is not None:
+      unique_rates = get_unique_rates(current, rate_data)
+      unique_rate_index = get_rate_index(len(unique_rates), self._peak_type)
+      target_rate = unique_rates[unique_rate_index] if unique_rate_index is not None else None
+
     consumption_and_cost = calculate_electricity_consumption_and_cost(
-      current,
       consumption_data,
       rate_data,
-      standing_charge,
+      standing_charge if target_rate is None else 0,
       self._last_reset,
-      self._tariff_code
+      target_rate=target_rate
     )
 
     if (consumption_and_cost is not None):
       _LOGGER.debug(f"Calculated previous electricity consumption cost for '{self._mpan}/{self._serial_number}'...")
-      await async_import_external_statistics_from_cost(
-        current,
-        self._hass,
-        get_electricity_cost_statistic_unique_id(self._serial_number, self._mpan, self._is_export),
-        self.name,
-        consumption_and_cost["charges"],
-        rate_data,
-        "GBP",
-        "consumption"
-      )
+
+      if self._peak_type is None:
+        await async_import_external_statistics_from_cost(
+          current,
+          self._hass,
+          get_electricity_cost_statistic_unique_id(self._serial_number, self._mpan, self._is_export),
+          self.name,
+          consumption_and_cost["charges"],
+          rate_data,
+          "GBP",
+          "consumption"
+        )
 
       self._last_reset = consumption_and_cost["last_reset"]
       self._state = consumption_and_cost["total_cost"]
@@ -143,9 +159,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
         "serial_number": self._serial_number,
         "is_export": self._is_export,
         "is_smart_meter": self._is_smart_meter,
-        "tariff_code": self._tariff_code,
-        "standing_charge": consumption_and_cost["standing_charge"],
-        "total_without_standing_charge": consumption_and_cost["total_cost_without_standing_charge"],
+        "tariff_code": rate_data[0]["tariff_code"],
         "total": consumption_and_cost["total_cost"],
         "charges": list(map(lambda charge: {
           "start": charge["start"],
@@ -156,10 +170,14 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
         }, consumption_and_cost["charges"]))
       }
 
-      self._attributes["last_evaluated"] = utcnow()
+      if target_rate is None:
+        self._attributes["standing_charge"] = consumption_and_cost["standing_charge"]
+        self._attributes["total_cost_without_standing_charge"] = consumption_and_cost["total_cost_without_standing_charge"]
 
     if result is not None:
       self._attributes["data_last_retrieved"] = result.last_retrieved
+
+    self._attributes = dict_to_typed_dict(self._attributes)
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
@@ -171,4 +189,4 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
       self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
       self._attributes = dict_to_typed_dict(state.attributes)
     
-      _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeElectricityCost state: {self._state}')
+      _LOGGER.debug(f'Restored state: {self._state}')

@@ -20,7 +20,7 @@ from ..const import (
 
 from ..api_client import ApiException, OctopusEnergyApiClient
 from ..utils import private_rates_to_public_rates
-from . import BaseCoordinatorResult, get_gas_meter_tariff_code, raise_rate_events
+from . import BaseCoordinatorResult, get_gas_meter_tariff, raise_rate_events
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -44,20 +44,20 @@ async def async_refresh_gas_rates_data(
     period_from = as_utc((current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
     period_to = as_utc((current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0))
 
-    tariff_code = get_gas_meter_tariff_code(current, account_info, target_mprn, target_serial_number)
-    if tariff_code is None:
+    tariff = get_gas_meter_tariff(current, account_info, target_mprn, target_serial_number)
+    if tariff is None:
       return None
 
-    new_rates: list = None
+    new_rates = None
     
     if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
       try:
-        new_rates = await client.async_get_gas_rates(tariff_code, period_from, period_to)
+        new_rates = await client.async_get_gas_rates(tariff.product, tariff.code, period_from, period_to)
       except Exception as e:
         if isinstance(e, ApiException) == False:
           raise
         
-        _LOGGER.debug(f'Failed to retrieve gas rates for {target_mprn}/{target_serial_number} ({tariff_code})')
+        _LOGGER.debug(f'Failed to retrieve gas rates for {target_mprn}/{target_serial_number} ({tariff.code})')
 
       # Make sure our rate information doesn't contain any negative values https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/506
       if new_rates is not None:
@@ -67,11 +67,11 @@ async def async_refresh_gas_rates_data(
             break
         
       if new_rates is not None:
-        _LOGGER.debug(f'Gas rates retrieved for {target_mprn}/{target_serial_number} ({tariff_code});')
+        _LOGGER.debug(f'Gas rates retrieved for {target_mprn}/{target_serial_number} ({tariff.code});')
 
         raise_rate_events(current,
                           private_rates_to_public_rates(new_rates),
-                          { "mprn": target_mprn, "serial_number": target_serial_number, "tariff_code": tariff_code },
+                          { "mprn": target_mprn, "serial_number": target_serial_number, "tariff_code": tariff.code },
                           fire_event,
                           EVENT_GAS_PREVIOUS_DAY_RATES,
                           EVENT_GAS_CURRENT_DAY_RATES,

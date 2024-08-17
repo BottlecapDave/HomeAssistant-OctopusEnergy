@@ -1,4 +1,14 @@
+import { readFileSync } from 'fs';
+import { join } from 'path';
+
 const bodySuffix = "---\nEnjoying the integration? Why not make a one time or monthly [GitHub sponsorship](https://github.com/sponsors/bottlecapdave) or use my [Octopus Energy referral link](https://share.octopus.energy/gray-jade-372)?"
+
+function getMinimumHomeAssistantVersion() {
+  const hacsFilePath = join(__dirname, '../hacs.json');
+  const buffer = readFileSync(hacsFilePath);
+  const content = JSON.parse(buffer.toString());
+  return content.homeassistant;
+}
 
 async function createGithubRelease(githubToken: string, githubOwnerRepo: string, tag: string, notes: string) {
   if (!githubToken) {
@@ -45,9 +55,10 @@ async function createGithubRelease(githubToken: string, githubOwnerRepo: string,
   }
 }
 
+const minimumHAVersionNote = `\n**Minimum HA Version**: ${getMinimumHomeAssistantVersion()}\n\n`;
 createGithubRelease(
   process.env.GITHUB_TOKEN,
   process.env.GITHUB_REPOSITORY,
   process.argv[2],
-  `${process.argv[3]}\n${bodySuffix}`
+  `${process.argv[3]}\n${minimumHAVersionNote}${bodySuffix}`
 ).then(() => console.log('Success'));

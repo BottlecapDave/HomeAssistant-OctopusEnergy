@@ -34,13 +34,12 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative gas consumption in kwh."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point, calorific_value):
+  def __init__(self, hass: HomeAssistant, coordinator, meter, point, calorific_value):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
 
     self._hass = hass
-    self._tariff_code = tariff_code
     self._native_consumption_units = meter["consumption_units"]
     self._state = None
     self._last_reset = None
@@ -62,7 +61,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Gas {self._serial_number} {self._mprn} Previous Accumulative Consumption (kWh)"
+    return f"Previous Accumulative Consumption (kWh) Gas ({self._serial_number}/{self._mprn})"
 
   @property
   def device_class(self):
@@ -119,7 +118,6 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
       rate_data,
       standing_charge,
       self._last_reset,
-      self._tariff_code,
       self._native_consumption_units,
       self._calorific_value
     )
@@ -135,8 +133,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
         consumption_and_cost["charges"],
         rate_data,
         UnitOfEnergy.KILO_WATT_HOUR,
-        "consumption_kwh",
-        False
+        "consumption_kwh"
       )
 
       self._state = consumption_and_cost["total_consumption_kwh"]
@@ -155,10 +152,11 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
         "calorific_value": self._calorific_value
       }
 
-      self._attributes["last_evaluated"] = utcnow()
-
     if result is not None:
       self._attributes["data_last_retrieved"] = result.last_retrieved
+      self._attributes["latest_available_data_timestamp"] = result.latest_available_timestamp
+    
+    self._attributes = dict_to_typed_dict(self._attributes)
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

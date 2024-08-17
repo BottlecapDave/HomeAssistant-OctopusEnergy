@@ -8,8 +8,8 @@ async def test_when_get_saving_sessions_is_called_then_events_are_returned():
     # Arrange
     context = get_test_context()
 
-    client = OctopusEnergyApiClient(context["api_key"])
-    account_id = context["account_id"]
+    client = OctopusEnergyApiClient(context.api_key)
+    account_id = context.account_id
 
     # Act
     result = await client.async_get_saving_sessions(account_id)

@@ -23,11 +23,13 @@ Below are the main features of the integration
 
 * [Electricity](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/electricity/) and [gas](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/gas/) meter support including consumption data and rate information
 * [Custom sensor support to target cheapest rates](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/target_rate/)
-* [Custom sensor support for tracking costs of other entities](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/cost_tracker.md)
+* [Custom sensor support for tracking costs of other entities](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/cost_tracker)
+* [Custom sensor support for comparing to other tariffs](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/tariff_comparison)
 * [Octopus Home mini support](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account/#home-mini)
 * [Intelligent tariff settings support](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/intelligent/)
 * [Saving sessions support](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/octoplus/#saving-sessions)
 * [Wheel of fortune support](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/wheel_of_fortune/)
+* [Greener days support](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/greenness_forecast)
 
 ## How to install
 

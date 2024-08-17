@@ -1,3 +1,316 @@
+# [12.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v12.0.2...v12.1.0) (2024-08-11)
+
+
+### Features
+
+* Added support for setting Home Pro screen. You will need to [reinstall](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account/#prerequisites) the API on the Home Pro device to support this feature (3 hours dev time) ([a620052](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a620052fcff83c6a4c1a91c20c332970515b7bda))
+
+## [12.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v12.0.1...v12.0.2) (2024-08-10)
+
+
+### Bug Fixes
+
+* Fixed issue where attributes were not initialised properly for certain sensors (15 minutes dev time) ([a21ec7d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a21ec7dfbcb8256d0d6de9beb28f2f156a53cf94))
+* Fixed issue where previous rate information wasn't retrieved for intelligent tariffs where an intelligent device wasn't available (30 minutes dev time) ([60aa853](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/60aa85389edde64ca7f8be7da69fefa91de6e0b3))
+
+## [12.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v12.0.0...v12.0.1) (2024-08-05)
+
+
+### Bug Fixes
+
+* Fixed issue where rate information wasn't retrieved for intelligent tariffs where an intelligent device wasn't available (2 hours dev time) ([50a7bdf](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/50a7bdf8c2b5d09b0d8d08820fae0db90c422718))
+
+# [12.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.2.2...v12.0.0) (2024-07-27)
+
+
+### Bug Fixes
+
+* fixed event based sensors (e.g. current_day_rates) to be situated in the correct domain (30 minutes dev time) ([239093f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/239093f46ac9cf2327d901fa438cd933a4a5bebc))
+* Removed certain sensors for Octopus Home Pro as data is not available (5 minutes dev time) ([85ad59c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/85ad59c16ed8f3820c7d42abc3ca8b633117bb4d))
+* removed last_evaluated attribute as this duplicates data already available via HA sensors and removed data_last_retrieved and target_times_last_evaluated from being stored by the recorder (2 hours dev time) ([20603f5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/20603f554e1ecd33396d672587bc54a6c63b441f))
+* Updated unloading of account to properly close existing connections (15 minutes dev time) ([e56e62d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e56e62d328b5e0cdf6e03a14bfc2238a10f42dcc))
+
+
+### Features
+
+* Added hours mode for target rate sensors which allow the sensor to come on the minimum or maximum specified number of hours (2.5 hours dev time) ([a57f5c7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a57f5c77b096cb3c893d5da4e258eea72c195ffe))
+* fixed issue with duel rate tariffs changing to non DD rates. Toggle is now available in config. (40 mins dev time) ([e427419](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e42741981f6c4cbf71e6932160363485e0dd51ed))
+* removed deprecated default tariff override sensors (5 minutes dev time) ([21bf804](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/21bf80402248458e56f96c831fe9e73d0e71312c))
+
+
+### BREAKING CHANGES
+
+* last_evaluated attribute has been removed from all entities. You should use the inbuilt last_updated
+state/attribute provided by HA
+* Removed data_last_retrieved and
+target_times_last_evaluated from being stored in the database to try and reduce footprint. This
+follows HA guidelines around attributes that change frequently
+* Removed the deprecated default tariff override sensors. If you still require this feature, you
+should be using the new way to define them. See
+https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/tariff_comparison/ for more
+details
+* If you are referencing any of the event based sensors that have had their domains fixed, you will
+need to update these references accordingly
+
+## [11.2.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.2.1...v11.2.2) (2024-07-10)
+
+
+### Bug Fixes
+
+* Fixed division issue with cost tracker when an update event is fired but no change is detected (30 minutes dev tim) ([c0eba23](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c0eba23f44a749711b689f396efc276ae05c81d3))
+* Fixed initialisation issue when only gas is supplied by OE (Thanks [@ksimuk](https://github.com/ksimuk)) ([1823628](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1823628193ee3be1a050d6a2bfeffada39138c3f))
+* Fixed issue where current consumption sensors were not available if you configured only a Home Pro (30 minutes dev tim) ([6499cc1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6499cc1d72bdb43a27b2ad1e157853eef462ec01))
+* Improved Home Pro error messages (5 minutes dev time) ([c5e6968](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c5e69686ce4b25c0487c1524376310e06ddcebd6))
+* Separate stopping demand sensor from updating if total consumption is not available from Home Pro (30 minutes dev time) ([a03cfab](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a03cfab83baa7a8d5c1519a98a5215d8b060676b))
+* Sort meters by most recently active to account for switching meters (15 minutes dev) ([27c39af](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/27c39af46e749f6b0e8a313ce338d956975bfd06))
+
+## [11.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.2.0...v11.2.1) (2024-06-29)
+
+
+### Bug Fixes
+
+* Fixed calculating total gas consumption from Home Pro when reported in cubic meters (1 hour dev time) ([09965b5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/09965b5d90b8bdd8606880ecbacb2de908d48190))
+* Fixed issue where home pro could not be unset ([2d419c9](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2d419c99df7d642d8d1d6e2e975a09eb53bf7294))
+* Fixed issue where old inactive meters were being registered (1 hour dev time) ([9ab2bf7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9ab2bf79954bd3f94c45e51cc52dbd5e0591d035))
+* Improved Home Pro connection errors (30 minutes dev time) ([40582ae](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/40582ae801e770e854a5727cca628906dc679019))
+* Updated home pro installation command (Thanks @DJBenson) ([5502619](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/55026196aaa6e8744b63a81a4fe5274f15d4b305))
+* Updated home pro to ignore total_consumption of zero (15 minutes dev) ([4a110f3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4a110f36b96c0bb018df08468c87df22f4bc190b))
+* Updated home pro to report None if demand not available ([fd4cbbb](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fd4cbbb0abc946aef84e4c9eabf8fe3f8bc3ade6))
+
+# [11.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.1.1...v11.2.0) (2024-06-16)
+
+
+### Bug Fixes
+
+* Add threshold for cost tracker to allow tradcked total_increasing sensor to decrease slightly without treating it as a reset (30 minutes dev) ([0de0bb3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0de0bb3f36bf92d0abc1a78e7148ce179bd09dc0))
+
+
+### Features
+
+* Added experimental support for Octopus Home Pro (3 hours dev time) ([2560b6b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2560b6b6597d4e1e6e4c66c9e2aeadcf95a0c5be))
+* Added sensors for displaying current total consumption (40 minutes dev) ([dbb2b5d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/dbb2b5da5956aa07a77211e0acbe5f6590a13351))
+* Updated intelligent charge limit to be an input box rather than slider ([778f197](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/778f19774794f0506d2936524ec7d04feb0ce84f))
+
+## [11.1.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.1.0...v11.1.1) (2024-06-12)
+
+
+### Bug Fixes
+
+* Fixed support for duel rate tariff that doesn't conform to normal structure (30 minutes dev work) ([3951db9](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3951db981f1c9dfefa3d780159e8d91ebc5676ea))
+
+# [11.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.0.2...v11.1.0) (2024-06-10)
+
+
+### Bug Fixes
+
+* Added some additional checks around cost tracker attributes ([79d339c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/79d339c4446a775304568d6bfd1cff4f9da80939))
+* Fixed spin wheel of fortune service ([42a0f65](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/42a0f65ebed7f2493dbcc8e7abc4a8758aa0ef0a))
+* Made tariff rate unique calculations more resilient to incomplete rate information ([3b8ce91](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3b8ce91dc32f6d763bd79a3dd4a7efd025788c4d))
+
+
+### Features
+
+* Added ability to compare multiple tariff which supersedes current overrides (4 hours dev time) ([effba64](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/effba64d7b1aec46ea328ef7a4653b24c41bd393))
+* Added repair notice for when API key has become invalid (1 hour dev time) ([6a49f60](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6a49f608bc4158a07b15b3f36f74a030d5eb80b8))
+* Added repair notice if rates change to a state where new entities become available or existing entities are no longer applicable (1 hour dev time) ([e207c23](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e207c23df70198c38586e49a001745544dd0015c))
+* Added support for business tariffs (5 hours dev time) ([804cd9d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/804cd9d02ca40ba5145af273405188ab29ec3db4))
+
+# [11.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.0.2...v11.1.0) (2024-06-10)
+
+
+### Bug Fixes
+
+* Added some additional checks around cost tracker attributes ([79d339c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/79d339c4446a775304568d6bfd1cff4f9da80939))
+* Fixed spin wheel of fortune service ([42a0f65](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/42a0f65ebed7f2493dbcc8e7abc4a8758aa0ef0a))
+* Made tariff rate unique calculations more resilient to incomplete rate information ([3b8ce91](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3b8ce91dc32f6d763bd79a3dd4a7efd025788c4d))
+
+
+### Features
+
+* Added ability to compare multiple tariff which supersedes current overrides (4 hours dev time) ([effba64](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/effba64d7b1aec46ea328ef7a4653b24c41bd393))
+* Added repair notice for when API key has become invalid (1 hour dev time) ([6a49f60](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6a49f608bc4158a07b15b3f36f74a030d5eb80b8))
+* Added repair notice if rates change to a state where new entities become available or existing entities are no longer applicable (1 hour dev time) ([e207c23](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e207c23df70198c38586e49a001745544dd0015c))
+* Added support for business tariffs (5 hours dev time) ([804cd9d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/804cd9d02ca40ba5145af273405188ab29ec3db4))
+
+## [11.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.0.1...v11.0.2) (2024-05-18)
+
+
+### Bug Fixes
+
+* Reverted requirement for target sensor to have target hours above zero (30 minutes dev) ([0098efa](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0098efa7151808deb9b2a73a69b39a19f7b86208))
+
+## [11.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v11.0.0...v11.0.1) (2024-05-18)
+
+
+### Bug Fixes
+
+* Fixed export suffix for electricity meter device (1 minute) ([7c7d999](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7c7d999c05254f8a272dbc90d50ac689db932407))
+* Fixed issue where old target rates are present when config is updated (45 minutes) ([6aeada6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6aeada69944802e25b29309e393d5a8b27a8da15))
+* Fixed issue where start, end and offset could not be unset for target rate config (15 minutes) ([cb170af](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cb170afa78de0940c17b333b76708ef5e9c834e8))
+* Fixed refreshing gas consumption data service (15 minutes) ([fbe3f46](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fbe3f468c2a35928dd1142be346590e47fa444e3))
+* Fixed target rate sensor not being able to set zero hours (20 minutes) ([022f30d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/022f30db7895f986cfd94fdefa5a51b2b1c8a0d5))
+
+# [11.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.3.1...v11.0.0) (2024-05-12)
+
+
+### Bug Fixes
+
+* Accounted when intelligent device can come back with null data from OE ([53db610](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/53db610134fbb4356603b76634c56f71304280f7))
+* Fixed issue when str error reported if config of target rate sensor fails first time ([c5cfd83](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c5cfd8310ad196b666d6ff3ed5c28fc6587e2b1b))
+* Fixed issue with dispatching sensor if rate is off peak from now until the end of the available rate data ([c583b8b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c583b8b54c483ab6e6770e01b13b886511aa1596))
+* fixed tariff override data having rate value in pounds and pence for consistency ([48f832a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/48f832afd9cb5ea846d655e7eb3ea7937520822b))
+* Fixed updating cost tracker config ([c934614](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c934614ccd0a9b5ee471280be2c0d565000a9c52))
+* Fixed warning for deprecated EventType reference ([e8786df](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e8786df9fb476a56fd4a4347f03ab46075c02be7))
+* Limited backoff logic to 30 minutes between attempts so it doesn't increase forever ([f2de64d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f2de64d2ac176c26e7224b6ddeae04cf5f85d6ea))
+* Updated attributes and events to have datetimes in local time (UTC in winter, BST in summer) ([19ac60f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/19ac60f10ae81f4a81bedbd448c5563c41e35805))
+* Updated minimum Home Assistant version to 2024.5.0
+
+
+### Features
+
+* Added ability to configure optional minimum/maximum rates for target rate sensors ([95ac448](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/95ac4489653a97cd2a3d3274908543d73ff5827f))
+* Added support for applying weightings to target rate slots ([80bbb52](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/80bbb52b413aa722a5a4a5eac654901fd51185f7))
+* Added support for tracking 3 rate tariffs (e.g. Cosy) via separate sensors ([40d21d1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/40d21d1815ceb9f1e1eff1be7362b42b15950668))
+* Added the ability to delete devices manually ([404d2e9](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/404d2e9edef494348dfc9e95c86d0b410746f548))
+* updated the default names of various sensors to be more useful in areas of HA when space is limited ([870c917](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/870c917fd4a166ea71a51971df9b98e7d75957bd))
+
+
+### BREAKING CHANGES
+
+* If you are relying on the previous default names of sensors then you will need to update your
+sensors manually. Only the visual default name of the sensors have changed; the entity ids will
+remain the same and therefore will not effect any automatmations. If you have manually changed the
+names of the sensors, this should not effect you.
+* For 3 rate tariffs (e.g. Cosy), the peak based sensors will no longer track consumption/cost for both peak and standard rates. There is now a third sensor (standard) which tracks the middle rate. In addition, if you are on a tariff that doesn't have off peak, standard or peak rates, the current off peak/peak based sensors will no longer be provided by the integration.
+* If you were relying on datetime based sensor attributes or event properties being in UTC, you will
+need to adapt accordingly
+* If you were using tariff override rate information, you may need to adjust your use due to changes
+in how value is reported
+
+## [10.3.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.3.0...v10.3.1) (2024-04-20)
+
+
+### Bug Fixes
+
+* Removed excessive logging that did not adhere to log settings ([cb27d6d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cb27d6de4601d36e6527fb76945fec2bb444c0ee))
+
+# [10.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.2.1...v10.3.0) (2024-04-15)
+
+
+### Bug Fixes
+
+* Fixed account setup descriptions to be clearer ([4107fb7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4107fb714fec41de2286223f5f664fe787f19068))
+* Fixed peak/off peak cost calculations during BST time period ([11d5a9f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/11d5a9f601f937052a9bf0e2785300b06bb4f34f))
+* Fixed peak/offpeak consumption/cost sensors going into negative on energy dashboard ([c167f39](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c167f39a7c99ae5126cfacdedeeab86fd0ec3ac9))
+* Fixed rate min/max/average calculations during BST ([fdccc5b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fdccc5b86031c01afd09cc0fa2613f7c9802411c))
+* Increased minimum required version of home assistant ([e662659](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e662659aea551e9fdbf92268b2d703ab9d3cbd69))
+* Updated electricity rates to not update initially until dispatch rates have been retrieved if on intelligent tariff ([756535e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/756535eb5c950d995a342f344cabf462177febf3))
+
+
+### Features
+
+* Added duration in minutes to saving sessions ([35d17dc](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/35d17dc61df7879557e4ab8ec85cff61f874c9ce))
+* Added redeemable points attribute that determines how many points can be converted into account credit ([9d1233d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9d1233da6db055447aa68b293564ed834b9853cf))
+* Added service for redeeming octoplus points for account credit ([0390a33](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0390a33b89498f05fbeb9c6b413119bea2d43a3a))
+
+## [10.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.2.0...v10.2.1) (2024-04-07)
+
+
+### Bug Fixes
+
+* Fixed logging issue with cost trackers ([cfdd927](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cfdd927ab0b94be9554cb7458789e9034c6605a5))
+* Fixed target rate sensor picking times an hour before/after requested timeframe - timezone issue ([3651780](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3651780af51ba37c85f357925631174a298feed3))
+
+# [10.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.1.4...v10.2.0) (2024-04-06)
+
+
+### Bug Fixes
+
+* Added missing account id information for previous accumulative gas consumption sensor ([6bd6387](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6bd63871d1ad77ceb9c12f5e8696b725b1d77a00))
+* Fixed issue when consumption data from Octopus Home Mini is not defined but demand data is ([d51647c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d51647c2962d0f09c96ee81e9fa369879f901875))
+* Fixed missing account id for repair message relating to octopus mini not being available. ([fa5650f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fa5650faf8726d81c1ed1bf2b8c6c222a8dab59b))
+
+
+### Features
+
+* Added attribute to previous consumption sensors to indicate the latest available data via the API ([cd735c6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cd735c6c2ac0eb60ceb44f9dcf9629ece91cf701))
+* Added cost tracker for weekly and monthly accumulations ([01c3733](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/01c3733111abeceff2edba2a0074fc49a279b41f))
+* Added sensor for next greenness forecast ([0708271](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0708271eb5bf919d57e7fc421fbc5dbdd2fd10c3))
+* Added service for adjusting specified dates within cost tracker accumulative sensors (e.g. week and month) ([26a9462](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/26a946228a1fc47fa82c1020584b4762b9973c91))
+* Added service for adjusting standard daily cost tracker ([1378e47](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1378e4708e4846b46e05ec2fa557f04c49cb01fa))
+* Added service for resetting a cost tracker back to zero. ([d28d63b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d28d63b17dec9d43604f44d96ead6dc35f9a967f))
+* Added support for multiple different accounts ([c15b4af](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c15b4af83b7075631871a7069f734b823c7e3504))
+* Updated cost tracker config to be updatable ([c24db54](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c24db54df842d09ed86f383d2eca1bfd5c5e0342))
+
+## [10.1.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.1.3...v10.1.4) (2024-02-22)
+
+
+### Bug Fixes
+
+* Fixed invalid reference ([0083b2d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0083b2df5de510c3a4fc8d2ae9d72563cd9f9abd))
+
+## [10.1.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.1.2...v10.1.3) (2024-02-22)
+
+
+### Bug Fixes
+
+* Fixed issue when dispatch source is not defined to count as smart charge ([0af23b9](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0af23b98d1702a847354b5bf28cec11507c551ea))
+* Fixed issue when dispatching sensor would not stay on during full half hour when planned dispatch is active ([e64c694](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e64c69484dbdba271c5d3dd0adaeb7b839ff8b1b))
+* Fixed issue where start/end times could be incorrect on next/previous rate sensors ([c431dac](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c431dac82e4172cbfc2ed9e59faa831ef1523e55))
+* Fixed issue with calculating current rates for intelligent based tariffs ([6efcfc0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6efcfc0fd10eb5d23f4e2fb62ae04bfa28d26018))
+
+## [10.1.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.1.1...v10.1.2) (2024-02-18)
+
+
+### Bug Fixes
+
+* Automatically removed devices associated with old meters ([e6905d0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e6905d096373ed40b6f8a7fb0cd62c4a8bd436a2))
+* Fixed dispatching sensor incorrectly turning on when bump charges are activated ([b37e4b1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b37e4b1a4ae5447ebc8465839eb9c0c1a9f4be5c))
+* Fixed issue where client is not cleaned up correctly on restart ([deac67b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/deac67ba099c251c4b21bc11ab32d7bd480548a1))
+* Fixed issue with cost trackers when old state is unavailable/unknown ([599613b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/599613b6b4e4b5aa70670e2dd653f3f3f88ae605))
+
+## [10.1.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.1.0...v10.1.1) (2024-02-17)
+
+
+### Bug Fixes
+
+* Fixed icon for update cost tracker service ([e1d048a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e1d048a1fc99655000163931f38b680a66915aa0))
+* Fixed issue when rates were not adjusted for dispatches that started or ended part way through a rate ([fb3e3f2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fb3e3f2cf269a90c01b97162729dba2db98b8aa1))
+* Fixed issue where previous cost is calculated incorrectly when on restart and on intelligent tariff and dispatches have not been retrieved ([406f2c8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/406f2c84f392d17e9fd836597ecda00f8e95c47d))
+* Fixed issue where tariff attribute on entities would be old tariff when switched over ([a328fec](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a328fece656eda5a5f0bf432b3ef290517abab07))
+* Fixed issue with cost tracker when used with total_increasing entities that reset ([6759317](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6759317099328d185cd4fa05fdc628f29b6b0d04))
+* Fixed previous consumption cost not adapting when tariff changes ([2ec461e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2ec461eb1616f2f10ab583ba561823202bbf6706))
+* Updated saving sessions to ignore octopus test events ([9488a37](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9488a370b0d703fe68eb34f9e4222fd18ff5d0ec))
+
+# [10.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.0.4...v10.1.0) (2024-02-10)
+
+
+### Bug Fixes
+
+* Fixed charge limit sensor to behave like the app around accepted values ([c42a619](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c42a619fdffeee0c6e28fec92070396132146ebc))
+* fixed issue with override costs getting stuck ([1b93638](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1b9363863a4e3f9567fd0d6060a1dd7d4e2270cf))
+* Fixed issue with rate sensors not updating properly when intelligent dispatches update short notice ([f1623e5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f1623e5af0e36193f41d4abfab406e1036d528b1))
+* Fixed issue with refreshing previous consumption and database lagged behind processing ([fbe9896](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fbe9896e1711586398070b19a728847182c8aedc))
+
+
+### Features
+
+* Add icons for services - Thanks [@andrew-codechimp](https://github.com/andrew-codechimp) ([0ef0a7c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0ef0a7cfad2da1cf14c9d8bb2f7177cf104420a1))
+* Added greenness forecast support ([872711e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/872711eb23b1d14434d6421a9328aeb757b59776))
+* Updated dispatching sensor to include current start/end and next start/end attributes ([e2ed003](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e2ed00340dc4d94ba5700c03589a875518c89541))
+* Updated off peak sensor to include current start/end and next start/end times as attributes ([8da4679](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8da46796871283227d3e96bd05eb65a70b755df7))
+
+## [10.0.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.0.3...v10.0.4) (2024-01-29)
+
+
+### Bug Fixes
+
+* Added additional check in electricity rate calculations ([1e30999](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1e30999b0ff030de8bf6310e8000fbb40c75b4a6))
+* Fixed current consumption sensors not updating if other sensors were disabled ([443a130](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/443a13075d5719cc20a4d1d38e4fd9350fe9c89a))
+* Fixed issue with binary sensors not restoring previous state correctly ([5c85dae](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5c85dae64b59d7d3c467fe6f8cf822acb040a1da))
+* Fixed restoration of entities to handle "unavailable" state ([248e700](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/248e70099d462912cd29f8d5009124d04c9e0c86))
+* Fixed target rate setup when invalid start/end time is set and on agile tariff ([fe1bad1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fe1bad197a7607b4763a515b849cb1ef6e1dd2cd))
+
 ## [10.0.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v10.0.2...v10.0.3) (2024-01-20)
 
 

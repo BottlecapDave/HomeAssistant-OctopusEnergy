@@ -38,9 +38,7 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
     self._state = None
     self._latest_date = None
     self._previous_total_consumption = None
-    self._attributes = {
-      "last_evaluated": None
-    }
+    self._last_evaluated = None
 
   @property
   def unique_id(self):
@@ -50,7 +48,7 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Gas {self._serial_number} {self._mprn} Current Consumption"
+    return f"Current Consumption Gas ({self._serial_number}/{self._mprn})"
 
   @property
   def device_class(self):
@@ -97,15 +95,17 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
       current_date,
       consumption_result,
       self._state,
-      self._attributes["last_evaluated"] if "last_evaluated" in self._attributes and self._attributes["last_evaluated"] is not None else current_date,
+      self._last_evaluated if self._last_evaluated is not None else current_date,
       self._previous_total_consumption
     )
 
     self._state = result.state
     self._latest_date = result.last_evaluated
     self._previous_total_consumption = result.total_consumption
-    self._attributes["last_evaluated"] = current_date
+    self._last_evaluated = current_date
     self._attributes["data_last_retrieved"] = result.data_last_retrieved
+
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

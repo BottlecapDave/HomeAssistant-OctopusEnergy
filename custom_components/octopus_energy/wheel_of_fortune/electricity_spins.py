@@ -23,6 +23,8 @@ _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyWheelOfFortuneElectricitySpins(CoordinatorEntity, RestoreSensor):
   """Sensor for current wheel of fortune spins for electricity"""
+  
+  _unrecorded_attributes = frozenset({"data_last_retrieved"})
 
   def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, account_id: str):
     """Init sensor."""
@@ -31,10 +33,7 @@ class OctopusEnergyWheelOfFortuneElectricitySpins(CoordinatorEntity, RestoreSens
     self._account_id = account_id
     self._client = client
     self._state = None
-    self._attributes = {
-      "last_evaluated": None
-    }
-    self._last_evaluated = None
+    self._attributes = {}
 
     self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
 
@@ -46,7 +45,7 @@ class OctopusEnergyWheelOfFortuneElectricitySpins(CoordinatorEntity, RestoreSens
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy {self._account_id} Wheel Of Fortune Spins Electricity"
+    return f"Wheel Of Fortune Spins Electricity ({self._account_id})"
 
   @property
   def icon(self):
@@ -74,7 +73,7 @@ class OctopusEnergyWheelOfFortuneElectricitySpins(CoordinatorEntity, RestoreSens
       self._state = result.spins.electricity
       self._attributes["data_last_retrieved"] = result.last_retrieved
     
-    self._attributes["last_evaluated"] = utcnow()
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

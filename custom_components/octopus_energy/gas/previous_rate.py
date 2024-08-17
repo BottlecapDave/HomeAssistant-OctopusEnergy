@@ -7,7 +7,7 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant, callback
 
-from homeassistant.util.dt import (utcnow)
+from homeassistant.util.dt import (now)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -51,7 +51,7 @@ class OctopusEnergyGasPreviousRate(CoordinatorEntity, OctopusEnergyGasSensor, Re
   @property
   def name(self):
     """Name of the sensor."""
-    return f'Gas {self._serial_number} {self._mprn} Previous Rate'
+    return f'Previous Rate Gas ({self._serial_number}/{self._mprn})'
   
   @property
   def state_class(self):
@@ -85,9 +85,9 @@ class OctopusEnergyGasPreviousRate(CoordinatorEntity, OctopusEnergyGasSensor, Re
   @callback
   def _handle_coordinator_update(self) -> None:
     """Retrieve the previous rate for the sensor."""
-    current = utcnow()
+    current = now()
     rates_result: GasRatesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
-    if (rates_result is not None and (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0)):
+    if (rates_result is not None):
       _LOGGER.debug(f"Updating OctopusEnergyGasPreviousRate for '{self._mprn}/{self._serial_number}'")
 
       rate_information = get_previous_rate_information(rates_result.rates, current)
@@ -118,7 +118,7 @@ class OctopusEnergyGasPreviousRate(CoordinatorEntity, OctopusEnergyGasSensor, Re
     if rates_result is not None:
       self._attributes["data_last_retrieved"] = rates_result.last_retrieved
 
-    self._attributes["last_evaluated"] = current
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

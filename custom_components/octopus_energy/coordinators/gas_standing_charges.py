@@ -16,7 +16,7 @@ from ..const import (
 )
 
 from ..api_client import ApiException, OctopusEnergyApiClient
-from . import BaseCoordinatorResult, get_gas_meter_tariff_code
+from . import BaseCoordinatorResult, get_gas_meter_tariff
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -39,20 +39,20 @@ async def async_refresh_gas_standing_charges_data(
   period_to = period_from + timedelta(days=1)
 
   if (account_info is not None):
-    tariff_code = get_gas_meter_tariff_code(current, account_info, target_mprn, target_serial_number)
-    if tariff_code is None:
+    tariff = get_gas_meter_tariff(current, account_info, target_mprn, target_serial_number)
+    if tariff is None:
       return None
     
     new_standing_charge = None
     if (existing_standing_charges_result is None or current >= existing_standing_charges_result.next_refresh):
       try:
-        new_standing_charge = await client.async_get_gas_standing_charge(tariff_code, period_from, period_to)
-        _LOGGER.debug(f'Gas standing charges retrieved for {target_mprn}/{target_serial_number} ({tariff_code})')
+        new_standing_charge = await client.async_get_gas_standing_charge(tariff.product, tariff.code, period_from, period_to)
+        _LOGGER.debug(f'Gas standing charges retrieved for {target_mprn}/{target_serial_number} ({tariff.code})')
       except Exception as e:
         if isinstance(e, ApiException) == False:
           raise
         
-        _LOGGER.debug(f'Failed to retrieve gas standing charges for {target_mprn}/{target_serial_number} ({tariff_code})')
+        _LOGGER.debug(f'Failed to retrieve gas standing charges for {target_mprn}/{target_serial_number} ({tariff.code})')
       
       if new_standing_charge is not None:
         return GasStandingChargeCoordinatorResult(current, 1, new_standing_charge)
@@ -60,11 +60,11 @@ async def async_refresh_gas_standing_charges_data(
       result = None
       if (existing_standing_charges_result is not None):
         result = GasStandingChargeCoordinatorResult(existing_standing_charges_result.last_retrieved, existing_standing_charges_result.request_attempts + 1, existing_standing_charges_result.standing_charge)
-        _LOGGER.warning(f"Failed to retrieve new gas standing charges for {target_mprn}/{target_serial_number} ({tariff_code}) - using cached standing charges. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve new gas standing charges for {target_mprn}/{target_serial_number} ({tariff.code}) - using cached standing charges. Next attempt at {result.next_refresh}")
       else:
         # We want to force into our fallback mode
         result = GasStandingChargeCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_STANDING_CHARGE), 2, None)
-        _LOGGER.warning(f"Failed to retrieve new gas standing charges for {target_mprn}/{target_serial_number} ({tariff_code}). Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve new gas standing charges for {target_mprn}/{target_serial_number} ({tariff.code}). Next attempt at {result.next_refresh}")
 
       return result
   

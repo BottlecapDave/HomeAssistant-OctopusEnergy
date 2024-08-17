@@ -3,24 +3,30 @@
   "config": {
     "step": {
       "account": {
-        "description": "Setup your basic account information.",
+        "description": "Setup your basic account information. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account",
         "data": {
+          "account_id": "Account ID (e.g. A-AAAA1111)",
           "api_key": "Api key",
-          "account_id": "Your account Id (e.g. A-AAAA1111)",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
-          "live_consumption_refresh_in_minutes": "Home Mini refresh rate in minutes",
-          "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
-          "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
+          "live_electricity_consumption_refresh_in_minutes": "Home Mini/Pro electricity refresh rate in minutes",
+          "live_gas_consumption_refresh_in_minutes": "Home Mini/Pro gas refresh rate in minutes",
           "previous_electricity_consumption_days_offset": "Previous consumption electricity days offset",
           "previous_gas_consumption_days_offset": "Previous consumption gas days offset",
           "calorific_value": "Gas calorific value.",
           "electricity_price_cap": "Optional electricity price cap in pence",
-          "gas_price_cap": "Optional gas price cap in pence"
+          "gas_price_cap": "Optional gas price cap in pence",
+          "home_pro_address": "Home Pro address and port (e.g. http://localhost:8000)",
+          "home_pro_api_key": "Home Pro API key",
+          "favour_direct_debit_rates": "Favour direct debit rates where available"
         },
         "data_description": {
-          "account_id": "This can be found on your bill or at the top of https://octopus.energy/dashboard",
-          "api_key": "This can be found at https://octopus.energy/dashboard/developer/",
-          "calorific_value": "This can be found on your gas statement and can change from time to time"
+          "account_id": "You account ID can be found on your bill or at the top of https://octopus.energy/dashboard",
+          "api_key": "You API key can be found at https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
+          "calorific_value": "This can be found on your gas statement and can change from time to time",
+          "electricity_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
+          "gas_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
+          "home_pro_address": "WARNING: This is experimental.",
+          "home_pro_api_key": "WARNING: This is experimental"
         }
       },
       "target_rate": {
@@ -28,6 +34,7 @@
         "data": {
           "name": "The name of your target",
           "hours": "The hours you require in decimal format.",
+          "hours_mode": "How the defined hours should be interpreted",
           "type": "The type of target you're after",
           "mpan": "The MPAN number of the meter to apply the target to",
           "start_time": "The minimum time to start the device",
@@ -35,7 +42,16 @@
           "offset": "The offset to apply to the scheduled block to be considered active",
           "rolling_target": "Re-evaluate multiple times a day",
           "last_rates": "Find last applicable rates",
-          "target_invert_target_rates": "Invert targeted rates"
+          "target_invert_target_rates": "Invert targeted rates",
+          "minimum_rate": "The optional minimum rate for target hours",
+          "maximum_rate": "The optional maximum rate for target hours",
+          "weighting": "The optional weighting to apply to the discovered rates"
+        }
+      },
+      "target_rate_account": {
+        "description": "Select the account your target rate sensor will be using for its calculations",
+        "data": {
+          "account_id": "Account"
         }
       },
       "cost_tracker": {
@@ -44,7 +60,30 @@
           "name": "The name of your cost sensor",
           "mpan": "The meter the cost rates should be associated with",
           "target_entity_id": "The entity to track the costs for.",
-          "entity_accumulative_value": "Tracked entity state is accumulative"
+          "entity_accumulative_value": "Tracked entity state is accumulative",
+          "weekday_reset": "The day when the week cost sensor should reset",
+          "month_day_reset": "The day when the month cost sensor should reset"
+        }
+      },
+      "cost_tracker_account": {
+        "description": "Select the account your cost tracker will be using for its calculations",
+        "data": {
+          "account_id": "Account"
+        }
+      },
+      "tariff_comparison": {
+        "description": "Compare your cost with another tariff to see if you're on the best tariff for your energy use. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/tariff_comparison.",
+        "data": {
+          "name": "The name of your tariff comparison",
+          "mpan_mprn": "The meter of the data that should be compared to",
+          "product_code": "The product code of the tariff to compare.",
+          "tariff_code": "The tariff code of the tariff to compare."
+        }
+      },
+      "tariff_comparison_account": {
+        "description": "Select the account your tariff comparison will be using for its calculations",
+        "data": {
+          "account_id": "Account"
         }
       }
     },
@@ -58,7 +97,21 @@
       "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol",
       "invalid_hours_time_frame": "The target hours do not fit in the elected target time frame",
       "invalid_mpan": "Meter not found in account with an active tariff",
-      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information."
+      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information.",
+      "duplicate_account": "Account has already been configured",
+      "invalid_week_day": "Week reset day must be between 0 and 6 (inclusively)",
+      "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)",
+      "invalid_price": "Price must be in the form pounds and pence (e.g. 0.10)",
+      "invalid_weighting": "The weighting format is not supported.",
+      "invalid_weighting_slots": "The number of weighting blocks does not equal the specified number of hours.",
+      "weighting_not_supported_for_type": "Weighting is only supported for continuous target rates",
+      "weighting_not_supported_for_hour_mode": "Weighting is not supported for this hour mode",
+      "invalid_product_or_tariff": "Product or tariff code does not exist",
+      "minimum_or_maximum_rate_not_specified": "Either minimum and/or maximum rate must be specified for minimum hours mode",
+      "all_home_pro_values_not_set": "Either both Home Pro address and API key must be set, or neither must be set",
+      "home_pro_connection_failed": "Cannot connect to Home Pro device. Please check the specified address is correct and that you've installed the custom API as per the instructions.",
+      "home_pro_authentication_failed": "Cannot authenticate with API on Home Pro device. Please check authentication token matches the value you configured.",
+      "home_pro_not_responding": "Connected to Home Pro device, but responding with unsuccessful status. This implies the Home Pro failed to connect to your meter."
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",
@@ -69,21 +122,28 @@
     "step": {
       "user": {
         "title": "Update Account Info",
-        "description": "Update your basic account information.",
+        "description": "Update your basic account information. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account",
         "data": {
           "api_key": "Api key",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
-          "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
-          "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
+          "live_electricity_consumption_refresh_in_minutes": "Home Mini/Pro electricity refresh rate in minutes",
+          "live_gas_consumption_refresh_in_minutes": "Home Mini/Pro gas refresh rate in minutes",
           "previous_electricity_consumption_days_offset": "Previous consumption electricity days offset",
           "previous_gas_consumption_days_offset": "Previous consumption gas days offset",
           "calorific_value": "Gas calorific value",
           "electricity_price_cap": "Optional electricity price cap in pence",
-          "gas_price_cap": "Optional gas price cap in pence"
+          "gas_price_cap": "Optional gas price cap in pence",
+          "home_pro_address": "Home Pro address and port (e.g. http://localhost:8000)",
+          "home_pro_api_key": "Home Pro API key",
+          "favour_direct_debit_rates": "Favour direct debit rates where available"
         },
         "data_description": {
-          "api_key": "This can be found at https://octopus.energy/dashboard/developer/",
-          "calorific_value": "This can be found on your gas statement and can change from time to time"
+          "api_key": "You API key can be found at https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
+          "calorific_value": "This can be found on your gas statement and can change from time to time",
+          "electricity_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
+          "gas_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
+          "home_pro_address": "WARNING: This is experimental",
+          "home_pro_api_key": "WARNING: This is experimental"
         }
       },
       "target_rate": {
@@ -91,13 +151,17 @@
         "description": "Update the settings for your target rate sensor, which can be used to help you save energy and money. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/target_rate",
         "data": {
           "hours": "The hours you require in decimal format.",
+          "hours_mode": "How the defined hours should be interpreted",
           "mpan": "The MPAN number of the meter to apply the target to",
           "start_time": "The minimum time to start the device",
           "end_time": "The maximum time to stop the device",
           "offset": "The offset to apply to the scheduled block to be considered active",
           "rolling_target": "Re-evaluate multiple times a day",
           "last_rates": "Find last applicable rates",
-          "target_invert_target_rates": "Invert targeted rates"
+          "target_invert_target_rates": "Invert targeted rates",
+          "minimum_rate": "The optional minimum rate for target hours",
+          "maximum_rate": "The optional maximum rate for target hours",
+          "weighting": "The optional weighting to apply to the discovered rates"
         }
       },
       "cost_tracker": {
@@ -106,7 +170,18 @@
           "name": "The name of your cost sensor",
           "mpan": "The meter the cost rates should be associated with",
           "target_entity_id": "The entity to track the costs for.",
-          "entity_accumulative_value": "Tracked entity state is accumulative"
+          "entity_accumulative_value": "Tracked entity state is accumulative",
+          "weekday_reset": "The day when the week cost sensor should reset",
+          "month_day_reset": "The day when the month cost sensor should reset"
+        }
+      },
+      "tariff_comparison": {
+        "description": "Compare your cost with another tariff to see if you're on the best tariff for your energy use. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/tariff_comparison.",
+        "data": {
+          "name": "The name of your tariff comparison",
+          "mpan_mprn": "The meter of the data that should be compared to",
+          "product_code": "The product code of the tariff to compare.",
+          "tariff_code": "The tariff code of the tariff to compare."
         }
       }
     },
@@ -119,33 +194,69 @@
       "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol",
       "invalid_hours_time_frame": "The target hours do not fit in the elected target time frame",
       "invalid_mpan": "Meter not found in account with an active tariff",
-      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information."
+      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information.",
+      "invalid_week_day": "Week reset day must be between 0 and 6 (inclusively)",
+      "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)",
+      "invalid_price": "Price must be in the form pounds and pence (e.g. 0.10)",
+      "invalid_weighting": "The weighting format is not supported.",
+      "invalid_weighting_slots": "The number of weighting blocks does not equal the specified number of hours.",
+      "weighting_not_supported_for_type": "Weighting is only supported for continuous target rates",
+      "weighting_not_supported_for_hour_mode": "Weighting is not supported for this hour mode",
+      "invalid_product_or_tariff": "Product or tariff code does not exist",
+      "minimum_or_maximum_rate_not_specified": "Either minimum and/or maximum rate must be specified for minimum hours mode",
+      "all_home_pro_values_not_set": "Either both Home Pro address and API key must be set, or neither must be set",
+      "home_pro_connection_failed": "Cannot connect to Home Pro device. Please check the specified address is correct and that you've installed the custom API as per the instructions.",
+      "home_pro_authentication_failed": "Cannot authenticate with API on Home Pro device. Please check authentication token matches the value you configured.",
+      "home_pro_not_responding": "Connected to Home Pro device, but responding with unsuccessful status. This implies the Home Pro failed to connect to your meter."
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",
       "account_not_found": "Account information is not found"
     }
   },
+  "exceptions": {
+    "cost_tracker_invalid_date": {
+      "message": "Date must be between {min_date} and {max_date}"
+    },
+    "octoplus_points_no_points": {
+      "message": "The minimum number of redeemable points is not available"
+    },
+    "octoplus_points_maximum_points": {
+      "message": "You cannot redeem more than {redeemable_points} points"
+    }
+  },
   "issues": {
     "account_not_found": {
       "title": "Account \"{account_id}\" not found",
-      "description": "The integration failed to retrieve the information associated with your configured account. Please check your account exists and that your API key is valid. Click 'Learn More' to find out how to fix this."
+      "description": "The integration failed to retrieve the information associated with your configured account. Please check your account exists and that your API key is valid. Click \"Learn More\" to find out how to fix this."
     },
     "unknown_tariff_format": {
       "title": "Invalid format - {type} - {tariff_code}",
-      "description": "The tariff \"{tariff_code}\" associated with your {type} meter is not in an expected format. Click on 'Learn More' with instructions on what to do next."
+      "description": "The tariff \"{tariff_code}\" associated with your {type} meter is not in an expected format. Click on \"Learn More\" with instructions on what to do next."
     },
-    "unknown_tariff": {
-      "title": "Unknown tariff - {type} - {tariff_code}",
-      "description": "The tariff \"{tariff_code}\" associated with your {type} meter has not been found. Click on 'Learn More' with instructions on what to do next."
+    "unknown_product": {
+      "title": "Unknown product - {type} - {product_code}",
+      "description": "The product \"{product_code}\" associated with your {type} meter has not been found. Click on \"Learn More\" with instructions on what to do next."
     },
     "invalid_target_rate": {
       "title": "Invalid target rate \"{name}\"",
-      "description": "The target rate \"{name}\" has become invalid. Click on 'Learn More' with instructions on what to do next."
+      "description": "The target rate \"{name}\" has become invalid. Click on \"Learn More\" with instructions on what to do next."
     },
     "octopus_mini_not_valid": {
       "title": "Octopus Mini not valid for {type} meter",
-      "description": "Octopus Mini has been configured for account '{account_id}', but it's not available for {type} meter {mpan_mprn}/{serial_number}. If this is expected, you can ignore this notice, otherwise click 'Learn More' with instructions on what to do next."
+      "description": "Octopus Mini has been configured for account \"{account_id}\", but it's not available for {type} meter {mpan_mprn}/{serial_number}. If this is expected, you can ignore this notice, otherwise click \"Learn More\" with instructions on what to do next."
+    },
+    "invalid_api_key": {
+      "title": "Invalid API key for account \"{account_id}\"",
+      "description": "The configured API key appears to be invalid for the configured account \"{account_id}\". Please reconfigure to fix this issue."
+    },
+    "electricity_unique_rates_updated": {
+      "title": "\"{account_id}\" requires reloading",
+      "description": "The electricity rates for \"{account_id}\" have updated which result in either entities no longer updating correctly or new entities becoming available. Please reload the integration associated with this account to fix this issue."
+    },
+    "cost_override_obsolete": {
+      "title": "Cost override has been deprecated",
+      "description": "It looks like you've setup the cost override entities for {type} meter {mpan_mprn}/{serial_number}. These cost override entities have been deprecated in favour of setting them up via the integrations page. Please click \"Learn More\" with instructions on what to do next."
     }
   }
 }

@@ -30,9 +30,32 @@ update_target_config:
         The optional offset to apply to the target rate when it starts
       selector:
         text:
+    target_minimum_rate:
+      name: Minimum rate
+      description:
+        The optional minimum rate the selected rates should not go below
+      example: '0.10'
+      selector:
+        text:
+    target_maximum_rate:
+      name: Maximum rate
+      description:
+        The optional maximum rate the selected rates should not go above
+      example: '0.10'
+      selector:
+        text:
+    target_weighting:
+      name: Weighting
+      description:
+        The optional weighting that should be applied to the selected rates
+      example: '1,2,1'
+      selector:
+        text:
+
 purge_invalid_external_statistic_ids:
   name: Purge invalid external statistics
   description: Removes external statistics for all meters that don't have an active tariff
+
 refresh_previous_consumption_data:
   name: Refresh previous consumption data
   description: Refreshes the previous consumption data for a given entity from a given date.
@@ -47,6 +70,7 @@ refresh_previous_consumption_data:
       required: true
       selector:
         date:
+
 join_octoplus_saving_session_event:
   name: Join Octoplus saving session event
   description: Joins a given Octoplus saving session event.
@@ -60,6 +84,7 @@ join_octoplus_saving_session_event:
       description: The code of the event that is to be joined.
       selector:
         text:
+
 spin_wheel_of_fortune:
   name: Spin wheel of fortune
   description: Spins the wheel of fortune for a given energy type
@@ -67,6 +92,23 @@ spin_wheel_of_fortune:
     entity:
       integration: octopus_energy
       domain: sensor
+
+redeem_octoplus_points_into_account_credit:
+  name: Redeem octoplus points into account credit
+  description: Redeems a given number of octoplus points into account credit
+  target:
+    entity:
+      integration: octopus_energy
+      domain: sensor
+  fields:
+    points_to_redeem:
+      name: Points to redeem
+      description: The number of points to redeem
+      selector:
+        number:
+          min: 8
+          step: 1
+          mode: box
 
 update_cost_tracker:
   name: Update cost tracker
@@ -81,3 +123,63 @@ update_cost_tracker:
       description: Determines if the cost tracker should be enabled or disabled.
       selector:
         boolean:
+
+reset_cost_tracker:
+  name: Reset cost tracker
+  description: Resets a given cost tracker back to zero.
+  target:
+    entity:
+      integration: octopus_energy
+      domain: sensor
+
+adjust_accumulative_cost_tracker:
+  name: Adjusts accumulative cost tracker
+  description: Adjusts a record within an accumulative cost tracker (e.g. sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_week or sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_month)
+  target:
+    entity:
+      integration: octopus_energy
+      domain: sensor
+  fields:
+    date:
+      name: Date
+      description: The date to adjust within the accumulative cost tracker
+      selector:
+        date:
+    cost:
+      name: Cost
+      description: The new cost for the selected date
+      selector:
+        number:
+          step: any
+          mode: box
+          unit_of_measurement: GBP
+    consumption:
+      name: Consumption
+      description: The new consumption for the selected date
+      selector:
+        number:
+          step: any
+          mode: box
+          unit_of_measurement: kWh
+
+adjust_cost_tracker:
+  name: Adjusts cost tracker
+  description: Adjusts a record within todays cost tracker (e.g. sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}})
+  target:
+    entity:
+      integration: octopus_energy
+      domain: sensor
+  fields:
+    datetime:
+      name: DateTime
+      description: The datetime of the period to adjust within the cost tracker
+      selector:
+        datetime:
+    consumption:
+      name: Consumption
+      description: The new consumption for the selected date
+      selector:
+        number:
+          step: any
+          mode: box
+          unit_of_measurement: kWh

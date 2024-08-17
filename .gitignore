@@ -1,6 +1,5 @@
 node_modules/
 **/__pycache__/**
-run_tests.sh
-run_unit_tests.sh
-run_integration_tests.sh
+run_*tests.sh
 site
+.cache/

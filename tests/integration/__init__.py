@@ -1,8 +1,21 @@
 import os
 from datetime import timedelta
-import aiohttp
-import json
-from homeassistant.util.dt import (parse_datetime)
+
+class TestContext:
+  api_key: str
+  account_id: str
+  gas_mprn: str
+  gas_serial_number: str
+  electricity_mpan: str
+  electricity_serial_number: str
+
+  def __init__(self, api_key, account_id, gas_mprn, gas_serial_number, electricity_mpan, electricity_serial_number):
+    self.api_key = api_key
+    self.account_id = account_id
+    self.gas_mprn = gas_mprn
+    self.gas_serial_number = gas_serial_number
+    self.electricity_mpan = electricity_mpan
+    self.electricity_serial_number = electricity_serial_number
 
 def get_test_context():
   api_key = os.environ["API_KEY"]
@@ -28,15 +41,8 @@ def get_test_context():
   electricity_serial_number = os.environ["ELECTRICITY_SN"]
   if (electricity_serial_number is None):
       raise Exception("ELECTRICITY_SN must be set")
-
-  return {
-    "api_key": api_key,
-    "account_id": account_id,
-    "gas_mprn": gas_mprn,
-    "gas_serial_number": gas_serial_number,
-    "electricity_mpan": electricity_mpan,
-    "electricity_serial_number": electricity_serial_number
-  }
+  
+  return TestContext(api_key, account_id, gas_mprn, gas_serial_number, electricity_mpan, electricity_serial_number)
 
 def create_consumption_data(period_from, period_to, reverse = False):
   consumption = []
@@ -73,6 +79,7 @@ def create_rate_data(period_from, period_to, expected_rates: list):
     rates.append({
       "start": current_valid_from,
       "end": current_valid_to,
+      "tariff_code": "1-ER-TARIFF-L",
       "value_inc_vat": expected_rates[rate_index],
       "is_capped": False
     })

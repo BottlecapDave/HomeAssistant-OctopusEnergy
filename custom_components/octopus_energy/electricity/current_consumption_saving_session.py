@@ -27,7 +27,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyCurrentElectricityConsumptionSavingSession(CoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
   """Sensor for displaying the current electricity consumption for the current saving session."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, saving_session_coordinator, tariff_code, meter, point):
+  def __init__(self, hass: HomeAssistant, coordinator, saving_session_coordinator, meter, point):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
@@ -35,7 +35,6 @@ class OctopusEnergyCurrentElectricityConsumptionSavingSession(CoordinatorEntity,
     self._state = None
     self._last_reset = None
     
-    self._tariff_code = tariff_code
     self._saving_session_coordinator = saving_session_coordinator
 
   @property
@@ -46,7 +45,7 @@ class OctopusEnergyCurrentElectricityConsumptionSavingSession(CoordinatorEntity,
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan} Saving Session Current Consumption"
+    return f"Saving Session Current Consumption Electricity ({self._serial_number}/{self._mpan})"
   
   @property
   def entity_registry_enabled_default(self) -> bool:

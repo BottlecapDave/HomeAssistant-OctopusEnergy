@@ -10,7 +10,7 @@ This is fired when the current day rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the current day |
+| `rates` | `array` | The list of rates applicable for the current day |
 | `tariff_code` | `string` | The tariff code associated with current day's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -41,7 +41,7 @@ This is fired when the previous day rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous day |
+| `rates` | `array` | The list of rates applicable for the previous day |
 | `tariff_code` | `string` | The tariff code associated with previous day's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -72,7 +72,7 @@ This is fired when the next day rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the next day |
+| `rates` | `array` | The list of rates applicable for the next day |
 | `tariff_code` | `string` | The tariff code associated with next day's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -103,7 +103,7 @@ This is fired when the [previous consumption's](./entities/electricity.md#previo
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous consumption |
+| `rates` | `array` | The list of rates applicable for the previous consumption |
 | `tariff_code` | `string` | The tariff code associated with previous consumption's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -134,7 +134,7 @@ This is fired when the [previous consumption override's](./entities/electricity.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous consumption override |
+| `rates` | `array` | The list of rates applicable for the previous consumption override |
 | `tariff_code` | `string` | The tariff code associated with previous consumption override's rates |
 | `mpan` | `string` | The mpan of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -162,7 +162,7 @@ This is fired when the current day rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the current day |
+| `rates` | `array` | The list of rates applicable for the current day |
 | `tariff_code` | `string` | The tariff code associated with current day's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -193,7 +193,7 @@ This is fired when the previous day rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous day |
+| `rates` | `array` | The list of rates applicable for the previous day |
 | `tariff_code` | `string` | The tariff code associated with previous day's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -224,7 +224,7 @@ This is fired when the next day rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the next day |
+| `rates` | `array` | The list of rates applicable for the next day |
 | `tariff_code` | `string` | The tariff code associated with next day's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -251,11 +251,11 @@ This is fired when the next day rates are updated.
 
 `octopus_energy_gas_previous_consumption_rates`
 
-This is fired when the [previous consumption's](./entities/gas.md#previous-accumulative-consumption) rates are updated.
+This is fired when the [previous consumption's](./entities/gas.md#previous-accumulative-consumption-m3) rates are updated.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous consumption |
+| `rates` | `array` | The list of rates applicable for the previous consumption |
 | `tariff_code` | `string` | The tariff code associated with previous consumption's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -286,7 +286,7 @@ This is fired when the [previous consumption override's](./entities/gas.md#tarif
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `rates` | `list` | The list of rates applicable for the previous consumption override |
+| `rates` | `array` | The list of rates applicable for the previous consumption override |
 | `tariff_code` | `string` | The tariff code associated with previous consumption override's rates |
 | `mprn` | `string` | The mprn of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
@@ -315,10 +315,11 @@ This event is raised when a new saving session is discovered.
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `account_id` | `string` | The id of the account the new saving session is for |
-| `event_code` | `string` | The code of the new saving session event. This is required if you wishing to use the [join event service](./services.md#join_octoplus_saving_session_event) |
+| `event_code` | `string` | The code of the new saving session event. This is required if you wishing to use the [join event service](./services.md#octopus_energyjoin_octoplus_saving_session_event) |
 | `event_id` | `string` | The id of the event |
 | `event_start` | `datetime` | The date/time the event starts |
 | `event_end` | `datetime` | The date/time the event ends |
+| `event_duration_in_minutes` | `integer` | The duration of the event in minutes |
 | `event_octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |
 
 ### Automation Example
@@ -333,7 +334,7 @@ This event is raised when a new saving session is discovered.
     data:
       title: "New Saving Session"
       message: >
-        New Octopus Energy saving session available. It starts at {{ trigger.event.data["event_start"].strftime('%H:%M') }} on {{ trigger.event.data["event_start"].day }}/{{ trigger.event.data["event_start"].month }}
+        New Octopus Energy saving session available. It starts at {{ trigger.event.data["event_start"].strftime('%H:%M') }} on {{ trigger.event.data["event_start"].day }}/{{ trigger.event.data["event_start"].month }} for {{ trigger.event.data["event_duration_in_minutes"] | int }} minutes.
 ```
 
 ## All Saving Sessions
@@ -356,6 +357,7 @@ Each available event item will include the following attributes
 | `code` | `string` | The event code of the event. This will be required to join via the [join service](./services.md) |
 | `start` | `datetime` | The date/time the event starts |
 | `end` | `datetime` | The date/time the event starts |
+| `duration_in_minutes` | `integer` | The duration of the event in minutes |
 | `octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |
 
 Each joined event item will include the following attributes
@@ -365,6 +367,7 @@ Each joined event item will include the following attributes
 | `id` | `integer` | The id of the event |
 | `start` | `datetime` | The date/time the event starts |
 | `end` | `datetime` | The date/time the event starts |
+| `duration_in_minutes` | `integer` | The duration of the event in minutes |
 | `octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |
 | `rewarded_octopoints` | `integer` | The total number of octopoints that were awarded (if any or known) |
 
@@ -381,4 +384,62 @@ Each joined event item will include the following attributes
       title: "Saving Sessions Updated"
       message: >
         Saving session events updated. The latest joined event awarded {{ trigger.event.data.joined_events[0]["rewarded_octopoints"] }}
+```
+
+## Electricity Previous Consumption Tariff Comparison Rates
+
+`octopus_energy_elec_previous_consumption_tariff_comparison_rates`
+
+This is fired when the [tariff comparison](./setup/tariff_comparison.md) rates are updated.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `rates` | `array` | The list of rates applicable for the previous consumption tariff comparison |
+| `product_code` | `string` | The product code associated with previous consumption tariff comparison rates |
+| `tariff_code` | `string` | The tariff code associated with previous consumption tariff comparison rates |
+| `mprn` | `string` | The mprn of the meter associated with these rates |
+| `serial_number` | `string` | The serial number of the meter associated with these rates |
+
+### Automation Example
+
+```yaml
+- trigger:
+  - platform: event
+    event_type: octopus_energy_elec_previous_consumption_tariff_comparison_rates
+  condition: []
+  action:
+  - service: persistent_notification.create
+    data:
+      title: "Rates Updated"
+      message: >
+        New rates available for {{ trigger.event.data.mprn }}. Starting value is {{ trigger.event.data.rates[0]["value_inc_vat"] }}
+```
+
+## Gas Previous Consumption Tariff Comparison Rates
+
+`octopus_energy_gas_previous_consumption_tariff_comparison_rates`
+
+This is fired when the [tariff comparison](./setup/tariff_comparison.md) rates are updated.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `rates` | `array` | The list of rates applicable for the previous consumption tariff comparison |
+| `product_code` | `string` | The product code associated with previous consumption tariff comparison rates |
+| `tariff_code` | `string` | The tariff code associated with previous consumption tariff comparison rates |
+| `mprn` | `string` | The mprn of the meter associated with these rates |
+| `serial_number` | `string` | The serial number of the meter associated with these rates |
+
+### Automation Example
+
+```yaml
+- trigger:
+  - platform: event
+    event_type: octopus_energy_gas_previous_consumption_tariff_comparison_rates
+  condition: []
+  action:
+  - service: persistent_notification.create
+    data:
+      title: "Rates Updated"
+      message: >
+        New rates available for {{ trigger.event.data.mprn }}. Starting value is {{ trigger.event.data.rates[0]["value_inc_vat"] }}
 ```

@@ -27,13 +27,12 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyCurrentAccumulativeGasConsumptionKwh(MultiCoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the current accumulative gas consumption."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, standing_charge_coordinator, tariff_code, meter, point, calorific_value):
+  def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, standing_charge_coordinator, meter, point, calorific_value):
     """Init sensor."""
     MultiCoordinatorEntity.__init__(self, coordinator, [rates_coordinator, standing_charge_coordinator])
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
     
     self._hass = hass
-    self._tariff_code = tariff_code
 
     self._state = None
     self._last_reset = None
@@ -49,7 +48,7 @@ class OctopusEnergyCurrentAccumulativeGasConsumptionKwh(MultiCoordinatorEntity, 
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Gas {self._serial_number} {self._mprn} Current Accumulative Consumption"
+    return f"Current Accumulative Consumption Gas ({self._serial_number}/{self._mprn})"
 
   @property
   def device_class(self):
@@ -98,7 +97,6 @@ class OctopusEnergyCurrentAccumulativeGasConsumptionKwh(MultiCoordinatorEntity, 
       rate_data,
       standing_charge,
       None, # We want to always recalculate
-      self._tariff_code,
       "kwh", # Our current sensor always reports in kwh
       self._calorific_value
     )
@@ -113,7 +111,6 @@ class OctopusEnergyCurrentAccumulativeGasConsumptionKwh(MultiCoordinatorEntity, 
         "mprn": self._mprn,
         "serial_number": self._serial_number,
         "is_estimated": False,
-        "last_evaluated": consumption_and_cost["last_evaluated"],
         "data_last_retrieved": consumption_result.last_retrieved if consumption_result is not None else None,
         "charges": list(map(lambda charge: {
           "start": charge["start"],
@@ -123,6 +120,7 @@ class OctopusEnergyCurrentAccumulativeGasConsumptionKwh(MultiCoordinatorEntity, 
         "calorific_value": self._calorific_value
       }
 
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

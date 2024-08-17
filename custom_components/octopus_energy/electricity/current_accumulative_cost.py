@@ -23,24 +23,26 @@ from ..coordinators import MultiCoordinatorEntity
 from ..coordinators.current_consumption import CurrentConsumptionCoordinatorResult
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
+from ..utils.rate_information import get_peak_name, get_rate_index, get_unique_rates
 
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
   """Sensor for displaying the current days accumulative electricity cost."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, standing_charge_coordinator, tariff_code, meter, point):
+  def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, standing_charge_coordinator, meter, point, peak_type = None):
     """Init sensor."""
     MultiCoordinatorEntity.__init__(self, coordinator, [rates_coordinator, standing_charge_coordinator])
-    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._hass = hass
-    self._tariff_code = tariff_code
 
     self._state = None
     self._last_reset = None
     self._rates_coordinator = rates_coordinator
     self._standing_charge_coordinator = standing_charge_coordinator
+    self._peak_type = peak_type
+
+    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
   @property
   def entity_registry_enabled_default(self) -> bool:
@@ -48,17 +50,25 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
 
     This only applies when fist added to the entity registry.
     """
-    return self._is_smart_meter
+    return self._is_smart_meter and self._peak_type is None
 
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_current_accumulative_cost"
+    base_name = f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_current_accumulative_cost"
+    if self._peak_type is not None:
+      return f"{base_name}_{self._peak_type}"
+    
+    return base_name
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Current Accumulative Cost"
+    base_name = f"Current Accumulative Cost {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})"
+    if self._peak_type is not None:
+      return f"{get_peak_name(self._peak_type)} {base_name}"
+
+    return base_name
 
   @property
   def device_class(self):
@@ -103,13 +113,18 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
     rate_data = self._rates_coordinator.data.rates if self._rates_coordinator is not None and self._rates_coordinator.data is not None else None
     standing_charge = self._standing_charge_coordinator.data.standing_charge["value_inc_vat"] if self._standing_charge_coordinator is not None and self._standing_charge_coordinator.data is not None else None
     
+    target_rate = None
+    if current is not None and self._peak_type is not None:
+      unique_rates = get_unique_rates(current, rate_data)
+      unique_rate_index = get_rate_index(len(unique_rates), self._peak_type)
+      target_rate = unique_rates[unique_rate_index] if unique_rate_index is not None else None
+
     consumption_and_cost = calculate_electricity_consumption_and_cost(
-      current,
       consumption_data,
       rate_data,
-      standing_charge,
+      standing_charge if target_rate is None else 0,
       None, # We want to always recalculate
-      self._tariff_code
+      target_rate=target_rate
     )
 
     if (consumption_and_cost is not None):
@@ -122,11 +137,8 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
         "serial_number": self._serial_number,
         "is_export": self._is_export,
         "is_smart_meter": self._is_smart_meter,
-        "tariff_code": self._tariff_code,
-        "standing_charge": consumption_and_cost["standing_charge"],
-        "total_without_standing_charge": consumption_and_cost["total_cost_without_standing_charge"],
+        "tariff_code": rate_data[0]["tariff_code"],
         "total": consumption_and_cost["total_cost"],
-        "last_evaluated": consumption_and_cost["last_evaluated"],
         "data_last_retrieved": consumption_result.last_retrieved if consumption_result is not None else None,
         "charges": list(map(lambda charge: {
           "start": charge["start"],
@@ -137,6 +149,11 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
         }, consumption_and_cost["charges"]))
       }
 
+      if target_rate is None:
+        self._attributes["standing_charge"] = consumption_and_cost["standing_charge"]
+        self._attributes["total_cost_without_standing_charge"] = consumption_and_cost["total_cost_without_standing_charge"]
+
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):
@@ -149,4 +166,4 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
       self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
       self._attributes = dict_to_typed_dict(state.attributes)
     
-      _LOGGER.debug(f'Restored OctopusEnergyCurrentAccumulativeElectricityCost state: {self._state}')
+      _LOGGER.debug(f'Restored state: {self._state}')

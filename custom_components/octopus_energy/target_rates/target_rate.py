@@ -1,5 +1,6 @@
 import logging
 from datetime import timedelta
+import math
 
 import voluptuous as vol
 
@@ -22,6 +23,9 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers import translation
 
 from ..const import (
+  CONFIG_TARGET_HOURS_MODE,
+  CONFIG_TARGET_MAX_RATE,
+  CONFIG_TARGET_MIN_RATE,
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_HOURS,
   CONFIG_TARGET_OLD_END_TIME,
@@ -37,6 +41,9 @@ from ..const import (
   CONFIG_TARGET_LAST_RATES,
   CONFIG_TARGET_INVERT_TARGET_RATES,
   CONFIG_TARGET_OFFSET,
+  CONFIG_TARGET_TYPE_CONTINUOUS,
+  CONFIG_TARGET_TYPE_INTERMITTENT,
+  CONFIG_TARGET_WEIGHTING,
   DATA_ACCOUNT,
   DOMAIN,
 )
@@ -44,6 +51,8 @@ from ..const import (
 from . import (
   calculate_continuous_times,
   calculate_intermittent_times,
+  compare_config,
+  create_weighting,
   get_applicable_rates,
   get_target_rate_info
 )
@@ -56,6 +65,8 @@ _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
   """Sensor for calculating when a target should be turned on or off."""
+  
+  _unrecorded_attributes = frozenset({"data_last_retrieved", "target_times_last_evaluated"})
 
   def __init__(self, hass: HomeAssistant, account_id: str, coordinator, config, is_export):
     """Init sensor."""
@@ -121,7 +132,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     account_result = self._hass.data[DOMAIN][self._account_id][DATA_ACCOUNT]
     account_info = account_result.account if account_result is not None else None
 
-    check_for_errors(self._hass, self._config, account_info, now())
+    current_local_date = now()
+    check_for_errors(self._hass, self._config, account_info, current_local_date)
 
     # Find the current rate. Rates change a maximum of once every 30 minutes.
     current_date = utcnow()
@@ -138,7 +150,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
           break
       
       if all_rates_in_past:
-        if self.coordinator is not None and self.coordinator.data is not None:
+        if self.coordinator is not None and self.coordinator.data is not None and self.coordinator.data.rates is not None:
           all_rates = self.coordinator.data.rates
         else:
           _LOGGER.debug(f"Rate data missing. Setting to empty array")
@@ -170,29 +182,47 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
           if (CONFIG_TARGET_INVERT_TARGET_RATES in self._config):
             invert_target_rates = self._config[CONFIG_TARGET_INVERT_TARGET_RATES]
 
+          min_rate = None
+          if CONFIG_TARGET_MIN_RATE in self._config:
+            min_rate = self._config[CONFIG_TARGET_MIN_RATE]
+
+          max_rate = None
+          if CONFIG_TARGET_MAX_RATE in self._config:
+            max_rate = self._config[CONFIG_TARGET_MAX_RATE]
+
           find_highest_rates = (self._is_export and invert_target_rates == False) or (self._is_export == False and invert_target_rates)
 
           applicable_rates = get_applicable_rates(
-            current_date,
+            current_local_date,
             start_time,
             end_time,
             all_rates,
             is_rolling_target
           )
+          
+          number_of_slots = math.ceil(target_hours * 2)
+          weighting = create_weighting(self._config[CONFIG_TARGET_WEIGHTING] if CONFIG_TARGET_WEIGHTING in self._config else None, number_of_slots)
 
-          if (self._config[CONFIG_TARGET_TYPE] == "Continuous"):
+          if (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_CONTINUOUS):
             self._target_rates = calculate_continuous_times(
               applicable_rates,
               target_hours,
               find_highest_rates,
-              find_last_rates
+              find_last_rates,
+              min_rate,
+              max_rate,
+              weighting,
+              hours_mode = self._config[CONFIG_TARGET_HOURS_MODE]
             )
-          elif (self._config[CONFIG_TARGET_TYPE] == "Intermittent"):
+          elif (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_INTERMITTENT):
             self._target_rates = calculate_intermittent_times(
               applicable_rates,
               target_hours,
               find_highest_rates,
-              find_last_rates
+              find_last_rates,
+              min_rate,
+              max_rate,
+              hours_mode = self._config[CONFIG_TARGET_HOURS_MODE]
             )
           else:
             _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")
@@ -219,10 +249,10 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     self._attributes["next_min_cost"] = active_result["next_min_cost"]
     self._attributes["next_max_cost"] = active_result["next_max_cost"]
     
-    self._attributes["last_evaluated"] = current_date
     self._state = active_result["is_active"]
 
     _LOGGER.debug(f"calculated: {self._state}")
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
   
   async def async_added_to_hass(self):
@@ -237,13 +267,17 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
         state.attributes,
         [CONFIG_TARGET_OLD_NAME, CONFIG_TARGET_OLD_HOURS, CONFIG_TARGET_OLD_TYPE, CONFIG_TARGET_OLD_START_TIME, CONFIG_TARGET_OLD_END_TIME, CONFIG_TARGET_OLD_MPAN]
       )
-      # Make sure our attributes don't override any changed settings
-      self._attributes.update(self._config)
+
+      # Reset everything if our settings have changed
+      if compare_config(self._config, self._attributes) == False:
+        self._state = False
+        self._attributes = self._config.copy()
+        self._attributes["is_target_export"] = self._is_export
     
       _LOGGER.debug(f'Restored OctopusEnergyTargetRate state: {self._state}')
 
   @callback
-  async def async_update_config(self, target_start_time=None, target_end_time=None, target_hours=None, target_offset=None):
+  async def async_update_config(self, target_start_time=None, target_end_time=None, target_hours=None, target_offset=None, target_minimum_rate=None, target_maximum_rate=None, target_weighting=None):
     """Update sensors config"""
 
     config = dict(self._config)
@@ -273,6 +307,27 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       trimmed_target_offset = target_offset.strip('\"')
       config.update({
         CONFIG_TARGET_OFFSET: trimmed_target_offset
+      })
+
+    if target_minimum_rate is not None:
+      # Inputs from automations can include quotes, so remove these
+      trimmed_target_minimum_rate = target_minimum_rate.strip('\"')
+      config.update({
+        CONFIG_TARGET_MIN_RATE: trimmed_target_minimum_rate if trimmed_target_minimum_rate != "" else None
+      })
+
+    if target_maximum_rate is not None:
+      # Inputs from automations can include quotes, so remove these
+      trimmed_target_maximum_rate = target_maximum_rate.strip('\"')
+      config.update({
+        CONFIG_TARGET_MAX_RATE: trimmed_target_maximum_rate if trimmed_target_maximum_rate != "" else None
+      })
+
+    if target_weighting is not None:
+      # Inputs from automations can include quotes, so remove these
+      trimmed_target_weighting = target_weighting.strip('\"')
+      config.update({
+        CONFIG_TARGET_WEIGHTING: trimmed_target_weighting if trimmed_target_weighting != "" else None
       })
 
     account_result = self._hass.data[DOMAIN][self._account_id][DATA_ACCOUNT]

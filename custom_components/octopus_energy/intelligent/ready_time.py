@@ -47,7 +47,7 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy {self._account_id} Intelligent Ready Time"
+    return f"Intelligent Ready Time ({self._account_id})"
 
   @property
   def icon(self):
@@ -75,8 +75,8 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
 
     if settings_result.settings is not None:
       self._state = settings_result.settings.ready_time_weekday
-      self._attributes["last_evaluated"] = utcnow()
 
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_set_value(self, value: time) -> None:

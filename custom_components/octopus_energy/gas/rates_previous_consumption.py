@@ -20,7 +20,7 @@ class OctopusEnergyGasPreviousConsumptionRates(OctopusEnergyGasSensor, EventEnti
   def __init__(self, hass: HomeAssistant, meter, point):
     """Init sensor."""
     # Pass coordinator to base class
-    OctopusEnergyGasSensor.__init__(self, hass, meter, point)
+    OctopusEnergyGasSensor.__init__(self, hass, meter, point, "event")
 
     self._hass = hass
     self._state = None
@@ -36,7 +36,7 @@ class OctopusEnergyGasPreviousConsumptionRates(OctopusEnergyGasSensor, EventEnti
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Gas {self._serial_number} {self._mprn} Previous Consumption Rates"
+    return f"Previous Consumption Rates Gas ({self._serial_number}/{self._mprn})"
   
   @property
   def entity_registry_enabled_default(self) -> bool:

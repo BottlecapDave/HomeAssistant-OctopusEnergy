@@ -2,8 +2,7 @@
 import re
 from datetime import datetime, timedelta
 
-
-from homeassistant.util.dt import (as_utc, parse_datetime)
+from homeassistant.util.dt import (as_local, as_utc, parse_datetime)
 
 from ..const import (
   REGEX_TARIFF_PARTS,
@@ -23,7 +22,7 @@ class TariffParts:
     self.product_code = product_code
     self.region = region
 
-def get_tariff_parts(tariff_code) -> TariffParts:
+def get_tariff_parts(tariff_code: str) -> TariffParts:
   matches = re.search(REGEX_TARIFF_PARTS, tariff_code)
   if matches is None:
     return None
@@ -37,7 +36,20 @@ def get_tariff_parts(tariff_code) -> TariffParts:
 
   return TariffParts(energy, rate, product_code, region)
 
-def get_active_tariff_code(utcnow: datetime, agreements):
+class Tariff:
+  product: str
+  code: str
+
+  def __init__(self, product: str, code: str):
+    self.product = product
+    self.code = code
+
+def is_day_night_tariff(tariff_code: str) -> bool:
+  tariff_parts = get_tariff_parts(tariff_code)
+  print(tariff_parts)
+  return tariff_parts is not None and "2" in tariff_parts.rate
+
+def get_active_tariff(utcnow: datetime, agreements):
   latest_agreement = None
   latest_valid_from = None
 
@@ -59,12 +71,13 @@ def get_active_tariff_code(utcnow: datetime, agreements):
         latest_valid_from = valid_from
 
   if latest_agreement is not None:
-    return latest_agreement["tariff_code"]
+    return Tariff(latest_agreement["product_code"], latest_agreement["tariff_code"])
   
   return None
 
 def get_off_peak_cost(current: datetime, rates: list):
-  today_start = as_utc(current.replace(hour=0, minute=0, second=0, microsecond=0))
+  # Need to use as local to ensure we get the correct from/to periods relative to our local time
+  today_start = as_utc(as_local(current).replace(hour=0, minute=0, second=0, microsecond=0))
   today_end = today_start + timedelta(days=1)
   off_peak_cost = None
 
@@ -89,6 +102,40 @@ def is_off_peak(current: datetime, rates):
           rate_information["current_rate"]["is_intelligent_adjusted"] == False and 
           value_inc_vat_to_pounds(off_peak_value) == rate_information["current_rate"]["value_inc_vat"])
 
+class OffPeakTime:
+  start: datetime
+  end: datetime
+
+  def __init__(self, start, end):
+    self.start = start
+    self.end = end
+
+def get_off_peak_times(current: datetime, rates: list, include_intelligent_adjusted = False):
+  off_peak_value = get_off_peak_cost(current, rates)
+  times: list[OffPeakTime] = []
+
+  if rates is not None and off_peak_value is not None:
+    start = None
+    rates_length = len(rates)
+    for rate_index in range(rates_length):
+      rate = rates[rate_index]
+      if (rate["value_inc_vat"] == off_peak_value and 
+          ("is_intelligent_adjusted" not in rate or rate["is_intelligent_adjusted"] == False or include_intelligent_adjusted)):
+        if start is None:
+          start = rate["start"]
+      elif start is not None:
+        end = rates[rate_index - 1]["end"]
+        if end >= current:
+          times.append(OffPeakTime(start, end))
+        start = None
+    
+    if start is not None:
+      end = rates[-1]["end"]
+      if end >= current:
+        times.append(OffPeakTime(start, end))
+
+  return times
+
 def private_rates_to_public_rates(rates: list):
   if rates is None:
     return None
@@ -97,8 +144,8 @@ def private_rates_to_public_rates(rates: list):
 
   for rate in rates:
     new_rate = {
-      "start": rate["start"],
-      "end": rate["end"],
+      "start": as_local(rate["start"]),
+      "end": as_local(rate["end"]),
       "value_inc_vat": value_inc_vat_to_pounds(rate["value_inc_vat"])
     }
 

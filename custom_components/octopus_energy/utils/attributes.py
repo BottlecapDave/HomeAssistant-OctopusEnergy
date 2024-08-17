@@ -1,7 +1,10 @@
 import re
 from datetime import datetime
 
+from homeassistant.util.dt import (as_local)
+
 attribute_keys_to_skip = ['mpan', 'mprn']
+default_keys_to_ignore = ['last_evaluated']
 
 def dict_to_typed_dict(data: dict, keys_to_ignore = []):
   if data is not None:
@@ -13,7 +16,7 @@ def dict_to_typed_dict(data: dict, keys_to_ignore = []):
     keys = list(new_data.keys())
 
     for key in keys:
-      if key in keys_to_ignore:
+      if key in keys_to_ignore or key in default_keys_to_ignore:
         del new_data[key]
         continue
 
@@ -34,7 +37,7 @@ def dict_to_typed_dict(data: dict, keys_to_ignore = []):
         is_date = True
         try:
           data_as_datetime = datetime.fromisoformat(new_data[key].replace('Z', '+00:00'))
-          new_data[key] = data_as_datetime
+          new_data[key] = as_local(data_as_datetime)
           continue
         except:
           # Do nothing
@@ -48,6 +51,9 @@ def dict_to_typed_dict(data: dict, keys_to_ignore = []):
           new_array.append(dict_to_typed_dict(item))
 
         new_data[key] = new_array
+      elif isinstance(new_data[key], datetime):
+        # Ensure all dates are in local time
+        new_data[key] = as_local(new_data[key])
 
     return new_data
   

@@ -1,4 +1,7 @@
+import logging
 from ..utils.conversions import value_inc_vat_to_pounds
+
+_LOGGER = logging.getLogger(__name__)
 
 def __get_to(item):
     return item["end"]
@@ -25,7 +28,6 @@ def calculate_gas_consumption_and_cost(
     rate_data,
     standing_charge,
     last_reset,
-    tariff_code,
     consumption_units,
     calorific_value
   ):
@@ -62,7 +64,7 @@ def calculate_gas_consumption_and_cost(
         try:
           rate = next(r for r in rate_data if r["start"] == consumption_from and r["end"] == consumption_to)
         except StopIteration:
-          raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to} for tariff {tariff_code}")
+          raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to}")
 
         value = rate["value_inc_vat"]
         cost = (value * current_consumption_kwh)
@@ -92,6 +94,10 @@ def calculate_gas_consumption_and_cost(
         "last_evaluated": last_calculated_timestamp,
         "charges": charges
       }
+    else:
+      _LOGGER.debug('Skipping gas consumption and cost calculation as last reset has not changed')
+  else:
+    _LOGGER.debug(f'Skipping gas consumption and cost calculation due to lack of data; consumption: {len(consumption_data) if consumption_data is not None else 0}; rates: {len(rate_data) if rate_data is not None else 0}; standing_charge: {standing_charge}')
     
 def get_gas_tariff_override_key(serial_number: str, mprn: str) -> str:
   return f'gas_previous_consumption_tariff_{serial_number}_{mprn}'

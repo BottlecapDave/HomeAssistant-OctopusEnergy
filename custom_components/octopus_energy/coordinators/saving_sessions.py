@@ -2,7 +2,7 @@ import logging
 from datetime import datetime, timedelta
 from typing import Callable, Any
 
-from homeassistant.util.dt import (now)
+from homeassistant.util.dt import (now, as_local)
 from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
 )
@@ -75,8 +75,9 @@ async def async_refresh_saving_sessions(
             "account_id": account_id,
             "event_code": available_event.code,
             "event_id": available_event.id,
-            "event_start": available_event.start,
-            "event_end": available_event.end,
+            "event_start": as_local(available_event.start),
+            "event_end": as_local(available_event.end),
+            "event_duration_in_minutes": available_event.duration_in_minutes,
             "event_octopoints_per_kwh": available_event.octopoints
           })
 
@@ -91,8 +92,9 @@ async def async_refresh_saving_sessions(
 
         joined_events.append({
           "id": ev.id,
-          "start": ev.start,
-          "end": ev.end,
+          "start": as_local(ev.start),
+          "end": as_local(ev.end),
+          "duration_in_minutes": ev.duration_in_minutes,
           "rewarded_octopoints": ev.octopoints,
           "octopoints_per_kwh": original_event.octopoints if original_event is not None else None
         })
@@ -102,8 +104,9 @@ async def async_refresh_saving_sessions(
         "available_events": list(map(lambda ev: {
           "id": ev.id,
           "code": ev.code,
-          "start": ev.start,
-          "end": ev.end,
+          "start": as_local(ev.start),
+          "end": as_local(ev.end),
+          "duration_in_minutes": ev.duration_in_minutes,
           "octopoints_per_kwh": ev.octopoints
         }, available_events)),
         "joined_events": joined_events, 
@@ -164,7 +167,7 @@ async def async_setup_saving_sessions_coordinators(hass, account_id: str):
   hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS_COORDINATOR] = DataUpdateCoordinator(
     hass,
     _LOGGER,
-    name=f"{account_id}_saving_sessions",
+    name=f"saving_sessions_{account_id}",
     update_method=async_update_saving_sessions,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes

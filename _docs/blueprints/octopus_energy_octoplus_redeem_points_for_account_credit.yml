@@ -1,0 +1,54 @@
+blueprint:
+  name: Octopus Energy - Redeem Points For Account Credit
+  description: Automatically redeems points all redeemable points when above a certain threshold for account credit
+  domain: automation
+  author: BottlecapDave
+  input:
+    octoplus_points_entity:
+      name: Octoplus points entity
+      description: The octoplus points entity to redeem points against (e.g. sensor.octopus_energy_{{ACCOUNT_ID}}_octoplus_points)
+      selector:
+        entity:
+          filter:
+          - domain:
+            - sensor
+            integration: octopus_energy
+          multiple: false
+    threshold:
+      name: Threshold hours
+      description: The minimum number of redeemable points to be available for the automatic redemption to occur
+      default: 1
+      selector:
+        number:
+          min: 1
+          mode: box
+          step: 1.0
+    actions:
+      name: Actions
+      description: Notifications or similar to be run. {{message}} is an example message when redemption is successful
+      selector:
+        action: {}
+mode: single
+variables:
+  octoplus_points_entity: !input octoplus_points_entity
+  message: >
+    {% if state_attr(octoplus_points_entity, 'redeemable_points') > 0 %}
+      {{ state_attr(octoplus_points_entity, 'redeemable_points') }} points have been automatically redeemed into account credit.
+    {% endif %}
+trigger:
+- platform: numeric_state
+  entity_id: !input octoplus_points_entity
+  attribute: redeemable_points
+  above: !input threshold
+condition:
+- condition: template
+  value_template: "{{ state_attr(octoplus_points_entity, 'redeemable_points') > 0 }}"
+action:
+- service: octopus_energy.redeem_octoplus_points_into_account_credit
+  data:
+    points_to_redeem: "{{ state_attr(octoplus_points_entity, 'redeemable_points') }}"
+  target:
+    entity_id: !input octoplus_points_entity
+- choose: []
+  default: !input actions
+      

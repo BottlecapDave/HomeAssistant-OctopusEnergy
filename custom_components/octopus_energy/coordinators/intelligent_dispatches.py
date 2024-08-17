@@ -10,6 +10,7 @@ from homeassistant.helpers import storage
 
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
+  DATA_INTELLIGENT_DEVICE,
   DOMAIN,
 
   DATA_CLIENT,
@@ -25,6 +26,7 @@ from ..const import (
 from ..api_client import ApiException, OctopusEnergyApiClient
 from ..api_client.intelligent_dispatches import IntelligentDispatches
 from . import BaseCoordinatorResult
+from ..api_client.intelligent_device import IntelligentDevice
 
 from ..intelligent import async_mock_intelligent_data, clean_previous_dispatches, dictionary_list_to_dispatches, dispatches_to_dictionary_list, has_intelligent_tariff, mock_intelligent_dispatches
 
@@ -58,6 +60,7 @@ async def async_refresh_intelligent_dispatches(
   current: datetime,
   client: OctopusEnergyApiClient,
   account_info,
+  intelligent_device: IntelligentDevice,
   existing_intelligent_dispatches_result: IntelligentDispatchesCoordinatorResult,
   is_data_mocked: bool,
   async_merge_dispatch_data: Callable[[str, list], Awaitable[list]]
@@ -66,7 +69,7 @@ async def async_refresh_intelligent_dispatches(
     account_id = account_info["id"]
     if (existing_intelligent_dispatches_result is None or current >= existing_intelligent_dispatches_result.next_refresh):
       dispatches = None
-      if has_intelligent_tariff(current, account_info):
+      if has_intelligent_tariff(current, account_info) and intelligent_device is not None:
         try:
           dispatches = await client.async_get_intelligent_dispatches(account_id)
           _LOGGER.debug(f'Intelligent dispatches retrieved for account {account_id}')
@@ -120,6 +123,7 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
       current,
       client,
       account_info,
+      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None,
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None,
       await async_mock_intelligent_data(hass, account_id),
       lambda account_id, completed_dispatches: async_merge_dispatch_data(hass, account_id, completed_dispatches) 
@@ -130,7 +134,7 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
   hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR] = DataUpdateCoordinator(
     hass,
     _LOGGER,
-    name="intelligent_dispatches",
+    name=f"intelligent_dispatches-{account_id}",
     update_method=async_update_intelligent_dispatches_data,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes

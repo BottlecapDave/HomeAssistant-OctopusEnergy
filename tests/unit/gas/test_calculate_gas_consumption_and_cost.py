@@ -10,7 +10,6 @@ from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 async def test_when_gas_consumption_is_none_then_no_calculation_is_returned():
   # Arrange
   latest_date = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
   consumption_data = None
   rates_data = create_rate_data(
     datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), 
@@ -25,7 +24,6 @@ async def test_when_gas_consumption_is_none_then_no_calculation_is_returned():
     rates_data,
     standing_charge,
     latest_date,
-    tariff_code,
     "m³",
     40
   )
@@ -37,7 +35,6 @@ async def test_when_gas_consumption_is_none_then_no_calculation_is_returned():
 async def test_when_gas_rates_is_none_then_no_calculation_is_returned():
   # Arrange
   latest_date = datetime.strptime("2022-02-09T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
   rates_data = None
   consumption_data = create_consumption_data(
     datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), 
@@ -51,7 +48,6 @@ async def test_when_gas_rates_is_none_then_no_calculation_is_returned():
     rates_data,
     standing_charge,
     latest_date,
-    tariff_code,
     "m³",
     40
   )
@@ -65,7 +61,6 @@ async def test_when_gas_consumption_is_before_latest_date_then_no_calculation_is
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   latest_date = datetime.strptime("2022-03-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
 
   consumption_data = create_consumption_data(period_from, period_to)
   assert consumption_data is not None
@@ -84,7 +79,6 @@ async def test_when_gas_consumption_is_before_latest_date_then_no_calculation_is
     rates_data,
     standing_charge,
     latest_date,
-    tariff_code,
     "m³",
     40
   )
@@ -111,8 +105,6 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
   rates_data = create_rate_data(period_from, period_to, [expected_rate_price])
 
   standing_charge = 27.0
-
-  tariff_code = "G-1R-SUPER-GREEN-24M-21-07-30-A"
   
   consumption_data = create_consumption_data(period_from, period_to)
   assert consumption_data is not None
@@ -126,7 +118,6 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
     rates_data,
     standing_charge,
     latest_date,
-    tariff_code,
     consumption_units,
     40
   )
@@ -211,7 +202,6 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
     rates_data,
     standing_charge,
     latest_date,
-    tariff_code,
     consumption_units,
     40
   )

@@ -23,12 +23,10 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
   """Sensor for displaying the current standing charge."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, tariff_code, meter, point):
+  def __init__(self, hass: HomeAssistant, coordinator, meter, point):
     """Init sensor."""
     super().__init__(coordinator)
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
-
-    self._tariff_code = tariff_code
 
     self._state = None
     self._latest_date = None
@@ -41,7 +39,7 @@ class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEn
   @property
   def name(self):
     """Name of the sensor."""
-    return f'Electricity {self._serial_number} {self._mpan}{self._export_name_addition} Current Standing Charge'
+    return f'Current Standing Charge {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})'
 
   @property
   def device_class(self):
@@ -83,7 +81,8 @@ class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEn
       self._attributes["end"] = standard_charge_result.standing_charge["end"]
     else:
       self._state = None
-
+    
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

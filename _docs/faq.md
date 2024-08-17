@@ -15,8 +15,9 @@ Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-
 | Saving sessions | 15 | Inactive for most of the year and new sessions have enough warning to allow a bit of lag. |
 | Saving session target | 30 | Not relevant most of the time and intensive due to retrieving consumption data |
 | Wheel of fortune | 60 | Doesn't change that frequently, and not fundamental for a smart home (other than knowledge) so no need to request too often. |
+| Greenness Forecast | 180 | Doesn't change frequently |
 
-If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly waiting longer between each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.
+If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly waiting longer between each attempt, to a maximum of 30 minutes between each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.
 
 | Attempt | Target time |
 |-|-|
@@ -28,13 +29,31 @@ If data cannot be refreshed for any reason (e.g. no internet or APIs are down), 
 
 Once a successful request is made, the refreshes will revert back to the redefined default intervals.
 
-**The retrieving of data does not effect the rate the entities states/attributes are evaluated.**
+!!! note
+    The retrieving of data does not effect the rate the entities states/attributes are evaluated.
+
+## The integration provides features I don't need, can I turn the feature off?
+
+There is no config option to turn features on/off. This is because the required data is not cut and dry per feature as some data is shared among "features" (e.g. rate data is required to determine if consumption data is peak or off peak).
+
+However, the integration only requests the data specified above that is needed for the provided entities to function. If you disable the entities that you don't need, then the integration won't request the corresponding data. 
+
+Disabling entities is easy. All you need to do is
+
+1. Go to the [Octopus Energy](https://my.home-assistant.io/redirect/integration/?domain=octopus_energy) integration.
+2. Click on `entities`
+3. Go into multi-select mode and select the entities you want to disable
+4. Select `Disable selected`
+
+Some entities are disabled by default by the integration, which are highlighted as such in the documentation.
 
 ## I have data missing, is this an issue with the integration?
 
 Data can not appear for a variety of reasons. Before raising any issues, check if the data is available on the [website](https://octopus.energy/dashboard/new/accounts/consumption/home) for the requested period (e.g. for previous consumption, you'll be wanting data for the day before). If it's not available on the website, then unfortunately there is nothing that can be done and you may need to contact Octopus Energy.
 
 Data might also not appear if you lose internet connection or the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs as warnings around using cached data. If none of this is applicable, then please raise an issue so we can try and solve the problem.
+
+If you are missing consumption data, the previous consumption sensors have an attribute (`latest_available_data_timestamp`) stating the timestamp of the latest consumption data that is available via the API.
 
 ## Data in my Home Assistant energy dashboard reported by Octopus Home Mini differs to Octopus Energy dashboard. Why is this?
 
@@ -58,9 +77,19 @@ Please follow the [guide](./setup/energy_dashboard.md#previous-day-consumption) 
 
 You should not have this issue for current consumption sensors, as they are updated in realtime.
 
-## Why are the names of the entities so long, and can you change them to be shorted?
+## Why are the names of the entities so long, and can you change them to be shorter?
 
-The names and ids of the entities are long to avoid clashes with both other integrations and with other meters that might be associated with your account. However you are free to update the names and/or ids to something more concise for you as per the [Home Assistant docs](https://www.home-assistant.io/docs/configuration/customizing-devices/#changing-the-entity-id).
+Naming things are hard. The entity ids are long for the following reasons
+
+* The domain is present as I didn't want to potentially clash with other integrations that provide similar sensors for meters, as a lot of people in the community use things like the glow device to get their readings. Hindsight, I probably wouldn't include this, but we're here now.
+
+* The serial number and mpan/mprn is present because the data that comes back from OE is in an array of arrays. I am only on an import tariff, so couldn't guarantee that any of these were unique and didn't want to assume anything. Turns out one of these is duplicated between import/export meters so if I had picked one of these I would have been wrong and had a clash.
+
+* The account id is present in other sensors in order to support multiple accounts (which the serial number/mpan/mprn also play apart in).
+
+The names of the entities are equally long for consistency with the entity id and so that you can tell one entity apart from another in the above scenarios.
+
+However you are free to update the names and/or ids to something more concise for you as per the [Home Assistant docs](https://www.home-assistant.io/docs/configuration/customizing-devices/#changing-the-entity-id).
 
 ## I am getting warnings about entities taking too long to update. Is this normal?
 
@@ -76,6 +105,12 @@ then yes, this is expected. This is a default warning built into Home Assistant,
 2. Octopus Energy APIs are slow to respond, or having issues.
 
 If you wish to suppress this warning, you can follow [this advice](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/429#issuecomment-1783739547).
+
+## I am getting errors relating to "Too many requests". Is there something wrong?
+
+The most common scenario for this is related to the Home Mini. This can be determined by the presence of `smartMeterTelemetry` in the error message. The Octopus Energy APIs have a rate limit of 100 calls per hour, which is shared among all calls including through the app or other integrations. The defaults are usually enough for one electricity and one gas meter's data to be retrieved. However, if you are using other integrations, have more meters being tracked or want the app to not be effected you may want to increase this rate via your [account](./setup/account.md#refresh-rate-in-minutes).
+
+If you are receiving this error for a different reason, please raise an [issue](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues), as Octopus Energy might have introduced a new rate limit.
 
 ## I want to use a utility meter with the consumption sensors, but they don't seem to be adding up correctly. Is there something I'm doing wrong?
 
@@ -94,7 +129,7 @@ Enabling entities is easy. All you need to do is
 5. Click on the `enable` button or toggle the `Enabled` toggle to on
 6. Click on `update`
 
-## I have entities that are missing
+## I have entities that are missing. Is the integration broken?
 
 The integration only looks at the first property associated with your account that doesn't have a moved out date attached to it. If you are still missing entities, follow the instructions to [increase the logs](#how-do-i-increase-the-logs-for-the-integration).
 
@@ -102,19 +137,25 @@ You should then see entries associated with this component stating either entiti
 
 The identifiers of the entities should then be checked against your Octopus Energy dashboard to verify the correct entities are being picked up. If this is producing unexpected results, then you should raise an issue.
 
+## I have meters that are missing. Is the integration broken?
+
+The integration will only surface entities associated with meters in your first active property. Each meter must also have an active tariff associated with it. 
+
+If you [follow the instructions](#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this) to download diagnostics, you can see all agreements associated with each of your meters. You will need an agreement with a start date in the past and an end date either set to `null` or in the future for the meter to be picked up by the integration.
+
 ## I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?
 
 Rate data for agile tariffs are not available in full for the next day, which can cause issues with target rate sensors in their default state. We prevent you from setting up target rate sensors in this form. More information around this can be found in the [target rate documentation](./setup/target_rate.md#agile-users).
 
 ## Why won't my target rates update?
 
-The target rate sensors are set to update every minute, which includes determining if you're within a target time period and calculating future target time periods.. This can be confirmed via the `last_evaluated` attribute. 
+The target rate sensors are set to update every minute, which includes determining if you're within a target time period and calculating future target time periods.. This can be confirmed by evaluating the [last_updated](https://community.home-assistant.io/t/how-to-display-the-last-updated-field-of-an-entity-in-the-lovelace-view/728892/2?u=bottlecapdave) attribute of the sensor. 
 
 The `target_times` will evaluate once all rates are available for the specified time period and all existing target times are in the past. When this was last evaluated can be confirmed via the `target_times_last_evaluated` attribute. For example, if you are looking for target rates between 16:00 (today) and 16:00 (tomorrow), and you only have rates up to 23:00 (today), then target times will not be evaluated until rate information is available up to 16:00 (tomorrow). This can be confirmed by reviewing the data available in your current and next day rates entities.
 
 If there is a delay in retrieving rate information, there is chance that when it comes to evaluation, times are picked that are in the past because they were the lowest. This will result in your target rate sensor skipping a day and waiting to calculate new target times for the next scheduled time period. This can be confirmed by comparing the `target_times` and the `target_times_last_evaluated` attribute. If this happens frequently, then please adjust the target time periods of your target rate sensor to something that works for you.
 
-If the `last_evaluated` attribute is not updating, then please raise an issue.
+If the `last_updated` attribute is not updating, then please raise an issue.
 
 ## My gas consumption/costs seem out
 
@@ -144,6 +185,22 @@ In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https:
 If you've installed via HACS, then you can keep an eye on `sensor.hacs` to see the number of pending updates. This could be used with an automation or highlighted on your dashboard. This will include any HACS integration update, not just this one. If you're feeling a little more adventurous, then you can enable HACS' [experimental features](https://hacs.xyz/docs/configuration/options/). This will surface any available updates in the normal update location within Home Assistant.
 
 If you've installed the integration manually, then you should keep an eye on the [GitHub releases](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases). You could even subscribe to the [RSS feed](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases.atom).
+
+## There's a beta release of the integration that I would like to take part in, how do I do this?
+
+If you install the integration manually, it's just a case of getting the source of the [beta release](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases), replacing the old installation with the new one and restarting Home Assistant.
+
+If you install the integration via HACS, then you will need to
+
+* Go to [HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=BottlecapDave&repository=homeassistant-octopusenergy&category=integration), click on the three dots and then click redownload
+
+![Redownload screen in HACS](./assets/beta-hacs-redownload.png)
+
+* Toggle on `Show beta versions` and select the target beta. Once selected, click `Download`.
+
+![Beta toggle in HACS](./assets/beta-hacs-beta-toggle.png)
+
+* Once downloaded, you'll need to restart Home Assistant for the new version to take effect.
 
 ## How do I increase the logs for the integration?
 

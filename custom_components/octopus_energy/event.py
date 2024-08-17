@@ -4,17 +4,15 @@ import voluptuous as vol
 from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers import config_validation as cv, entity_platform
 
-from .utils import get_active_tariff_code
+from .utils import get_active_tariff
 from .electricity.rates_previous_day import OctopusEnergyElectricityPreviousDayRates
 from .electricity.rates_current_day import OctopusEnergyElectricityCurrentDayRates
 from .electricity.rates_next_day import OctopusEnergyElectricityNextDayRates
 from .electricity.rates_previous_consumption import OctopusEnergyElectricityPreviousConsumptionRates
-from .electricity.rates_previous_consumption_override import OctopusEnergyElectricityPreviousConsumptionOverrideRates
 from .gas.rates_current_day import OctopusEnergyGasCurrentDayRates
 from .gas.rates_next_day import OctopusEnergyGasNextDayRates
 from .gas.rates_previous_day import OctopusEnergyGasPreviousDayRates
 from .gas.rates_previous_consumption import OctopusEnergyGasPreviousConsumptionRates
-from .gas.rates_previous_consumption_override import OctopusEnergyGasPreviousConsumptionOverrideRates
 from .octoplus.saving_sessions_events import OctopusEnergyOctoplusSavingSessionEvents
 
 from .const import (
@@ -68,26 +66,24 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
   if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
-      tariff_code = get_active_tariff_code(now, point["agreements"])
-      if tariff_code is not None:
+      tariff = get_active_tariff(now, point["agreements"])
+      if tariff is not None:
         for meter in point["meters"]:
           entities.append(OctopusEnergyElectricityPreviousDayRates(hass, meter, point))
           entities.append(OctopusEnergyElectricityCurrentDayRates(hass, meter, point))
           entities.append(OctopusEnergyElectricityNextDayRates(hass, meter, point))
           entities.append(OctopusEnergyElectricityPreviousConsumptionRates(hass, meter, point))
-          entities.append(OctopusEnergyElectricityPreviousConsumptionOverrideRates(hass, meter, point))
 
   if len(account_info["gas_meter_points"]) > 0:
     for point in account_info["gas_meter_points"]:
       # We only care about points that have active agreements
-      tariff_code = get_active_tariff_code(now, point["agreements"])
-      if tariff_code is not None:
+      tariff = get_active_tariff(now, point["agreements"])
+      if tariff is not None:
         for meter in point["meters"]:
           entities.append(OctopusEnergyGasPreviousDayRates(hass, meter, point))
           entities.append(OctopusEnergyGasCurrentDayRates(hass, meter, point))
           entities.append(OctopusEnergyGasNextDayRates(hass, meter, point))
           entities.append(OctopusEnergyGasPreviousConsumptionRates(hass, meter, point))
-          entities.append(OctopusEnergyGasPreviousConsumptionOverrideRates(hass, meter, point))
 
   if len(entities) > 0:
     async_add_entities(entities)

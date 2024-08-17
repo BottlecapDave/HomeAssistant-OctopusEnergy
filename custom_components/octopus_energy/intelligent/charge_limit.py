@@ -11,7 +11,7 @@ from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
-from homeassistant.components.number import RestoreNumber, NumberDeviceClass
+from homeassistant.components.number import RestoreNumber, NumberDeviceClass, NumberMode
 from homeassistant.util.dt import (utcnow)
 
 from .base import OctopusEnergyIntelligentSensor
@@ -37,6 +37,11 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
     self._attributes = {}
     self.entity_id = generate_entity_id("number.{}", self.unique_id, hass=hass)
 
+    self._attr_native_min_value = 10
+    self._attr_native_max_value = 100
+    self._attr_native_step = 5
+    self._attr_mode = NumberMode.BOX
+
   @property
   def unique_id(self):
     """The id of the sensor."""
@@ -45,7 +50,7 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy {self._account_id} Intelligent Charge Limit"
+    return f"Intelligent Charge Limit ({self._account_id})"
 
   @property
   def icon(self):
@@ -83,8 +88,8 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
     
     if settings_result.settings is not None:
       self._state = settings_result.settings.charge_limit_weekday
-      self._attributes["last_evaluated"] = utcnow()
 
+    self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
   async def async_set_native_value(self, value: float) -> None:
@@ -105,7 +110,7 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
         (last_number_data := await self.async_get_last_number_data())
       ):
       
-      self._attributes = dict_to_typed_dict(last_state.attributes)
+      self._attributes = dict_to_typed_dict(last_state.attributes, ["min", "max", "step", "mode"])
       if last_state.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN):
         self._state = last_number_data.native_value
           

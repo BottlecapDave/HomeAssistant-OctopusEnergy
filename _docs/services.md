@@ -13,7 +13,7 @@ For refreshing the consumption/cost information for a given previous consumption
 This service is only available for the following sensors
 
 - `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption` (this will populate both consumption and cost)
-- `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption` (this will populate both consumption and cost for both m3 and kwh)
+- `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption_m3` (this will populate both consumption and cost for both m3 and kwh)
 
 ## octopus_energy.update_target_config
 
@@ -30,6 +30,9 @@ For updating a given [target rate's](./setup/target_rate.md) config. This allows
 | `data.target_start_time` | `yes`    | The optional time the evaluation period should start. Must be in the format of `HH:MM`.                               |
 | `data.target_end_time`   | `yes`    | The optional time the evaluation period should end. Must be in the format of `HH:MM`.                                 |
 | `data.target_offset`     | `yes`    | The optional offset to apply to the target rate when it starts. Must be in the format `(+/-)HH:MM:SS`.                |
+| `data.target_minimum_rate`     | `yes`    | The optional minimum rate the selected rates should not go below. |
+| `data.target_maximum_rate`     | `yes`    | The optional maximum rate the selected rates should not go above. |
+| `data.target_weighting`     | `yes`    | The optional weighting that should be applied to the selected rates. |
 
 ### Automation Example
 
@@ -83,7 +86,7 @@ action:
       entity_id: binary_sensor.octopus_energy_target_example
 ```
 
-## join_octoplus_saving_session_event
+## octopus_energy.join_octoplus_saving_session_event
 
 Service for joining a new saving session event. When used, it may take a couple of minutes for the other sensors to refresh the changes.
 
@@ -96,7 +99,7 @@ Service for joining a new saving session event. When used, it may take a couple 
 
 For an automation example, please refer to the available [blueprint](./blueprints.md#automatically-join-saving-sessions).
 
-## spin_wheel_of_fortune
+## octopus_energy.spin_wheel_of_fortune
 
 This service allows the user to perform a spin on the [wheel of fortune](./entities/wheel_of_fortune.md) that is awarded to users every month. No point letting them go to waste :)
 
@@ -112,7 +115,23 @@ This service allows the user to perform a spin on the [wheel of fortune](./entit
 
 For automation examples, please refer to the available [blueprints](./blueprints.md#wheel-of-fortune).
 
-## update_cost_tracker
+## octopus_energy.redeem_octoplus_points_into_account_credit
+
+Allows you to redeem a certain number of of Octoplus points and convert them into account credit.
+
+!!! info
+    This service is only available if you have signed up to Octoplus
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the Octoplus points that hold the points to be redeemed. This should always point at one of the [octoplus points sensor](./entities/octoplus.md#octoplus-points) entities. |
+| `data.points_to_redeem`  | `no`     | The number of points to redeem. |
+
+### Automation Example
+
+For automation examples, please refer to the available [blueprints](./blueprints.md#automatically-redeem-octoplus-points-for-account-credit).
+
+## octopus_energy.update_cost_tracker
 
 This service allows the user to turn the tracking on/off for a given [cost tracker](./setup/cost_tracker.md) sensor.
 
@@ -124,3 +143,32 @@ This service allows the user to turn the tracking on/off for a given [cost track
 ### Automation Example
 
 For automation examples, please refer to the available [blueprints](./blueprints.md#cost-tracker).
+
+## octopus_energy.reset_cost_tracker
+
+Resets a given [cost tracker](./setup/cost_tracker.md) sensor back to zero before it's normal reset time.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the cost tracker sensor(s) that should be reset. |
+
+## octopus_energy.adjust_accumulative_cost_tracker
+
+Allows you to adjust the cost/consumption for any given date recorded by an accumulative [cost tracker](./setup/cost_tracker.md) sensor (e.g. week or month).
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the cost tracker sensor(s) that should be updated (e.g. `sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_week` or `sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_month`). |
+| `data.date`              | `no`     | The date of the data within the cost tracker to be adjusted. |
+| `data.consumption`       | `no`     | The new consumption recorded against the specified date. |
+| `data.cost`              | `no`     | The new cost recorded against the specified date. |
+
+## octopus_energy.adjust_cost_tracker
+
+Allows you to adjust the consumption for any given period recorded by a [cost tracker](./setup/cost_tracker.md) sensor representing today.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the cost tracker sensor(s) that should be updated (e.g. `sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}`). |
+| `data.date`              | `no`     | The date of the data within the cost tracker to be adjusted. |
+| `data.consumption`       | `no`     | The new consumption recorded against the specified date. |
