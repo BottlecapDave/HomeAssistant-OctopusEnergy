@@ -54,7 +54,8 @@ from .const import (
   DATA_ACCOUNT,
   REPAIR_ACCOUNT_NOT_FOUND,
   REPAIR_INVALID_API_KEY,
-  REPAIR_UNIQUE_RATES_CHANGED_KEY
+  REPAIR_UNIQUE_RATES_CHANGED_KEY,
+  REPAIR_UNKNOWN_INTELLIGENT_PROVIDER
 )
 
 ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "number", "switch", "text", "time", "event"]
@@ -350,6 +351,19 @@ async def async_setup_dependencies(hass, config):
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] = intelligent_mpan
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] = intelligent_serial_number
 
+  intelligent_features = get_intelligent_features(intelligent_device.provider)  if intelligent_device is not None else None
+  if intelligent_features is not None and intelligent_features.is_default_features == True:
+    ir.async_create_issue(
+      hass,
+      DOMAIN,
+      REPAIR_UNKNOWN_INTELLIGENT_PROVIDER.format(intelligent_device.provider),
+      is_fixable=False,
+      severity=ir.IssueSeverity.WARNING,
+      learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/repairs/unknown_intelligent_provider",
+      translation_key="unknown_intelligent_provider",
+      translation_placeholders={ "account_id": account_id, "provider": intelligent_device.provider },
+    )
+
   for point in account_info["electricity_meter_points"]:
     # We only care about points that have active agreements
     electricity_tariff = get_active_tariff(now, point["agreements"])
@@ -360,7 +374,7 @@ async def async_setup_dependencies(hass, config):
         is_export_meter = meter["is_export"]
         is_smart_meter = meter["is_smart_meter"]
         tariff_override = await async_get_tariff_override(hass, mpan, serial_number)
-        planned_dispatches_supported = get_intelligent_features(intelligent_device.provider).planned_dispatches_supported if intelligent_device is not None else True
+        planned_dispatches_supported = intelligent_features.planned_dispatches_supported if intelligent_features is not None else True
         await async_setup_electricity_rates_coordinator(hass, account_id, mpan, serial_number, is_smart_meter, is_export_meter, planned_dispatches_supported, tariff_override)
 
   await async_setup_account_info_coordinator(hass, account_id)
