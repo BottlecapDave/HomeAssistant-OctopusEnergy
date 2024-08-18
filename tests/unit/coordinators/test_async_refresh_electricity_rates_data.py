@@ -835,9 +835,8 @@ async def test_when_rate_is_intelligent_and_intelligent_device_is_available_and_
 		"Tesla",
 		"Model Y",
     75.0,
-		"MyEnergi",
-		"Zappi",
-    6.5 
+    6.5,
+    False
   )
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_rates=async_mocked_get_electricity_rates):
