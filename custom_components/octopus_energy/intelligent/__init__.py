@@ -211,18 +211,14 @@ def dispatches_to_dictionary_list(dispatches: list[IntelligentDispatchItem]):
   return items
 
 class IntelligentFeatures:
-  bump_charge_supported: bool
-  charge_limit_supported: bool
-  planned_dispatches_supported: bool
-  ready_time_supported: bool
-  smart_charge_supported: bool
-
   def __init__(self,
+               is_default_features: bool,
                bump_charge_supported: bool,
                charge_limit_supported: bool,
                planned_dispatches_supported: bool,
                ready_time_supported: bool,
                smart_charge_supported: bool):
+    self.is_default_features = is_default_features
     self.bump_charge_supported = bump_charge_supported
     self.charge_limit_supported = charge_limit_supported
     self.planned_dispatches_supported = planned_dispatches_supported
@@ -244,13 +240,14 @@ FULLY_SUPPORTED_INTELLIGENT_PROVIDERS = [
   "SMARTCAR",
   "TESLA",
   "SMART_PEAR",
+  "HYPERVOLT"
 ]
 
 def get_intelligent_features(provider: str) -> IntelligentFeatures:
-  if provider is not None and provider.upper() in FULLY_SUPPORTED_INTELLIGENT_PROVIDERS:
-    return IntelligentFeatures(True, True, True, True, True)
-  elif provider == "OHME":
-    return IntelligentFeatures(False, False, False, False, False)
+  normalised_provider = provider.upper() if provider is not None else None
+  if normalised_provider is not None and normalised_provider in FULLY_SUPPORTED_INTELLIGENT_PROVIDERS:
+    return IntelligentFeatures(False, True, True, True, True, True)
+  elif normalised_provider == "OHME":
+    return IntelligentFeatures(False, False, False, False, False, False)
 
-  _LOGGER.warning(f"Unexpected intelligent provider '{provider}'")
-  return IntelligentFeatures(False, False, False, False, False)
+  return IntelligentFeatures(True, False, False, False, False, False)

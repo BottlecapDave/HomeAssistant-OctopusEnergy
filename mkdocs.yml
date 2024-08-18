@@ -26,6 +26,7 @@ nav:
     - ./repairs/octopus_mini_not_valid.md
     - ./repairs/unknown_product.md
     - ./repairs/cost_override_obsolete.md
+    - ./repairs/unknown_intelligent_provider.md
   - Community: community.md
   - blueprints.md
   - faq.md

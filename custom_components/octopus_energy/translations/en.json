@@ -257,6 +257,10 @@
     "cost_override_obsolete": {
       "title": "Cost override has been deprecated",
       "description": "It looks like you've setup the cost override entities for {type} meter {mpan_mprn}/{serial_number}. These cost override entities have been deprecated in favour of setting them up via the integrations page. Please click \"Learn More\" with instructions on what to do next."
+    },
+    "unknown_intelligent_provider": {
+      "title": "Unknown intelligent provider \"{provider}\"",
+      "description": "You have an intelligent provider of \"{provider}\" which is not recognised and therefore a reduced feature set has been enabled. Click on \"Learn More\" with instructions on what to do next."
     }
   }
 }

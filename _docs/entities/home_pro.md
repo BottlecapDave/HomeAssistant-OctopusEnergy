@@ -1,6 +1,8 @@
 # Home Pro
 
-To support the Home Pro device. Once configured, the following entities will retrieve data locally from your Octopus Home Pro instead of via the Octopus Energy APIs at a target rate of every 10 seconds.
+Entities to support the Home Pro device.
+
+Once configured, the following entities will retrieve data locally from your Octopus Home Pro instead of via the Octopus Energy APIs at a target rate of every 10 seconds.
 
 * [Electricity - Current Demand](./electricity.md#current-demand)
 * [Electricity - Current Total Consumption](./electricity.md#current-total-consumption)

@@ -1,0 +1,24 @@
+name: Unknown intelligent provider
+description: You have been notified of an unknown intelligent provider within HA and want to help resolve the issue.
+labels: ["enhancement"]
+assignees:
+  - BottlecapDave
+body:
+  - type: textarea
+    id: provider
+    attributes:
+      label: Provider name
+      description: Please provide the name of the provider as presented in the raised repair notice
+    validations:
+      required: true
+  - type: checkboxes
+    id: features
+    attributes:
+      label: Features
+      description: Please specify the features that are available within the Octopus Energy app for your provider
+      options:
+        - label: Ability to bump charge
+        - label: Ability to set the charge limit/target
+        - label: Ability to set the time the charge will be at its target for
+        - label: Ability to turn smart charge on/off
+        - label: Ability to see planned dispatches
