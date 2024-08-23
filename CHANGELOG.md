@@ -1,3 +1,11 @@
+# [12.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v12.1.0...v12.2.0) (2024-08-18)
+
+
+### Features
+
+* Added hypervolt support for intelligent features (15 minutes dev time) ([6d8f695](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6d8f6959f7a3eaaed98d42e96886cca21d140e4a))
+* Added repair notice and custom github issue template when intelligent  provider is not recognised (1 hour dev time) ([3118cc8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3118cc822ee01593b5114a7549e8b58544fdfadf))
+
 # [12.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v12.0.2...v12.1.0) (2024-08-11)
 
 
