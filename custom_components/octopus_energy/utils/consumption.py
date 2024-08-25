@@ -5,10 +5,11 @@ from ..coordinators.current_consumption import CurrentConsumptionCoordinatorResu
 
 _LOGGER = logging.getLogger(__name__)
 
-def get_total_consumption(consumption: list):
+def get_total_consumption(consumption: list | None):
   total_consumption = 0
-  for item in consumption:
-    total_consumption += item["consumption"]
+  if consumption is not None:
+    for item in consumption:
+      total_consumption += item["consumption"]
 
   return total_consumption
 

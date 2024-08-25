@@ -298,7 +298,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
             True,
             meter["is_smart_meter"],
             previous_electricity_consumption_days_offset,
-            c
+            tariff_override
           )
           entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumption(hass, client, previous_consumption_coordinator, account_id, meter, point))
           entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(hass, previous_consumption_coordinator, meter, point))

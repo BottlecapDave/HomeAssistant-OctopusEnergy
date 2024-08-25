@@ -89,7 +89,7 @@ class OctopusEnergyCurrentElectricityConsumptionSavingSession(CoordinatorEntity,
     """Retrieve the current days accumulative consumption"""
     current = now()
     consumption_result: CurrentConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
-    saving_session: SavingSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
+    saving_session: SavingSessionsCoordinatorResult = self._saving_session_coordinator.data if self._saving_session_coordinator is not None else None
     consumption_data = consumption_result.data if consumption_result is not None else None
 
     self._state = None

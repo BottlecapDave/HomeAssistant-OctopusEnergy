@@ -43,28 +43,36 @@ def get_target_consumption_days(saving_session: datetime):
   
   return 10
 
-def get_saving_session_consumption_dates(saving_session: SavingSession, previous_saving_sessions: list[SavingSession]) -> list[SavingSessionConsumptionDate]:
+def get_saving_session_weekend_dates(start: datetime, target_consumption_dates: int, hours: int, previous_saving_sessions: list[SavingSession]):
   dates: list[SavingSessionConsumptionDate] = []
 
+  new_start = start
+  while len(dates) < target_consumption_dates:
+    new_start = new_start - timedelta(days=1)
+    if (is_new_saving_session_date_valid(new_start, previous_saving_sessions) and new_start.weekday() >= 5):
+      dates.append(SavingSessionConsumptionDate(new_start, new_start + hours))
+  
+  return dates
+
+def get_saving_session_weekday_dates(start: datetime, target_consumption_dates: int, hours: int, previous_saving_sessions: list[SavingSession]):
+  dates: list[SavingSessionConsumptionDate] = []
+
+  new_start = start
+  while len(dates) < target_consumption_dates:
+    new_start = new_start - timedelta(days=1)
+    if (is_new_saving_session_date_valid(new_start, previous_saving_sessions) and new_start.weekday() < 5):
+      dates.append(SavingSessionConsumptionDate(new_start, new_start + hours))
+
+  return dates
+
+def get_saving_session_consumption_dates(saving_session: SavingSession, previous_saving_sessions: list[SavingSession]) -> list[SavingSessionConsumptionDate]:
   hours = saving_session.end - saving_session.start
   target_consumption_dates = get_target_consumption_days(saving_session.start)
   saving_session_day = saving_session.start.weekday()
   if (saving_session_day >= 5):
-    # Weekend
-    new_start = saving_session.start
-    while len(dates) < target_consumption_dates:
-      new_start = new_start - timedelta(days=1)
-      if (is_new_saving_session_date_valid(new_start, previous_saving_sessions) and new_start.weekday() >= 5):
-        dates.append(SavingSessionConsumptionDate(new_start, new_start + hours))
+    return get_saving_session_weekend_dates(saving_session.start, target_consumption_dates, hours, previous_saving_sessions)
   else:
-    # Weekday
-    new_start = saving_session.start
-    while len(dates) < target_consumption_dates:
-      new_start = new_start - timedelta(days=1)
-      if (is_new_saving_session_date_valid(new_start, previous_saving_sessions) and new_start.weekday() < 5):
-        dates.append(SavingSessionConsumptionDate(new_start, new_start + hours))
-
-  return dates
+    return get_saving_session_weekday_dates(saving_session.start, target_consumption_dates, hours, previous_saving_sessions)
 
 class SavingSessionTarget:
   start: datetime
