@@ -20,6 +20,7 @@ CONFIG_VERSION = 4
 CONFIG_KIND = "kind"
 CONFIG_KIND_ACCOUNT = "account"
 CONFIG_KIND_TARGET_RATE = "target_rate"
+CONFIG_KIND_ROLLING_TARGET_RATE = "rolling_target_rate"
 CONFIG_KIND_COST_TRACKER = "cost_tracker"
 CONFIG_KIND_TARIFF_COMPARISON = "tariff_comparison"
 
@@ -70,6 +71,7 @@ CONFIG_TARGET_INVERT_TARGET_RATES = "target_invert_target_rates"
 CONFIG_TARGET_MIN_RATE = "minimum_rate"
 CONFIG_TARGET_MAX_RATE = "maximum_rate"
 CONFIG_TARGET_WEIGHTING = "weighting"
+CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD = "look_ahead_hours"
 
 CONFIG_TARGET_KEYS = [
   CONFIG_TARGET_NAME,

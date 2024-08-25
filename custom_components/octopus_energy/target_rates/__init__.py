@@ -78,6 +78,28 @@ def get_applicable_rates(current_date: datetime, target_start_time: str, target_
 
   return applicable_rates
 
+def get_rates(current_date: datetime, rates: list, target_hours: float):
+  # Retrieve the rates that are applicable for our target rate
+  applicable_rates = []
+  periods = target_hours * 2
+
+  if rates is not None:
+    for rate in rates:
+      if rate["start"] >= current_date:
+        new_rate = dict(rate)
+        new_rate["value_inc_vat"] = value_inc_vat_to_pounds(rate["value_inc_vat"])
+        applicable_rates.append(new_rate)
+
+        if len(applicable_rates) >= periods:
+          break
+
+  # Make sure that we have enough rates that meet our target period
+  if len(applicable_rates) < periods:
+    _LOGGER.debug(f'Incorrect number of periods discovered. Require {periods}, but only have {len(applicable_rates)}')
+    return None
+
+  return applicable_rates
+
 def __get_valid_to(rate):
   return rate["end"]
 
