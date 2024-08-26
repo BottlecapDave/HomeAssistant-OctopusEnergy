@@ -116,6 +116,7 @@ async def async_get_missing_rates(
     ]
 
     rates.extend(consumption_data)
+    _LOGGER.debug(f"rates: {len(rates)}")
     return rates
   except Exception as e:
     if isinstance(e, ApiException) == False:
@@ -123,6 +124,7 @@ async def async_get_missing_rates(
       raise
 
 def remove_old_rates(rates: list, earliest_datetime: datetime):
+  _LOGGER.debug(f"earliest_datetime: {earliest_datetime}")
   new_rates = []
   for rate in rates:
     if (rate["start"] >= earliest_datetime):
@@ -150,15 +152,15 @@ async def async_enhance_with_historic_rates(
   if historic_weekday_rates is None:
     historic_weekday_rates = await async_load_historic_rates(identifier, serial_number, True)
 
-  previous_weekday_earliest_start = historic_weekday_rates[0]["start"] if historic_weekday_rates is not None else None
-  previous_weekday_latest_end = historic_weekday_rates[-1]["end"] if historic_weekday_rates is not None else None
+  previous_weekday_earliest_start = historic_weekday_rates[0]["start"] if historic_weekday_rates is not None and len(historic_weekday_rates) > 0 else None
+  previous_weekday_latest_end = historic_weekday_rates[-1]["end"] if historic_weekday_rates is not None and len(historic_weekday_rates) > 0 else None
 
   historic_weekend_rates = previous_data.historic_weekend_rates if previous_data is not None else []
   if historic_weekend_rates is None:
     historic_weekend_rates = await async_load_historic_rates(identifier, serial_number, False)
 
-  previous_weekend_earliest_start = historic_weekend_rates[0]["start"] if historic_weekend_rates is not None else None
-  previous_weekend_latest_end = historic_weekend_rates[-1]["end"] if historic_weekend_rates is not None else None
+  previous_weekend_earliest_start = historic_weekend_rates[0]["start"] if historic_weekend_rates is not None and len(historic_weekend_rates) > 0 else None
+  previous_weekend_latest_end = historic_weekend_rates[-1]["end"] if historic_weekend_rates is not None and len(historic_weekend_rates) > 0 else None
 
   # Add our new rates if they don't already exist
   for rate in data.rates:
@@ -171,16 +173,16 @@ async def async_enhance_with_historic_rates(
 
   # Fetch rates that might be missing
   local_start = as_local(current).replace(hour=0, minute=0, second=0, microsecond=0)
-  weekday_periods = get_saving_session_weekday_dates(local_start, 20, 24, [])
-  earliest_weekday_start = weekday_periods[0].start
+  weekday_periods = get_saving_session_weekday_dates(local_start, 15, timedelta(hours=24), [])
+  earliest_weekday_start = weekday_periods[-1].start
   missing_weekday_rates = extract_missing_rate_periods(weekday_periods, historic_weekday_rates)
 
-  weekend_periods = get_saving_session_weekend_dates(local_start, 8, 24, [])
-  earliest_weekend_start = weekend_periods[0].start
+  weekend_periods = get_saving_session_weekend_dates(local_start, 8, timedelta(hours=24), [])
+  earliest_weekend_start = weekend_periods[-1].start
   missing_weekend_rates = extract_missing_rate_periods(weekend_periods, historic_weekend_rates)
 
   historic_weekday_rates = await async_get_missing_rates(client, identifier, serial_number, historic_weekday_rates, missing_weekday_rates)
-  historic_weekday_rates = await async_get_missing_rates(client, identifier, serial_number, historic_weekend_rates, missing_weekend_rates)
+  historic_weekend_rates = await async_get_missing_rates(client, identifier, serial_number, historic_weekend_rates, missing_weekend_rates)
 
   historic_weekday_rates = remove_old_rates(historic_weekday_rates, earliest_weekday_start)
   historic_weekend_rates = remove_old_rates(historic_weekend_rates, earliest_weekend_start)
@@ -188,11 +190,11 @@ async def async_enhance_with_historic_rates(
   historic_weekday_rates.sort(key=lambda x: x["start"])
   historic_weekend_rates.sort(key=lambda x: x["start"])
 
-  current_weekday_earliest_start = historic_weekday_rates[0]["start"] if historic_weekday_rates is not None else None
-  current_weekday_latest_end = historic_weekday_rates[-1]["end"] if historic_weekday_rates is not None else None
+  current_weekday_earliest_start = historic_weekday_rates[0]["start"] if historic_weekday_rates is not None and len(historic_weekday_rates) > 0 else None
+  current_weekday_latest_end = historic_weekday_rates[-1]["end"] if historic_weekday_rates is not None and len(historic_weekday_rates) > 0 else None
 
-  current_weekend_earliest_start = historic_weekend_rates[0]["start"] if historic_weekend_rates is not None else None
-  current_weekend_latest_end = historic_weekend_rates[-1]["end"] if historic_weekend_rates is not None else None
+  current_weekend_earliest_start = historic_weekend_rates[0]["start"] if historic_weekend_rates is not None and len(historic_weekend_rates) > 0 else None
+  current_weekend_latest_end = historic_weekend_rates[-1]["end"] if historic_weekend_rates is not None and len(historic_weekend_rates) > 0 else None
 
   if current_weekday_earliest_start != previous_weekday_earliest_start or current_weekday_latest_end != previous_weekday_latest_end or len(missing_weekday_rates) > 0:
     await async_save_historic_rates(identifier, serial_number, True, historic_weekday_rates)
@@ -365,7 +367,12 @@ async def async_create_previous_consumption_and_rates_coordinator(
 
     try:
       data = await store.async_load()
-      return dict_to_typed_dict(data) if data is not None else None
+      rates = []
+      if data is not None:
+        for item in data:
+          rates.append(dict_to_typed_dict(item))
+
+      return rates
     except:
       return []
     

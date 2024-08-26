@@ -43,7 +43,7 @@ def get_target_consumption_days(saving_session: datetime):
   
   return 10
 
-def get_saving_session_weekend_dates(start: datetime, target_consumption_dates: int, hours: int, previous_saving_sessions: list[SavingSession]):
+def get_saving_session_weekend_dates(start: datetime, target_consumption_dates: int, hours: timedelta, previous_saving_sessions: list[SavingSession]):
   dates: list[SavingSessionConsumptionDate] = []
 
   new_start = start
@@ -54,7 +54,7 @@ def get_saving_session_weekend_dates(start: datetime, target_consumption_dates: 
   
   return dates
 
-def get_saving_session_weekday_dates(start: datetime, target_consumption_dates: int, hours: int, previous_saving_sessions: list[SavingSession]):
+def get_saving_session_weekday_dates(start: datetime, target_consumption_dates: int, hours: timedelta, previous_saving_sessions: list[SavingSession]):
   dates: list[SavingSessionConsumptionDate] = []
 
   new_start = start
