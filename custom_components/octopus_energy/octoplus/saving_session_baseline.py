@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 import logging
 
 from homeassistant.core import HomeAssistant
@@ -22,6 +23,7 @@ from . import (
 
 from ..coordinators.saving_sessions import SavingSessionsCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
+from ..api_client.saving_sessions import SavingSession
 
 from ..electricity.base import OctopusEnergyElectricitySensor
 from ..coordinators import MultiCoordinatorEntity
@@ -32,7 +34,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
   """Sensor for determining the baseline for the current or next saving session."""
 
-  def __init__(self, hass: HomeAssistant, saving_session_coordinator, previous_rates_and_consumption_coordinator, meter, point):
+  def __init__(self, hass: HomeAssistant, saving_session_coordinator, previous_rates_and_consumption_coordinator, meter, point, mock_baseline):
     """Init sensor."""
 
     MultiCoordinatorEntity.__init__(self, saving_session_coordinator, [previous_rates_and_consumption_coordinator])
@@ -51,6 +53,7 @@ class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyEl
       "targets": None,
     }
     self._consumption_data = None
+    self._mock_baseline = mock_baseline
 
   @property
   def unique_id(self):
@@ -109,7 +112,7 @@ class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyEl
     if not self.enabled:
       return
     
-    current = utcnow()
+    current: datetime = utcnow()
     saving_session: SavingSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
     previous_consumption: PreviousConsumptionCoordinatorResult = self._previous_rates_and_consumption_coordinator.data if self._previous_rates_and_consumption_coordinator is not None else None
     if saving_session is not None and previous_consumption is not None:
@@ -118,6 +121,10 @@ class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyEl
       target_saving_session = current_saving_sessions_event(current, saving_session.joined_events)
       if (target_saving_session is None):
         target_saving_session = get_next_saving_sessions_event(current, saving_session.joined_events)
+
+      if (target_saving_session is None and self._mock_baseline == True):
+        mock_saving_session_start = current.replace(minute=0, second=0, microsecond=0)
+        target_saving_session = SavingSession('1', '2', mock_saving_session_start, mock_saving_session_start + timedelta(hours=1), 0)
 
       if (target_saving_session is not None):
         consumption_dates = get_saving_session_consumption_dates(target_saving_session, all_saving_sessions)
