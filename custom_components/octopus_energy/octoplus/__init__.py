@@ -84,29 +84,29 @@ def get_saving_session_consumption_dates(saving_session: SavingSession, previous
   else:
     return get_saving_session_weekday_dates(saving_session.start, target_consumption_dates, hours, previous_saving_sessions)
 
-class SavingSessionTarget:
+class SavingSessionBaseline:
   start: datetime
   end: datetime
-  target: float
+  baseline: float
   consumption_items: list
   is_incomplete_calculation: bool
 
-  def __init__(self, start: datetime, end: datetime, target: float, consumption_items: list, is_incomplete_calculation: bool):
+  def __init__(self, start: datetime, end: datetime, baseline: float, consumption_items: list, is_incomplete_calculation: bool):
     self.start = start
     self.end = end
-    self.target = target
+    self.baseline = baseline
     self.consumption_items = consumption_items
     self.is_incomplete_calculation = is_incomplete_calculation
 
-class SavingSessionTargetResult:
-  current_target: SavingSessionTarget
-  total_target: float
-  targets: list[SavingSessionTarget]
+class SavingSessionBaselinesResult:
+  current_target: SavingSessionBaseline
+  total_baseline: float
+  baselines: list[SavingSessionBaseline]
 
-  def __init__(self, current_target: SavingSessionTarget, total_target: float, targets: list[SavingSessionTarget]):
+  def __init__(self, current_target: SavingSessionBaseline, total_baseline: float, baselines: list[SavingSessionBaseline]):
     self.current_target = current_target
-    self.total_target = total_target
-    self.targets = targets
+    self.total_baseline = total_baseline
+    self.baselines = baselines
 
 def get_saving_session_thirty_minute_periods(saving_session: SavingSession):
   periods = []
@@ -117,7 +117,7 @@ def get_saving_session_thirty_minute_periods(saving_session: SavingSession):
 
   return periods
 
-def get_saving_session_target(current: datetime, saving_session: SavingSession | None, consumption_data: list) -> SavingSessionTargetResult:
+def get_saving_session_target(current: datetime, saving_session: SavingSession | None, consumption_data: list) -> SavingSessionBaselinesResult:
   if saving_session is None:
     return None
   
@@ -136,14 +136,14 @@ def get_saving_session_target(current: datetime, saving_session: SavingSession |
   target_consumption_days = get_target_consumption_days(saving_session.start)
 
   # Work out which consumption data is applicable for each saving session period and what our overall target is
-  targets: list[SavingSessionTarget] = []
+  targets: list[SavingSessionBaseline] = []
   for saving_session_period in saving_session_periods:
     target_consumption_data = []
     for item in consumption_data:
       if item["start"].hour == saving_session_period["start"].hour and item["start"].minute == saving_session_period["start"].minute:
         target_consumption_data.append(item)
 
-    targets.append(SavingSessionTarget(saving_session_period["start"],
+    targets.append(SavingSessionBaseline(saving_session_period["start"],
                                        saving_session_period["end"],
                                        sum(map(lambda item: item["consumption"], target_consumption_data)) / len(target_consumption_data),
                                        target_consumption_data,
@@ -151,4 +151,4 @@ def get_saving_session_target(current: datetime, saving_session: SavingSession |
 
   current_target = targets[current_saving_session_period_index]
 
-  return SavingSessionTargetResult(current_target, sum(map(lambda target: target.target, targets)), targets)
+  return SavingSessionBaselinesResult(current_target, sum(map(lambda target: target.baseline, targets)), targets)

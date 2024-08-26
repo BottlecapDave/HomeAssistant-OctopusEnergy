@@ -55,26 +55,26 @@ async def test_when_current_is_before_saving_session_then_first_target_is_return
   # Assert
   assert result is not None
   assert result.current_target is not None
-  assert result.current_target == result.targets[0]
+  assert result.current_target == result.baselines[0]
   
-  assert len(result.targets) == 2
-  assert result.targets[0].start == datetime.strptime("2023-12-25T17:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result.targets[0].end == datetime.strptime("2023-12-25T17:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result.targets[0].target == 1.19
-  assert result.targets[0].is_incomplete_calculation == False
-  assert len(result.targets[0].consumption_items) == len(target_consumption_dates)
+  assert len(result.baselines) == 2
+  assert result.baselines[0].start == datetime.strptime("2023-12-25T17:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result.baselines[0].end == datetime.strptime("2023-12-25T17:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result.baselines[0].baseline == 1.19
+  assert result.baselines[0].is_incomplete_calculation == False
+  assert len(result.baselines[0].consumption_items) == len(target_consumption_dates)
   for index in range(len(target_consumption_dates)):
-    assert result.targets[0].consumption_items[index]["start"] == target_consumption_dates[index]
-    assert result.targets[0].consumption_items[index]["end"] == target_consumption_dates[index] + timedelta(minutes=30)
+    assert result.baselines[0].consumption_items[index]["start"] == target_consumption_dates[index]
+    assert result.baselines[0].consumption_items[index]["end"] == target_consumption_dates[index] + timedelta(minutes=30)
 
-  assert result.targets[1].start == datetime.strptime("2023-12-25T17:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result.targets[1].end == datetime.strptime("2023-12-25T18:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result.targets[1].target == 1.19
-  assert result.targets[1].is_incomplete_calculation == False
-  assert len(result.targets[1].consumption_items) == len(target_consumption_dates)
+  assert result.baselines[1].start == datetime.strptime("2023-12-25T17:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result.baselines[1].end == datetime.strptime("2023-12-25T18:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result.baselines[1].baseline == 1.19
+  assert result.baselines[1].is_incomplete_calculation == False
+  assert len(result.baselines[1].consumption_items) == len(target_consumption_dates)
   for index in range(len(target_consumption_dates)):
-    assert result.targets[1].consumption_items[index]["start"] == target_consumption_dates[index] + timedelta(minutes=30)
-    assert result.targets[1].consumption_items[index]["end"] == target_consumption_dates[index] + timedelta(minutes=60)
+    assert result.baselines[1].consumption_items[index]["start"] == target_consumption_dates[index] + timedelta(minutes=30)
+    assert result.baselines[1].consumption_items[index]["end"] == target_consumption_dates[index] + timedelta(minutes=60)
   
 @pytest.mark.asyncio
 @pytest.mark.parametrize("current,expected_index",[
@@ -112,26 +112,26 @@ async def test_when_current_is_during_saving_session_then_correct_target_is_retu
   # Assert
   assert result is not None
   assert result.current_target is not None
-  assert result.current_target == result.targets[expected_index]
+  assert result.current_target == result.baselines[expected_index]
   
-  assert len(result.targets) == 2
-  assert result.targets[0].start == datetime.strptime("2023-12-25T17:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result.targets[0].end == datetime.strptime("2023-12-25T17:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result.targets[0].target == 1.19
-  assert result.targets[0].is_incomplete_calculation == False
-  assert len(result.targets[0].consumption_items) == len(target_consumption_dates)
+  assert len(result.baselines) == 2
+  assert result.baselines[0].start == datetime.strptime("2023-12-25T17:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result.baselines[0].end == datetime.strptime("2023-12-25T17:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result.baselines[0].baseline == 1.19
+  assert result.baselines[0].is_incomplete_calculation == False
+  assert len(result.baselines[0].consumption_items) == len(target_consumption_dates)
   for index in range(len(target_consumption_dates)):
-    assert result.targets[0].consumption_items[index]["start"] == target_consumption_dates[index]
-    assert result.targets[0].consumption_items[index]["end"] == target_consumption_dates[index] + timedelta(minutes=30)
+    assert result.baselines[0].consumption_items[index]["start"] == target_consumption_dates[index]
+    assert result.baselines[0].consumption_items[index]["end"] == target_consumption_dates[index] + timedelta(minutes=30)
 
-  assert result.targets[1].start == datetime.strptime("2023-12-25T17:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result.targets[1].end == datetime.strptime("2023-12-25T18:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result.targets[1].target == 1.19
-  assert result.targets[1].is_incomplete_calculation == False
-  assert len(result.targets[1].consumption_items) == len(target_consumption_dates)
+  assert result.baselines[1].start == datetime.strptime("2023-12-25T17:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result.baselines[1].end == datetime.strptime("2023-12-25T18:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result.baselines[1].baseline == 1.19
+  assert result.baselines[1].is_incomplete_calculation == False
+  assert len(result.baselines[1].consumption_items) == len(target_consumption_dates)
   for index in range(len(target_consumption_dates)):
-    assert result.targets[1].consumption_items[index]["start"] == target_consumption_dates[index] + timedelta(minutes=30)
-    assert result.targets[1].consumption_items[index]["end"] == target_consumption_dates[index] + timedelta(minutes=60)
+    assert result.baselines[1].consumption_items[index]["start"] == target_consumption_dates[index] + timedelta(minutes=30)
+    assert result.baselines[1].consumption_items[index]["end"] == target_consumption_dates[index] + timedelta(minutes=60)
 
 @pytest.mark.asyncio
 async def test_when_current_after_saving_session_then_none_is_returned():
@@ -225,7 +225,7 @@ async def test_when_saving_session_is_weekday_and_consumption_data_is_incomplete
   # Assert
   assert result is not None
   assert result.current_target is not None
-  assert result.current_target == result.targets[0]
+  assert result.current_target == result.baselines[0]
   assert result.current_target.is_incomplete_calculation == True
 
 @pytest.mark.asyncio
@@ -254,5 +254,5 @@ async def test_when_saving_session_is_weekend_and_consumption_data_is_incomplete
   # Assert
   assert result is not None
   assert result.current_target is not None
-  assert result.current_target == result.targets[0]
+  assert result.current_target == result.baselines[0]
   assert result.current_target.is_incomplete_calculation == True
