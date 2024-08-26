@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from ..api_client.saving_sessions import SavingSession
 
-def current_saving_sessions_event(current_date: datetime, events: list[SavingSession]) -> SavingSession or None:
+def current_saving_sessions_event(current_date: datetime, events: list[SavingSession]) -> SavingSession | None:
   if events is not None:
     for event in events:
       if (event.start <= current_date and event.end >= current_date):
@@ -9,7 +9,7 @@ def current_saving_sessions_event(current_date: datetime, events: list[SavingSes
   
   return None
 
-def get_next_saving_sessions_event(current_date: datetime, events: list[SavingSession]) -> SavingSession or None:
+def get_next_saving_sessions_event(current_date: datetime, events: list[SavingSession]) -> SavingSession | None:
   next_event = None
 
   if events is not None:
@@ -35,6 +35,16 @@ def is_new_saving_session_date_valid(saving_session_start: datetime, previous_sa
       return False
   
   return True
+
+def get_filtered_consumptions(consumptions: list, target_consumption_dates: list[SavingSessionConsumptionDate]):
+
+  filtered_consumptions = []
+  for target_consumption_date in target_consumption_dates:
+    for consumption in consumptions:
+      if consumption["start"] >= target_consumption_date.start and consumption["start"] <= target_consumption_date.end and consumption["end"] >= target_consumption_date.start and consumption["end"] <= target_consumption_date.end:
+        filtered_consumptions.append(consumption)
+  
+  return filtered_consumptions
 
 def get_target_consumption_days(saving_session: datetime):
   saving_session_day = saving_session.weekday()
@@ -107,7 +117,7 @@ def get_saving_session_thirty_minute_periods(saving_session: SavingSession):
 
   return periods
 
-def get_saving_session_target(current: datetime, saving_session: SavingSession, consumption_data: list) -> SavingSessionTargetResult:
+def get_saving_session_target(current: datetime, saving_session: SavingSession | None, consumption_data: list) -> SavingSessionTargetResult:
   if saving_session is None:
     return None
   

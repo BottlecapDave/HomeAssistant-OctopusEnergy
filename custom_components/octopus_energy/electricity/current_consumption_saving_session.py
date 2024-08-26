@@ -40,7 +40,7 @@ class OctopusEnergyCurrentElectricityConsumptionSavingSession(CoordinatorEntity,
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_saving_session_current_consumption"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_octoplus_saving_session_current_consumption"
 
   @property
   def name(self):

@@ -58,7 +58,7 @@ from .utils.tariff_cache import async_get_cached_tariff_total_unique_rates, asyn
 from .utils.rate_information import get_peak_type, get_unique_rates, has_peak_rates
 
 from .octoplus.points import OctopusEnergyOctoplusPoints
-from .octoplus.saving_session_target import OctopusEnergySavingSessionTarget
+from .octoplus.saving_session_baseline import OctopusEnergySavingSessionBaseline
 
 from .utils import (Tariff, get_active_tariff)
 from .const import (
@@ -302,6 +302,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
           )
           entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumption(hass, client, previous_consumption_coordinator, account_id, meter, point))
           entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(hass, previous_consumption_coordinator, meter, point))
+          entities.append(OctopusEnergySavingSessionBaseline(hass, saving_session_coordinator, previous_consumption_coordinator, meter, point))
           
           # Create a peak override for each available peak type for our tariff
           total_unique_rates = await get_unique_electricity_rates(hass, client, electricity_tariff if tariff_override is None else tariff_override)
