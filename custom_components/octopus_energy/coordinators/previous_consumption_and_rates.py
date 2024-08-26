@@ -124,7 +124,6 @@ async def async_get_missing_consumption(
       raise
 
 def remove_old_consumptions(consumptions: list, earliest_datetime: datetime):
-  _LOGGER.debug(f"earliest_datetime: {earliest_datetime}")
   new_rates = []
   for consumption in consumptions:
     if (consumption["start"] >= earliest_datetime):
@@ -167,10 +166,8 @@ async def async_enhance_with_historic_consumption(
     local_start: datetime = as_local(consumption["start"])
     is_weekend = local_start.weekday() == 5 or local_start.weekday() == 6
     if is_weekend and contains_consumption(historic_weekend_consumptions, consumption) == False:
-      _LOGGER.debug("Added existing weekend consumption")
       historic_weekend_consumptions.append(consumption)
     elif is_weekend == False and contains_consumption(historic_weekday_consumptions, consumption) == False:
-      _LOGGER.debug("Added existing weekday consumption")
       historic_weekday_consumptions.append(consumption)
 
   # Fetch rates that might be missing
@@ -379,7 +376,6 @@ async def async_create_previous_consumption_and_rates_coordinator(
             "consumption": float(item["consumption"])
           })
 
-      _LOGGER.debug(f"Converted historic consumption: {len(consumption)}")
       return consumption
     except:
       return []
