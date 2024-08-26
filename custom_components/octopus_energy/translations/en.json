@@ -46,6 +46,11 @@
           "minimum_rate": "The optional minimum rate for target hours",
           "maximum_rate": "The optional maximum rate for target hours",
           "weighting": "The optional weighting to apply to the discovered rates"
+        },
+        "data_description": {
+          "hours": "This has to be a multiple of 0.5.",
+          "minimum_rate": "This is in pounds and pence (e.g. 0.12)",
+          "maximum_rate": "This is in pounds and pence (e.g. 0.12)"
         }
       },
       "target_rate_account": {
@@ -162,6 +167,11 @@
           "minimum_rate": "The optional minimum rate for target hours",
           "maximum_rate": "The optional maximum rate for target hours",
           "weighting": "The optional weighting to apply to the discovered rates"
+        },
+        "data_description": {
+          "hours": "This has to be a multiple of 0.5.",
+          "minimum_rate": "This is in pounds and pence (e.g. 0.12)",
+          "maximum_rate": "This is in pounds and pence (e.g. 0.12)"
         }
       },
       "cost_tracker": {

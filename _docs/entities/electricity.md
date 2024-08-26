@@ -385,7 +385,9 @@ If you export energy, then unless specified otherwise, in addition you'll gain t
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
 
-The latest electricity consumption sent to Octopus Energy. This will update every minute. This is a legacy sensor which was been built to see the accumulation within the energy dashboard. This _may_ be removed in the future.
+The delta of the accumulative electricity consumption since the last update (e.g. if the previous accumulative consumption update reported 1kWh and the current accumulative consumption update reported 1.1kWh, then this sensor will report 0.1kWh). 
+
+This is a legacy sensor which was been built to see the accumulation within the energy dashboard. This _may_ be removed in the future.
 
 It has been noticed that daily consumption reported in Home Assistant can differ to when looking at past data within Octopus Energy. It looks like this is because Octopus Energy will favour "official" data from your smart meter over the data they collect.
 
