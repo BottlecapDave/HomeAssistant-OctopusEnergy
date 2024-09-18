@@ -558,3 +558,19 @@ The total cost reported by the meter for the current day during peak hours (the 
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
+
+### Current Period Consumption
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_period_consumption`
+
+!!! warning
+    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one.
+
+!!! info
+    An export equivalent of this sensor does not exist because the data is not available
+
+This will indicate the total consumption for the current 30 minute period. You can use this to compare the data with the [saving session baseline](./octoplus.md#saving-session-baseline) sensor to see how on track you are during a saving session.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |

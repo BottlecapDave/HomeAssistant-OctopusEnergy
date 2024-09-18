@@ -45,12 +45,12 @@ class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyEl
     self._attributes = {
       "mpan": self._mpan,
       "serial_number": self._serial_number,
-      "saving_session_target_start": None,
-      "saving_session_target_end": None,
+      "start": None,
+      "end": None,
       "is_incomplete_calculation": None,
       "consumption_items": None,
-      "total_target": None,
-      "targets": None,
+      "total_baseline": None,
+      "baselines": None,
     }
     self._consumption_data = None
     self._mock_baseline = mock_baseline
@@ -133,8 +133,8 @@ class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyEl
       target = get_saving_session_target(current, target_saving_session, self._consumption_data if self._consumption_data is not None else [])
       if (target is not None and target.current_target is not None):
         self._state = target.current_target.baseline
-        self._attributes["saving_session_start"] = target.current_target.start
-        self._attributes["saving_session_end"] = target.current_target.end
+        self._attributes["start"] = target.current_target.start
+        self._attributes["end"] = target.current_target.end
         self._attributes["is_incomplete_calculation"] = target.current_target.is_incomplete_calculation
         self._attributes["consumption_items"] = target.current_target.consumption_items
         self._attributes["total_baseline"] = target.total_baseline
@@ -145,8 +145,8 @@ class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyEl
           "is_incomplete_calculation": target.is_incomplete_calculation
         }, target.baselines))
       else:
-        self._attributes["saving_session_start"] = None
-        self._attributes["saving_session_end"] = None
+        self._attributes["start"] = None
+        self._attributes["end"] = None
         self._attributes["is_incomplete_calculation"] = None
         self._attributes["consumption_items"] = None
         self._attributes["total_baseline"] = None
