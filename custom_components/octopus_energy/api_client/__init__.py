@@ -115,8 +115,8 @@ live_consumption_query = '''query {{
 
 intelligent_dispatches_query = '''query {{
 	plannedDispatches(accountNumber: "{account_id}") {{
-		startDt
-		endDt
+		start
+		end
     delta
     meta {{
 			source
@@ -124,8 +124,8 @@ intelligent_dispatches_query = '''query {{
 		}}
 	}}
 	completedDispatches(accountNumber: "{account_id}") {{
-		startDt
-		endDt
+		start
+		end
     delta
     meta {{
 			source
@@ -135,27 +135,65 @@ intelligent_dispatches_query = '''query {{
 }}'''
 
 intelligent_device_query = '''query {{
-	registeredKrakenflexDevice(accountNumber: "{account_id}") {{
-		krakenflexDeviceId
-    provider
-		vehicleMake
-		vehicleModel
-    vehicleBatterySizeInKwh
-		chargePointMake
-		chargePointModel
-    chargePointPowerInKw
+  electricVehicles {{
+		make
+		models {{
+			model
+			batterySize
+		}}
+	}}
+	chargePointVariants {{
+		make
+		models {{
+			model
+			powerInKw
+		}}
+	}}
+  devices(accountNumber: "{account_id}") {{
+		id
+		provider
+		deviceType
+    status {{
+      current
+    }}
+		__typename
+		... on SmartFlexVehicle {{
+			make
+			model
+		}}
+		... on SmartFlexChargePoint {{
+			make
+			model
+		}}
 	}}
 }}'''
 
-intelligent_settings_query = '''query vehicleChargingPreferences {{
-  vehicleChargingPreferences(accountNumber: "{account_id}") {{
-    weekdayTargetTime
-    weekdayTargetSoc
-    weekendTargetTime
-    weekendTargetSoc
-  }}
-  registeredKrakenflexDevice(accountNumber: "{account_id}") {{
-    suspended
+intelligent_settings_query = '''query {{
+  devices(accountNumber: "{account_id}", deviceId: "{device_id}") {{
+		id
+    status {{
+      isSuspended
+    }}
+		... on SmartFlexVehicle {{
+			chargingPreferences {{
+				weekdayTargetTime
+				weekdayTargetSoc
+				weekendTargetTime
+				weekendTargetSoc
+				minimumSoc
+				maximumSoc
+			}}
+		}}
+		... on SmartFlexChargePoint {{
+			chargingPreferences {{
+				weekdayTargetTime
+				weekdayTargetSoc
+				weekendTargetTime
+				weekendTargetSoc
+				minimumSoc
+				maximumSoc
+			}}
+		}}
 	}}
 }}'''
 
@@ -1002,8 +1040,8 @@ class OctopusEnergyApiClient:
         if (response_body is not None and "data" in response_body):
           return IntelligentDispatches(
             list(map(lambda ev: IntelligentDispatchItem(
-                as_utc(parse_datetime(ev["startDt"])),
-                as_utc(parse_datetime(ev["endDt"])),
+                as_utc(parse_datetime(ev["start"])),
+                as_utc(parse_datetime(ev["end"])),
                 float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
                 ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
                 ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
@@ -1012,8 +1050,8 @@ class OctopusEnergyApiClient:
               else [])
             ),
             list(map(lambda ev: IntelligentDispatchItem(
-                as_utc(parse_datetime(ev["startDt"])),
-                as_utc(parse_datetime(ev["endDt"])),
+                as_utc(parse_datetime(ev["start"])),
+                as_utc(parse_datetime(ev["end"])),
                 float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
                 ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
                 ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
@@ -1030,39 +1068,41 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
   
-  async def async_get_intelligent_settings(self, account_id: str):
+  async def async_get_intelligent_settings(self, account_id: str, device_id: str):
     """Get the user's intelligent settings"""
     await self.async_refresh_token()
 
     try:
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
-      payload = { "query": intelligent_settings_query.format(account_id=account_id) }
+      payload = { "query": intelligent_settings_query.format(account_id=account_id, device_id=device_id) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
         _LOGGER.debug(f'async_get_intelligent_settings: {response_body}')
 
         _LOGGER.debug(f'Intelligent Settings: {response_body}')
-        if (response_body is not None and "data" in response_body):
+        if (response_body is not None and "data" in response_body and "devices" in response_body["data"]):
 
-          return IntelligentSettings(
-            response_body["data"]["registeredKrakenflexDevice"]["suspended"] == False
-            if "registeredKrakenflexDevice" in response_body["data"] and "suspended" in response_body["data"]["registeredKrakenflexDevice"]
-            else None,
-            int(response_body["data"]["vehicleChargingPreferences"]["weekdayTargetSoc"])
-            if "vehicleChargingPreferences" in response_body["data"] and "weekdayTargetSoc" in response_body["data"]["vehicleChargingPreferences"]
-            else None,
-            int(response_body["data"]["vehicleChargingPreferences"]["weekendTargetSoc"])
-            if "vehicleChargingPreferences" in response_body["data"] and "weekendTargetSoc" in response_body["data"]["vehicleChargingPreferences"]
-            else None,
-            self.__ready_time_to_time__(response_body["data"]["vehicleChargingPreferences"]["weekdayTargetTime"])
-            if "vehicleChargingPreferences" in response_body["data"] and "weekdayTargetTime" in response_body["data"]["vehicleChargingPreferences"]
-            else None,
-            self.__ready_time_to_time__(response_body["data"]["vehicleChargingPreferences"]["weekendTargetTime"])
-            if "vehicleChargingPreferences" in response_body["data"] and "weekendTargetTime" in response_body["data"]["vehicleChargingPreferences"]
-            else None
-          )
+          devices = list(response_body["data"]["devices"])
+          if len(devices) == 1:
+            smart_charge = devices[0]["status"]["isSuspended"] == 'false' if "status" in devices[0] and "isSuspended" in devices[0]["status"] else None
+            charging_preferences = devices[0]["chargingPreferences"] if "chargingPreferences" in devices[0] else None
+            return IntelligentSettings(
+              smart_charge,
+              int(charging_preferences["weekdayTargetSoc"])
+              if charging_preferences is not None and "weekdayTargetSoc" in charging_preferences
+              else None,
+              int(charging_preferences["weekendTargetSoc"])
+              if charging_preferences is not None and "weekendTargetSoc" in charging_preferences
+              else None,
+              self.__ready_time_to_time__(charging_preferences["weekdayTargetTime"])
+              if charging_preferences is not None and "weekdayTargetTime" in charging_preferences
+              else None,
+              self.__ready_time_to_time__(charging_preferences["weekendTargetTime"])
+              if charging_preferences is not None and "weekendTargetTime" in charging_preferences
+              else None
+            )
         else:
           _LOGGER.error("Failed to retrieve intelligent settings")
       
@@ -1075,22 +1115,23 @@ class OctopusEnergyApiClient:
   def __ready_time_to_time__(self, time_str: str) -> time:
     if time_str is not None:
       parts = time_str.split(':')
-      if len(parts) != 2:
+      if len(parts) != 3:
         raise Exception(f"Unexpected number of parts in '{time_str}'")
       
-      return time(int(parts[0]), int(parts[1]))
+      return time(int(parts[0]), int(parts[1]), int(parts[2]))
 
     return None
   
   async def async_update_intelligent_car_target_percentage(
       self, 
       account_id: str,
+      device_id: str,
       target_percentage: int
     ):
     """Update a user's intelligent car target percentage"""
     await self.async_refresh_token()
 
-    settings = await self.async_get_intelligent_settings(account_id)
+    settings = await self.async_get_intelligent_settings(account_id, device_id)
 
     try:
       client = self._create_client_session()
@@ -1112,13 +1153,15 @@ class OctopusEnergyApiClient:
       raise TimeoutException()
 
   async def async_update_intelligent_car_target_time(
-      self, account_id: str,
+      self,
+      account_id: str,
+      device_id: str,
       target_time: time,
     ):
     """Update a user's intelligent car target time"""
     await self.async_refresh_token()
     
-    settings = await self.async_get_intelligent_settings(account_id)
+    settings = await self.async_get_intelligent_settings(account_id, device_id)
 
     try:
       client = self._create_client_session()
@@ -1236,22 +1279,58 @@ class OctopusEnergyApiClient:
         response_body = await self.__async_read_response__(response, url)
         _LOGGER.debug(f'async_get_intelligent_device: {response_body}')
 
-        if (response_body is not None and "data" in response_body and
-            "registeredKrakenflexDevice" in response_body["data"]):
-          device = response_body["data"]["registeredKrakenflexDevice"]
-          if device["krakenflexDeviceId"] is not None:
-            return IntelligentDevice(
-              device["krakenflexDeviceId"],
+        result = []
+        if (response_body is not None and "data" in response_body and "devices" in response_body["data"]):
+          devices: list = response_body["data"]["devices"]
+
+          for device in devices:
+            if (device["deviceType"] != "ELECTRIC_VEHICLES" or device["status"]["current"] != "LIVE"):
+              continue
+
+            is_charger = device["__typename"] == "SmartFlexChargePoint"
+
+            make = device["make"]
+            model = device["model"]
+            vehicleBatterySizeInKwh = None
+            chargePointPowerInKw = None
+
+            if is_charger:
+              if "chargePointVariants" in response_body["data"] and response_body["data"]["chargePointVariants"] is not None:
+                for charger in response_body["data"]["chargePointVariants"]:
+                  if charger["make"] == make:
+                    if "models" in charger and charger["models"] is not None:
+                      for charger_model in charger["models"]:
+                        if charger_model["model"] == model:
+                          chargePointPowerInKw = float(charger_model["powerInKw"]) if "powerInKw" in charger_model and charger_model["powerInKw"] is not None else 0
+                          break
+
+                    break
+            else:
+              if "electricVehicles" in response_body["data"] and response_body["data"]["electricVehicles"] is not None:
+                for charger in response_body["data"]["electricVehicles"]:
+                  if charger["make"] == make:
+                    if "models" in charger and charger["models"] is not None:
+                      for charger_model in charger["models"]:
+                        if charger_model["model"] == model:
+                          vehicleBatterySizeInKwh = float(charger_model["batterySize"]) if "batterySize" in charger_model and charger_model["batterySize"] is not None else 0
+                          break
+
+                    break
+
+            result.append(IntelligentDevice(
+              device["id"],
               device["provider"],
-              device["vehicleMake"],
-              device["vehicleModel"],
-              float(device["vehicleBatterySizeInKwh"]) if "vehicleBatterySizeInKwh" in device and device["vehicleBatterySizeInKwh"] is not None else None,
-              device["chargePointMake"],
-              device["chargePointModel"],
-              float(device["chargePointPowerInKw"]) if "chargePointPowerInKw" in device and device["chargePointPowerInKw"] is not None else None
-            )
-          else:
-            _LOGGER.debug('Skipping intelligent device as id is not available')
+              make,
+              model,
+              vehicleBatterySizeInKwh,
+              chargePointPowerInKw,
+              is_charger
+            ))
+
+          if len(result) > 1:
+            _LOGGER.warning("Multiple intelligent devices discovered. Picking first one")
+
+          return result[0] if len(result) > 0 else None
         else:
           _LOGGER.error("Failed to retrieve intelligent device")
       

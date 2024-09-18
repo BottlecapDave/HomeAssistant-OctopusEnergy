@@ -36,7 +36,7 @@ When calculating gas costs, a calorific value is included in the calculation. Un
 
 ## Pricing Caps
 
-There has been inconsistencies across tariffs on whether government pricing caps are included or not. Therefore the ability to configure pricing caps has been added within you account. 
+There has been inconsistencies across tariffs on whether government pricing caps are included or not. Therefore the ability to configure pricing caps has been added within you account. This is configured in pounds and pence format (e.g. 0.12 for 12p).
 
 !!! info
 

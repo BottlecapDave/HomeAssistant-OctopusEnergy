@@ -534,8 +534,8 @@ class OptionsFlowHandler(OptionsFlow):
             CONFIG_TARGET_ROLLING_TARGET: is_rolling_target,
             CONFIG_TARGET_LAST_RATES: find_last_rates,
             CONFIG_TARGET_INVERT_TARGET_RATES: invert_target_rates,
-            CONFIG_TARGET_MIN_RATE: config[CONFIG_TARGET_MIN_RATE] if CONFIG_TARGET_MIN_RATE in config else None,
-            CONFIG_TARGET_MAX_RATE: config[CONFIG_TARGET_MAX_RATE] if CONFIG_TARGET_MAX_RATE in config else None,
+            CONFIG_TARGET_MIN_RATE: f'{config[CONFIG_TARGET_MIN_RATE]}' if CONFIG_TARGET_MIN_RATE in config and config[CONFIG_TARGET_MIN_RATE] is not None else None,
+            CONFIG_TARGET_MAX_RATE: f'{config[CONFIG_TARGET_MAX_RATE]}' if CONFIG_TARGET_MAX_RATE in config and config[CONFIG_TARGET_MAX_RATE] is not None else None,
             CONFIG_TARGET_WEIGHTING: config[CONFIG_TARGET_WEIGHTING] if CONFIG_TARGET_WEIGHTING in config else None,
           }
       ),

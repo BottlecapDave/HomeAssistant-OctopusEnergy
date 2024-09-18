@@ -17,7 +17,7 @@ tariff_code = "E-1R-INTELLI-VAR-22-10-14-C"
 mpan = "1234567890"
 serial_number = "abcdefgh"
 
-intelligent_device = IntelligentDevice("1", "2", "3", "4", 1, "5", "6", 2)
+intelligent_device = IntelligentDevice("1", "2", "3", "4", 1, 2, True)
 
 def get_account_info(is_active_agreement = True, active_product_code = product_code, active_tariff_code = tariff_code):
   return {

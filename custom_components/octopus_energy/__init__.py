@@ -385,7 +385,7 @@ async def async_setup_dependencies(hass, config):
 
   await async_setup_intelligent_dispatches_coordinator(hass, account_id, debug_override.mock_intelligent_controls if debug_override is not None else False)
 
-  await async_setup_intelligent_settings_coordinator(hass, account_id, debug_override.mock_intelligent_controls if debug_override is not None else False)
+  await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id if intelligent_device is not None else None, debug_override.mock_intelligent_controls if debug_override is not None else False)
   
   await async_setup_saving_sessions_coordinators(hass, account_id)
 

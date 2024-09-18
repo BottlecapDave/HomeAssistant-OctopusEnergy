@@ -116,7 +116,7 @@ If this is checked, then the normal behaviour of the sensor will be reversed. Th
 
 ### Minimum/Maximum Rates
 
-There may be times that you want the target rate sensors to not take into account rates that are above or below a certain value (e.g. you don't want the sensor to turn on when rates go crazy or where it would be more beneficial to export).
+There may be times that you want the target rate sensors to not take into account rates that are above or below a certain value (e.g. you don't want the sensor to turn on when rates go crazy or where it would be more beneficial to export). This is configured in pounds and pence format (e.g. 0.12 for 12p).
 
 !!! info
 

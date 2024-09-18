@@ -90,13 +90,12 @@ def mock_intelligent_settings():
 def mock_intelligent_device():
   return IntelligentDevice(
     "1",
-    FULLY_SUPPORTED_INTELLIGENT_PROVIDERS[0],
-		"Tesla",
-		"Model Y",
-    75.0,
-		"MyEnergi",
-		"Zappi",
-    6.5 
+    "MYENERGI",
+    "Myenergi",
+    "Zappi smart EV",
+    None,
+    6.5,
+    True
   )
 
 def is_intelligent_product(product_code: str):
@@ -221,6 +220,7 @@ FULLY_SUPPORTED_INTELLIGENT_PROVIDERS = [
   "ENERGIZER",
   "ENPHASE",
   "ENODE",
+  "FORD",
   "GIVENERGY",
   "HUAWEI",
   "JEDLIX",
