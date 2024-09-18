@@ -381,7 +381,7 @@ async def async_setup_dependencies(hass, config):
 
   await async_setup_intelligent_dispatches_coordinator(hass, account_id)
 
-  await async_setup_intelligent_settings_coordinator(hass, account_id)
+  await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id if intelligent_device is not None else None)
   
   await async_setup_saving_sessions_coordinators(hass, account_id)
 

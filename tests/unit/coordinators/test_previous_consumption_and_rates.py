@@ -907,9 +907,8 @@ async def test_when_intelligent_dispatches_available_then_adjusted_requested_dat
       "Tesla",
       "Model Y",
       75.0,
-      "MyEnergi",
-      "Zappi",
-      6.5 
+      6.5,
+      False 
     )
 
     intelligent_dispatches = IntelligentDispatches(
@@ -1043,9 +1042,8 @@ async def test_when_intelligent_tariff_and_intelligent_device_and_no_dispatches_
       "Tesla",
       "Model Y",
       75.0,
-      "MyEnergi",
-      "Zappi",
-      6.5 
+      6.5,
+      False
     )
     intelligent_dispatches = None
 
