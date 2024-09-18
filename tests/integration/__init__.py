@@ -1,5 +1,5 @@
 import os
-from datetime import timedelta
+from datetime import datetime, timedelta
 
 class TestContext:
   api_key: str
@@ -44,7 +44,7 @@ def get_test_context():
   
   return TestContext(api_key, account_id, gas_mprn, gas_serial_number, electricity_mpan, electricity_serial_number)
 
-def create_consumption_data(period_from, period_to, reverse = False):
+def create_consumption_data(period_from: datetime, period_to: datetime, reverse = False):
   consumption = []
   current_valid_from = period_from
   current_valid_to = None
