@@ -196,9 +196,11 @@ async def async_enhance_with_historic_consumption(
   current_weekend_latest_end = historic_weekend_consumptions[-1]["end"] if historic_weekend_consumptions is not None and len(historic_weekend_consumptions) > 0 else None
 
   if current_weekday_earliest_start != previous_weekday_earliest_start or current_weekday_latest_end != previous_weekday_latest_end or len(missing_weekday_consumptions) > 0:
+    _LOGGER.debug(f"Saving historic weekday consumption data: current_weekday_earliest_start: {current_weekday_earliest_start}; previous_weekday_earliest_start: {previous_weekday_earliest_start}; current_weekday_latest_end: {current_weekday_latest_end}; previous_weekday_latest_end: {previous_weekday_latest_end}; missing_weekday_consumptions: {len(missing_weekday_consumptions)}")
     await async_save_historic_consumptions(identifier, serial_number, True, historic_weekday_consumptions)
 
   if current_weekend_earliest_start != previous_weekend_earliest_start or current_weekend_latest_end != previous_weekend_latest_end or len(missing_weekend_consumptions) > 0:
+    _LOGGER.debug(f"Saving historic weekend consumption data: current_weekend_earliest_start: {current_weekend_earliest_start}; previous_weekend_earliest_start: {previous_weekend_earliest_start}; current_weekend_latest_end: {current_weekend_latest_end}; previous_weekend_latest_end: {previous_weekend_latest_end}; missing_weekend_consumptions: {len(missing_weekend_consumptions)}")
     await async_save_historic_consumptions(identifier, serial_number, False, historic_weekend_consumptions)
 
   return PreviousConsumptionCoordinatorResult(
