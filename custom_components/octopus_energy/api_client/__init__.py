@@ -2,7 +2,7 @@ import logging
 import json
 import aiohttp
 from asyncio import TimeoutError
-from datetime import (datetime, timedelta, time)
+from datetime import (datetime, timedelta, time, timezone)
 from threading import RLock
 
 from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime, parse_date)
@@ -786,7 +786,7 @@ class OctopusEnergyApiClient:
 
     return None
 
-  async def async_get_electricity_standard_rates(self, product_code, tariff_code, period_from, period_to): 
+  async def async_get_electricity_standard_rates(self, product_code: str, tariff_code: str, period_from: datetime, period_to: datetime): 
     """Get the current standard rates"""
     results = []
 
@@ -796,7 +796,7 @@ class OctopusEnergyApiClient:
       page = 1
       has_more_rates = True
       while has_more_rates:
-        url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}&page={page}'
+        url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standard-unit-rates?period_from={period_from.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}&page={page}'
         async with client.get(url, auth=auth) as response:
           data = await self.__async_read_response__(response, url)
           if data is None:
@@ -814,14 +814,14 @@ class OctopusEnergyApiClient:
     results.sort(key=get_start)
     return results
 
-  async def async_get_electricity_day_night_rates(self, product_code, tariff_code, is_smart_meter, period_from, period_to):
+  async def async_get_electricity_day_night_rates(self, product_code: str, tariff_code: str, is_smart_meter: bool, period_from: datetime, period_to: datetime):
     """Get the current day and night rates"""
     results = []
 
     try:
       client = self._create_client_session()
       auth = aiohttp.BasicAuth(self._api_key, '')
-      url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/day-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
+      url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/day-unit-rates?period_from={period_from.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
         if data is None:
@@ -833,7 +833,7 @@ class OctopusEnergyApiClient:
             if self.__is_night_rate(rate, is_smart_meter) == False:
               results.append(rate)
 
-      url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/night-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
+      url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/night-unit-rates?period_from={period_from.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
         if data is None:
@@ -861,7 +861,7 @@ class OctopusEnergyApiClient:
     else:
       return await self.async_get_electricity_standard_rates(product_code, tariff_code, period_from, period_to)
       
-  async def async_get_electricity_consumption(self, mpan, serial_number, period_from, period_to, page_size: int | None = None):
+  async def async_get_electricity_consumption(self, mpan: str, serial_number: str, period_from: datetime | None, period_to: datetime | None, page_size: int | None = None):
     """Get the current electricity consumption"""
 
     try:
@@ -870,10 +870,10 @@ class OctopusEnergyApiClient:
 
       query_params = []
       if period_from is not None:
-        query_params.append(f'period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}')
+        query_params.append(f'period_from={period_from.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}')
       
       if period_to is not None:
-        query_params.append(f'period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}')
+        query_params.append(f'period_to={period_to.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}')
 
       if page_size is not None:
         query_params.append(f'page_size={page_size}')
@@ -904,14 +904,14 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
-  async def async_get_gas_rates(self, product_code: str, tariff_code: str, period_from, period_to):
+  async def async_get_gas_rates(self, product_code: str, tariff_code: str, period_from: datetime, period_to: datetime):
     """Get the gas rates"""
     results = []
 
     try:
       client = self._create_client_session()
       auth = aiohttp.BasicAuth(self._api_key, '')
-      url = f'{self._base_url}/v1/products/{product_code}/gas-tariffs/{tariff_code}/standard-unit-rates?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
+      url = f'{self._base_url}/v1/products/{product_code}/gas-tariffs/{tariff_code}/standard-unit-rates?period_from={period_from.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
         if data is None:
@@ -925,7 +925,7 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
-  async def async_get_gas_consumption(self, mprn, serial_number, period_from, period_to, page_size: int | None = None):
+  async def async_get_gas_consumption(self, mprn: str, serial_number: str, period_from: datetime | None, period_to: datetime | None, page_size: int | None = None):
     """Get the current gas rates"""
     
     try:
@@ -934,10 +934,10 @@ class OctopusEnergyApiClient:
 
       query_params = []
       if period_from is not None:
-        query_params.append(f'period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}')
+        query_params.append(f'period_from={period_from.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}')
       
       if period_to is not None:
-        query_params.append(f'period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}')
+        query_params.append(f'period_to={period_to.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}')
 
       if page_size is not None:
         query_params.append(f'page_size={page_size}')
@@ -979,14 +979,14 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
-  async def async_get_electricity_standing_charge(self, product_code, tariff_code, period_from, period_to):
+  async def async_get_electricity_standing_charge(self, product_code: str, tariff_code: str, period_from: datetime, period_to: datetime):
     """Get the electricity standing charges"""
     result = None
 
     try:
       client = self._create_client_session()
       auth = aiohttp.BasicAuth(self._api_key, '')
-      url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standing-charges?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
+      url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/standing-charges?period_from={period_from.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
         if (data is not None and "results" in data and len(data["results"]) > 0):
@@ -1001,14 +1001,14 @@ class OctopusEnergyApiClient:
         _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
         raise TimeoutException()
 
-  async def async_get_gas_standing_charge(self, product_code, tariff_code, period_from, period_to):
+  async def async_get_gas_standing_charge(self, product_code: str, tariff_code: str, period_from: datetime, period_to: datetime):
     """Get the gas standing charges"""
     result = None
 
     try:
       client = self._create_client_session()
       auth = aiohttp.BasicAuth(self._api_key, '')
-      url = f'{self._base_url}/v1/products/{product_code}/gas-tariffs/{tariff_code}/standing-charges?period_from={period_from.strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.strftime("%Y-%m-%dT%H:%M:%SZ")}'
+      url = f'{self._base_url}/v1/products/{product_code}/gas-tariffs/{tariff_code}/standing-charges?period_from={period_from.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}'
       async with client.get(url, auth=auth) as response:
         data = await self.__async_read_response__(response, url)
         if (data is not None and "results" in data and len(data["results"]) > 0):

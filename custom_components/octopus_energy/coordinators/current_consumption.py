@@ -28,7 +28,7 @@ async def async_get_live_consumption(
   current_date: datetime,
   client: OctopusEnergyApiClient,
   device_id: str,
-  previous_consumption: CurrentConsumptionCoordinatorResult,
+  previous_consumption: CurrentConsumptionCoordinatorResult | None,
   refresh_rate_in_minutes: float
 ):
   if previous_consumption is None or current_date >= previous_consumption.next_refresh:

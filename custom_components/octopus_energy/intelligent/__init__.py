@@ -8,7 +8,7 @@ from homeassistant.helpers import storage
 
 from ..utils import get_active_tariff
 
-from ..const import DOMAIN, INTELLIGENT_SOURCE_BUMP_CHARGE, INTELLIGENT_SOURCE_SMART_CHARGE, REFRESH_RATE_IN_MINUTES_INTELLIGENT
+from ..const import INTELLIGENT_SOURCE_BUMP_CHARGE, INTELLIGENT_SOURCE_SMART_CHARGE, REFRESH_RATE_IN_MINUTES_INTELLIGENT
 
 from ..api_client.intelligent_settings import IntelligentSettings
 from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
@@ -17,16 +17,6 @@ from ..api_client.intelligent_device import IntelligentDevice
 mock_intelligent_data_key = "MOCK_INTELLIGENT_DATA"
 
 _LOGGER = logging.getLogger(__name__)
-
-async def async_mock_intelligent_data(hass, account_id: str):
-  mock_data = hass.data[DOMAIN][account_id][mock_intelligent_data_key] if mock_intelligent_data_key in hass.data[DOMAIN][account_id] else None
-  if mock_data is None:
-    store = storage.Store(hass, "1", "octopus_energy.mock_intelligent_responses")
-    hass.data[DOMAIN][account_id][mock_intelligent_data_key] = await store.async_load() is not None
-  
-  _LOGGER.debug(f'MOCK_INTELLIGENT_DATA: {hass.data[DOMAIN][account_id][mock_intelligent_data_key]}')
-
-  return hass.data[DOMAIN][account_id][mock_intelligent_data_key]
 
 def mock_intelligent_dispatches() -> IntelligentDispatches:
   planned: list[IntelligentDispatchItem] = []
