@@ -21,7 +21,7 @@ from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, OctopusEnergyIntelligentSensor):
+class OctopusEnergyIntelligentChargeTarget(CoordinatorEntity, RestoreNumber, OctopusEnergyIntelligentSensor):
   """Sensor for setting the target percentage for car charging."""
 
   def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, device, account_id: str):
@@ -45,12 +45,12 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_{self._account_id}_intelligent_charge_limit"
+    return f"octopus_energy_{self._account_id}_intelligent_charge_target"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Intelligent Charge Limit ({self._account_id})"
+    return f"Intelligent Charge Target ({self._account_id})"
 
   @property
   def icon(self):
@@ -115,4 +115,4 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
       if last_state.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN):
         self._state = last_number_data.native_value
           
-    _LOGGER.debug(f'Restored OctopusEnergyIntelligentChargeLimit state: {self._state}')
+    _LOGGER.debug(f'Restored OctopusEnergyIntelligentChargeTarget state: {self._state}')
