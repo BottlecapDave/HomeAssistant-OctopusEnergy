@@ -97,11 +97,11 @@ This sensor is used to see and set the charge target for your future intelligent
 |-----------|------|-------------|
 | `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
 
-### Ready Time
+### Target Time
 
-`time.octopus_energy_{{ACCOUNT_ID}}_intelligent_ready_time`
+`time.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time`
 
-This sensor is used to see and set the ready time for your future intelligent charges.
+This sensor is used to see and set the target time for your future intelligent charges.
 
 !!! info
 

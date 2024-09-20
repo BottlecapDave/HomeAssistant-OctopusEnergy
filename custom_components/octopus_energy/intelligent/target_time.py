@@ -23,7 +23,7 @@ from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
+class OctopusEnergyIntelligentTargetTime(CoordinatorEntity, TimeEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
   """Sensor for setting the target time to charge the car to the desired percentage."""
 
   def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, device, account_id: str):
@@ -42,12 +42,12 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_{self._account_id}_intelligent_ready_time"
+    return f"octopus_energy_{self._account_id}_intelligent_target_time"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Intelligent Ready Time ({self._account_id})"
+    return f"Intelligent Target Time ({self._account_id})"
 
   @property
   def icon(self):
@@ -106,4 +106,4 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
     if (self._state is None):
       self._state = False
     
-    _LOGGER.debug(f'Restored OctopusEnergyIntelligentReadyTime state: {self._state}')
+    _LOGGER.debug(f'Restored OctopusEnergyIntelligentTargetTime state: {self._state}')
