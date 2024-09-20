@@ -1,5 +1,4 @@
 import logging
-from custom_components.octopus_energy.octoplus import current_saving_sessions_event
 
 from homeassistant.core import HomeAssistant, callback
 
@@ -18,14 +17,13 @@ from homeassistant.const import (
 from homeassistant.util.dt import (now)
 
 from ..coordinators.current_consumption import CurrentConsumptionCoordinatorResult
-from ..coordinators.saving_sessions import SavingSessionsCoordinatorResult
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyCurrentElectricityConsumptionSavingSession(CoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
-  """Sensor for displaying the current electricity consumption for the current saving session."""
+class OctopusEnergyCurrentElectricityIntervalAccumulativeConsumption(CoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
+  """Sensor for displaying the electricity consumption for the current 30 minute interval."""
 
   def __init__(self, hass: HomeAssistant, coordinator, saving_session_coordinator, meter, point):
     """Init sensor."""
@@ -40,12 +38,12 @@ class OctopusEnergyCurrentElectricityConsumptionSavingSession(CoordinatorEntity,
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_octoplus_saving_session_current_consumption"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_current_interval_accumulative_consumption"
 
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Saving Session Current Consumption Electricity ({self._serial_number}/{self._mpan})"
+    return f"Current Interval Accumulative Consumption Electricity ({self._serial_number}/{self._mpan})"
   
   @property
   def entity_registry_enabled_default(self) -> bool:
@@ -89,19 +87,18 @@ class OctopusEnergyCurrentElectricityConsumptionSavingSession(CoordinatorEntity,
     """Retrieve the current days accumulative consumption"""
     current = now()
     consumption_result: CurrentConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
-    saving_session: SavingSessionsCoordinatorResult = self._saving_session_coordinator.data if self._saving_session_coordinator is not None else None
     consumption_data = consumption_result.data if consumption_result is not None else None
 
     self._state = None
-    if (saving_session is not None and consumption_data is not None):
-      target_saving_session = current_saving_sessions_event(current, saving_session.joined_events)
-      if (target_saving_session is not None):
-        try:
-          consumption = next(r for r in consumption_data if r["start"] == target_saving_session.start and r["end"] == target_saving_session.end)
-          if consumption is not None:
-            self._state = consumption["consumption"]
-        except StopIteration:
-          self._state = None
+    if (consumption_data is not None):
+      try:
+        consumption = next(r for r in consumption_data if current >= r["start"] and current <= r["end"])
+        if consumption is not None:
+          self._state = consumption["consumption"]
+      except StopIteration:
+        self._state = None
+
+    self._attributes["data_last_retrieved"] = consumption_result.last_retrieved if consumption_result is not None else None
 
     super()._handle_coordinator_update()
 
@@ -115,4 +112,4 @@ class OctopusEnergyCurrentElectricityConsumptionSavingSession(CoordinatorEntity,
       self._state = None if state.state == "unknown" else state.state
       self._attributes = dict_to_typed_dict(state.attributes)
     
-      _LOGGER.debug(f'Restored OctopusEnergyCurrentElectricityConsumptionSavingSession state: {self._state}')
+      _LOGGER.debug(f'Restored OctopusEnergyCurrentElectricityIntervalAccumulativeConsumption state: {self._state}')

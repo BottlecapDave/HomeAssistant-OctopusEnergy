@@ -17,7 +17,7 @@ from .electricity.previous_accumulative_consumption import OctopusEnergyPrevious
 from .electricity.previous_accumulative_cost import OctopusEnergyPreviousAccumulativeElectricityCost
 from .electricity.previous_rate import OctopusEnergyElectricityPreviousRate
 from .electricity.standing_charge import OctopusEnergyElectricityCurrentStandingCharge
-from .electricity.current_consumption_saving_session import OctopusEnergyCurrentElectricityConsumptionSavingSession
+from .electricity.current_interval_accumulative_consumption_ import OctopusEnergyCurrentElectricityIntervalAccumulativeConsumption
 from .electricity.previous_accumulative_cost_override import OctopusEnergyPreviousAccumulativeElectricityCostOverride
 from .electricity.rates_previous_consumption_override import OctopusEnergyElectricityPreviousConsumptionOverrideRates
 from .electricity.current_total_consumption import OctopusEnergyCurrentTotalElectricityConsumption
@@ -329,7 +329,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
                 entities.append(OctopusEnergyCurrentElectricityConsumption(hass, consumption_coordinator, meter, point))
                 entities.append(OctopusEnergyCurrentAccumulativeElectricityConsumption(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, meter, point))
                 entities.append(OctopusEnergyCurrentAccumulativeElectricityCost(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, meter, point))
-                entities.append(OctopusEnergyCurrentElectricityConsumptionSavingSession(hass, consumption_coordinator, saving_session_coordinator, meter, point))
+                entities.append(OctopusEnergyCurrentElectricityIntervalAccumulativeConsumption(hass, consumption_coordinator, saving_session_coordinator, meter, point))
                 
                 if home_pro_client is None:
                   entities.append(OctopusEnergyCurrentElectricityDemand(hass, consumption_coordinator, meter, point))
