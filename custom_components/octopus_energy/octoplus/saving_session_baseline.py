@@ -34,6 +34,16 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
   """Sensor for determining the baseline for the current or next saving session."""
 
+  _unrecorded_attributes = frozenset({
+    "mpan",
+    "serial_number",
+    "start",
+    "end",
+    "consumption_items",
+    "baselines",
+    "data_last_retrieved"
+  })
+
   def __init__(self, hass: HomeAssistant, saving_session_coordinator, previous_rates_and_consumption_coordinator, meter, point, mock_baseline):
     """Init sensor."""
 

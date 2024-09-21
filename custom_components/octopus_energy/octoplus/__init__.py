@@ -39,10 +39,11 @@ def is_new_saving_session_date_valid(saving_session_start: datetime, previous_sa
 def get_filtered_consumptions(consumptions: list, target_consumption_dates: list[SavingSessionConsumptionDate]):
 
   filtered_consumptions = []
-  for target_consumption_date in target_consumption_dates:
-    for consumption in consumptions:
-      if consumption["start"] >= target_consumption_date.start and consumption["start"] <= target_consumption_date.end and consumption["end"] >= target_consumption_date.start and consumption["end"] <= target_consumption_date.end:
-        filtered_consumptions.append(consumption)
+  if target_consumption_dates is not None and consumptions is not None:
+    for target_consumption_date in target_consumption_dates:
+      for consumption in consumptions:
+        if consumption["start"] >= target_consumption_date.start and consumption["start"] <= target_consumption_date.end and consumption["end"] >= target_consumption_date.start and consumption["end"] <= target_consumption_date.end:
+          filtered_consumptions.append(consumption)
   
   return filtered_consumptions
 
@@ -145,7 +146,7 @@ def get_saving_session_target(current: datetime, saving_session: SavingSession |
 
     targets.append(SavingSessionBaseline(saving_session_period["start"],
                                        saving_session_period["end"],
-                                       sum(map(lambda item: item["consumption"], target_consumption_data)) / len(target_consumption_data),
+                                       sum(map(lambda item: item["consumption"], target_consumption_data)) / len(target_consumption_data) if len(target_consumption_data) != 0 else 0,
                                        target_consumption_data,
                                        len(target_consumption_data) != target_consumption_days))
 
