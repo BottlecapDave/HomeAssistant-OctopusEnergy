@@ -377,7 +377,7 @@ def compare_config(current_config: dict, existing_config: dict):
   return True
 
 def should_evaluate_target_rates(current_date: datetime, target_rates: list, evaluation_mode: str) -> bool:
-  if target_rates is None:
+  if target_rates is None or len(target_rates) < 1:
     return True
   
   all_rates_in_past = True

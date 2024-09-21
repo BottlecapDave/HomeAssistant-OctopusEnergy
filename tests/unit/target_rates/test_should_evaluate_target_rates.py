@@ -27,6 +27,23 @@ async def test_when_target_rates_is_none_then_return_true(evaluation_mode: str):
   assert result == True
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("evaluation_mode",[
+  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST),
+  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST),
+  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS),
+])
+async def test_when_target_rates_is_empty_then_return_true(evaluation_mode: str):
+  # Arrange
+  current_date = datetime.strptime("2024-09-21T10:15:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  target_rates = []
+
+  # Act
+  result = should_evaluate_target_rates(current_date, target_rates, evaluation_mode)
+
+  # Assert
+  assert result == True
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("evaluation_mode,expected_result",[
   (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST, False),
   (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST, True),

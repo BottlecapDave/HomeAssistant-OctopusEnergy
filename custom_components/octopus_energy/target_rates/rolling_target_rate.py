@@ -244,6 +244,8 @@ class OctopusEnergyRollingTargetRate(CoordinatorEntity, BinarySensorEntity, Rest
         []
       )
 
+      self._target_rates = self._attributes["target_times"] if "target_times" in self._attributes else None
+
       # Reset everything if our settings have changed
       if compare_config(self._config, self._attributes) == False:
         self._state = False
