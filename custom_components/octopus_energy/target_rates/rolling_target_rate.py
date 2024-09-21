@@ -25,9 +25,6 @@ from homeassistant.helpers import translation
 from ..const import (
   CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD,
   CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE,
-  CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST,
-  CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST,
-  CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS,
   CONFIG_TARGET_HOURS_MODE,
   CONFIG_TARGET_MAX_RATE,
   CONFIG_TARGET_MIN_RATE,
@@ -50,15 +47,15 @@ from . import (
   calculate_intermittent_times,
   compare_config,
   create_weighting,
-  get_applicable_rates,
   get_rates,
   get_target_rate_info,
   should_evaluate_target_rates
 )
 
-from ..config.target_rates import validate_target_rate_config
 from ..target_rates.repairs import check_for_errors
 from ..utils.attributes import dict_to_typed_dict
+
+from ..config.rolling_target_rates import validate_rolling_target_rate_config
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -256,7 +253,7 @@ class OctopusEnergyRollingTargetRate(CoordinatorEntity, BinarySensorEntity, Rest
       _LOGGER.debug(f'Restored OctopusEnergyTargetRate state: {self._state}')
 
   @callback
-  async def async_update_config(self, target_start_time=None, target_end_time=None, target_hours=None, target_offset=None, target_minimum_rate=None, target_maximum_rate=None, target_weighting=None):
+  async def async_update_rolling_target_rate_config(self, target_hours=None, target_look_ahead_hours=None, target_offset=None, target_minimum_rate=None, target_maximum_rate=None, target_weighting=None):
     """Update sensors config"""
 
     config = dict(self._config)
@@ -267,18 +264,11 @@ class OctopusEnergyRollingTargetRate(CoordinatorEntity, BinarySensorEntity, Rest
         CONFIG_TARGET_HOURS: trimmed_target_hours
       })
 
-    if target_start_time is not None:
+    if target_look_ahead_hours is not None:
       # Inputs from automations can include quotes, so remove these
-      trimmed_target_start_time = target_start_time.strip('\"')
+      trimmed_target_look_ahead_hours = target_look_ahead_hours.strip('\"')
       config.update({
-        CONFIG_TARGET_START_TIME: trimmed_target_start_time
-      })
-
-    if target_end_time is not None:
-      # Inputs from automations can include quotes, so remove these
-      trimmed_target_end_time = target_end_time.strip('\"')
-      config.update({
-        CONFIG_TARGET_END_TIME: trimmed_target_end_time
+        CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD: trimmed_target_look_ahead_hours
       })
 
     if target_offset is not None:
@@ -309,10 +299,7 @@ class OctopusEnergyRollingTargetRate(CoordinatorEntity, BinarySensorEntity, Rest
         CONFIG_TARGET_WEIGHTING: trimmed_target_weighting if trimmed_target_weighting != "" else None
       })
 
-    account_result = self._hass.data[DOMAIN][self._account_id][DATA_ACCOUNT]
-    account_info = account_result.account if account_result is not None else None
-
-    errors = validate_target_rate_config(config, account_info, now())
+    errors = validate_rolling_target_rate_config(config)
     keys = list(errors.keys())
     if (len(keys)) > 0:
       translations = await translation.async_get_translations(self._hass, self._hass.config.language, "options", {DOMAIN})

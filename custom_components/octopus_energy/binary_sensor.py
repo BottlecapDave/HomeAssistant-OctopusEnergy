@@ -46,27 +46,50 @@ async def async_setup_entry(hass, entry, async_add_entities):
     await async_setup_target_sensors(hass, entry, async_add_entities)
 
     platform = entity_platform.async_get_current_platform()
-    platform.async_register_entity_service(
-      "update_target_config",
-      vol.All(
-        vol.Schema(
-          {
-            vol.Optional("target_hours"): str,
-            vol.Optional("target_start_time"): str,
-            vol.Optional("target_end_time"): str,
-            vol.Optional("target_offset"): str,
-            vol.Optional("target_minimum_rate"): str,
-            vol.Optional("target_maximum_rate"): str,
-            vol.Optional("target_weighting"): str,
-          },
-          extra=vol.ALLOW_EXTRA,
+
+    if entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
+      platform.async_register_entity_service(
+        "update_target_config",
+        vol.All(
+          vol.Schema(
+            {
+              vol.Optional("target_hours"): str,
+              vol.Optional("target_start_time"): str,
+              vol.Optional("target_end_time"): str,
+              vol.Optional("target_offset"): str,
+              vol.Optional("target_minimum_rate"): str,
+              vol.Optional("target_maximum_rate"): str,
+              vol.Optional("target_weighting"): str,
+            },
+            extra=vol.ALLOW_EXTRA,
+          ),
+          cv.has_at_least_one_key(
+            "target_hours", "target_start_time", "target_end_time", "target_offset", "target_minimum_rate", "target_maximum_rate"
+          ),
         ),
-        cv.has_at_least_one_key(
-          "target_hours", "target_start_time", "target_end_time", "target_offset", "target_minimum_rate", "target_maximum_rate"
+        "async_update_target_rate_config",
+      )
+    else:
+      platform.async_register_entity_service(
+        "update_rolling_target_config",
+        vol.All(
+          vol.Schema(
+            {
+              vol.Optional("target_hours"): str,
+              vol.Optional("target_look_ahead_hours"): str,
+              vol.Optional("target_offset"): str,
+              vol.Optional("target_minimum_rate"): str,
+              vol.Optional("target_maximum_rate"): str,
+              vol.Optional("target_weighting"): str,
+            },
+            extra=vol.ALLOW_EXTRA,
+          ),
+          cv.has_at_least_one_key(
+            "target_hours", "target_look_ahead_hours", "target_offset", "target_minimum_rate", "target_maximum_rate"
+          ),
         ),
-      ),
-      "async_update_config",
-    )
+        "async_update_rolling_target_rate_config",
+      )
 
   return True
 
