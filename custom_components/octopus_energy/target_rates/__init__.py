@@ -6,7 +6,7 @@ import logging
 from homeassistant.util.dt import (as_utc, parse_datetime)
 
 from ..utils.conversions import value_inc_vat_to_pounds
-from ..const import CONFIG_TARGET_HOURS_MODE_EXACT, CONFIG_TARGET_HOURS_MODE_MAXIMUM, CONFIG_TARGET_HOURS_MODE_MINIMUM, CONFIG_TARGET_KEYS, REGEX_OFFSET_PARTS, REGEX_WEIGHTING
+from ..const import CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST, CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST, CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS, CONFIG_TARGET_HOURS_MODE_EXACT, CONFIG_TARGET_HOURS_MODE_MAXIMUM, CONFIG_TARGET_HOURS_MODE_MINIMUM, CONFIG_TARGET_KEYS, REGEX_OFFSET_PARTS, REGEX_WEIGHTING
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -375,3 +375,20 @@ def compare_config(current_config: dict, existing_config: dict):
       return False
     
   return True
+
+def should_evaluate_target_rates(current_date: datetime, target_rates: list, evaluation_mode: str) -> bool:
+  if target_rates is None:
+    return True
+  
+  all_rates_in_past = True
+  one_rate_in_past = False
+  for rate in target_rates:
+    if rate["end"] > current_date:
+      all_rates_in_past = False
+    
+    if rate["start"] <= current_date:
+      one_rate_in_past = True
+  
+  return ((evaluation_mode == CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST and all_rates_in_past) or
+          (evaluation_mode == CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST and (one_rate_in_past == False or all_rates_in_past)) or
+          (evaluation_mode == CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS))

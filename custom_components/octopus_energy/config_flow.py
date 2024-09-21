@@ -20,6 +20,10 @@ from .const import (
   CONFIG_MAIN_HOME_PRO_ADDRESS,
   CONFIG_MAIN_HOME_PRO_API_KEY,
   CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD,
+  CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE,
+  CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST,
+  CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST,
+  CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS,
   CONFIG_TARGET_HOURS_MODE,
   CONFIG_TARGET_HOURS_MODE_EXACT,
   CONFIG_TARGET_HOURS_MODE_MAXIMUM,
@@ -279,6 +283,16 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Optional(CONFIG_TARGET_MIN_RATE): str,
       vol.Optional(CONFIG_TARGET_MAX_RATE): str,
       vol.Optional(CONFIG_TARGET_WEIGHTING): str,
+      vol.Required(CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE, default=CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST): selector.SelectSelector(
+          selector.SelectSelectorConfig(
+              options=[
+                selector.SelectOptionDict(value=CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST, label="All existing target rates are in the past"),
+                selector.SelectOptionDict(value=CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST, label="Existing target rates haven't started or finished"),
+                selector.SelectOptionDict(value=CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS, label="Always"),
+              ],
+              mode=selector.SelectSelectorMode.DROPDOWN,
+          )
+      ),
     })
   
   async def __async_setup_cost_tracker_schema__(self, account_id: str):
@@ -697,6 +711,16 @@ class OptionsFlowHandler(OptionsFlow):
             vol.Optional(CONFIG_TARGET_MIN_RATE): str,
             vol.Optional(CONFIG_TARGET_MAX_RATE): str,
             vol.Optional(CONFIG_TARGET_WEIGHTING): str,
+            vol.Required(CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE, default=CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=[
+                      selector.SelectOptionDict(value=CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST, label="All existing target rates are in the past"),
+                      selector.SelectOptionDict(value=CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST, label="Existing target rates haven't started or finished"),
+                      selector.SelectOptionDict(value=CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS, label="Always"),
+                    ],
+                    mode=selector.SelectSelectorMode.DROPDOWN,
+                )
+            ),
           }),
           {
             CONFIG_TARGET_NAME: config[CONFIG_TARGET_NAME],
@@ -704,14 +728,15 @@ class OptionsFlowHandler(OptionsFlow):
             CONFIG_TARGET_HOURS_MODE: config[CONFIG_TARGET_HOURS_MODE],
             CONFIG_TARGET_TYPE: config[CONFIG_TARGET_TYPE],
             CONFIG_TARGET_MPAN: config[CONFIG_TARGET_MPAN],
-            CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD: config[CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD],
+            CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD: f'{config[CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD]}',
             CONFIG_TARGET_OFFSET: config[CONFIG_TARGET_OFFSET] if CONFIG_TARGET_OFFSET in config else None,
             CONFIG_TARGET_ROLLING_TARGET: is_rolling_target,
             CONFIG_TARGET_LAST_RATES: find_last_rates,
             CONFIG_TARGET_INVERT_TARGET_RATES: invert_target_rates,
             CONFIG_TARGET_MIN_RATE: f'{config[CONFIG_TARGET_MIN_RATE]}' if CONFIG_TARGET_MIN_RATE in config and config[CONFIG_TARGET_MIN_RATE] is not None else None,
             CONFIG_TARGET_MAX_RATE: f'{config[CONFIG_TARGET_MAX_RATE]}' if CONFIG_TARGET_MAX_RATE in config and config[CONFIG_TARGET_MAX_RATE] is not None else None,
-            CONFIG_TARGET_WEIGHTING: config[CONFIG_TARGET_WEIGHTING] if CONFIG_TARGET_WEIGHTING in config else None,
+            CONFIG_TARGET_WEIGHTING: config[CONFIG_TARGET_WEIGHTING] if CONFIG_TARGET_WEIGHTING in config else None,            
+            CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE: config[CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE] if CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE in config else CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST,
           }
       ),
       errors=errors
