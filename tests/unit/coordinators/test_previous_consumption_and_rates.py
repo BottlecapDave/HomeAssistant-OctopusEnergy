@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from custom_components.octopus_energy.api_client.intelligent_device import IntelligentDevice
 import pytest
 import mock
 
@@ -7,6 +6,7 @@ from unit import (create_consumption_data, create_rate_data)
 
 from custom_components.octopus_energy.coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult, async_fetch_consumption_and_rates
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
+from custom_components.octopus_energy.api_client.intelligent_device import IntelligentDevice
 
 from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
 from custom_components.octopus_energy.const import EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, EVENT_GAS_PREVIOUS_CONSUMPTION_RATES
@@ -907,9 +907,8 @@ async def test_when_intelligent_dispatches_available_then_adjusted_requested_dat
       "Tesla",
       "Model Y",
       75.0,
-      "MyEnergi",
-      "Zappi",
-      6.5 
+      6.5,
+      False 
     )
 
     intelligent_dispatches = IntelligentDispatches(
@@ -1043,9 +1042,8 @@ async def test_when_intelligent_tariff_and_intelligent_device_and_no_dispatches_
       "Tesla",
       "Model Y",
       75.0,
-      "MyEnergi",
-      "Zappi",
-      6.5 
+      6.5,
+      False
     )
     intelligent_dispatches = None
 

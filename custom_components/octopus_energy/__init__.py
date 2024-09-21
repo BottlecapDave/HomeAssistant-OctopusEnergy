@@ -18,14 +18,14 @@ from .coordinators.electricity_rates import async_setup_electricity_rates_coordi
 from .coordinators.saving_sessions import async_setup_saving_sessions_coordinators
 from .coordinators.greenness_forecast import async_setup_greenness_forecast_coordinator
 from .statistics import get_statistic_ids_to_remove
-from .intelligent import async_mock_intelligent_data, get_intelligent_features, is_intelligent_product, mock_intelligent_device
+from .intelligent import get_intelligent_features, is_intelligent_product, mock_intelligent_device
 from .config.rolling_target_rates import async_migrate_rolling_target_config
 
 from .config.main import async_migrate_main_config
 from .config.target_rates import async_migrate_target_config
 from .config.cost_tracker import async_migrate_cost_tracker_config
 from .utils import get_active_tariff
-from .utils.tariff_overrides import async_get_tariff_override
+from .utils.debug_overrides import DebugOverride, async_get_debug_override
 
 from .const import (
   CONFIG_FAVOUR_DIRECT_DEBIT_RATES,
@@ -332,12 +332,15 @@ async def async_setup_dependencies(hass, config):
   has_intelligent_tariff = False
   intelligent_mpan = None
   intelligent_serial_number = None
+  debug_override : DebugOverride | None 
   for point in account_info["electricity_meter_points"]:
     mpan = point["mpan"]
     electricity_tariff = get_active_tariff(now, point["agreements"])
 
     for meter in point["meters"]:  
       serial_number = meter["serial_number"]
+
+      debug_override = await async_get_debug_override(hass, mpan, serial_number)
       
       if electricity_tariff is not None:
         if meter["is_export"] == False:
@@ -351,7 +354,7 @@ async def async_setup_dependencies(hass, config):
         if electricity_device is not None:
           device_registry.async_remove_device(electricity_device.id)
 
-  should_mock_intelligent_data = await async_mock_intelligent_data(hass, account_id)
+  should_mock_intelligent_data = debug_override.mock_intelligent_controls if debug_override is not None else False
   if should_mock_intelligent_data:
     # Pick the first meter if we're mocking our intelligent data
     for point in account_info["electricity_meter_points"]:
@@ -398,15 +401,16 @@ async def async_setup_dependencies(hass, config):
         serial_number = meter["serial_number"]
         is_export_meter = meter["is_export"]
         is_smart_meter = meter["is_smart_meter"]
-        tariff_override = await async_get_tariff_override(hass, mpan, serial_number)
+        override = await async_get_debug_override(hass, mpan, serial_number)
+        tariff_override = override.tariff if override is not None else None
         planned_dispatches_supported = intelligent_features.planned_dispatches_supported if intelligent_features is not None else True
         await async_setup_electricity_rates_coordinator(hass, account_id, mpan, serial_number, is_smart_meter, is_export_meter, planned_dispatches_supported, tariff_override)
 
   await async_setup_account_info_coordinator(hass, account_id)
 
-  await async_setup_intelligent_dispatches_coordinator(hass, account_id)
+  await async_setup_intelligent_dispatches_coordinator(hass, account_id, debug_override.mock_intelligent_controls if debug_override is not None else False)
 
-  await async_setup_intelligent_settings_coordinator(hass, account_id)
+  await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id if intelligent_device is not None else None, debug_override.mock_intelligent_controls if debug_override is not None else False)
   
   await async_setup_saving_sessions_coordinators(hass, account_id)
 

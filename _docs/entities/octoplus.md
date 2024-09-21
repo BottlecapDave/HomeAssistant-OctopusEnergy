@@ -62,6 +62,31 @@ Each joined event item will include the following attributes
 | `rewarded_octopoints` | `integer` | The total number of octopoints that were awarded (if any or known) |
 | `octopoints_per_kwh` | `integer` | The number of octopoints that are/were awarded per kwh saved during the event (if known) |
 
+## Saving Session Baseline
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_octoplus_saving_session_baseline`
+
+This will indicate the baseline consumption that you need to be below for the current 30 minute period of the current saving session or the first 30 minute period of the next saving session. 
+
+You can use the [current period consumption](./electricity.md#current-period-consumption) sensor (if available) to see how on track you are.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
+
+!!! info
+
+    An export variant of this sensor exists for export based meters.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The start datetime the current baseline applies |
+| `end` | `datetime` | The end datetime the current baseline applies |
+| `is_incomplete_calculation` | `bool` | Determines if the calculation is based on the full set or partial set of data |
+| `consumption_items` | `list` | The consumption that was used to calculate the baselines |
+| `total_baseline` | `float` | The total baseline for the current saving session |
+| `baselines` | `list` | The collection of baselines for the current saving session |
+| `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
+
 ## Services
 
 There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services.md).

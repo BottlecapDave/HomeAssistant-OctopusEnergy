@@ -28,7 +28,7 @@ from ..api_client.intelligent_dispatches import IntelligentDispatches
 from . import BaseCoordinatorResult
 from ..api_client.intelligent_device import IntelligentDevice
 
-from ..intelligent import async_mock_intelligent_data, clean_previous_dispatches, dictionary_list_to_dispatches, dispatches_to_dictionary_list, has_intelligent_tariff, mock_intelligent_dispatches
+from ..intelligent import clean_previous_dispatches, dictionary_list_to_dispatches, dispatches_to_dictionary_list, has_intelligent_tariff, mock_intelligent_dispatches
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -103,7 +103,7 @@ async def async_refresh_intelligent_dispatches(
   
   return existing_intelligent_dispatches_result
 
-async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
+async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, mock_intelligent_data: bool):
   # Reset data rates as we might have new information
   hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] = None
   
@@ -125,7 +125,7 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str):
       account_info,
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None,
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None,
-      await async_mock_intelligent_data(hass, account_id),
+      mock_intelligent_data,
       lambda account_id, completed_dispatches: async_merge_dispatch_data(hass, account_id, completed_dispatches) 
     )
     

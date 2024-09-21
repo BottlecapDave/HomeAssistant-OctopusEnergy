@@ -1,6 +1,6 @@
 import logging
 
-from .intelligent.ready_time import OctopusEnergyIntelligentReadyTime
+from .intelligent.target_time import OctopusEnergyIntelligentTargetTime
 from .api_client import OctopusEnergyApiClient
 from .intelligent import get_intelligent_features
 from .api_client.intelligent_device import IntelligentDevice
@@ -13,8 +13,7 @@ from .const import (
 
   CONFIG_MAIN_API_KEY,
 
-  DATA_INTELLIGENT_SETTINGS_COORDINATOR,
-  DATA_ACCOUNT
+  DATA_INTELLIGENT_SETTINGS_COORDINATOR
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -47,6 +46,6 @@ async def async_setup_intelligent_sensors(hass, config, async_add_entities):
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
     if intelligent_features.ready_time_supported:
-      entities.append(OctopusEnergyIntelligentReadyTime(hass, settings_coordinator, client, intelligent_device, account_id))
+      entities.append(OctopusEnergyIntelligentTargetTime(hass, settings_coordinator, client, intelligent_device, account_id))
 
   async_add_entities(entities)

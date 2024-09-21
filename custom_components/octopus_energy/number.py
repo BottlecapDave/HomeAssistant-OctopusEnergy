@@ -1,7 +1,7 @@
 import logging
 
 from .intelligent import get_intelligent_features
-from .intelligent.charge_limit import OctopusEnergyIntelligentChargeLimit
+from .intelligent.charge_target import OctopusEnergyIntelligentChargeTarget
 from .api_client.intelligent_device import IntelligentDevice
 
 from .const import (
@@ -44,6 +44,6 @@ async def async_setup_intelligent_sensors(hass, config, async_add_entities):
     settings_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS_COORDINATOR]
 
     if intelligent_features.charge_limit_supported == True:
-      entities.append(OctopusEnergyIntelligentChargeLimit(hass, settings_coordinator, client, intelligent_device, account_id))
+      entities.append(OctopusEnergyIntelligentChargeTarget(hass, settings_coordinator, client, intelligent_device, account_id))
 
   async_add_entities(entities)

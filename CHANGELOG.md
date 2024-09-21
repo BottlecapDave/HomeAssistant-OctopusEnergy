@@ -1,3 +1,10 @@
+## [12.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v12.2.0...v12.2.1) (2024-08-26)
+
+
+### Bug Fixes
+
+* Fixed issue where target rate sensor could not be reconfigured if min/max rate were set (15 minutes dev time) ([e7168e4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e7168e41ff1d0462ccbbaf481d3ddca649f11b1e))
+
 # [12.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v12.1.0...v12.2.0) (2024-08-18)
 
 
