@@ -132,7 +132,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     platform.async_register_entity_service(
       "refresh_previous_consumption_data",
       vol.All(
-        vol.Schema(
+        cv.make_entity_service_schema(
           {
             vol.Optional("start_time"): str,
           },
@@ -145,7 +145,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     platform.async_register_entity_service(
       "spin_wheel_of_fortune",
       vol.All(
-        vol.Schema(
+        cv.make_entity_service_schema(
           {},
           extra=vol.ALLOW_EXTRA,
         ),
@@ -161,7 +161,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
       platform.async_register_entity_service(
         "redeem_octoplus_points_into_account_credit",
         vol.All(
-          vol.Schema(
+          cv.make_entity_service_schema(
             {
               vol.Required("points_to_redeem"): cv.positive_int,
             },
@@ -178,7 +178,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     platform.async_register_entity_service(
       "update_cost_tracker",
       vol.All(
-        vol.Schema(
+        cv.make_entity_service_schema(
           {
             vol.Required("is_tracking_enabled"): bool,
           },
@@ -191,7 +191,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     platform.async_register_entity_service(
       "reset_cost_tracker",
       vol.All(
-        vol.Schema(
+        cv.make_entity_service_schema(
           {},
           extra=vol.ALLOW_EXTRA,
         ),
@@ -202,7 +202,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     platform.async_register_entity_service(
       "adjust_accumulative_cost_tracker",
       vol.All(
-        vol.Schema(
+        cv.make_entity_service_schema(
           {
             vol.Required("date"): cv.date,
             vol.Required("consumption"): cv.positive_float,
@@ -217,7 +217,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
     platform.async_register_entity_service(
       "adjust_cost_tracker",
       vol.All(
-        vol.Schema(
+        cv.make_entity_service_schema(
           {
             vol.Required("datetime"): cv.datetime,
             vol.Required("consumption"): cv.positive_float,

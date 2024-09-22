@@ -51,7 +51,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
       platform.async_register_entity_service(
         "update_target_config",
         vol.All(
-          vol.Schema(
+          cv.make_entity_service_schema(
             {
               vol.Optional("target_hours"): str,
               vol.Optional("target_start_time"): str,
@@ -73,7 +73,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
       platform.async_register_entity_service(
         "update_rolling_target_config",
         vol.All(
-          vol.Schema(
+          cv.make_entity_service_schema(
             {
               vol.Optional("target_hours"): str,
               vol.Optional("target_look_ahead_hours"): str,
