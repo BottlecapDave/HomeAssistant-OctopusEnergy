@@ -6,7 +6,7 @@ import logging
 from homeassistant.util.dt import (as_utc, parse_datetime)
 
 from ..utils.conversions import value_inc_vat_to_pounds
-from ..const import CONFIG_TARGET_HOURS_MODE_EXACT, CONFIG_TARGET_HOURS_MODE_MAXIMUM, CONFIG_TARGET_HOURS_MODE_MINIMUM, CONFIG_TARGET_KEYS, REGEX_OFFSET_PARTS, REGEX_WEIGHTING
+from ..const import CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST, CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST, CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS, CONFIG_TARGET_HOURS_MODE_EXACT, CONFIG_TARGET_HOURS_MODE_MAXIMUM, CONFIG_TARGET_HOURS_MODE_MINIMUM, CONFIG_TARGET_KEYS, REGEX_OFFSET_PARTS, REGEX_WEIGHTING
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -72,6 +72,28 @@ def get_applicable_rates(current_date: datetime, target_start_time: str, target_
   date_diff = target_end - target_start
   hours = (date_diff.days * 24) + (date_diff.seconds // 3600)
   periods = hours * 2
+  if len(applicable_rates) < periods:
+    _LOGGER.debug(f'Incorrect number of periods discovered. Require {periods}, but only have {len(applicable_rates)}')
+    return None
+
+  return applicable_rates
+
+def get_rates(current_date: datetime, rates: list, target_hours: float):
+  # Retrieve the rates that are applicable for our target rate
+  applicable_rates = []
+  periods = target_hours * 2
+
+  if rates is not None:
+    for rate in rates:
+      if rate["start"] >= current_date:
+        new_rate = dict(rate)
+        new_rate["value_inc_vat"] = value_inc_vat_to_pounds(rate["value_inc_vat"])
+        applicable_rates.append(new_rate)
+
+        if len(applicable_rates) >= periods:
+          break
+
+  # Make sure that we have enough rates that meet our target period
   if len(applicable_rates) < periods:
     _LOGGER.debug(f'Incorrect number of periods discovered. Require {periods}, but only have {len(applicable_rates)}')
     return None
@@ -353,3 +375,20 @@ def compare_config(current_config: dict, existing_config: dict):
       return False
     
   return True
+
+def should_evaluate_target_rates(current_date: datetime, target_rates: list, evaluation_mode: str) -> bool:
+  if target_rates is None or len(target_rates) < 1:
+    return True
+  
+  all_rates_in_past = True
+  one_rate_in_past = False
+  for rate in target_rates:
+    if rate["end"] > current_date:
+      all_rates_in_past = False
+    
+    if rate["start"] <= current_date:
+      one_rate_in_past = True
+  
+  return ((evaluation_mode == CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST and all_rates_in_past) or
+          (evaluation_mode == CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST and (one_rate_in_past == False or all_rates_in_past)) or
+          (evaluation_mode == CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS))

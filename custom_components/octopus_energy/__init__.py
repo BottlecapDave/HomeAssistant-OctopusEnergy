@@ -19,6 +19,7 @@ from .coordinators.saving_sessions import async_setup_saving_sessions_coordinato
 from .coordinators.greenness_forecast import async_setup_greenness_forecast_coordinator
 from .statistics import get_statistic_ids_to_remove
 from .intelligent import get_intelligent_features, is_intelligent_product, mock_intelligent_device
+from .config.rolling_target_rates import async_migrate_rolling_target_config
 
 from .config.main import async_migrate_main_config
 from .config.target_rates import async_migrate_target_config
@@ -30,6 +31,7 @@ from .const import (
   CONFIG_FAVOUR_DIRECT_DEBIT_RATES,
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
+  CONFIG_KIND_ROLLING_TARGET_RATE,
   CONFIG_KIND_TARIFF_COMPARISON,
   CONFIG_KIND_COST_TRACKER,
   CONFIG_KIND_TARGET_RATE,
@@ -90,6 +92,9 @@ async def async_migrate_entry(hass, config_entry):
     elif CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
       new_data = await async_migrate_target_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
       new_options = await async_migrate_target_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
+    elif CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_ROLLING_TARGET_RATE:
+      new_data = await async_migrate_rolling_target_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
+      new_options = await async_migrate_rolling_target_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
     elif CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
       new_data = await async_migrate_cost_tracker_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
       new_options = await async_migrate_cost_tracker_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
@@ -150,6 +155,26 @@ async def async_setup_entry(hass, entry):
         await hass.config_entries.async_reload(child_entry.entry_id)
   
   elif config[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
+    if DOMAIN not in hass.data or account_id not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN][account_id]:
+      raise ConfigEntryNotReady("Account has not been setup")
+    
+    now = utcnow()
+    account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+    account_info = account_result.account if account_result is not None else None
+    for point in account_info["electricity_meter_points"]:
+      # We only care about points that have active agreements
+      electricity_tariff = get_active_tariff(now, point["agreements"])
+      if electricity_tariff is not None:
+        for meter in point["meters"]:
+          mpan = point["mpan"]
+          serial_number = meter["serial_number"]
+          previous_consumption_coordinator_key = DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)
+          if previous_consumption_coordinator_key not in hass.data[DOMAIN][account_id]:
+            raise ConfigEntryNotReady(f"Electricity rates have not been setup for {mpan}/{serial_number}")
+
+    await hass.config_entries.async_forward_entry_setups(entry, TARGET_RATE_PLATFORMS)
+
+  elif config[CONFIG_KIND] == CONFIG_KIND_ROLLING_TARGET_RATE:
     if DOMAIN not in hass.data or account_id not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN][account_id]:
       raise ConfigEntryNotReady("Account has not been setup")
     
@@ -406,7 +431,7 @@ async def async_unload_entry(hass, entry):
         await _async_close_client(hass, account_id)
         hass.data[DOMAIN].pop(account_id)
 
-    elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
+    elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE or entry.data[CONFIG_KIND] == CONFIG_KIND_ROLLING_TARGET_RATE:
       unload_ok = await hass.config_entries.async_unload_platforms(entry, TARGET_RATE_PLATFORMS)
     
     elif entry.data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:

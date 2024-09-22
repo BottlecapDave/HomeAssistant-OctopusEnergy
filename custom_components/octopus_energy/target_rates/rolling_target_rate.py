@@ -23,21 +23,14 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers import translation
 
 from ..const import (
-  CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST,
+  CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD,
+  CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE,
   CONFIG_TARGET_HOURS_MODE,
   CONFIG_TARGET_MAX_RATE,
   CONFIG_TARGET_MIN_RATE,
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_HOURS,
-  CONFIG_TARGET_OLD_END_TIME,
-  CONFIG_TARGET_OLD_HOURS,
-  CONFIG_TARGET_OLD_MPAN,
-  CONFIG_TARGET_OLD_NAME,
-  CONFIG_TARGET_OLD_START_TIME,
-  CONFIG_TARGET_OLD_TYPE,
   CONFIG_TARGET_TYPE,
-  CONFIG_TARGET_START_TIME,
-  CONFIG_TARGET_END_TIME,
   CONFIG_TARGET_ROLLING_TARGET,
   CONFIG_TARGET_LAST_RATES,
   CONFIG_TARGET_INVERT_TARGET_RATES,
@@ -54,18 +47,19 @@ from . import (
   calculate_intermittent_times,
   compare_config,
   create_weighting,
-  get_applicable_rates,
+  get_rates,
   get_target_rate_info,
   should_evaluate_target_rates
 )
 
-from ..config.target_rates import validate_target_rate_config
 from ..target_rates.repairs import check_for_errors
 from ..utils.attributes import dict_to_typed_dict
 
+from ..config.rolling_target_rates import validate_rolling_target_rate_config
+
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
+class OctopusEnergyRollingTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
   """Sensor for calculating when a target should be turned on or off."""
   
   _unrecorded_attributes = frozenset({"data_last_retrieved", "target_times_last_evaluated"})
@@ -102,12 +96,12 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_target_{self._config[CONFIG_TARGET_NAME]}"
+    return f"octopus_energy_rolling_target_{self._config[CONFIG_TARGET_NAME]}"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octopus Energy Target {self._config[CONFIG_TARGET_NAME]}"
+    return f"Octopus Energy Rolling Target {self._config[CONFIG_TARGET_NAME]}"
 
   @property
   def icon(self):
@@ -144,7 +138,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       _LOGGER.debug(f'Updating OctopusEnergyTargetRate {self._config[CONFIG_TARGET_NAME]}')
       self._last_evaluated = current_date
 
-      should_evaluate = should_evaluate_target_rates(current_date, self._target_rates, CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST)
+      should_evaluate = should_evaluate_target_rates(current_date, self._target_rates, self._config[CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE])
       if should_evaluate:
         if self.coordinator is not None and self.coordinator.data is not None and self.coordinator.data.rates is not None:
           all_rates = self.coordinator.data.rates
@@ -155,19 +149,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
         _LOGGER.debug(f'{len(all_rates) if all_rates is not None else None} rate periods found')
 
         if len(all_rates) > 0:
-          start_time = None
-          if CONFIG_TARGET_START_TIME in self._config:
-            start_time = self._config[CONFIG_TARGET_START_TIME]
-
-          end_time = None
-          if CONFIG_TARGET_END_TIME in self._config:
-            end_time = self._config[CONFIG_TARGET_END_TIME]
-
           # True by default for backwards compatibility
-          is_rolling_target = True
-          if CONFIG_TARGET_ROLLING_TARGET in self._config:
-            is_rolling_target = self._config[CONFIG_TARGET_ROLLING_TARGET]
-
           find_last_rates = False
           if CONFIG_TARGET_LAST_RATES in self._config:
             find_last_rates = self._config[CONFIG_TARGET_LAST_RATES]     
@@ -188,12 +170,10 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
 
           find_highest_rates = (self._is_export and invert_target_rates == False) or (self._is_export == False and invert_target_rates)
 
-          applicable_rates = get_applicable_rates(
+          applicable_rates = get_rates(
             current_local_date,
-            start_time,
-            end_time,
             all_rates,
-            is_rolling_target
+            self._config[CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD]
           )
           
           number_of_slots = math.ceil(target_hours * 2)
@@ -261,7 +241,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) or state.state is None else state.state.lower() == 'on'
       self._attributes = dict_to_typed_dict(
         state.attributes,
-        [CONFIG_TARGET_OLD_NAME, CONFIG_TARGET_OLD_HOURS, CONFIG_TARGET_OLD_TYPE, CONFIG_TARGET_OLD_START_TIME, CONFIG_TARGET_OLD_END_TIME, CONFIG_TARGET_OLD_MPAN]
+        []
       )
 
       self._target_rates = self._attributes["target_times"] if "target_times" in self._attributes else None
@@ -275,7 +255,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       _LOGGER.debug(f'Restored OctopusEnergyTargetRate state: {self._state}')
 
   @callback
-  async def async_update_target_rate_config(self, target_start_time=None, target_end_time=None, target_hours=None, target_offset=None, target_minimum_rate=None, target_maximum_rate=None, target_weighting=None):
+  async def async_update_rolling_target_rate_config(self, target_hours=None, target_look_ahead_hours=None, target_offset=None, target_minimum_rate=None, target_maximum_rate=None, target_weighting=None):
     """Update sensors config"""
 
     config = dict(self._config)
@@ -286,18 +266,11 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
         CONFIG_TARGET_HOURS: trimmed_target_hours
       })
 
-    if target_start_time is not None:
+    if target_look_ahead_hours is not None:
       # Inputs from automations can include quotes, so remove these
-      trimmed_target_start_time = target_start_time.strip('\"')
+      trimmed_target_look_ahead_hours = target_look_ahead_hours.strip('\"')
       config.update({
-        CONFIG_TARGET_START_TIME: trimmed_target_start_time
-      })
-
-    if target_end_time is not None:
-      # Inputs from automations can include quotes, so remove these
-      trimmed_target_end_time = target_end_time.strip('\"')
-      config.update({
-        CONFIG_TARGET_END_TIME: trimmed_target_end_time
+        CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD: trimmed_target_look_ahead_hours
       })
 
     if target_offset is not None:
@@ -328,10 +301,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
         CONFIG_TARGET_WEIGHTING: trimmed_target_weighting if trimmed_target_weighting != "" else None
       })
 
-    account_result = self._hass.data[DOMAIN][self._account_id][DATA_ACCOUNT]
-    account_info = account_result.account if account_result is not None else None
-
-    errors = validate_target_rate_config(config, account_info, now())
+    errors = validate_rolling_target_rate_config(config)
     keys = list(errors.keys())
     if (len(keys)) > 0:
       translations = await translation.async_get_translations(self._hass, self._hass.config.language, "options", {DOMAIN})
