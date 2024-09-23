@@ -131,9 +131,6 @@ async def test_when_when_account_is_none_then_previous_data_returned(is_electric
   client = OctopusEnergyApiClient("NOT_REAL")
 
   is_smart_meter = True
-  
-  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   actual_fired_events = {}
   def fire_event(name, metadata):
@@ -160,8 +157,6 @@ async def test_when_when_account_is_none_then_previous_data_returned(is_electric
     current_utc_timestamp,
     account_info,
     client,
-    period_from,
-    period_to,
     sensor_identifier,
     sensor_serial_number,
     is_electricity,
@@ -183,7 +178,6 @@ async def test_when_when_next_refresh_is_in_the_future_and_previous_data_is_avai
   is_smart_meter = True
   
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
   actual_fired_events = {}
   def fire_event(name, metadata):
@@ -210,8 +204,6 @@ async def test_when_when_next_refresh_is_in_the_future_and_previous_data_is_avai
     current_utc_timestamp,
     account_info,
     client,
-    period_from,
-    period_to,
     sensor_identifier,
     sensor_serial_number,
     is_electricity,
@@ -296,8 +288,6 @@ async def test_when_next_refresh_is_in_the_past_and_gas_sensor_then_requested_da
       current_utc_timestamp,
       account_info,
       client,
-      period_from,
-      period_to,
       sensor_identifier,
       sensor_serial_number,
       is_electricity,
@@ -413,8 +403,6 @@ async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requ
       current_utc_timestamp,
       account_info,
       client,
-      period_from,
-      period_to,
       sensor_identifier,
       sensor_serial_number,
       is_electricity,
@@ -511,8 +499,6 @@ async def test_when_retrieving_gas_and_next_refresh_is_in_the_past_and_returned_
       current_utc_timestamp,
       account_info,
       client,
-      period_from,
-      period_to,
       sensor_identifier,
       sensor_serial_number,
       is_electricity,
@@ -554,7 +540,6 @@ async def test_when_retrieving_electricity_and_next_refresh_is_in_the_past_and_r
     is_smart_meter = True
 
     period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-    period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
     previous_period_from = datetime.strptime("2022-02-27T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     previous_period_to = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -589,8 +574,6 @@ async def test_when_retrieving_electricity_and_next_refresh_is_in_the_past_and_r
       current_utc_timestamp,
       account_info,
       client,
-      period_from,
-      period_to,
       sensor_identifier,
       sensor_serial_number,
       is_electricity,
@@ -668,8 +651,6 @@ async def test_when_not_enough_consumption_returned_then_previous_data_returned(
       current_utc_timestamp,
       account_info,
       client,
-      period_from,
-      period_to,
       sensor_identifier,
       sensor_serial_number,
       is_electricity,
@@ -747,8 +728,6 @@ async def test_when_electricity_and_consumption_data_spans_multiple_days_then_pr
       current_utc_timestamp,
       account_info,
       client,
-      period_from,
-      period_to,
       sensor_identifier,
       sensor_serial_number,
       is_electricity,
@@ -826,8 +805,6 @@ async def test_when_gas_and_consumption_data_spans_multiple_days_then_previous_d
       current_utc_timestamp,
       account_info,
       client,
-      period_from,
-      period_to,
       sensor_identifier,
       sensor_serial_number,
       is_electricity,
@@ -930,8 +907,6 @@ async def test_when_intelligent_dispatches_available_then_adjusted_requested_dat
       current_utc_timestamp,
       account_info,
       client,
-      period_from,
-      period_to,
       sensor_identifier,
       sensor_serial_number,
       is_electricity,
@@ -1053,8 +1028,6 @@ async def test_when_intelligent_tariff_and_intelligent_device_and_no_dispatches_
       current_utc_timestamp,
       account_info,
       client,
-      period_from,
-      period_to,
       sensor_identifier,
       sensor_serial_number,
       is_electricity,
@@ -1134,8 +1107,6 @@ async def test_when_intelligent_tariff_and_intelligent_device_is_none_and_no_dis
       current_utc_timestamp,
       account_info,
       client,
-      period_from,
-      period_to,
       sensor_identifier,
       sensor_serial_number,
       is_electricity,
@@ -1245,8 +1216,6 @@ async def test_when_electricity_tariff_not_found_then_previous_result_returned()
       current_utc_timestamp,
       account_info,
       client,
-      period_from,
-      period_to,
       sensor_identifier,
       sensor_serial_number,
       is_electricity,
@@ -1330,8 +1299,6 @@ async def test_when_gas_tariff_not_found_then_previous_result_returned():
       current_utc_timestamp,
       account_info,
       client,
-      period_from,
-      period_to,
       sensor_identifier,
       sensor_serial_number,
       is_electricity,
@@ -1343,6 +1310,6 @@ async def test_when_gas_tariff_not_found_then_previous_result_returned():
     assert result == previous_data
     assert len(actual_fired_events) == 0
 
-    assert consumption_called == False
+    assert consumption_called == True
     assert rates_called == False
     assert standing_charge_called == False

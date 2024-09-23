@@ -861,7 +861,7 @@ class OctopusEnergyApiClient:
     else:
       return await self.async_get_electricity_standard_rates(product_code, tariff_code, period_from, period_to)
       
-  async def async_get_electricity_consumption(self, mpan: str, serial_number: str, period_from: datetime | None, period_to: datetime | None, page_size: int | None = None):
+  async def async_get_electricity_consumption(self, mpan: str, serial_number: str, period_from: datetime | None = None, period_to: datetime | None = None, page_size: int | None = None):
     """Get the current electricity consumption"""
 
     try:
@@ -925,7 +925,7 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
-  async def async_get_gas_consumption(self, mprn: str, serial_number: str, period_from: datetime | None, period_to: datetime | None, page_size: int | None = None):
+  async def async_get_gas_consumption(self, mprn: str, serial_number: str, period_from: datetime | None = None, period_to: datetime | None = None, page_size: int | None = None):
     """Get the current gas rates"""
     
     try:
