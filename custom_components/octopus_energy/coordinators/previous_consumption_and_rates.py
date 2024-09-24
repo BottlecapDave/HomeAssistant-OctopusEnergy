@@ -377,7 +377,6 @@ async def async_create_previous_consumption_and_rates_coordinator(
     serial_number: str,
     is_electricity: bool,
     is_smart_meter: bool,
-    days_offset: int,
     tariff_override: Tariff = None):
   """Create reading coordinator"""
   previous_consumption_data_key = f'{identifier}_{serial_number}_previous_consumption_and_rates'
@@ -410,8 +409,6 @@ async def async_create_previous_consumption_and_rates_coordinator(
 
   async def async_update_data():
     """Fetch data from API endpoint."""
-    period_from = as_utc((now() - timedelta(days=days_offset)).replace(hour=0, minute=0, second=0, microsecond=0))
-    period_to = period_from + timedelta(days=1)
     account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN][account_id] else None
     account_info = account_result.account if account_result is not None else None
     intelligent_device: IntelligentDevice | None = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None

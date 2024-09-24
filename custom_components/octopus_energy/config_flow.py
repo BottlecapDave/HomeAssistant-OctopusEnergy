@@ -40,7 +40,6 @@ from .const import (
   CONFIG_COST_TRACKER_WEEKDAY_RESET,
   CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
-  CONFIG_DEFAULT_PREVIOUS_CONSUMPTION_OFFSET_IN_DAYS,
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
   CONFIG_KIND_TARIFF_COMPARISON,
@@ -49,8 +48,6 @@ from .const import (
   CONFIG_ACCOUNT_ID,
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
-  CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET,
-  CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET,
   CONFIG_TARGET_MAX_RATE,
   CONFIG_TARGET_MIN_RATE,
   CONFIG_TARGET_TYPE_CONTINUOUS,
@@ -754,14 +751,6 @@ class OptionsFlowHandler(OptionsFlow):
     live_gas_consumption_refresh_in_minutes = CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES
     if CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES in config:
       live_gas_consumption_refresh_in_minutes = config[CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES]
-
-    previous_electricity_consumption_days_offset = CONFIG_DEFAULT_PREVIOUS_CONSUMPTION_OFFSET_IN_DAYS
-    if CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET in config:
-      previous_electricity_consumption_days_offset = config[CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET]
-
-    previous_gas_consumption_days_offset = CONFIG_DEFAULT_PREVIOUS_CONSUMPTION_OFFSET_IN_DAYS
-    if CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET in config:
-      previous_gas_consumption_days_offset = config[CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET]
     
     calorific_value = DEFAULT_CALORIFIC_VALUE
     if CONFIG_MAIN_CALORIFIC_VALUE in config:
@@ -772,8 +761,6 @@ class OptionsFlowHandler(OptionsFlow):
       data_schema=self.add_suggested_values_to_schema(
         vol.Schema({
           vol.Required(CONFIG_MAIN_API_KEY): str,
-          vol.Required(CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET): cv.positive_int,
-          vol.Required(CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET): cv.positive_int,
           vol.Required(CONFIG_MAIN_CALORIFIC_VALUE): cv.positive_float,
           vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION): bool,
           vol.Optional(CONFIG_MAIN_HOME_PRO_ADDRESS): str,
@@ -786,8 +773,6 @@ class OptionsFlowHandler(OptionsFlow):
         }),
         {
           CONFIG_MAIN_API_KEY: config[CONFIG_MAIN_API_KEY],
-          CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET: previous_electricity_consumption_days_offset,
-          CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET: previous_gas_consumption_days_offset,
           CONFIG_MAIN_CALORIFIC_VALUE: calorific_value,
           CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: supports_live_consumption,
           CONFIG_MAIN_HOME_PRO_ADDRESS: config[CONFIG_MAIN_HOME_PRO_ADDRESS] if CONFIG_MAIN_HOME_PRO_ADDRESS in config else None,

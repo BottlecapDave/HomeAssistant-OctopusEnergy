@@ -67,15 +67,12 @@ from .const import (
   CONFIG_ACCOUNT_ID,
   CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
-  CONFIG_DEFAULT_PREVIOUS_CONSUMPTION_OFFSET_IN_DAYS,
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
   CONFIG_KIND_COST_TRACKER,
   CONFIG_KIND_TARIFF_COMPARISON,
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
-  CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET,
-  CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET,
   CONFIG_TARIFF_COMPARISON_MPAN_MPRN,
   DATA_GREENNESS_FORECAST_COORDINATOR,
   DATA_HOME_PRO_CLIENT,
@@ -267,10 +264,6 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
     if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config:
       electricity_price_cap = config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
 
-    previous_electricity_consumption_days_offset = CONFIG_DEFAULT_PREVIOUS_CONSUMPTION_OFFSET_IN_DAYS
-    if CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET in config:
-      previous_electricity_consumption_days_offset = config[CONFIG_MAIN_PREVIOUS_ELECTRICITY_CONSUMPTION_DAYS_OFFSET]
-
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
       electricity_tariff = get_active_tariff(now, point["agreements"])
@@ -298,7 +291,6 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
             serial_number,
             True,
             meter["is_smart_meter"],
-            previous_electricity_consumption_days_offset,
             debug_override.tariff if debug_override is not None else None
           )
           entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumption(hass, client, previous_consumption_coordinator, account_id, meter, point))
@@ -370,10 +362,6 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
     gas_price_cap = None
     if CONFIG_MAIN_GAS_PRICE_CAP in config:
       gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
-    
-    previous_gas_consumption_days_offset = CONFIG_DEFAULT_PREVIOUS_CONSUMPTION_OFFSET_IN_DAYS
-    if CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET in config:
-      previous_gas_consumption_days_offset = config[CONFIG_MAIN_PREVIOUS_GAS_CONSUMPTION_DAYS_OFFSET]
 
     for point in account_info["gas_meter_points"]:
       # We only care about points that have active agreements
@@ -402,7 +390,6 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
             serial_number,
             False,
             None,
-            previous_gas_consumption_days_offset,
             debug_override.tariff if debug_override is not None and debug_override.tariff is not None else None
           )
           entities.append(OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(hass, client, previous_consumption_coordinator, account_id, meter, point, calorific_value))
