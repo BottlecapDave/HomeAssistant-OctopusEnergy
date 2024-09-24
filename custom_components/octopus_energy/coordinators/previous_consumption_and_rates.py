@@ -205,7 +205,6 @@ async def async_enhance_with_historic_consumption(
     data.consumption,
     data.rates,
     data.standing_charge,
-    data.latest_available_timestamp,
     historic_weekday_consumptions,
     historic_weekend_consumptions
   )

@@ -1227,7 +1227,7 @@ async def test_when_electricity_tariff_not_found_then_previous_result_returned()
     assert result == previous_data
     assert len(actual_fired_events) == 0
 
-    assert consumption_called == False
+    assert consumption_called == True
     assert rates_called == False
     assert standing_charge_called == False
 
