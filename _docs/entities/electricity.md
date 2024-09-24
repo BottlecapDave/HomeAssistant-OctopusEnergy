@@ -173,7 +173,7 @@ If you are wishing to use these sensors with the Energy Dashboard, then you can 
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption`
 
-The total consumption reported by the meter for the previous day.
+The total consumption reported by the meter (not other devices e.g. Home Mini) for the previous available full day. If for example data is available up to `01:00` of `2024-09-02`, then this sensor will report the cost between `2024-09-01T00:00:00Z` and `2024-09-02T00:00:00Z`.
 
 !!! info
 
@@ -195,7 +195,6 @@ The total consumption reported by the meter for the previous day.
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
 | `total` | `float` | The total energy value for the previous day. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
-| `latest_available_data_timestamp` | `datetime` | The date/time of the latest available consumption data via the API. This is only for data reported directly by the meter and won't include data reported by other devices (e.g. Octopus Home Mini) |
 | `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
 Each charge item has the following attributes
@@ -214,7 +213,7 @@ The following variants of the [Previous Accumulative Consumption](#previous-accu
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_off_peak`
 
-The total consumption reported by the meter for the previous day during off peak hours (the lowest available rate).
+The total consumption reported by the meter for the previous available full day during off peak hours (the lowest available rate).
 
 !!! note
     This is only available when on a tariff with 2 or 3 unique rates during a given day. 
@@ -229,7 +228,7 @@ The total consumption reported by the meter for the previous day during off peak
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_standard`
 
-The total consumption reported by the meter for the previous day during standard hours (the middle rate).
+The total consumption reported by the meter for the previous available full day during standard hours (the middle rate).
 
 !!! note
     This is only available when on a tariff with 2 or 3 unique rates during a given day. 
@@ -244,7 +243,7 @@ The total consumption reported by the meter for the previous day during standard
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_peak`
 
-The total consumption reported by the meter for the previous day during peak hours (the highest available rate).
+The total consumption reported by the meter for the previous available full day during peak hours (the highest available rate).
 
 !!! note
     This is only available when on a tariff with 2 or 3 unique rates during a given day. 
@@ -259,7 +258,7 @@ The total consumption reported by the meter for the previous day during peak hou
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost`
 
-The total cost for the previous day, including the standing charge.
+The total cost for the previous available full day, including the standing charge. If for example data is available up to `01:00` of `2024-09-02`, then this sensor will report the cost between `2024-09-01T00:00:00Z` and `2024-09-02T00:00:00Z`.
 
 !!! info
 
@@ -304,7 +303,7 @@ The following variants of the [Previous Accumulative Cost](#previous-accumulativ
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_off_peak`
 
-The total cost reported by the meter for the previous day during off peak hours (the lowest available rate).
+The total cost reported by the meter for the previous available full day during off peak hours (the lowest available rate).
 
 !!! note
     This is only available when on a tariff with 2 or 3 unique rates during a given day. 
@@ -319,7 +318,7 @@ The total cost reported by the meter for the previous day during off peak hours 
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_standard`
 
-The total cost reported by the meter for the previous day during standard hours (the middle rate).
+The total cost reported by the meter for the previous available full day during standard hours (the middle rate).
 
 !!! note
     This is only available when on a tariff with 2 or 3 unique rates during a given day. 
@@ -334,7 +333,7 @@ The total cost reported by the meter for the previous day during standard hours 
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_peak`
 
-The total cost reported by the meter for the previous day during peak hours (the highest available rate).
+The total cost reported by the meter for the previous available full day during peak hours (the highest available rate).
 
 !!! note
     This is only available when on a tariff with 2 or 3 unique rates during a given day. 
@@ -349,7 +348,7 @@ The total cost reported by the meter for the previous day during peak hours (the
 
 `event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_consumption_rates`
 
-The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous day's rates, but could differ if the default offset is changed. The attributes of this sensor exposes the previous consumption's rates. 
+The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous available full day's rates, but could differ depending on available data. The attributes of this sensor exposes the previous consumption's rates. 
 
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
