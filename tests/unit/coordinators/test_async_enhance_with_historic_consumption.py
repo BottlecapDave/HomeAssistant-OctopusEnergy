@@ -22,8 +22,7 @@ async def test_when_data_last_updated_is_equal_to_previous_data_then_existing_da
       datetime.strptime("2024-09-18T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       [1, 2]
     ),
-    10.1,
-    datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    10.1
   )
   previous_data = PreviousConsumptionCoordinatorResult(
     current - timedelta(days=1),
@@ -37,8 +36,7 @@ async def test_when_data_last_updated_is_equal_to_previous_data_then_existing_da
       datetime.strptime("2024-09-18T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       [1, 2]
     ),
-    10.1,
-    datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    10.1
   )
   identifier = "identifier"
   serial_number = "serial_number"
@@ -105,8 +103,7 @@ async def test_when_data_last_updated_is_not_equal_to_previous_data_then_new_dat
       datetime.strptime("2024-09-18T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       [1, 2]
     ),
-    10.1,
-    datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    10.1
   )
   previous_data = PreviousConsumptionCoordinatorResult(
     current - timedelta(days=2),
@@ -121,7 +118,6 @@ async def test_when_data_last_updated_is_not_equal_to_previous_data_then_new_dat
       [1, 2]
     ),
     10.1,
-    datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
     historic_weekday_consumption=create_consumption_data(datetime.strptime("2024-08-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2024-08-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")) if include_historic_weekday_data else None,
     historic_weekend_consumption=create_consumption_data(datetime.strptime("2024-08-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2024-08-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")) if include_historic_weekend_data else None
   )
@@ -292,7 +288,6 @@ async def test_when_no_data_is_missing_then_consumption_data_is_not_saved(includ
       [1, 2]
     ),
     10.1,
-    datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
     historic_weekday_consumption=existing_weekday_consumption_data if include_historic_weekday_data else None,
     historic_weekend_consumption=existing_weekend_consumption_data if include_historic_weekend_data else None
   )
@@ -309,7 +304,6 @@ async def test_when_no_data_is_missing_then_consumption_data_is_not_saved(includ
       [1, 2]
     ),
     10.1,
-    datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
     historic_weekday_consumption=existing_weekday_consumption_data if include_historic_weekday_data else None,
     historic_weekend_consumption=existing_weekend_consumption_data if include_historic_weekend_data else None
   )
