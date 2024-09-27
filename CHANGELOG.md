@@ -1,3 +1,31 @@
+# [13.0.0-beta.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v12.2.1...v13.0.0-beta.1) (2024-09-27)
+
+
+### Bug Fixes
+
+* Fixed HA warning for registering an entity service with a non entity service schema (15 minutes dev time) ([8decd8a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8decd8aabfca6c83eda6b1cede0a2523223ed645))
+* Fixed issue where earliest period was not picked for continuous target rate sensors when multiple groups had the same total (1 hour dev time) ([1dedab4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1dedab4538c7d271e565ae72540bf9b5ec337469))
+
+
+### Features
+
+* Added intelligent support for FORD (Thanks [@grantbevis](https://github.com/grantbevis)) ([327d92c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/327d92cc1f050553f5967a708a837f440c6eb6b9))
+* Added sensor for tracking saving session baselines (6 hours dev time) ([f3f0460](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f3f04600f873cd653376cea53775aa8772d46da7))
+* Added sensor to display current 30 minute period of accumulative consumption for Home Mini. This is used for comparing with saving session baselines. (30 minutes dev time) ([1eeadaa](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1eeadaa5f449697d0a660db2b332de914782a144))
+* Added support for rolling target sensors (3 hours dev time) ([acfb113](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/acfb1134924f399989dff7dc26ad2a90082d91e3))
+* Migrated to use new intelligent APIs (2.5 hours dev time) ([80eb8bf](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/80eb8bff1fbb772ee0511973661f121ca32b1433))
+* Renamed intelligent charge limit to intelligent charge target to better reflect underlying API and purpose across providers. ([4da40f5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4da40f590bf961246ab9c5964d6973e359f01d37))
+* Renamed intelligent ready time to intelligent target time to better reflect underlying API and purpose across providers. ([8b92442](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8b924420c78f81cdd1e58075b76db307df03e7f3))
+* Updated previous consumption sensors to report latest available full day instead of at a fixed interval (2 hours dev time) ([bb7bb0a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/bb7bb0abc3fca93fed56a548496da495f053e196))
+
+
+### BREAKING CHANGES
+
+* The previous consumption sensor will now dynamically adjust to show the latest available full day instead of at a fixed interval. The fixed interval settings will no longer be applicable.
+* The intelligent ready time entity has been renamed. You will need to update any automations or dashboards that relied on the old naming.
+* The intelligent charge limit entity has been renamed. You will need to update any automations or dashboards that relied on the old naming.
+* vehicle_battery_size_in_kwh and charge_point_power_in_kw are no longer both provided together. It's either one or the other depending on which part is integrated into OE intelligent. This is due to not being available in the new APIs.
+
 ## [12.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v12.2.0...v12.2.1) (2024-08-26)
 
 
