@@ -72,7 +72,7 @@ jobs:
           ACCOUNT_ID: ${{ secrets.OCTOPUS_ENERGY_ACCOUNT_ID }}
   release:
     name: Release
-    if: ${{ github.repository_owner == 'BottlecapDave' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.repository_owner == 'BottlecapDave' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta') }}
     needs: 
     - validate
     - unit_tests
