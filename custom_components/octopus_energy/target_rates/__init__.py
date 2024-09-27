@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from decimal import Decimal
 import math
 import re
 import logging
@@ -138,7 +139,7 @@ def calculate_continuous_times(
       continue
 
     continuous_rates = [rate]
-    continuous_rates_total = rate["value_inc_vat"] * (weighting[0] if weighting is not None and len(weighting) > 0 else 1)
+    continuous_rates_total = Decimal(rate["value_inc_vat"] * (weighting[0] if weighting is not None and len(weighting) > 0 else 1))
     
     for offset in range(1, total_required_rates if hours_mode != CONFIG_TARGET_HOURS_MODE_MINIMUM else applicable_rates_count):
       if (index + offset) < applicable_rates_count:
@@ -151,7 +152,7 @@ def calculate_continuous_times(
           break
 
         continuous_rates.append(offset_rate)
-        continuous_rates_total += offset_rate["value_inc_vat"] * (weighting[offset] if weighting is not None else 1)
+        continuous_rates_total += Decimal(offset_rate["value_inc_vat"] * (weighting[offset] if weighting is not None else 1))
       else:
         break
 
@@ -171,8 +172,9 @@ def calculate_continuous_times(
       ):
       best_continuous_rates = continuous_rates
       best_continuous_rates_total = continuous_rates_total
+      _LOGGER.debug(f'New best block discovered {continuous_rates_total} ({continuous_rates[0]["start"] if len(continuous_rates) > 0 else None} - {continuous_rates[-1]["end"] if len(continuous_rates) > 0 else None})')
     else:
-      _LOGGER.debug(f'Total rates for current block {continuous_rates_total}. Total rates for best block {best_continuous_rates_total}')
+      _LOGGER.debug(f'Total rates for current block {continuous_rates_total} ({continuous_rates[0]["start"] if len(continuous_rates) > 0 else None} - {continuous_rates[-1]["end"] if len(continuous_rates) > 0 else None}). Total rates for best block {best_continuous_rates_total}')
 
   if best_continuous_rates is not None:
     # Make sure our rates are in ascending order before returning
@@ -212,7 +214,6 @@ def calculate_intermittent_times(
 
   if ((hours_mode == CONFIG_TARGET_HOURS_MODE_EXACT and len(applicable_rates) >= total_required_rates) or hours_mode == CONFIG_TARGET_HOURS_MODE_MAXIMUM):
     applicable_rates = applicable_rates[:total_required_rates]
-    print(applicable_rates)
 
     # Make sure our rates are in ascending order before returning
     applicable_rates.sort(key=__get_valid_to)

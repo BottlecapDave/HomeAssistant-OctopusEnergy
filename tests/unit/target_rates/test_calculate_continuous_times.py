@@ -862,3 +862,313 @@ def test_when_hour_mode_is_minimum_and_more_than_enough_hours_available_then_tar
     expected_from = expected_from + timedelta(minutes=30)
     assert result[index]["end"] == expected_from
     assert result[index]["value_inc_vat"] == expected_rates[index]
+
+def test_when_multiple_blocks_have_same_value_then_earliest_is_picked():
+  applicable_rates = [
+    {
+        "value_exc_vat": 22.79,
+        "value_inc_vat": 23.9295,
+        "start": datetime.strptime("2024-09-04T18:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T19:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 23.2,
+        "value_inc_vat": 24.36,
+        "start": datetime.strptime("2024-09-04T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T18:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 35.68,
+        "value_inc_vat": 37.464,
+        "start": datetime.strptime("2024-09-04T17:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 35.47,
+        "value_inc_vat": 37.2435,
+        "start": datetime.strptime("2024-09-04T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T17:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 37.46,
+        "value_inc_vat": 39.333,
+        "start": datetime.strptime("2024-09-04T16:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 34.94,
+        "value_inc_vat": 36.687,
+        "start": datetime.strptime("2024-09-04T16:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T16:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 32.53,
+        "value_inc_vat": 34.1565,
+        "start": datetime.strptime("2024-09-04T15:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T16:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 31.38,
+        "value_inc_vat": 32.949,
+        "start": datetime.strptime("2024-09-04T15:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T15:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 17.94,
+        "value_inc_vat": 18.837,
+        "start": datetime.strptime("2024-09-04T14:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T15:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 17.32,
+        "value_inc_vat": 18.186,
+        "start": datetime.strptime("2024-09-04T14:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T14:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16.09,
+        "value_inc_vat": 16.8945,
+        "start": datetime.strptime("2024-09-04T13:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T14:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16.51,
+        "value_inc_vat": 17.3355,
+        "start": datetime.strptime("2024-09-04T13:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T13:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16,
+        "value_inc_vat": 16.8,
+        "start": datetime.strptime("2024-09-04T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T13:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16.09,
+        "value_inc_vat": 16.8945,
+        "start": datetime.strptime("2024-09-04T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T12:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16.09,
+        "value_inc_vat": 16.8945,
+        "start": datetime.strptime("2024-09-04T11:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16.46,
+        "value_inc_vat": 17.283,
+        "start": datetime.strptime("2024-09-04T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T11:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16.09,
+        "value_inc_vat": 16.8945,
+        "start": datetime.strptime("2024-09-04T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16.09,
+        "value_inc_vat": 16.8945,
+        "start": datetime.strptime("2024-09-04T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T10:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16.3,
+        "value_inc_vat": 17.115,
+        "start": datetime.strptime("2024-09-04T09:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T10:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 17.54,
+        "value_inc_vat": 18.417,
+        "start": datetime.strptime("2024-09-04T09:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T09:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 20.16,
+        "value_inc_vat": 21.168,
+        "start": datetime.strptime("2024-09-04T08:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T09:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 21,
+        "value_inc_vat": 22.05,
+        "start": datetime.strptime("2024-09-04T08:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T08:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 22.26,
+        "value_inc_vat": 23.373,
+        "start": datetime.strptime("2024-09-04T07:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T08:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 21.88,
+        "value_inc_vat": 22.974,
+        "start": datetime.strptime("2024-09-04T07:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T07:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 24.19,
+        "value_inc_vat": 25.3995,
+        "start": datetime.strptime("2024-09-04T06:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T07:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 21.84,
+        "value_inc_vat": 22.932,
+        "start": datetime.strptime("2024-09-04T06:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T06:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 22.2,
+        "value_inc_vat": 23.31,
+        "start": datetime.strptime("2024-09-04T05:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T06:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 19.74,
+        "value_inc_vat": 20.727,
+        "start": datetime.strptime("2024-09-04T05:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T05:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 17.43,
+        "value_inc_vat": 18.3015,
+        "start": datetime.strptime("2024-09-04T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T05:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 17.66,
+        "value_inc_vat": 18.543,
+        "start": datetime.strptime("2024-09-04T04:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T04:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16.09,
+        "value_inc_vat": 16.8945,
+        "start": datetime.strptime("2024-09-04T03:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T04:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16.09,
+        "value_inc_vat": 16.8945,
+        "start": datetime.strptime("2024-09-04T03:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T03:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 14.93,
+        "value_inc_vat": 15.6765,
+        "start": datetime.strptime("2024-09-04T02:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T03:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 15.12,
+        "value_inc_vat": 15.876,
+        "start": datetime.strptime("2024-09-04T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T02:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16.09,
+        "value_inc_vat": 16.8945,
+        "start": datetime.strptime("2024-09-04T01:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16.09,
+        "value_inc_vat": 16.8945,
+        "start": datetime.strptime("2024-09-04T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T01:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16.09,
+        "value_inc_vat": 16.8945,
+        "start": datetime.strptime("2024-09-04T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T01:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16.09,
+        "value_inc_vat": 16.8945,
+        "start": datetime.strptime("2024-09-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T00:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16.09,
+        "value_inc_vat": 16.8945,
+        "start": datetime.strptime("2024-09-03T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 16.7,
+        "value_inc_vat": 17.535,
+        "start": datetime.strptime("2024-09-03T23:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-03T23:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 18.69,
+        "value_inc_vat": 19.6245,
+        "start": datetime.strptime("2024-09-03T22:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-03T23:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 18.69,
+        "value_inc_vat": 19.6245,
+        "start": datetime.strptime("2024-09-03T22:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-03T22:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 17.56,
+        "value_inc_vat": 18.438,
+        "start": datetime.strptime("2024-09-03T21:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-03T22:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 20.21,
+        "value_inc_vat": 21.2205,
+        "start": datetime.strptime("2024-09-03T21:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-03T21:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 21.17,
+        "value_inc_vat": 22.2285,
+        "start": datetime.strptime("2024-09-03T20:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-03T21:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 23.84,
+        "value_inc_vat": 25.032,
+        "start": datetime.strptime("2024-09-03T20:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-03T20:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 24.36,
+        "value_inc_vat": 25.578,
+        "start": datetime.strptime("2024-09-03T19:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-03T20:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    },
+    {
+        "value_exc_vat": 25.83,
+        "value_inc_vat": 27.1215,
+        "start": datetime.strptime("2024-09-03T19:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+        "end": datetime.strptime("2024-09-03T19:30:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+    }
+  ]
+  
+  applicable_rates.sort(key=lambda x: x["start"])
+  
+  result = calculate_continuous_times(
+    applicable_rates,
+    3,
+    False,
+    False
+  )
+
+  assert result is not None
+  assert len(result) == 6
+
+  current_start = datetime.strptime("2024-09-04T01:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  for rate in result:
+    assert rate["start"] == current_start
+    current_start = current_start + timedelta(minutes=30)
+    assert rate["end"] == current_start
