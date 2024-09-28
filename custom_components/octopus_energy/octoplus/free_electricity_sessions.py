@@ -1,5 +1,6 @@
 import logging
 
+from custom_components.octopus_energy.coordinators.free_electricity_sessions import FreeElectricitySessionsCoordinatorResult
 from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
@@ -21,13 +22,12 @@ from . import (
   get_next_octoplus_sessions_event
 )
 
-from ..coordinators.saving_sessions import SavingSessionsCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
-  """Sensor for determining if a saving session is active."""
+class OctopusEnergyFreeElectricitySessions(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
+  """Sensor for determining if a free electricity session is active."""
   
   _unrecorded_attributes = frozenset({"data_last_retrieved"})
 
@@ -54,12 +54,12 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_{self._account_id}_octoplus_saving_sessions"
+    return f"octopus_energy_{self._account_id}_octoplus_free_electricity_session"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octoplus Saving Session ({self._account_id})"
+    return f"Octoplus Free Electricity ({self._account_id})"
 
   @property
   def icon(self):
@@ -88,10 +88,10 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
       "data_last_retrieved": None
     }
 
-    saving_session: SavingSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
-    if (saving_session is not None):
-      self._events = saving_session.joined_events
-      self._attributes["data_last_retrieved"] = saving_session.last_retrieved
+    free_electricity_session: FreeElectricitySessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
+    if (free_electricity_session is not None):
+      self._events = free_electricity_session.events
+      self._attributes["data_last_retrieved"] = free_electricity_session.last_retrieved
     else:
       self._events = []
 

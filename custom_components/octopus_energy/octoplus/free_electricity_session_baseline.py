@@ -3,6 +3,10 @@ import logging
 
 from homeassistant.core import HomeAssistant
 from homeassistant.util.dt import (utcnow)
+from homeassistant.const import (
+    STATE_UNAVAILABLE,
+    STATE_UNKNOWN,
+)
 
 from homeassistant.components.sensor import (
     RestoreSensor,
@@ -21,9 +25,9 @@ from . import (
   get_octoplus_session_target
 )
 
-from ..coordinators.saving_sessions import SavingSessionsCoordinatorResult
+from ..coordinators.free_electricity_sessions import FreeElectricitySessionsCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
-from ..api_client.saving_sessions import SavingSession
+from ..api_client.free_electricity_sessions import FreeElectricitySession
 
 from ..electricity.base import OctopusEnergyElectricitySensor
 from ..coordinators import MultiCoordinatorEntity
@@ -31,8 +35,8 @@ from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoo
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
-  """Sensor for determining the baseline for the current or next saving session."""
+class OctopusEnergyFreeElectricitySessionBaseline(MultiCoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
+  """Sensor for determining the baseline for the current or next free electricity session."""
 
   _unrecorded_attributes = frozenset({
     "mpan",
@@ -44,10 +48,10 @@ class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyEl
     "data_last_retrieved"
   })
 
-  def __init__(self, hass: HomeAssistant, saving_session_coordinator, previous_rates_and_consumption_coordinator, meter, point, mock_baseline):
+  def __init__(self, hass: HomeAssistant, free_electricity_session_coordinator, previous_rates_and_consumption_coordinator, meter, point, mock_baseline):
     """Init sensor."""
 
-    MultiCoordinatorEntity.__init__(self, saving_session_coordinator, [previous_rates_and_consumption_coordinator])
+    MultiCoordinatorEntity.__init__(self, free_electricity_session_coordinator, [previous_rates_and_consumption_coordinator])
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
     self._previous_rates_and_consumption_coordinator = previous_rates_and_consumption_coordinator
@@ -68,12 +72,12 @@ class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyEl
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_octoplus_saving_session_baseline"
+    return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}{self._export_id_addition}_octoplus_free_electricity_session_baseline"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octoplus Saving Session Baseline {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})"
+    return f"Octoplus Free Electricity Session Baseline {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})"
   
   @property
   def entity_registry_enabled_default(self) -> bool:
@@ -123,24 +127,23 @@ class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyEl
       return
     
     current: datetime = utcnow()
-    saving_session: SavingSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
+    free_electricity_sessions: FreeElectricitySessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
     previous_consumption: PreviousConsumptionCoordinatorResult = self._previous_rates_and_consumption_coordinator.data if self._previous_rates_and_consumption_coordinator is not None else None
-    if saving_session is not None and previous_consumption is not None:
+    if free_electricity_sessions is not None and previous_consumption is not None:
 
-      all_saving_sessions = saving_session.available_events + saving_session.joined_events
-      target_saving_session = current_octoplus_sessions_event(current, saving_session.joined_events)
-      if (target_saving_session is None):
-        target_saving_session = get_next_octoplus_sessions_event(current, saving_session.joined_events)
+      target_free_electricity_session = current_octoplus_sessions_event(current, free_electricity_sessions.events)
+      if (target_free_electricity_session is None):
+        target_free_electricity_session = get_next_octoplus_sessions_event(current, free_electricity_sessions.events)
 
-      if (target_saving_session is None and self._mock_baseline == True):
-        mock_saving_session_start = current.replace(minute=0, second=0, microsecond=0)
-        target_saving_session = SavingSession('1', '2', mock_saving_session_start, mock_saving_session_start + timedelta(hours=1), 0)
+      if (target_free_electricity_session is None and self._mock_baseline == True):
+        mock_free_electricity_session_start = current.replace(minute=0, second=0, microsecond=0)
+        target_free_electricity_session = FreeElectricitySession('1', mock_free_electricity_session_start, mock_free_electricity_session_start + timedelta(hours=1))
 
-      if (target_saving_session is not None):
-        consumption_dates = get_octoplus_session_consumption_dates(target_saving_session, all_saving_sessions)
-        self._consumption_data = get_filtered_consumptions(previous_consumption.historic_weekday_consumption if target_saving_session.start.weekday() < 5 else previous_consumption.historic_weekend_consumption, consumption_dates)
+      if (target_free_electricity_session is not None):
+        consumption_dates = get_octoplus_session_consumption_dates(target_free_electricity_session, free_electricity_sessions.events)
+        self._consumption_data = get_filtered_consumptions(previous_consumption.historic_weekday_consumption if target_free_electricity_session.start.weekday() < 5 else previous_consumption.historic_weekend_consumption, consumption_dates)
 
-      target = get_octoplus_session_target(current, target_saving_session, self._consumption_data if self._consumption_data is not None else [])
+      target = get_octoplus_session_target(current, target_free_electricity_session, self._consumption_data if self._consumption_data is not None else [])
       if (target is not None and target.current_target is not None):
         self._state = target.current_target.baseline
         self._attributes["start"] = target.current_target.start
@@ -162,8 +165,8 @@ class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyEl
         self._attributes["total_baseline"] = None
         self._attributes["baselines"] = None
 
-    if saving_session is not None:
-      self._attributes["data_last_retrieved"] = saving_session.last_retrieved
+    if free_electricity_sessions is not None:
+      self._attributes["data_last_retrieved"] = free_electricity_sessions.last_retrieved
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
@@ -172,7 +175,7 @@ class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyEl
     state = await self.async_get_last_state()
 
     if state is not None:
-      self._state = None if state.state == "unknown" else state.state
+      self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
       self._attributes = dict_to_typed_dict(state.attributes)
     
     _LOGGER.debug(f'Restored state: {self._state}')

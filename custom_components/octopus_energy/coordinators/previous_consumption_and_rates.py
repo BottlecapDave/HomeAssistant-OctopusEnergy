@@ -32,7 +32,7 @@ from ..intelligent import adjust_intelligent_rates, is_intelligent_product
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 from . import BaseCoordinatorResult, get_electricity_meter_tariff, get_gas_meter_tariff
 from ..utils.rate_information import get_min_max_average_rates
-from ..octoplus import get_saving_session_weekday_dates, get_saving_session_weekend_dates, SavingSessionConsumptionDate
+from ..octoplus import get_octoplus_session_weekday_dates, get_octoplus_session_weekend_dates, OctoplusSessionConsumptionDate
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -73,7 +73,7 @@ def contains_consumption(consumptions: list, current_consumption):
   
   return False
 
-def extract_missing_consumption_periods(target_consumption_dates: list[SavingSessionConsumptionDate], consumptions: list):
+def extract_missing_consumption_periods(target_consumption_dates: list[OctoplusSessionConsumptionDate], consumptions: list):
   new_target_consumption_dates = []
   for consumption_date in target_consumption_dates:
     consumption_count = 0
@@ -94,7 +94,7 @@ async def async_get_missing_consumption(
     identifier: str,
     serial_number: str,
     consumptions: list,
-    consumption_dates: list[SavingSessionConsumptionDate]
+    consumption_dates: list[OctoplusSessionConsumptionDate]
   ):
   try:
     requests = []
@@ -168,11 +168,11 @@ async def async_enhance_with_historic_consumption(
 
   # Fetch rates that might be missing
   local_start = as_local(current).replace(hour=0, minute=0, second=0, microsecond=0)
-  weekday_periods = get_saving_session_weekday_dates(local_start, 15, timedelta(hours=24), [])
+  weekday_periods = get_octoplus_session_weekday_dates(local_start, 15, timedelta(hours=24), [])
   earliest_weekday_start = weekday_periods[-1].start
   missing_weekday_consumptions = extract_missing_consumption_periods(weekday_periods, historic_weekday_consumptions)
 
-  weekend_periods = get_saving_session_weekend_dates(local_start, 8, timedelta(hours=24), [])
+  weekend_periods = get_octoplus_session_weekend_dates(local_start, 8, timedelta(hours=24), [])
   earliest_weekend_start = weekend_periods[-1].start
   missing_weekend_consumptions = extract_missing_consumption_periods(weekend_periods, historic_weekend_consumptions)
 
