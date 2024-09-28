@@ -10,7 +10,7 @@ function getMinimumHomeAssistantVersion() {
   return content.homeassistant;
 }
 
-async function createGithubRelease(githubToken: string, githubOwnerRepo: string, tag: string, notes: string, isPrerelease: boolean) {
+async function createGithubRelease(githubToken: string, githubOwnerRepo: string, tag: string, notes: string) {
   if (!githubToken) {
     throw new Error('Github token not specified');
   }
@@ -27,6 +27,8 @@ async function createGithubRelease(githubToken: string, githubOwnerRepo: string,
     throw new Error('Notes not specified');
   }
 
+  const isPrerelease = tag.includes('-beta.')
+
   console.log(`Publishing ${tag} ${isPrerelease ? 'pre-release': 'release'} to ${githubOwnerRepo}`);
 
   const body = JSON.stringify({
@@ -34,7 +36,7 @@ async function createGithubRelease(githubToken: string, githubOwnerRepo: string,
     name: tag,
     body: notes,
     draft: false,
-    prerelease: tag.includes('-beta.')
+    prerelease: isPrerelease
   });
 
   const response = await fetch(
