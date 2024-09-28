@@ -6,6 +6,14 @@
 * Fixed issue when rate information isn't available on start up which prevented integration from starting ([ffb8911](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ffb8911dd0e6189f1573c5e5677b4a8b238f64af))
 * Fixed issue with restoring saving session baseline entity and current interval accumulative consumption sensor (5 minutes dev time) ([a7fa406](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a7fa40639536c0e130efc9ce625c2cb73e0b8705))
 
+# [13.0.0-beta.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.0.0-beta.1...v13.0.0-beta.2) (2024-09-28)
+
+
+### Bug Fixes
+
+* Fixed issue when rate information isn't available on start up which prevented integration from starting ([ffb8911](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ffb8911dd0e6189f1573c5e5677b4a8b238f64af))
+* Fixed issue with restoring saving session baseline entity and current interval accumulative consumption sensor (5 minutes dev time) ([a7fa406](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a7fa40639536c0e130efc9ce625c2cb73e0b8705))
+
 # [13.0.0-beta.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v12.2.1...v13.0.0-beta.1) (2024-09-27)
 
 
