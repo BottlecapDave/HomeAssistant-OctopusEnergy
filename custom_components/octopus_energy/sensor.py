@@ -1,4 +1,5 @@
 from datetime import timedelta
+from custom_components.octopus_energy.coordinator_entities.current_consumption_home_pro_data_last_retrieved import OctopusEnergyCurrentConsumptionHomeProDataLastRetrieved
 import voluptuous as vol
 import logging
 
@@ -43,6 +44,7 @@ from .cost_tracker.cost_tracker_week import OctopusEnergyCostTrackerWeekSensor
 from .cost_tracker.cost_tracker_month import OctopusEnergyCostTrackerMonthSensor
 from .greenness_forecast.current_index import OctopusEnergyGreennessForecastCurrentIndex
 from .greenness_forecast.next_index import OctopusEnergyGreennessForecastNextIndex
+from .coordinator_entities.account_data_last_retrieved import OctopusEnergyAccountDataLastRetrieved
 
 from .utils.debug_overrides import async_get_debug_override
 
@@ -74,6 +76,7 @@ from .const import (
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_TARIFF_COMPARISON_MPAN_MPRN,
+  DATA_ACCOUNT_COORDINATOR,
   DATA_GREENNESS_FORECAST_COORDINATOR,
   DATA_HOME_PRO_CLIENT,
   DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY,
@@ -244,6 +247,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   greenness_forecast_coordinator = hass.data[DOMAIN][account_id][DATA_GREENNESS_FORECAST_COORDINATOR]
   
   entities = [
+    OctopusEnergyAccountDataLastRetrieved(hass, hass.data[DOMAIN][account_id][DATA_ACCOUNT_COORDINATOR], account_id),
     OctopusEnergyWheelOfFortuneElectricitySpins(hass, wheel_of_fortune_coordinator, client, account_id),
     OctopusEnergyWheelOfFortuneGasSpins(hass, wheel_of_fortune_coordinator, client, account_id),
     OctopusEnergyGreennessForecastCurrentIndex(hass, greenness_forecast_coordinator, account_id),
@@ -311,6 +315,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
               home_pro_consumption_coordinator = await async_create_home_pro_current_consumption_coordinator(hass, account_id, home_pro_client, True)
               entities.append(OctopusEnergyCurrentElectricityDemand(hass, home_pro_consumption_coordinator, meter, point))
               entities.append(OctopusEnergyCurrentTotalElectricityConsumption(hass, home_pro_consumption_coordinator, meter, point))
+              entities.append(OctopusEnergyCurrentConsumptionHomeProDataLastRetrieved(hass, home_pro_consumption_coordinator, True, meter, point))
              
             if (CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True):
               live_consumption_refresh_in_minutes = CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES
@@ -406,6 +411,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
             home_pro_consumption_coordinator = await async_create_home_pro_current_consumption_coordinator(hass, account_id, home_pro_client, False)
             entities.append(OctopusEnergyCurrentTotalGasConsumptionKwh(hass, home_pro_consumption_coordinator, meter, point, calorific_value))
             entities.append(OctopusEnergyCurrentTotalGasConsumptionCubicMeters(hass, home_pro_consumption_coordinator, meter, point, calorific_value))
+            entities.append(OctopusEnergyCurrentConsumptionHomeProDataLastRetrieved(hass, home_pro_consumption_coordinator, False, meter, point))
 
           if (CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True):
             live_consumption_refresh_in_minutes = CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES
