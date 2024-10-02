@@ -3,6 +3,7 @@ import logging
 from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
+    EntityCategory,
 )
 from homeassistant.core import callback
 
@@ -41,6 +42,11 @@ class OctopusEnergyBaseDataLastRetrieved(CoordinatorEntity, RestoreSensor):
   def device_class(self):
     """The type of sensor"""
     return SensorDeviceClass.TIMESTAMP
+  
+  @property
+  def entity_category(self):
+    """The category of the sensor"""
+    return EntityCategory.DIAGNOSTIC
 
   @property
   def icon(self):
