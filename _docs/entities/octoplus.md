@@ -27,7 +27,10 @@ Binary sensor to indicate if a saving session that the account has joined is act
 | `next_joined_event_start` | `datetime` | The datetime the next saving session will start |
 | `next_joined_event_end` | `datetime` | The datetime the next saving session will end |
 | `next_joined_event_duration_in_minutes` | `float` | The duration in minutes of the next saving session |
-| `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#saving-sessions-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
 ## Saving Session Events
 
@@ -68,7 +71,7 @@ Each joined event item will include the following attributes
 
 This will indicate the baseline consumption that you need to be below for the current 30 minute period of the current saving session or the first 30 minute period of the next saving session. 
 
-You can use the [current period consumption](./electricity.md#current-period-consumption) sensor (if available) to see how on track you are.
+You can use the [current period consumption](./electricity.md#current-interval-accumulative-consumption) sensor (if available) to see how on track you are.
 
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
@@ -85,7 +88,10 @@ You can use the [current period consumption](./electricity.md#current-period-con
 | `consumption_items` | `list` | The consumption that was used to calculate the baselines |
 | `total_baseline` | `float` | The total baseline for the current saving session |
 | `baselines` | `list` | The collection of baselines for the current saving session |
-| `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#saving-sessions-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
 ## Services
 
