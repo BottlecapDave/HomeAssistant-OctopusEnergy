@@ -102,8 +102,7 @@ async def async_migrate_entry(hass, config_entry):
       new_data = await async_migrate_cost_tracker_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
       new_options = await async_migrate_cost_tracker_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
     
-    config_entry.version = CONFIG_VERSION
-    hass.config_entries.async_update_entry(config_entry, title=title, data=new_data, options=new_options)
+    hass.config_entries.async_update_entry(config_entry, title=title, data=new_data, options=new_options, version=CONFIG_VERSION)
 
     _LOGGER.debug("Migration to version %s successful", config_entry.version)
 
