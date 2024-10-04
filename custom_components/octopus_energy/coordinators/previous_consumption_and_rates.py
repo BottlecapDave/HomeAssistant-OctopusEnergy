@@ -157,14 +157,15 @@ async def async_enhance_with_historic_consumption(
   previous_weekend_earliest_start = historic_weekend_consumptions[0]["start"] if historic_weekend_consumptions is not None and len(historic_weekend_consumptions) > 0 else None
   previous_weekend_latest_end = historic_weekend_consumptions[-1]["end"] if historic_weekend_consumptions is not None and len(historic_weekend_consumptions) > 0 else None
 
-  # Add our new consumptions if they don't already exist
-  for consumption in data.consumption:
-    local_start: datetime = as_local(consumption["start"])
-    is_weekend = local_start.weekday() == 5 or local_start.weekday() == 6
-    if is_weekend and contains_consumption(historic_weekend_consumptions, consumption) == False:
-      historic_weekend_consumptions.append(consumption)
-    elif is_weekend == False and contains_consumption(historic_weekday_consumptions, consumption) == False:
-      historic_weekday_consumptions.append(consumption)
+  # Add our new consumptions if they don't already exist and we have a full day of data
+  if len(data.consumption) == 48:
+    for consumption in data.consumption:
+      local_start: datetime = as_local(consumption["start"])
+      is_weekend = local_start.weekday() == 5 or local_start.weekday() == 6
+      if is_weekend and contains_consumption(historic_weekend_consumptions, consumption) == False:
+        historic_weekend_consumptions.append(consumption)
+      elif is_weekend == False and contains_consumption(historic_weekday_consumptions, consumption) == False:
+        historic_weekday_consumptions.append(consumption)
 
   # Fetch rates that might be missing
   local_start = as_local(current).replace(hour=0, minute=0, second=0, microsecond=0)

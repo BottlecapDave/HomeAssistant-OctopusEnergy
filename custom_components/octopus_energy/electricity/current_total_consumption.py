@@ -110,7 +110,6 @@ class OctopusEnergyCurrentTotalElectricityConsumption(CoordinatorEntity, Octopus
           "serial_number": self._serial_number,
           "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
-          "data_last_retrieved": consumption_result.last_retrieved if consumption_result is not None else None
         }
 
     self._attributes = dict_to_typed_dict(self._attributes)
