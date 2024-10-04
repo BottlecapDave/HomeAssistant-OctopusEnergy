@@ -18,6 +18,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.helpers.entity import generate_entity_id
 
 from ..coordinators import BaseCoordinatorResult
+from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -71,5 +72,5 @@ class OctopusEnergyBaseDataLastRetrieved(CoordinatorEntity, RestoreSensor):
     state = await self.async_get_last_state()
     
     if state is not None and self._state is None:
-      self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
+      self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else dict_to_typed_dict({ "date": state.state })["date"]
       _LOGGER.debug(f'Restored state: {self._state}')
