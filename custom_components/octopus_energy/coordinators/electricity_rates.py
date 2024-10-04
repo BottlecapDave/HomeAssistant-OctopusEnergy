@@ -110,8 +110,8 @@ async def async_refresh_electricity_rates_data(
                           EVENT_ELECTRICITY_CURRENT_DAY_RATES,
                           EVENT_ELECTRICITY_NEXT_DAY_RATES)
         
-        current_unique_rates = len(get_unique_rates(current, new_rates))
-        previous_unique_rates = len(get_unique_rates(current, existing_rates_result.rates)) if existing_rates_result is not None and existing_rates_result.rates is not None else None
+        current_unique_rates = len(get_unique_rates(current, original_rates))
+        previous_unique_rates = len(get_unique_rates(current, existing_rates_result.original_rates)) if existing_rates_result is not None and existing_rates_result.original_rates is not None else None
 
         # Check if rates have changed
         if ((has_peak_rates(current_unique_rates) and has_peak_rates(previous_unique_rates) == False) or
