@@ -1,3 +1,20 @@
+# [13.0.0-beta.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.0.0-beta.2...v13.0.0-beta.3) (2024-10-04)
+
+
+### Bug Fixes
+
+* Fixed smart charge sensor always being off - Thanks @HLFCode for your assistance (15 minutes dev time) ([4ae5d69](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4ae5d69afe10b184dc93386c6a83b1f18d21bf53))
+
+
+### Features
+
+* Added sensors for storing data last retrieved for all shared data (3.5 hours dev time) ([cedb260](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cedb2600651a8f7b18735b82687bd8479cbcc27a))
+
+
+### BREAKING CHANGES
+
+* data_last_retrieved attribute has been removed from all sensors to reduce excessive database storage. This data is now available in separate diagnostic senors. Please consult the docs for which diagnostic sensor is applicable for your target sensor.
+
 # [13.0.0-beta.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.0.0-beta.1...v13.0.0-beta.2) (2024-09-28)
 
 
