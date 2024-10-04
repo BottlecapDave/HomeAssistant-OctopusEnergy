@@ -183,9 +183,7 @@ The total consumption reported by the meter (not other devices e.g. Home Mini) f
 
     This data won't necessarily be available at the stroke of midnight. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. 
     
-    Because this sensor only looks at the previous day, if the data takes longer than 24 hours to populate then the sensor will not update. This can be determined by looking at the `data_last_retrieved` attribute which indicates when the data was last retrieved. For example, if the current day is 02/01/2024, it will look at data for 01/01/2024. If the data for 01/01/2024 doesn't populate until 03/01/2024 then the sensor will not update.
-
-    If your data is always behind, you can adjust the number of days that the sensor looks back by [updating integrations config](../setup/account.md#previous-consumption-days-offset).
+    Because this sensor only looks at the last complete day, if the data takes longer than 24 hours to populate then the sensor will not update straight away. You can look at the [data_last_retrieved sensor](./diagnostics.md#previous-consumption-and-rates-data-last-retrieved) which indicates when the data was last retrieved.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -195,7 +193,6 @@ The total consumption reported by the meter (not other devices e.g. Home Mini) f
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
 | `total` | `float` | The total energy value for the previous day. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
-| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
 Each charge item has the following attributes
 
@@ -204,6 +201,10 @@ Each charge item has the following attributes
 | `start` | `datetime` | The date/time when the consumption starts |
 | `end` | `datetime` | The date/time when the consumption ends |
 | `consumption` | `float` | The consumption value of the specified period |
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#previous-consumption-and-rates-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
 #### Variants
 
@@ -268,9 +269,7 @@ The total cost for the previous available full day, including the standing charg
 
     This data won't necessarily be available at the stroke of midnight. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. 
     
-    Because this sensor only looks at the previous day, if the data takes longer than 24 hours to populate then the sensor will not update. This can be determined by looking at the `data_last_retrieved` attribute which indicates when the data was last retrieved. For example, if the current day is 02/01/2024, it will look at data for 01/01/2024. If the data for 01/01/2024 doesn't populate until 03/01/2024 then the sensor will not update.
-
-    If your data is always behind, you can adjust the number of days that the sensor looks back by [updating integrations config](../setup/account.md#previous-consumption-days-offset).
+    Because this sensor only looks at the last complete day, if the data takes longer than 24 hours to populate then the sensor will not update straight away. You can look at the [data_last_retrieved sensor](./diagnostics.md#previous-consumption-and-rates-data-last-retrieved) which indicates when the data was last retrieved.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -283,7 +282,6 @@ The total cost for the previous available full day, including the standing charg
 | `total_without_standing_charge` | `float` | The total cost of the previous day excluding the standing charge. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `total` | `float` | The total cost for the previous day. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `charges` | `array` | Collection of consumption periods and costs for the previous day broken down into 30 minute periods. |
-| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
 Each charge item has the following attributes
 
@@ -294,6 +292,10 @@ Each charge item has the following attributes
 | `rate` | `float` | The rate the consumption is charged at. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `consumption` | `float` | The consumption value of the specified period |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#previous-consumption-and-rates-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
 #### Variants
 
@@ -392,9 +394,9 @@ It has been noticed that daily consumption reported in Home Assistant can differ
 
 If current consumption data is unable to be retrieved, then the integration will attempt to retrieve missing data. This will be done for the current day only. This is due to it sharing the same data for the accumulation sensors and will not be changed. 
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#current-consumption-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
 ### Current Demand
 
@@ -405,9 +407,9 @@ If current consumption data is unable to be retrieved, then the integration will
 
 The current demand reported by the Home Mini/Pro. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers or Home Pro device |
+!!! info
+
+    You can use the [Home Mini data_last_retrieved sensor](./diagnostics.md#current-consumption-data-last-retrieved) or [Home Pro data_last_retrieved sensor](./diagnostics.md#current-consumption-home-pro-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
 ### Current Accumulative Consumption
 
@@ -570,6 +572,6 @@ The total cost reported by the meter for the current day during peak hours (the 
 
 This will indicate the total accumulative consumption for the current 30 minute period (e.g. if it's 12:15 then this will represent 12:00 - 12:30). You can use this to compare the data with the [saving session baseline](./octoplus.md#saving-session-baseline) sensor to see how on track you are during a saving session.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#current-consumption-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.

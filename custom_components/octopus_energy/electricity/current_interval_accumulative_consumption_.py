@@ -102,8 +102,6 @@ class OctopusEnergyCurrentElectricityIntervalAccumulativeConsumption(Coordinator
       except StopIteration:
         self._state = None
 
-    self._attributes["data_last_retrieved"] = consumption_result.last_retrieved if consumption_result is not None else None
-
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

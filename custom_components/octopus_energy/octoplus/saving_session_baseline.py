@@ -166,9 +166,6 @@ class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyEl
         self._attributes["total_baseline"] = None
         self._attributes["baselines"] = None
 
-    if saving_session is not None:
-      self._attributes["data_last_retrieved"] = saving_session.last_retrieved
-
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
     # If not None, we got an initial value.
