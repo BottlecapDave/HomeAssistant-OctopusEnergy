@@ -103,7 +103,6 @@ class OctopusEnergyCurrentGasConsumption(CoordinatorEntity, OctopusEnergyGasSens
     self._latest_date = result.last_evaluated
     self._previous_total_consumption = result.total_consumption
     self._last_evaluated = current_date
-    self._attributes["data_last_retrieved"] = result.data_last_retrieved
 
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()

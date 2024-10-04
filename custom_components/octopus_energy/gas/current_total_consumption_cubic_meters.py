@@ -108,7 +108,6 @@ class OctopusEnergyCurrentTotalGasConsumptionCubicMeters(CoordinatorEntity, Octo
           "mprn": self._mprn,
           "serial_number": self._serial_number,
           "is_smart_meter": self._is_smart_meter,
-          "data_last_retrieved": consumption_result.last_retrieved if consumption_result is not None else None
         }
 
     self._attributes = dict_to_typed_dict(self._attributes)
