@@ -27,6 +27,7 @@ class OctopusEnergyBaseDataLastRetrieved(CoordinatorEntity, RestoreSensor):
   def __init__(self, hass, coordinator):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
+    self._state = None
 
     self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
 
