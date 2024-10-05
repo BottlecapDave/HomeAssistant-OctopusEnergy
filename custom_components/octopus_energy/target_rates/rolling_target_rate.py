@@ -175,38 +175,40 @@ class OctopusEnergyRollingTargetRate(CoordinatorEntity, BinarySensorEntity, Rest
             all_rates,
             self._config[CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD]
           )
+
+          if applicable_rates is not None:
+            number_of_slots = math.ceil(target_hours * 2)
+            weighting = create_weighting(self._config[CONFIG_TARGET_WEIGHTING] if CONFIG_TARGET_WEIGHTING in self._config else None, number_of_slots)
+
+            if (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_CONTINUOUS):
+              self._target_rates = calculate_continuous_times(
+                applicable_rates,
+                target_hours,
+                find_highest_rates,
+                find_last_rates,
+                min_rate,
+                max_rate,
+                weighting,
+                hours_mode = self._config[CONFIG_TARGET_HOURS_MODE]
+              )
+            elif (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_INTERMITTENT):
+              self._target_rates = calculate_intermittent_times(
+                applicable_rates,
+                target_hours,
+                find_highest_rates,
+                find_last_rates,
+                min_rate,
+                max_rate,
+                hours_mode = self._config[CONFIG_TARGET_HOURS_MODE]
+              )
+            else:
+              _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")
+
+            self._attributes["target_times"] = self._target_rates
+            self._attributes["target_times_last_evaluated"] = current_date
+            _LOGGER.debug(f"calculated rates: {self._target_rates}")
           
-          number_of_slots = math.ceil(target_hours * 2)
-          weighting = create_weighting(self._config[CONFIG_TARGET_WEIGHTING] if CONFIG_TARGET_WEIGHTING in self._config else None, number_of_slots)
-
-          if (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_CONTINUOUS):
-            self._target_rates = calculate_continuous_times(
-              applicable_rates,
-              target_hours,
-              find_highest_rates,
-              find_last_rates,
-              min_rate,
-              max_rate,
-              weighting,
-              hours_mode = self._config[CONFIG_TARGET_HOURS_MODE]
-            )
-          elif (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_INTERMITTENT):
-            self._target_rates = calculate_intermittent_times(
-              applicable_rates,
-              target_hours,
-              find_highest_rates,
-              find_last_rates,
-              min_rate,
-              max_rate,
-              hours_mode = self._config[CONFIG_TARGET_HOURS_MODE]
-            )
-          else:
-            _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")
-
           self._attributes["rates_incomplete"] = applicable_rates is None
-          self._attributes["target_times"] = self._target_rates
-          self._attributes["target_times_last_evaluated"] = current_date
-          _LOGGER.debug(f"calculated rates: {self._target_rates}")
 
     active_result = get_target_rate_info(current_date, self._target_rates, offset)
 
