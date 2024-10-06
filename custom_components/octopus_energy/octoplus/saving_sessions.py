@@ -46,7 +46,6 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
       "next_joined_event_start": None,
       "next_joined_event_end": None,
       "next_joined_event_duration_in_minutes": None,
-      "data_last_retrieved": None,
     }
 
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
@@ -85,13 +84,11 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
       "next_joined_event_start": None,
       "next_joined_event_end": None,
       "next_joined_event_duration_in_minutes": None,
-      "data_last_retrieved": None
     }
 
     saving_session: SavingSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
     if (saving_session is not None):
       self._events = saving_session.joined_events
-      self._attributes["data_last_retrieved"] = saving_session.last_retrieved
     else:
       self._events = []
 

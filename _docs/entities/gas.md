@@ -119,7 +119,9 @@ If you are wishing to use these sensors with the Energy Dashboard, then you can 
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption_m3`
 
-The total consumption reported by the meter for the previous day in m3. If your meter reports in m3, then this will be an accurate value reported by Octopus, otherwise it will be a calculated/estimated value.
+The total consumption reported by the meter (not other devices e.g. Home Mini) for the previous available full day in m3. If for example data is available up to `01:00` of `2024-09-02`, then this sensor will report the cost between `2024-09-01T00:00:00Z` and `2024-09-02T00:00:00Z`.
+
+If your meter reports in m3, then this will be an accurate value reported by Octopus, otherwise it will be a calculated/estimated value.
 
 !!! info
 
@@ -129,9 +131,7 @@ The total consumption reported by the meter for the previous day in m3. If your 
 
     This data won't necessarily be available at the stroke of midnight. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. 
     
-    Because this sensor only looks at the previous day, if the data takes longer than 24 hours to populate then the sensor will not update. This can be determined by looking at the `data_last_retrieved` attribute which indicates when the data was last retrieved. For example, if the current day is 02/01/2024, it will look at data for 01/01/2024. If the data for 01/01/2024 doesn't populate until 03/01/2024 then the sensor will not update.
-
-    If your data is always behind, you can adjust the number of days that the sensor looks back by [updating integrations config](../setup/account.md#previous-consumption-days-offset).
+    Because this sensor only looks at the last complete day, if the data takes longer than 24 hours to populate then the sensor will not update straight away. You can look at the [data_last_retrieved sensor](./diagnostics.md#previous-consumption-and-rates-data-last-retrieved) which indicates when the data was last retrieved.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -142,8 +142,6 @@ The total consumption reported by the meter for the previous day in m3. If your 
 | `total_m3` | `float` | The total energy value for the previous day in `m3`. If your meter reports in `kwh`, then this will be estimated using your set [calorific value](../setup/account.md#calorific-value) |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
-| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
-| `latest_available_data_timestamp` | `datetime` | The date/time of the latest available consumption data via the API. This is only for data reported directly by the meter and won't include data reported by other devices (e.g. Octopus Home Mini) |
 
 Each charge item has the following attributes
 
@@ -153,11 +151,17 @@ Each charge item has the following attributes
 | `end` | `datetime` | The date/time when the consumption ends |
 | `consumption` | `float` | The consumption value of the specified period |
 
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#previous-consumption-and-rates-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+
 ### Previous Accumulative Consumption (kWh)
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption_kwh`
 
-The total consumption reported by the meter for the previous day in kwh. If your meter reports in kwh, then this will be an accurate value reported by Octopus, otherwise it will be a calculated/estimated value.
+The total consumption reported by the meter for the previous available full day in kwh. If for example data is available up to `01:00` of `2024-09-02`, then this sensor will report the cost between `2024-09-01T00:00:00Z` and `2024-09-02T00:00:00Z`.
+
+If your meter reports in kwh, then this will be an accurate value reported by Octopus, otherwise it will be a calculated/estimated value.
 
 !!! info
 
@@ -167,9 +171,7 @@ The total consumption reported by the meter for the previous day in kwh. If your
 
     This data won't necessarily be available at the stroke of midnight. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. 
     
-    Because this sensor only looks at the previous day, if the data takes longer than 24 hours to populate then the sensor will not update. This can be determined by looking at the `data_last_retrieved` attribute which indicates when the data was last retrieved. For example, if the current day is 02/01/2024, it will look at data for 01/01/2024. If the data for 01/01/2024 doesn't populate until 03/01/2024 then the sensor will not update.
-
-    If your data is always behind, you can adjust the number of days that the sensor looks back by [updating integrations config](../setup/account.md#previous-consumption-days-offset).
+    Because this sensor only looks at the last complete day, if the data takes longer than 24 hours to populate then the sensor will not update straight away. You can look at the [data_last_retrieved sensor](./diagnostics.md#previous-consumption-and-rates-data-last-retrieved) which indicates when the data was last retrieved.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -178,8 +180,6 @@ The total consumption reported by the meter for the previous day in kwh. If your
 | `is_estimated` | `boolean` | Determines if the consumption was estimated. This can occur if your meter reports in `m3`. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
-| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
-| `latest_available_data_timestamp` | `datetime` | The date/time of the latest available consumption data via the API. This is only for data reported directly by the meter and won't include data reported by other devices (e.g. Octopus Home Mini) |
 
 Each charge item has the following attributes
 
@@ -189,11 +189,15 @@ Each charge item has the following attributes
 | `end` | `datetime` | The date/time when the consumption ends |
 | `consumption` | `float` | The consumption value of the specified period |
 
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#previous-consumption-and-rates-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+
 ### Previous Accumulative Cost
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost`
 
-The total cost for the previous day, including the standing charge.
+The total cost for the previous available full day, including the standing charge.
 
 !!! info
 
@@ -203,9 +207,7 @@ The total cost for the previous day, including the standing charge.
 
     This data won't necessarily be available at the stroke of midnight. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. 
     
-    Because this sensor only looks at the previous day, if the data takes longer than 24 hours to populate then the sensor will not update. This can be determined by looking at the `data_last_retrieved` attribute which indicates when the data was last retrieved. For example, if the current day is 02/01/2024, it will look at data for 01/01/2024. If the data for 01/01/2024 doesn't populate until 03/01/2024 then the sensor will not update.
-
-    If your data is always behind, you can adjust the number of days that the sensor looks back by [updating integrations config](../setup/account.md#previous-consumption-days-offset).
+    Because this sensor only looks at the last complete day, if the data takes longer than 24 hours to populate then the sensor will not update straight away. You can look at the [data_last_retrieved sensor](./diagnostics.md#previous-consumption-and-rates-data-last-retrieved) which indicates when the data was last retrieved.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -216,7 +218,6 @@ The total cost for the previous day, including the standing charge.
 | `total_without_standing_charge` | `float` | The total cost of the previous day excluding the standing charge. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `total` | `float` | The total cost for the previous day. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `charges` | `array` | Collection of consumption periods and costs for the previous day broken down into 30 minute periods. |
-| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
 
 Each charge item has the following attributes
@@ -229,11 +230,15 @@ Each charge item has the following attributes
 | `consumption` | `float` | The consumption value of the specified period |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
 
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#previous-consumption-and-rates-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+
 ## Previous Consumption Day Rates
 
 `event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_consumption_rates`
 
-The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous day's rates, but could differ if the default offset is changed. The attributes of this sensor exposes the previous consumption's rates. 
+The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous available full day's rates, but could differ depending on available data. The attributes of this sensor exposes the previous consumption's rates. 
 
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
@@ -285,7 +290,6 @@ The total consumption reported by the meter for the current day in m3. This is c
 | `serial_number` | `string` | The serial for the associated meter |
 | `charges` | `array` | Collection of consumption periods for the current day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
-| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
 Each charge item has the following attributes
 
@@ -294,6 +298,10 @@ Each charge item has the following attributes
 | `start` | `datetime` | The date/time when the consumption starts |
 | `end` | `datetime` | The date/time when the consumption ends |
 | `consumption` | `float` | The consumption value of the specified period |
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#current-consumption-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
 ### Current Accumulative Consumption (kWh)
 
@@ -310,7 +318,6 @@ The total consumption reported by the meter for the current day in kWh. This is 
 | `serial_number` | `string` | The serial for the associated meter |
 | `charges` | `array` | Collection of consumption periods for the current day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
-| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
 Each charge item has the following attributes
 
@@ -319,6 +326,10 @@ Each charge item has the following attributes
 | `start` | `datetime` | The date/time when the consumption starts |
 | `end` | `datetime` | The date/time when the consumption ends |
 | `consumption` | `float` | The consumption value of the specified period |
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#current-consumption-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
 ### Current Total Consumption (m3)
 
@@ -329,7 +340,7 @@ Each charge item has the following attributes
 
 The total consumption reported by the meter for for all time in m3. This is calculated/estimated using your set [calorific value](../setup/account.md#calorific-value) from the kWh data reported by Octopus Energy. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.
 
-!!! info
+!!! warning
 
     Because this is calculated from your set calorific value across the lifetime of your meter, the value will not be 100% accurate due to calorific values changing over time which cannot be captured.
 
@@ -338,7 +349,10 @@ The total consumption reported by the meter for for all time in m3. This is calc
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
-| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
+
+!!! info
+
+    You can use the [Home Mini data_last_retrieved sensor](./diagnostics.md#current-consumption-data-last-retrieved) or [Home Mini data_last_retrieved sensor](./diagnostics.md#current-consumption-home-pro-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
 ### Current Total Consumption (kWh)
 
@@ -354,7 +368,10 @@ The total consumption reported by the meter for for all time in kWh. This is nat
 | `mprn` | `string` | The mprn for the associated meter |
 | `serial_number` | `string` | The serial for the associated meter |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
-| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
+
+!!! info
+
+    You can use the [Home Mini data_last_retrieved sensor](./diagnostics.md#current-consumption-data-last-retrieved) or [Home Mini data_last_retrieved sensor](./diagnostics.md#current-consumption-home-pro-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
 ### Current Accumulative Cost
 

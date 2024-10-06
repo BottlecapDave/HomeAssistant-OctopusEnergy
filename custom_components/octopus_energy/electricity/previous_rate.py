@@ -121,9 +121,6 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
 
       self._last_updated = current
 
-    if rates_result is not None:
-      self._attributes["data_last_retrieved"] = rates_result.last_retrieved
-
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 

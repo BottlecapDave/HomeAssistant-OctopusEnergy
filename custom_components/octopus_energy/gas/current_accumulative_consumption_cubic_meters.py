@@ -111,7 +111,6 @@ class OctopusEnergyCurrentAccumulativeGasConsumptionCubicMeters(MultiCoordinator
         "mprn": self._mprn,
         "serial_number": self._serial_number,
         "is_estimated": True,
-        "data_last_retrieved": consumption_result.last_retrieved if consumption_result is not None else None,
         "charges": list(map(lambda charge: {
           "start": charge["start"],
           "end": charge["end"],

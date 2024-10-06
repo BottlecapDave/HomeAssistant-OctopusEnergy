@@ -36,7 +36,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
   platform.async_register_entity_service(
     "join_octoplus_saving_session_event",
     vol.All(
-      vol.Schema(
+      cv.make_entity_service_schema(
         {
           vol.Required("event_code"): str,
         },

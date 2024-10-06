@@ -89,7 +89,6 @@ class OctopusEnergyGreennessForecastHighlighted(CoordinatorEntity, BinarySensorE
         "current": None,
         "next_start": None,
         "next_end": None,
-        "data_last_retrieved": result.last_retrieved
       }
 
       current_and_next = get_current_and_next_forecast(current, forecast, True)

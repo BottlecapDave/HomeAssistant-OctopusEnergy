@@ -21,7 +21,7 @@ from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, OctopusEnergyIntelligentSensor):
+class OctopusEnergyIntelligentChargeTarget(CoordinatorEntity, RestoreNumber, OctopusEnergyIntelligentSensor):
   """Sensor for setting the target percentage for car charging."""
 
   def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, device, account_id: str):
@@ -45,12 +45,12 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_{self._account_id}_intelligent_charge_limit"
+    return f"octopus_energy_{self._account_id}_intelligent_charge_target"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Intelligent Charge Limit ({self._account_id})"
+    return f"Intelligent Charge Target ({self._account_id})"
 
   @property
   def icon(self):
@@ -83,9 +83,6 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
     if settings_result is None or (self._last_updated is not None and self._last_updated > settings_result.last_retrieved):
       return self._state
     
-    if settings_result is not None:
-      self._attributes["data_last_retrieved"] = settings_result.last_retrieved
-    
     if settings_result.settings is not None:
       self._state = settings_result.settings.charge_limit_weekday
 
@@ -96,6 +93,7 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
     """Set new value."""
     await self._client.async_update_intelligent_car_target_percentage(
       self._account_id,
+      self._device.id,
       int(value)
     )
     self._state = value
@@ -114,4 +112,4 @@ class OctopusEnergyIntelligentChargeLimit(CoordinatorEntity, RestoreNumber, Octo
       if last_state.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN):
         self._state = last_number_data.native_value
           
-    _LOGGER.debug(f'Restored OctopusEnergyIntelligentChargeLimit state: {self._state}')
+    _LOGGER.debug(f'Restored OctopusEnergyIntelligentChargeTarget state: {self._state}')

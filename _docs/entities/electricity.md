@@ -173,7 +173,7 @@ If you are wishing to use these sensors with the Energy Dashboard, then you can 
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption`
 
-The total consumption reported by the meter for the previous day.
+The total consumption reported by the meter (not other devices e.g. Home Mini) for the previous available full day. If for example data is available up to `01:00` of `2024-09-02`, then this sensor will report the cost between `2024-09-01T00:00:00Z` and `2024-09-02T00:00:00Z`.
 
 !!! info
 
@@ -183,9 +183,7 @@ The total consumption reported by the meter for the previous day.
 
     This data won't necessarily be available at the stroke of midnight. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. 
     
-    Because this sensor only looks at the previous day, if the data takes longer than 24 hours to populate then the sensor will not update. This can be determined by looking at the `data_last_retrieved` attribute which indicates when the data was last retrieved. For example, if the current day is 02/01/2024, it will look at data for 01/01/2024. If the data for 01/01/2024 doesn't populate until 03/01/2024 then the sensor will not update.
-
-    If your data is always behind, you can adjust the number of days that the sensor looks back by [updating integrations config](../setup/account.md#previous-consumption-days-offset).
+    Because this sensor only looks at the last complete day, if the data takes longer than 24 hours to populate then the sensor will not update straight away. You can look at the [data_last_retrieved sensor](./diagnostics.md#previous-consumption-and-rates-data-last-retrieved) which indicates when the data was last retrieved.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -195,8 +193,6 @@ The total consumption reported by the meter for the previous day.
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
 | `total` | `float` | The total energy value for the previous day. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
-| `latest_available_data_timestamp` | `datetime` | The date/time of the latest available consumption data via the API. This is only for data reported directly by the meter and won't include data reported by other devices (e.g. Octopus Home Mini) |
-| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
 Each charge item has the following attributes
 
@@ -206,6 +202,10 @@ Each charge item has the following attributes
 | `end` | `datetime` | The date/time when the consumption ends |
 | `consumption` | `float` | The consumption value of the specified period |
 
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#previous-consumption-and-rates-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+
 #### Variants
 
 The following variants of the [Previous Accumulative Consumption](#previous-accumulative-consumption) are available.
@@ -214,7 +214,7 @@ The following variants of the [Previous Accumulative Consumption](#previous-accu
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_off_peak`
 
-The total consumption reported by the meter for the previous day during off peak hours (the lowest available rate).
+The total consumption reported by the meter for the previous available full day during off peak hours (the lowest available rate).
 
 !!! note
     This is only available when on a tariff with 2 or 3 unique rates during a given day. 
@@ -229,7 +229,7 @@ The total consumption reported by the meter for the previous day during off peak
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_standard`
 
-The total consumption reported by the meter for the previous day during standard hours (the middle rate).
+The total consumption reported by the meter for the previous available full day during standard hours (the middle rate).
 
 !!! note
     This is only available when on a tariff with 2 or 3 unique rates during a given day. 
@@ -244,7 +244,7 @@ The total consumption reported by the meter for the previous day during standard
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_peak`
 
-The total consumption reported by the meter for the previous day during peak hours (the highest available rate).
+The total consumption reported by the meter for the previous available full day during peak hours (the highest available rate).
 
 !!! note
     This is only available when on a tariff with 2 or 3 unique rates during a given day. 
@@ -259,7 +259,7 @@ The total consumption reported by the meter for the previous day during peak hou
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost`
 
-The total cost for the previous day, including the standing charge.
+The total cost for the previous available full day, including the standing charge. If for example data is available up to `01:00` of `2024-09-02`, then this sensor will report the cost between `2024-09-01T00:00:00Z` and `2024-09-02T00:00:00Z`.
 
 !!! info
 
@@ -269,9 +269,7 @@ The total cost for the previous day, including the standing charge.
 
     This data won't necessarily be available at the stroke of midnight. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. 
     
-    Because this sensor only looks at the previous day, if the data takes longer than 24 hours to populate then the sensor will not update. This can be determined by looking at the `data_last_retrieved` attribute which indicates when the data was last retrieved. For example, if the current day is 02/01/2024, it will look at data for 01/01/2024. If the data for 01/01/2024 doesn't populate until 03/01/2024 then the sensor will not update.
-
-    If your data is always behind, you can adjust the number of days that the sensor looks back by [updating integrations config](../setup/account.md#previous-consumption-days-offset).
+    Because this sensor only looks at the last complete day, if the data takes longer than 24 hours to populate then the sensor will not update straight away. You can look at the [data_last_retrieved sensor](./diagnostics.md#previous-consumption-and-rates-data-last-retrieved) which indicates when the data was last retrieved.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
@@ -284,7 +282,6 @@ The total cost for the previous day, including the standing charge.
 | `total_without_standing_charge` | `float` | The total cost of the previous day excluding the standing charge. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `total` | `float` | The total cost for the previous day. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `charges` | `array` | Collection of consumption periods and costs for the previous day broken down into 30 minute periods. |
-| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
 
 Each charge item has the following attributes
 
@@ -296,6 +293,10 @@ Each charge item has the following attributes
 | `consumption` | `float` | The consumption value of the specified period |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
 
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#previous-consumption-and-rates-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+
 #### Variants
 
 The following variants of the [Previous Accumulative Cost](#previous-accumulative-cost) are available.
@@ -304,7 +305,7 @@ The following variants of the [Previous Accumulative Cost](#previous-accumulativ
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_off_peak`
 
-The total cost reported by the meter for the previous day during off peak hours (the lowest available rate).
+The total cost reported by the meter for the previous available full day during off peak hours (the lowest available rate).
 
 !!! note
     This is only available when on a tariff with 2 or 3 unique rates during a given day. 
@@ -319,7 +320,7 @@ The total cost reported by the meter for the previous day during off peak hours 
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_standard`
 
-The total cost reported by the meter for the previous day during standard hours (the middle rate).
+The total cost reported by the meter for the previous available full day during standard hours (the middle rate).
 
 !!! note
     This is only available when on a tariff with 2 or 3 unique rates during a given day. 
@@ -334,7 +335,7 @@ The total cost reported by the meter for the previous day during standard hours 
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_peak`
 
-The total cost reported by the meter for the previous day during peak hours (the highest available rate).
+The total cost reported by the meter for the previous available full day during peak hours (the highest available rate).
 
 !!! note
     This is only available when on a tariff with 2 or 3 unique rates during a given day. 
@@ -349,7 +350,7 @@ The total cost reported by the meter for the previous day during peak hours (the
 
 `event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_consumption_rates`
 
-The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous day's rates, but could differ if the default offset is changed. The attributes of this sensor exposes the previous consumption's rates. 
+The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous available full day's rates, but could differ depending on available data. The attributes of this sensor exposes the previous consumption's rates. 
 
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
@@ -393,9 +394,9 @@ It has been noticed that daily consumption reported in Home Assistant can differ
 
 If current consumption data is unable to be retrieved, then the integration will attempt to retrieve missing data. This will be done for the current day only. This is due to it sharing the same data for the accumulation sensors and will not be changed. 
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers |
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#current-consumption-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
 ### Current Demand
 
@@ -406,9 +407,9 @@ If current consumption data is unable to be retrieved, then the integration will
 
 The current demand reported by the Home Mini/Pro. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `data_last_retrieved` | `datetime` | The timestamp when the underlying data was last refreshed from the OE servers or Home Pro device |
+!!! info
+
+    You can use the [Home Mini data_last_retrieved sensor](./diagnostics.md#current-consumption-data-last-retrieved) or [Home Pro data_last_retrieved sensor](./diagnostics.md#current-consumption-home-pro-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
 ### Current Accumulative Consumption
 
@@ -558,3 +559,19 @@ The total cost reported by the meter for the current day during peak hours (the 
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
+
+### Current Interval Accumulative Consumption
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_interval_accumulative_consumption`
+
+!!! warning
+    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+This will indicate the total accumulative consumption for the current 30 minute period (e.g. if it's 12:15 then this will represent 12:00 - 12:30). You can use this to compare the data with the [saving session baseline](./octoplus.md#saving-session-baseline) sensor to see how on track you are during a saving session.
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#current-consumption-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.

@@ -7,6 +7,7 @@ nav:
   - Setup:
     - ./setup/account.md
     - ./setup/target_rate.md
+    - ./setup/rolling_target_rate.md
     - ./setup/cost_tracker.md
     - ./setup/tariff_comparison.md
     - ./setup/energy_dashboard.md
@@ -18,6 +19,7 @@ nav:
     - Wheel Of Fortune: ./entities/wheel_of_fortune.md
     - Greenness Forecast: ./entities/greenness_forecast.md
     - Home Pro: ./entities/home_pro.md
+    - Diagnostics: ./entities/diagnostics.md
   - services.md
   - events.md
   - Repairs:

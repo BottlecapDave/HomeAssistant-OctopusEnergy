@@ -1,6 +1,7 @@
 {
     "services": {
         "update_target_config": "mdi:invoice-edit",
+        "update_rolling_target_config": "mdi:invoice-edit",
         "purge_invalid_external_statistic_ids": "mdi:delete",
         "refresh_previous_consumption_data": "mdi:refresh",
         "join_octoplus_saving_session_event": "mdi:leaf",

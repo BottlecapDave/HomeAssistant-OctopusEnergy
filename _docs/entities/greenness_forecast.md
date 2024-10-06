@@ -24,7 +24,6 @@ The greenness index for the current period.
 | `next_start` | `datetime` | The time the next forecast period starts |
 | `next_end` | `datetime` | The time the next forecast period ends |
 | `forecast` | `array` | The entire upcoming forecast |
-| `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
 
 For each forecast item, the following attributes are provided
 
@@ -35,6 +34,10 @@ For each forecast item, the following attributes are provided
 | `greenness_index` | `int` | The index for the current forecast |
 | `greenness_score` | `string` | The score associated by Octopus Energy for the current forecast |
 | `is_highlighted` | `bool` | Determines if the current forecast has been highlighted by Octopus Energy |
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#greenness-forecast-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
 ## Next Index
 
@@ -52,7 +55,10 @@ The greenness index for the next period.
 | `greenness_index` | `int` | The index for the next forecast |
 | `greenness_score` | `string` | The score associated by Octopus Energy for the next forecast |
 | `is_highlighted` | `bool` | Determines if the next forecast has been highlighted by Octopus Energy |
-| `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#greenness-forecast-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
 ## Highlighted
 
@@ -68,7 +74,6 @@ Determines if the current greenness forecast has been highlighted by OE as the g
 | `current` | `object` | The details of the currently highlighted forecast |
 | `next_start` | `datetime` | The time the next highlighted forecast period starts |
 | `next_end` | `datetime` | The time the next highlighted forecast period ends |
-| `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
 
 For `current`, the following attributes are provided
 
@@ -79,3 +84,7 @@ For `current`, the following attributes are provided
 | `greenness_index` | `int` | The index for the current forecast |
 | `greenness_score` | `string` | The score associated by Octopus Energy for the current forecast |
 | `is_highlighted` | `bool` | Determines if the current forecast has been highlighted by Octopus Energy |
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#greenness-forecast-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.

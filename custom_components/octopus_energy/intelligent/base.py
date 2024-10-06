@@ -15,10 +15,10 @@ class OctopusEnergyIntelligentSensor:
     self._device = device
     self._attr_device_info = DeviceInfo(
       identifiers={
-        (DOMAIN, self._device.krakenflexDeviceId if self._device.krakenflexDeviceId is not None else "charger-1")
+        (DOMAIN, self._device.id if self._device.id is not None else "charger-1")
       },
-      name="Charger",
+      name="Charger" if self._device.is_charger else "Vehicle",
       connections=set(),
-      manufacturer=self._device.chargePointMake,
-      model=self._device.chargePointModel
+      manufacturer=self._device.make,
+      model=self._device.model
     )
