@@ -27,14 +27,16 @@ async function createGithubRelease(githubToken: string, githubOwnerRepo: string,
     throw new Error('Notes not specified');
   }
 
-  console.log(`Publishing ${tag} release to ${githubOwnerRepo}`);
+  const isPrerelease = tag.includes('-beta.')
+
+  console.log(`Publishing ${tag} ${isPrerelease ? 'pre-release': 'release'} to ${githubOwnerRepo}`);
 
   const body = JSON.stringify({
     tag_name: tag,
     name: tag,
     body: notes,
     draft: false,
-    prerelease:false
+    prerelease: isPrerelease
   });
 
   const response = await fetch(

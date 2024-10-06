@@ -2,7 +2,7 @@ import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 
 DOMAIN = "octopus_energy"
-INTEGRATION_VERSION = "12.2.1"
+INTEGRATION_VERSION = "13.0.0-beta.2"
 
 REFRESH_RATE_IN_MINUTES_ACCOUNT = 60
 REFRESH_RATE_IN_MINUTES_INTELLIGENT = 5
@@ -156,10 +156,10 @@ REGEX_OFFSET_PARTS = "^(-)?([0-1]?[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$"
 REGEX_DATE = "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
 REGEX_PRICE = "^(-)?[0-9]+(\\.[0-9]+)*$"
 
-REGEX_WEIGHTING_NUMBERS = "([0-9](,[0-9]+)*)"
-REGEX_WEIGHTING_START = "(\\*(,[0-9]+)+)"
-REGEX_WEIGHTING_MIDDLE = "([0-9](,[0-9]+)*(,\\*)(,[0-9]+)+)"
-REGEX_WEIGHTING_END = "([0-9](,[0-9]+)*(,\\*))"
+REGEX_WEIGHTING_NUMBERS = "([0-9]+\\.?[0-9]*(,[0-9]+\\.?[0-9]*+)*)"
+REGEX_WEIGHTING_START = "(\\*(,[0-9]+\\.?[0-9]*+)+)"
+REGEX_WEIGHTING_MIDDLE = "([0-9]+\\.?[0-9]*(,[0-9]+\\.?[0-9]*+)*(,\\*)(,[0-9]+\\.?[0-9]*+)+)"
+REGEX_WEIGHTING_END = "([0-9]+\\.?[0-9]*(,[0-9]+\\.?[0-9]*+)*(,\\*))"
 REGEX_WEIGHTING = f"^({REGEX_WEIGHTING_NUMBERS}|{REGEX_WEIGHTING_START}|{REGEX_WEIGHTING_MIDDLE}|{REGEX_WEIGHTING_END})$"
 
 DEFAULT_CALORIFIC_VALUE = 40.0

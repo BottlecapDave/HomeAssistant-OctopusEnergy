@@ -72,7 +72,7 @@ jobs:
           ACCOUNT_ID: ${{ secrets.OCTOPUS_ENERGY_ACCOUNT_ID }}
   release:
     name: Release
-    if: ${{ github.repository_owner == 'BottlecapDave' && github.ref == 'refs/heads/main' }}
+    if: ${{ github.repository_owner == 'BottlecapDave' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta') }}
     needs: 
     - validate
     - unit_tests
@@ -92,10 +92,20 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npm run release
       - name: Merge main into develop
+        if: ${{ github.repository_owner == 'BottlecapDave' && github.ref == 'refs/heads/main' }}
         uses: devmasx/merge-branch@master
         with:
           type: now
           message: "chore: Merged main into develop"
           from_branch: main
           target_branch: develop
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Merge main into beta
+        if: ${{ github.repository_owner == 'BottlecapDave' && github.ref == 'refs/heads/beta' }}
+        uses: devmasx/merge-branch@master
+        with:
+          type: now
+          message: "chore: Merged main into beta"
+          from_branch: main
+          target_branch: beta
           github_token: ${{ secrets.GITHUB_TOKEN }}

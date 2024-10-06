@@ -139,7 +139,7 @@ def calculate_continuous_times(
       continue
 
     continuous_rates = [rate]
-    continuous_rates_total = Decimal(rate["value_inc_vat"] * (weighting[0] if weighting is not None and len(weighting) > 0 else 1))
+    continuous_rates_total = Decimal(rate["value_inc_vat"]) * (weighting[0] if weighting is not None and len(weighting) > 0 else 1)
     
     for offset in range(1, total_required_rates if hours_mode != CONFIG_TARGET_HOURS_MODE_MINIMUM else applicable_rates_count):
       if (index + offset) < applicable_rates_count:
@@ -152,7 +152,7 @@ def calculate_continuous_times(
           break
 
         continuous_rates.append(offset_rate)
-        continuous_rates_total += Decimal(offset_rate["value_inc_vat"] * (weighting[offset] if weighting is not None else 1))
+        continuous_rates_total += Decimal(offset_rate["value_inc_vat"]) * (weighting[offset] if weighting is not None else 1)
       else:
         break
 
@@ -357,11 +357,11 @@ def create_weighting(config: str, number_of_slots: int):
       # +1 to account for the current part
       target_number_of_slots = number_of_slots - parts_length + 1
       for index in range(target_number_of_slots):
-          weighting.append(1)
+          weighting.append(Decimal(1))
 
       continue
 
-    weighting.append(int(parts[index]))
+    weighting.append(Decimal(parts[index]))
 
   return weighting
 

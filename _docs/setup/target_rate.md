@@ -88,15 +88,15 @@ For instance if the cheapest period is between `2023-01-01T00:30` and `2023-01-0
 
 You may want your target rate sensors to turn on a period of time before the optimum discovered period. For example, you may be turning on a robot vacuum cleaner for a 30 minute clean and want it to charge during the optimum period. For this, you'd use the `offset` field and set it to `-00:30:00`, which can be both positive and negative and go up to a maximum of 24 hours. This will shift when the sensor turns on relative to the optimum period. For example, if the optimum period is between `2023-01-18T10:00` and `2023-01-18T11:00` with an offset of `-00:30:00`, the sensor will turn on between `2023-01-18T09:30` and `2023-01-18T10:30`.
 
-### Rolling Target
+### Re-evaluate within time frame
 
 Depending on how you're going to use the sensor, you might want the best period to be found throughout the day so it's always available. For example, you might be using the sensor to turn on a washing machine which you might want to come on at the best time regardless of when you use the washing machine. You can activate this behaviour by setting the `Re-evaluate multiple times a day` checkbox.
 
 !!! warning
 
-    Using this can result in the sensor coming on more than the target hours, and therefore should be used in conjunction with other sensors. 
+    Using this can result in the sensor coming on more than the target hours, and therefore should be used in conjunction with other sensors. Depending on how long your target timeframe is, upon each re-evaluation the picked times will get steadily worse.
 
-However, you might also only want the target time to occur once a day so once the best time for that day has passed it won't turn on again. For example, you might be using the sensor to turn on something that isn't time critical and could wait till the next day like a charger. This is the default behaviour and is done by not setting the `Re-evaluate multiple times a day` checkbox.
+However, you might also only want the target time to occur once during each timeframe so once the best time for that day has passed it won't turn on again until the next timeframe. For example, you might be using the sensor to turn on something that isn't time critical and could wait till the next timeframe like a charger. This is the default behaviour and is done by not setting the `Re-evaluate multiple times a day` checkbox.
 
 !!! info
 
@@ -135,7 +135,7 @@ There may be times when the device you're wanting the target rate sensor to turn
 * `1,1,2,*` - This applies a weighting of 1 to the first, second and forth slot and a weighting of 2 to the third slot. The `*` can be used as a placeholder for the standard weighting of 1 for all slots after the ones specified.
 * `2,*,2` - This applies a weighting of 2 to the first and forth slot and a weighting of 1 to all slots in between. The `*` can be used as a placeholder for the standard weighting of 1 for all slots in between the specified slots.
 
-Each slot weighting must be a whole number and positive.
+Each slot weighting must be a whole number or decimal number and be positive.
 
 You can also use weightings to ignore slots. This can be done by assigning a value of 0 for the desired slot.
 

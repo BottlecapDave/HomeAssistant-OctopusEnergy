@@ -105,14 +105,11 @@ async def async_get_missing_consumption(
                                                                consumption_date.start,
                                                                consumption_date.end))
     consumption_data_responses = await asyncio.gather(*requests)
-    consumption_data = [
-      x
-      for xs in consumption_data_responses
-      for x in xs
-    ]
+    for response in consumption_data_responses:
+      for response_consumption in response:
+        if contains_consumption(consumptions, response_consumption) == False:
+          consumptions.append(response_consumption)
 
-    consumptions.extend(consumption_data)
-    _LOGGER.debug(f"rates: {len(consumptions)}")
     return consumptions
   except Exception as e:
     if isinstance(e, ApiException) == False:
@@ -157,7 +154,7 @@ async def async_enhance_with_historic_consumption(
   previous_weekend_earliest_start = historic_weekend_consumptions[0]["start"] if historic_weekend_consumptions is not None and len(historic_weekend_consumptions) > 0 else None
   previous_weekend_latest_end = historic_weekend_consumptions[-1]["end"] if historic_weekend_consumptions is not None and len(historic_weekend_consumptions) > 0 else None
 
-  # Add our new consumptions if they don't already exist
+  # Add our new consumptions if they don't already exist and we have a full day of data
   for consumption in data.consumption:
     local_start: datetime = as_local(consumption["start"])
     is_weekend = local_start.weekday() == 5 or local_start.weekday() == 6
