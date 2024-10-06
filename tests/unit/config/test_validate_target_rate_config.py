@@ -580,6 +580,7 @@ async def test_when_config_is_valid_and_agile_then_no_errors_returned(start_time
   ("*", "invalid_weighting"),
   ("*,*", "invalid_weighting"),
   ("1,*,1,*", "invalid_weighting"),
+  ("a,*", "invalid_weighting"),
   ("1,2", "invalid_weighting_slots"),
   ("1,2,3,4", "invalid_weighting_slots"),
 ])

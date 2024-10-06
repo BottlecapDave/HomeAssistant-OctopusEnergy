@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from decimal import Decimal
 from custom_components.octopus_energy.const import CONFIG_TARGET_HOURS_MODE_MAXIMUM, CONFIG_TARGET_HOURS_MODE_MINIMUM
 import pytest
 
@@ -613,11 +614,18 @@ async def test_when_max_rate_is_provided_then_result_does_not_include_any_rate_a
   ([1, 2, 1], [19.1, 18.9, 19.1, 15.1, 20], datetime.strptime("2022-10-22T11:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.191, 0.151, 0.20]),
   ([1, 2, 2], [19.1, 18.9, 19.1, 15.1, 20], datetime.strptime("2022-10-22T10:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.189, 0.191, 0.151]),
   ([1, 0, 0], [19.1, 18.9, 19.1, 15.1, 20], datetime.strptime("2022-10-22T11:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.151, 0.20, 0.191]),
+  
+  ([Decimal('1.1'), Decimal('2.2'), Decimal('1.1')], [19.1, 18.9, 19.1, 15.1, 20], datetime.strptime("2022-10-22T11:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.191, 0.151, 0.20]),
+  ([Decimal('1.1'), Decimal('2.2'), Decimal('2.2')], [19.1, 18.9, 19.1, 15.1, 20], datetime.strptime("2022-10-22T10:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.189, 0.191, 0.151]),
+  ([Decimal('1.1'), Decimal('0.0'), Decimal('0.0')], [19.1, 18.9, 19.1, 15.1, 20], datetime.strptime("2022-10-22T11:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.151, 0.20, 0.191]),
 
   # Examples defined in https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/807
   (None, [14, 14, 10, 7, 15, 21], datetime.strptime("2022-10-22T09:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.14, 0.1, 0.07]),
   ([1, 1, 2], [14, 14, 10, 7, 15, 21], datetime.strptime("2022-10-22T09:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.14, 0.1, 0.07]),
   ([5, 1, 1], [14, 14, 10, 7, 15, 21], datetime.strptime("2022-10-22T10:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.07, 0.15, 0.21]),
+
+  ([Decimal('1.1'), Decimal('1.1'), Decimal('2.2')], [14, 14, 10, 7, 15, 21], datetime.strptime("2022-10-22T09:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.14, 0.1, 0.07]),
+  ([Decimal('5.5'), Decimal('1.1'), Decimal('1.1')], [14, 14, 10, 7, 15, 21], datetime.strptime("2022-10-22T10:30:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), [0.07, 0.15, 0.21]),
 ])
 async def test_when_weighting_specified_then_result_is_adjusted(weighting: list, possible_rates: list, expected_first_valid_from: datetime, expected_rates: list):
   # Arrange
