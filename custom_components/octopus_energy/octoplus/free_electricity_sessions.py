@@ -45,8 +45,7 @@ class OctopusEnergyFreeElectricitySessions(CoordinatorEntity, BinarySensorEntity
       "current_joined_event_duration_in_minutes": None,
       "next_joined_event_start": None,
       "next_joined_event_end": None,
-      "next_joined_event_duration_in_minutes": None,
-      "data_last_retrieved": None,
+      "next_joined_event_duration_in_minutes": None
     }
 
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
@@ -84,14 +83,12 @@ class OctopusEnergyFreeElectricitySessions(CoordinatorEntity, BinarySensorEntity
       "current_joined_event_duration_in_minutes": None,
       "next_joined_event_start": None,
       "next_joined_event_end": None,
-      "next_joined_event_duration_in_minutes": None,
-      "data_last_retrieved": None
+      "next_joined_event_duration_in_minutes": None
     }
 
     free_electricity_session: FreeElectricitySessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
     if (free_electricity_session is not None):
       self._events = free_electricity_session.events
-      self._attributes["data_last_retrieved"] = free_electricity_session.last_retrieved
     else:
       self._events = []
 
