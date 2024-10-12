@@ -117,7 +117,6 @@ def calculate_continuous_times(
   if (applicable_rates is None or target_hours <= 0):
     return []
   
-  applicable_rates.sort(key=__get_valid_to, reverse=find_last_rates)
   applicable_rates_count = len(applicable_rates)
   total_required_rates = math.ceil(target_hours * 2)
 
@@ -158,18 +157,23 @@ def calculate_continuous_times(
 
     current_continuous_rates_length = len(continuous_rates)
     best_continuous_rates_length = len(best_continuous_rates) if best_continuous_rates is not None else 0
+
+    is_best_continuous_rates = False
+    if best_continuous_rates is not None:
+      if search_for_highest_rate:
+        is_best_continuous_rates = (continuous_rates_total >= best_continuous_rates_total if find_last_rates else continuous_rates_total > best_continuous_rates_total)
+      else:
+        is_best_continuous_rates = (continuous_rates_total <= best_continuous_rates_total if find_last_rates else continuous_rates_total < best_continuous_rates_total)
+
+    has_required_hours = False
+    if hours_mode == CONFIG_TARGET_HOURS_MODE_EXACT:
+      has_required_hours = current_continuous_rates_length == total_required_rates
+    elif hours_mode == CONFIG_TARGET_HOURS_MODE_MINIMUM:
+      has_required_hours = current_continuous_rates_length >= total_required_rates and current_continuous_rates_length >= best_continuous_rates_length
+    elif hours_mode == CONFIG_TARGET_HOURS_MODE_MAXIMUM:
+      has_required_hours = current_continuous_rates_length <= total_required_rates and current_continuous_rates_length >= best_continuous_rates_length
     
-    if ((best_continuous_rates is None or 
-         (search_for_highest_rate == False and continuous_rates_total < best_continuous_rates_total) or
-         (search_for_highest_rate and continuous_rates_total > best_continuous_rates_total)
-        )
-        and
-        (
-          (hours_mode == CONFIG_TARGET_HOURS_MODE_EXACT and current_continuous_rates_length == total_required_rates) or
-          (hours_mode == CONFIG_TARGET_HOURS_MODE_MINIMUM and current_continuous_rates_length >= total_required_rates and current_continuous_rates_length >= best_continuous_rates_length) or
-          (hours_mode == CONFIG_TARGET_HOURS_MODE_MAXIMUM and current_continuous_rates_length <= total_required_rates and current_continuous_rates_length >= best_continuous_rates_length)
-        )
-      ):
+    if ((best_continuous_rates is None or is_best_continuous_rates) and has_required_hours):
       best_continuous_rates = continuous_rates
       best_continuous_rates_total = continuous_rates_total
       _LOGGER.debug(f'New best block discovered {continuous_rates_total} ({continuous_rates[0]["start"] if len(continuous_rates) > 0 else None} - {continuous_rates[-1]["end"] if len(continuous_rates) > 0 else None})')

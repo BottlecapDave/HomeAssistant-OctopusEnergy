@@ -1180,3 +1180,34 @@ def test_when_multiple_blocks_have_same_value_then_earliest_is_picked():
     assert rate["start"] == current_start
     current_start = current_start + timedelta(minutes=30)
     assert rate["end"] == current_start
+
+
+def test_when_weighting_present_with_find_latest_rate_then_latest_time_is_picked():
+  applicable_rates = create_rate_data(datetime.strptime("2024-10-10T20:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+                                      datetime.strptime("2024-10-10T23:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+                                      [0.267159])
+  applicable_rates.extend(create_rate_data(datetime.strptime("2024-10-10T23:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+                                           datetime.strptime("2024-10-11T05:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+                                           [0.070003]))
+  applicable_rates.extend(create_rate_data(datetime.strptime("2024-10-11T05:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+                                           datetime.strptime("2024-10-11T23:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+                                           [0.267159]))
+  
+  applicable_rates.sort(key=lambda x: x["start"])
+  
+  result = calculate_continuous_times(
+    applicable_rates,
+    7.5,
+    False,
+    True,
+    weighting=[2, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+  )
+
+  assert result is not None
+  assert len(result) == 15
+
+  current_start = datetime.strptime("2024-10-10T23:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  for rate in result:
+    assert rate["start"] == current_start
+    current_start = current_start + timedelta(minutes=30)
+    assert rate["end"] == current_start
