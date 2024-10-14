@@ -192,7 +192,7 @@ async def test_when_mock_is_true_then_none_returned():
       assert retrieved_dispatches.dispatches.planned[index].start == mocked_data.planned[index].start
 
 @pytest.mark.asyncio
-async def test_when_next_refresh_is_in_the_past_then_existing_settings_returned():
+async def test_when_next_refresh_is_in_the_future_then_existing_dispatches_returned():
   current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
   expected_dispatches = IntelligentDispatches([], [])
   mock_api_called = False
@@ -206,7 +206,7 @@ async def test_when_next_refresh_is_in_the_past_then_existing_settings_returned(
     return completed_dispatches
   
   account_info = get_account_info()
-  existing_settings = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=4, seconds=59), 1, mock_intelligent_dispatches())
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=(REFRESH_RATE_IN_MINUTES_INTELLIGENT - 1), seconds=59), 1, mock_intelligent_dispatches())
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -215,14 +215,13 @@ async def test_when_next_refresh_is_in_the_past_then_existing_settings_returned(
       client,
       account_info,
       intelligent_device,
-      existing_settings,
+      existing_dispatches,
       False,
       async_merge_dispatch_data
     )
 
-    assert retrieved_dispatches == existing_settings
     assert mock_api_called == False
-
+    assert retrieved_dispatches == existing_dispatches
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("existing_settings",[
