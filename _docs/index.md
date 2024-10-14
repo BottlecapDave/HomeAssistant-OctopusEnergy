@@ -96,11 +96,11 @@ To support Octopus Energy's [greener days](https://octopus.energy/smart/greener-
 
 ## Target Rate Sensors
 
-These sensors calculate the lowest continuous or intermittent rates **within a 24 hour period** and turn on when these periods are active. If you are targeting an export meter, then the sensors will calculate the highest continuous or intermittent rates **within a 24 hour period** and turn on when these periods are active.
+These sensors calculate the lowest continuous or intermittent rates **within a 24 hour period** or on a rolling basis and turn on when these periods are active. If you are targeting an export meter, then the sensors will calculate the highest continuous or intermittent rates **within a 24 hour period** or on a rolling basis and turn on when these periods are active.
 
 These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money. You can go through this flow as many times as you need target rate sensors.
 
-Please follow the [setup guide](./setup/target_rate.md).
+Please follow the setup guides for either [standard target rate](./setup/target_rate.md) or [rolling target rate](./setup/rolling_target_rate.md) sensors.
 
 ## Cost Tracker Sensors
 

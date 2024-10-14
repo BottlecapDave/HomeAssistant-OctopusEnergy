@@ -1,0 +1,71 @@
+blueprint:
+  name: Octopus Energy - Saving Session Baseline Approaching Alert
+  description: Automatically get an alert if current interval consumption is within certain percentage of the current saving session baseline
+  domain: automation
+  author: BottlecapDave
+  input:
+    interval_consumption_entity:
+      name: Interval consumption entity
+      description: The entity which reports the consumption for the current interval (e.g sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_interval_accumulative_consumption)
+      selector:
+        entity:
+          filter:
+          - domain:
+            - sensor
+            integration: octopus_energy
+    baseline_entity:
+      name: Baseline entity
+      description: The entity which reports the current target baseline (e.g sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_octoplus_saving_session_baseline)
+      selector:
+        entity:
+          filter:
+          - domain:
+            - sensor
+            integration: octopus_energy
+    percentage_threshold:
+      name: Percentage Threshold
+      description: The minimum percentage of the baseline that is reached for the automation to be triggered
+      default: 90
+      selector:
+        number:
+          min: 0
+          max: 100
+          mode: slider
+          step: 1.0
+    actions:
+      name: Actions
+      description: Notifications or similar to be run. {{message}} is an example message
+      selector:
+        action: {}
+trigger_variables:
+  interval_consumption_entity: !input interval_consumption_entity
+  baseline_entity: !input baseline_entity
+  percentage_threshold: !input percentage_threshold
+variables:
+  current_percentage: >
+    {% set interval = states(interval_consumption_entity) | float(0) %}
+    {% set baseline = states(baseline_entity) | float(0) %}
+    {% if interval and baseline %}
+      {% set percentage = (interval / baseline * 100) %}
+      {{ percentage }}
+    {% else %}
+      0
+    {% endif %}
+  message: 'You have reached {{ current_percentage | round(2) }}% of your current baseline ({{ states(baseline_entity) | round(2) }} kWh).'
+mode: queued
+max: 4
+trigger:
+- platform: template
+  value_template: >
+    {% set interval = states(interval_consumption_entity) | float(0) %}
+    {% set baseline = states(baseline_entity) | float(0) %}
+    {% if interval and baseline %}
+      {% set current_percentage = (interval / baseline * 100) %}
+    {% else %}
+      {% set current_percentage = 0 %}
+    {% endif %}
+    {{ current_percentage >= percentage_threshold }}
+condition: []
+action:
+- choose: []
+  default: !input actions

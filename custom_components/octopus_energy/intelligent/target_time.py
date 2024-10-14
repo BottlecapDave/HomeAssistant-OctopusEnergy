@@ -23,7 +23,7 @@ from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
+class OctopusEnergyIntelligentTargetTime(CoordinatorEntity, TimeEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
   """Sensor for setting the target time to charge the car to the desired percentage."""
 
   def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, device, account_id: str):
@@ -42,12 +42,12 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_{self._account_id}_intelligent_ready_time"
+    return f"octopus_energy_{self._account_id}_intelligent_target_time"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Intelligent Ready Time ({self._account_id})"
+    return f"Intelligent Target Time ({self._account_id})"
 
   @property
   def icon(self):
@@ -69,9 +69,6 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
     settings_result: IntelligentCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     if settings_result is None or (self._last_updated is not None and self._last_updated > settings_result.last_retrieved):
       return self._state
-    
-    if settings_result is not None:
-      self._attributes["data_last_retrieved"] = settings_result.last_retrieved
 
     if settings_result.settings is not None:
       self._state = settings_result.settings.ready_time_weekday
@@ -83,6 +80,7 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
     """Set new value."""
     await self._client.async_update_intelligent_car_target_time(
       self._account_id,
+      self._device.id,
       value,
     )
     self._state = value
@@ -105,4 +103,4 @@ class OctopusEnergyIntelligentReadyTime(CoordinatorEntity, TimeEntity, OctopusEn
     if (self._state is None):
       self._state = False
     
-    _LOGGER.debug(f'Restored OctopusEnergyIntelligentReadyTime state: {self._state}')
+    _LOGGER.debug(f'Restored OctopusEnergyIntelligentTargetTime state: {self._state}')

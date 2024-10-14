@@ -86,6 +86,70 @@ action:
       entity_id: binary_sensor.octopus_energy_target_example
 ```
 
+## octopus_energy.update_rolling_target_config
+
+For updating a given [rolling target rate's](./setup/rolling_target_rate.md) config. This allows you to change rolling target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
+
+!!! info
+
+    This is temporary and will not persist between restarts.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated.                                                   |
+| `data.target_hours`      | `yes`    | The optional number of hours the target rate sensor should come on during a 24 hour period. Must be divisible by 0.5. |
+| `data.target_look_ahead_hours` | `yes`    | The optional number of hours worth of rates the sensor should look at for the evaluation period.                               |
+| `data.target_offset`     | `yes`    | The optional offset to apply to the target rate when it starts. Must be in the format `(+/-)HH:MM:SS`.                |
+| `data.target_minimum_rate`     | `yes`    | The optional minimum rate the selected rates should not go below. |
+| `data.target_maximum_rate`     | `yes`    | The optional maximum rate the selected rates should not go above. |
+| `data.target_weighting`     | `yes`    | The optional weighting that should be applied to the selected rates. |
+
+### Automation Example
+
+This can be used via automations in the following way. Assuming we have the following inputs.
+
+```yaml
+input_number:
+  octopus_energy_rolling_target_hours:
+    name: Octopus Energy Rolling Target Hours
+    min: 0
+    max: 24
+  octopus_energy_rolling_target_look_ahead_hours:
+    name: Octopus Energy Rolling Target Look Ahead Hours
+    min: 0
+    max: 24
+
+input_text:
+  octopus_energy_target_offset:
+    name: Octopus Energy Target Offset
+    initial: "-00:00:00"
+```
+
+Then an automation might look like the following
+
+```yaml
+mode: single
+alias: Update target rate config
+trigger:
+  - platform: state
+    entity_id:
+      - input_number.octopus_energy_rolling_target_hours
+      - input_number.octopus_energy_rolling_target_look_ahead_hours
+      - input_text.octopus_energy_target_offset
+condition: []
+action:
+  - service: octopus_energy.update_target_config
+    data:
+      target_hours: >
+        "{{ states('input_number.octopus_energy_target_hours') | string }}"
+      target_look_ahead_hours: >
+        "{{ states('input_number.octopus_energy_rolling_target_look_ahead_hours') | string }}"
+      target_offset: >
+        {{ states('input_text.octopus_energy_target_offset') }}
+    target:
+      entity_id: binary_sensor.octopus_energy_rolling_target_example
+```
+
 ## octopus_energy.join_octoplus_saving_session_event
 
 Service for joining a new saving session event. When used, it may take a couple of minutes for the other sensors to refresh the changes.

@@ -23,7 +23,7 @@ from ..api_client import ApiException, OctopusEnergyApiClient
 from ..api_client.intelligent_settings import IntelligentSettings
 from . import BaseCoordinatorResult
 
-from ..intelligent import async_mock_intelligent_data, has_intelligent_tariff, mock_intelligent_settings
+from ..intelligent import has_intelligent_tariff, mock_intelligent_settings
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,17 +38,18 @@ async def async_refresh_intelligent_settings(
   current: datetime,
   client: OctopusEnergyApiClient,
   account_info,
-  existing_intelligent_settings_result: IntelligentCoordinatorResult,
+  device_id: str,
+  existing_intelligent_settings_result: IntelligentCoordinatorResult | None,
   is_settings_mocked: bool
 ):
   if (account_info is not None):
     account_id = account_info["id"]
     if (existing_intelligent_settings_result is None or current >= existing_intelligent_settings_result.next_refresh):
       settings = None
-      if has_intelligent_tariff(current, account_info):
+      if device_id is not None and has_intelligent_tariff(current, account_info):
         try:
-          settings = await client.async_get_intelligent_settings(account_id)
-          _LOGGER.debug(f'Intelligent settings retrieved for account {account_id}')
+          settings = await client.async_get_intelligent_settings(account_id, device_id)
+          _LOGGER.debug(f'Intelligent settings retrieved for account {account_id} device {device_id}')
         except Exception as e:
           if isinstance(e, ApiException) == False:
             raise
@@ -78,7 +79,7 @@ async def async_refresh_intelligent_settings(
   
   return existing_intelligent_settings_result
   
-async def async_setup_intelligent_settings_coordinator(hass, account_id: str):
+async def async_setup_intelligent_settings_coordinator(hass, account_id: str, device_id: str, mock_intelligent_data: bool):
   # Reset data rates as we might have new information
   hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS] = None
   
@@ -98,8 +99,9 @@ async def async_setup_intelligent_settings_coordinator(hass, account_id: str):
       current,
       client,
       account_info,
+      device_id,
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS] if DATA_INTELLIGENT_SETTINGS in hass.data[DOMAIN][account_id] else None,
-      await async_mock_intelligent_data(hass, account_id)
+      mock_intelligent_data
     )
 
     return hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS]

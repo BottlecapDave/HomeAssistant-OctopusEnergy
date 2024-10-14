@@ -91,8 +91,6 @@ class OctopusEnergyGreennessForecastNextIndex(CoordinatorEntity, RestoreSensor):
         self._attributes = greenness_forecast_to_dictionary(current_and_next.next)
         self._state = current_and_next.next.greenness_score if current_and_next.next is not None else None
 
-      self._attributes["data_last_retrieved"] = result.last_retrieved
-
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 

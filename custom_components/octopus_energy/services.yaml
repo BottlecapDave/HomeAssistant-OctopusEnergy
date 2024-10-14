@@ -52,6 +52,54 @@ update_target_config:
       selector:
         text:
 
+update_rolling_target_config:
+  name: Update rolling target rate config
+  description: Updates a given rolling target rate's config. Please note this is temporary and will not persist between restarts.
+  target:
+    entity:
+      integration: octopus_energy
+      domain: binary_sensor
+  fields:
+    target_hours:
+      name: Hours
+      description: The optional number of hours the target rate sensor should come on during a 24 hour period.
+      example: '1.5'
+      selector:
+        text:
+    target_look_ahead_hours:
+      name: Look ahead hours
+      description: The optional number of hours worth of rates the sensor should look at for the evaluation period.
+      example: '8.5'
+      selector:
+        text:
+    target_offset:
+      name: Offset
+      description:
+        The optional offset to apply to the target rate when it starts
+      selector:
+        text:
+    target_minimum_rate:
+      name: Minimum rate
+      description:
+        The optional minimum rate the selected rates should not go below
+      example: '0.10'
+      selector:
+        text:
+    target_maximum_rate:
+      name: Maximum rate
+      description:
+        The optional maximum rate the selected rates should not go above
+      example: '0.10'
+      selector:
+        text:
+    target_weighting:
+      name: Weighting
+      description:
+        The optional weighting that should be applied to the selected rates
+      example: '1,2,1'
+      selector:
+        text:
+
 purge_invalid_external_statistic_ids:
   name: Purge invalid external statistics
   description: Removes external statistics for all meters that don't have an active tariff
@@ -183,3 +231,7 @@ adjust_cost_tracker:
           step: any
           mode: box
           unit_of_measurement: kWh
+
+diagnose_heatpump_apis:
+  name: Diagnose heatpump APIs
+  description: Diagnose available heatpump APIs

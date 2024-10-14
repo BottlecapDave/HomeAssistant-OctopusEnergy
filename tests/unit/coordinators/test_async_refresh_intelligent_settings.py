@@ -15,6 +15,7 @@ product_code = "INTELLI-VAR-22-10-14"
 tariff_code = "E-1R-INTELLI-VAR-22-10-14-C"
 mpan = "1234567890"
 serial_number = "abcdefgh"
+device_id = "123ABC"
 
 def get_account_info(is_active_agreement = True, active_product_code = product_code, active_tariff_code = tariff_code):
   return {
@@ -69,6 +70,7 @@ async def test_when_account_info_is_none_then_existing_settings_returned():
       current,
       client,
       account_info,
+      device_id,
       existing_settings,
       False
     )
@@ -100,6 +102,40 @@ async def test_when_not_on_intelligent_tariff_then_none_returned():
       current,
       client,
       account_info,
+      device_id,
+      existing_settings,
+      False
+    )
+
+    assert mock_api_called == False
+    assert retrieved_settings is not None
+    assert retrieved_settings.settings is None
+
+@pytest.mark.asyncio
+async def test_when_device_id_is_none_then_none_returned():
+  expected_settings = IntelligentSettings(
+    False,
+    50,
+    60,
+    time(6,30),
+    time(10,10),
+  )
+  mock_api_called = False
+  async def async_mock_get_intelligent_settings(*args, **kwargs):
+    nonlocal mock_api_called
+    mock_api_called = True
+    return expected_settings
+  
+  account_info = get_account_info(True)
+  existing_settings = None
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_settings=async_mock_get_intelligent_settings):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_settings: IntelligentCoordinatorResult = await async_refresh_intelligent_settings(
+      current,
+      client,
+      account_info,
+      None,
       existing_settings,
       False
     )
@@ -125,6 +161,7 @@ async def test_when_mock_is_true_then_none_returned():
       current,
       client,
       account_info,
+      device_id,
       existing_settings,
       True
     )
@@ -162,6 +199,7 @@ async def test_when_next_refresh_is_in_the_past_then_existing_settings_returned(
       current,
       client,
       account_info,
+      device_id,
       existing_settings,
       False
     )
@@ -199,6 +237,7 @@ async def test_when_existing_settings_is_none_then_settings_retrieved(existing_s
       current,
       client,
       account_info,
+      device_id,
       existing_settings,
       False
     )
@@ -233,6 +272,7 @@ async def test_when_existing_settings_is_old_then_settings_retrieved():
       current,
       client,
       account_info,
+      device_id,
       existing_settings,
       False
     )
@@ -266,6 +306,7 @@ async def test_when_settings_not_retrieved_then_existing_settings_returned():
       current,
       client,
       account_info,
+      device_id,
       existing_settings,
       False
     )

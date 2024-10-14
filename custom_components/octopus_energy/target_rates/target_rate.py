@@ -23,6 +23,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers import translation
 
 from ..const import (
+  CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST,
   CONFIG_TARGET_HOURS_MODE,
   CONFIG_TARGET_MAX_RATE,
   CONFIG_TARGET_MIN_RATE,
@@ -54,7 +55,8 @@ from . import (
   compare_config,
   create_weighting,
   get_applicable_rates,
-  get_target_rate_info
+  get_target_rate_info,
+  should_evaluate_target_rates
 )
 
 from ..config.target_rates import validate_target_rate_config
@@ -142,14 +144,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       _LOGGER.debug(f'Updating OctopusEnergyTargetRate {self._config[CONFIG_TARGET_NAME]}')
       self._last_evaluated = current_date
 
-      # If all of our target times have passed, it's time to recalculate the next set
-      all_rates_in_past = True
-      for rate in self._target_rates:
-        if rate["end"] > current_date:
-          all_rates_in_past = False
-          break
-      
-      if all_rates_in_past:
+      should_evaluate = should_evaluate_target_rates(current_date, self._target_rates, CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST)
+      if should_evaluate:
         if self.coordinator is not None and self.coordinator.data is not None and self.coordinator.data.rates is not None:
           all_rates = self.coordinator.data.rates
         else:
@@ -199,38 +195,40 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
             all_rates,
             is_rolling_target
           )
+
+          if applicable_rates is not None:
+            number_of_slots = math.ceil(target_hours * 2)
+            weighting = create_weighting(self._config[CONFIG_TARGET_WEIGHTING] if CONFIG_TARGET_WEIGHTING in self._config else None, number_of_slots)
+
+            if (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_CONTINUOUS):
+              self._target_rates = calculate_continuous_times(
+                applicable_rates,
+                target_hours,
+                find_highest_rates,
+                find_last_rates,
+                min_rate,
+                max_rate,
+                weighting,
+                hours_mode = self._config[CONFIG_TARGET_HOURS_MODE]
+              )
+            elif (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_INTERMITTENT):
+              self._target_rates = calculate_intermittent_times(
+                applicable_rates,
+                target_hours,
+                find_highest_rates,
+                find_last_rates,
+                min_rate,
+                max_rate,
+                hours_mode = self._config[CONFIG_TARGET_HOURS_MODE]
+              )
+            else:
+              _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")
+
+            self._attributes["target_times"] = self._target_rates
+            self._attributes["target_times_last_evaluated"] = current_date
+            _LOGGER.debug(f"calculated rates: {self._target_rates}")
           
-          number_of_slots = math.ceil(target_hours * 2)
-          weighting = create_weighting(self._config[CONFIG_TARGET_WEIGHTING] if CONFIG_TARGET_WEIGHTING in self._config else None, number_of_slots)
-
-          if (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_CONTINUOUS):
-            self._target_rates = calculate_continuous_times(
-              applicable_rates,
-              target_hours,
-              find_highest_rates,
-              find_last_rates,
-              min_rate,
-              max_rate,
-              weighting,
-              hours_mode = self._config[CONFIG_TARGET_HOURS_MODE]
-            )
-          elif (self._config[CONFIG_TARGET_TYPE] == CONFIG_TARGET_TYPE_INTERMITTENT):
-            self._target_rates = calculate_intermittent_times(
-              applicable_rates,
-              target_hours,
-              find_highest_rates,
-              find_last_rates,
-              min_rate,
-              max_rate,
-              hours_mode = self._config[CONFIG_TARGET_HOURS_MODE]
-            )
-          else:
-            _LOGGER.error(f"Unexpected target type: {self._config[CONFIG_TARGET_TYPE]}")
-
           self._attributes["rates_incomplete"] = applicable_rates is None
-          self._attributes["target_times"] = self._target_rates
-          self._attributes["target_times_last_evaluated"] = current_date
-          _LOGGER.debug(f"calculated rates: {self._target_rates}")
 
     active_result = get_target_rate_info(current_date, self._target_rates, offset)
 
@@ -268,6 +266,8 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
         [CONFIG_TARGET_OLD_NAME, CONFIG_TARGET_OLD_HOURS, CONFIG_TARGET_OLD_TYPE, CONFIG_TARGET_OLD_START_TIME, CONFIG_TARGET_OLD_END_TIME, CONFIG_TARGET_OLD_MPAN]
       )
 
+      self._target_rates = self._attributes["target_times"] if "target_times" in self._attributes else None
+
       # Reset everything if our settings have changed
       if compare_config(self._config, self._attributes) == False:
         self._state = False
@@ -277,7 +277,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
       _LOGGER.debug(f'Restored OctopusEnergyTargetRate state: {self._state}')
 
   @callback
-  async def async_update_config(self, target_start_time=None, target_end_time=None, target_hours=None, target_offset=None, target_minimum_rate=None, target_maximum_rate=None, target_weighting=None):
+  async def async_update_target_rate_config(self, target_start_time=None, target_end_time=None, target_hours=None, target_offset=None, target_minimum_rate=None, target_maximum_rate=None, target_weighting=None):
     """Update sensors config"""
 
     config = dict(self._config)

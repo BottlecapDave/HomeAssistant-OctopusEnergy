@@ -13,10 +13,12 @@ from .greenness_forecast.highlighted import OctopusEnergyGreennessForecastHighli
 from .utils import get_active_tariff
 from .intelligent import get_intelligent_features
 from .api_client.intelligent_device import IntelligentDevice
+from .target_rates.rolling_target_rate import OctopusEnergyRollingTargetRate
 
 from .const import (
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
+  CONFIG_KIND_ROLLING_TARGET_RATE,
   CONFIG_KIND_TARGET_RATE,
   CONFIG_ACCOUNT_ID,
   DATA_GREENNESS_FORECAST_COORDINATOR,
@@ -40,31 +42,54 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
   if entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
     await async_setup_main_sensors(hass, entry, async_add_entities)
-  elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
+  elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE or entry.data[CONFIG_KIND] == CONFIG_KIND_ROLLING_TARGET_RATE:
     await async_setup_target_sensors(hass, entry, async_add_entities)
 
     platform = entity_platform.async_get_current_platform()
-    platform.async_register_entity_service(
-      "update_target_config",
-      vol.All(
-        vol.Schema(
-          {
-            vol.Optional("target_hours"): str,
-            vol.Optional("target_start_time"): str,
-            vol.Optional("target_end_time"): str,
-            vol.Optional("target_offset"): str,
-            vol.Optional("target_minimum_rate"): str,
-            vol.Optional("target_maximum_rate"): str,
-            vol.Optional("target_weighting"): str,
-          },
-          extra=vol.ALLOW_EXTRA,
+
+    if entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
+      platform.async_register_entity_service(
+        "update_target_config",
+        vol.All(
+          cv.make_entity_service_schema(
+            {
+              vol.Optional("target_hours"): str,
+              vol.Optional("target_start_time"): str,
+              vol.Optional("target_end_time"): str,
+              vol.Optional("target_offset"): str,
+              vol.Optional("target_minimum_rate"): str,
+              vol.Optional("target_maximum_rate"): str,
+              vol.Optional("target_weighting"): str,
+            },
+            extra=vol.ALLOW_EXTRA,
+          ),
+          cv.has_at_least_one_key(
+            "target_hours", "target_start_time", "target_end_time", "target_offset", "target_minimum_rate", "target_maximum_rate"
+          ),
         ),
-        cv.has_at_least_one_key(
-          "target_hours", "target_start_time", "target_end_time", "target_offset", "target_minimum_rate", "target_maximum_rate"
+        "async_update_target_rate_config",
+      )
+    else:
+      platform.async_register_entity_service(
+        "update_rolling_target_config",
+        vol.All(
+          cv.make_entity_service_schema(
+            {
+              vol.Optional("target_hours"): str,
+              vol.Optional("target_look_ahead_hours"): str,
+              vol.Optional("target_offset"): str,
+              vol.Optional("target_minimum_rate"): str,
+              vol.Optional("target_maximum_rate"): str,
+              vol.Optional("target_weighting"): str,
+            },
+            extra=vol.ALLOW_EXTRA,
+          ),
+          cv.has_at_least_one_key(
+            "target_hours", "target_look_ahead_hours", "target_offset", "target_minimum_rate", "target_maximum_rate"
+          ),
         ),
-      ),
-      "async_update_config",
-    )
+        "async_update_rolling_target_rate_config",
+      )
 
   return True
 
@@ -136,6 +161,12 @@ async def async_setup_target_sensors(hass, entry, async_add_entities):
           is_export = meter["is_export"]
           serial_number = meter["serial_number"]
           coordinator = hass.data[DOMAIN][account_id][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)]
-          entities = [OctopusEnergyTargetRate(hass, account_id, coordinator, config, is_export)]
+          entities = []
+
+          if config[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
+            entities.append(OctopusEnergyTargetRate(hass, account_id, coordinator, config, is_export))
+          else:
+            entities.append(OctopusEnergyRollingTargetRate(hass, account_id, coordinator, config, is_export))
+
           async_add_entities(entities)
           return

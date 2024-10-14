@@ -33,7 +33,6 @@ This sensor is used to determine if you're currently in a planned dispatch perio
 | `provider` | `string` | The provider of the intelligent features |
 | `vehicle_battery_size_in_kwh` | `float` | The size of the target vehicle battery in kWh. |
 | `charge_point_power_in_kw` | `float` | The power of the charge point battery in kW. |
-| `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
 | `current_start` | `datetime` | The date/time when the dispatching or off peak rate started |
 | `current_end` | `datetime` | The date/time when the dispatching or off peak rate ends |
 | `next_start` | `datetime` | The date/time when the next dispatching or off peak rate starts |
@@ -49,6 +48,10 @@ Each item in `planned_dispatch` or `completed_dispatches` have the following att
 | `source` | `string` | Determines what has caused the dispatch to be generated. Will be `smart-charge` or `bump-charge`. |
 | `location` | `string` | The location of the smart charge |
 
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-dispatches-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+
 ### Bump Charge
 
 `switch.octopus_energy_{{ACCOUNT_ID}}_intelligent_bump_charge`
@@ -61,9 +64,9 @@ This sensor is used to turn on/off bump ("on-demand") charging.
 
     * OHME
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-settings-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
 ### Smart Charge
 
@@ -77,15 +80,15 @@ This sensor is used to turn on/off intelligent smart charging.
 
     * OHME
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
+!!! info
 
-### Charge Limit
+    You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-settings-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
-`number.octopus_energy_{{ACCOUNT_ID}}_intelligent_charge_limit`
+### Charge Target
 
-This sensor is used to see and set the charge limit for your future intelligent charges.
+`number.octopus_energy_{{ACCOUNT_ID}}_intelligent_charge_target`
+
+This sensor is used to see and set the charge target for your future intelligent charges.
 
 !!! info
 
@@ -93,15 +96,15 @@ This sensor is used to see and set the charge limit for your future intelligent 
 
     * OHME
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
+!!! info
 
-### Ready Time
+    You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-settings-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
-`time.octopus_energy_{{ACCOUNT_ID}}_intelligent_ready_time`
+### Target Time
 
-This sensor is used to see and set the ready time for your future intelligent charges.
+`time.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time`
+
+This sensor is used to see and set the target time for your future intelligent charges.
 
 !!! info
 
@@ -109,9 +112,9 @@ This sensor is used to see and set the ready time for your future intelligent ch
 
     * OHME
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-settings-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
 ## Migrating from megakid/ha_octopus_intelligent?
 

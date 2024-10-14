@@ -10,8 +10,6 @@
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
           "live_electricity_consumption_refresh_in_minutes": "Home Mini/Pro electricity refresh rate in minutes",
           "live_gas_consumption_refresh_in_minutes": "Home Mini/Pro gas refresh rate in minutes",
-          "previous_electricity_consumption_days_offset": "Previous consumption electricity days offset",
-          "previous_gas_consumption_days_offset": "Previous consumption gas days offset",
           "calorific_value": "Gas calorific value.",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence",
@@ -57,6 +55,29 @@
         "description": "Select the account your target rate sensor will be using for its calculations",
         "data": {
           "account_id": "Account"
+        }
+      },
+      "rolling_target_rate_account": {
+        "description": "Select the account your rolling target rate sensor will be using for its calculations",
+        "data": {
+          "account_id": "Account"
+        }
+      },
+      "rolling_target_rate": {
+        "description": "Setup a rolling target rate period. Continuous target will find the cheapest continuous period for your target hours. While intermittent will find the cheapest periods with potential gaps, which when combined will meet your target hours. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/rolling_target_rate",
+        "data": {
+          "name": "The name of your target",
+          "hours": "The hours you require in decimal format.",
+          "hours_mode": "How the defined hours should be interpreted",
+          "mpan": "The MPAN number of the meter to apply the target to",
+          "look_ahead_hours": "The number of hours to look ahead when evaluating the available rates",
+          "offset": "The offset to apply to the scheduled block to be considered active",
+          "last_rates": "Find last applicable rates",
+          "target_invert_target_rates": "Invert targeted rates",
+          "minimum_rate": "The optional minimum rate for target hours",
+          "maximum_rate": "The optional maximum rate for target hours",
+          "weighting": "The optional weighting to apply to the discovered rates",
+          "target_times_evaluation_mode": "When should target times be selected"
         }
       },
       "cost_tracker": {
@@ -107,7 +128,7 @@
       "invalid_week_day": "Week reset day must be between 0 and 6 (inclusively)",
       "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)",
       "invalid_price": "Price must be in the form pounds and pence (e.g. 0.10)",
-      "invalid_weighting": "The weighting format is not supported.",
+      "invalid_weighting": "The weighting format is not supported. Please consult documentation for more information.",
       "invalid_weighting_slots": "The number of weighting blocks does not equal the specified number of hours.",
       "weighting_not_supported_for_type": "Weighting is only supported for continuous target rates",
       "weighting_not_supported_for_hour_mode": "Weighting is not supported for this hour mode",
@@ -133,8 +154,6 @@
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
           "live_electricity_consumption_refresh_in_minutes": "Home Mini/Pro electricity refresh rate in minutes",
           "live_gas_consumption_refresh_in_minutes": "Home Mini/Pro gas refresh rate in minutes",
-          "previous_electricity_consumption_days_offset": "Previous consumption electricity days offset",
-          "previous_gas_consumption_days_offset": "Previous consumption gas days offset",
           "calorific_value": "Gas calorific value",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence",
@@ -161,12 +180,29 @@
           "start_time": "The minimum time to start the device",
           "end_time": "The maximum time to stop the device",
           "offset": "The offset to apply to the scheduled block to be considered active",
-          "rolling_target": "Re-evaluate multiple times a day",
           "last_rates": "Find last applicable rates",
           "target_invert_target_rates": "Invert targeted rates",
           "minimum_rate": "The optional minimum rate for target hours",
           "maximum_rate": "The optional maximum rate for target hours",
           "weighting": "The optional weighting to apply to the discovered rates"
+        }
+      },
+      "rolling_target_rate": {
+        "title": "Update Rolling Target Rate",
+        "description": "Update the settings for your rolling target rate sensor, which can be used to help you save energy and money. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/rolling_target_rate",
+        "data": {
+          "hours": "The hours you require in decimal format.",
+          "hours_mode": "How the defined hours should be interpreted",
+          "mpan": "The MPAN number of the meter to apply the target to",
+          "look_ahead_hours": "The number of hours to look ahead when evaluating the available rates",
+          "offset": "The offset to apply to the scheduled block to be considered active",
+          "rolling_target": "Re-evaluate multiple times a day",
+          "last_rates": "Find last applicable rates",
+          "target_invert_target_rates": "Invert targeted rates",
+          "minimum_rate": "The optional minimum rate for target hours",
+          "maximum_rate": "The optional maximum rate for target hours",
+          "weighting": "The optional weighting to apply to the discovered rates",
+          "target_times_evaluation_mode": "When should target times be selected"
         },
         "data_description": {
           "hours": "This has to be a multiple of 0.5.",
@@ -208,7 +244,7 @@
       "invalid_week_day": "Week reset day must be between 0 and 6 (inclusively)",
       "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)",
       "invalid_price": "Price must be in the form pounds and pence (e.g. 0.10)",
-      "invalid_weighting": "The weighting format is not supported.",
+      "invalid_weighting": "The weighting format is not supported. Please consult documentation for more information.",
       "invalid_weighting_slots": "The number of weighting blocks does not equal the specified number of hours.",
       "weighting_not_supported_for_type": "Weighting is only supported for continuous target rates",
       "weighting_not_supported_for_hour_mode": "Weighting is not supported for this hour mode",
