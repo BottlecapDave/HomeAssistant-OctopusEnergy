@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../cost_tracker/">
+        <link rel="prev" href="../target_rate/">
       
       
-        <link rel="next" href="../energy_dashboard/">
+        <link rel="next" href="../cost_tracker/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Tariff Comparison - Home Assistant Octopus Energy</title>
+        <title>Rolling Target Rate Sensor(s) - Home Assistant Octopus Energy</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#tariff-comparison" class="md-skip">
+        <a href="#rolling-target-rate-sensors" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Tariff Comparison
+              Rolling Target Rate Sensor(s)
             
           </span>
         </div>
@@ -349,48 +349,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="../rolling_target_rate/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Rolling Target Rate Sensor(s)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../cost_tracker/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Cost Tracker Sensor(s)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -407,7 +365,7 @@
           
   
   <span class="md-ellipsis">
-    Tariff Comparison
+    Rolling Target Rate Sensor(s)
   </span>
   
 
@@ -418,7 +376,7 @@
         
   
   <span class="md-ellipsis">
-    Tariff Comparison
+    Rolling Target Rate Sensor(s)
   </span>
   
 
@@ -450,60 +408,46 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#meter" class="md-nav__link">
+  <a href="#hours" class="md-nav__link">
     <span class="md-ellipsis">
-      Meter
+      Hours
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#product-code" class="md-nav__link">
+  <a href="#hours-mode" class="md-nav__link">
     <span class="md-ellipsis">
-      Product Code
+      Hours Mode
     </span>
   </a>
   
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tariff-code" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tariff Code
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#entities" class="md-nav__link">
-    <span class="md-ellipsis">
-      Entities
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#cost-override" class="md-nav__link">
-    <span class="md-ellipsis">
-      Cost Override
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Cost Override">
+    <nav class="md-nav" aria-label="Hours Mode">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#previous-consumption-override-day-rates" class="md-nav__link">
+  <a href="#exact-default" class="md-nav__link">
     <span class="md-ellipsis">
-      Previous Consumption Override Day Rates
+      Exact (default)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimum" class="md-nav__link">
+    <span class="md-ellipsis">
+      Minimum
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#maximum" class="md-nav__link">
+    <span class="md-ellipsis">
+      Maximum
     </span>
   </a>
   
@@ -511,6 +455,125 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#look-ahead-hours" class="md-nav__link">
+    <span class="md-ellipsis">
+      Look Ahead Hours
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#evaluation-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Evaluation mode
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Evaluation mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#all-existing-target-rates-are-in-the-past" class="md-nav__link">
+    <span class="md-ellipsis">
+      All existing target rates are in the past
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#existing-target-rates-havent-started-or-finished" class="md-nav__link">
+    <span class="md-ellipsis">
+      Existing target rates haven't started or finished
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#always" class="md-nav__link">
+    <span class="md-ellipsis">
+      Always
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#offset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Offset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#latest-period" class="md-nav__link">
+    <span class="md-ellipsis">
+      Latest Period
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#invert-target-rates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Invert Target Rates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimummaximum-rates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Minimum/Maximum Rates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#weighting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Weighting
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Attributes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Services
+    </span>
+  </a>
   
 </li>
       
@@ -518,6 +581,48 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cost_tracker/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Cost Tracker Sensor(s)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tariff_comparison/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Tariff Comparison
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -1086,60 +1191,46 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#meter" class="md-nav__link">
+  <a href="#hours" class="md-nav__link">
     <span class="md-ellipsis">
-      Meter
+      Hours
     </span>
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#product-code" class="md-nav__link">
+  <a href="#hours-mode" class="md-nav__link">
     <span class="md-ellipsis">
-      Product Code
+      Hours Mode
     </span>
   </a>
   
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#tariff-code" class="md-nav__link">
-    <span class="md-ellipsis">
-      Tariff Code
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#entities" class="md-nav__link">
-    <span class="md-ellipsis">
-      Entities
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#cost-override" class="md-nav__link">
-    <span class="md-ellipsis">
-      Cost Override
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Cost Override">
+    <nav class="md-nav" aria-label="Hours Mode">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#previous-consumption-override-day-rates" class="md-nav__link">
+  <a href="#exact-default" class="md-nav__link">
     <span class="md-ellipsis">
-      Previous Consumption Override Day Rates
+      Exact (default)
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimum" class="md-nav__link">
+    <span class="md-ellipsis">
+      Minimum
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#maximum" class="md-nav__link">
+    <span class="md-ellipsis">
+      Maximum
     </span>
   </a>
   
@@ -1147,6 +1238,125 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#look-ahead-hours" class="md-nav__link">
+    <span class="md-ellipsis">
+      Look Ahead Hours
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#evaluation-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Evaluation mode
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Evaluation mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#all-existing-target-rates-are-in-the-past" class="md-nav__link">
+    <span class="md-ellipsis">
+      All existing target rates are in the past
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#existing-target-rates-havent-started-or-finished" class="md-nav__link">
+    <span class="md-ellipsis">
+      Existing target rates haven't started or finished
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#always" class="md-nav__link">
+    <span class="md-ellipsis">
+      Always
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#offset" class="md-nav__link">
+    <span class="md-ellipsis">
+      Offset
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#latest-period" class="md-nav__link">
+    <span class="md-ellipsis">
+      Latest Period
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#invert-target-rates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Invert Target Rates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#minimummaximum-rates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Minimum/Maximum Rates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#weighting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Weighting
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#attributes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Attributes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Services
+    </span>
+  </a>
   
 </li>
       
@@ -1168,50 +1378,81 @@
   
 
 
-<h1 id="tariff-comparison">Tariff Comparison<a class="headerlink" href="#tariff-comparison" title="Permanent link">#</a></h1>
-<p>There will probably be times when you'll want to know if you're on the right tariff for you financially.</p>
-<p>The tariff comparison allows you to elect a new tariff which will generate some additional sensors which will show the cost of your elected meter against that tariff.</p>
-<p>After you've configured your <a href="../account/">account</a>, you'll be able to configure tariff comparison sensors. These are configured by adding subsequent instances of the integration going through the <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy">normal flow</a>, and selecting <code>Tariff Comparison</code> in the provided menu.</p>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
-<p>When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.</p>
-</div>
+<h1 id="rolling-target-rate-sensors">Rolling Target Rate Sensor(s)<a class="headerlink" href="#rolling-target-rate-sensors" title="Permanent link">#</a></h1>
+<p>After you've configured your <a href="../account/">account</a>, you'll be able to configure rolling target rate sensors. These are configured by adding subsequent instances of the integration going through the <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy">normal flow</a>, and selecting <code>Rolling Target Rate</code> in the provided menu.</p>
+<p>These sensors calculate the lowest continuous or intermittent rates within the next available <code>x</code> hours, where <code>x</code> is configurable via the sensor, and turn on when these periods are active. If you are targeting an export meter, then the sensors will calculate the highest continuous or intermittent rates within the next available <code>x</code> hours and turn on when these periods are active. If you are wanting to evaluate on a fixed basis (e.g. every 24 hours), you might be interested in the <a href="../target_rate/">standard target rate sensors</a></p>
+<p>These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money. You can go through this flow as many times as you need rolling target rate sensors.</p>
+<p>Each sensor will be in the form <code>binary_sensor.octopus_energy_rolling_target_{{TARGET_RATE_NAME}}</code>.</p>
 <h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">#</a></h2>
-<h3 id="meter">Meter<a class="headerlink" href="#meter" title="Permanent link">#</a></h3>
-<p>This is the meter whose consumption will be used as the basis for the calculation.</p>
-<h3 id="product-code">Product Code<a class="headerlink" href="#product-code" title="Permanent link">#</a></h3>
-<p>To find the product code, you can use the Octopus Energy API to search for current <a href="https://api.octopus.energy/v1/products/">home</a> or <a href="https://api.octopus.energy/v1/products/?is_business=true">business</a> products. Once your target product has been found, you will want to set this value to the value of the <code>code</code> property in the list of products.</p>
-<p>For example if I wanted to check <code>Flexible Octopus November 2022 v1</code>. I would look up all of the <a href="https://api.octopus.energy/v1/products">products</a> and look for my target under <code>full_name</code> or <code>display_name</code>.</p>
-<p><img alt="All products example" src="../../assets/product_lookup.png" /></p>
-<p>I would then set my product code to <code>VAR-22-11-01</code>.</p>
-<h3 id="tariff-code">Tariff Code<a class="headerlink" href="#tariff-code" title="Permanent link">#</a></h3>
-<p>To find the tariff code, you can use the Octopus Energy API to search for the available tariffs for your target product.</p>
-<p>For example if I wanted to check <code>Flexible Octopus November 2022 v1</code>. I would look up all of the <a href="https://api.octopus.energy/v1/products">products</a> and look for my target under <code>full_name</code> or <code>display_name</code>. I would then look up the product by taking the value specified in the <code>code</code> field and putting it at the end of the <a href="https://api.octopus.energy/v1/products">products url</a>. Alternatively, you can follow the link that is present in the product listing.</p>
-<p><img alt="All products example" src="../../assets/product_lookup.png" /></p>
-<p>In this scenario, the <code>code</code> is <code>VAR-22-11-01</code> and so the product url is <a href="https://api.octopus.energy/v1/products/VAR-22-11-01">https://api.octopus.energy/v1/products/VAR-22-11-01</a>. From this list, I would then look up the tariff for my region (e.g. <code>A</code> defined at the end of my current tariff) which is defined in the <code>code</code> field. Once your target tariff has been found, you will want to set this property in the configuration to the value of the <code>code</code> property. In this example, I want the duel electricity tariff version, so will pick <code>E-2R-VAR-22-11-01-A</code>.</p>
-<p><img alt="All products example" src="../../assets/product_tariff_lookup.png" /></p>
-<h2 id="entities">Entities<a class="headerlink" href="#entities" title="Permanent link">#</a></h2>
-<p>The following entities will be available for each entry</p>
-<h2 id="cost-override">Cost Override<a class="headerlink" href="#cost-override" title="Permanent link">#</a></h2>
-<p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_{{TARIFF COMPARISON NAME}}</code> for electricity based meters; <code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost_{{TARIFF COMPARISON NAME}}</code> for gas based meters.</p>
-<p>This will display the cost of your previous accumulative consumption against the elected tariff.</p>
+<h3 id="hours">Hours<a class="headerlink" href="#hours" title="Permanent link">#</a></h3>
+<p>The hours that you require for the sensor to find. This should be in decimal format and represent 30 minute increments. For example 30 minutes would be <code>0.5</code>, 1 hour would be <code>1</code> or <code>1.0</code>, 1 hour and 30 minutes would be <code>1.5</code>, etc.</p>
+<h3 id="hours-mode">Hours Mode<a class="headerlink" href="#hours-mode" title="Permanent link">#</a></h3>
+<p>There are three different modes that the target rate sensor can be set to, which determines how the specified hours should be interpreted</p>
+<h4 id="exact-default">Exact (default)<a class="headerlink" href="#exact-default" title="Permanent link">#</a></h4>
+<p>The target rate sensor will try to find the best times for the specified hours. If less than the target hours are discovered, the sensor will not come on at all. If there are more hours than required that meet the specified requirements (e.g. below a certain rate), then it will come on for the cheapest available times up to the specified hours.</p>
+<p>For instance if the cheapest period is between <code>2023-01-01T00:30</code> and <code>2023-01-01T05:00</code> and your target rate is for 1 hour, then it will come on between  <code>2023-01-01T00:30</code> and <code>2023-01-01T01:30</code>. If the available times are between <code>2023-01-01T00:30</code> and <code>2023-01-01T01:00</code>, then the sensor will not come on at all.</p>
+<h4 id="minimum">Minimum<a class="headerlink" href="#minimum" title="Permanent link">#</a></h4>
+<p>The target rate sensor will try to find the best times for the specified hours. If less than the target hours are discovered, the sensor will not come on at all. If there are more hours than required that meet the specified requirements (e.g. below a certain rate), then it will come on for all discovered times.</p>
+<p>For instance if the cheapest period is between <code>2023-01-01T00:30</code> and <code>2023-01-01T05:00</code> and your target rate is for 1 hour, then it will come on between  <code>2023-01-01T00:30</code> and <code>2023-01-01T05:00</code>. If the available times are between <code>2023-01-01T00:30</code> and <code>2023-01-01T01:00</code>, then the sensor will not come on at all.</p>
+<h4 id="maximum">Maximum<a class="headerlink" href="#maximum" title="Permanent link">#</a></h4>
+<p>The target rate sensor will try to find the best times for the specified hours. If less than the target hours are discovered, the sensor will come on for all times that are discovered. If there are more hours than required that meet the specified requirements (e.g. below a certain rate), then it will come on for the cheapest available times up to the specified hours.</p>
+<p>For instance if the cheapest period is between <code>2023-01-01T00:30</code> and <code>2023-01-01T05:00</code> and your target rate is for 1 hour, then it will come on between  <code>2023-01-01T00:30</code> and <code>2023-01-01T01:30</code>. If the available times are between <code>2023-01-01T00:30</code> and <code>2023-01-01T01:00</code>, then the sensor will come on between  <code>2023-01-01T00:30</code> and <code>2023-01-01T01:00</code>.</p>
+<h3 id="look-ahead-hours">Look Ahead Hours<a class="headerlink" href="#look-ahead-hours" title="Permanent link">#</a></h3>
+<p>This is the number of hours to look ahead for the best time periods. This will include the current time period. For instance, if it's <code>2023-01-01T00:15</code> and you have your look ahead hours set to <code>8</code>, then it will look for the best times between <code>2023-01-01T00:00</code> and <code>2023-01-01T08:00</code>.</p>
+<h3 id="evaluation-mode">Evaluation mode<a class="headerlink" href="#evaluation-mode" title="Permanent link">#</a></h3>
+<p>Because the time frame that is being evaluated is currently moving, you might want to set how/when the target times are evaluated in order to make the selected times more or less dynamic.</p>
+<h4 id="all-existing-target-rates-are-in-the-past">All existing target rates are in the past<a class="headerlink" href="#all-existing-target-rates-are-in-the-past" title="Permanent link">#</a></h4>
+<p>This is the default way of evaluating target times. This will only evaluate new target times if no target times have been calculated or all existing target times are in the past.</p>
+<h4 id="existing-target-rates-havent-started-or-finished">Existing target rates haven't started or finished<a class="headerlink" href="#existing-target-rates-havent-started-or-finished" title="Permanent link">#</a></h4>
+<p>This will only evaluate target times if no target times have been calculated or all existing target times are either in the future or all existing target times are in the past. </p>
+<p>For example, lets say we have a continuous rolling target which looks ahead for <code>8</code> hours and has existing target times from <code>2023-01-02T01:00</code> to <code>2023-01-02T02:00</code>. </p>
+<ul>
+<li>If the current time is <code>2023-01-02T00:59</code>, then the target times will be re-evaluated and might change if the new rolling target period (i.e. <code>2023-01-02T00:30</code> to <code>2023-01-02T08:30</code>) has better times than the existing target times.</li>
+<li>If the current time is <code>2023-01-02T01:00</code>, the the target times will not be re-evaluated because we've entered our current target times, even if the new rolling target period has cheaper times. </li>
+<li>If the current time is <code>2023-01-02T02:01</code>, the the target times will be re-evaluated because our existing target times are in the past and will find the best times in the new rolling target period (i.e. <code>2023-01-02T02:00</code> to <code>2023-01-02T10:00</code>). </li>
+</ul>
+<h3 id="always">Always<a class="headerlink" href="#always" title="Permanent link">#</a></h3>
+<p>This will always evaluate the best target times for the rolling target period, even if the sensor is in the middle of an existing target time period.</p>
+<p>For example, lets say we have a continuous rolling target which looks ahead for <code>8</code> hours and has existing target times from <code>2023-01-02T01:00</code> to <code>2023-01-02T02:00</code>. </p>
+<ul>
+<li>If the current time is <code>2023-01-02T00:59</code>, then the target times will be re-evaluated and might change if the new rolling target period (i.e. <code>2023-01-02T00:30</code> to <code>2023-01-02T08:30</code>) has better times than the existing target times.</li>
+<li>If the current time is <code>2023-01-02T01:31</code>, then the target times will be re-evaluated and might change if the new rolling target period (i.e. <code>2023-01-02T01:30</code> to <code>2023-01-02T09:30</code>) has better times than the existing target times.</li>
+<li>If the current time is <code>2023-01-02T02:01</code>, the the target times will be re-evaluated because our existing target times are in the past and will find the best times in the new rolling target period (i.e. <code>2023-01-02T02:00</code> to <code>2023-01-02T10:00</code>). </li>
+</ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This setting means that you could end up with the sensor not turning on for the fully requested hours as the target times might be moved ahead half way through the picked times. It also could mean that the sensor doesn't come on at all during the requested look ahead hours (e.g. 8) because the cheapest period kept moving back. </p>
+</div>
+<h3 id="offset">Offset<a class="headerlink" href="#offset" title="Permanent link">#</a></h3>
+<p>You may want your target rate sensors to turn on a period of time before the optimum discovered period. For example, you may be turning on a robot vacuum cleaner for a 30 minute clean and want it to charge during the optimum period. For this, you'd use the <code>offset</code> field and set it to <code>-00:30:00</code>, which can be both positive and negative and go up to a maximum of 24 hours. This will shift when the sensor turns on relative to the optimum period. For example, if the optimum period is between <code>2023-01-18T10:00</code> and <code>2023-01-18T11:00</code> with an offset of <code>-00:30:00</code>, the sensor will turn on between <code>2023-01-18T09:30</code> and <code>2023-01-18T10:30</code>.</p>
+<h3 id="latest-period">Latest Period<a class="headerlink" href="#latest-period" title="Permanent link">#</a></h3>
+<p>Depending on how you're going to use the sensor, you might want the best period at the latest possible time. For example, you might be using the sensor to turn on an immersion heater which you'll want to come on at the end of the cheapest found period. </p>
+<p>For instance if you turn this on and the cheapest period is between <code>2023-01-01T00:30</code> and <code>2023-01-01T05:00</code> and your target rate is for 1 hour, then it will come on between <code>2023-01-01T04:00</code> and <code>2023-01-01T05:00</code> instead of <code>2023-01-01T00:30</code> and <code>2023-01-01T01:30</code>.</p>
+<p>This feature is toggled on by the <code>Find last applicable rates</code> checkbox.</p>
+<h3 id="invert-target-rates">Invert Target Rates<a class="headerlink" href="#invert-target-rates" title="Permanent link">#</a></h3>
+<p>If this is checked, then the normal behaviour of the sensor will be reversed. This means if you target an <strong>import</strong> sensor, with this checked it will find the most expensive rates. Similarly if you target an <strong>export</strong> meter, with this checked it will find the cheapest rates.</p>
+<h3 id="minimummaximum-rates">Minimum/Maximum Rates<a class="headerlink" href="#minimummaximum-rates" title="Permanent link">#</a></h3>
+<p>There may be times that you want the target rate sensors to not take into account rates that are above or below a certain value (e.g. you don't want the sensor to turn on when rates go crazy or where it would be more beneficial to export). This is configured in pounds and pence format (e.g. 0.12 for 12p).</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>These sensors will compare the same time period as the <a href="../../entities/electricity/#previous-accumulative-consumption">electricity previous accumulative consumption</a> or <a href="../../entities/gas/#previous-accumulative-consumption-m3">gas previous accumulative consumption</a>. </p>
-<p>If you have changed the <a href="../account/#previous-consumption-days-offset">offset</a>, then this sensor will use the same offset.</p>
+<p>If hours mode is set to <strong>minimum</strong>, then a minimum and/or maximum rate must be specified in order for the target rate sensor to know what the cut off is for discovered times.</p>
 </div>
-<h3 id="previous-consumption-override-day-rates">Previous Consumption Override Day Rates<a class="headerlink" href="#previous-consumption-override-day-rates" title="Permanent link">#</a></h3>
-<p><code>event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_consumption_rates_{{TARIFF COMPARISON NAME}}</code> for electricity based meters; <code>event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_consumption_rates_{{TARIFF COMPARISON NAME}}</code> for gas based meters.</p>
-<p>The state of this sensor states when the previous consumption tariff comparison rates were last updated. The attributes of this sensor exposes the previous consumption tariff comparison rates. </p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>.</p>
-</div>
+<h3 id="weighting">Weighting<a class="headerlink" href="#weighting" title="Permanent link">#</a></h3>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-<p>These sensors will provide rates for the same time period as the <a href="../../entities/electricity/#previous-accumulative-consumption">electricity previous accumulative consumption</a> or <a href="../../entities/gas/#previous-accumulative-consumption-m3">gas previous accumulative consumption</a>. </p>
-<p>If you have changed the <a href="../account/#previous-consumption-days-offset">offset</a>, then this sensor will use the same offset.</p>
+<p>This is only available for <strong>continuous</strong> target rate sensors in <strong>exact</strong> hours mode.</p>
 </div>
+<p>There may be times when the device you're wanting the target rate sensor to turn on doesn't have a consistent power draw. You can specify a weighting which can be applied to each discovered 30 minute slot. This can be specified in a few different ways. Take the following example weighting for a required 2 hours.</p>
+<ul>
+<li><code>1,1,2,1</code> - This applies a weighting of 1 to the first, second and forth slot and a weighting of 2 to the third slot. This will try and make the cheapest slot fall on the third slot, as long as the surrounding slots are cheaper than other continuous slots.</li>
+<li><code>*,2,1</code> - This applies a weighting of 1 to the first, second and forth slot and a weighting of 2 to the third slot. The <code>*</code> can be used as a placeholder for the standard weighting of 1 for all slots before the ones specified.</li>
+<li><code>1,1,2,*</code> - This applies a weighting of 1 to the first, second and forth slot and a weighting of 2 to the third slot. The <code>*</code> can be used as a placeholder for the standard weighting of 1 for all slots after the ones specified.</li>
+<li><code>2,*,2</code> - This applies a weighting of 2 to the first and forth slot and a weighting of 1 to all slots in between. The <code>*</code> can be used as a placeholder for the standard weighting of 1 for all slots in between the specified slots.</li>
+</ul>
+<p>Each slot weighting must be a whole number or decimal number and be positive.</p>
+<p>You can also use weightings to ignore slots. This can be done by assigning a value of 0 for the desired slot.</p>
+<h2 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">#</a></h2>
+<p>The following attributes are available on each sensor</p>
 <table>
 <thead>
 <tr>
@@ -1222,59 +1463,129 @@
 </thead>
 <tbody>
 <tr>
-<td><code>rates</code></td>
-<td><code>array</code></td>
-<td>The list of rates applicable for the previous consumption tariff comparison</td>
-</tr>
-<tr>
-<td><code>product_code</code></td>
+<td><code>name</code></td>
 <td><code>string</code></td>
-<td>The product code associated with previous consumption tariff comparison rates</td>
+<td>The name of the sensor.</td>
 </tr>
 <tr>
-<td><code>tariff_code</code></td>
+<td><code>hours</code></td>
 <td><code>string</code></td>
-<td>The tariff code associated with previous consumption tariff comparison rates</td>
-</tr>
-</tbody>
-</table>
-<p>Each rate item has the following attributes</p>
-<table>
-<thead>
-<tr>
-<th>Attribute</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>start</code></td>
-<td><code>datetime</code></td>
-<td>The date/time when the rate starts</td>
+<td>The total hours are being discovered.</td>
 </tr>
 <tr>
-<td><code>end</code></td>
-<td><code>datetime</code></td>
-<td>The date/time when the rate ends</td>
+<td><code>type</code></td>
+<td><code>string</code></td>
+<td>The type/mode for the target rate sensor. This will be either <code>continuous</code> or <code>intermittent</code>.</td>
 </tr>
 <tr>
-<td><code>value_inc_vat</code></td>
+<td><code>mpan</code></td>
+<td><code>string</code></td>
+<td>The <code>mpan</code> of the meter being used to determine the rates.</td>
+</tr>
+<tr>
+<td><code>look_ahead_hours</code></td>
 <td><code>float</code></td>
-<td>The value of the rate including VAT. This is in pounds and pence (e.g. 1.01 = £1.01)</td>
+<td>The number of hours the sensor should look ahead for the best time period</td>
 </tr>
 <tr>
-<td><code>is_capped</code></td>
-<td><code>boolean</code></td>
-<td>Indicates if the rate has been capped by a <a href="../account/#pricing-caps">configured price cap</a></td>
+<td><code>target_times_evaluation_mode</code></td>
+<td><code>string</code></td>
+<td>The mode that determines when/how target times are picked</td>
 </tr>
 <tr>
-<td><code>is_intelligent_adjusted</code></td>
+<td><code>last_rates</code></td>
 <td><code>boolean</code></td>
-<td>Indicates if the rate has been adjusted due to a dispatch organised by an intelligent tariff</td>
+<td>Determines if <code>Find last applicable rates</code> is turned off for the sensor.</td>
+</tr>
+<tr>
+<td><code>offset</code></td>
+<td><code>string</code></td>
+<td>The offset configured for the sensor.</td>
+</tr>
+<tr>
+<td><code>is_target_export</code></td>
+<td><code>boolean</code></td>
+<td>Determines if the meter being targeted is exporting energy. This will change the behaviour of the sensor to look for the highest rates.</td>
+</tr>
+<tr>
+<td><code>rates_incomplete</code></td>
+<td><code>boolean</code></td>
+<td>True if rate information is incomplete and therefore target times cannot be calculated; False otherwise.</td>
+</tr>
+<tr>
+<td><code>target_times</code></td>
+<td><code>array</code></td>
+<td>The discovered times and rates the sensor will come on for.</td>
+</tr>
+<tr>
+<td><code>overall_average_cost</code></td>
+<td><code>float</code></td>
+<td>The average cost/rate of all discovered times during the current <strong>24 hour period</strong>.</td>
+</tr>
+<tr>
+<td><code>overall_min_cost</code></td>
+<td><code>float</code></td>
+<td>The minimum cost/rate of all discovered times during the current <strong>24 hour period</strong>.</td>
+</tr>
+<tr>
+<td><code>overall_max_cost</code></td>
+<td><code>float</code></td>
+<td>The maximum cost/rate of all discovered times during the current <strong>24 hour period</strong>.</td>
+</tr>
+<tr>
+<td><code>current_duration_in_hours</code></td>
+<td><code>float</code></td>
+<td>The duration the sensor will be on for, for the current continuous discovered period. For <code>continuous</code> sensors, this will be the entire period. For <code>intermittent</code> sensors, this could be the entire period or a portion of it, depending on the discovered times. This could be <code>none</code>/<code>unknown</code> if the sensor is not currently in a discovered period.</td>
+</tr>
+<tr>
+<td><code>current_average_cost</code></td>
+<td><code>float</code></td>
+<td>The average cost/rate for the current continuous discovered period. This could be <code>none</code>/<code>unknown</code> if the sensor is not currently in a discovered period.</td>
+</tr>
+<tr>
+<td><code>current_min_cost</code></td>
+<td><code>float</code></td>
+<td>The min cost/rate for the current continuous discovered period. This could be <code>none</code>/<code>unknown</code> if the sensor is not currently in a discovered period.</td>
+</tr>
+<tr>
+<td><code>current_max_cost</code></td>
+<td><code>float</code></td>
+<td>The max cost/rate for the current continuous discovered period. This could be <code>none</code>/<code>unknown</code> if the sensor is not currently in a discovered period.</td>
+</tr>
+<tr>
+<td><code>next_time</code></td>
+<td><code>datetime</code></td>
+<td>The next date/time the sensor will come on. This will only be populated if <code>target_times</code> has been calculated and at least one period/block is in the future.</td>
+</tr>
+<tr>
+<td><code>next_duration_in_hours</code></td>
+<td><code>float</code></td>
+<td>The duration the sensor will be on for, for the next continuous discovered period. For <code>continuous</code> sensors, this will be the entire period. For <code>intermittent</code> sensors, this could be the entire period or a portion of it, depending on the discovered times. This will only be populated if <code>target_times</code> has been calculated and at least one period/block is in the future.</td>
+</tr>
+<tr>
+<td><code>next_average_cost</code></td>
+<td><code>float</code></td>
+<td>The average cost/rate for the next continuous discovered period. For <code>continuous</code> sensors, this will be the entire period. For <code>intermittent</code> sensors, this could be the entire period or a portion of it, depending on the discovered times. This will only be populated if <code>target_times</code> has been calculated and at least one period/block is in the future.</td>
+</tr>
+<tr>
+<td><code>next_min_cost</code></td>
+<td><code>float</code></td>
+<td>The average cost/rate for the next continuous discovered period. This will only be populated if <code>target_times</code> has been calculated and at least one period/block is in the future.</td>
+</tr>
+<tr>
+<td><code>next_max_cost</code></td>
+<td><code>float</code></td>
+<td>The average cost/rate for the next continuous discovered period. This will only be populated if <code>target_times</code> has been calculated and at least one period/block is in the future.</td>
+</tr>
+<tr>
+<td><code>target_times_last_evaluated</code></td>
+<td>datetime</td>
+<td>The datetime the target times collection was last evaluated. This will occur if all previous target times are in the past and all rates are available for the requested future time period. For example, if you are targeting 16:00 (day 1) to 16:00 (day 2), and you only have rates up to 23:00 (day 1), then the target rates won't be calculated.</td>
 </tr>
 </tbody>
 </table>
+<h2 id="services">Services<a class="headerlink" href="#services" title="Permanent link">#</a></h2>
+<p>There are services available associated with target rate sensors. Please review them in the <a href="../../services/">services doc</a>.</p>
 
 
 

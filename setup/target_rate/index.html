@@ -12,11 +12,11 @@
         <link rel="prev" href="../account/">
       
       
-        <link rel="next" href="../cost_tracker/">
+        <link rel="next" href="../rolling_target_rate/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.27">
     
     
       
@@ -471,9 +471,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#rolling-target" class="md-nav__link">
+  <a href="#re-evaluate-within-time-frame" class="md-nav__link">
     <span class="md-ellipsis">
-      Rolling Target
+      Re-evaluate within time frame
     </span>
   </a>
   
@@ -575,6 +575,27 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../rolling_target_rate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Rolling Target Rate Sensor(s)
+  </span>
+  
+
+      </a>
     </li>
   
 
@@ -823,6 +844,27 @@
   
   <span class="md-ellipsis">
     Home Pro
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entities/diagnostics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Diagnostics
   </span>
   
 
@@ -1248,9 +1290,9 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#rolling-target" class="md-nav__link">
+  <a href="#re-evaluate-within-time-frame" class="md-nav__link">
     <span class="md-ellipsis">
-      Rolling Target
+      Re-evaluate within time frame
     </span>
   </a>
   
@@ -1368,7 +1410,7 @@
 
 <h1 id="target-rate-sensors">Target Rate Sensor(s)<a class="headerlink" href="#target-rate-sensors" title="Permanent link">#</a></h1>
 <p>After you've configured your <a href="../account/">account</a>, you'll be able to configure target rate sensors. These are configured by adding subsequent instances of the integration going through the <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy">normal flow</a>, and selecting <code>Target Rate</code> in the provided menu.</p>
-<p>These sensors calculate the lowest continuous or intermittent rates <strong>within a 24 hour period</strong> and turn on when these periods are active. If you are targeting an export meter, then the sensors will calculate the highest continuous or intermittent rates <strong>within a 24 hour period</strong> and turn on when these periods are active.</p>
+<p>These sensors calculate the lowest continuous or intermittent rates <strong>within a 24 hour period</strong> and turn on when these periods are active. If you are targeting an export meter, then the sensors will calculate the highest continuous or intermittent rates <strong>within a 24 hour period</strong> and turn on when these periods are active. If you are wanting to evaluate on a rolling basis, you might be interested in the <a href="../rolling_target_rate/">rolling target rate sensors</a></p>
 <p>These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money. You can go through this flow as many times as you need target rate sensors.</p>
 <p>Each sensor will be in the form <code>binary_sensor.octopus_energy_target_{{TARGET_RATE_NAME}}</code>.</p>
 <h2 id="setup">Setup<a class="headerlink" href="#setup" title="Permanent link">#</a></h2>
@@ -1482,13 +1524,13 @@
 <p>For instance if the cheapest period is between <code>2023-01-01T00:30</code> and <code>2023-01-01T05:00</code> and your target rate is for 1 hour, then it will come on between  <code>2023-01-01T00:30</code> and <code>2023-01-01T01:30</code>. If the available times are between <code>2023-01-01T00:30</code> and <code>2023-01-01T01:00</code>, then the sensor will come on between  <code>2023-01-01T00:30</code> and <code>2023-01-01T01:00</code>.</p>
 <h3 id="offset">Offset<a class="headerlink" href="#offset" title="Permanent link">#</a></h3>
 <p>You may want your target rate sensors to turn on a period of time before the optimum discovered period. For example, you may be turning on a robot vacuum cleaner for a 30 minute clean and want it to charge during the optimum period. For this, you'd use the <code>offset</code> field and set it to <code>-00:30:00</code>, which can be both positive and negative and go up to a maximum of 24 hours. This will shift when the sensor turns on relative to the optimum period. For example, if the optimum period is between <code>2023-01-18T10:00</code> and <code>2023-01-18T11:00</code> with an offset of <code>-00:30:00</code>, the sensor will turn on between <code>2023-01-18T09:30</code> and <code>2023-01-18T10:30</code>.</p>
-<h3 id="rolling-target">Rolling Target<a class="headerlink" href="#rolling-target" title="Permanent link">#</a></h3>
+<h3 id="re-evaluate-within-time-frame">Re-evaluate within time frame<a class="headerlink" href="#re-evaluate-within-time-frame" title="Permanent link">#</a></h3>
 <p>Depending on how you're going to use the sensor, you might want the best period to be found throughout the day so it's always available. For example, you might be using the sensor to turn on a washing machine which you might want to come on at the best time regardless of when you use the washing machine. You can activate this behaviour by setting the <code>Re-evaluate multiple times a day</code> checkbox.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p>Using this can result in the sensor coming on more than the target hours, and therefore should be used in conjunction with other sensors. </p>
+<p>Using this can result in the sensor coming on more than the target hours, and therefore should be used in conjunction with other sensors. Depending on how long your target timeframe is, upon each re-evaluation the picked times will get steadily worse.</p>
 </div>
-<p>However, you might also only want the target time to occur once a day so once the best time for that day has passed it won't turn on again. For example, you might be using the sensor to turn on something that isn't time critical and could wait till the next day like a charger. This is the default behaviour and is done by not setting the <code>Re-evaluate multiple times a day</code> checkbox.</p>
+<p>However, you might also only want the target time to occur once during each timeframe so once the best time for that day has passed it won't turn on again until the next timeframe. For example, you might be using the sensor to turn on something that isn't time critical and could wait till the next timeframe like a charger. This is the default behaviour and is done by not setting the <code>Re-evaluate multiple times a day</code> checkbox.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>The next set of target times will not be calculated until all target times are in the past. This will have an effect on the <code>next</code> set of attributes on the sensor.</p>
@@ -1517,7 +1559,7 @@
 <li><code>1,1,2,*</code> - This applies a weighting of 1 to the first, second and forth slot and a weighting of 2 to the third slot. The <code>*</code> can be used as a placeholder for the standard weighting of 1 for all slots after the ones specified.</li>
 <li><code>2,*,2</code> - This applies a weighting of 2 to the first and forth slot and a weighting of 1 to all slots in between. The <code>*</code> can be used as a placeholder for the standard weighting of 1 for all slots in between the specified slots.</li>
 </ul>
-<p>Each slot weighting must be a whole number and positive.</p>
+<p>Each slot weighting must be a whole number or decimal number and be positive.</p>
 <p>You can also use weightings to ignore slots. This can be done by assigning a value of 0 for the desired slot.</p>
 <h2 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">#</a></h2>
 <p>The following attributes are available on each sensor</p>

@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.27">
     
     
       
@@ -334,6 +334,27 @@
   
   <span class="md-ellipsis">
     Target Rate Sensor(s)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../setup/rolling_target_rate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Rolling Target Rate Sensor(s)
   </span>
   
 
@@ -802,6 +823,27 @@
   
   <span class="md-ellipsis">
     Home Pro
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagnostics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Diagnostics
   </span>
   
 
@@ -1634,7 +1676,8 @@
 </blockquote>
 <h3 id="previous-accumulative-consumption-m3">Previous Accumulative Consumption (m3)<a class="headerlink" href="#previous-accumulative-consumption-m3" title="Permanent link">#</a></h3>
 <p><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption_m3</code></p>
-<p>The total consumption reported by the meter for the previous day in m3. If your meter reports in m3, then this will be an accurate value reported by Octopus, otherwise it will be a calculated/estimated value.</p>
+<p>The total consumption reported by the meter (not other devices e.g. Home Mini) for the previous available full day in m3. If for example data is available up to <code>01:00</code> of <code>2024-09-02</code>, then this sensor will report the cost between <code>2024-09-01T00:00:00Z</code> and <code>2024-09-02T00:00:00Z</code>.</p>
+<p>If your meter reports in m3, then this will be an accurate value reported by Octopus, otherwise it will be a calculated/estimated value.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>This retrieves the data reported directly by the meter which is used to calculate your bill. If you have an Octopus Home Mini (or similar), then data reported by this device will not be exposed in this sensor. This is to avoid confusion when comparing the data against your bill and to provide consistency between users with and without an Octopus Home Mini.</p>
@@ -1642,8 +1685,7 @@
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This data won't necessarily be available at the stroke of midnight. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. </p>
-<p>Because this sensor only looks at the previous day, if the data takes longer than 24 hours to populate then the sensor will not update. This can be determined by looking at the <code>data_last_retrieved</code> attribute which indicates when the data was last retrieved. For example, if the current day is 02/01/2024, it will look at data for 01/01/2024. If the data for 01/01/2024 doesn't populate until 03/01/2024 then the sensor will not update.</p>
-<p>If your data is always behind, you can adjust the number of days that the sensor looks back by <a href="../../setup/account/#previous-consumption-days-offset">updating integrations config</a>.</p>
+<p>Because this sensor only looks at the last complete day, if the data takes longer than 24 hours to populate then the sensor will not update straight away. You can look at the <a href="../diagnostics/#previous-consumption-and-rates-data-last-retrieved">data_last_retrieved sensor</a> which indicates when the data was last retrieved.</p>
 </div>
 <table>
 <thead>
@@ -1689,16 +1731,6 @@
 <td><code>float</code></td>
 <td>The calorific value used for the calculations, as set in your <a href="../../setup/account/#calorific-value">account</a>.</td>
 </tr>
-<tr>
-<td><code>data_last_retrieved</code></td>
-<td><code>datetime</code></td>
-<td>The timestamp when the underlying data was last refreshed from the OE servers</td>
-</tr>
-<tr>
-<td><code>latest_available_data_timestamp</code></td>
-<td><code>datetime</code></td>
-<td>The date/time of the latest available consumption data via the API. This is only for data reported directly by the meter and won't include data reported by other devices (e.g. Octopus Home Mini)</td>
-</tr>
 </tbody>
 </table>
 <p>Each charge item has the following attributes</p>
@@ -1728,9 +1760,14 @@
 </tr>
 </tbody>
 </table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#previous-consumption-and-rates-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
 <h3 id="previous-accumulative-consumption-kwh">Previous Accumulative Consumption (kWh)<a class="headerlink" href="#previous-accumulative-consumption-kwh" title="Permanent link">#</a></h3>
 <p><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption_kwh</code></p>
-<p>The total consumption reported by the meter for the previous day in kwh. If your meter reports in kwh, then this will be an accurate value reported by Octopus, otherwise it will be a calculated/estimated value.</p>
+<p>The total consumption reported by the meter for the previous available full day in kwh. If for example data is available up to <code>01:00</code> of <code>2024-09-02</code>, then this sensor will report the cost between <code>2024-09-01T00:00:00Z</code> and <code>2024-09-02T00:00:00Z</code>.</p>
+<p>If your meter reports in kwh, then this will be an accurate value reported by Octopus, otherwise it will be a calculated/estimated value.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>This retrieves the data reported directly by the meter which is used to calculate your bill. If you have an Octopus Home Mini (or similar), then data reported by this device will not be exposed in this sensor. This is to avoid confusion when comparing the data against your bill and to provide consistency between users with and without an Octopus Home Mini.</p>
@@ -1738,8 +1775,7 @@
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This data won't necessarily be available at the stroke of midnight. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. </p>
-<p>Because this sensor only looks at the previous day, if the data takes longer than 24 hours to populate then the sensor will not update. This can be determined by looking at the <code>data_last_retrieved</code> attribute which indicates when the data was last retrieved. For example, if the current day is 02/01/2024, it will look at data for 01/01/2024. If the data for 01/01/2024 doesn't populate until 03/01/2024 then the sensor will not update.</p>
-<p>If your data is always behind, you can adjust the number of days that the sensor looks back by <a href="../../setup/account/#previous-consumption-days-offset">updating integrations config</a>.</p>
+<p>Because this sensor only looks at the last complete day, if the data takes longer than 24 hours to populate then the sensor will not update straight away. You can look at the <a href="../diagnostics/#previous-consumption-and-rates-data-last-retrieved">data_last_retrieved sensor</a> which indicates when the data was last retrieved.</p>
 </div>
 <table>
 <thead>
@@ -1775,16 +1811,6 @@
 <td><code>float</code></td>
 <td>The calorific value used for the calculations, as set in your <a href="../../setup/account/#calorific-value">account</a>.</td>
 </tr>
-<tr>
-<td><code>data_last_retrieved</code></td>
-<td><code>datetime</code></td>
-<td>The timestamp when the underlying data was last refreshed from the OE servers</td>
-</tr>
-<tr>
-<td><code>latest_available_data_timestamp</code></td>
-<td><code>datetime</code></td>
-<td>The date/time of the latest available consumption data via the API. This is only for data reported directly by the meter and won't include data reported by other devices (e.g. Octopus Home Mini)</td>
-</tr>
 </tbody>
 </table>
 <p>Each charge item has the following attributes</p>
@@ -1814,9 +1840,13 @@
 </tr>
 </tbody>
 </table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#previous-consumption-and-rates-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
 <h3 id="previous-accumulative-cost">Previous Accumulative Cost<a class="headerlink" href="#previous-accumulative-cost" title="Permanent link">#</a></h3>
 <p><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost</code></p>
-<p>The total cost for the previous day, including the standing charge.</p>
+<p>The total cost for the previous available full day, including the standing charge.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>This retrieves the data reported directly by the meter which is used to calculate your bill. If you have an Octopus Home Mini (or similar), then data reported by this device will not be exposed in this sensor. This is to avoid confusion when comparing the data against your bill and to provide consistency between users with and without an Octopus Home Mini.</p>
@@ -1824,8 +1854,7 @@
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This data won't necessarily be available at the stroke of midnight. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. </p>
-<p>Because this sensor only looks at the previous day, if the data takes longer than 24 hours to populate then the sensor will not update. This can be determined by looking at the <code>data_last_retrieved</code> attribute which indicates when the data was last retrieved. For example, if the current day is 02/01/2024, it will look at data for 01/01/2024. If the data for 01/01/2024 doesn't populate until 03/01/2024 then the sensor will not update.</p>
-<p>If your data is always behind, you can adjust the number of days that the sensor looks back by <a href="../../setup/account/#previous-consumption-days-offset">updating integrations config</a>.</p>
+<p>Because this sensor only looks at the last complete day, if the data takes longer than 24 hours to populate then the sensor will not update straight away. You can look at the <a href="../diagnostics/#previous-consumption-and-rates-data-last-retrieved">data_last_retrieved sensor</a> which indicates when the data was last retrieved.</p>
 </div>
 <table>
 <thead>
@@ -1872,11 +1901,6 @@
 <td>Collection of consumption periods and costs for the previous day broken down into 30 minute periods.</td>
 </tr>
 <tr>
-<td><code>data_last_retrieved</code></td>
-<td><code>datetime</code></td>
-<td>The timestamp when the underlying data was last refreshed from the OE servers</td>
-</tr>
-<tr>
 <td><code>calorific_value</code></td>
 <td><code>float</code></td>
 <td>The calorific value used for the calculations, as set in your <a href="../../setup/account/#calorific-value">account</a>.</td>
@@ -1920,9 +1944,13 @@
 </tr>
 </tbody>
 </table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#previous-consumption-and-rates-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
 <h2 id="previous-consumption-day-rates">Previous Consumption Day Rates<a class="headerlink" href="#previous-consumption-day-rates" title="Permanent link">#</a></h2>
 <p><code>event.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_consumption_rates</code></p>
-<p>The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous day's rates, but could differ if the default offset is changed. The attributes of this sensor exposes the previous consumption's rates. </p>
+<p>The state of this sensor states when the previous consumption's rates were last updated. This is typically the same as the previous available full day's rates, but could differ depending on available data. The attributes of this sensor exposes the previous consumption's rates. </p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>.</p>
@@ -2046,11 +2074,6 @@
 <td><code>float</code></td>
 <td>The calorific value used for the calculations, as set in your <a href="../../setup/account/#calorific-value">account</a>.</td>
 </tr>
-<tr>
-<td><code>data_last_retrieved</code></td>
-<td><code>datetime</code></td>
-<td>The timestamp when the underlying data was last refreshed from the OE servers</td>
-</tr>
 </tbody>
 </table>
 <p>Each charge item has the following attributes</p>
@@ -2080,6 +2103,10 @@
 </tr>
 </tbody>
 </table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#current-consumption-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
 <h3 id="current-accumulative-consumption-kwh">Current Accumulative Consumption (kWh)<a class="headerlink" href="#current-accumulative-consumption-kwh" title="Permanent link">#</a></h3>
 <p><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption_kwh</code></p>
 <div class="admonition warning">
@@ -2116,11 +2143,6 @@
 <td><code>float</code></td>
 <td>The calorific value used for the calculations, as set in your <a href="../../setup/account/#calorific-value">account</a>.</td>
 </tr>
-<tr>
-<td><code>data_last_retrieved</code></td>
-<td><code>datetime</code></td>
-<td>The timestamp when the underlying data was last refreshed from the OE servers</td>
-</tr>
 </tbody>
 </table>
 <p>Each charge item has the following attributes</p>
@@ -2150,6 +2172,10 @@
 </tr>
 </tbody>
 </table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#current-consumption-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
 <h3 id="current-total-consumption-m3">Current Total Consumption (m3)<a class="headerlink" href="#current-total-consumption-m3" title="Permanent link">#</a></h3>
 <p><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_total_consumption_m3</code></p>
 <div class="admonition warning">
@@ -2157,8 +2183,8 @@
 <p>This will only be available if you have specified you have an <a href="../../setup/account/#home-mini">Octopus Home Mini</a> or have configured an <a href="../../setup/account/#home-pro">Octopus Home Pro</a>. Do not set unless you have one.</p>
 </div>
 <p>The total consumption reported by the meter for for all time in m3. This is calculated/estimated using your set <a href="../../setup/account/#calorific-value">calorific value</a> from the kWh data reported by Octopus Energy. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.</p>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>Because this is calculated from your set calorific value across the lifetime of your meter, the value will not be 100% accurate due to calorific values changing over time which cannot be captured.</p>
 </div>
 <table>
@@ -2185,13 +2211,12 @@
 <td><code>float</code></td>
 <td>The calorific value used for the calculations, as set in your <a href="../../setup/account/#calorific-value">account</a>.</td>
 </tr>
-<tr>
-<td><code>data_last_retrieved</code></td>
-<td><code>datetime</code></td>
-<td>The timestamp when the underlying data was last refreshed from the OE servers</td>
-</tr>
 </tbody>
 </table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#current-consumption-data-last-retrieved">Home Mini data_last_retrieved sensor</a> or <a href="../diagnostics/#current-consumption-home-pro-data-last-retrieved">Home Mini data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
 <h3 id="current-total-consumption-kwh">Current Total Consumption (kWh)<a class="headerlink" href="#current-total-consumption-kwh" title="Permanent link">#</a></h3>
 <p><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_total_consumption_kwh</code></p>
 <div class="admonition warning">
@@ -2223,13 +2248,12 @@
 <td><code>float</code></td>
 <td>The calorific value used for the calculations, as set in your <a href="../../setup/account/#calorific-value">account</a>.</td>
 </tr>
-<tr>
-<td><code>data_last_retrieved</code></td>
-<td><code>datetime</code></td>
-<td>The timestamp when the underlying data was last refreshed from the OE servers</td>
-</tr>
 </tbody>
 </table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#current-consumption-data-last-retrieved">Home Mini data_last_retrieved sensor</a> or <a href="../diagnostics/#current-consumption-home-pro-data-last-retrieved">Home Mini data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
 <h3 id="current-accumulative-cost">Current Accumulative Cost<a class="headerlink" href="#current-accumulative-cost" title="Permanent link">#</a></h3>
 <p><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_cost</code></p>
 <div class="admonition warning">

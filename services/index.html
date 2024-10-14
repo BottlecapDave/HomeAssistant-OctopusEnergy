@@ -9,14 +9,14 @@
       
       
       
-        <link rel="prev" href="../entities/home_pro/">
+        <link rel="prev" href="../entities/diagnostics/">
       
       
         <link rel="next" href="../events/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.27">
     
     
       
@@ -350,6 +350,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../setup/rolling_target_rate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Rolling Target Rate Sensor(s)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../setup/cost_tracker/" class="md-nav__link">
         
   
@@ -595,6 +616,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../entities/diagnostics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Diagnostics
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -697,6 +739,30 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#octopus_energyupdate_rolling_target_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.update_rolling_target_config
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="octopus_energy.update_rolling_target_config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#octopus_energyjoin_octoplus_saving_session_event" class="md-nav__link">
     <span class="md-ellipsis">
       octopus_energy.join_octoplus_saving_session_event
@@ -707,7 +773,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_1" class="md-nav__link">
+  <a href="#automation-example_2" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -731,7 +797,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_2" class="md-nav__link">
+  <a href="#automation-example_3" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -755,7 +821,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_3" class="md-nav__link">
+  <a href="#automation-example_4" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -779,7 +845,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_4" class="md-nav__link">
+  <a href="#automation-example_5" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -1164,6 +1230,30 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#octopus_energyupdate_rolling_target_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.update_rolling_target_config
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="octopus_energy.update_rolling_target_config">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#octopus_energyjoin_octoplus_saving_session_event" class="md-nav__link">
     <span class="md-ellipsis">
       octopus_energy.join_octoplus_saving_session_event
@@ -1174,7 +1264,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_1" class="md-nav__link">
+  <a href="#automation-example_2" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -1198,7 +1288,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_2" class="md-nav__link">
+  <a href="#automation-example_3" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -1222,7 +1312,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_3" class="md-nav__link">
+  <a href="#automation-example_4" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -1246,7 +1336,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_4" class="md-nav__link">
+  <a href="#automation-example_5" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -1417,6 +1507,97 @@
 <span class="w">    </span><span class="nt">target</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">entity_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">binary_sensor.octopus_energy_target_example</span>
 </code></pre></div>
+<h2 id="octopus_energyupdate_rolling_target_config">octopus_energy.update_rolling_target_config<a class="headerlink" href="#octopus_energyupdate_rolling_target_config" title="Permanent link">#</a></h2>
+<p>For updating a given <a href="../setup/rolling_target_rate/">rolling target rate's</a> config. This allows you to change rolling target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>This is temporary and will not persist between restarts.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Optional</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>target.entity_id</code></td>
+<td><code>no</code></td>
+<td>The name of the target sensor whose configuration is to be updated.</td>
+</tr>
+<tr>
+<td><code>data.target_hours</code></td>
+<td><code>yes</code></td>
+<td>The optional number of hours the target rate sensor should come on during a 24 hour period. Must be divisible by 0.5.</td>
+</tr>
+<tr>
+<td><code>data.target_look_ahead_hours</code></td>
+<td><code>yes</code></td>
+<td>The optional number of hours worth of rates the sensor should look at for the evaluation period.</td>
+</tr>
+<tr>
+<td><code>data.target_offset</code></td>
+<td><code>yes</code></td>
+<td>The optional offset to apply to the target rate when it starts. Must be in the format <code>(+/-)HH:MM:SS</code>.</td>
+</tr>
+<tr>
+<td><code>data.target_minimum_rate</code></td>
+<td><code>yes</code></td>
+<td>The optional minimum rate the selected rates should not go below.</td>
+</tr>
+<tr>
+<td><code>data.target_maximum_rate</code></td>
+<td><code>yes</code></td>
+<td>The optional maximum rate the selected rates should not go above.</td>
+</tr>
+<tr>
+<td><code>data.target_weighting</code></td>
+<td><code>yes</code></td>
+<td>The optional weighting that should be applied to the selected rates.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="automation-example_1">Automation Example<a class="headerlink" href="#automation-example_1" title="Permanent link">#</a></h3>
+<p>This can be used via automations in the following way. Assuming we have the following inputs.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">input_number</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">octopus_energy_rolling_target_hours</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Octopus Energy Rolling Target Hours</span>
+<span class="w">    </span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">24</span>
+<span class="w">  </span><span class="nt">octopus_energy_rolling_target_look_ahead_hours</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Octopus Energy Rolling Target Look Ahead Hours</span>
+<span class="w">    </span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">    </span><span class="nt">max</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">24</span>
+
+<span class="nt">input_text</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">octopus_energy_target_offset</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Octopus Energy Target Offset</span>
+<span class="w">    </span><span class="nt">initial</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;-00:00:00&quot;</span>
+</code></pre></div>
+<p>Then an automation might look like the following</p>
+<div class="highlight"><pre><span></span><code><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">single</span>
+<span class="nt">alias</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Update target rate config</span>
+<span class="nt">trigger</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">platform</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">state</span>
+<span class="w">    </span><span class="nt">entity_id</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">input_number.octopus_energy_rolling_target_hours</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">input_number.octopus_energy_rolling_target_look_ahead_hours</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">input_text.octopus_energy_target_offset</span>
+<span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">action</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">octopus_energy.update_target_config</span>
+<span class="w">    </span><span class="nt">data</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">target_hours</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
+<span class="w">        </span><span class="no">&quot;{{ states(&#39;input_number.octopus_energy_target_hours&#39;) | string }}&quot;</span>
+<span class="w">      </span><span class="nt">target_look_ahead_hours</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
+<span class="w">        </span><span class="no">&quot;{{ states(&#39;input_number.octopus_energy_rolling_target_look_ahead_hours&#39;) | string }}&quot;</span>
+<span class="w">      </span><span class="nt">target_offset</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
+<span class="w">        </span><span class="no">{{ states(&#39;input_text.octopus_energy_target_offset&#39;) }}</span>
+<span class="w">    </span><span class="nt">target</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">entity_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">binary_sensor.octopus_energy_rolling_target_example</span>
+</code></pre></div>
 <h2 id="octopus_energyjoin_octoplus_saving_session_event">octopus_energy.join_octoplus_saving_session_event<a class="headerlink" href="#octopus_energyjoin_octoplus_saving_session_event" title="Permanent link">#</a></h2>
 <p>Service for joining a new saving session event. When used, it may take a couple of minutes for the other sensors to refresh the changes.</p>
 <table>
@@ -1440,7 +1621,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="automation-example_1">Automation Example<a class="headerlink" href="#automation-example_1" title="Permanent link">#</a></h3>
+<h3 id="automation-example_2">Automation Example<a class="headerlink" href="#automation-example_2" title="Permanent link">#</a></h3>
 <p>For an automation example, please refer to the available <a href="../blueprints/#automatically-join-saving-sessions">blueprint</a>.</p>
 <h2 id="octopus_energyspin_wheel_of_fortune">octopus_energy.spin_wheel_of_fortune<a class="headerlink" href="#octopus_energyspin_wheel_of_fortune" title="Permanent link">#</a></h2>
 <p>This service allows the user to perform a spin on the <a href="../entities/wheel_of_fortune/">wheel of fortune</a> that is awarded to users every month. No point letting them go to waste :)</p>
@@ -1464,7 +1645,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="automation-example_2">Automation Example<a class="headerlink" href="#automation-example_2" title="Permanent link">#</a></h3>
+<h3 id="automation-example_3">Automation Example<a class="headerlink" href="#automation-example_3" title="Permanent link">#</a></h3>
 <p>For automation examples, please refer to the available <a href="../blueprints/#wheel-of-fortune">blueprints</a>.</p>
 <h2 id="octopus_energyredeem_octoplus_points_into_account_credit">octopus_energy.redeem_octoplus_points_into_account_credit<a class="headerlink" href="#octopus_energyredeem_octoplus_points_into_account_credit" title="Permanent link">#</a></h2>
 <p>Allows you to redeem a certain number of of Octoplus points and convert them into account credit.</p>
@@ -1493,7 +1674,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="automation-example_3">Automation Example<a class="headerlink" href="#automation-example_3" title="Permanent link">#</a></h3>
+<h3 id="automation-example_4">Automation Example<a class="headerlink" href="#automation-example_4" title="Permanent link">#</a></h3>
 <p>For automation examples, please refer to the available <a href="../blueprints/#automatically-redeem-octoplus-points-for-account-credit">blueprints</a>.</p>
 <h2 id="octopus_energyupdate_cost_tracker">octopus_energy.update_cost_tracker<a class="headerlink" href="#octopus_energyupdate_cost_tracker" title="Permanent link">#</a></h2>
 <p>This service allows the user to turn the tracking on/off for a given <a href="../setup/cost_tracker/">cost tracker</a> sensor.</p>
@@ -1518,7 +1699,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="automation-example_4">Automation Example<a class="headerlink" href="#automation-example_4" title="Permanent link">#</a></h3>
+<h3 id="automation-example_5">Automation Example<a class="headerlink" href="#automation-example_5" title="Permanent link">#</a></h3>
 <p>For automation examples, please refer to the available <a href="../blueprints/#cost-tracker">blueprints</a>.</p>
 <h2 id="octopus_energyreset_cost_tracker">octopus_energy.reset_cost_tracker<a class="headerlink" href="#octopus_energyreset_cost_tracker" title="Permanent link">#</a></h2>
 <p>Resets a given <a href="../setup/cost_tracker/">cost tracker</a> sensor back to zero before it's normal reset time.</p>

@@ -14,7 +14,7 @@
       
       
       <link rel="icon" href="assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.27">
     
     
       
@@ -616,6 +616,27 @@
   
   
     <li class="md-nav__item">
+      <a href="setup/rolling_target_rate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Rolling Target Rate Sensor(s)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="setup/cost_tracker/" class="md-nav__link">
         
   
@@ -852,6 +873,27 @@
   
   <span class="md-ellipsis">
     Home Pro
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="entities/diagnostics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Diagnostics
   </span>
   
 
@@ -1496,9 +1538,9 @@
 <h3 id="greenness-forecast">Greenness Forecast<a class="headerlink" href="#greenness-forecast" title="Permanent link">#</a></h3>
 <p>To support Octopus Energy's <a href="https://octopus.energy/smart/greener-days/">greener days</a>. <a href="entities/greenness_forecast/">Full list of greenness forecast entites</a>.</p>
 <h2 id="target-rate-sensors">Target Rate Sensors<a class="headerlink" href="#target-rate-sensors" title="Permanent link">#</a></h2>
-<p>These sensors calculate the lowest continuous or intermittent rates <strong>within a 24 hour period</strong> and turn on when these periods are active. If you are targeting an export meter, then the sensors will calculate the highest continuous or intermittent rates <strong>within a 24 hour period</strong> and turn on when these periods are active.</p>
+<p>These sensors calculate the lowest continuous or intermittent rates <strong>within a 24 hour period</strong> or on a rolling basis and turn on when these periods are active. If you are targeting an export meter, then the sensors will calculate the highest continuous or intermittent rates <strong>within a 24 hour period</strong> or on a rolling basis and turn on when these periods are active.</p>
 <p>These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money. You can go through this flow as many times as you need target rate sensors.</p>
-<p>Please follow the <a href="setup/target_rate/">setup guide</a>.</p>
+<p>Please follow the setup guides for either <a href="setup/target_rate/">standard target rate</a> or <a href="setup/rolling_target_rate/">rolling target rate</a> sensors.</p>
 <h2 id="cost-tracker-sensors">Cost Tracker Sensors<a class="headerlink" href="#cost-tracker-sensors" title="Permanent link">#</a></h2>
 <p>These sensors track the consumption of other existing sensors and provide a daily cost of those sensors.</p>
 <p>Please follow the <a href="setup/cost_tracker/">setup guide</a>.</p>

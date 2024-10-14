@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.27">
     
     
       
@@ -350,6 +350,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../setup/rolling_target_rate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Rolling Target Rate Sensor(s)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../setup/cost_tracker/" class="md-nav__link">
         
   
@@ -593,18 +614,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#charge-limit" class="md-nav__link">
+  <a href="#charge-target" class="md-nav__link">
     <span class="md-ellipsis">
-      Charge Limit
+      Charge Target
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#ready-time" class="md-nav__link">
+  <a href="#target-time" class="md-nav__link">
     <span class="md-ellipsis">
-      Ready Time
+      Target Time
     </span>
   </a>
   
@@ -682,6 +703,27 @@
   
   <span class="md-ellipsis">
     Home Pro
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagnostics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Diagnostics
   </span>
   
 
@@ -1040,18 +1082,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#charge-limit" class="md-nav__link">
+  <a href="#charge-target" class="md-nav__link">
     <span class="md-ellipsis">
-      Charge Limit
+      Charge Target
     </span>
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#ready-time" class="md-nav__link">
+  <a href="#target-time" class="md-nav__link">
     <span class="md-ellipsis">
-      Ready Time
+      Target Time
     </span>
   </a>
   
@@ -1141,11 +1183,6 @@
 <td>The power of the charge point battery in kW.</td>
 </tr>
 <tr>
-<td><code>data_last_retrieved</code></td>
-<td><code>datetime</code></td>
-<td>The date/time the underlying data was last retrieved from Octopus Energy APIs</td>
-</tr>
-<tr>
 <td><code>current_start</code></td>
 <td><code>datetime</code></td>
 <td>The date/time when the dispatching or off peak rate started</td>
@@ -1204,6 +1241,10 @@
 </tr>
 </tbody>
 </table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#intelligent-dispatches-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
 <h3 id="bump-charge">Bump Charge<a class="headerlink" href="#bump-charge" title="Permanent link">#</a></h3>
 <p><code>switch.octopus_energy_{{ACCOUNT_ID}}_intelligent_bump_charge</code></p>
 <p>This sensor is used to turn on/off bump ("on-demand") charging.</p>
@@ -1214,22 +1255,10 @@
 <li>OHME</li>
 </ul>
 </div>
-<table>
-<thead>
-<tr>
-<th>Attribute</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>data_last_retrieved</code></td>
-<td><code>datetime</code></td>
-<td>The date/time the underlying data was last retrieved from Octopus Energy APIs</td>
-</tr>
-</tbody>
-</table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#intelligent-settings-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
 <h3 id="smart-charge">Smart Charge<a class="headerlink" href="#smart-charge" title="Permanent link">#</a></h3>
 <p><code>switch.octopus_energy_{{ACCOUNT_ID}}_intelligent_smart_charge</code></p>
 <p>This sensor is used to turn on/off intelligent smart charging.</p>
@@ -1240,25 +1269,13 @@
 <li>OHME</li>
 </ul>
 </div>
-<table>
-<thead>
-<tr>
-<th>Attribute</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>data_last_retrieved</code></td>
-<td><code>datetime</code></td>
-<td>The date/time the underlying data was last retrieved from Octopus Energy APIs</td>
-</tr>
-</tbody>
-</table>
-<h3 id="charge-limit">Charge Limit<a class="headerlink" href="#charge-limit" title="Permanent link">#</a></h3>
-<p><code>number.octopus_energy_{{ACCOUNT_ID}}_intelligent_charge_limit</code></p>
-<p>This sensor is used to see and set the charge limit for your future intelligent charges.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#intelligent-settings-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
+<h3 id="charge-target">Charge Target<a class="headerlink" href="#charge-target" title="Permanent link">#</a></h3>
+<p><code>number.octopus_energy_{{ACCOUNT_ID}}_intelligent_charge_target</code></p>
+<p>This sensor is used to see and set the charge target for your future intelligent charges.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>This entity is not available for the following intelligent providers</p>
@@ -1266,25 +1283,13 @@
 <li>OHME</li>
 </ul>
 </div>
-<table>
-<thead>
-<tr>
-<th>Attribute</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>data_last_retrieved</code></td>
-<td><code>datetime</code></td>
-<td>The date/time the underlying data was last retrieved from Octopus Energy APIs</td>
-</tr>
-</tbody>
-</table>
-<h3 id="ready-time">Ready Time<a class="headerlink" href="#ready-time" title="Permanent link">#</a></h3>
-<p><code>time.octopus_energy_{{ACCOUNT_ID}}_intelligent_ready_time</code></p>
-<p>This sensor is used to see and set the ready time for your future intelligent charges.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#intelligent-settings-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
+<h3 id="target-time">Target Time<a class="headerlink" href="#target-time" title="Permanent link">#</a></h3>
+<p><code>time.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time</code></p>
+<p>This sensor is used to see and set the target time for your future intelligent charges.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>This entity is not available for the following intelligent providers</p>
@@ -1292,22 +1297,10 @@
 <li>OHME</li>
 </ul>
 </div>
-<table>
-<thead>
-<tr>
-<th>Attribute</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>data_last_retrieved</code></td>
-<td><code>datetime</code></td>
-<td>The date/time the underlying data was last retrieved from Octopus Energy APIs</td>
-</tr>
-</tbody>
-</table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#intelligent-settings-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
 <h2 id="migrating-from-megakidha_octopus_intelligent">Migrating from megakid/ha_octopus_intelligent?<a class="headerlink" href="#migrating-from-megakidha_octopus_intelligent" title="Permanent link">#</a></h2>
 <p>If you're moving to this integration from <a href="https://github.com/megakid/ha_octopus_intelligent">megakid/ha_octopus_intelligent</a>, below is a quick guide on what entities you should use</p>
 <ul>

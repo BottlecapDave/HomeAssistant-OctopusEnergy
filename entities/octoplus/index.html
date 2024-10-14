@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.27">
     
     
       
@@ -350,6 +350,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../setup/rolling_target_rate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Rolling Target Rate Sensor(s)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../setup/cost_tracker/" class="md-nav__link">
         
   
@@ -572,6 +593,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#saving-session-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Saving Session Baseline
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#services" class="md-nav__link">
     <span class="md-ellipsis">
       Services
@@ -664,6 +694,27 @@
   
   <span class="md-ellipsis">
     Home Pro
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagnostics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Diagnostics
   </span>
   
 
@@ -1022,6 +1073,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#saving-session-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Saving Session Baseline
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#services" class="md-nav__link">
     <span class="md-ellipsis">
       Services
@@ -1116,13 +1176,12 @@
 <td><code>float</code></td>
 <td>The duration in minutes of the next saving session</td>
 </tr>
-<tr>
-<td><code>data_last_retrieved</code></td>
-<td><code>datetime</code></td>
-<td>The date/time the underlying data was last retrieved from Octopus Energy APIs</td>
-</tr>
 </tbody>
 </table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#saving-sessions-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
 <h2 id="saving-session-events">Saving Session Events<a class="headerlink" href="#saving-session-events" title="Permanent link">#</a></h2>
 <p><code>event.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_session_events</code></p>
 <p>The state of this sensor states when the saving session events were last updated. The attributes of this sensor exposes the current day's rates.</p>
@@ -1231,6 +1290,63 @@
 </tr>
 </tbody>
 </table>
+<h2 id="saving-session-baseline">Saving Session Baseline<a class="headerlink" href="#saving-session-baseline" title="Permanent link">#</a></h2>
+<p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_octoplus_saving_session_baseline</code></p>
+<p>This will indicate the baseline consumption that you need to be below for the current 30 minute period of the current saving session or the first 30 minute period of the next saving session. </p>
+<p>You can use the <a href="../electricity/#current-interval-accumulative-consumption">current period consumption</a> sensor (if available) to see how on track you are.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>An export variant of this sensor exists for export based meters.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>start</code></td>
+<td><code>datetime</code></td>
+<td>The start datetime the current baseline applies</td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td><code>datetime</code></td>
+<td>The end datetime the current baseline applies</td>
+</tr>
+<tr>
+<td><code>is_incomplete_calculation</code></td>
+<td><code>bool</code></td>
+<td>Determines if the calculation is based on the full set or partial set of data</td>
+</tr>
+<tr>
+<td><code>consumption_items</code></td>
+<td><code>list</code></td>
+<td>The consumption that was used to calculate the baselines</td>
+</tr>
+<tr>
+<td><code>total_baseline</code></td>
+<td><code>float</code></td>
+<td>The total baseline for the current saving session</td>
+</tr>
+<tr>
+<td><code>baselines</code></td>
+<td><code>list</code></td>
+<td>The collection of baselines for the current saving session</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#saving-sessions-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
 <h2 id="services">Services<a class="headerlink" href="#services" title="Permanent link">#</a></h2>
 <p>There are some services available relating to these entities that you might find useful. They can be found in the <a href="../../services/">services docs</a>.</p>
 

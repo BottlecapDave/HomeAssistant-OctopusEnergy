@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.27">
     
     
       
@@ -350,6 +350,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../setup/rolling_target_rate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Rolling Target Rate Sensor(s)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../setup/cost_tracker/" class="md-nav__link">
         
   
@@ -586,6 +607,27 @@
   
   <span class="md-ellipsis">
     Home Pro
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../entities/diagnostics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Diagnostics
   </span>
   
 
@@ -958,6 +1000,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#alert-when-current-consumption-is-approaching-saving-sessions-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Alert when current consumption is approaching saving sessions baseline
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1179,6 +1230,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#alert-when-current-consumption-is-approaching-saving-sessions-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Alert when current consumption is approaching saving sessions baseline
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1290,6 +1350,13 @@
 <p class="admonition-title">Info</p>
 <p>This will only trigger when the redeemable points go from under the threshold to over. If it's already over the threshold, then the automation will not trigger. This is by <a href="https://www.home-assistant.io/docs/automation/trigger/#numeric-state-trigger">design of Home Assistant</a>.</p>
 <p>You can manually run the automation if the redeemable points is over the threshold to get it in a state where automatic redemption will happen in the future.</p>
+</div>
+<h3 id="alert-when-current-consumption-is-approaching-saving-sessions-baseline">Alert when current consumption is approaching saving sessions baseline<a class="headerlink" href="#alert-when-current-consumption-is-approaching-saving-sessions-baseline" title="Permanent link">#</a></h3>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%octopus_energy_baseline_alert.yaml">Install blueprint</a> | <a href="octopus_energy_baseline_alert.yaml">Source</a></p>
+<p>This blueprint will fire a configured action when the consumption for the current interval (i.e. the current 30 minute period) reaches a configured percentage of the saving session baseline.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This blueprint requires sensors provided by Octopus Energy Home Mini</p>
 </div>
 <h2 id="wheel-of-fortune">Wheel of Fortune<a class="headerlink" href="#wheel-of-fortune" title="Permanent link">#</a></h2>
 <h3 id="automatically-spin-wheel-of-fortune-single">Automatically spin wheel of fortune (single)<a class="headerlink" href="#automatically-spin-wheel-of-fortune-single" title="Permanent link">#</a></h3>

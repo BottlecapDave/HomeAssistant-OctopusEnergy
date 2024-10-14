@@ -16,7 +16,7 @@
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.6.0, mkdocs-material-9.5.27">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.27">
     
     
       
@@ -350,6 +350,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../setup/rolling_target_rate/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Rolling Target Rate Sensor(s)
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../setup/cost_tracker/" class="md-nav__link">
         
   
@@ -655,6 +676,27 @@
   
   <span class="md-ellipsis">
     Home Pro
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../diagnostics/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Diagnostics
   </span>
   
 
@@ -1092,11 +1134,6 @@
 <td><code>array</code></td>
 <td>The entire upcoming forecast</td>
 </tr>
-<tr>
-<td><code>data_last_retrieved</code></td>
-<td><code>datetime</code></td>
-<td>The date/time the underlying data was last retrieved from Octopus Energy APIs</td>
-</tr>
 </tbody>
 </table>
 <p>For each forecast item, the following attributes are provided</p>
@@ -1136,6 +1173,10 @@
 </tr>
 </tbody>
 </table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#greenness-forecast-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
 <h2 id="next-index">Next Index<a class="headerlink" href="#next-index" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_greenness_forecast_next_index</code></p>
 <p>The greenness index for the next period.</p>
@@ -1177,13 +1218,12 @@
 <td><code>bool</code></td>
 <td>Determines if the next forecast has been highlighted by Octopus Energy</td>
 </tr>
-<tr>
-<td><code>data_last_retrieved</code></td>
-<td><code>datetime</code></td>
-<td>The date/time the underlying data was last retrieved from Octopus Energy APIs</td>
-</tr>
 </tbody>
 </table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#greenness-forecast-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
 <h2 id="highlighted">Highlighted<a class="headerlink" href="#highlighted" title="Permanent link">#</a></h2>
 <p><code>binary_sensor.octopus_energy_{{ACCOUNT_ID}}_greenness_forecast_highlighted</code></p>
 <p>Determines if the current greenness forecast has been highlighted by OE as the greenest for the current forecast.</p>
@@ -1214,11 +1254,6 @@
 <td><code>next_end</code></td>
 <td><code>datetime</code></td>
 <td>The time the next highlighted forecast period ends</td>
-</tr>
-<tr>
-<td><code>data_last_retrieved</code></td>
-<td><code>datetime</code></td>
-<td>The date/time the underlying data was last retrieved from Octopus Energy APIs</td>
 </tr>
 </tbody>
 </table>
@@ -1259,6 +1294,10 @@
 </tr>
 </tbody>
 </table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#greenness-forecast-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
 
 
 
