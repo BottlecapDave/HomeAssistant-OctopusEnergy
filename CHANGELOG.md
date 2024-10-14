@@ -5,14 +5,14 @@
 
 * **blueprint:** Fixed late consumption data blueprint based on changes to underlying sensors (15 minutes dev time) ([7d9223b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7d9223bad1d5eae56e1a150cceead20da2d5cbf3))
 * Fixed HA warning for registering an entity service with a non entity service schema (15 minutes dev time) ([8decd8a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8decd8aabfca6c83eda6b1cede0a2523223ed645))
-* Fixed issue when rate information isn't available on start up which prevented integration from starting ([ffb8911](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ffb8911dd0e6189f1573c5e5677b4a8b238f64af))
+* Fixed issue when rate information isn't available on start up which prevented integration from starting (5 minutes dev time) ([ffb8911](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ffb8911dd0e6189f1573c5e5677b4a8b238f64af))
 * Fixed issue where earliest period was not picked for continuous target rate sensors when multiple groups had the same total (1 hour dev time) ([1dedab4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1dedab4538c7d271e565ae72540bf9b5ec337469))
-* Fixed issue where intelligent tariff can get into state where off peak sensors are not available ([6882f06](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6882f06cbb54d2848462ac5e2c01763b1ed28bed))
-* Fixed issue with migrating config entries from older versions of the integration ([119c65e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/119c65e5518468a8d4fc3dcd623523000d670962))
+* Fixed issue where intelligent tariff can get into state where off peak sensors are not available (15 minutes dev time) ([6882f06](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6882f06cbb54d2848462ac5e2c01763b1ed28bed))
+* Fixed issue with migrating config entries from older versions of the integration (15 minutes dev time) ([119c65e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/119c65e5518468a8d4fc3dcd623523000d670962))
 * Fixed issue with restoring saving session baseline entity and current interval accumulative consumption sensor (5 minutes dev time) ([a7fa406](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a7fa40639536c0e130efc9ce625c2cb73e0b8705))
-* Fixed issue with target rate sensors when weighting was applied with finding latest rates ([07c37c6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/07c37c69938f5541658fb8d61372e2cb3e438431))
+* Fixed issue with target rate sensors when weighting was applied with finding latest rates (1 hour dev time) ([07c37c6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/07c37c69938f5541658fb8d61372e2cb3e438431))
 * Fixed smart charge sensor always being off - Thanks @HLFCode for your assistance (15 minutes dev time) ([4ae5d69](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4ae5d69afe10b184dc93386c6a83b1f18d21bf53))
-* Fixed target rate not re-evaluating every minute when no rates are available for target period ([c2899ef](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c2899ef336731569b53ce0bb9ff675af8c9daa0d))
+* Fixed target rate not re-evaluating every minute when no rates are available for target period (15 minutes dev time) ([c2899ef](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c2899ef336731569b53ce0bb9ff675af8c9daa0d))
 
 
 ### Features
@@ -23,17 +23,17 @@
 * Added sensors for storing data last retrieved for all shared data (3.5 hours dev time) ([cedb260](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cedb2600651a8f7b18735b82687bd8479cbcc27a))
 * Added support for rolling target sensors (3 hours dev time) ([acfb113](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/acfb1134924f399989dff7dc26ad2a90082d91e3))
 * **blueprint:** Added blueprint for saving session baselines (45 minutes dev time) ([3a30e21](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3a30e219b0e3472da8c58e1ba9496cd51b28124f))
-* Increased intelligent refresh rate to 3 minutes ([4c5b669](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4c5b66944aae4e654f75585a602dd762dfe5815b))
+* Increased intelligent refresh rate to 3 minutes (5 minutes dev time) ([4c5b669](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4c5b66944aae4e654f75585a602dd762dfe5815b))
 * Migrated to use new intelligent APIs (2.5 hours dev time) ([80eb8bf](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/80eb8bff1fbb772ee0511973661f121ca32b1433))
-* Renamed intelligent charge limit to intelligent charge target to better reflect underlying API and purpose across providers. ([4da40f5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4da40f590bf961246ab9c5964d6973e359f01d37))
-* Renamed intelligent ready time to intelligent target time to better reflect underlying API and purpose across providers. ([8b92442](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8b924420c78f81cdd1e58075b76db307df03e7f3))
+* Renamed intelligent charge limit to intelligent charge target to better reflect underlying API and purpose across providers. (15 minutes dev time) ([4da40f5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4da40f590bf961246ab9c5964d6973e359f01d37))
+* Renamed intelligent ready time to intelligent target time to better reflect underlying API and purpose across providers. (15 minutes dev time) ([8b92442](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8b924420c78f81cdd1e58075b76db307df03e7f3))
 * Updated previous consumption sensors to report latest available full day instead of at a fixed interval (2 hours dev time) ([bb7bb0a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/bb7bb0abc3fca93fed56a548496da495f053e196))
 * Updated target rate weightings to support decimal numbers for more precision (1 hour dev time) ([c4b78a5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c4b78a5bbc994a72c947029950664bc2147f9de6))
 
 
 ### BREAKING CHANGES
 
-* data_last_retrieved attribute has been removed from all sensors to reduce excessive database storage. This data is now available in separate diagnostic senors. Please consult the docs for which diagnostic sensor is applicable for your target sensor.
+* data_last_retrieved attribute has been removed from all sensors to reduce excessive database storage. This data is now available in separate diagnostic sensors. Please consult the docs for which diagnostic sensor is applicable for your target sensor.
 * The previous consumption sensor will now dynamically adjust to show the latest available full day instead of at a fixed interval. The fixed interval settings will no longer be applicable.
 * The intelligent ready time entity has been renamed. You will need to update any automations or dashboards that relied on the old naming.
 * The intelligent charge limit entity has been renamed. You will need to update any automations or dashboards that relied on the old naming.
