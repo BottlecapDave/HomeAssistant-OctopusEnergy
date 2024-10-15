@@ -1,3 +1,10 @@
+## [13.0.1-beta.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.0.0...v13.0.1-beta.1) (2024-10-15)
+
+
+### Bug Fixes
+
+* Fixed issue with initialisation when account has no electricity meters ([936eed4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/936eed4e87f074f17b0ba6d063fbaef95672afcb))
+
 # [13.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v12.2.1...v13.0.0) (2024-10-14)
 
 
