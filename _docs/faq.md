@@ -7,7 +7,7 @@ Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-
 | Area | Refresh rate (in minutes) | Justification |
 |-|-|-|
 | Account | 60 | This is mainly used to get the active meters and associated tariffs, which shouldn't change often so no need to poll often. |
-| Intelligent tariff based sensors | 5 | Trying to balance refreshing settings and new dispatch information without overloading the API |
+| Intelligent tariff based sensors | 3 | Trying to balance refreshing settings and new dispatch information without overloading the API |
 | Rate information | 15 | This is what drives most people's automations, but doesn't change that frequently. We can afford a bit of lag for API stability. |
 | Current consumption data | Configurable (minimum 1) | This is most useful for a smart home to be as up-to-date as possible, but is also rate limited to 100 requests total per hour. 1 minute is enough for most people, but might need to be increased for those with multiple meters (e.g. gas and electricity) |
 | Previous consumption data | 30 | This is usually refreshed once a day at various times throughout the day. We want to be up-to-date as soon as possible, without swamping the API. |

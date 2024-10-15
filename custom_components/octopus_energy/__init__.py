@@ -9,6 +9,7 @@ from homeassistant.const import (
     EVENT_HOMEASSISTANT_STOP
 )
 from homeassistant.helpers import issue_registry as ir
+from homeassistant.core import SupportsResponse
 
 from .api_client_home_pro import OctopusEnergyHomeProApiClient
 from .coordinators.account import AccountCoordinatorResult, async_setup_account_info_coordinator
@@ -102,8 +103,7 @@ async def async_migrate_entry(hass, config_entry):
       new_data = await async_migrate_cost_tracker_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
       new_options = await async_migrate_cost_tracker_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
     
-    config_entry.version = CONFIG_VERSION
-    hass.config_entries.async_update_entry(config_entry, title=title, data=new_data, options=new_options)
+    hass.config_entries.async_update_entry(config_entry, title=title, data=new_data, options=new_options, version=CONFIG_VERSION)
 
     _LOGGER.debug("Migration to version %s successful", config_entry.version)
 
@@ -463,6 +463,23 @@ def setup(hass, config):
       _LOGGER.debug(f'Removing the following external statistics: {external_statistic_ids_to_remove}')
 
   hass.services.register(DOMAIN, "purge_invalid_external_statistic_ids", purge_invalid_external_statistic_ids)
+
+  async def diagnose_heatpump_apis(call):
+    """Handle the service call."""
+
+    account_id = None
+    for entry in hass.config_entries.async_entries(DOMAIN):
+      if CONFIG_KIND in entry.data and entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
+        account_id = entry.data[CONFIG_ACCOUNT_ID]
+
+    if account_id is None:
+      raise Exception("Failed to find account id")
+    
+    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
+
+    return await client.async_diagnose_heatpump_apis(account_id)
+
+  hass.services.register(DOMAIN, "diagnose_heatpump_apis", diagnose_heatpump_apis, supports_response=SupportsResponse.ONLY)
 
   # Return boolean to indicate that initialization was successful.
   return True

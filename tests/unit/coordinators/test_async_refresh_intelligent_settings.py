@@ -191,7 +191,7 @@ async def test_when_next_refresh_is_in_the_past_then_existing_settings_returned(
     return expected_settings
   
   account_info = get_account_info()
-  existing_settings = IntelligentCoordinatorResult(current - timedelta(minutes=4, seconds=59), 1, mock_intelligent_settings())
+  existing_settings = IntelligentCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT - 1, seconds=59), 1, mock_intelligent_settings())
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_settings=async_mock_get_intelligent_settings):
     client = OctopusEnergyApiClient("NOT_REAL")

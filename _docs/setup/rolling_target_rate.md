@@ -58,7 +58,7 @@ For example, lets say we have a continuous rolling target which looks ahead for 
 * If the current time is `2023-01-02T01:00`, the the target times will not be re-evaluated because we've entered our current target times, even if the new rolling target period has cheaper times. 
 * If the current time is `2023-01-02T02:01`, the the target times will be re-evaluated because our existing target times are in the past and will find the best times in the new rolling target period (i.e. `2023-01-02T02:00` to `2023-01-02T10:00`). 
 
-### Always
+#### Always
 
 This will always evaluate the best target times for the rolling target period, even if the sensor is in the middle of an existing target time period.
 
@@ -109,7 +109,7 @@ There may be times when the device you're wanting the target rate sensor to turn
 * `1,1,2,*` - This applies a weighting of 1 to the first, second and forth slot and a weighting of 2 to the third slot. The `*` can be used as a placeholder for the standard weighting of 1 for all slots after the ones specified.
 * `2,*,2` - This applies a weighting of 2 to the first and forth slot and a weighting of 1 to all slots in between. The `*` can be used as a placeholder for the standard weighting of 1 for all slots in between the specified slots.
 
-Each slot weighting must be a whole number and positive.
+Each slot weighting must be a whole number or decimal number and be positive.
 
 You can also use weightings to ignore slots. This can be done by assigning a value of 0 for the desired slot.
 

@@ -105,14 +105,11 @@ async def async_get_missing_consumption(
                                                                consumption_date.start,
                                                                consumption_date.end))
     consumption_data_responses = await asyncio.gather(*requests)
-    consumption_data = [
-      x
-      for xs in consumption_data_responses
-      for x in xs
-    ]
+    for response in consumption_data_responses:
+      for response_consumption in response:
+        if contains_consumption(consumptions, response_consumption) == False:
+          consumptions.append(response_consumption)
 
-    consumptions.extend(consumption_data)
-    _LOGGER.debug(f"rates: {len(consumptions)}")
     return consumptions
   except Exception as e:
     if isinstance(e, ApiException) == False:
