@@ -1,3 +1,10 @@
+## [13.0.1-beta.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.0.1-beta.1...v13.0.1-beta.2) (2024-10-15)
+
+
+### Bug Fixes
+
+* Fixed issue with loading sensors when electricity meters are not present ([1fdfff3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1fdfff3b459c6f515fddea63b6b4dc880183e731))
+
 ## [13.0.1-beta.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.0.0...v13.0.1-beta.1) (2024-10-15)
 
 
