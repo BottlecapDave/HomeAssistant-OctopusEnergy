@@ -40,6 +40,16 @@ This blueprint will automatically redeem all redeemable points for account credi
     
     You can manually run the automation if the redeemable points is over the threshold to get it in a state where automatic redemption will happen in the future.
 
+### Alert when current consumption is approaching saving sessions baseline
+
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%octopus_energy_baseline_alert.yaml) | [Source](./blueprints/octopus_energy_baseline_alert.yaml)
+
+This blueprint will fire a configured action when the consumption for the current interval (i.e. the current 30 minute period) reaches a configured percentage of the saving session baseline.
+
+!!! warning
+
+    This blueprint requires sensors provided by Octopus Energy Home Mini
+
 ## Wheel of Fortune
 
 ### Automatically spin wheel of fortune (single)
