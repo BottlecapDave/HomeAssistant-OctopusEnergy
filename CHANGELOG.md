@@ -1,3 +1,12 @@
+## [13.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.0.0...v13.0.1) (2024-10-16)
+
+
+### Bug Fixes
+
+* Fixed issue with initialisation when account has no electricity meters ([936eed4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/936eed4e87f074f17b0ba6d063fbaef95672afcb))
+* Fixed issue with loading sensors when electricity meters are not present ([1fdfff3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1fdfff3b459c6f515fddea63b6b4dc880183e731))
+* Fixed issue with target rate and rolling target rate sensors when target times had not been previously evaluated ([cdc410d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cdc410df88b32ecb0a9abca96f740544944b9702))
+
 # [13.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v12.2.1...v13.0.0) (2024-10-14)
 
 
