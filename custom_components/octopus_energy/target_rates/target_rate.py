@@ -140,7 +140,11 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     # Find the current rate. Rates change a maximum of once every 30 minutes.
     current_date = utcnow()
 
-    if (current_date.minute % 30) == 0 or len(self._target_rates) == 0 or self._last_evaluated is None or self._last_evaluated + timedelta(minutes=30) < current_date:
+    if ((current_date.minute % 30) == 0 or
+        self._target_rates is None or
+        len(self._target_rates) == 0 or
+        self._last_evaluated is None or
+        self._last_evaluated + timedelta(minutes=30) < current_date):
       _LOGGER.debug(f'Updating OctopusEnergyTargetRate {self._config[CONFIG_TARGET_NAME]}')
       self._last_evaluated = current_date
 
