@@ -270,7 +270,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
         [CONFIG_TARGET_OLD_NAME, CONFIG_TARGET_OLD_HOURS, CONFIG_TARGET_OLD_TYPE, CONFIG_TARGET_OLD_START_TIME, CONFIG_TARGET_OLD_END_TIME, CONFIG_TARGET_OLD_MPAN]
       )
 
-      self._target_rates = self._attributes["target_times"] if "target_times" in self._attributes else None
+      self._target_rates = self._attributes["target_times"] if "target_times" in self._attributes else []
 
       # Reset everything if our settings have changed
       if compare_config(self._config, self._attributes) == False:

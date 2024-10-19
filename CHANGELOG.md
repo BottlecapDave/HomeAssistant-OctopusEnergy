@@ -1,3 +1,17 @@
+## [13.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.0.1...v13.0.2) (2024-10-18)
+
+
+### Bug Fixes
+
+* Fixed issue with restoring target rate sensors when no target times are present ([7e38b6d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7e38b6d0d9d674f7d9a272dd132985c45c06ae8f))
+
+## [13.0.2-beta.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.0.1...v13.0.2-beta.1) (2024-10-17)
+
+
+### Bug Fixes
+
+* Fixed issue with restoring target rate sensors when no target times are present ([7e38b6d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7e38b6d0d9d674f7d9a272dd132985c45c06ae8f))
+
 ## [13.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.0.0...v13.0.1) (2024-10-16)
 
 

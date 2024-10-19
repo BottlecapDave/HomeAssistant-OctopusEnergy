@@ -86,7 +86,7 @@ def get_rates(current_date: datetime, rates: list, target_hours: float):
 
   if rates is not None:
     for rate in rates:
-      if rate["start"] >= current_date:
+      if rate["end"] >= current_date:
         new_rate = dict(rate)
         new_rate["value_inc_vat"] = value_inc_vat_to_pounds(rate["value_inc_vat"])
         applicable_rates.append(new_rate)
