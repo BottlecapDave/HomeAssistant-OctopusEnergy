@@ -3,7 +3,7 @@ import pytest
 
 
 from custom_components.octopus_energy.api_client.saving_sessions import SavingSession
-from custom_components.octopus_energy.octoplus import get_saving_session_consumption_dates
+from custom_components.octopus_energy.octoplus import get_octoplus_session_consumption_dates
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("saving_session_start,expected_result",[
@@ -115,7 +115,7 @@ async def test_when_no_previous_saving_sessions_then_correct_dates_returned(savi
   saving_session = SavingSession('1', 'ABC', saving_session_start, saving_session_start + saving_session_diff, 0)
 
   # Act
-  result = get_saving_session_consumption_dates(saving_session, previous_saving_sessions)
+  result = get_octoplus_session_consumption_dates(saving_session, previous_saving_sessions)
 
   # Assert
   assert len(result) == len(expected_result)
@@ -243,7 +243,7 @@ async def test_when_previous_saving_sessions_present_then_returned_dates_do_not_
   saving_session = SavingSession('1', 'ABC', saving_session_start, saving_session_start + saving_session_diff, 0)
 
   # Act
-  result = get_saving_session_consumption_dates(saving_session, previous_saving_sessions)
+  result = get_octoplus_session_consumption_dates(saving_session, previous_saving_sessions)
 
   # Assert
   assert len(result) == len(expected_result)

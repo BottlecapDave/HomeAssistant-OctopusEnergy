@@ -44,6 +44,7 @@ from .cost_tracker.cost_tracker_week import OctopusEnergyCostTrackerWeekSensor
 from .cost_tracker.cost_tracker_month import OctopusEnergyCostTrackerMonthSensor
 from .greenness_forecast.current_index import OctopusEnergyGreennessForecastCurrentIndex
 from .greenness_forecast.next_index import OctopusEnergyGreennessForecastNextIndex
+from .octoplus.free_electricity_session_baseline import OctopusEnergyFreeElectricitySessionBaseline
 from .diagnostics_entities.account_data_last_retrieved import OctopusEnergyAccountDataLastRetrieved
 from .diagnostics_entities.current_consumption_home_pro_data_last_retrieved import OctopusEnergyCurrentConsumptionHomeProDataLastRetrieved
 from .diagnostics_entities.current_consumption_data_last_retrieved import OctopusEnergyCurrentConsumptionDataLastRetrieved
@@ -55,6 +56,7 @@ from .diagnostics_entities.saving_sessions_data_last_retrieved import OctopusEne
 from .diagnostics_entities.wheel_of_fortune_data_last_retrieved import OctopusEnergyWheelOfFortuneDataLastRetrieved
 from .diagnostics_entities.intelligent_dispatches_data_last_retrieved import OctopusEnergyIntelligentDispatchesDataLastRetrieved
 from .diagnostics_entities.intelligent_settings_data_last_retrieved import OctopusEnergyIntelligentSettingsDataLastRetrieved
+from .diagnostics_entities.free_electricity_sessions_data_last_retrieved import OctopusEnergyFreeElectricitySessionsDataLastRetrieved
 
 from .utils.debug_overrides import async_get_debug_override
 
@@ -86,6 +88,7 @@ from .const import (
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_TARIFF_COMPARISON_MPAN_MPRN,
+  DATA_FREE_ELECTRICITY_SESSIONS_COORDINATOR,
   DATA_ACCOUNT_COORDINATOR,
   DATA_GREENNESS_FORECAST_COORDINATOR,
   DATA_HOME_PRO_CLIENT,
@@ -250,6 +253,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   
   client = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
+  free_electricity_session_coordinator = hass.data[DOMAIN][account_id][DATA_FREE_ELECTRICITY_SESSIONS_COORDINATOR]
   saving_session_coordinator = hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS_COORDINATOR]
   home_pro_client = hass.data[DOMAIN][account_id][DATA_HOME_PRO_CLIENT] if DATA_HOME_PRO_CLIENT in hass.data[DOMAIN][account_id] else None
   
@@ -267,7 +271,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
     OctopusEnergyGreennessForecastNextIndex(hass, greenness_forecast_coordinator, account_id),
     OctopusEnergyGreennessForecastDataLastRetrieved(hass, greenness_forecast_coordinator, account_id),
     OctopusEnergySavingSessionsDataLastRetrieved(hass, saving_session_coordinator, account_id),
-    OctopusEnergyWheelOfFortuneDataLastRetrieved(hass, wheel_of_fortune_coordinator, account_id),
+    OctopusEnergyWheelOfFortuneDataLastRetrieved(hass, wheel_of_fortune_coordinator, account_id)
   ]
 
   intelligent_device: IntelligentDevice = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
@@ -287,6 +291,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   
   if octoplus_enrolled:
     entities.append(OctopusEnergyOctoplusPoints(hass, client, account_id))
+    entities.append(OctopusEnergyFreeElectricitySessionsDataLastRetrieved(hass, free_electricity_session_coordinator, account_id))
 
   now = utcnow()
 
@@ -330,6 +335,9 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
           entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(hass, previous_consumption_coordinator, meter, point))
           entities.append(OctopusEnergySavingSessionBaseline(hass, saving_session_coordinator, previous_consumption_coordinator, meter, point, debug_override.mock_saving_session_baseline if debug_override is not None else False))
           entities.append(OctopusEnergyPreviousConsumptionAndRatesDataLastRetrieved(hass, previous_consumption_coordinator, True, meter, point))
+
+          if octoplus_enrolled:
+            entities.append(OctopusEnergyFreeElectricitySessionBaseline(hass, free_electricity_session_coordinator, previous_consumption_coordinator, meter, point, debug_override.mock_saving_session_baseline if debug_override is not None else False))
           
           # Create a peak override for each available peak type for our tariff
           total_unique_rates = await get_unique_electricity_rates(hass, client, electricity_tariff if debug_override is None or debug_override.tariff is None else debug_override.tariff)

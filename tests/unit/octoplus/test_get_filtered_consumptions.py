@@ -1,7 +1,7 @@
 from datetime import datetime
 import pytest
 
-from custom_components.octopus_energy.octoplus import SavingSessionConsumptionDate, get_filtered_consumptions
+from custom_components.octopus_energy.octoplus import OctoplusSessionConsumptionDate, get_filtered_consumptions
 from tests.integration import create_consumption_data
 
 @pytest.mark.asyncio
@@ -11,8 +11,8 @@ async def test_when_target_consumption_dates_not_present_then_empty_list_returne
     datetime.strptime("2024-09-18T16:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
     datetime.strptime("2024-09-18T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   )
-  target_consumption_dates: list[SavingSessionConsumptionDate] = [
-    SavingSessionConsumptionDate(
+  target_consumption_dates: list[OctoplusSessionConsumptionDate] = [
+    OctoplusSessionConsumptionDate(
       datetime.strptime("2024-09-18T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       datetime.strptime("2024-09-18T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
@@ -35,7 +35,7 @@ async def test_when_target_consumption_dates_empty_then_empty_list_returned():
     datetime.strptime("2024-09-18T16:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
     datetime.strptime("2024-09-18T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   )
-  target_consumption_dates: list[SavingSessionConsumptionDate] = []
+  target_consumption_dates: list[OctoplusSessionConsumptionDate] = []
 
   # Act
   result = get_filtered_consumptions(
@@ -54,8 +54,8 @@ async def test_when_target_consumption_dates_present_then_filtered_list_returned
     datetime.strptime("2024-09-18T16:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
     datetime.strptime("2024-09-18T19:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   )
-  target_consumption_dates: list[SavingSessionConsumptionDate] = [
-    SavingSessionConsumptionDate(
+  target_consumption_dates: list[OctoplusSessionConsumptionDate] = [
+    OctoplusSessionConsumptionDate(
       datetime.strptime("2024-09-18T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
       datetime.strptime("2024-09-18T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )

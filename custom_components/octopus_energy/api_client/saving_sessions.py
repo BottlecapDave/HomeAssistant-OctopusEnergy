@@ -1,5 +1,7 @@
 from datetime import datetime
 
+from .octoplus_session import BaseOctoplusSession
+
 class JoinSavingSessionResponse:
   is_successful: bool
   errors: list[str]
@@ -12,13 +14,9 @@ class JoinSavingSessionResponse:
     self.is_successful = is_successful
     self.errors = errors
 
-class SavingSession:
+class SavingSession(BaseOctoplusSession):
   id: str
-  code: str
-  start: datetime
-  end: datetime
   octopoints: int
-  duration_in_minutes: int
 
   def __init__(
     self,
@@ -28,12 +26,9 @@ class SavingSession:
     end: datetime,
     octopoints: int
   ):
+    BaseOctoplusSession.__init__(self, code, start, end)
     self.id = id
-    self.code = code
-    self.start = start
-    self.end = end
     self.octopoints = octopoints
-    self.duration_in_minutes = (end - start).total_seconds() / 60
 
 class SavingSessionsResponse:
   available_events: list[SavingSession]

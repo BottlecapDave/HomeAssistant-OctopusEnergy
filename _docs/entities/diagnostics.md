@@ -83,6 +83,15 @@ This sensor states when saving sessions data was last retrieved.
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
+## Free Electricity Sessions Data Last Retrieved
+
+`sensor.octopus_energy_{{ACCOUNT_ID}}_free_electricity_sessions_data_last_retrieved`
+
+This sensor states when free electricity sessions data was last retrieved.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
+
 ## Standing Charge Data Last Retrieved
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_standing_charge_data_last_retrieved` or `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_standing_charge_data_last_retrieved`
