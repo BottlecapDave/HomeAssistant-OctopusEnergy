@@ -59,6 +59,14 @@ class OctopusEnergyFreeElectricitySessions(CoordinatorEntity, BinarySensorEntity
   def name(self):
     """Name of the sensor."""
     return f"Octoplus Free Electricity ({self._account_id})"
+  
+  @property
+  def entity_registry_enabled_default(self) -> bool:
+    """Return if the entity should be enabled when first added.
+
+    This only applies when fist added to the entity registry.
+    """
+    return False
 
   @property
   def icon(self):

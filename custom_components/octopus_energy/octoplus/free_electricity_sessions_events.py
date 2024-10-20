@@ -38,6 +38,14 @@ class OctopusEnergyOctoplusFreeElectricitySessionEvents(EventEntity, RestoreEnti
   def name(self):
     """Name of the sensor."""
     return f"Octoplus Free Electricity Session Events ({self._account_id})"
+  
+  @property
+  def entity_registry_enabled_default(self) -> bool:
+    """Return if the entity should be enabled when first added.
+
+    This only applies when fist added to the entity registry.
+    """
+    return False
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
