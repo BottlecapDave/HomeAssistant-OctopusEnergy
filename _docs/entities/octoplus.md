@@ -8,6 +8,9 @@ To support Octopus Energy's [octoplus programme](https://octopus.energy/octoplus
 
 Determines the current Octoplus points balance. This sensor will only be available if you have enrolled on the octoplus programme. 
 
+!!! note
+    This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor.
+
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `redeemable_points` | `integer` | The number of points that can be redeemed into account credit |
@@ -118,7 +121,7 @@ Binary sensor to indicate if a free electricity session is active.
 
 !!! warning
 
-    This sensor uses public information. However it is only applicable to your account if you have joined Octoplus and have signed up to [free electricity sessions](https://octopus.energy/free-electricity/)
+    This sensor uses public information. However it is only applicable to your account if you have joined Octoplus and have signed up to [free electricity sessions](https://octopus.energy/free-electricity/). Once enrolled into Octoplus, reload the integration to gain access to this sensor.
 
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
