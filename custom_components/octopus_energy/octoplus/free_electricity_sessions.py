@@ -40,12 +40,12 @@ class OctopusEnergyFreeElectricitySessions(CoordinatorEntity, BinarySensorEntity
     self._state = None
     self._events = []
     self._attributes = {
-      "current_joined_event_start": None,
-      "current_joined_event_end": None,
-      "current_joined_event_duration_in_minutes": None,
-      "next_joined_event_start": None,
-      "next_joined_event_end": None,
-      "next_joined_event_duration_in_minutes": None
+      "current_event_start": None,
+      "current_event_end": None,
+      "current_event_duration_in_minutes": None,
+      "next_event_start": None,
+      "next_event_end": None,
+      "next_event_duration_in_minutes": None
     }
 
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
@@ -78,12 +78,12 @@ class OctopusEnergyFreeElectricitySessions(CoordinatorEntity, BinarySensorEntity
   def _handle_coordinator_update(self) -> None:
     """Determine if the user is in a saving session."""
     self._attributes = {
-      "current_joined_event_start": None,
-      "current_joined_event_end": None,
-      "current_joined_event_duration_in_minutes": None,
-      "next_joined_event_start": None,
-      "next_joined_event_end": None,
-      "next_joined_event_duration_in_minutes": None
+      "current_event_start": None,
+      "current_event_end": None,
+      "current_event_duration_in_minutes": None,
+      "next_event_start": None,
+      "next_event_end": None,
+      "next_event_duration_in_minutes": None
     }
 
     free_electricity_session: FreeElectricitySessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
@@ -96,17 +96,17 @@ class OctopusEnergyFreeElectricitySessions(CoordinatorEntity, BinarySensorEntity
     current_event = current_octoplus_sessions_event(current_date, self._events)
     if (current_event is not None):
       self._state = True
-      self._attributes["current_joined_event_start"] = current_event.start
-      self._attributes["current_joined_event_end"] = current_event.end
-      self._attributes["current_joined_event_duration_in_minutes"] = current_event.duration_in_minutes
+      self._attributes["current_event_start"] = current_event.start
+      self._attributes["current_event_end"] = current_event.end
+      self._attributes["current_event_duration_in_minutes"] = current_event.duration_in_minutes
     else:
       self._state = False
 
     next_event = get_next_octoplus_sessions_event(current_date, self._events)
     if (next_event is not None):
-      self._attributes["next_joined_event_start"] = next_event.start
-      self._attributes["next_joined_event_end"] = next_event.end
-      self._attributes["next_joined_event_duration_in_minutes"] = next_event.duration_in_minutes
+      self._attributes["next_event_start"] = next_event.start
+      self._attributes["next_event_end"] = next_event.end
+      self._attributes["next_event_duration_in_minutes"] = next_event.duration_in_minutes
 
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
