@@ -20,3 +20,12 @@ class IntelligentSettings:
     self.charge_limit_weekend = charge_limit_weekend
     self.ready_time_weekday = ready_time_weekday
     self.ready_time_weekend = ready_time_weekend
+
+  def to_dict(self):
+    return {
+      "smart_charge": self.smart_charge,
+      "charge_limit_weekday": self.charge_limit_weekday,
+      "charge_limit_weekend": self.charge_limit_weekend,
+      "ready_time_weekday": self.ready_time_weekday,
+      "ready_time_weekend": self.ready_time_weekend,
+    }
