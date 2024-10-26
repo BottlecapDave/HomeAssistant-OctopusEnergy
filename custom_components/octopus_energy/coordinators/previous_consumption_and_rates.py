@@ -224,6 +224,7 @@ def get_latest_day(consumption_data: list | None):
   if len(current_reduced_consumption_data) == 48:
     latest_reduced_consumption_data = current_reduced_consumption_data
 
+  _LOGGER.debug(f"Latest day: {latest_reduced_consumption_data[-1]["end"] if latest_reduced_consumption_data is not None and len(latest_reduced_consumption_data) > 0 else None}")
   return latest_reduced_consumption_data
 
 async def async_fetch_consumption_and_rates(
@@ -246,16 +247,15 @@ async def async_fetch_consumption_and_rates(
   if (account_info is None):
     return previous_data
 
+  _LOGGER.debug(f"{'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}: next_refresh: {previous_data.next_refresh if previous_data is not None else None}; ")
   if (previous_data == None or 
       current >= previous_data.next_refresh):
-    _LOGGER.debug(f"Retrieving previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}...")
-
     rate_data = None
     standing_charge = None
     
     try:
       if (is_electricity == True):
-        consumption_data = await client.async_get_electricity_consumption(identifier, serial_number, page_size=50)
+        consumption_data = await client.async_get_electricity_consumption(identifier, serial_number, page_size=52)
         consumption_data = get_latest_day(consumption_data)
 
         if consumption_data is not None:
@@ -283,7 +283,7 @@ async def async_fetch_consumption_and_rates(
                                                   intelligent_dispatches.planned,
                                                   intelligent_dispatches.completed)
       else:
-        consumption_data = await client.async_get_gas_consumption(identifier, serial_number, page_size=50)
+        consumption_data = await client.async_get_gas_consumption(identifier, serial_number, page_size=52)
         consumption_data = get_latest_day(consumption_data)
 
         if consumption_data is not None:
@@ -300,6 +300,7 @@ async def async_fetch_consumption_and_rates(
             client.async_get_gas_standing_charge(tariff.product, tariff.code, period_from, period_to)
           )
       
+      _LOGGER.debug(f"{'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}: consumption_data: {len(consumption_data) if consumption_data is not None else None}; rate_data: {len(rate_data) if rate_data is not None else None}; standing_charge: {standing_charge}")
       if consumption_data is not None and len(consumption_data) >= MINIMUM_CONSUMPTION_DATA_LENGTH and rate_data is not None and len(rate_data) > 0 and standing_charge is not None:
         _LOGGER.debug(f"Discovered previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}")
         consumption_data = __sort_consumption(consumption_data)
@@ -323,6 +324,7 @@ async def async_fetch_consumption_and_rates(
           None,
           None
         )
+    
       
       return PreviousConsumptionCoordinatorResult(
         current,
@@ -348,7 +350,7 @@ async def async_fetch_consumption_and_rates(
           previous_data.historic_weekday_consumption,
           previous_data.historic_weekend_consumption
         )
-        _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number} - using cached data. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number} - using cached data. Next attempt at {result.next_refresh}. Exception: {e}")
       else:
         result = PreviousConsumptionCoordinatorResult(
           # We want to force into our fallback mode
@@ -360,7 +362,7 @@ async def async_fetch_consumption_and_rates(
           None,
           None
         )
-        _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}. Next attempt at {result.next_refresh}. Exception: {e}")
 
       return result
 

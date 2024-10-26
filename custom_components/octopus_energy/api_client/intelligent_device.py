@@ -16,3 +16,13 @@ class IntelligentDevice:
     self.vehicleBatterySizeInKwh = vehicleBatterySizeInKwh
     self.chargePointPowerInKw = chargePointPowerInKw
     self.is_charger = is_charger
+
+  def to_dict(self):
+    return {
+      "provider": self.provider,
+      "make": self.make,
+      "model": self.model,
+      "vehicleBatterySizeInKwh": self.vehicleBatterySizeInKwh,
+      "chargePointPowerInKw": self.chargePointPowerInKw,
+      "is_charger": self.is_charger,
+    }
