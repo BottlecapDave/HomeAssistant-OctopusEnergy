@@ -6,6 +6,7 @@ from homeassistant.helpers import entity_registry as er
 
 from .const import (
   CONFIG_ACCOUNT_ID,
+  DATA_ACCOUNT,
   DOMAIN,
 
   DATA_CLIENT
@@ -27,8 +28,11 @@ async def async_get_device_diagnostics(hass, entry, device):
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
     _LOGGER.info('Retrieving account details for diagnostics...')
-    
-    account_info = await client.async_get_account(account_id)
+
+    account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+    account_info = account_result.account if account_result is not None else None
+    if account_info is None:
+      account_info = await client.async_get_account(account_id)
 
     redacted_mappings = {}
     redacted_mapping_count = 1
@@ -98,8 +102,7 @@ async def async_get_device_diagnostics(hass, entry, device):
             break
 
         for key in redacted_mappings.keys():
-          _LOGGER.debug(f"key: {key}")
-          unique_id = unique_id.replace(key, f"{redacted_mappings[key]}")
+          unique_id = unique_id.lower().replace(key.lower(), f"{redacted_mappings[key]}")
         
         entity_info[unique_id] = {
           "last_updated": state.last_updated if state is not None else None,
