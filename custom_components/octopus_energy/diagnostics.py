@@ -113,6 +113,6 @@ async def async_get_device_diagnostics(hass, entry, device):
     return {
       "account": account_info,
       "entities": entity_info,
-      "intelligent_device": intelligent_device,
-      "intelligent_settings": intelligent_settings
+      "intelligent_device": intelligent_device.to_dict() if intelligent_device is not None else None,
+      "intelligent_settings": intelligent_settings.to_dict() if intelligent_settings is not None else None
     }
