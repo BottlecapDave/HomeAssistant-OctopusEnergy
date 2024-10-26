@@ -1,3 +1,12 @@
+## [13.0.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.0.2...v13.0.3) (2024-10-26)
+
+
+### Bug Fixes
+
+* Fixed issue where previous consumption data could be reported partially for the current day (30 minutes dev time) ([db4838d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/db4838ddcbbfa794402a432809d602facec96c46))
+* Fixed rolling target rate sensor not turning on when in always evaluation mode (30 minutes dev time) ([b141ce2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b141ce2c060836f19597c7d49ff60dd0073fa3a9))
+* Updated diagnostics to include additional information to assist with debugging (1.5 hours dev time) ([5b9136c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5b9136c5f4c76f5880cecd3faeec127b8db5044c))
+
 ## [13.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.0.1...v13.0.2) (2024-10-18)
 
 
