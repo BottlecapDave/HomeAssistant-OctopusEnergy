@@ -266,11 +266,16 @@ def get_target_rate_info(current_date: datetime, applicable_rates, offset: str =
       if (index > 0 and applicable_rates[index - 1]["end"] != rate["start"]):
         diff = applicable_rates[index - 1]["end"] - block_valid_from
         minutes = diff.total_seconds() / 60
+        periods = minutes / 30
+        if periods < 1:
+          _LOGGER.error(f"Less than 1 period discovered. Defaulting to 1 period. Rate start: {rate["start"]}; Applicable rates: {applicable_rates}")
+          periods = 1
+
         applicable_rate_blocks.append({
           "start": block_valid_from,
           "end": applicable_rates[index - 1]["end"],
           "duration_in_hours": minutes / 60,
-          "average_cost": total_cost / (minutes / 30),
+          "average_cost": total_cost / periods,
           "min_cost": min_cost,
           "max_cost": max_cost
         })
