@@ -102,7 +102,7 @@ def get_rates(current_date: datetime, rates: list, target_hours: float):
   return applicable_rates
 
 def __get_valid_to(rate):
-  return rate["end"]
+  return (rate["end"].timestamp(), rate["end"].fold)
 
 def calculate_continuous_times(
     applicable_rates: list,
@@ -203,14 +203,14 @@ def calculate_intermittent_times(
 
   if find_last_rates:
     if search_for_highest_rate:
-      applicable_rates.sort(key= lambda rate: (-rate["value_inc_vat"], -rate["end"].timestamp()))
+      applicable_rates.sort(key= lambda rate: (-rate["value_inc_vat"], -rate["end"].timestamp(), -rate["end"].fold))
     else:
-      applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], -rate["end"].timestamp()))
+      applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], -rate["end"].timestamp(), -rate["end"].fold))
   else:
     if search_for_highest_rate:
-      applicable_rates.sort(key= lambda rate: (-rate["value_inc_vat"], rate["end"]))
+      applicable_rates.sort(key= lambda rate: (-rate["value_inc_vat"], rate["end"], rate["end"].fold))
     else:
-      applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], rate["end"]))
+      applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], rate["end"], rate["end"].fold))
 
   applicable_rates = list(filter(lambda rate: (min_rate is None or rate["value_inc_vat"] >= min_rate) and (max_rate is None or rate["value_inc_vat"] <= max_rate), applicable_rates))
   

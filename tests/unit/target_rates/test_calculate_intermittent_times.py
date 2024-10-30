@@ -847,7 +847,7 @@ async def test_when_clocks_go_back_then_correct_rates_are_selected():
     },
   ]
   
-  applicable_rates.sort(key=lambda x: x["start"])
+  applicable_rates.sort(key=lambda x: (x["start"].timestamp(), x["start"].fold))
 
   # Act
   result = calculate_intermittent_times(

@@ -10,6 +10,7 @@ from custom_components.octopus_energy.const import EVENT_ELECTRICITY_CURRENT_DAY
 from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
 from custom_components.octopus_energy.api_client.intelligent_device import IntelligentDevice
 from custom_components.octopus_energy.coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
+from zoneinfo import ZoneInfo
 
 current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
 period_from = datetime.strptime("2023-07-14T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
@@ -38,7 +39,7 @@ def get_account_info(is_active_agreement = True, tariff_code = "E-1R-SUPER-GREEN
         "agreements": [
           {
             "start": "2023-07-01T00:00:00+01:00" if is_active_agreement else "2023-08-01T00:00:00+01:00",
-            "end": "2023-08-01T00:00:00+01:00" if is_active_agreement else "2023-09-01T00:00:00+01:00",
+            "end": "2025-08-01T00:00:00+01:00" if is_active_agreement else "2023-09-01T00:00:00+01:00",
             "tariff_code": tariff_code,
             "product_code": product_code
           }
@@ -217,7 +218,7 @@ async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
   expected_rates_unsorted = expected_rates.copy()
   
   # Put rates into reverse order to make sure sorting works
-  expected_rates.sort(key=lambda rate: rate["start"], reverse=True)
+  expected_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold), reverse=True)
 
   assert expected_rates[-1]["start"] == expected_period_from
   assert expected_rates[0]["end"] == expected_period_to
@@ -287,7 +288,7 @@ async def test_when_dispatches_is_not_defined_and_existing_rates_is_none_then_ra
   expected_rates_unsorted = expected_rates.copy()
   
   # Put rates into reverse order to make sure sorting works
-  expected_rates.sort(key=lambda rate: rate["start"], reverse=True)
+  expected_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold), reverse=True)
 
   assert expected_rates[-1]["start"] == expected_period_from
   assert expected_rates[0]["end"] == expected_period_to
@@ -959,7 +960,7 @@ async def test_when_rates_change_correctly_then_unique_rates_changed_event_fired
   expected_rates = create_rate_data(expected_period_from, expected_period_to, current_unique_rates)
   
   # Put rates into reverse order to make sure sorting works
-  expected_rates.sort(key=lambda rate: rate["start"], reverse=True)
+  expected_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold), reverse=True)
 
   assert expected_rates[-1]["start"] == expected_period_from
   assert expected_rates[0]["end"] == expected_period_to
@@ -998,3 +999,96 @@ async def test_when_rates_change_correctly_then_unique_rates_changed_event_fired
     )
 
   assert unique_rates_changed_called == expected_unique_rates_changed_event_fired
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("existing_rates",[
+  (None),
+  (ElectricityRatesCoordinatorResult(period_from, 1, [])),
+  (ElectricityRatesCoordinatorResult(period_from, 1, None)),
+])
+async def test_when_clocks_change_then_rates_are_correct(existing_rates):
+  current = datetime(2024, 10, 27, 10, 30, tzinfo=ZoneInfo(key='Europe/London'))
+  expected_period_from = datetime.strptime("2024-10-26T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  expected_period_to = datetime.strptime("2024-10-29T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
+  expected_rates = create_rate_data(datetime(2024, 10, 26, 0, 0, tzinfo=ZoneInfo(key='Europe/London')), datetime(2024, 10, 27, 1, 30, tzinfo=ZoneInfo(key='Europe/London')), [1])
+  expected_rates.append({
+    "start": datetime(2024, 10, 27, 1, 30, tzinfo=ZoneInfo(key='Europe/London')),
+    "end": datetime(2024, 10, 27, 1, 0, fold=1, tzinfo=ZoneInfo(key='Europe/London')),
+    "value_inc_vat": 1,
+    "tariff_code": "E-1R-Test-L",
+    "is_capped": False
+  })
+  expected_rates.append({
+    "start": datetime(2024, 10, 27, 1, 0, fold=1, tzinfo=ZoneInfo(key='Europe/London')),
+    "end": datetime(2024, 10, 27, 1, 30, fold=1, tzinfo=ZoneInfo(key='Europe/London')),
+    "value_inc_vat": 1,
+    "tariff_code": "E-1R-Test-L",
+    "is_capped": False
+  })
+  expected_rates.append({
+    "start": datetime(2024, 10, 27, 1, 30, fold=1, tzinfo=ZoneInfo(key='Europe/London')),
+    "end": datetime(2024, 10, 27, 2, 0, tzinfo=ZoneInfo(key='Europe/London')),
+    "value_inc_vat": 1,
+    "tariff_code": "E-1R-Test-L",
+    "is_capped": False
+  })
+  expected_rates.extend(create_rate_data(datetime(2024, 10, 27, 2, 0, tzinfo=ZoneInfo(key='Europe/London')), datetime(2024, 10, 29, 0, 0, tzinfo=ZoneInfo(key='Europe/London')), [1]))
+  
+  expected_rates_unsorted = expected_rates.copy()
+  
+  # Put rates into reverse order to make sure sorting works
+  expected_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold), reverse=True)
+
+  assert expected_rates[-1]["start"] == expected_period_from
+  assert expected_rates[0]["end"] == expected_period_to
+  
+  mock_api_called = False
+  requested_period_from = None
+  requested_period_to = None
+  async def async_mocked_get_electricity_rates(*args, **kwargs):
+    nonlocal requested_period_from, requested_period_to, mock_api_called, expected_rates
+
+    requested_client, requested_product_code, requested_tariff_code, is_smart_meter, requested_period_from, requested_period_to = args
+    mock_api_called = True
+    return expected_rates
+  
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
+  
+  account_info = get_account_info()
+  expected_retrieved_rates = ElectricityRatesCoordinatorResult(current, 1, expected_rates_unsorted)
+  dispatches_result = IntelligentDispatchesCoordinatorResult(dispatches_last_retrieved, 1, IntelligentDispatches([], []))
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_rates=async_mocked_get_electricity_rates):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_rates: ElectricityRatesCoordinatorResult = await async_refresh_electricity_rates_data(
+      current,
+      client,
+      account_info,
+      mpan,
+      serial_number,
+      True,
+      False,
+      existing_rates,
+      None,
+      dispatches_result,
+      True,
+      fire_event
+    )
+
+    assert retrieved_rates is not None
+    assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
+    assert retrieved_rates.rates == expected_retrieved_rates.rates
+    assert retrieved_rates.original_rates == expected_retrieved_rates.original_rates
+    assert retrieved_rates.rates_last_adjusted == expected_retrieved_rates.rates_last_adjusted
+    assert mock_api_called == True
+    # assert requested_period_from == expected_period_from
+    # assert requested_period_to == expected_period_to
+    
+    assert len(actual_fired_events.keys()) == 3
+    assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_PREVIOUS_DAY_RATES, datetime.strptime("2024-10-26T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2024-10-27T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"))
+    assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, datetime.strptime("2024-10-27T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2024-10-28T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"))
+    assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, datetime.strptime("2024-10-28T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2024-10-29T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"))

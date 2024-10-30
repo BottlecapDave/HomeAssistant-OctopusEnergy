@@ -602,7 +602,7 @@ async def test_when_clocks_go_back_then_correct_times_are_selected():
     },
   ]
   
-  rates.sort(key=lambda x: x["start"])
+  rates.sort(key=lambda x: (x["start"].timestamp(), x["start"].fold))
 
   # Act
   result = get_applicable_rates(

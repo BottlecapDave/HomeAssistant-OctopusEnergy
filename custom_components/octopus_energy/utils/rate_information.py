@@ -72,7 +72,7 @@ def get_current_rate_information(rates, now: datetime):
   return None
 
 def get_from(rate):
-  return rate["start"]
+  return (rate["start"].timestamp(), rate["start"].fold)
 
 def get_previous_rate_information(rates, now: datetime):
   current_rate = None

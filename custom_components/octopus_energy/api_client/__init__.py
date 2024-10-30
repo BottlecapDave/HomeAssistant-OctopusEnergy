@@ -521,7 +521,7 @@ def get_valid_from(rate):
   return rate["valid_from"]
 
 def get_start(rate):
-  return rate["start"]
+  return (rate["start"].timestamp(), rate["start"].fold)
     
 def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: datetime, tariff_code: str, price_cap: float = None, favour_direct_debit_rates = True):
   """Process the collection of rates to ensure they're in 30 minute periods"""
@@ -856,7 +856,7 @@ class OctopusEnergyApiClient:
                                                              item["greennessIndex"],
                                                              item["highlightFlag"]),
                           response_body["data"]["greennessForecast"]))
-          forecast.sort(key=lambda item: item.start)
+          forecast.sort(key=lambda item: (item.start.timestamp(), item.start.fold))
           return forecast
     
     except TimeoutError:
@@ -1606,7 +1606,7 @@ class OctopusEnergyApiClient:
       raise TimeoutException()
 
   def __get_interval_end(self, item):
-    return item["end"]
+    return (item["end"].timestamp(), item["end"].fold)
 
   def __is_night_rate(self, rate, is_smart_meter):
     # Normally the economy seven night rate is between 12am and 7am UK time

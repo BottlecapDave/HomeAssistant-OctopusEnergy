@@ -220,7 +220,7 @@ async def test_when_data_last_updated_is_not_equal_to_previous_data_then_new_dat
     assert result is not None
     assert result.historic_weekday_consumption is not None
     assert len(result.historic_weekday_consumption) == 48 * 15
-    expected_missing_weekday_times.sort(key=lambda x: x["start"])
+    expected_missing_weekday_times.sort(key=lambda x: (x["start"].timestamp(), x["start"].fold))
 
     expected_weekday_times = expected_missing_weekday_times + [
       { "start": datetime.strptime("2024-09-16T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2024-09-17T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z") },
@@ -236,7 +236,7 @@ async def test_when_data_last_updated_is_not_equal_to_previous_data_then_new_dat
 
     assert result.historic_weekend_consumption is not None
     assert len(result.historic_weekend_consumption) == 48 * 8
-    expected_missing_weekend_times.sort(key=lambda x: x["start"])
+    expected_missing_weekend_times.sort(key=lambda x: (x["start"].timestamp(), x["start"].fold))
 
     expected_weekend_times = expected_missing_weekend_times + [
       { "start": datetime.strptime("2024-09-15T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2024-09-16T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z") }
