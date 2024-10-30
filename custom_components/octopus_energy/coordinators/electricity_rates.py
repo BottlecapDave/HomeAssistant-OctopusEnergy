@@ -90,7 +90,7 @@ async def async_refresh_electricity_rates_data(
         _LOGGER.debug(f'Electricity rates retrieved for {target_mpan}/{target_serial_number} ({tariff.code});')
         
         original_rates = new_rates.copy()
-        original_rates.sort(key=lambda rate: rate["start"])
+        original_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold))
         
         if dispatches_result is not None and dispatches_result.dispatches is not None and is_export_meter == False:
           new_rates = adjust_intelligent_rates(new_rates,
@@ -100,7 +100,7 @@ async def async_refresh_electricity_rates_data(
           _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches_result.dispatches}")
 
         # Sort our rates again _just in case_
-        new_rates.sort(key=lambda rate: rate["start"])
+        new_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold))
         
         raise_rate_events(current,
                           private_rates_to_public_rates(new_rates),
@@ -160,7 +160,7 @@ async def async_refresh_electricity_rates_data(
       _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches_result.dispatches}")
 
       # Sort our rates again _just in case_
-      new_rates.sort(key=lambda rate: rate["start"])
+      new_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold))
       
       raise_rate_events(current,
                         private_rates_to_public_rates(new_rates),
