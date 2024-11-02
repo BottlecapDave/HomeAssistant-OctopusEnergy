@@ -16,6 +16,7 @@ Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-
 | Saving session target | 30 | Not relevant most of the time and intensive due to retrieving consumption data |
 | Wheel of fortune | 60 | Doesn't change that frequently, and not fundamental for a smart home (other than knowledge) so no need to request too often. |
 | Greenness Forecast | 180 | Doesn't change frequently |
+| Free electricity sessions | 90 | Data is provided by a private API and there is usually at least half a day notice before the sessions which is why this is refreshed slightly less than saving sessions. |
 
 If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly waiting longer between each attempt, to a maximum of 30 minutes between each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.
 

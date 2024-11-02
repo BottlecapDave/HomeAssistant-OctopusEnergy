@@ -904,19 +904,23 @@ class OctopusEnergyApiClient:
     try:
       client = self._create_client_session()
       url = f'https://oe-api.davidskendall.co.uk/free_electricity.json'
-      # Get account response
       payload = { }
       headers = { }
       async with client.get(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
 
         if (response_body is not None and "data" in response_body):
-          return FreeElectricitySessionsResponse(list(map(
-            lambda ev: FreeElectricitySession(
-              ev["code"],
-              as_utc(parse_datetime(ev["start"])),
-              as_utc(parse_datetime(ev["end"]))),
-            response_body["data"])))
+          sessions = []
+          for item in response_body["data"]:
+            if "is_test" in item and item["is_test"] == True:
+              continue
+
+            sessions.append(FreeElectricitySession(
+              item["code"],
+              as_utc(parse_datetime(item["start"])),
+              as_utc(parse_datetime(item["end"]))))
+
+          return sessions
         else:
           _LOGGER.error("Failed to retrieve free electricity sessions")
     except TimeoutError:
