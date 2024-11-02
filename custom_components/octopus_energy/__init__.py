@@ -17,6 +17,7 @@ from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatc
 from .coordinators.intelligent_settings import async_setup_intelligent_settings_coordinator
 from .coordinators.electricity_rates import async_setup_electricity_rates_coordinator
 from .coordinators.saving_sessions import async_setup_saving_sessions_coordinators
+from .coordinators.free_electricity_sessions import async_setup_free_electricity_sessions_coordinators
 from .coordinators.greenness_forecast import async_setup_greenness_forecast_coordinator
 from .statistics import get_statistic_ids_to_remove
 from .intelligent import get_intelligent_features, is_intelligent_product, mock_intelligent_device
@@ -433,6 +434,8 @@ async def async_setup_dependencies(hass, config):
   await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id if intelligent_device is not None else None, debug_override.mock_intelligent_controls if debug_override is not None else False)
   
   await async_setup_saving_sessions_coordinators(hass, account_id)
+
+  await async_setup_free_electricity_sessions_coordinators(hass, account_id)
 
   await async_setup_greenness_forecast_coordinator(hass, account_id)
 

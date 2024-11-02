@@ -20,6 +20,7 @@ from .intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatch
 from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSessionsResponse
 from .wheel_of_fortune import WheelOfFortuneSpinsResponse
 from .greenness_forecast import GreennessForecast
+from .free_electricity_sessions import FreeElectricitySession, FreeElectricitySessionsResponse
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -891,6 +892,33 @@ class OctopusEnergyApiClient:
                                         response_body["data"]["savingSessions"]["account"]["joinedEvents"])))
         else:
           _LOGGER.error("Failed to retrieve saving sessions")
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+    return None
+
+  async def async_get_free_electricity_sessions(self, account_id: str) -> FreeElectricitySessionsResponse:
+    """Get the user's free electricity sessions"""
+
+    try:
+      client = self._create_client_session()
+      url = f'https://oe-api.davidskendall.co.uk/free_electricity.json'
+      # Get account response
+      payload = { }
+      headers = { }
+      async with client.get(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+
+        if (response_body is not None and "data" in response_body):
+          return FreeElectricitySessionsResponse(list(map(
+            lambda ev: FreeElectricitySession(
+              ev["code"],
+              as_utc(parse_datetime(ev["start"])),
+              as_utc(parse_datetime(ev["end"]))),
+            response_body["data"])))
+        else:
+          _LOGGER.error("Failed to retrieve free electricity sessions")
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()

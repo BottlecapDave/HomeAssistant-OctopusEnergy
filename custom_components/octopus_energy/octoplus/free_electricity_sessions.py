@@ -1,5 +1,6 @@
 import logging
 
+from custom_components.octopus_energy.coordinators.free_electricity_sessions import FreeElectricitySessionsCoordinatorResult
 from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
@@ -21,13 +22,12 @@ from . import (
   get_next_octoplus_sessions_event
 )
 
-from ..coordinators.saving_sessions import SavingSessionsCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
-  """Sensor for determining if a saving session is active."""
+class OctopusEnergyFreeElectricitySessions(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
+  """Sensor for determining if a free electricity session is active."""
   
   _unrecorded_attributes = frozenset({"data_last_retrieved"})
 
@@ -40,12 +40,12 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
     self._state = None
     self._events = []
     self._attributes = {
-      "current_joined_event_start": None,
-      "current_joined_event_end": None,
-      "current_joined_event_duration_in_minutes": None,
-      "next_joined_event_start": None,
-      "next_joined_event_end": None,
-      "next_joined_event_duration_in_minutes": None,
+      "current_event_start": None,
+      "current_event_end": None,
+      "current_event_duration_in_minutes": None,
+      "next_event_start": None,
+      "next_event_end": None,
+      "next_event_duration_in_minutes": None
     }
 
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
@@ -53,12 +53,20 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_{self._account_id}_octoplus_saving_sessions"
+    return f"octopus_energy_{self._account_id}_octoplus_free_electricity_session"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octoplus Saving Session ({self._account_id})"
+    return f"Octoplus Free Electricity ({self._account_id})"
+  
+  @property
+  def entity_registry_enabled_default(self) -> bool:
+    """Return if the entity should be enabled when first added.
+
+    This only applies when fist added to the entity registry.
+    """
+    return False
 
   @property
   def icon(self):
@@ -78,17 +86,17 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
   def _handle_coordinator_update(self) -> None:
     """Determine if the user is in a saving session."""
     self._attributes = {
-      "current_joined_event_start": None,
-      "current_joined_event_end": None,
-      "current_joined_event_duration_in_minutes": None,
-      "next_joined_event_start": None,
-      "next_joined_event_end": None,
-      "next_joined_event_duration_in_minutes": None,
+      "current_event_start": None,
+      "current_event_end": None,
+      "current_event_duration_in_minutes": None,
+      "next_event_start": None,
+      "next_event_end": None,
+      "next_event_duration_in_minutes": None
     }
 
-    saving_session: SavingSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
-    if (saving_session is not None):
-      self._events = saving_session.joined_events
+    free_electricity_session: FreeElectricitySessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
+    if (free_electricity_session is not None):
+      self._events = free_electricity_session.events
     else:
       self._events = []
 
@@ -96,17 +104,17 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
     current_event = current_octoplus_sessions_event(current_date, self._events)
     if (current_event is not None):
       self._state = True
-      self._attributes["current_joined_event_start"] = current_event.start
-      self._attributes["current_joined_event_end"] = current_event.end
-      self._attributes["current_joined_event_duration_in_minutes"] = current_event.duration_in_minutes
+      self._attributes["current_event_start"] = current_event.start
+      self._attributes["current_event_end"] = current_event.end
+      self._attributes["current_event_duration_in_minutes"] = current_event.duration_in_minutes
     else:
       self._state = False
 
     next_event = get_next_octoplus_sessions_event(current_date, self._events)
     if (next_event is not None):
-      self._attributes["next_joined_event_start"] = next_event.start
-      self._attributes["next_joined_event_end"] = next_event.end
-      self._attributes["next_joined_event_duration_in_minutes"] = next_event.duration_in_minutes
+      self._attributes["next_event_start"] = next_event.start
+      self._attributes["next_event_end"] = next_event.end
+      self._attributes["next_event_duration_in_minutes"] = next_event.duration_in_minutes
 
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()

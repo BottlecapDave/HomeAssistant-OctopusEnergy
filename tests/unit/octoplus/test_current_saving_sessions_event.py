@@ -1,7 +1,7 @@
 from datetime import datetime
 import pytest
 
-from custom_components.octopus_energy.octoplus import current_saving_sessions_event
+from custom_components.octopus_energy.octoplus import current_octoplus_sessions_event
 from custom_components.octopus_energy.api_client.saving_sessions import SavingSession
 
 @pytest.mark.asyncio
@@ -16,7 +16,7 @@ async def test_when_active_event_present_then_true_is_returned(current_date):
     SavingSession("3", "ABC", datetime.strptime("2022-12-07T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2022-12-07T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), 0)
   ]
 
-  result = current_saving_sessions_event(
+  result = current_octoplus_sessions_event(
     current_date,
     events,
   )
@@ -35,7 +35,7 @@ async def test_when_no_active_event_present_then_false_is_returned(current_date)
     SavingSession("1", "ABC", datetime.strptime("2022-12-06T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2022-12-06T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), 0),
   ]
 
-  result = current_saving_sessions_event(
+  result = current_octoplus_sessions_event(
     current_date,
     events,
   )
@@ -47,7 +47,7 @@ async def test_when_events_is_none_then_none_returned():
   events = None
   current_date = datetime.strptime("2022-12-08T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
 
-  result = current_saving_sessions_event(
+  result = current_octoplus_sessions_event(
     current_date,
     events,
   )
