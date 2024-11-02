@@ -27,6 +27,8 @@ from .config.target_rates import async_migrate_target_config
 from .config.cost_tracker import async_migrate_cost_tracker_config
 from .utils import get_active_tariff
 from .utils.debug_overrides import DebugOverride, async_get_debug_override
+from .utils.error import api_exception_to_string
+from .storage.account import async_load_cached_account
 
 from .const import (
   CONFIG_FAVOUR_DIRECT_DEBIT_RATES,
@@ -66,7 +68,7 @@ TARGET_RATE_PLATFORMS = ["binary_sensor"]
 COST_TRACKER_PLATFORMS = ["sensor"]
 TARIFF_COMPARISON_PLATFORMS = ["sensor"]
 
-from .api_client import AuthenticationException, OctopusEnergyApiClient, RequestException
+from .api_client import ApiException, AuthenticationException, OctopusEnergyApiClient, RequestException
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -285,12 +287,12 @@ async def async_setup_dependencies(hass, config):
   ir.async_delete_issue(hass, DOMAIN, REPAIR_ACCOUNT_NOT_FOUND.format(account_id))
 
   try:
-    account_info = await client.async_get_account(config[CONFIG_ACCOUNT_ID])
     ir.async_delete_issue(hass, DOMAIN, REPAIR_INVALID_API_KEY.format(account_id))
+    account_info = await client.async_get_account(config[CONFIG_ACCOUNT_ID])
     if (account_info is None):
       raise ConfigEntryNotReady(f"Failed to retrieve account information")
   except Exception as e:
-    if isinstance(e, RequestException) == False:
+    if isinstance(e, ApiException) == False:
       raise
 
     if isinstance(e, AuthenticationException):
@@ -303,8 +305,13 @@ async def async_setup_dependencies(hass, config):
         translation_key="invalid_api_key",
         translation_placeholders={ "account_id": account_id },
       )
-    
-    raise ConfigEntryNotReady(f"Failed to retrieve account information")
+      raise ConfigEntryNotReady(f"Failed to retrieve account information: {api_exception_to_string(e)}")
+    else:
+      account_info = await async_load_cached_account(hass, account_id)
+      if (account_info is None):
+        raise ConfigEntryNotReady(f"Failed to retrieve account information: {api_exception_to_string(e)}")
+      else:
+        _LOGGER.warning(f"Using cached account information for {account_id} during startup. This data will be updated automatically when available.")
 
   hass.data[DOMAIN][account_id][DATA_ACCOUNT] = AccountCoordinatorResult(utcnow(), 1, account_info)
 

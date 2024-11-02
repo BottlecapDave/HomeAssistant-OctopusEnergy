@@ -1,6 +1,8 @@
 import logging
 from datetime import datetime, timedelta
 
+from custom_components.octopus_energy.storage.account import async_save_cached_account
+
 from . import BaseCoordinatorResult, async_check_valid_product
 from ..utils import get_active_tariff
 
@@ -109,13 +111,17 @@ async def async_setup_account_info_coordinator(hass, account_id: str):
     if DATA_ACCOUNT not in hass.data[DOMAIN][account_id] or hass.data[DOMAIN][account_id][DATA_ACCOUNT] is None:
       raise Exception("Failed to find account information")
 
-    hass.data[DOMAIN][account_id][DATA_ACCOUNT] = await async_refresh_account(
+    account_info = await async_refresh_account(
       hass,
       current,
       client,
       account_id,
       hass.data[DOMAIN][account_id][DATA_ACCOUNT]
     )
+    hass.data[DOMAIN][account_id][DATA_ACCOUNT] = account_info
+
+    if account_info is not None and account_info.account is not None:
+      await async_save_cached_account(hass, account_id, account_info.account)
     
     return hass.data[DOMAIN][account_id][DATA_ACCOUNT]
 
