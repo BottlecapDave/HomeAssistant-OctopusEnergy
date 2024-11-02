@@ -28,7 +28,8 @@ from .config.cost_tracker import async_migrate_cost_tracker_config
 from .utils import get_active_tariff
 from .utils.debug_overrides import DebugOverride, async_get_debug_override
 from .utils.error import api_exception_to_string
-from .storage.account import async_load_cached_account
+from .storage.account import async_load_cached_account, async_save_cached_account
+from .storage.intelligent_device import async_load_cached_intelligent_device, async_save_cached_intelligent_device
 
 from .const import (
   CONFIG_FAVOUR_DIRECT_DEBIT_RATES,
@@ -291,6 +292,7 @@ async def async_setup_dependencies(hass, config):
     account_info = await client.async_get_account(config[CONFIG_ACCOUNT_ID])
     if (account_info is None):
       raise ConfigEntryNotReady(f"Failed to retrieve account information")
+    await async_save_cached_account(hass, account_id, account_info)
   except Exception as e:
     if isinstance(e, ApiException) == False:
       raise
@@ -379,7 +381,18 @@ async def async_setup_dependencies(hass, config):
     if should_mock_intelligent_data:
       intelligent_device = mock_intelligent_device()
     else:
-      intelligent_device = await client.async_get_intelligent_device(account_id)
+      try:
+        intelligent_device = await client.async_get_intelligent_device(account_id)
+        await async_save_cached_intelligent_device(hass, account_id, intelligent_device)
+      except Exception as e:
+        if isinstance(e, ApiException) == False:
+          raise
+
+        intelligent_device = await async_load_cached_intelligent_device(hass, account_id)
+        if (intelligent_device is None):
+          raise ConfigEntryNotReady(f"Failed to retrieve intelligent device information: {api_exception_to_string(e)}")
+        else:
+          _LOGGER.warning(f"Using cached intelligent device information for {account_id} during startup. This data will be updated automatically when available.")
 
     if intelligent_device is not None:
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] = intelligent_device
