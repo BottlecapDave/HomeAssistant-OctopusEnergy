@@ -920,7 +920,7 @@ class OctopusEnergyApiClient:
               as_utc(parse_datetime(item["start"])),
               as_utc(parse_datetime(item["end"]))))
 
-          return sessions
+          return FreeElectricitySessionsResponse(sessions)
         else:
           _LOGGER.error("Failed to retrieve free electricity sessions")
     except TimeoutError:
