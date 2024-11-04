@@ -14,6 +14,7 @@ from .utils import get_active_tariff
 from .intelligent import get_intelligent_features
 from .api_client.intelligent_device import IntelligentDevice
 from .target_rates.rolling_target_rate import OctopusEnergyRollingTargetRate
+from .octoplus.free_electricity_sessions import OctopusEnergyFreeElectricitySessions
 
 from .const import (
   CONFIG_KIND,
@@ -21,6 +22,7 @@ from .const import (
   CONFIG_KIND_ROLLING_TARGET_RATE,
   CONFIG_KIND_TARGET_RATE,
   CONFIG_ACCOUNT_ID,
+  DATA_FREE_ELECTRICITY_SESSIONS_COORDINATOR,
   DATA_GREENNESS_FORECAST_COORDINATOR,
   DATA_INTELLIGENT_DEVICE,
   DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
@@ -103,15 +105,21 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
   account_id = config[CONFIG_ACCOUNT_ID]
   account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
   account_info = account_result.account if account_result is not None else None
+  octoplus_enrolled = account_info is not None and account_info["octoplus_enrolled"] == True
 
   saving_session_coordinator = hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS_COORDINATOR]
   greenness_forecast_coordinator = hass.data[DOMAIN][account_id][DATA_GREENNESS_FORECAST_COORDINATOR]
+  free_electricity_session_coordinator = hass.data[DOMAIN][account_id][DATA_FREE_ELECTRICITY_SESSIONS_COORDINATOR]
 
   now = utcnow()
   entities = [
     OctopusEnergySavingSessions(hass, saving_session_coordinator, account_id),
     OctopusEnergyGreennessForecastHighlighted(hass, greenness_forecast_coordinator, account_id)
   ]
+
+  if octoplus_enrolled:
+    entities.append(OctopusEnergyFreeElectricitySessions(hass, free_electricity_session_coordinator, account_id))    
+
   if len(account_info["electricity_meter_points"]) > 0:
 
     for point in account_info["electricity_meter_points"]:

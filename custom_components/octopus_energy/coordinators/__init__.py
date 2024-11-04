@@ -95,7 +95,7 @@ def raise_rate_events(now: datetime,
                       next_event_key: str):
   
   today_start = as_utc(now.replace(hour=0, minute=0, second=0, microsecond=0))
-  today_end = today_start + timedelta(days=1)
+  today_end = as_utc((now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
 
   previous_rates = []
   current_rates = []

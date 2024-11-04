@@ -1,13 +1,11 @@
-import datetime
 import logging
 
 from ..utils.conversions import value_inc_vat_to_pounds
-from ..utils import get_off_peak_cost
 
 _LOGGER = logging.getLogger(__name__)
 
 def __get_to(item):
-    return item["end"]
+    return (item["end"].timestamp(), item["end"].fold)
 
 def __sort_consumption(consumption_data):
   sorted = consumption_data.copy()

@@ -61,7 +61,7 @@ def create_consumption_data(period_from: datetime, period_to: datetime, reverse 
 
   if reverse == True:
     def get_interval_start(item):
-      return item["start"]
+      return (item["start"].timestamp(), item["start"].fold)
 
     consumption.sort(key=get_interval_start, reverse=True)
 

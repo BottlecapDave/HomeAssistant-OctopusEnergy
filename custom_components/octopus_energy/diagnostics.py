@@ -1,8 +1,10 @@
 """Diagnostics support."""
+from datetime import datetime, timedelta
 import logging
 
 from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.helpers import entity_registry as er
+from homeassistant.util.dt import (now)
 
 from .const import (
   CONFIG_ACCOUNT_ID,
@@ -14,6 +16,30 @@ from .const import (
 from .api_client import OctopusEnergyApiClient, TimeoutException
 
 _LOGGER = logging.getLogger(__name__)
+
+async def async_get_device_consumption_data(client: OctopusEnergyApiClient, device_id: str):
+  current: datetime = now()
+  period_from = current - timedelta(minutes=120)
+  period_to = current
+  try:
+    consumption_data = await client.async_get_smart_meter_consumption(
+      device_id,
+      period_from,
+      period_to)
+  
+    if consumption_data is not None and len(consumption_data) > 0:
+      return {
+        "total_consumption": consumption_data[-1]["total_consumption"],
+        "consumption": consumption_data[-1]["consumption"],
+        "demand": consumption_data[-1]["demand"],
+        "start": consumption_data[-1]["start"],
+        "end": consumption_data[-1]["end"],
+      }
+    
+    return "Not available"
+  
+  except Exception as e:
+    return f"Failed to retrieve - {e}"
 
 async def async_get_device_diagnostics(hass, entry, device):
     """Return diagnostics for a device."""
@@ -45,17 +71,22 @@ async def async_get_device_diagnostics(hass, entry, device):
       for point_index in range(points_length):
         meters_length = len(account_info["electricity_meter_points"][point_index]["meters"])
         for meter_index in range(meters_length):
-          account_info["electricity_meter_points"][point_index]["meters"][meter_index] = async_redact_data(account_info["electricity_meter_points"][point_index]["meters"][meter_index], { "device_id" })
 
           try:
             consumptions = await client.async_get_electricity_consumption(account_info["electricity_meter_points"][point_index]["mpan"], account_info["electricity_meter_points"][point_index]["meters"][meter_index]["serial_number"], page_size=1)
             account_info["electricity_meter_points"][point_index]["meters"][meter_index]["latest_consumption"] = consumptions[-1]["end"] if consumptions is not None and len(consumptions) > 0 else "Not available"
           except TimeoutException:
             account_info["electricity_meter_points"][point_index]["meters"][meter_index]["latest_consumption"] = "time out"
+
+          device_id  = account_info["electricity_meter_points"][point_index]["meters"][meter_index]["device_id"]
+          if device_id is not None and device_id != "":
+            account_info["electricity_meter_points"][point_index]["meters"][meter_index]["device"] = await async_get_device_consumption_data(client, device_id)
           
           redacted_mappings[f"{account_info["electricity_meter_points"][point_index]["meters"][meter_index]["serial_number"]}"] = redacted_mapping_count
           account_info["electricity_meter_points"][point_index]["meters"][meter_index]["serial_number"] = redacted_mapping_count
           redacted_mapping_count += 1
+          
+          account_info["electricity_meter_points"][point_index]["meters"][meter_index] = async_redact_data(account_info["electricity_meter_points"][point_index]["meters"][meter_index], { "device_id" })
         
         redacted_mappings[f"{account_info["electricity_meter_points"][point_index]["mpan"]}"] = redacted_mapping_count
         account_info["electricity_meter_points"][point_index]["mpan"] = redacted_mapping_count
@@ -66,7 +97,6 @@ async def async_get_device_diagnostics(hass, entry, device):
       for point_index in range(points_length):
         meters_length = len(account_info["gas_meter_points"][point_index]["meters"])
         for meter_index in range(meters_length):
-          account_info["gas_meter_points"][point_index]["meters"][meter_index] = async_redact_data(account_info["gas_meter_points"][point_index]["meters"][meter_index], { "device_id" })
           
           try:
             consumptions = await client.async_get_gas_consumption(account_info["gas_meter_points"][point_index]["mprn"], account_info["gas_meter_points"][point_index]["meters"][meter_index]["serial_number"], page_size=1)
@@ -74,9 +104,15 @@ async def async_get_device_diagnostics(hass, entry, device):
           except TimeoutException:
             account_info["gas_meter_points"][point_index]["meters"][meter_index]["latest_consumption"] = "time out"
 
+          device_id  = account_info["gas_meter_points"][point_index]["meters"][meter_index]["device_id"]
+          if device_id is not None and device_id != "":
+            account_info["gas_meter_points"][point_index]["meters"][meter_index]["device"] = await async_get_device_consumption_data(client, device_id)
+
           redacted_mappings[f"{account_info["gas_meter_points"][point_index]["meters"][meter_index]["serial_number"]}"] = redacted_mapping_count
           account_info["gas_meter_points"][point_index]["meters"][meter_index]["serial_number"] = redacted_mapping_count
           redacted_mapping_count += 1
+
+          account_info["gas_meter_points"][point_index]["meters"][meter_index] = async_redact_data(account_info["gas_meter_points"][point_index]["meters"][meter_index], { "device_id" })
 
         redacted_mappings[f"{account_info["gas_meter_points"][point_index]["mprn"]}"] = redacted_mapping_count
         account_info["gas_meter_points"][point_index]["mprn"] = redacted_mapping_count

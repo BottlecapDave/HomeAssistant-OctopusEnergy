@@ -17,6 +17,7 @@ from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatc
 from .coordinators.intelligent_settings import async_setup_intelligent_settings_coordinator
 from .coordinators.electricity_rates import async_setup_electricity_rates_coordinator
 from .coordinators.saving_sessions import async_setup_saving_sessions_coordinators
+from .coordinators.free_electricity_sessions import async_setup_free_electricity_sessions_coordinators
 from .coordinators.greenness_forecast import async_setup_greenness_forecast_coordinator
 from .statistics import get_statistic_ids_to_remove
 from .intelligent import get_intelligent_features, is_intelligent_product, mock_intelligent_device
@@ -27,6 +28,9 @@ from .config.target_rates import async_migrate_target_config
 from .config.cost_tracker import async_migrate_cost_tracker_config
 from .utils import get_active_tariff
 from .utils.debug_overrides import DebugOverride, async_get_debug_override
+from .utils.error import api_exception_to_string
+from .storage.account import async_load_cached_account, async_save_cached_account
+from .storage.intelligent_device import async_load_cached_intelligent_device, async_save_cached_intelligent_device
 
 from .const import (
   CONFIG_FAVOUR_DIRECT_DEBIT_RATES,
@@ -66,7 +70,7 @@ TARGET_RATE_PLATFORMS = ["binary_sensor"]
 COST_TRACKER_PLATFORMS = ["sensor"]
 TARIFF_COMPARISON_PLATFORMS = ["sensor"]
 
-from .api_client import AuthenticationException, OctopusEnergyApiClient, RequestException
+from .api_client import ApiException, AuthenticationException, OctopusEnergyApiClient, RequestException
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -285,12 +289,13 @@ async def async_setup_dependencies(hass, config):
   ir.async_delete_issue(hass, DOMAIN, REPAIR_ACCOUNT_NOT_FOUND.format(account_id))
 
   try:
-    account_info = await client.async_get_account(config[CONFIG_ACCOUNT_ID])
     ir.async_delete_issue(hass, DOMAIN, REPAIR_INVALID_API_KEY.format(account_id))
+    account_info = await client.async_get_account(config[CONFIG_ACCOUNT_ID])
     if (account_info is None):
       raise ConfigEntryNotReady(f"Failed to retrieve account information")
+    await async_save_cached_account(hass, account_id, account_info)
   except Exception as e:
-    if isinstance(e, RequestException) == False:
+    if isinstance(e, ApiException) == False:
       raise
 
     if isinstance(e, AuthenticationException):
@@ -303,8 +308,13 @@ async def async_setup_dependencies(hass, config):
         translation_key="invalid_api_key",
         translation_placeholders={ "account_id": account_id },
       )
-    
-    raise ConfigEntryNotReady(f"Failed to retrieve account information")
+      raise ConfigEntryNotReady(f"Failed to retrieve account information: {api_exception_to_string(e)}")
+    else:
+      account_info = await async_load_cached_account(hass, account_id)
+      if (account_info is None):
+        raise ConfigEntryNotReady(f"Failed to retrieve account information: {api_exception_to_string(e)}")
+      else:
+        _LOGGER.warning(f"Using cached account information for {account_id} during startup. This data will be updated automatically when available.")
 
   hass.data[DOMAIN][account_id][DATA_ACCOUNT] = AccountCoordinatorResult(utcnow(), 1, account_info)
 
@@ -372,7 +382,18 @@ async def async_setup_dependencies(hass, config):
     if should_mock_intelligent_data:
       intelligent_device = mock_intelligent_device()
     else:
-      intelligent_device = await client.async_get_intelligent_device(account_id)
+      try:
+        intelligent_device = await client.async_get_intelligent_device(account_id)
+        await async_save_cached_intelligent_device(hass, account_id, intelligent_device)
+      except Exception as e:
+        if isinstance(e, ApiException) == False:
+          raise
+
+        intelligent_device = await async_load_cached_intelligent_device(hass, account_id)
+        if (intelligent_device is None):
+          raise ConfigEntryNotReady(f"Failed to retrieve intelligent device information: {api_exception_to_string(e)}")
+        else:
+          _LOGGER.warning(f"Using cached intelligent device information for {account_id} during startup. This data will be updated automatically when available.")
 
     if intelligent_device is not None:
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] = intelligent_device
@@ -413,6 +434,8 @@ async def async_setup_dependencies(hass, config):
   await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id if intelligent_device is not None else None, debug_override.mock_intelligent_controls if debug_override is not None else False)
   
   await async_setup_saving_sessions_coordinators(hass, account_id)
+
+  await async_setup_free_electricity_sessions_coordinators(hass, account_id)
 
   await async_setup_greenness_forecast_coordinator(hass, account_id)
 

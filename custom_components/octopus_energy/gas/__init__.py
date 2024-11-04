@@ -4,7 +4,7 @@ from ..utils.conversions import value_inc_vat_to_pounds
 _LOGGER = logging.getLogger(__name__)
 
 def __get_to(item):
-    return item["end"]
+    return (item["end"].timestamp(), item["end"].fold)
 
 def __sort_consumption(consumption_data):
   sorted = consumption_data.copy()

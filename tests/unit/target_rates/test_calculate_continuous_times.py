@@ -1163,7 +1163,7 @@ def test_when_multiple_blocks_have_same_value_then_earliest_is_picked():
     }
   ]
   
-  applicable_rates.sort(key=lambda x: x["start"])
+  applicable_rates.sort(key=lambda x: (x["start"].timestamp(), x["start"].fold))
   
   result = calculate_continuous_times(
     applicable_rates,
@@ -1193,7 +1193,7 @@ def test_when_weighting_present_with_find_latest_rate_then_latest_time_is_picked
                                            datetime.strptime("2024-10-11T23:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
                                            [0.267159]))
   
-  applicable_rates.sort(key=lambda x: x["start"])
+  applicable_rates.sort(key=lambda x: (x["start"].timestamp(), x["start"].fold))
   
   result = calculate_continuous_times(
     applicable_rates,

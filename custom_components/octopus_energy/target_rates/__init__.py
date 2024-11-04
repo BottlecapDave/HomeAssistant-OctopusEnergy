@@ -102,7 +102,7 @@ def get_rates(current_date: datetime, rates: list, target_hours: float):
   return applicable_rates
 
 def __get_valid_to(rate):
-  return rate["end"]
+  return (rate["end"].timestamp(), rate["end"].fold)
 
 def calculate_continuous_times(
     applicable_rates: list,
@@ -203,14 +203,14 @@ def calculate_intermittent_times(
 
   if find_last_rates:
     if search_for_highest_rate:
-      applicable_rates.sort(key= lambda rate: (-rate["value_inc_vat"], -rate["end"].timestamp()))
+      applicable_rates.sort(key= lambda rate: (-rate["value_inc_vat"], -rate["end"].timestamp(), -rate["end"].fold))
     else:
-      applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], -rate["end"].timestamp()))
+      applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], -rate["end"].timestamp(), -rate["end"].fold))
   else:
     if search_for_highest_rate:
-      applicable_rates.sort(key= lambda rate: (-rate["value_inc_vat"], rate["end"]))
+      applicable_rates.sort(key= lambda rate: (-rate["value_inc_vat"], rate["end"], rate["end"].fold))
     else:
-      applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], rate["end"]))
+      applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], rate["end"], rate["end"].fold))
 
   applicable_rates = list(filter(lambda rate: (min_rate is None or rate["value_inc_vat"] >= min_rate) and (max_rate is None or rate["value_inc_vat"] <= max_rate), applicable_rates))
   
@@ -266,11 +266,16 @@ def get_target_rate_info(current_date: datetime, applicable_rates, offset: str =
       if (index > 0 and applicable_rates[index - 1]["end"] != rate["start"]):
         diff = applicable_rates[index - 1]["end"] - block_valid_from
         minutes = diff.total_seconds() / 60
+        periods = minutes / 30
+        if periods < 1:
+          _LOGGER.error(f"Less than 1 period discovered. Defaulting to 1 period. Rate start: {rate["start"]}; Applicable rates: {applicable_rates}")
+          periods = 1
+
         applicable_rate_blocks.append({
           "start": block_valid_from,
           "end": applicable_rates[index - 1]["end"],
           "duration_in_hours": minutes / 60,
-          "average_cost": total_cost / (minutes / 30),
+          "average_cost": total_cost / periods,
           "min_cost": min_cost,
           "max_cost": max_cost
         })
