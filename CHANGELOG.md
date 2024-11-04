@@ -1,3 +1,20 @@
+# [13.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.0.3...v13.1.0) (2024-11-04)
+
+
+### Bug Fixes
+
+* Added fallback for target rate sensor calculation when data is in odd state and added additional logging to track down original issue (2 hours dev time) ([aba8c53](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/aba8c532e2318d6af813e6253061b191decbd113))
+* Fixed issue with rates going into wrong buckets during daylight savings (2 hours dev time) ([426a218](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/426a2186c84c1a7ea939b7319cf194aa313b9ccd))
+* Fixed various issues relating to sorting during daylight saving transitions (1 hour dev time) ([9615e4f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9615e4ffa8d5eadf6fba018a9c91f4d8bc0a6a00))
+
+
+### Features
+
+* Added sensors for tracking free electricity sessions (3 hours dev time) ([98cbafb](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/98cbafbe718ea7fa0ce528152ef877f5ec25ff2d))
+* Updated diagnostics to include home mini data (30 minutes dev time) ([745155e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/745155e8cfcd3affe09f669dce7981dbcd587795))
+* Updated startup to fallback on cached account information if not available to reduce startup failures (45 minutes dev time) ([2c10a14](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2c10a14750a7a0ee0b9d22b265bef89ef42eb055))
+* Updated startup to fallback on cached intelligent device information if not available to reduce startup failures (45 minutes dev time) ([6403589](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6403589b9252be1255978ad4f38e1e6b8bc96881))
+
 ## [13.0.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.0.2...v13.0.3) (2024-10-26)
 
 
