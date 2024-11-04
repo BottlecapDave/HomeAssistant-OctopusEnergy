@@ -602,6 +602,33 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#free-electricity-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Free Electricity Sessions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#free-electricity-session-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      Free Electricity Session Events
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#free-electricity-session-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Free Electricity Session Baseline
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#services" class="md-nav__link">
     <span class="md-ellipsis">
       Services
@@ -1082,6 +1109,33 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#free-electricity-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Free Electricity Sessions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#free-electricity-session-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      Free Electricity Session Events
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#free-electricity-session-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      Free Electricity Session Baseline
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#services" class="md-nav__link">
     <span class="md-ellipsis">
       Services
@@ -1113,6 +1167,10 @@
 <h2 id="octoplus-points">Octoplus Points<a class="headerlink" href="#octoplus-points" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_octoplus_points</code></p>
 <p>Determines the current Octoplus points balance. This sensor will only be available if you have enrolled on the octoplus programme. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor.</p>
+</div>
 <table>
 <thead>
 <tr>
@@ -1136,7 +1194,7 @@
 </table>
 <h2 id="saving-sessions">Saving Sessions<a class="headerlink" href="#saving-sessions" title="Permanent link">#</a></h2>
 <p><code>binary_sensor.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_sessions</code></p>
-<p>Binary sensor to indicate if a saving session that the account has joined is active. Also supplies the list of joined events including future events.</p>
+<p>Binary sensor to indicate if a saving session that the account has joined is active.</p>
 <table>
 <thead>
 <tr>
@@ -1184,7 +1242,7 @@
 </div>
 <h2 id="saving-session-events">Saving Session Events<a class="headerlink" href="#saving-session-events" title="Permanent link">#</a></h2>
 <p><code>event.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_session_events</code></p>
-<p>The state of this sensor states when the saving session events were last updated. The attributes of this sensor exposes the current day's rates.</p>
+<p>The state of this sensor states when the saving session events were last updated. The attributes of this sensor exposes the joined and available saving sessions.</p>
 <table>
 <thead>
 <tr>
@@ -1343,9 +1401,295 @@
 </tr>
 </tbody>
 </table>
+<p>Each item within <code>consumption_items</code> consists of the following attributes</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>start</code></td>
+<td><code>datetime</code></td>
+<td>The start datetime the consumption period</td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td><code>datetime</code></td>
+<td>The end datetime the consumption period</td>
+</tr>
+<tr>
+<td><code>consumption</code></td>
+<td><code>float</code></td>
+<td>The total consumption within the period in kWh</td>
+</tr>
+</tbody>
+</table>
+<p>Each item within <code>baselines</code> consists of the following attributes</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>start</code></td>
+<td><code>datetime</code></td>
+<td>The start datetime the baseline period</td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td><code>datetime</code></td>
+<td>The end datetime the baseline period</td>
+</tr>
+<tr>
+<td><code>baseline</code></td>
+<td><code>float</code></td>
+<td>The consumption in kWh for the baseline period</td>
+</tr>
+<tr>
+<td><code>is_incomplete_calculation</code></td>
+<td><code>bool</code></td>
+<td>Determines if the calculation is based on the full set or partial set of data</td>
+</tr>
+</tbody>
+</table>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>You can use the <a href="../diagnostics/#saving-sessions-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
+<h2 id="free-electricity-sessions">Free Electricity Sessions<a class="headerlink" href="#free-electricity-sessions" title="Permanent link">#</a></h2>
+<p><code>binary_sensor.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session</code></p>
+<p>Binary sensor to indicate if a free electricity session is active.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This sensor uses public information. However it is only applicable to your account if you have joined Octoplus and have signed up to <a href="https://octopus.energy/free-electricity/">free electricity sessions</a>. Once enrolled into Octoplus, reload the integration to gain access to this sensor.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>current_event_start</code></td>
+<td><code>datetime</code></td>
+<td>The datetime the current free electricity session started</td>
+</tr>
+<tr>
+<td><code>current_event_end</code></td>
+<td><code>datetime</code></td>
+<td>The datetime the current free electricity session will end</td>
+</tr>
+<tr>
+<td><code>current_event_duration_in_minutes</code></td>
+<td><code>float</code></td>
+<td>The duration in minutes of the current free electricity session</td>
+</tr>
+<tr>
+<td><code>next_event_start</code></td>
+<td><code>datetime</code></td>
+<td>The datetime the next free electricity session will start</td>
+</tr>
+<tr>
+<td><code>next_event_end</code></td>
+<td><code>datetime</code></td>
+<td>The datetime the next free electricity session will end</td>
+</tr>
+<tr>
+<td><code>next_event_duration_in_minutes</code></td>
+<td><code>float</code></td>
+<td>The duration in minutes of the next free electricity session</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#free-electricity-sessions-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
+<h2 id="free-electricity-session-events">Free Electricity Session Events<a class="headerlink" href="#free-electricity-session-events" title="Permanent link">#</a></h2>
+<p><code>event.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session_events</code></p>
+<p>The state of this sensor states when the free electricity session events were last updated. The attributes of this sensor exposes the past, present and future free electricity sessions.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>events</code></td>
+<td><code>array</code></td>
+<td>The collection of free electricity events</td>
+</tr>
+</tbody>
+</table>
+<p>Each item in the <code>events</code> attribute will include the following attributes</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>code</code></td>
+<td><code>string</code></td>
+<td>The code of the event.</td>
+</tr>
+<tr>
+<td><code>start</code></td>
+<td><code>datetime</code></td>
+<td>The date/time the event starts</td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td><code>datetime</code></td>
+<td>The date/time the event starts</td>
+</tr>
+<tr>
+<td><code>duration_in_minutes</code></td>
+<td><code>integer</code></td>
+<td>The duration of the event in minutes</td>
+</tr>
+</tbody>
+</table>
+<h2 id="free-electricity-session-baseline">Free Electricity Session Baseline<a class="headerlink" href="#free-electricity-session-baseline" title="Permanent link">#</a></h2>
+<p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_octoplus_free_electricity_session_baseline</code></p>
+<p>This will indicate the baseline consumption that you need to be above for the current 30 minute period of the current free electricity session or the first 30 minute period of the next free electricity session. </p>
+<p>You can use the <a href="../electricity/#current-interval-accumulative-consumption">current period consumption</a> sensor (if available) to see how on track you are.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>An export variant of this sensor exists for export based meters.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>start</code></td>
+<td><code>datetime</code></td>
+<td>The start datetime the current baseline applies</td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td><code>datetime</code></td>
+<td>The end datetime the current baseline applies</td>
+</tr>
+<tr>
+<td><code>is_incomplete_calculation</code></td>
+<td><code>bool</code></td>
+<td>Determines if the calculation is based on the full set or partial set of data</td>
+</tr>
+<tr>
+<td><code>consumption_items</code></td>
+<td><code>list</code></td>
+<td>The consumption that was used to calculate the baselines</td>
+</tr>
+<tr>
+<td><code>total_baseline</code></td>
+<td><code>float</code></td>
+<td>The total baseline for the current saving session</td>
+</tr>
+<tr>
+<td><code>baselines</code></td>
+<td><code>list</code></td>
+<td>The collection of baselines for the current saving session</td>
+</tr>
+</tbody>
+</table>
+<p>Each item within <code>consumption_items</code> consists of the following attributes</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>start</code></td>
+<td><code>datetime</code></td>
+<td>The start datetime the consumption period</td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td><code>datetime</code></td>
+<td>The end datetime the consumption period</td>
+</tr>
+<tr>
+<td><code>consumption</code></td>
+<td><code>float</code></td>
+<td>The total consumption within the period in kWh</td>
+</tr>
+</tbody>
+</table>
+<p>Each item within <code>baselines</code> consists of the following attributes</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>start</code></td>
+<td><code>datetime</code></td>
+<td>The start datetime the baseline period</td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td><code>datetime</code></td>
+<td>The end datetime the baseline period</td>
+</tr>
+<tr>
+<td><code>baseline</code></td>
+<td><code>float</code></td>
+<td>The consumption in kWh for the baseline period</td>
+</tr>
+<tr>
+<td><code>is_incomplete_calculation</code></td>
+<td><code>bool</code></td>
+<td>Determines if the calculation is based on the full set or partial set of data</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#free-electricity-sessions-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
 </div>
 <h2 id="services">Services<a class="headerlink" href="#services" title="Permanent link">#</a></h2>
 <p>There are some services available relating to these entities that you might find useful. They can be found in the <a href="../../services/">services docs</a>.</p>
