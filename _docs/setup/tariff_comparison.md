@@ -42,7 +42,7 @@ In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https:
 
 The following entities will be available for each entry
 
-## Cost Override
+### Cost Override
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost_{{TARIFF COMPARISON NAME}}` for electricity based meters; `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost_{{TARIFF COMPARISON NAME}}` for gas based meters.
 
