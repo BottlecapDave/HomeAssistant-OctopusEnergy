@@ -46,7 +46,6 @@ class Tariff:
 
 def is_day_night_tariff(tariff_code: str) -> bool:
   tariff_parts = get_tariff_parts(tariff_code)
-  print(tariff_parts)
   return tariff_parts is not None and "2" in tariff_parts.rate
 
 def get_active_tariff(utcnow: datetime, agreements):
