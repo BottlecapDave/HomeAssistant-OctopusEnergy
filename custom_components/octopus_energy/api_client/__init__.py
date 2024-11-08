@@ -653,16 +653,11 @@ class OctopusEnergyApiClient:
         return
 
       try:
-        print(f"{now()} - create session - start")
         client = self._create_client_session()
-        print(f"{now()} - create session - end")
         url = f'{self._base_url}/v1/graphql/'
         payload = { "query": api_token_query.format(api_key=self._api_key) }
-        print(f"{now()} - http refresh - start")
         async with client.post(url, json=payload) as token_response:
-          print(f"{now()} - http refresh - end")
           token_response_body = await self.__async_read_response__(token_response, url)
-          print(f"{now()} - read response")
           if (token_response_body is not None and 
               "data" in token_response_body and
               "obtainKrakenToken" in token_response_body["data"] and 
@@ -769,30 +764,16 @@ class OctopusEnergyApiClient:
     
   async def async_get_account(self, account_id):
     """Get the user's account"""
-    print(f"{now()} - get token - start")
     await self.async_refresh_token()
-    print(f"{now()} - get token - end")
-
-    local_now: datetime = now()
-    local_date = local_now.date()
 
     try:
-      
-      print(f"{now()} - create session - start")
       client = self._create_client_session()
-      print(f"{now()} - create session - end")
       url = f'{self._base_url}/v1/graphql/'
       # Get account response
       payload = { "query": account_query.format(account_id=account_id) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
-      
-      print(f"{now()} - post http - start")
       async with client.post(url, json=payload, headers=headers) as account_response:
-        print(f"{now()} - post http - end")
         account_response_body = await self.__async_read_response__(account_response, url)
-        
-        print(f"{now()} - read response")
-
         _LOGGER.debug(f'account: {account_response_body}')
 
         if (account_response_body is not None and 
@@ -1209,12 +1190,8 @@ class OctopusEnergyApiClient:
           results = []
           for item in data:
             item = self.__process_consumption(item)
+            results.append(item)
 
-            # For some reason, the end point returns slightly more data than we requested, so we need to filter out
-            # the results
-            if (period_from is None or as_utc(item["start"]) >= period_from) and (period_to is None or as_utc(item["end"]) <= period_to):
-              results.append(item)
-          
           results.sort(key=self.__get_interval_end)
           return results
         
