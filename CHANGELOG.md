@@ -1,3 +1,12 @@
+## [13.1.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.1.0...v13.1.1) (2024-11-09)
+
+
+### Bug Fixes
+
+* Fixed issue when standing charge could not be retrieved for current accumulative consumption/cost sensors (5 minutes dev time) ([a2c4f7c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a2c4f7c3cc13b48d6af04b8720768170023918a0))
+* Removed debugging log (Thanks @TurnrDev) ([78e5c00](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/78e5c006384eb19158436f2f8c054d97e5f1d254))
+* Updated user agent for sent requests ([0dd8587](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0dd8587890c4527a3bb1f7de54c0df904f3f6d4b))
+
 # [13.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.0.3...v13.1.0) (2024-11-04)
 
 
