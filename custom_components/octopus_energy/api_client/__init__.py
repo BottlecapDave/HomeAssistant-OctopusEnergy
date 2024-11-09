@@ -516,7 +516,7 @@ query {{
 }}
 '''
 
-user_agent_value = "bottlecapdave-home-assistant-octopus-energy"
+user_agent_value = "bottlecapdave-ha-octopus-energy"
 
 def get_valid_from(rate):
   return rate["valid_from"]
@@ -636,7 +636,10 @@ class OctopusEnergyApiClient:
       return self._session
     
     with self._session_lock:
-      self._session = aiohttp.ClientSession(timeout=self._timeout, headers=self._default_headers)
+      if self._session is not None:
+        return self._session
+
+      self._session = aiohttp.ClientSession(headers=self._default_headers, skip_auto_headers=['User-Agent'])
       return self._session
 
   async def async_refresh_token(self):
@@ -763,9 +766,6 @@ class OctopusEnergyApiClient:
     """Get the user's account"""
     await self.async_refresh_token()
 
-    local_now: datetime = now()
-    local_date = local_now.date()
-
     try:
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
@@ -774,7 +774,6 @@ class OctopusEnergyApiClient:
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as account_response:
         account_response_body = await self.__async_read_response__(account_response, url)
-
         _LOGGER.debug(f'account: {account_response_body}')
 
         if (account_response_body is not None and 
@@ -1191,12 +1190,8 @@ class OctopusEnergyApiClient:
           results = []
           for item in data:
             item = self.__process_consumption(item)
+            results.append(item)
 
-            # For some reason, the end point returns slightly more data than we requested, so we need to filter out
-            # the results
-            if (period_from is None or as_utc(item["start"]) >= period_from) and (period_to is None or as_utc(item["end"]) <= period_to):
-              results.append(item)
-          
           results.sort(key=self.__get_interval_end)
           return results
         

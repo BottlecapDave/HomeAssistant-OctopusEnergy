@@ -90,7 +90,7 @@ class OctopusEnergyCurrentAccumulativeGasConsumptionKwh(MultiCoordinatorEntity, 
     consumption_result: CurrentConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     consumption_data = consumption_result.data if consumption_result is not None else None
     rate_data = self._rates_coordinator.data.rates if self._rates_coordinator is not None and self._rates_coordinator.data is not None else None
-    standing_charge = self._standing_charge_coordinator.data.standing_charge["value_inc_vat"] if self._standing_charge_coordinator is not None and self._standing_charge_coordinator.data is not None else None
+    standing_charge = self._standing_charge_coordinator.data.standing_charge["value_inc_vat"] if self._standing_charge_coordinator is not None and self._standing_charge_coordinator.data is not None and self._standing_charge_coordinator.data.standing_charge is not None else None
     
     consumption_and_cost = calculate_gas_consumption_and_cost(
       consumption_data,
