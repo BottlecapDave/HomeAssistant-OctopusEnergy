@@ -1080,9 +1080,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff" class="md-nav__link">
+  <a href="#the-rates-are-different-to-whats-on-my-bill-or-the-octopus-energy-dashboard-is-there-something-wrong" class="md-nav__link">
     <span class="md-ellipsis">
-      I want to use the tariff overrides, but how do I find an available tariff?
+      The rates are different to what's on my bill or the Octopus Energy dashboard. Is there something wrong?
     </span>
   </a>
   
@@ -1314,9 +1314,9 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff" class="md-nav__link">
+  <a href="#the-rates-are-different-to-whats-on-my-bill-or-the-octopus-energy-dashboard-is-there-something-wrong" class="md-nav__link">
     <span class="md-ellipsis">
-      I want to use the tariff overrides, but how do I find an available tariff?
+      The rates are different to what's on my bill or the Octopus Energy dashboard. Is there something wrong?
     </span>
   </a>
   
@@ -1476,7 +1476,7 @@
 </tr>
 </tbody>
 </table>
-<p>Once a successful request is made, the refreshes will revert back to the redefined default intervals.</p>
+<p>Once a successful request is made, the refreshes will revert back to the redefined default intervals. You can find out information on when data was last retrieved via the available <a href="../entities/diagnostics/">diagnostic entities</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The retrieving of data does not effect the rate the entities states/attributes are evaluated.</p>
@@ -1494,8 +1494,8 @@
 <p>Some entities are disabled by default by the integration, which are highlighted as such in the documentation.</p>
 <h2 id="i-have-data-missing-is-this-an-issue-with-the-integration">I have data missing, is this an issue with the integration?<a class="headerlink" href="#i-have-data-missing-is-this-an-issue-with-the-integration" title="Permanent link">#</a></h2>
 <p>Data can not appear for a variety of reasons. Before raising any issues, check if the data is available on the <a href="https://octopus.energy/dashboard/new/accounts/consumption/home">website</a> for the requested period (e.g. for previous consumption, you'll be wanting data for the day before). If it's not available on the website, then unfortunately there is nothing that can be done and you may need to contact Octopus Energy.</p>
-<p>Data might also not appear if you lose internet connection or the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs as warnings around using cached data. If none of this is applicable, then please raise an issue so we can try and solve the problem.</p>
-<p>If you are missing consumption data, the previous consumption sensors have an attribute (<code>latest_available_data_timestamp</code>) stating the timestamp of the latest consumption data that is available via the API.</p>
+<p>Data might also not appear if you lose internet connection or the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs as warnings around using cached data. It can also be diagnosed via the various available <a href="../entities/diagnostics/">diagnostic entities</a>. If none of this is applicable, then please raise an issue so we can try and solve the problem.</p>
+<p>If you are missing consumption data, the previous consumption sensors only display that latest available full day. If you have a couple of hours for a day, then the sensors will not display this until the full day is available.</p>
 <h2 id="data-in-my-home-assistant-energy-dashboard-reported-by-octopus-home-mini-differs-to-octopus-energy-dashboard-why-is-this">Data in my Home Assistant energy dashboard reported by Octopus Home Mini differs to Octopus Energy dashboard. Why is this?<a class="headerlink" href="#data-in-my-home-assistant-energy-dashboard-reported-by-octopus-home-mini-differs-to-octopus-energy-dashboard-why-is-this" title="Permanent link">#</a></h2>
 <p>The data can differ for a number of reasons.</p>
 <p>If you are looking at the current day, then Home Assistant only updates the energy dashboard data once an hour, near the hour. This means you might be "missing" data in the energy dashboard when compared to the app. The integration also makes best effort to retrieve the data every minute, however it has been noticed that the API can fail at times to retrieve the data.</p>
@@ -1562,7 +1562,7 @@
 <h2 id="im-an-agile-user-and-having-trouble-setting-up-a-target-rate-sensor-what-am-i-doing-wrong">I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?<a class="headerlink" href="#im-an-agile-user-and-having-trouble-setting-up-a-target-rate-sensor-what-am-i-doing-wrong" title="Permanent link">#</a></h2>
 <p>Rate data for agile tariffs are not available in full for the next day, which can cause issues with target rate sensors in their default state. We prevent you from setting up target rate sensors in this form. More information around this can be found in the <a href="../setup/target_rate/#agile-users">target rate documentation</a>.</p>
 <h2 id="why-wont-my-target-rates-update">Why won't my target rates update?<a class="headerlink" href="#why-wont-my-target-rates-update" title="Permanent link">#</a></h2>
-<p>The target rate sensors are set to update every minute, which includes determining if you're within a target time period and calculating future target time periods.. This can be confirmed by evaluating the <a href="https://community.home-assistant.io/t/how-to-display-the-last-updated-field-of-an-entity-in-the-lovelace-view/728892/2?u=bottlecapdave">last_updated</a> attribute of the sensor. </p>
+<p>The target rate sensors are set to update every minute, which includes determining if you're within a target time period and calculating future target time periods. This can be confirmed by evaluating the <a href="https://community.home-assistant.io/t/how-to-display-the-last-updated-field-of-an-entity-in-the-lovelace-view/728892/2?u=bottlecapdave">last_updated</a> attribute of the sensor. </p>
 <p>The <code>target_times</code> will evaluate once all rates are available for the specified time period and all existing target times are in the past. When this was last evaluated can be confirmed via the <code>target_times_last_evaluated</code> attribute. For example, if you are looking for target rates between 16:00 (today) and 16:00 (tomorrow), and you only have rates up to 23:00 (today), then target times will not be evaluated until rate information is available up to 16:00 (tomorrow). This can be confirmed by reviewing the data available in your current and next day rates entities.</p>
 <p>If there is a delay in retrieving rate information, there is chance that when it comes to evaluation, times are picked that are in the past because they were the lowest. This will result in your target rate sensor skipping a day and waiting to calculate new target times for the next scheduled time period. This can be confirmed by comparing the <code>target_times</code> and the <code>target_times_last_evaluated</code> attribute. If this happens frequently, then please adjust the target time periods of your target rate sensor to something that works for you.</p>
 <p>If the <code>last_updated</code> attribute is not updating, then please raise an issue.</p>
@@ -1574,14 +1574,11 @@
 </ul>
 <p>Because all rates are in kWh, if any conversions are required into kWh then the cost could also be out by this conversion.</p>
 <p>The conversion cubic meters (m3) to kWh is achieved by following this <a href="https://www.theenergyshop.com/guides/how-to-convert-gas-units-to-kwh">formula</a>. The part that can differ from person to person is the calorific value, which defaults in the integration to 40. This will most likely be incorrect, but unfortunately is not provided by the OE APIs. Therefore you'll need to set it as part of your <a href="../setup/account/#calorific-value">account</a>. This changes throughout the year and can be found on your latest bill.</p>
-<h2 id="i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff">I want to use the tariff overrides, but how do I find an available tariff?<a class="headerlink" href="#i-want-to-use-the-tariff-overrides-but-how-do-i-find-an-available-tariff" title="Permanent link">#</a></h2>
-<p>To find an available tariff, you can use the Octopus Energy API to search for <a href="https://developer.octopus.energy/docs/api/#list-products">current products</a>. Once a product has been found, you can look up the product to find the tariff in your region and for your target energy supply.</p>
-<p>For example if I was on the tariff <code>E-1R-SUPER-GREEN-24M-21-07-30-A</code> and I wanted to check <code>Flexible Octopus November 2022 v1</code>. I would look up all of the <a href="https://api.octopus.energy/v1/products">products</a> and look for my target under <code>full_name</code> or <code>display_name</code>. I would then look up the product by taking the specified <code>code</code> and putting it at the end of the <a href="https://api.octopus.energy/v1/products">products url</a>. </p>
-<p><img alt="All products example" src="../assets/product_lookup.png" /></p>
-<p>In this scenario, the <code>code</code> is <code>VAR-22-11-01</code> and so the product url is <a href="https://api.octopus.energy/v1/products/VAR-22-11-01">https://api.octopus.energy/v1/products/VAR-22-11-01</a>. From this list, I would then look up the tariff for my region (e.g. <code>A</code> defined at the end of my current tariff) which is defined in the <code>code</code> field. It is this value that you add to the <code>cost_override_tariff</code> entity. In this example, I want the duel electricity tariff version, so will pick <code>E-2R-VAR-22-11-01-A</code>.</p>
-<p><img alt="Target product example" src="../assets/product_tariff_lookup.png" /></p>
+<h2 id="the-rates-are-different-to-whats-on-my-bill-or-the-octopus-energy-dashboard-is-there-something-wrong">The rates are different to what's on my bill or the Octopus Energy dashboard. Is there something wrong?<a class="headerlink" href="#the-rates-are-different-to-whats-on-my-bill-or-the-octopus-energy-dashboard-is-there-something-wrong" title="Permanent link">#</a></h2>
+<p>The first thing to do is make sure the correct tariff has been picked up. This can be done by confirming the tariff code on the <a href="../entities/electricity/#current-rate">electricity</a> or <a href="../entities/gas/#current-rate">gas</a> current rate sensors. This is picked up automatically via the API, so if this is wrong, then it means that either your account doesn't have your tariff configured yet or the wrong one is being picked up. This can be confirmed via your <a href="#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this">meter information</a>.</p>
+<p>If the correct tariff is present, it might be that you're on a tariff that has different rates depending on if you pay by direct debit or not. This can be configured via your <a href="../setup/account/#favour-direct-debit-rates">account configuration</a>.</p>
 <h2 id="how-do-i-know-when-theres-an-update-available">How do I know when there's an update available?<a class="headerlink" href="#how-do-i-know-when-theres-an-update-available" title="Permanent link">#</a></h2>
-<p>If you've installed via HACS, then you can keep an eye on <code>sensor.hacs</code> to see the number of pending updates. This could be used with an automation or highlighted on your dashboard. This will include any HACS integration update, not just this one. If you're feeling a little more adventurous, then you can enable HACS' <a href="https://hacs.xyz/docs/configuration/options/">experimental features</a>. This will surface any available updates in the normal update location within Home Assistant.</p>
+<p>If you've installed via HACS, and you are on version 2 or above, then updates will be surfaced in the normal update location within Home Assistant. If you are on a version below 2, then you can keep an eye on <code>sensor.hacs</code> to see the number of pending updates. This could be used with an automation or highlighted on your dashboard. This will include any HACS integration update, not just this one.</p>
 <p>If you've installed the integration manually, then you should keep an eye on the <a href="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases">GitHub releases</a>. You could even subscribe to the <a href="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases.atom">RSS feed</a>.</p>
 <h2 id="theres-a-beta-release-of-the-integration-that-i-would-like-to-take-part-in-how-do-i-do-this">There's a beta release of the integration that I would like to take part in, how do I do this?<a class="headerlink" href="#theres-a-beta-release-of-the-integration-that-i-would-like-to-take-part-in-how-do-i-do-this" title="Permanent link">#</a></h2>
 <p>If you install the integration manually, it's just a case of getting the source of the <a href="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases">beta release</a>, replacing the old installation with the new one and restarting Home Assistant.</p>
@@ -1591,8 +1588,10 @@
 </ul>
 <p><img alt="Redownload screen in HACS" src="../assets/beta-hacs-redownload.png" /></p>
 <ul>
-<li>Toggle on <code>Show beta versions</code> and select the target beta. Once selected, click <code>Download</code>.</li>
+<li>If you are on version 2 or above, then click on <code>Need a different version?</code> and select the <code>Release</code> box and then select your target <code>pre-release</code> version</li>
 </ul>
+<p><img alt="Beta toggle in HACS" src="../assets/beta-hacs-pre-release.png" /></p>
+<p>If you are on a version below 2, then toggle on <code>Show beta versions</code> and select the target beta. Once selected, click <code>Download</code>.</p>
 <p><img alt="Beta toggle in HACS" src="../assets/beta-hacs-beta-toggle.png" /></p>
 <ul>
 <li>Once downloaded, you'll need to restart Home Assistant for the new version to take effect.</li>
