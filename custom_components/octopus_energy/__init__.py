@@ -380,11 +380,12 @@ async def async_setup_dependencies(hass, config):
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
     if should_mock_intelligent_data:
+      # Load from cache to make sure everything works as intended
+      intelligent_device = await async_load_cached_intelligent_device(hass, account_id)
       intelligent_device = mock_intelligent_device()
     else:
       try:
         intelligent_device = await client.async_get_intelligent_device(account_id)
-        await async_save_cached_intelligent_device(hass, account_id, intelligent_device)
       except Exception as e:
         if isinstance(e, ApiException) == False:
           raise
@@ -394,6 +395,8 @@ async def async_setup_dependencies(hass, config):
           raise ConfigEntryNotReady(f"Failed to retrieve intelligent device information: {api_exception_to_string(e)}")
         else:
           _LOGGER.warning(f"Using cached intelligent device information for {account_id} during startup. This data will be updated automatically when available.")
+
+    await async_save_cached_intelligent_device(hass, account_id, intelligent_device)
 
     if intelligent_device is not None:
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] = intelligent_device
