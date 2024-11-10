@@ -1005,6 +1005,54 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#new-free-electricity-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      New Free Electricity Session
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="New Free Electricity Session">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-example_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#all-free-electricity-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      All Free Electricity Sessions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="All Free Electricity Sessions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-example_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#electricity-previous-consumption-tariff-comparison-rates" class="md-nav__link">
     <span class="md-ellipsis">
       Electricity Previous Consumption Tariff Comparison Rates
@@ -1015,7 +1063,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_12" class="md-nav__link">
+  <a href="#automation-example_14" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -1039,7 +1087,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_13" class="md-nav__link">
+  <a href="#automation-example_15" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -1623,6 +1671,54 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#new-free-electricity-session" class="md-nav__link">
+    <span class="md-ellipsis">
+      New Free Electricity Session
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="New Free Electricity Session">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-example_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#all-free-electricity-sessions" class="md-nav__link">
+    <span class="md-ellipsis">
+      All Free Electricity Sessions
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="All Free Electricity Sessions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-example_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#electricity-previous-consumption-tariff-comparison-rates" class="md-nav__link">
     <span class="md-ellipsis">
       Electricity Previous Consumption Tariff Comparison Rates
@@ -1633,7 +1729,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_12" class="md-nav__link">
+  <a href="#automation-example_14" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -1657,7 +1753,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_13" class="md-nav__link">
+  <a href="#automation-example_15" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -2456,6 +2552,125 @@
 <span class="w">      </span><span class="nt">message</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
 <span class="w">        </span><span class="no">Saving session events updated. The latest joined event awarded {{ trigger.event.data.joined_events[0][&quot;rewarded_octopoints&quot;] }}</span>
 </code></pre></div>
+<h2 id="new-free-electricity-session">New Free Electricity Session<a class="headerlink" href="#new-free-electricity-session" title="Permanent link">#</a></h2>
+<p><code>octopus_energy_new_octoplus_free_electricity_session</code></p>
+<p>This event is raised when a new free electricity session is discovered.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>account_id</code></td>
+<td><code>string</code></td>
+<td>The id of the account the new free electricity session is for</td>
+</tr>
+<tr>
+<td><code>event_code</code></td>
+<td><code>string</code></td>
+<td>The code of the new free electricity session event</td>
+</tr>
+<tr>
+<td><code>event_start</code></td>
+<td><code>datetime</code></td>
+<td>The date/time the event starts</td>
+</tr>
+<tr>
+<td><code>event_end</code></td>
+<td><code>datetime</code></td>
+<td>The date/time the event ends</td>
+</tr>
+<tr>
+<td><code>event_duration_in_minutes</code></td>
+<td><code>integer</code></td>
+<td>The duration of the event in minutes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="automation-example_12">Automation Example<a class="headerlink" href="#automation-example_12" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">trigger</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">platform</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">event</span>
+<span class="w">    </span><span class="nt">event_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">octopus_energy_new_octoplus_free_electricity_session</span>
+<span class="w">  </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">action</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">persistent_notification.create</span>
+<span class="w">    </span><span class="nt">data</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;New</span><span class="nv"> </span><span class="s">Free</span><span class="nv"> </span><span class="s">Electricity</span><span class="nv"> </span><span class="s">Session&quot;</span>
+<span class="w">      </span><span class="nt">message</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
+<span class="w">        </span><span class="no">New Octopus Energy free electricity session available. It starts at {{ trigger.event.data[&quot;event_start&quot;].strftime(&#39;%H:%M&#39;) }} on {{ trigger.event.data[&quot;event_start&quot;].day }}/{{ trigger.event.data[&quot;event_start&quot;].month }} for {{ trigger.event.data[&quot;event_duration_in_minutes&quot;] | int }} minutes.</span>
+</code></pre></div>
+<h2 id="all-free-electricity-sessions">All Free Electricity Sessions<a class="headerlink" href="#all-free-electricity-sessions" title="Permanent link">#</a></h2>
+<p><code>octopus_energy_all_octoplus_free_electricity_sessions</code></p>
+<p>This event is raised when free electricity sessions are refreshed and contain all available events.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>account_id</code></td>
+<td><code>string</code></td>
+<td>The id of the account the saving session events are for</td>
+</tr>
+<tr>
+<td><code>events</code></td>
+<td><code>array</code></td>
+<td>The collection of free electricity events that are available. This will include upcoming and past events.</td>
+</tr>
+</tbody>
+</table>
+<p>Each event item will include the following attributes</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>code</code></td>
+<td><code>string</code></td>
+<td>The code of the event</td>
+</tr>
+<tr>
+<td><code>start</code></td>
+<td><code>datetime</code></td>
+<td>The date/time the event starts</td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td><code>datetime</code></td>
+<td>The date/time the event starts</td>
+</tr>
+<tr>
+<td><code>duration_in_minutes</code></td>
+<td><code>integer</code></td>
+<td>The duration of the event in minutes</td>
+</tr>
+</tbody>
+</table>
+<h3 id="automation-example_13">Automation Example<a class="headerlink" href="#automation-example_13" title="Permanent link">#</a></h3>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">trigger</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">platform</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">event</span>
+<span class="w">    </span><span class="nt">event_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">octopus_energy_all_octoplus_free_electricity_sessions</span>
+<span class="w">  </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">action</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">service</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">persistent_notification.create</span>
+<span class="w">    </span><span class="nt">data</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Free</span><span class="nv"> </span><span class="s">Electricity</span><span class="nv"> </span><span class="s">Sessions</span><span class="nv"> </span><span class="s">Updated&quot;</span>
+<span class="w">      </span><span class="nt">message</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
+<span class="w">        </span><span class="no">Free electricity session events updated. The latest event is at {{ trigger.event.data.events[-1][&quot;start&quot;] }}</span>
+</code></pre></div>
 <h2 id="electricity-previous-consumption-tariff-comparison-rates">Electricity Previous Consumption Tariff Comparison Rates<a class="headerlink" href="#electricity-previous-consumption-tariff-comparison-rates" title="Permanent link">#</a></h2>
 <p><code>octopus_energy_elec_previous_consumption_tariff_comparison_rates</code></p>
 <p>This is fired when the <a href="../setup/tariff_comparison/">tariff comparison</a> rates are updated.</p>
@@ -2495,7 +2710,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="automation-example_12">Automation Example<a class="headerlink" href="#automation-example_12" title="Permanent link">#</a></h3>
+<h3 id="automation-example_14">Automation Example<a class="headerlink" href="#automation-example_14" title="Permanent link">#</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">trigger</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">platform</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">event</span>
 <span class="w">    </span><span class="nt">event_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">octopus_energy_elec_previous_consumption_tariff_comparison_rates</span>
@@ -2546,7 +2761,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="automation-example_13">Automation Example<a class="headerlink" href="#automation-example_13" title="Permanent link">#</a></h3>
+<h3 id="automation-example_15">Automation Example<a class="headerlink" href="#automation-example_15" title="Permanent link">#</a></h3>
 <div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">trigger</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">platform</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">event</span>
 <span class="w">    </span><span class="nt">event_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">octopus_energy_gas_previous_consumption_tariff_comparison_rates</span>
