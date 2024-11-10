@@ -386,6 +386,70 @@ Each joined event item will include the following attributes
         Saving session events updated. The latest joined event awarded {{ trigger.event.data.joined_events[0]["rewarded_octopoints"] }}
 ```
 
+## New Free Electricity Session
+
+`octopus_energy_new_octoplus_free_electricity_session`
+
+This event is raised when a new free electricity session is discovered.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `account_id` | `string` | The id of the account the new free electricity session is for |
+| `event_code` | `string` | The code of the new free electricity session event |
+| `event_start` | `datetime` | The date/time the event starts |
+| `event_end` | `datetime` | The date/time the event ends |
+| `event_duration_in_minutes` | `integer` | The duration of the event in minutes |
+
+### Automation Example
+
+```yaml
+- trigger:
+  - platform: event
+    event_type: octopus_energy_new_octoplus_free_electricity_session
+  condition: []
+  action:
+  - service: persistent_notification.create
+    data:
+      title: "New Free Electricity Session"
+      message: >
+        New Octopus Energy free electricity session available. It starts at {{ trigger.event.data["event_start"].strftime('%H:%M') }} on {{ trigger.event.data["event_start"].day }}/{{ trigger.event.data["event_start"].month }} for {{ trigger.event.data["event_duration_in_minutes"] | int }} minutes.
+```
+
+## All Free Electricity Sessions
+
+`octopus_energy_all_octoplus_free_electricity_sessions`
+
+This event is raised when free electricity sessions are refreshed and contain all available events.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `account_id` | `string` | The id of the account the saving session events are for |
+| `events` | `array` | The collection of free electricity events that are available. This will include upcoming and past events. |
+
+Each event item will include the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `code` | `string` | The code of the event |
+| `start` | `datetime` | The date/time the event starts |
+| `end` | `datetime` | The date/time the event starts |
+| `duration_in_minutes` | `integer` | The duration of the event in minutes |
+
+### Automation Example
+
+```yaml
+- trigger:
+  - platform: event
+    event_type: octopus_energy_all_octoplus_free_electricity_sessions
+  condition: []
+  action:
+  - service: persistent_notification.create
+    data:
+      title: "Free Electricity Sessions Updated"
+      message: >
+        Free electricity session events updated. The latest event is at {{ trigger.event.data.events[-1]["start"] }}
+```
+
 ## Electricity Previous Consumption Tariff Comparison Rates
 
 `octopus_energy_elec_previous_consumption_tariff_comparison_rates`
