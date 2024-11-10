@@ -28,7 +28,7 @@ If data cannot be refreshed for any reason (e.g. no internet or APIs are down), 
 | 4 | `10:41` |
 | 5 | `10:45` |
 
-Once a successful request is made, the refreshes will revert back to the redefined default intervals.
+Once a successful request is made, the refreshes will revert back to the redefined default intervals. You can find out information on when data was last retrieved via the available [diagnostic entities](./entities/diagnostics.md).
 
 !!! note
     The retrieving of data does not effect the rate the entities states/attributes are evaluated.
@@ -52,9 +52,9 @@ Some entities are disabled by default by the integration, which are highlighted 
 
 Data can not appear for a variety of reasons. Before raising any issues, check if the data is available on the [website](https://octopus.energy/dashboard/new/accounts/consumption/home) for the requested period (e.g. for previous consumption, you'll be wanting data for the day before). If it's not available on the website, then unfortunately there is nothing that can be done and you may need to contact Octopus Energy.
 
-Data might also not appear if you lose internet connection or the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs as warnings around using cached data. If none of this is applicable, then please raise an issue so we can try and solve the problem.
+Data might also not appear if you lose internet connection or the Octopus Energy APIs report errors, which can occur from time to time. This will be indicated in your Home Assistant logs as warnings around using cached data. It can also be diagnosed via the various available [diagnostic entities](./entities/diagnostics.md). If none of this is applicable, then please raise an issue so we can try and solve the problem.
 
-If you are missing consumption data, the previous consumption sensors have an attribute (`latest_available_data_timestamp`) stating the timestamp of the latest consumption data that is available via the API.
+If you are missing consumption data, the previous consumption sensors only display that latest available full day. If you have a couple of hours for a day, then the sensors will not display this until the full day is available.
 
 ## Data in my Home Assistant energy dashboard reported by Octopus Home Mini differs to Octopus Energy dashboard. Why is this?
 
@@ -150,7 +150,7 @@ Rate data for agile tariffs are not available in full for the next day, which ca
 
 ## Why won't my target rates update?
 
-The target rate sensors are set to update every minute, which includes determining if you're within a target time period and calculating future target time periods.. This can be confirmed by evaluating the [last_updated](https://community.home-assistant.io/t/how-to-display-the-last-updated-field-of-an-entity-in-the-lovelace-view/728892/2?u=bottlecapdave) attribute of the sensor. 
+The target rate sensors are set to update every minute, which includes determining if you're within a target time period and calculating future target time periods. This can be confirmed by evaluating the [last_updated](https://community.home-assistant.io/t/how-to-display-the-last-updated-field-of-an-entity-in-the-lovelace-view/728892/2?u=bottlecapdave) attribute of the sensor. 
 
 The `target_times` will evaluate once all rates are available for the specified time period and all existing target times are in the past. When this was last evaluated can be confirmed via the `target_times_last_evaluated` attribute. For example, if you are looking for target rates between 16:00 (today) and 16:00 (tomorrow), and you only have rates up to 23:00 (today), then target times will not be evaluated until rate information is available up to 16:00 (tomorrow). This can be confirmed by reviewing the data available in your current and next day rates entities.
 
@@ -169,21 +169,15 @@ Because all rates are in kWh, if any conversions are required into kWh then the 
 
 The conversion cubic meters (m3) to kWh is achieved by following this [formula](https://www.theenergyshop.com/guides/how-to-convert-gas-units-to-kwh). The part that can differ from person to person is the calorific value, which defaults in the integration to 40. This will most likely be incorrect, but unfortunately is not provided by the OE APIs. Therefore you'll need to set it as part of your [account](./setup/account.md#calorific-value). This changes throughout the year and can be found on your latest bill.
 
-## I want to use the tariff overrides, but how do I find an available tariff?
+## The rates are different to what's on my bill or the Octopus Energy dashboard. Is there something wrong?
 
-To find an available tariff, you can use the Octopus Energy API to search for [current products](https://developer.octopus.energy/docs/api/#list-products). Once a product has been found, you can look up the product to find the tariff in your region and for your target energy supply.
+The first thing to do is make sure the correct tariff has been picked up. This can be done by confirming the tariff code on the [electricity](./entities/electricity.md#current-rate) or [gas](./entities/gas.md#current-rate) current rate sensors. This is picked up automatically via the API, so if this is wrong, then it means that either your account doesn't have your tariff configured yet or the wrong one is being picked up. This can be confirmed via your [meter information](#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this).
 
-For example if I was on the tariff `E-1R-SUPER-GREEN-24M-21-07-30-A` and I wanted to check `Flexible Octopus November 2022 v1`. I would look up all of the [products](https://api.octopus.energy/v1/products) and look for my target under `full_name` or `display_name`. I would then look up the product by taking the specified `code` and putting it at the end of the [products url](https://api.octopus.energy/v1/products). 
-
-![All products example](./assets/product_lookup.png)
-
-In this scenario, the `code` is `VAR-22-11-01` and so the product url is [https://api.octopus.energy/v1/products/VAR-22-11-01](https://api.octopus.energy/v1/products/VAR-22-11-01). From this list, I would then look up the tariff for my region (e.g. `A` defined at the end of my current tariff) which is defined in the `code` field. It is this value that you add to the `cost_override_tariff` entity. In this example, I want the duel electricity tariff version, so will pick `E-2R-VAR-22-11-01-A`.
-
-![Target product example](./assets/product_tariff_lookup.png)
+If the correct tariff is present, it might be that you're on a tariff that has different rates depending on if you pay by direct debit or not. This can be configured via your [account configuration](./setup/account.md#favour-direct-debit-rates).
 
 ## How do I know when there's an update available?
 
-If you've installed via HACS, then you can keep an eye on `sensor.hacs` to see the number of pending updates. This could be used with an automation or highlighted on your dashboard. This will include any HACS integration update, not just this one. If you're feeling a little more adventurous, then you can enable HACS' [experimental features](https://hacs.xyz/docs/configuration/options/). This will surface any available updates in the normal update location within Home Assistant.
+If you've installed via HACS, and you are on version 2 or above, then updates will be surfaced in the normal update location within Home Assistant. If you are on a version below 2, then you can keep an eye on `sensor.hacs` to see the number of pending updates. This could be used with an automation or highlighted on your dashboard. This will include any HACS integration update, not just this one.
 
 If you've installed the integration manually, then you should keep an eye on the [GitHub releases](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases). You could even subscribe to the [RSS feed](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases.atom).
 
@@ -197,7 +191,11 @@ If you install the integration via HACS, then you will need to
 
 ![Redownload screen in HACS](./assets/beta-hacs-redownload.png)
 
-* Toggle on `Show beta versions` and select the target beta. Once selected, click `Download`.
+* If you are on version 2 or above, then click on `Need a different version?` and select the `Release` box and then select your target `pre-release` version
+
+![Beta toggle in HACS](./assets/beta-hacs-pre-release.png)
+
+If you are on a version below 2, then toggle on `Show beta versions` and select the target beta. Once selected, click `Download`.
 
 ![Beta toggle in HACS](./assets/beta-hacs-beta-toggle.png)
 

@@ -17,8 +17,9 @@ class IntelligentDevice:
     self.chargePointPowerInKw = chargePointPowerInKw
     self.is_charger = is_charger
 
-  def to_dict(self):
+  def to_dict(self, omit_id = True):
     return {
+      "id": self.id if omit_id == False else "**Redacted**",
       "provider": self.provider,
       "make": self.make,
       "model": self.model,
