@@ -1,3 +1,10 @@
+## [13.1.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.1.2...v13.1.3) (2024-11-12)
+
+
+### Bug Fixes
+
+* Fixed issue with intelligent device attempting to save cache with no data (5 minutes dev time) ([7e7290a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7e7290afbdc3c9aaa9eb5a43bc867f2ca25c85a5))
+
 ## [13.1.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.1.1...v13.1.2) (2024-11-10)
 
 
