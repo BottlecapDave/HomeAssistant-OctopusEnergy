@@ -15,6 +15,7 @@ async def async_load_cached_account(hass, account_id: str):
     return None
   
 async def async_save_cached_account(hass, account_id: str, account_data):
-  store = storage.Store(hass, "1", f"octopus_energy.{account_id}_account")
-  await store.async_save(account_data)
-  _LOGGER.debug(f"Saved account data for ({account_id})")
+  if account_data is not None:
+    store = storage.Store(hass, "1", f"octopus_energy.{account_id}_account")
+    await store.async_save(account_data)
+    _LOGGER.debug(f"Saved account data for ({account_id})")
