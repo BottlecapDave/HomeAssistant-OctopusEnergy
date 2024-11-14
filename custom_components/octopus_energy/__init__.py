@@ -396,12 +396,12 @@ async def async_setup_dependencies(hass, config):
         else:
           _LOGGER.warning(f"Using cached intelligent device information for {account_id} during startup. This data will be updated automatically when available.")
 
-    await async_save_cached_intelligent_device(hass, account_id, intelligent_device)
-
     if intelligent_device is not None:
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] = intelligent_device
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] = intelligent_mpan
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] = intelligent_serial_number
+
+      await async_save_cached_intelligent_device(hass, account_id, intelligent_device)
 
   intelligent_features = get_intelligent_features(intelligent_device.provider)  if intelligent_device is not None else None
   if intelligent_features is not None and intelligent_features.is_default_features == True:

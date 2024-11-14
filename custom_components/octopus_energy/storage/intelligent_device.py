@@ -25,6 +25,7 @@ async def async_load_cached_intelligent_device(hass, account_id: str) -> Intelli
     return None
   
 async def async_save_cached_intelligent_device(hass, account_id: str, intelligent_device: IntelligentDevice):
-  store = storage.Store(hass, "2", f"octopus_energy.{account_id}_intelligent_device")
-  await store.async_save(intelligent_device.to_dict(omit_id=False))
-  _LOGGER.debug(f"Saved intelligent device data for ({account_id})")
+  if intelligent_device is not None:
+    store = storage.Store(hass, "2", f"octopus_energy.{account_id}_intelligent_device")
+    await store.async_save(intelligent_device.to_dict(omit_id=False))
+    _LOGGER.debug(f"Saved intelligent device data for ({account_id})")
