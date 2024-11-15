@@ -12,7 +12,7 @@ def api_exception_to_string(e: ApiException):
 
 def exception_to_string(e: Exception):
   if e is None:
-    return None
+    return 'None'
 
   if isinstance(e, ApiException):
     return api_exception_to_string(e)
