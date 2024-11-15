@@ -4,7 +4,7 @@ import mock
 
 from unit import (create_rate_data)
 
-from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
+from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
 from custom_components.octopus_energy.coordinators.electricity_rates import ElectricityRatesCoordinatorResult, async_refresh_electricity_rates_data
 from custom_components.octopus_energy.const import EVENT_ELECTRICITY_CURRENT_DAY_RATES, EVENT_ELECTRICITY_NEXT_DAY_RATES, EVENT_ELECTRICITY_PREVIOUS_DAY_RATES, REFRESH_RATE_IN_MINUTES_RATES
 from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
@@ -612,6 +612,54 @@ async def test_when_rates_not_retrieved_then_existing_rates_returned():
     assert retrieved_rates.original_rates == existing_rates.original_rates
     assert retrieved_rates.rates_last_adjusted == existing_rates.rates_last_adjusted
     assert retrieved_rates.request_attempts == existing_rates.request_attempts + 1
+
+    assert mock_api_called == True
+    assert len(actual_fired_events.keys()) == 0
+
+@pytest.mark.asyncio
+async def test_when_exception_is_raised_then_existing_rates_returned_and_exception_captured():
+  mock_api_called = False
+  raised_exception = RequestException("My exception", [])
+  async def async_mocked_get_electricity_rates(*args, **kwargs):
+    nonlocal mock_api_called
+    mock_api_called = True
+    raise raised_exception
+  
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
+  
+  account_info = get_account_info()
+  existing_rates = ElectricityRatesCoordinatorResult(period_from, 1, create_rate_data(period_from, period_to, [1, 2, 3, 4]))
+  dispatches_result = IntelligentDispatchesCoordinatorResult(dispatches_last_retrieved, 1, IntelligentDispatches([], []))
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_rates=async_mocked_get_electricity_rates):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_rates: ElectricityRatesCoordinatorResult = await async_refresh_electricity_rates_data(
+      current,
+      client,
+      account_info,
+      mpan,
+      serial_number,
+      True,
+      False,
+      existing_rates,
+      None,
+      dispatches_result,
+      True,
+      fire_event
+    )
+
+    assert retrieved_rates is not None
+    assert retrieved_rates.next_refresh == existing_rates.next_refresh + timedelta(minutes=1)
+    assert retrieved_rates.last_retrieved == existing_rates.last_retrieved
+    assert retrieved_rates.rates == existing_rates.rates
+    assert retrieved_rates.original_rates == existing_rates.original_rates
+    assert retrieved_rates.rates_last_adjusted == existing_rates.rates_last_adjusted
+    assert retrieved_rates.request_attempts == existing_rates.request_attempts + 1
+    assert retrieved_rates.last_error == raised_exception
 
     assert mock_api_called == True
     assert len(actual_fired_events.keys()) == 0

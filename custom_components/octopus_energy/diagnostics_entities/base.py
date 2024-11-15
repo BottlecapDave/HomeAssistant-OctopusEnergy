@@ -19,6 +19,7 @@ from homeassistant.helpers.entity import generate_entity_id
 
 from ..coordinators import BaseCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
+from ..utils.error import exception_to_string
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -74,6 +75,7 @@ class OctopusEnergyBaseDataLastRetrieved(CoordinatorEntity, RestoreSensor):
     self._attributes = {
       "attempts": result.request_attempts if result is not None else None,
       "next_refresh": result.next_refresh if result is not None else None,
+      "last_error": exception_to_string(result.last_error) if result is not None else None,
     }
     super()._handle_coordinator_update()
 

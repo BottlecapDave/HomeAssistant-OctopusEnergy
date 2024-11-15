@@ -3,7 +3,7 @@ import pytest
 import mock
 
 from custom_components.octopus_energy.const import REFRESH_RATE_IN_MINUTES_INTELLIGENT
-from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
+from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
 from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatches
 from custom_components.octopus_energy.api_client.intelligent_device import IntelligentDevice
 from custom_components.octopus_energy.intelligent import mock_intelligent_dispatches
@@ -328,5 +328,42 @@ async def test_when_settings_not_retrieved_then_existing_settings_returned():
     assert retrieved_dispatches.last_retrieved == existing_settings.last_retrieved
     assert retrieved_dispatches.dispatches == existing_settings.dispatches
     assert retrieved_dispatches.request_attempts == existing_settings.request_attempts + 1
+
+    assert mock_api_called == True
+
+@pytest.mark.asyncio
+async def test_when_exception_raised_then_existing_settings_returned_and_exception_captured():
+  mock_api_called = False
+  raised_exception = RequestException("foo", [])
+  async def async_mock_get_intelligent_dispatches(*args, **kwargs):
+    nonlocal mock_api_called
+    mock_api_called = True
+    raise raised_exception
+  
+  async def async_merge_dispatch_data(*args, **kwargs):
+    account_id, completed_dispatches = args
+    return completed_dispatches
+  
+  account_info = get_account_info()
+  existing_settings = IntelligentDispatchesCoordinatorResult(last_retrieved, 1, IntelligentDispatches([], []))
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_dispatches: IntelligentDispatchesCoordinatorResult = await async_refresh_intelligent_dispatches(
+      current,
+      client,
+      account_info,
+      intelligent_device,
+      existing_settings,
+      False,
+      async_merge_dispatch_data
+    )
+
+    assert retrieved_dispatches is not None
+    assert retrieved_dispatches.next_refresh == existing_settings.next_refresh + timedelta(minutes=1)
+    assert retrieved_dispatches.last_retrieved == existing_settings.last_retrieved
+    assert retrieved_dispatches.dispatches == existing_settings.dispatches
+    assert retrieved_dispatches.request_attempts == existing_settings.request_attempts + 1
+    assert retrieved_dispatches.last_error == raised_exception
 
     assert mock_api_called == True

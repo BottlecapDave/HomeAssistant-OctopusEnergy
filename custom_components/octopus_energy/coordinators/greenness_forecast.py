@@ -25,8 +25,8 @@ class GreennessForecastCoordinatorResult(BaseCoordinatorResult):
   last_retrieved: datetime
   forecast: list[GreennessForecast]
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, forecast: list[GreennessForecast]):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_GREENNESS_FORECAST)
+  def __init__(self, last_retrieved: datetime, request_attempts: int, forecast: list[GreennessForecast], last_error: Exception | None = None):
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_GREENNESS_FORECAST, last_error)
     self.forecast = forecast
 
 async def async_refresh_greenness_forecast(
@@ -45,14 +45,15 @@ async def async_refresh_greenness_forecast(
       
       result = None
       if (existing_result is not None):
-        result = GreennessForecastCoordinatorResult(existing_result.last_retrieved, existing_result.request_attempts + 1, existing_result.forecast)
+        result = GreennessForecastCoordinatorResult(existing_result.last_retrieved, existing_result.request_attempts + 1, existing_result.forecast, last_error=e)
         _LOGGER.warning(f'Failed to retrieve greenness forecast - using cached data. Next attempt at {result.next_refresh}')
       else:
         result = GreennessForecastCoordinatorResult(
           # We want to force into our fallback mode
           current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_GREENNESS_FORECAST),
           2,
-          None
+          None,
+          last_error=e
         )
         _LOGGER.warning(f'Failed to retrieve greenness forecast. Next attempt at {result.next_refresh}')
 

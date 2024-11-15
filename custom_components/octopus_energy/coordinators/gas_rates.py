@@ -27,8 +27,8 @@ _LOGGER = logging.getLogger(__name__)
 class GasRatesCoordinatorResult(BaseCoordinatorResult):
   rates: list
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, rates: list):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_RATES)
+  def __init__(self, last_retrieved: datetime, request_attempts: int, rates: list, last_error: Exception | None = None):
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_RATES, last_error)
     self.rates = rates
 
 async def async_refresh_gas_rates_data(
@@ -49,6 +49,7 @@ async def async_refresh_gas_rates_data(
       return None
 
     new_rates = None
+    raised_exception = None
     
     if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
       try:
@@ -57,6 +58,7 @@ async def async_refresh_gas_rates_data(
         if isinstance(e, ApiException) == False:
           raise
         
+        raised_exception = e
         _LOGGER.debug(f'Failed to retrieve gas rates for {target_mprn}/{target_serial_number} ({tariff.code})')
 
       # Make sure our rate information doesn't contain any negative values https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/506
@@ -81,11 +83,11 @@ async def async_refresh_gas_rates_data(
 
       result = None
       if (existing_rates_result is not None):
-        result = GasRatesCoordinatorResult(existing_rates_result.last_retrieved, existing_rates_result.request_attempts + 1, existing_rates_result.rates)
+        result = GasRatesCoordinatorResult(existing_rates_result.last_retrieved, existing_rates_result.request_attempts + 1, existing_rates_result.rates, last_error=raised_exception)
         _LOGGER.warning(f"Failed to retrieve new gas rates for {target_mprn}/{target_serial_number} - using cached rates. Next attempt at {result.next_refresh}")
       else:
         # We want to force into our fallback mode
-        result = GasRatesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES), 2, None)
+        result = GasRatesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES), 2, None, last_error=raised_exception)
         _LOGGER.warning(f"Failed to retrieve new gas rates for {target_mprn}/{target_serial_number}. Next attempt at {result.next_refresh}")
 
       return result

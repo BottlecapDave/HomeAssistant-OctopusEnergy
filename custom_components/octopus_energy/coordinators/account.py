@@ -30,8 +30,8 @@ _LOGGER = logging.getLogger(__name__)
 class AccountCoordinatorResult(BaseCoordinatorResult):
   account: dict
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, account: dict):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_ACCOUNT)
+  def __init__(self, last_retrieved: datetime, request_attempts: int, account: dict, last_error: Exception | None = None):
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_ACCOUNT, last_error)
     self.account = account
 
 async def async_refresh_account(
@@ -92,7 +92,8 @@ async def async_refresh_account(
       result = AccountCoordinatorResult(
         previous_request.last_retrieved,
         previous_request.request_attempts + 1,
-        previous_request.account
+        previous_request.account,
+        last_error=e
       )
       _LOGGER.warning(f'Failed to retrieve account information - using cached version. Next attempt at {result.next_refresh}')
       return result

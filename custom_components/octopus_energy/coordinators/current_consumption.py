@@ -20,8 +20,8 @@ _LOGGER = logging.getLogger(__name__)
 class CurrentConsumptionCoordinatorResult(BaseCoordinatorResult):
   data: list
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, refresh_rate_in_minutes: float, data: list):
-    super().__init__(last_retrieved, request_attempts, refresh_rate_in_minutes)
+  def __init__(self, last_retrieved: datetime, request_attempts: int, refresh_rate_in_minutes: float, data: list, last_error: Exception | None = None):
+    super().__init__(last_retrieved, request_attempts, refresh_rate_in_minutes, last_error)
     self.data = data
 
 async def async_get_live_consumption(
@@ -50,7 +50,8 @@ async def async_get_live_consumption(
           previous_consumption.last_retrieved,
           previous_consumption.request_attempts + 1,
           refresh_rate_in_minutes,
-          previous_consumption.data
+          previous_consumption.data,
+          last_error=e
         )
         _LOGGER.warning(f'Failed to retrieve smart meter consumption data - using cached version. Next attempt at {result.next_refresh}')
       else:
@@ -59,7 +60,8 @@ async def async_get_live_consumption(
           current_date - timedelta(minutes=refresh_rate_in_minutes),
           2,
           refresh_rate_in_minutes,
-          None
+          None,
+          last_error=e
         )
         _LOGGER.warning(f'Failed to retrieve smart meter consumption data. Next attempt at {result.next_refresh}')
       

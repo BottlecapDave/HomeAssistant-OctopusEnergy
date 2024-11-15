@@ -4,7 +4,7 @@ import mock
 
 from unit import (create_rate_data)
 
-from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
+from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
 from custom_components.octopus_energy.coordinators.gas_rates import GasRatesCoordinatorResult, async_refresh_gas_rates_data
 from custom_components.octopus_energy.const import EVENT_GAS_CURRENT_DAY_RATES, EVENT_GAS_NEXT_DAY_RATES, EVENT_GAS_PREVIOUS_DAY_RATES, REFRESH_RATE_IN_MINUTES_RATES
 
@@ -360,4 +360,42 @@ async def test_when_negative_rates_present_then_existing_rates_retrieved():
     assert mock_api_called == True
     assert expected_rates[0]["value_inc_vat"] < 0
     
+    assert len(actual_fired_events.keys()) == 0
+
+@pytest.mark.asyncio
+async def test_when_exception_raised_then_existing_gas_rates_returned_and_exception_captured():
+  mock_api_called = False
+  raised_exception = RequestException("My exception", [])
+  async def async_mocked_get_gas_rates(*args, **kwargs):
+    nonlocal mock_api_called
+    mock_api_called = True
+    raise raised_exception
+  
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
+  
+  account_info = get_account_info()
+  existing_rates = GasRatesCoordinatorResult(period_from, 1, create_rate_data(period_from, period_to, [1, 2, 3, 4]))
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_rates = await async_refresh_gas_rates_data(
+      current,
+      client,
+      account_info,
+      mprn,
+      serial_number,
+      existing_rates,
+      fire_event
+    )
+
+    assert retrieved_rates is not None
+    assert retrieved_rates.next_refresh == existing_rates.next_refresh + timedelta(minutes=1)
+    assert retrieved_rates.last_retrieved == existing_rates.last_retrieved
+    assert retrieved_rates.rates == existing_rates.rates
+    assert retrieved_rates.last_error == raised_exception
+    assert mock_api_called == True
     assert len(actual_fired_events.keys()) == 0
