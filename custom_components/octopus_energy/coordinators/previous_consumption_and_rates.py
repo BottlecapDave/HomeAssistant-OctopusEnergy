@@ -273,10 +273,15 @@ async def async_fetch_consumption_and_rates(
             _LOGGER.debug("Dispatches not available for intelligent tariff. Using existing rate information")
             return previous_data
           
-          [rate_data, standing_charge] = await asyncio.gather(
-            client.async_get_electricity_rates(tariff.product, tariff.code, is_smart_meter, period_from, period_to),
-            client.async_get_electricity_standing_charge(tariff.product, tariff.code, period_from, period_to)
-          )
+          if previous_data is not None and previous_data.rates[0]["start"] == period_from and previous_data.rates[-1]["end"] == period_to:
+            _LOGGER.info('Previous rates are for our target consumption, so using previously retrieved rates and standing charges')
+            rate_data = previous_data.rates
+            standing_charge = { "value_inc_vat": previous_data.standing_charge }
+          else:
+            [rate_data, standing_charge] = await asyncio.gather(
+              client.async_get_electricity_rates(tariff.product, tariff.code, is_smart_meter, period_from, period_to),
+              client.async_get_electricity_standing_charge(tariff.product, tariff.code, period_from, period_to)
+            )
 
           if intelligent_dispatches is not None:
             _LOGGER.debug(f"Adjusting rate data based on intelligent tariff; dispatches: {intelligent_dispatches}")
@@ -296,10 +301,15 @@ async def async_fetch_consumption_and_rates(
             _LOGGER.error(f"Could not determine tariff code for previous consumption for gas {identifier}/{serial_number}")
             return previous_data
           
-          [rate_data, standing_charge] = await asyncio.gather(
-            client.async_get_gas_rates(tariff.product, tariff.code, period_from, period_to),
-            client.async_get_gas_standing_charge(tariff.product, tariff.code, period_from, period_to)
-          )
+          if previous_data is not None and previous_data.rates[0]["start"] == period_from and previous_data.rates[-1]["end"] == period_to:
+            _LOGGER.info('Previous rates are for our target consumption, so using previously retrieved rates and standing charges')
+            rate_data = previous_data.rates
+            standing_charge = { "value_inc_vat": previous_data.standing_charge }
+          else:
+            [rate_data, standing_charge] = await asyncio.gather(
+              client.async_get_gas_rates(tariff.product, tariff.code, period_from, period_to),
+              client.async_get_gas_standing_charge(tariff.product, tariff.code, period_from, period_to)
+            )
       
       _LOGGER.debug(f"{'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}: consumption_data: {len(consumption_data) if consumption_data is not None else None}; rate_data: {len(rate_data) if rate_data is not None else None}; standing_charge: {standing_charge}")
       if consumption_data is not None and len(consumption_data) >= MINIMUM_CONSUMPTION_DATA_LENGTH and rate_data is not None and len(rate_data) > 0 and standing_charge is not None:
