@@ -51,6 +51,7 @@ async def async_refresh_electricity_standing_charges_data(
 
       if (existing_standing_charges_result is not None and
           existing_standing_charges_result.standing_charge is not None and
+          existing_standing_charges_result.standing_charge["tariff_code"] == tariff.code and
           (existing_standing_charges_result.standing_charge["start"] is None or existing_standing_charges_result.standing_charge["start"] <= period_from) and
           (existing_standing_charges_result.standing_charge["end"] is None or existing_standing_charges_result.standing_charge["end"] >= period_to)):
         _LOGGER.info('Current standing charges cover the requested period, so using previously retrieved standing charges')

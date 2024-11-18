@@ -1227,7 +1227,8 @@ class OctopusEnergyApiClient:
           result = {
             "start": parse_datetime(data["results"][0]["valid_from"]) if "valid_from" in data["results"][0] and data["results"][0]["valid_from"] is not None else None,
             "end": parse_datetime(data["results"][0]["valid_to"]) if "valid_to" in data["results"][0] and data["results"][0]["valid_to"] is not None else None,
-            "value_inc_vat": float(data["results"][0]["value_inc_vat"])
+            "value_inc_vat": float(data["results"][0]["value_inc_vat"]),
+            "tariff_code": tariff_code,
           }
 
       return result
@@ -1249,7 +1250,8 @@ class OctopusEnergyApiClient:
           result = {
             "start": parse_datetime(data["results"][0]["valid_from"]) if "valid_from" in data["results"][0] and data["results"][0]["valid_from"] is not None else None,
             "end": parse_datetime(data["results"][0]["valid_to"]) if "valid_to" in data["results"][0] and data["results"][0]["valid_to"] is not None else None,
-            "value_inc_vat": float(data["results"][0]["value_inc_vat"])
+            "value_inc_vat": float(data["results"][0]["value_inc_vat"]),
+            "tariff_code": tariff_code,
           }
 
       return result
