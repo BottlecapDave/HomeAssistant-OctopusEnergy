@@ -41,8 +41,8 @@ class ElectricityRatesCoordinatorResult(BaseCoordinatorResult):
   original_rates: list
   rates_last_adjusted: datetime
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, rates: list, original_rates: list = None, rates_last_adjusted: datetime = None):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_RATES)
+  def __init__(self, last_retrieved: datetime, request_attempts: int, rates: list, original_rates: list = None, rates_last_adjusted: datetime = None, last_error: Exception | None = None):
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_RATES, last_error)
     self.rates = rates
     self.original_rates = original_rates if original_rates is not None else rates
     self.rates_last_adjusted = rates_last_adjusted if rates_last_adjusted else last_retrieved
@@ -77,6 +77,7 @@ async def async_refresh_electricity_rates_data(
       return existing_rates_result
 
     new_rates = None
+    raised_exception = None
     if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
       try:
         new_rates = await client.async_get_electricity_rates(tariff.product, tariff.code, is_smart_meter, period_from, period_to)
@@ -85,6 +86,7 @@ async def async_refresh_electricity_rates_data(
           raise
         
         _LOGGER.debug(f'Failed to retrieve electricity rates for {target_mpan}/{target_serial_number} ({tariff.code})')
+        raised_exception = e
       
       if new_rates is not None:
         _LOGGER.debug(f'Electricity rates retrieved for {target_mpan}/{target_serial_number} ({tariff.code});')
@@ -129,7 +131,8 @@ async def async_refresh_electricity_rates_data(
           existing_rates_result.request_attempts + 1,
           existing_rates_result.rates,
           existing_rates_result.original_rates,
-          existing_rates_result.rates_last_adjusted
+          existing_rates_result.rates_last_adjusted,
+          last_error=raised_exception
         )
         _LOGGER.warning(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number} - using cached rates. Next attempt at {result.next_refresh}")
       else:
@@ -139,7 +142,8 @@ async def async_refresh_electricity_rates_data(
           2,
           None,
           None,
-          None
+          None,
+          last_error=raised_exception
         )
         _LOGGER.warning(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number}. Next attempt at {result.next_refresh}")
 
@@ -175,7 +179,8 @@ async def async_refresh_electricity_rates_data(
         existing_rates_result.request_attempts,
         new_rates,
         existing_rates_result.original_rates,
-        current
+        current,
+        last_error=existing_rates_result.last_error
       )
   return existing_rates_result
 

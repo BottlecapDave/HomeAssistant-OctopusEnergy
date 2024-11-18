@@ -15,6 +15,7 @@ This sensor states when account data was last retrieved.
 |-----------|------|-------------|
 | `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
 | `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
+| `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
 
 ## Current Consumption Data Last Retrieved
 
@@ -29,6 +30,7 @@ This sensor states when the home mini current consumption data was last retrieve
 |-----------|------|-------------|
 | `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
 | `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
+| `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
 
 ## Current Consumption Home Pro Data Last Retrieved
 
@@ -43,6 +45,7 @@ This sensor states when the home pro current consumption data was last retrieved
 |-----------|------|-------------|
 | `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
 | `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
+| `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
 
 ## Greenness Forecast Data Last Retrieved
 
@@ -57,6 +60,7 @@ This sensor states when greenness forecast data was last retrieved.
 |-----------|------|-------------|
 | `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
 | `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
+| `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
 
 ## Intelligent Dispatches Data Last Retrieved
 
@@ -71,6 +75,7 @@ This sensor states when intelligent dispatches data was last retrieved.
 |-----------|------|-------------|
 | `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
 | `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
+| `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
 
 ## Intelligent Settings Data Last Retrieved
 
@@ -85,6 +90,7 @@ This sensor states when intelligent settings data was last retrieved.
 |-----------|------|-------------|
 | `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
 | `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
+| `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
 
 ## Previous Consumption And Rates Data Last Retrieved
 
@@ -99,6 +105,7 @@ This sensor states when the previous consumption and associated rate data was la
 |-----------|------|-------------|
 | `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
 | `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
+| `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
 
 ## Rates Data Last Retrieved
 
@@ -113,6 +120,7 @@ This sensor states when the previous/current and next rate data was last retriev
 |-----------|------|-------------|
 | `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
 | `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
+| `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
 
 ## Saving Sessions Data Last Retrieved
 
@@ -127,6 +135,7 @@ This sensor states when saving sessions data was last retrieved.
 |-----------|------|-------------|
 | `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
 | `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
+| `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
 
 ## Free Electricity Sessions Data Last Retrieved
 
@@ -141,6 +150,7 @@ This sensor states when free electricity sessions data was last retrieved.
 |-----------|------|-------------|
 | `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
 | `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
+| `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
 
 ## Standing Charge Data Last Retrieved
 
@@ -155,6 +165,7 @@ This sensor states when the standing charge data was last retrieved.
 |-----------|------|-------------|
 | `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
 | `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
+| `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
 
 ## Wheel Of Fortune Data Last Retrieved
 
@@ -169,3 +180,4 @@ This sensor states when wheel of fortune data was last retrieved.
 |-----------|------|-------------|
 | `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
 | `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
+| `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |

@@ -58,8 +58,9 @@ class PreviousConsumptionCoordinatorResult(BaseCoordinatorResult):
                rates: list,
                standing_charge,
                historic_weekday_consumption: list = None,
-               historic_weekend_consumption: list = None):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION)
+               historic_weekend_consumption: list = None,
+               last_error: Exception | None = None):
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION, last_error)
     self.consumption = consumption
     self.rates = rates
     self.standing_charge = standing_charge
@@ -348,7 +349,8 @@ async def async_fetch_consumption_and_rates(
           previous_data.rates,
           previous_data.standing_charge,
           previous_data.historic_weekday_consumption,
-          previous_data.historic_weekend_consumption
+          previous_data.historic_weekend_consumption,
+          last_error=e
         )
         _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number} - using cached data. Next attempt at {result.next_refresh}. Exception: {e}")
       else:
@@ -360,7 +362,8 @@ async def async_fetch_consumption_and_rates(
           None,
           None,
           None,
-          None
+          None,
+          last_error=e
         )
         _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}. Next attempt at {result.next_refresh}. Exception: {e}")
 

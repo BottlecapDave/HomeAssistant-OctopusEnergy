@@ -23,8 +23,8 @@ _LOGGER = logging.getLogger(__name__)
 class ElectricityStandingChargeCoordinatorResult(BaseCoordinatorResult):
   standing_charge: {}
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, standing_charge: {}):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_STANDING_CHARGE)
+  def __init__(self, last_retrieved: datetime, request_attempts: int, standing_charge: dict, last_error: Exception | None = None):
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_STANDING_CHARGE, last_error)
     self.standing_charge = standing_charge
 
 async def async_refresh_electricity_standing_charges_data(
@@ -44,6 +44,7 @@ async def async_refresh_electricity_standing_charges_data(
       return None
     
     new_standing_charge = None
+    raised_exception = None
     if (existing_standing_charges_result is None or current >= existing_standing_charges_result.next_refresh):
       try:
         new_standing_charge = await client.async_get_electricity_standing_charge(tariff.product, tariff.code, period_from, period_to)
@@ -52,6 +53,7 @@ async def async_refresh_electricity_standing_charges_data(
         if isinstance(e, ApiException) == False:
           raise
         
+        raised_exception = e
         _LOGGER.debug(f'Failed to retrieve electricity standing charges for {target_mpan}/{target_serial_number} ({tariff.code})')
       
       if new_standing_charge is not None:
@@ -59,11 +61,11 @@ async def async_refresh_electricity_standing_charges_data(
       
       result = None
       if (existing_standing_charges_result is not None):
-        result = ElectricityStandingChargeCoordinatorResult(existing_standing_charges_result.last_retrieved, existing_standing_charges_result.request_attempts + 1, existing_standing_charges_result.standing_charge)
+        result = ElectricityStandingChargeCoordinatorResult(existing_standing_charges_result.last_retrieved, existing_standing_charges_result.request_attempts + 1, existing_standing_charges_result.standing_charge, last_error=raised_exception)
         _LOGGER.warning(f"Failed to retrieve new electricity standing charges for {target_mpan}/{target_serial_number} ({tariff.code}) - using cached standing charges. Next attempt at {result.next_refresh}")
       else:
         # We want to force into our fallback mode
-        result = ElectricityStandingChargeCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_STANDING_CHARGE), 2, None)
+        result = ElectricityStandingChargeCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_STANDING_CHARGE), 2, None, last_error=raised_exception)
         _LOGGER.warning(f"Failed to retrieve new electricity standing charges for {target_mpan}/{target_serial_number} ({tariff.code}). Next attempt at {result.next_refresh}")
 
       return result

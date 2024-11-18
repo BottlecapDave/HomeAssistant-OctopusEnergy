@@ -5,7 +5,7 @@ import mock
 from unit import (create_rate_data)
 
 from custom_components.octopus_energy.const import REFRESH_RATE_IN_MINUTES_STANDING_CHARGE
-from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
+from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
 from custom_components.octopus_energy.coordinators.electricity_standing_charges import ElectricityStandingChargeCoordinatorResult, async_refresh_electricity_standing_charges_data
 
 current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
@@ -246,5 +246,37 @@ async def test_when_standing_charge_not_retrieved_then_existing_standing_charge_
     assert retrieved_standing_charge.last_retrieved == existing_standing_charge.last_retrieved
     assert retrieved_standing_charge.standing_charge == existing_standing_charge.standing_charge
     assert retrieved_standing_charge.request_attempts == existing_standing_charge.request_attempts + 1
+
+    assert mock_api_called == True
+
+@pytest.mark.asyncio
+async def test_when_exception_thrown_then_existing_standing_charge_returned_and_exception_captured():
+  mock_api_called = False
+  raised_exception = RequestException("My exception", [])
+  async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
+    nonlocal mock_api_called
+    mock_api_called = True
+    raise raised_exception
+  
+  account_info = get_account_info()
+  existing_standing_charge = ElectricityStandingChargeCoordinatorResult(period_from, 1, create_rate_data(period_from, period_to, [1, 2, 3, 4]))
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_standing_charge: ElectricityStandingChargeCoordinatorResult = await async_refresh_electricity_standing_charges_data(
+      current,
+      client,
+      account_info,
+      mpan,
+      serial_number,
+      existing_standing_charge
+    )
+
+    assert retrieved_standing_charge is not None
+    assert retrieved_standing_charge.next_refresh == existing_standing_charge.next_refresh + timedelta(minutes=1)
+    assert retrieved_standing_charge.last_retrieved == existing_standing_charge.last_retrieved
+    assert retrieved_standing_charge.standing_charge == existing_standing_charge.standing_charge
+    assert retrieved_standing_charge.request_attempts == existing_standing_charge.request_attempts + 1
+    assert retrieved_standing_charge.last_error == raised_exception
 
     assert mock_api_called == True

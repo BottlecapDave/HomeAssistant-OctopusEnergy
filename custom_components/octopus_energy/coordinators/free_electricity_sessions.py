@@ -27,8 +27,8 @@ _LOGGER = logging.getLogger(__name__)
 class FreeElectricitySessionsCoordinatorResult(BaseCoordinatorResult):
   events: list[FreeElectricitySession]
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, events: list[FreeElectricitySession]):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_OCTOPLUS_FREE_ELECTRICITY_SESSIONS)
+  def __init__(self, last_retrieved: datetime, request_attempts: int, events: list[FreeElectricitySession], last_error: Exception | None = None):
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_OCTOPLUS_FREE_ELECTRICITY_SESSIONS, last_error)
     self.events = events
 
 async def async_refresh_free_electricity_sessions(
@@ -81,7 +81,8 @@ async def async_refresh_free_electricity_sessions(
         result = FreeElectricitySessionsCoordinatorResult(
           existing_free_electricity_sessions_result.last_retrieved,
           existing_free_electricity_sessions_result.request_attempts + 1,
-          existing_free_electricity_sessions_result.events
+          existing_free_electricity_sessions_result.events,
+          last_error=e
         )
         _LOGGER.warning(f"Failed to retrieve free electricity sessions - using cached data. Next attempt at {result.next_refresh}")
       else:
@@ -90,7 +91,7 @@ async def async_refresh_free_electricity_sessions(
           current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_FREE_ELECTRICITY_SESSIONS),
           2,
           [],
-          []
+          last_error=e
         )
         _LOGGER.warning(f"Failed to retrieve free electricity sessions. Next attempt at {result.next_refresh}")
       

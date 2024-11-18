@@ -29,8 +29,8 @@ class SavingSessionsCoordinatorResult(BaseCoordinatorResult):
   available_events: list[SavingSession]
   joined_events: list[SavingSession]
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, available_events: list[SavingSession], joined_events: list[SavingSession]):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSIONS)
+  def __init__(self, last_retrieved: datetime, request_attempts: int, available_events: list[SavingSession], joined_events: list[SavingSession], last_error: Exception | None = None):
+    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSIONS, last_error)
     self.available_events = available_events
     self.joined_events = joined_events
 
@@ -123,7 +123,8 @@ async def async_refresh_saving_sessions(
           existing_saving_sessions_result.last_retrieved,
           existing_saving_sessions_result.request_attempts + 1,
           existing_saving_sessions_result.available_events,
-          existing_saving_sessions_result.joined_events
+          existing_saving_sessions_result.joined_events,
+          last_error=e
         )
         _LOGGER.warning(f"Failed to retrieve saving sessions - using cached data. Next attempt at {result.next_refresh}")
       else:
@@ -132,7 +133,8 @@ async def async_refresh_saving_sessions(
           current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSIONS),
           2,
           [],
-          []
+          [],
+          last_error=e
         )
         _LOGGER.warning(f"Failed to retrieve saving sessions. Next attempt at {result.next_refresh}")
       

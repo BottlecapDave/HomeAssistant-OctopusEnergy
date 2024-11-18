@@ -4,7 +4,7 @@ import mock
 
 from custom_components.octopus_energy.const import REFRESH_RATE_IN_MINUTES_INTELLIGENT
 from custom_components.octopus_energy.intelligent import mock_intelligent_settings
-from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
+from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
 from custom_components.octopus_energy.api_client.intelligent_settings import IntelligentSettings
 from custom_components.octopus_energy.coordinators.intelligent_settings import IntelligentCoordinatorResult, async_refresh_intelligent_settings
 
@@ -316,5 +316,43 @@ async def test_when_settings_not_retrieved_then_existing_settings_returned():
     assert retrieved_settings.last_retrieved == existing_settings.last_retrieved
     assert retrieved_settings.settings == existing_settings.settings
     assert retrieved_settings.request_attempts == existing_settings.request_attempts + 1
+
+    assert mock_api_called == True
+
+@pytest.mark.asyncio
+async def test_when_exception_raised_then_existing_settings_returned_and_exception_captured():
+  mock_api_called = False
+  raised_exception = RequestException("my error", [])
+  async def async_mock_get_intelligent_settings(*args, **kwargs):
+    nonlocal mock_api_called
+    mock_api_called = True
+    raise raised_exception
+  
+  account_info = get_account_info()
+  existing_settings = IntelligentCoordinatorResult(last_retrieved, 1, IntelligentSettings(
+    False,
+    50,
+    60,
+    time(6,30),
+    time(10,10),
+  ))
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_settings=async_mock_get_intelligent_settings):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_settings: IntelligentCoordinatorResult = await async_refresh_intelligent_settings(
+      current,
+      client,
+      account_info,
+      device_id,
+      existing_settings,
+      False
+    )
+
+    assert retrieved_settings is not None
+    assert retrieved_settings.next_refresh == existing_settings.next_refresh + timedelta(minutes=1)
+    assert retrieved_settings.last_retrieved == existing_settings.last_retrieved
+    assert retrieved_settings.settings == existing_settings.settings
+    assert retrieved_settings.request_attempts == existing_settings.request_attempts + 1
+    assert retrieved_settings.last_error == raised_exception
 
     assert mock_api_called == True
