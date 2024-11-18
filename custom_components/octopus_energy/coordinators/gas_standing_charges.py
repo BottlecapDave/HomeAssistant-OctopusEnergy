@@ -46,15 +46,23 @@ async def async_refresh_gas_standing_charges_data(
     new_standing_charge = None
     raised_exception = None
     if (existing_standing_charges_result is None or current >= existing_standing_charges_result.next_refresh):
-      try:
-        new_standing_charge = await client.async_get_gas_standing_charge(tariff.product, tariff.code, period_from, period_to)
-        _LOGGER.debug(f'Gas standing charges retrieved for {target_mprn}/{target_serial_number} ({tariff.code})')
-      except Exception as e:
-        if isinstance(e, ApiException) == False:
-          raise
-        
-        raised_exception = e
-        _LOGGER.debug(f'Failed to retrieve gas standing charges for {target_mprn}/{target_serial_number} ({tariff.code})')
+
+      if (existing_standing_charges_result is not None and
+          existing_standing_charges_result.standing_charge is not None and
+          (existing_standing_charges_result.standing_charge["start"] is None or existing_standing_charges_result.standing_charge["start"] <= period_from) and
+          (existing_standing_charges_result.standing_charge["end"] is None or existing_standing_charges_result.standing_charge["end"] >= period_to)):
+        _LOGGER.info('Current standing charges cover the requested period, so using previously retrieved standing charges')
+        new_standing_charge = existing_standing_charges_result.standing_charge
+      else:
+        try:
+          new_standing_charge = await client.async_get_gas_standing_charge(tariff.product, tariff.code, period_from, period_to)
+          _LOGGER.debug(f'Gas standing charges retrieved for {target_mprn}/{target_serial_number} ({tariff.code})')
+        except Exception as e:
+          if isinstance(e, ApiException) == False:
+            raise
+          
+          raised_exception = e
+          _LOGGER.debug(f'Failed to retrieve gas standing charges for {target_mprn}/{target_serial_number} ({tariff.code})')
       
       if new_standing_charge is not None:
         return GasStandingChargeCoordinatorResult(current, 1, new_standing_charge)

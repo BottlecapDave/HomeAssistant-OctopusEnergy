@@ -33,7 +33,7 @@ async def async_refresh_electricity_standing_charges_data(
     account_info,
     target_mpan: str,
     target_serial_number: str,
-    existing_standing_charges_result: ElectricityStandingChargeCoordinatorResult
+    existing_standing_charges_result: ElectricityStandingChargeCoordinatorResult | None
   ):
   period_from = as_utc(current.replace(hour=0, minute=0, second=0, microsecond=0))
   period_to = period_from + timedelta(days=1)
@@ -46,15 +46,25 @@ async def async_refresh_electricity_standing_charges_data(
     new_standing_charge = None
     raised_exception = None
     if (existing_standing_charges_result is None or current >= existing_standing_charges_result.next_refresh):
-      try:
-        new_standing_charge = await client.async_get_electricity_standing_charge(tariff.product, tariff.code, period_from, period_to)
-        _LOGGER.debug(f'Electricity standing charges retrieved for {target_mpan}/{target_serial_number} ({tariff.code})')
-      except Exception as e:
-        if isinstance(e, ApiException) == False:
-          raise
-        
-        raised_exception = e
-        _LOGGER.debug(f'Failed to retrieve electricity standing charges for {target_mpan}/{target_serial_number} ({tariff.code})')
+
+      _LOGGER.info(existing_standing_charges_result.standing_charge if existing_standing_charges_result is not None else None)
+
+      if (existing_standing_charges_result is not None and
+          existing_standing_charges_result.standing_charge is not None and
+          (existing_standing_charges_result.standing_charge["start"] is None or existing_standing_charges_result.standing_charge["start"] <= period_from) and
+          (existing_standing_charges_result.standing_charge["end"] is None or existing_standing_charges_result.standing_charge["end"] >= period_to)):
+        _LOGGER.info('Current standing charges cover the requested period, so using previously retrieved standing charges')
+        new_standing_charge = existing_standing_charges_result.standing_charge
+      else:
+        try:
+          new_standing_charge = await client.async_get_electricity_standing_charge(tariff.product, tariff.code, period_from, period_to)
+          _LOGGER.debug(f'Electricity standing charges retrieved for {target_mpan}/{target_serial_number} ({tariff.code})')
+        except Exception as e:
+          if isinstance(e, ApiException) == False:
+            raise
+          
+          raised_exception = e
+          _LOGGER.debug(f'Failed to retrieve electricity standing charges for {target_mpan}/{target_serial_number} ({tariff.code})')
       
       if new_standing_charge is not None:
         return ElectricityStandingChargeCoordinatorResult(current, 1, new_standing_charge)
