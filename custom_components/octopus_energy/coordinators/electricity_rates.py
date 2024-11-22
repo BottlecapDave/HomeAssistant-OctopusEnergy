@@ -27,7 +27,7 @@ from ..const import (
 from ..api_client import ApiException, OctopusEnergyApiClient
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 from ..utils import Tariff, private_rates_to_public_rates
-from . import BaseCoordinatorResult, get_electricity_meter_tariff, raise_rate_events
+from . import BaseCoordinatorResult, combine_rates, get_electricity_meter_tariff, raise_rate_events
 from ..intelligent import adjust_intelligent_rates, is_intelligent_product
 from ..utils.rate_information import get_unique_rates, has_peak_rates
 from ..utils.tariff_cache import async_save_cached_tariff_total_unique_rates
@@ -79,14 +79,22 @@ async def async_refresh_electricity_rates_data(
     new_rates = None
     raised_exception = None
     if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
-      try:
-        new_rates = await client.async_get_electricity_rates(tariff.product, tariff.code, is_smart_meter, period_from, period_to)
-      except Exception as e:
-        if isinstance(e, ApiException) == False:
-          raise
-        
-        _LOGGER.debug(f'Failed to retrieve electricity rates for {target_mpan}/{target_serial_number} ({tariff.code})')
-        raised_exception = e
+      adjusted_period_from = existing_rates_result.original_rates[-1]["end"] if existing_rates_result is not None and existing_rates_result.original_rates is not None and len(existing_rates_result.original_rates) > 0 else period_from
+
+      if adjusted_period_from < period_to:
+        try:
+          new_rates = await client.async_get_electricity_rates(tariff.product, tariff.code, is_smart_meter, adjusted_period_from, period_to)
+        except Exception as e:
+          if isinstance(e, ApiException) == False:
+            raise
+          
+          _LOGGER.debug(f'Failed to retrieve electricity rates for {target_mpan}/{target_serial_number} ({tariff.code})')
+          raised_exception = e
+
+        new_rates = combine_rates(existing_rates_result.original_rates if existing_rates_result is not None else [], new_rates, period_from, period_to)
+      else:
+        _LOGGER.info('All required rates present, so using cached rates')
+        new_rates = existing_rates_result.original_rates
       
       if new_rates is not None:
         _LOGGER.debug(f'Electricity rates retrieved for {target_mpan}/{target_serial_number} ({tariff.code});')

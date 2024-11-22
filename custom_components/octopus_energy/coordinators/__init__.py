@@ -136,3 +136,26 @@ def get_gas_meter_tariff(current: datetime, account_info, target_mprn: str, targ
            return active_tariff
            
   return None
+
+def combine_rates(old_rates: list | None, new_rates: list | None, period_from: datetime, period_to: datetime):
+  if new_rates is None:
+    return None
+  
+  combined_rates = []
+  combined_rates.extend(new_rates)
+
+  if old_rates is not None:
+    for rate in old_rates:
+      if rate["start"] >= period_from and rate["end"] <= period_to:
+        is_present = False
+        for existing_rate in combined_rates:
+          if existing_rate["start"] == rate["start"]:
+            is_present = True
+            break
+
+        if is_present == False:
+          combined_rates.append(rate)
+
+    combined_rates.sort(key=lambda x: x["start"])
+
+  return combined_rates

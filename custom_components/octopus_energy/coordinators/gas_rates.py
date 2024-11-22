@@ -20,7 +20,7 @@ from ..const import (
 
 from ..api_client import ApiException, OctopusEnergyApiClient
 from ..utils import private_rates_to_public_rates
-from . import BaseCoordinatorResult, get_gas_meter_tariff, raise_rate_events
+from . import BaseCoordinatorResult, combine_rates, get_gas_meter_tariff, raise_rate_events
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -50,16 +50,23 @@ async def async_refresh_gas_rates_data(
 
     new_rates = None
     raised_exception = None
-    
     if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
-      try:
-        new_rates = await client.async_get_gas_rates(tariff.product, tariff.code, period_from, period_to)
-      except Exception as e:
-        if isinstance(e, ApiException) == False:
-          raise
+      adjusted_period_from = existing_rates_result.rates[-1]["end"] if existing_rates_result is not None and existing_rates_result.rates is not None and len(existing_rates_result.rates) > 0 else period_from
+
+      if adjusted_period_from < period_to:
+        try:
+          new_rates = await client.async_get_gas_rates(tariff.product, tariff.code, adjusted_period_from, period_to)
+        except Exception as e:
+          if isinstance(e, ApiException) == False:
+            raise
+          
+          raised_exception = e
+          _LOGGER.debug(f'Failed to retrieve gas rates for {target_mprn}/{target_serial_number} ({tariff.code})')
         
-        raised_exception = e
-        _LOGGER.debug(f'Failed to retrieve gas rates for {target_mprn}/{target_serial_number} ({tariff.code})')
+        new_rates = combine_rates(existing_rates_result.rates if existing_rates_result is not None else [], new_rates, period_from, period_to)
+      else:
+        _LOGGER.info('All required rates present, so using cached rates')
+        new_rates = existing_rates_result.rates
 
       # Make sure our rate information doesn't contain any negative values https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/506
       if new_rates is not None:
