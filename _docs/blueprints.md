@@ -50,6 +50,16 @@ This blueprint will fire a configured action when the consumption for the curren
 
     This blueprint requires sensors provided by Octopus Energy Home Mini
 
+### Alert when current consumption has reached free electricity sessions baseline
+
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%octopus_energy_free_electricity_baseline_reached.yaml) | [Source](./blueprints/octopus_energy_free_electricity_baseline_reached.yaml)
+
+This blueprint will fire a configured action when the consumption for the current interval (i.e. the current 30 minute period) reaches the current free electricity session baseline.
+
+!!! warning
+
+    This blueprint requires sensors provided by Octopus Energy Home Mini
+
 ## Wheel of Fortune
 
 ### Automatically spin wheel of fortune (single)
