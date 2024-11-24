@@ -430,7 +430,6 @@ query {{
       faultCodes
       maxWaterSetpoint
       minWaterSetpoint
-      countReset
       heatingFlowTemperature {{
         currentTemperature {{
           value
