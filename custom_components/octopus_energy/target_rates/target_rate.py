@@ -290,6 +290,7 @@ class OctopusEnergyTargetRate(MultiCoordinatorEntity, BinarySensorEntity, Restor
         self._state = False
         self._attributes = self._config.copy()
         self._attributes["is_target_export"] = self._is_export
+        self._target_rates = None
     
       _LOGGER.debug(f'Restored OctopusEnergyTargetRate state: {self._state}')
 
