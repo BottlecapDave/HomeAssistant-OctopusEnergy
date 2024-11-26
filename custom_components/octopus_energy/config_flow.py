@@ -237,7 +237,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Optional(CONFIG_TARGET_MIN_RATE): str,
       vol.Optional(CONFIG_TARGET_MAX_RATE): str,
       vol.Optional(CONFIG_TARGET_WEIGHTING): str,
-      vol.Required(CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING): cv.positive_float,
+      vol.Required(CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING, default=1): cv.positive_float,
     })
   
   async def __async_setup_rolling_target_rate_schema__(self, account_id: str):
@@ -283,7 +283,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Optional(CONFIG_TARGET_MIN_RATE): str,
       vol.Optional(CONFIG_TARGET_MAX_RATE): str,
       vol.Optional(CONFIG_TARGET_WEIGHTING): str,
-      vol.Required(CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING): cv.positive_float,
+      vol.Required(CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING, default=1): cv.positive_float,
       vol.Required(CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE, default=CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST): selector.SelectSelector(
           selector.SelectSelectorConfig(
               options=[
