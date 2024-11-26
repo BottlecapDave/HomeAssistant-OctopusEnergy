@@ -70,6 +70,7 @@ CONFIG_TARGET_INVERT_TARGET_RATES = "target_invert_target_rates"
 CONFIG_TARGET_MIN_RATE = "minimum_rate"
 CONFIG_TARGET_MAX_RATE = "maximum_rate"
 CONFIG_TARGET_WEIGHTING = "weighting"
+CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING = "free_electricity_weighting"
 
 CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD = "look_ahead_hours"
 CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE = "target_times_evaluation_mode"
