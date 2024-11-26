@@ -150,7 +150,6 @@ async def async_setup_target_sensors(hass, entry, async_add_entities):
 
   if entry.options:
     config.update(entry.options)
-
   
   account_id = config[CONFIG_ACCOUNT_ID]
   account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
