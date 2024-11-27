@@ -192,19 +192,19 @@ def calculate_continuous_times(
 
 def highest_last_rate(rate):
   rate_weight = Decimal(rate["weighting"]) if "weighting" in rate else 1
-  return (-rate["value_inc_vat"] * rate_weight, -rate["end"].timestamp(), -rate["end"].fold)
+  return (-(Decimal(rate["value_inc_vat"]) * rate_weight), -rate["end"].timestamp(), -rate["end"].fold)
 
 def lowest_last_rate(rate):
   rate_weight = Decimal(rate["weighting"]) if "weighting" in rate else 1
-  return (rate["value_inc_vat"] * rate_weight, -rate["end"].timestamp(), -rate["end"].fold)
+  return (Decimal(rate["value_inc_vat"]) * rate_weight, -rate["end"].timestamp(), -rate["end"].fold)
 
 def highest_first_rate(rate):
   rate_weight = Decimal(rate["weighting"]) if "weighting" in rate else 1
-  return (-rate["value_inc_vat"] * rate_weight, rate["end"], rate["end"].fold)
+  return (-(Decimal(rate["value_inc_vat"]) * rate_weight), rate["end"], rate["end"].fold)
 
 def lowest_first_rate(rate):
   rate_weight = Decimal(rate["weighting"]) if "weighting" in rate else 1
-  return (rate["value_inc_vat"] * rate_weight, rate["end"], rate["end"].fold)
+  return (Decimal(rate["value_inc_vat"]) * rate_weight, rate["end"], rate["end"].fold)
 
 def calculate_intermittent_times(
     applicable_rates: list,
@@ -236,6 +236,7 @@ def calculate_intermittent_times(
   _LOGGER.debug(f'{len(applicable_rates)} applicable rates found')
 
   if ((hours_mode == CONFIG_TARGET_HOURS_MODE_EXACT and len(applicable_rates) >= total_required_rates) or hours_mode == CONFIG_TARGET_HOURS_MODE_MAXIMUM):
+    print(applicable_rates)
     applicable_rates = applicable_rates[:total_required_rates]
 
     # Make sure our rates are in ascending order before returning
