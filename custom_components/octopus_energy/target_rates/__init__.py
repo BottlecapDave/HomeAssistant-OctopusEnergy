@@ -139,7 +139,7 @@ def calculate_continuous_times(
       continue
 
     continuous_rates = [rate]
-    rate_weight = rate["weighting"] if "weighting" in rate else 1
+    rate_weight = Decimal(rate["weighting"]) if "weighting" in rate else 1
     continuous_rates_total = Decimal(rate["value_inc_vat"]) * rate_weight * (weighting[0] if weighting is not None and len(weighting) > 0 else 1)
     
     for offset in range(1, total_required_rates if hours_mode != CONFIG_TARGET_HOURS_MODE_MINIMUM else applicable_rates_count):
@@ -153,7 +153,8 @@ def calculate_continuous_times(
           break
 
         continuous_rates.append(offset_rate)
-        continuous_rates_total += Decimal(offset_rate["value_inc_vat"]) * (weighting[offset] if weighting is not None else 1)
+        rate_weight = Decimal(offset_rate["weighting"]) if "weighting" in offset_rate else 1
+        continuous_rates_total += Decimal(offset_rate["value_inc_vat"]) * rate_weight * (weighting[offset] if weighting is not None else 1)
       else:
         break
 
@@ -190,19 +191,19 @@ def calculate_continuous_times(
   return []
 
 def highest_last_rate(rate):
-  rate_weight = rate["weighting"] if "weighting" in rate else 1
+  rate_weight = Decimal(rate["weighting"]) if "weighting" in rate else 1
   return (-rate["value_inc_vat"] * rate_weight, -rate["end"].timestamp(), -rate["end"].fold)
 
 def lowest_last_rate(rate):
-  rate_weight = rate["weighting"] if "weighting" in rate else 1
+  rate_weight = Decimal(rate["weighting"]) if "weighting" in rate else 1
   return (rate["value_inc_vat"] * rate_weight, -rate["end"].timestamp(), -rate["end"].fold)
 
 def highest_first_rate(rate):
-  rate_weight = rate["weighting"] if "weighting" in rate else 1
+  rate_weight = Decimal(rate["weighting"]) if "weighting" in rate else 1
   return (-rate["value_inc_vat"] * rate_weight, rate["end"], rate["end"].fold)
 
 def lowest_first_rate(rate):
-  rate_weight = rate["weighting"] if "weighting" in rate else 1
+  rate_weight = Decimal(rate["weighting"]) if "weighting" in rate else 1
   return (rate["value_inc_vat"] * rate_weight, rate["end"], rate["end"].fold)
 
 def calculate_intermittent_times(
@@ -254,7 +255,7 @@ def get_target_rate_info(current_date: datetime, applicable_rates, offset: str =
   next_time = None
   current_duration_in_hours = 0
   next_duration_in_hours = 0
-  total_applicable_rates = len(applicable_rates)
+  total_applicable_rates = len(applicable_rates) if applicable_rates is not None else 0
 
   overall_total_cost = 0
   overall_min_cost = None
@@ -421,7 +422,7 @@ def should_evaluate_target_rates(current_date: datetime, target_rates: list, eva
           (evaluation_mode == CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST and (one_rate_in_past == False or all_rates_in_past)) or
           (evaluation_mode == CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS))
 
-def apply_free_electricity_weighting(applicable_rates: list | None, free_electricity_sessions: list[FreeElectricitySession] | None, weighting: Decimal):
+def apply_free_electricity_weighting(applicable_rates: list | None, free_electricity_sessions: list[FreeElectricitySession] | None, weighting: float):
   if applicable_rates is None:
     return None
   

@@ -210,7 +210,7 @@ class OctopusEnergyTargetRate(MultiCoordinatorEntity, BinarySensorEntity, Restor
           applicable_rates = apply_free_electricity_weighting(
             applicable_rates,
             free_electricity_sessions.events if free_electricity_sessions is not None else [],
-            Decimal(self._config[CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING]) if CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING in self._config else 1
+            self._config[CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING] if CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING in self._config else 1
           )
 
           if applicable_rates is not None:
