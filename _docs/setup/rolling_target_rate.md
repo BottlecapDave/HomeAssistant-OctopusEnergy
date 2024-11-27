@@ -113,6 +113,29 @@ Each slot weighting must be a whole number or decimal number and be positive.
 
 You can also use weightings to ignore slots. This can be done by assigning a value of 0 for the desired slot.
 
+### Free Electricity Weighting
+
+If you subscribed to Octopus Energy's [free electricity sessions](../entities/octoplus.md#free-electricity-sessions), then you might want your sensor to favour the hours that these are available, but potentially still favour other times if they're cheaper by a larger portion. Here is where you can have a weighting applied to the rate during free electricity sessions to have them favour them in certain scenarios.
+
+For example, if we have the following rates
+
+| Start | End | Rate | Is Free Electricity Period |
+|-|-|-|-|
+| `2024-11-26 10:00:00` | `2024-11-26 10:30:00` | 0.1p | N |
+| `2024-11-26 10:30:00` | `2024-11-26 11:00:00` | 0.1p | N |
+| `2024-11-26 11:00:00` | `2024-11-26 11:30:00` | 0.2p | Y |
+| `2024-11-26 11:30:00` | `2024-11-26 12:00:00` | 0.2p | Y |
+| `2024-11-26 12:00:00` | `2024-11-26 12:30:00` | 0.3p | N |
+| `2024-11-26 12:30:00` | `2024-11-26 13:00:00` | 0.3p | N |
+
+If we had a target rate sensor of 1 hour, the following would occur with the following weightings
+
+| Weighting | Period | Reason |
+| 1 | `2024-11-26 10:00:00`-`2024-11-26 11:00:00` | Cheapest period |
+| 0.5 | `2024-11-26 10:00:00`-`2024-11-26 11:00:00` | Cheapest period would be 0.1p, free electricity period would be 0.1p. By default, target rates favour the earliest sessions. |
+| 0.2 | `2024-11-26 11:00:00`-`2024-11-26 12:00:00` | Cheapest period would be 0.1p, free electricity period would be 0.02p. |
+| 0 | `2024-11-26 11:00:00`-`2024-11-26 12:00:00` | Cheapest period would be 0.1p, free electricity period would be 0p. This will always go for free electricity sessions if available. |
+
 ## Attributes
 
 The following attributes are available on each sensor

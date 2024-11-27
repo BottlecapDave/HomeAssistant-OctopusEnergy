@@ -8,6 +8,7 @@ from homeassistant.util.dt import (as_utc, parse_datetime)
 
 from ..utils.conversions import value_inc_vat_to_pounds
 from ..const import CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST, CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST, CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS, CONFIG_TARGET_HOURS_MODE_EXACT, CONFIG_TARGET_HOURS_MODE_MAXIMUM, CONFIG_TARGET_HOURS_MODE_MINIMUM, CONFIG_TARGET_KEYS, REGEX_OFFSET_PARTS, REGEX_WEIGHTING
+from ..api_client.free_electricity_sessions import FreeElectricitySession
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -138,7 +139,8 @@ def calculate_continuous_times(
       continue
 
     continuous_rates = [rate]
-    continuous_rates_total = Decimal(rate["value_inc_vat"]) * (weighting[0] if weighting is not None and len(weighting) > 0 else 1)
+    rate_weight = Decimal(rate["weighting"]) if "weighting" in rate else 1
+    continuous_rates_total = Decimal(rate["value_inc_vat"]) * rate_weight * (weighting[0] if weighting is not None and len(weighting) > 0 else 1)
     
     for offset in range(1, total_required_rates if hours_mode != CONFIG_TARGET_HOURS_MODE_MINIMUM else applicable_rates_count):
       if (index + offset) < applicable_rates_count:
@@ -151,7 +153,8 @@ def calculate_continuous_times(
           break
 
         continuous_rates.append(offset_rate)
-        continuous_rates_total += Decimal(offset_rate["value_inc_vat"]) * (weighting[offset] if weighting is not None else 1)
+        rate_weight = Decimal(offset_rate["weighting"]) if "weighting" in offset_rate else 1
+        continuous_rates_total += Decimal(offset_rate["value_inc_vat"]) * rate_weight * (weighting[offset] if weighting is not None else 1)
       else:
         break
 
@@ -187,6 +190,22 @@ def calculate_continuous_times(
   
   return []
 
+def highest_last_rate(rate):
+  rate_weight = Decimal(rate["weighting"]) if "weighting" in rate else 1
+  return (-(Decimal(rate["value_inc_vat"]) * rate_weight), -rate["end"].timestamp(), -rate["end"].fold)
+
+def lowest_last_rate(rate):
+  rate_weight = Decimal(rate["weighting"]) if "weighting" in rate else 1
+  return (Decimal(rate["value_inc_vat"]) * rate_weight, -rate["end"].timestamp(), -rate["end"].fold)
+
+def highest_first_rate(rate):
+  rate_weight = Decimal(rate["weighting"]) if "weighting" in rate else 1
+  return (-(Decimal(rate["value_inc_vat"]) * rate_weight), rate["end"], rate["end"].fold)
+
+def lowest_first_rate(rate):
+  rate_weight = Decimal(rate["weighting"]) if "weighting" in rate else 1
+  return (Decimal(rate["value_inc_vat"]) * rate_weight, rate["end"], rate["end"].fold)
+
 def calculate_intermittent_times(
     applicable_rates: list,
     target_hours: float,
@@ -203,20 +222,21 @@ def calculate_intermittent_times(
 
   if find_last_rates:
     if search_for_highest_rate:
-      applicable_rates.sort(key= lambda rate: (-rate["value_inc_vat"], -rate["end"].timestamp(), -rate["end"].fold))
+      applicable_rates.sort(key=highest_last_rate)
     else:
-      applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], -rate["end"].timestamp(), -rate["end"].fold))
+      applicable_rates.sort(key=lowest_last_rate)
   else:
     if search_for_highest_rate:
-      applicable_rates.sort(key= lambda rate: (-rate["value_inc_vat"], rate["end"], rate["end"].fold))
+      applicable_rates.sort(key=highest_first_rate)
     else:
-      applicable_rates.sort(key= lambda rate: (rate["value_inc_vat"], rate["end"], rate["end"].fold))
+      applicable_rates.sort(key=lowest_first_rate)
 
   applicable_rates = list(filter(lambda rate: (min_rate is None or rate["value_inc_vat"] >= min_rate) and (max_rate is None or rate["value_inc_vat"] <= max_rate), applicable_rates))
   
   _LOGGER.debug(f'{len(applicable_rates)} applicable rates found')
 
   if ((hours_mode == CONFIG_TARGET_HOURS_MODE_EXACT and len(applicable_rates) >= total_required_rates) or hours_mode == CONFIG_TARGET_HOURS_MODE_MAXIMUM):
+    print(applicable_rates)
     applicable_rates = applicable_rates[:total_required_rates]
 
     # Make sure our rates are in ascending order before returning
@@ -236,7 +256,7 @@ def get_target_rate_info(current_date: datetime, applicable_rates, offset: str =
   next_time = None
   current_duration_in_hours = 0
   next_duration_in_hours = 0
-  total_applicable_rates = len(applicable_rates)
+  total_applicable_rates = len(applicable_rates) if applicable_rates is not None else 0
 
   overall_total_cost = 0
   overall_min_cost = None
@@ -402,3 +422,17 @@ def should_evaluate_target_rates(current_date: datetime, target_rates: list, eva
   return ((evaluation_mode == CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST and all_rates_in_past) or
           (evaluation_mode == CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST and (one_rate_in_past == False or all_rates_in_past)) or
           (evaluation_mode == CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS))
+
+def apply_free_electricity_weighting(applicable_rates: list | None, free_electricity_sessions: list[FreeElectricitySession] | None, weighting: float):
+  if applicable_rates is None:
+    return None
+  
+  if free_electricity_sessions is None:
+    return applicable_rates
+  
+  for rate in applicable_rates:
+    for session in free_electricity_sessions:
+      if rate["start"] >= session.start and rate["end"] <= session.end:
+        rate["weighting"] = weighting
+
+  return applicable_rates

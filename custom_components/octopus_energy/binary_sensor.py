@@ -150,7 +150,6 @@ async def async_setup_target_sensors(hass, entry, async_add_entities):
 
   if entry.options:
     config.update(entry.options)
-
   
   account_id = config[CONFIG_ACCOUNT_ID]
   account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
@@ -169,12 +168,13 @@ async def async_setup_target_sensors(hass, entry, async_add_entities):
           is_export = meter["is_export"]
           serial_number = meter["serial_number"]
           coordinator = hass.data[DOMAIN][account_id][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)]
+          free_electricity_coordinator = hass.data[DOMAIN][account_id][DATA_FREE_ELECTRICITY_SESSIONS_COORDINATOR]
           entities = []
 
           if config[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
-            entities.append(OctopusEnergyTargetRate(hass, account_id, coordinator, config, is_export))
+            entities.append(OctopusEnergyTargetRate(hass, account_id, config, is_export, coordinator, free_electricity_coordinator))
           else:
-            entities.append(OctopusEnergyRollingTargetRate(hass, account_id, coordinator, config, is_export))
+            entities.append(OctopusEnergyRollingTargetRate(hass, account_id, config, is_export, coordinator, free_electricity_coordinator))
 
           async_add_entities(entities)
           return
