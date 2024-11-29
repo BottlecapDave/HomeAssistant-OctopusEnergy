@@ -84,7 +84,9 @@ async def async_refresh_free_electricity_sessions(
           existing_free_electricity_sessions_result.events,
           last_error=e
         )
-        _LOGGER.warning(f"Failed to retrieve free electricity sessions - using cached data. Next attempt at {result.next_refresh}")
+
+        if (result.request_attempts == 2):
+          _LOGGER.warning(f"Failed to retrieve free electricity sessions - using cached data. See diagnostics sensor for more information.")
       else:
         result = FreeElectricitySessionsCoordinatorResult(
           # We want to force into our fallback mode
@@ -93,7 +95,7 @@ async def async_refresh_free_electricity_sessions(
           [],
           last_error=e
         )
-        _LOGGER.warning(f"Failed to retrieve free electricity sessions. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve free electricity sessions. See diagnostics sensor for more information.")
       
       return result
   

@@ -95,7 +95,10 @@ async def async_refresh_account(
         previous_request.account,
         last_error=e
       )
-      _LOGGER.warning(f'Failed to retrieve account information - using cached version. Next attempt at {result.next_refresh}')
+      
+      if (result.request_attempts == 2):
+        _LOGGER.warning(f'Failed to retrieve account information - using cached version. See diagnostics sensor for more information.')
+      
       return result
 
   return previous_request

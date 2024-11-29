@@ -46,7 +46,8 @@ async def async_refresh_wheel_of_fortune_spins(
       result = None
       if (existing_result is not None):
         result = WheelOfFortuneSpinsCoordinatorResult(existing_result.last_retrieved, existing_result.request_attempts + 1, existing_result.spins, last_error=e)
-        _LOGGER.warning(f'Failed to retrieve wheel of fortune spins - using cached data. Next attempt at {result.next_refresh}')
+        if (result.request_attempts == 2):
+          _LOGGER.warning(f'Failed to retrieve wheel of fortune spins - using cached data. See diagnostics sensor for more information.')
       else:
         result = WheelOfFortuneSpinsCoordinatorResult(
           # We want to force into our fallback mode
@@ -55,7 +56,7 @@ async def async_refresh_wheel_of_fortune_spins(
           None,
           last_error=e
         )
-        _LOGGER.warning(f'Failed to retrieve wheel of fortune spins. Next attempt at {result.next_refresh}')
+        _LOGGER.warning(f'Failed to retrieve wheel of fortune spins. See diagnostics sensor for more information.')
 
       return result
   

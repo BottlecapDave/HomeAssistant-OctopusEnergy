@@ -142,7 +142,9 @@ async def async_refresh_electricity_rates_data(
           existing_rates_result.rates_last_adjusted,
           last_error=raised_exception
         )
-        _LOGGER.warning(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number} - using cached rates. Next attempt at {result.next_refresh}")
+
+        if (result.request_attempts == 2):
+          _LOGGER.warning(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number} - using cached rates. See diagnostics sensor for more information.")
       else:
         # We want to force into our fallback mode
         result = ElectricityRatesCoordinatorResult(
@@ -153,7 +155,7 @@ async def async_refresh_electricity_rates_data(
           None,
           last_error=raised_exception
         )
-        _LOGGER.warning(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number}. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve new electricity rates for {target_mpan}/{target_serial_number}. See diagnostics sensor for more information.")
 
       return result
     

@@ -126,7 +126,9 @@ async def async_refresh_saving_sessions(
           existing_saving_sessions_result.joined_events,
           last_error=e
         )
-        _LOGGER.warning(f"Failed to retrieve saving sessions - using cached data. Next attempt at {result.next_refresh}")
+
+        if (result.request_attempts == 2):
+          _LOGGER.warning(f"Failed to retrieve saving sessions - using cached data. See diagnostics sensor for more information.")
       else:
         result = SavingSessionsCoordinatorResult(
           # We want to force into our fallback mode
@@ -136,7 +138,7 @@ async def async_refresh_saving_sessions(
           [],
           last_error=e
         )
-        _LOGGER.warning(f"Failed to retrieve saving sessions. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve saving sessions. See diagnostics sensor for more information.")
       
       return result
   

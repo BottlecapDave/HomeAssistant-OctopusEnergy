@@ -91,11 +91,13 @@ async def async_refresh_gas_rates_data(
       result = None
       if (existing_rates_result is not None):
         result = GasRatesCoordinatorResult(existing_rates_result.last_retrieved, existing_rates_result.request_attempts + 1, existing_rates_result.rates, last_error=raised_exception)
-        _LOGGER.warning(f"Failed to retrieve new gas rates for {target_mprn}/{target_serial_number} - using cached rates. Next attempt at {result.next_refresh}")
+        
+        if (result.request_attempts == 2):
+          _LOGGER.warning(f"Failed to retrieve new gas rates for {target_mprn}/{target_serial_number} - using cached rates. See diagnostics sensor for more information.")
       else:
         # We want to force into our fallback mode
         result = GasRatesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES), 2, None, last_error=raised_exception)
-        _LOGGER.warning(f"Failed to retrieve new gas rates for {target_mprn}/{target_serial_number}. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve new gas rates for {target_mprn}/{target_serial_number}. See diagnostics sensor for more information.")
 
       return result
   

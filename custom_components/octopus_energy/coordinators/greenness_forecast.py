@@ -46,7 +46,9 @@ async def async_refresh_greenness_forecast(
       result = None
       if (existing_result is not None):
         result = GreennessForecastCoordinatorResult(existing_result.last_retrieved, existing_result.request_attempts + 1, existing_result.forecast, last_error=e)
-        _LOGGER.warning(f'Failed to retrieve greenness forecast - using cached data. Next attempt at {result.next_refresh}')
+        
+        if (result.request_attempts == 2):
+          _LOGGER.warning(f'Failed to retrieve greenness forecast - using cached data. See diagnostics sensor for more information.')
       else:
         result = GreennessForecastCoordinatorResult(
           # We want to force into our fallback mode
@@ -55,7 +57,7 @@ async def async_refresh_greenness_forecast(
           None,
           last_error=e
         )
-        _LOGGER.warning(f'Failed to retrieve greenness forecast. Next attempt at {result.next_refresh}')
+        _LOGGER.warning(f'Failed to retrieve greenness forecast. See diagnostics sensor for more information.')
 
       return result
   

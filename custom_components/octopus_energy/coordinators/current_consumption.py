@@ -53,7 +53,9 @@ async def async_get_live_consumption(
           previous_consumption.data,
           last_error=e
         )
-        _LOGGER.warning(f'Failed to retrieve smart meter consumption data - using cached version. Next attempt at {result.next_refresh}')
+        
+        if (result.request_attempts == 2):
+          _LOGGER.warning(f'Failed to retrieve smart meter consumption data - using cached version. See diagnostics sensor for more information.')
       else:
         result = CurrentConsumptionCoordinatorResult(
           # We want to force into our fallback mode
@@ -63,7 +65,7 @@ async def async_get_live_consumption(
           None,
           last_error=e
         )
-        _LOGGER.warning(f'Failed to retrieve smart meter consumption data. Next attempt at {result.next_refresh}')
+        _LOGGER.warning(f'Failed to retrieve smart meter consumption data. See diagnostics sensor for more information.')
       
       return result
   

@@ -96,11 +96,13 @@ async def async_refresh_intelligent_dispatches(
           existing_intelligent_dispatches_result.dispatches,
           last_error=raised_exception
         )
-        _LOGGER.warning(f"Failed to retrieve new dispatches - using cached dispatches. Next attempt at {result.next_refresh}")
+
+        if (result.request_attempts == 2):
+          _LOGGER.warning(f"Failed to retrieve new dispatches - using cached dispatches. See diagnostics sensor for more information.")
       else:
         # We want to force into our fallback mode
         result = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT), 2, None, last_error=raised_exception)
-        _LOGGER.warning(f"Failed to retrieve new dispatches. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve new dispatches. See diagnostics sensor for more information.")
 
       return result
   

@@ -71,11 +71,13 @@ async def async_refresh_gas_standing_charges_data(
       result = None
       if (existing_standing_charges_result is not None):
         result = GasStandingChargeCoordinatorResult(existing_standing_charges_result.last_retrieved, existing_standing_charges_result.request_attempts + 1, existing_standing_charges_result.standing_charge, last_error=raised_exception)
-        _LOGGER.warning(f"Failed to retrieve new gas standing charges for {target_mprn}/{target_serial_number} ({tariff.code}) - using cached standing charges. Next attempt at {result.next_refresh}")
+        
+        if (result.request_attempts == 2):
+          _LOGGER.warning(f"Failed to retrieve new gas standing charges for {target_mprn}/{target_serial_number} ({tariff.code}) - using cached standing charges. See diagnostics sensor for more information.")
       else:
         # We want to force into our fallback mode
         result = GasStandingChargeCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_STANDING_CHARGE), 2, None, last_error=raised_exception)
-        _LOGGER.warning(f"Failed to retrieve new gas standing charges for {target_mprn}/{target_serial_number} ({tariff.code}). Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve new gas standing charges for {target_mprn}/{target_serial_number} ({tariff.code}). See diagnostics sensor for more information.")
 
       return result
   

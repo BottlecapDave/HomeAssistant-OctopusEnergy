@@ -119,9 +119,10 @@ async def async_get_missing_consumption(
 
 def remove_old_consumptions(consumptions: list, earliest_datetime: datetime):
   new_rates = []
-  for consumption in consumptions:
-    if (consumption["start"] >= earliest_datetime):
-      new_rates.append(consumption)
+  if consumptions is not None:
+    for consumption in consumptions:
+      if (consumption["start"] >= earliest_datetime):
+        new_rates.append(consumption)
 
   return new_rates
 
@@ -362,7 +363,9 @@ async def async_fetch_consumption_and_rates(
           previous_data.historic_weekend_consumption,
           last_error=e
         )
-        _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number} - using cached data. Next attempt at {result.next_refresh}. Exception: {e}")
+
+        if (result.request_attempts == 2):
+          _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number} - using cached data. See diagnostics sensor for more information.. Exception: {e}")
       else:
         result = PreviousConsumptionCoordinatorResult(
           # We want to force into our fallback mode
@@ -375,7 +378,7 @@ async def async_fetch_consumption_and_rates(
           None,
           last_error=e
         )
-        _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}. Next attempt at {result.next_refresh}. Exception: {e}")
+        _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}. See diagnostics sensor for more information.. Exception: {e}")
 
       return result
 
