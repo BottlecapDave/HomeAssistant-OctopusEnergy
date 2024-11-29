@@ -52,7 +52,7 @@ class PreviousConsumptionCoordinatorResult(BaseCoordinatorResult):
   historic_weekend_consumption: list
 
   def __init__(self,
-               last_retrieved: datetime,
+               last_evaluated: datetime,
                request_attempts: int,
                consumption: list,
                rates: list,
@@ -60,7 +60,7 @@ class PreviousConsumptionCoordinatorResult(BaseCoordinatorResult):
                historic_weekday_consumption: list = None,
                historic_weekend_consumption: list = None,
                last_error: Exception | None = None):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION, last_error)
+    super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION, None, last_error)
     self.consumption = consumption
     self.rates = rates
     self.standing_charge = standing_charge
@@ -138,7 +138,7 @@ async def async_enhance_with_historic_consumption(
   ):
   """Fetch the historic rates"""
 
-  if data.consumption is None or (previous_data is not None and previous_data.last_retrieved == data.last_retrieved):
+  if data.consumption is None or (previous_data is not None and previous_data.last_evaluated == data.last_evaluated):
     return data
 
   # Determine what our existing historic rates are
@@ -199,7 +199,7 @@ async def async_enhance_with_historic_consumption(
     await async_save_historic_consumptions(identifier, serial_number, False, historic_weekend_consumptions)
 
   return PreviousConsumptionCoordinatorResult(
-    data.last_retrieved,
+    data.last_evaluated,
     data.request_attempts,
     data.consumption,
     data.rates,
@@ -354,7 +354,7 @@ async def async_fetch_consumption_and_rates(
       result = None
       if previous_data is not None:
         result =  PreviousConsumptionCoordinatorResult(
-          previous_data.last_retrieved,
+          previous_data.last_evaluated,
           previous_data.request_attempts + 1,
           previous_data.consumption,
           previous_data.rates,

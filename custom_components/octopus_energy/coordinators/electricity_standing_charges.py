@@ -23,8 +23,8 @@ _LOGGER = logging.getLogger(__name__)
 class ElectricityStandingChargeCoordinatorResult(BaseCoordinatorResult):
   standing_charge: {}
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, standing_charge: dict, last_error: Exception | None = None):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_STANDING_CHARGE, last_error)
+  def __init__(self, last_evaluated: datetime, request_attempts: int, standing_charge: dict, last_retrieved: datetime | None = None, last_error: Exception | None = None):
+    super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_STANDING_CHARGE, last_retrieved, last_error)
     self.standing_charge = standing_charge
 
 async def async_refresh_electricity_standing_charges_data(
@@ -49,6 +49,7 @@ async def async_refresh_electricity_standing_charges_data(
 
       _LOGGER.info(existing_standing_charges_result.standing_charge if existing_standing_charges_result is not None else None)
 
+      last_retrieved = None
       if (existing_standing_charges_result is not None and
           existing_standing_charges_result.standing_charge is not None and
           existing_standing_charges_result.standing_charge["tariff_code"] == tariff.code and
@@ -56,6 +57,7 @@ async def async_refresh_electricity_standing_charges_data(
           (existing_standing_charges_result.standing_charge["end"] is None or existing_standing_charges_result.standing_charge["end"] >= period_to)):
         _LOGGER.info('Current standing charges cover the requested period, so using previously retrieved standing charges')
         new_standing_charge = existing_standing_charges_result.standing_charge
+        last_retrieved = existing_standing_charges_result.last_retrieved
       else:
         try:
           new_standing_charge = await client.async_get_electricity_standing_charge(tariff.product, tariff.code, period_from, period_to)
@@ -68,11 +70,11 @@ async def async_refresh_electricity_standing_charges_data(
           _LOGGER.debug(f'Failed to retrieve electricity standing charges for {target_mpan}/{target_serial_number} ({tariff.code})')
       
       if new_standing_charge is not None:
-        return ElectricityStandingChargeCoordinatorResult(current, 1, new_standing_charge)
+        return ElectricityStandingChargeCoordinatorResult(current, 1, new_standing_charge, last_retrieved)
       
       result = None
       if (existing_standing_charges_result is not None):
-        result = ElectricityStandingChargeCoordinatorResult(existing_standing_charges_result.last_retrieved, existing_standing_charges_result.request_attempts + 1, existing_standing_charges_result.standing_charge, last_error=raised_exception)
+        result = ElectricityStandingChargeCoordinatorResult(existing_standing_charges_result.last_evaluated, existing_standing_charges_result.request_attempts + 1, existing_standing_charges_result.standing_charge, existing_standing_charges_result.last_retrieved, last_error=raised_exception)
 
         if (result.request_attempts == 2):
           _LOGGER.warning(f"Failed to retrieve new electricity standing charges for {target_mpan}/{target_serial_number} ({tariff.code}) - using cached standing charges. See diagnostics sensor for more information.")

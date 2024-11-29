@@ -420,7 +420,7 @@ async def test_when_exception_raised_then_previous_data_is_returned_and_exceptio
     assert result is not None
     assert result.available_events == previous_data.available_events
     assert result.joined_events == previous_data.joined_events
-    assert result.last_retrieved == previous_data.last_retrieved
+    assert result.last_evaluated == previous_data.last_evaluated
     assert result.request_attempts == previous_data.request_attempts + 1
     assert result.next_refresh == previous_data.next_refresh + timedelta(minutes=1)
     assert result.last_error == raised_exception

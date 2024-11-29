@@ -297,7 +297,7 @@ async def test_when_next_refresh_is_in_the_past_and_gas_sensor_then_requested_da
 
     # Assert
     assert result is not None
-    assert result.last_retrieved == current_utc_timestamp
+    assert result.last_evaluated == current_utc_timestamp
 
     assert len(result.consumption) == 48
 
@@ -412,7 +412,7 @@ async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requ
 
     # Assert
     assert result is not None
-    assert result.last_retrieved == current_utc_timestamp
+    assert result.last_evaluated == current_utc_timestamp
 
     assert len(result.consumption) == 48
 
@@ -508,7 +508,7 @@ async def test_when_retrieving_gas_and_next_refresh_is_in_the_past_and_returned_
 
     # Assert
     assert result is not None
-    assert result.last_retrieved == current_utc_timestamp
+    assert result.last_evaluated == current_utc_timestamp
     assert result.consumption == previous_data.consumption
     assert result.rates == previous_data.rates
     assert result.standing_charge == previous_data.standing_charge
@@ -583,7 +583,7 @@ async def test_when_retrieving_electricity_and_next_refresh_is_in_the_past_and_r
 
     # Assert
     assert result is not None
-    assert result.last_retrieved == current_utc_timestamp
+    assert result.last_evaluated == current_utc_timestamp
     assert result.consumption == previous_data.consumption
     assert result.rates == previous_data.rates
     assert result.standing_charge == previous_data.standing_charge
@@ -660,7 +660,7 @@ async def test_when_not_enough_consumption_returned_then_previous_data_returned(
 
     # Assert
     assert result is not None
-    assert result.last_retrieved == current_utc_timestamp
+    assert result.last_evaluated == current_utc_timestamp
     assert result.consumption == previous_data.consumption
     assert result.rates == previous_data.rates
     assert result.standing_charge == previous_data.standing_charge
@@ -737,7 +737,7 @@ async def test_when_electricity_and_consumption_data_spans_multiple_days_then_pr
 
     # Assert
     assert result is not None
-    assert result.last_retrieved == current_utc_timestamp
+    assert result.last_evaluated == current_utc_timestamp
     assert result.consumption == previous_data.consumption
     assert result.rates == previous_data.rates
     assert result.standing_charge == previous_data.standing_charge
@@ -814,7 +814,7 @@ async def test_when_gas_and_consumption_data_spans_multiple_days_then_previous_d
 
     # Assert
     assert result is not None
-    assert result.last_retrieved == current_utc_timestamp
+    assert result.last_evaluated == current_utc_timestamp
     assert result.consumption == previous_data.consumption
     assert result.rates == previous_data.rates
     assert result.standing_charge == previous_data.standing_charge
@@ -918,7 +918,7 @@ async def test_when_intelligent_dispatches_available_then_adjusted_requested_dat
 
     # Assert
     assert result is not None
-    assert result.last_retrieved == current_utc_timestamp
+    assert result.last_evaluated == current_utc_timestamp
 
     assert len(result.consumption) == 48
 
@@ -1118,7 +1118,7 @@ async def test_when_intelligent_tariff_and_intelligent_device_is_none_and_no_dis
 
     # Assert
     assert result is not None
-    assert result.last_retrieved == current_utc_timestamp
+    assert result.last_evaluated == current_utc_timestamp
 
     assert len(result.consumption) == 48
 
@@ -1394,7 +1394,7 @@ async def test_when_electricity_exception_raised_then_previous_result_returned_a
     assert result.consumption == previous_data.consumption
     assert result.rates == previous_data.rates
     assert result.standing_charge == previous_data.standing_charge
-    assert result.last_retrieved == previous_data.last_retrieved
+    assert result.last_evaluated == previous_data.last_evaluated
     assert result.request_attempts == previous_data.request_attempts + 1
     assert result.next_refresh == previous_data.next_refresh + timedelta(minutes=1)
     assert result.last_error == raised_exception
@@ -1486,7 +1486,7 @@ async def test_when_electricity_previous_rates_are_same_as_consumption_then_rate
 
     # Assert
     assert result is not None
-    assert result.last_retrieved == current_utc_timestamp
+    assert result.last_evaluated == current_utc_timestamp
 
     assert result.consumption == expected_consumption
 
@@ -1586,7 +1586,7 @@ async def test_when_gas_previous_rates_are_same_as_consumption_then_rates_not_re
 
     # Assert
     assert result is not None
-    assert result.last_retrieved == current_utc_timestamp
+    assert result.last_evaluated == current_utc_timestamp
 
     assert result.consumption == expected_consumption
 

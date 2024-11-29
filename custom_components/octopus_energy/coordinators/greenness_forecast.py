@@ -22,11 +22,11 @@ from ..api_client.greenness_forecast import GreennessForecast
 _LOGGER = logging.getLogger(__name__)
 
 class GreennessForecastCoordinatorResult(BaseCoordinatorResult):
-  last_retrieved: datetime
+  last_evaluated: datetime
   forecast: list[GreennessForecast]
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, forecast: list[GreennessForecast], last_error: Exception | None = None):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_GREENNESS_FORECAST, last_error)
+  def __init__(self, last_evaluated: datetime, request_attempts: int, forecast: list[GreennessForecast], last_error: Exception | None = None):
+    super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_GREENNESS_FORECAST, None, last_error)
     self.forecast = forecast
 
 async def async_refresh_greenness_forecast(
@@ -45,7 +45,7 @@ async def async_refresh_greenness_forecast(
       
       result = None
       if (existing_result is not None):
-        result = GreennessForecastCoordinatorResult(existing_result.last_retrieved, existing_result.request_attempts + 1, existing_result.forecast, last_error=e)
+        result = GreennessForecastCoordinatorResult(existing_result.last_evaluated, existing_result.request_attempts + 1, existing_result.forecast, last_error=e)
         
         if (result.request_attempts == 2):
           _LOGGER.warning(f'Failed to retrieve greenness forecast - using cached data. See diagnostics sensor for more information.')

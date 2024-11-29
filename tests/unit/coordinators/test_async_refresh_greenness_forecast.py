@@ -64,7 +64,7 @@ async def test_when_results_retrieved_then_results_returned():
 
     # Assert
     assert result is not None
-    assert result.last_retrieved == current_utc_timestamp
+    assert result.last_evaluated == current_utc_timestamp
     assert result.next_refresh == current_utc_timestamp + timedelta(minutes=REFRESH_RATE_IN_MINUTES_GREENNESS_FORECAST)
     assert result.forecast == expected_result
 
@@ -97,7 +97,7 @@ async def test_when_exception_raised_then_existing_results_returned_and_exceptio
     assert mock_api_called == True
 
     assert result is not None
-    assert result.last_retrieved == previous_data.last_retrieved
+    assert result.last_evaluated == previous_data.last_evaluated
     assert result.last_error == raised_exception
     assert result.forecast == previous_data.forecast
     assert result.request_attempts == previous_data.request_attempts + 1

@@ -261,7 +261,7 @@ async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
     )
 
     assert retrieved_rates is not None
-    assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_retrieved_rates.rates
     assert retrieved_rates.original_rates == expected_retrieved_rates.original_rates
     assert retrieved_rates.rates_last_adjusted == expected_retrieved_rates.rates_last_adjusted
@@ -331,7 +331,7 @@ async def test_when_dispatches_is_not_defined_and_existing_rates_is_none_then_ra
     )
 
     assert retrieved_rates is not None
-    assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_retrieved_rates.rates
     assert retrieved_rates.original_rates == expected_retrieved_rates.original_rates
     assert retrieved_rates.rates_last_adjusted == expected_retrieved_rates.rates_last_adjusted
@@ -385,7 +385,7 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
 
     assert retrieved_rates is not None
     assert retrieved_rates.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
-    assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_retrieved_rates.rates
     assert retrieved_rates.original_rates == expected_retrieved_rates.original_rates
     assert retrieved_rates.rates_last_adjusted == expected_retrieved_rates.rates_last_adjusted
@@ -436,7 +436,7 @@ async def test_when_existing_rates_are_requested_period_then_existing_rates_used
 
     assert retrieved_rates is not None
     assert retrieved_rates.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
-    assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_retrieved_rates.rates
     assert retrieved_rates.original_rates == expected_retrieved_rates.original_rates
     assert retrieved_rates.rates_last_adjusted == expected_retrieved_rates.rates_last_adjusted
@@ -493,7 +493,7 @@ async def test_when_existing_rates_contains_some_of_period_then_partial_rates_re
 
     assert retrieved_rates is not None
     assert retrieved_rates.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
-    assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates_last_adjusted == expected_retrieved_rates.rates_last_adjusted
     assert mock_api_called == True
     
@@ -585,7 +585,7 @@ async def test_when_dispatched_rates_provided_then_rates_are_adjusted_if_meter_i
     )
 
     assert retrieved_rates is not None
-    assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.original_rates == expected_retrieved_rates.original_rates
     assert retrieved_rates.rates_last_adjusted == expected_retrieved_rates.rates_last_adjusted
 
@@ -672,7 +672,7 @@ async def test_when_dispatched_rates_provided_then_rates_are_adjusted_if_planned
     )
 
     assert retrieved_rates is not None
-    assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.original_rates == expected_retrieved_rates.original_rates
     assert retrieved_rates.rates_last_adjusted == expected_retrieved_rates.rates_last_adjusted
 
@@ -738,7 +738,7 @@ async def test_when_rates_not_retrieved_then_existing_rates_returned():
 
     assert retrieved_rates is not None
     assert retrieved_rates.next_refresh == existing_rates.next_refresh + timedelta(minutes=1)
-    assert retrieved_rates.last_retrieved == existing_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == existing_rates.last_evaluated
     assert retrieved_rates.rates == existing_rates.rates
     assert retrieved_rates.original_rates == existing_rates.original_rates
     assert retrieved_rates.rates_last_adjusted == existing_rates.rates_last_adjusted
@@ -785,7 +785,7 @@ async def test_when_exception_is_raised_then_existing_rates_returned_and_excepti
 
     assert retrieved_rates is not None
     assert retrieved_rates.next_refresh == existing_rates.next_refresh + timedelta(minutes=1)
-    assert retrieved_rates.last_retrieved == existing_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == existing_rates.last_evaluated
     assert retrieved_rates.rates == existing_rates.rates
     assert retrieved_rates.original_rates == existing_rates.original_rates
     assert retrieved_rates.rates_last_adjusted == existing_rates.rates_last_adjusted
@@ -816,7 +816,7 @@ async def test_when_rates_next_refresh_is_in_the_future_dispatches_retrieved_aft
   existing_rates = ElectricityRatesCoordinatorResult(current - timedelta(minutes=4, seconds=59), 1, expected_original_rates.copy())
   expected_dispatch_start = (current + timedelta(hours=2)).replace(second=0, microsecond=0)
   expected_dispatch_end = expected_dispatch_start + timedelta(minutes=90)
-  dispatches_result = IntelligentDispatchesCoordinatorResult(existing_rates.last_retrieved + timedelta(seconds=1), 1, IntelligentDispatches(
+  dispatches_result = IntelligentDispatchesCoordinatorResult(existing_rates.last_evaluated + timedelta(seconds=1), 1, IntelligentDispatches(
     [
       IntelligentDispatchItem(
         expected_dispatch_start,
@@ -847,7 +847,7 @@ async def test_when_rates_next_refresh_is_in_the_future_dispatches_retrieved_aft
     )
 
     assert retrieved_rates is not None
-    assert retrieved_rates.last_retrieved == existing_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == existing_rates.last_evaluated
     assert retrieved_rates.original_rates == expected_original_rates
     assert retrieved_rates.rates_last_adjusted == current
 
@@ -901,7 +901,7 @@ async def test_when_rates_next_refresh_is_in_the_future_dispatches_retrieved_bef
   existing_rates = ElectricityRatesCoordinatorResult(current - timedelta(minutes=4, seconds=59), 1, create_rate_data(period_from, period_to, [2, 4]))
   expected_dispatch_start = (current + timedelta(hours=2)).replace(second=0, microsecond=0)
   expected_dispatch_end = expected_dispatch_start + timedelta(minutes=90)
-  dispatches_result = IntelligentDispatchesCoordinatorResult(existing_rates.last_retrieved + timedelta(seconds=1), 1, IntelligentDispatches(
+  dispatches_result = IntelligentDispatchesCoordinatorResult(existing_rates.last_evaluated + timedelta(seconds=1), 1, IntelligentDispatches(
     [
       IntelligentDispatchItem(
         expected_dispatch_start,
@@ -955,7 +955,7 @@ async def test_when_rates_next_refresh_is_in_the_future_dispatches_retrieved_bef
   existing_rates = ElectricityRatesCoordinatorResult(current - timedelta(minutes=4, seconds=59), 1, create_rate_data(period_from, period_to, [2, 4]))
   expected_dispatch_start = (current + timedelta(hours=2)).replace(second=0, microsecond=0)
   expected_dispatch_end = expected_dispatch_start + timedelta(minutes=90)
-  dispatches_result = IntelligentDispatchesCoordinatorResult(existing_rates.last_retrieved - timedelta(seconds=1), 1, IntelligentDispatches(
+  dispatches_result = IntelligentDispatchesCoordinatorResult(existing_rates.last_evaluated - timedelta(seconds=1), 1, IntelligentDispatches(
     [
       IntelligentDispatchItem(
         expected_dispatch_start,
@@ -1061,7 +1061,7 @@ async def test_when_rate_is_intelligent_and_intelligent_device_is_not_available_
   existing_rates = ElectricityRatesCoordinatorResult(current - timedelta(minutes=4, seconds=59), 1, expected_original_rates.copy())
   expected_dispatch_start = (current + timedelta(hours=2)).replace(second=0, microsecond=0)
   expected_dispatch_end = expected_dispatch_start + timedelta(minutes=90)
-  dispatches_result = IntelligentDispatchesCoordinatorResult(existing_rates.last_retrieved + timedelta(seconds=1), 1, IntelligentDispatches(
+  dispatches_result = IntelligentDispatchesCoordinatorResult(existing_rates.last_evaluated + timedelta(seconds=1), 1, IntelligentDispatches(
     [
       IntelligentDispatchItem(
         expected_dispatch_start,
@@ -1093,7 +1093,7 @@ async def test_when_rate_is_intelligent_and_intelligent_device_is_not_available_
     )
 
     assert retrieved_rates is not None
-    assert retrieved_rates.last_retrieved == existing_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == existing_rates.last_evaluated
     assert retrieved_rates.original_rates == expected_original_rates
     assert retrieved_rates.rates_last_adjusted == current
 
@@ -1259,7 +1259,7 @@ async def test_when_clocks_change_then_rates_are_correct(existing_rates):
     )
 
     assert retrieved_rates is not None
-    assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_retrieved_rates.rates
     assert retrieved_rates.original_rates == expected_retrieved_rates.original_rates
     assert retrieved_rates.rates_last_adjusted == expected_retrieved_rates.rates_last_adjusted

@@ -43,18 +43,20 @@ class MultiCoordinatorEntity(CoordinatorEntity):
       )
 
 class BaseCoordinatorResult:
+  last_evaluated: datetime
   last_retrieved: datetime
   next_refresh: datetime
   request_attempts: int
   refresh_rate_in_minutes: float
   last_error: Exception | None
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, refresh_rate_in_minutes: float, last_error: Exception | None = None):
-    self.last_retrieved = last_retrieved
+  def __init__(self, last_evaluated: datetime, request_attempts: int, refresh_rate_in_minutes: float, last_retrieved: datetime | None = None, last_error: Exception | None = None):
+    self.last_evaluated = last_evaluated
+    self.last_retrieved = last_retrieved if last_retrieved is not None else last_evaluated
     self.request_attempts = request_attempts
-    self.next_refresh = calculate_next_refresh(last_retrieved, request_attempts, refresh_rate_in_minutes)
+    self.next_refresh = calculate_next_refresh(last_evaluated, request_attempts, refresh_rate_in_minutes)
     self.last_error = last_error
-    _LOGGER.debug(f'last_retrieved: {last_retrieved}; request_attempts: {request_attempts}; refresh_rate_in_minutes: {refresh_rate_in_minutes}; next_refresh: {self.next_refresh}; last_error: {self.last_error}')
+    _LOGGER.debug(f'last_evaluated: {last_evaluated}; last_retrieved: {last_retrieved}; request_attempts: {request_attempts}; refresh_rate_in_minutes: {refresh_rate_in_minutes}; next_refresh: {self.next_refresh}; last_error: {self.last_error}')
 
 async def async_check_valid_product(hass, account_id: str, client: OctopusEnergyApiClient, product_code: str, is_electricity: bool):
   tariff_key = f'{DATA_KNOWN_TARIFF}_{product_code}'

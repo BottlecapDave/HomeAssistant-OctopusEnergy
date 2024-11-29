@@ -55,7 +55,7 @@ async def test_when_results_retrieved_then_results_returned():
 
     # Assert
     assert result is not None
-    assert result.last_retrieved == current_utc_timestamp
+    assert result.last_evaluated == current_utc_timestamp
     assert result.next_refresh == current_utc_timestamp + timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_WHEEL_OF_FORTUNE)
     assert result.spins == expected_result
 
@@ -90,7 +90,7 @@ async def test_when_exception_raised_then_previous_result_returned_and_exception
     # Assert
     assert result is not None
     assert result.spins == previous_data.spins
-    assert result.last_retrieved == previous_data.last_retrieved
+    assert result.last_evaluated == previous_data.last_evaluated
     assert result.request_attempts == previous_data.request_attempts + 1
     assert result.next_refresh == previous_data.next_refresh + timedelta(minutes=1)
     assert result.last_error == raised_exception

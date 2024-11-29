@@ -20,8 +20,8 @@ _LOGGER = logging.getLogger(__name__)
 class CurrentConsumptionCoordinatorResult(BaseCoordinatorResult):
   data: list
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, refresh_rate_in_minutes: float, data: list, last_error: Exception | None = None):
-    super().__init__(last_retrieved, request_attempts, refresh_rate_in_minutes, last_error)
+  def __init__(self, last_evaluated: datetime, request_attempts: int, refresh_rate_in_minutes: float, data: list, last_error: Exception | None = None):
+    super().__init__(last_evaluated, request_attempts, refresh_rate_in_minutes, None, last_error)
     self.data = data
 
 async def async_get_live_consumption(
@@ -47,7 +47,7 @@ async def async_get_live_consumption(
       result: CurrentConsumptionCoordinatorResult = None
       if previous_consumption is not None:
         result = CurrentConsumptionCoordinatorResult(
-          previous_consumption.last_retrieved,
+          previous_consumption.last_evaluated,
           previous_consumption.request_attempts + 1,
           refresh_rate_in_minutes,
           previous_consumption.data,

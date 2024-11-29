@@ -27,8 +27,8 @@ _LOGGER = logging.getLogger(__name__)
 class GasRatesCoordinatorResult(BaseCoordinatorResult):
   rates: list
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, rates: list, last_error: Exception | None = None):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_RATES, last_error)
+  def __init__(self, last_evaluated: datetime, request_attempts: int, rates: list, last_retrieved: datetime | None = None, last_error: Exception | None = None):
+    super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_RATES, last_retrieved, last_error)
     self.rates = rates
 
 async def async_refresh_gas_rates_data(
@@ -53,6 +53,7 @@ async def async_refresh_gas_rates_data(
     if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
       adjusted_period_from = existing_rates_result.rates[-1]["end"] if existing_rates_result is not None and existing_rates_result.rates is not None and len(existing_rates_result.rates) > 0 else period_from
 
+      last_retrieved = None
       if adjusted_period_from < period_to:
         try:
           new_rates = await client.async_get_gas_rates(tariff.product, tariff.code, adjusted_period_from, period_to)
@@ -67,6 +68,7 @@ async def async_refresh_gas_rates_data(
       else:
         _LOGGER.info('All required rates present, so using cached rates')
         new_rates = existing_rates_result.rates
+        last_retrieved = existing_rates_result.last_retrieved
 
       # Make sure our rate information doesn't contain any negative values https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/506
       if new_rates is not None:
@@ -86,17 +88,17 @@ async def async_refresh_gas_rates_data(
                           EVENT_GAS_CURRENT_DAY_RATES,
                           EVENT_GAS_NEXT_DAY_RATES)
         
-        return GasRatesCoordinatorResult(current, 1, new_rates)
+        return GasRatesCoordinatorResult(current, 1, new_rates, last_retrieved)
 
       result = None
       if (existing_rates_result is not None):
-        result = GasRatesCoordinatorResult(existing_rates_result.last_retrieved, existing_rates_result.request_attempts + 1, existing_rates_result.rates, last_error=raised_exception)
+        result = GasRatesCoordinatorResult(existing_rates_result.last_evaluated, existing_rates_result.request_attempts + 1, existing_rates_result.rates, last_retrieved, last_error=raised_exception)
         
         if (result.request_attempts == 2):
           _LOGGER.warning(f"Failed to retrieve new gas rates for {target_mprn}/{target_serial_number} - using cached rates. See diagnostics sensor for more information.")
       else:
         # We want to force into our fallback mode
-        result = GasRatesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES), 2, None, last_error=raised_exception)
+        result = GasRatesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES), 2, None, last_retrieved, last_error=raised_exception)
         _LOGGER.warning(f"Failed to retrieve new gas rates for {target_mprn}/{target_serial_number}. See diagnostics sensor for more information.")
 
       return result

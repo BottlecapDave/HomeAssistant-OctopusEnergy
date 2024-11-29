@@ -30,8 +30,8 @@ _LOGGER = logging.getLogger(__name__)
 class IntelligentCoordinatorResult(BaseCoordinatorResult):
   settings: IntelligentSettings
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, settings: IntelligentSettings, last_error: Exception | None = None):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_INTELLIGENT, last_error)
+  def __init__(self, last_evaluated: datetime, request_attempts: int, settings: IntelligentSettings, last_error: Exception | None = None):
+    super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_INTELLIGENT, None, last_error)
     self.settings = settings
 
 async def async_refresh_intelligent_settings(
@@ -67,7 +67,7 @@ async def async_refresh_intelligent_settings(
       result = None
       if (existing_intelligent_settings_result is not None):
         result = IntelligentCoordinatorResult(
-          existing_intelligent_settings_result.last_retrieved,
+          existing_intelligent_settings_result.last_evaluated,
           existing_intelligent_settings_result.request_attempts + 1,
           existing_intelligent_settings_result.settings,
           last_error=raised_exception

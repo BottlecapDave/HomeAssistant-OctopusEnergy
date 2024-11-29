@@ -40,7 +40,7 @@ async def async_get_home_pro_consumption(
       result: CurrentConsumptionCoordinatorResult = None
       if previous_consumption is not None:
         result = CurrentConsumptionCoordinatorResult(
-          previous_consumption.last_retrieved,
+          previous_consumption.last_evaluated,
           previous_consumption.request_attempts + 1,
           REFRESH_RATE_IN_MINUTES_HOME_PRO_CONSUMPTION,
           previous_consumption.data

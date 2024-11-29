@@ -179,7 +179,7 @@ async def test_when_called_on_new_date_and_consumption_data_is_not_updated_and_t
   assert result is not None
   assert result.state == expected_consumption_total
   assert result.total_consumption == expected_consumption_total
-  assert result.data_last_retrieved == consumption_result.last_retrieved
+  assert result.data_last_retrieved == consumption_result.last_evaluated
   assert result.last_evaluated == current_date
 
 @pytest.mark.asyncio

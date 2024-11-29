@@ -257,7 +257,7 @@ async def test_when_existing_settings_is_none_then_settings_retrieved(existing_s
     )
 
     assert retrieved_dispatches is not None
-    assert retrieved_dispatches.last_retrieved == expected_retrieved_dispatches.last_retrieved
+    assert retrieved_dispatches.last_evaluated == expected_retrieved_dispatches.last_evaluated
     assert retrieved_dispatches.dispatches == expected_retrieved_dispatches.dispatches
     assert mock_api_called == True
     
@@ -292,7 +292,7 @@ async def test_when_existing_settings_is_old_then_settings_retrieved():
 
     assert retrieved_dispatches is not None
     assert retrieved_dispatches.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)
-    assert retrieved_dispatches.last_retrieved == expected_retrieved_dispatches.last_retrieved
+    assert retrieved_dispatches.last_evaluated == expected_retrieved_dispatches.last_evaluated
     assert retrieved_dispatches.dispatches == expected_retrieved_dispatches.dispatches
     assert mock_api_called == True
 
@@ -325,7 +325,7 @@ async def test_when_settings_not_retrieved_then_existing_settings_returned():
 
     assert retrieved_dispatches is not None
     assert retrieved_dispatches.next_refresh == existing_settings.next_refresh + timedelta(minutes=1)
-    assert retrieved_dispatches.last_retrieved == existing_settings.last_retrieved
+    assert retrieved_dispatches.last_evaluated == existing_settings.last_evaluated
     assert retrieved_dispatches.dispatches == existing_settings.dispatches
     assert retrieved_dispatches.request_attempts == existing_settings.request_attempts + 1
 
@@ -361,7 +361,7 @@ async def test_when_exception_raised_then_existing_settings_returned_and_excepti
 
     assert retrieved_dispatches is not None
     assert retrieved_dispatches.next_refresh == existing_settings.next_refresh + timedelta(minutes=1)
-    assert retrieved_dispatches.last_retrieved == existing_settings.last_retrieved
+    assert retrieved_dispatches.last_evaluated == existing_settings.last_evaluated
     assert retrieved_dispatches.dispatches == existing_settings.dispatches
     assert retrieved_dispatches.request_attempts == existing_settings.request_attempts + 1
     assert retrieved_dispatches.last_error == raised_exception

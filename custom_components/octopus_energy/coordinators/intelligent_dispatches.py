@@ -35,8 +35,8 @@ _LOGGER = logging.getLogger(__name__)
 class IntelligentDispatchesCoordinatorResult(BaseCoordinatorResult):
   dispatches: IntelligentDispatches
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, dispatches: IntelligentDispatches, last_error: Exception | None = None):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_INTELLIGENT, last_error)
+  def __init__(self, last_evaluated: datetime, request_attempts: int, dispatches: IntelligentDispatches, last_error: Exception | None = None):
+    super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_INTELLIGENT, None, last_error)
     self.dispatches = dispatches
 
 async def async_merge_dispatch_data(hass, account_id: str, completed_dispatches):
@@ -91,7 +91,7 @@ async def async_refresh_intelligent_dispatches(
       result = None
       if (existing_intelligent_dispatches_result is not None):
         result = IntelligentDispatchesCoordinatorResult(
-          existing_intelligent_dispatches_result.last_retrieved,
+          existing_intelligent_dispatches_result.last_evaluated,
           existing_intelligent_dispatches_result.request_attempts + 1,
           existing_intelligent_dispatches_result.dispatches,
           last_error=raised_exception

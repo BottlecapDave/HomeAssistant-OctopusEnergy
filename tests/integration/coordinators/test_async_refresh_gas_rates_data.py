@@ -63,7 +63,7 @@ async def test_when_next_refresh_is_in_the_past_and_then_requested_data_returned
 
   # Assert
   assert result is not None
-  assert result.last_retrieved == current_utc_timestamp
+  assert result.last_evaluated == current_utc_timestamp
   
   assert len(result.rates) == 48 * 3
 

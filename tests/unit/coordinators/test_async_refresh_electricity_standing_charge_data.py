@@ -180,7 +180,7 @@ async def test_when_existing_standing_charge_is_none_then_standing_charge_retrie
     )
 
     assert retrieved_standing_charge is not None
-    assert retrieved_standing_charge.last_retrieved == expected_retrieved_standing_charge.last_retrieved
+    assert retrieved_standing_charge.last_evaluated == expected_retrieved_standing_charge.last_evaluated
     assert retrieved_standing_charge.standing_charge == expected_retrieved_standing_charge.standing_charge
     assert mock_api_called == True
     assert requested_period_from == expected_period_from
@@ -216,7 +216,7 @@ async def test_when_existing_standing_charge_is_old_then_standing_charge_retriev
 
     assert retrieved_standing_charge is not None
     assert retrieved_standing_charge.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_STANDING_CHARGE)
-    assert retrieved_standing_charge.last_retrieved == expected_retrieved_standing_charge.last_retrieved
+    assert retrieved_standing_charge.last_evaluated == expected_retrieved_standing_charge.last_evaluated
     assert retrieved_standing_charge.standing_charge == expected_retrieved_standing_charge.standing_charge
     assert mock_api_called == True
 
@@ -244,7 +244,7 @@ async def test_when_standing_charge_not_retrieved_then_existing_standing_charge_
 
     assert retrieved_standing_charge is not None
     assert retrieved_standing_charge.next_refresh == existing_standing_charge.next_refresh + timedelta(minutes=1)
-    assert retrieved_standing_charge.last_retrieved == existing_standing_charge.last_retrieved
+    assert retrieved_standing_charge.last_evaluated == existing_standing_charge.last_evaluated
     assert retrieved_standing_charge.standing_charge == existing_standing_charge.standing_charge
     assert retrieved_standing_charge.request_attempts == existing_standing_charge.request_attempts + 1
 
@@ -275,7 +275,7 @@ async def test_when_exception_thrown_then_existing_standing_charge_returned_and_
 
     assert retrieved_standing_charge is not None
     assert retrieved_standing_charge.next_refresh == existing_standing_charge.next_refresh + timedelta(minutes=1)
-    assert retrieved_standing_charge.last_retrieved == existing_standing_charge.last_retrieved
+    assert retrieved_standing_charge.last_evaluated == existing_standing_charge.last_evaluated
     assert retrieved_standing_charge.standing_charge == existing_standing_charge.standing_charge
     assert retrieved_standing_charge.request_attempts == existing_standing_charge.request_attempts + 1
     assert retrieved_standing_charge.last_error == raised_exception
@@ -311,7 +311,7 @@ async def test_when_previous_standing_charge_is_current_then_data_is_not_re_retr
 
     assert retrieved_standing_charge is not None
     assert retrieved_standing_charge.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_STANDING_CHARGE)
-    assert retrieved_standing_charge.last_retrieved == current
+    assert retrieved_standing_charge.last_evaluated == current
     assert retrieved_standing_charge.standing_charge == existing_standing_charge.standing_charge
 
     assert mock_api_called == False
@@ -345,7 +345,7 @@ async def test_when_previous_standing_charge_is_current_but_different_tariff_cod
 
     assert retrieved_standing_charge is not None
     assert retrieved_standing_charge.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_STANDING_CHARGE)
-    assert retrieved_standing_charge.last_retrieved == current
+    assert retrieved_standing_charge.last_evaluated == current
     assert retrieved_standing_charge.standing_charge == expected_standing_charge
 
     assert mock_api_called == True

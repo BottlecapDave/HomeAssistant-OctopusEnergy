@@ -23,8 +23,8 @@ _LOGGER = logging.getLogger(__name__)
 class GasStandingChargeCoordinatorResult(BaseCoordinatorResult):
   standing_charge: {}
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, standing_charge: dict, last_error: Exception | None = None):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_STANDING_CHARGE, last_error)
+  def __init__(self, last_evaluated: datetime, request_attempts: int, standing_charge: dict, last_retrieved: datetime | None = None, last_error: Exception | None = None):
+    super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_STANDING_CHARGE, last_retrieved, last_error)
     self.standing_charge = standing_charge
 
 async def async_refresh_gas_standing_charges_data(
@@ -45,6 +45,7 @@ async def async_refresh_gas_standing_charges_data(
     
     new_standing_charge = None
     raised_exception = None
+    last_retrieved = None
     if (existing_standing_charges_result is None or current >= existing_standing_charges_result.next_refresh):
 
       if (existing_standing_charges_result is not None and
@@ -54,6 +55,7 @@ async def async_refresh_gas_standing_charges_data(
           (existing_standing_charges_result.standing_charge["end"] is None or existing_standing_charges_result.standing_charge["end"] >= period_to)):
         _LOGGER.info('Current standing charges cover the requested period, so using previously retrieved standing charges')
         new_standing_charge = existing_standing_charges_result.standing_charge
+        last_retrieved = existing_standing_charges_result.last_retrieved
       else:
         try:
           new_standing_charge = await client.async_get_gas_standing_charge(tariff.product, tariff.code, period_from, period_to)
@@ -66,17 +68,17 @@ async def async_refresh_gas_standing_charges_data(
           _LOGGER.debug(f'Failed to retrieve gas standing charges for {target_mprn}/{target_serial_number} ({tariff.code})')
       
       if new_standing_charge is not None:
-        return GasStandingChargeCoordinatorResult(current, 1, new_standing_charge)
+        return GasStandingChargeCoordinatorResult(current, 1, new_standing_charge, last_retrieved)
       
       result = None
       if (existing_standing_charges_result is not None):
-        result = GasStandingChargeCoordinatorResult(existing_standing_charges_result.last_retrieved, existing_standing_charges_result.request_attempts + 1, existing_standing_charges_result.standing_charge, last_error=raised_exception)
+        result = GasStandingChargeCoordinatorResult(existing_standing_charges_result.last_evaluated, existing_standing_charges_result.request_attempts + 1, existing_standing_charges_result.standing_charge, last_retrieved, last_error=raised_exception)
         
         if (result.request_attempts == 2):
           _LOGGER.warning(f"Failed to retrieve new gas standing charges for {target_mprn}/{target_serial_number} ({tariff.code}) - using cached standing charges. See diagnostics sensor for more information.")
       else:
         # We want to force into our fallback mode
-        result = GasStandingChargeCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_STANDING_CHARGE), 2, None, last_error=raised_exception)
+        result = GasStandingChargeCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_STANDING_CHARGE), 2, None, last_retrieved, last_error=raised_exception)
         _LOGGER.warning(f"Failed to retrieve new gas standing charges for {target_mprn}/{target_serial_number} ({tariff.code}). See diagnostics sensor for more information.")
 
       return result

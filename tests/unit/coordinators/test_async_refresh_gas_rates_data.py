@@ -225,7 +225,7 @@ async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
     )
 
     assert retrieved_rates is not None
-    assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_retrieved_rates.rates
     assert mock_api_called == True
     assert requested_period_from == expected_period_from
@@ -272,7 +272,7 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
 
     assert retrieved_rates is not None
     assert retrieved_rates.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
-    assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_retrieved_rates.rates
     assert mock_api_called == True
     
@@ -315,7 +315,7 @@ async def test_when_existing_rates_are_requested_period_then_existing_rates_used
 
     assert retrieved_rates is not None
     assert retrieved_rates.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
-    assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_retrieved_rates.rates
     assert mock_api_called == False
     
@@ -364,7 +364,7 @@ async def test_when_existing_rates_contains_some_of_period_then_partial_rates_re
 
     assert retrieved_rates is not None
     assert retrieved_rates.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
-    assert retrieved_rates.last_retrieved == expected_retrieved_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert mock_api_called == True
     
     assert len(actual_fired_events.keys()) == 3
@@ -417,7 +417,7 @@ async def test_when_rates_not_retrieved_then_existing_gas_rates_returned():
 
     assert retrieved_rates is not None
     assert retrieved_rates.next_refresh == existing_rates.next_refresh + timedelta(minutes=1)
-    assert retrieved_rates.last_retrieved == existing_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == existing_rates.last_evaluated
     assert retrieved_rates.rates == existing_rates.rates
     assert mock_api_called == True
     assert len(actual_fired_events.keys()) == 0
@@ -458,7 +458,7 @@ async def test_when_negative_rates_present_then_existing_rates_retrieved():
 
     assert retrieved_rates is not None
     assert retrieved_rates.next_refresh == existing_rates.next_refresh + timedelta(minutes=1)
-    assert retrieved_rates.last_retrieved == existing_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == existing_rates.last_evaluated
     assert retrieved_rates.rates == existing_rates.rates
     assert retrieved_rates.request_attempts == existing_rates.request_attempts + 1
     
@@ -499,7 +499,7 @@ async def test_when_exception_raised_then_existing_gas_rates_returned_and_except
 
     assert retrieved_rates is not None
     assert retrieved_rates.next_refresh == existing_rates.next_refresh + timedelta(minutes=1)
-    assert retrieved_rates.last_retrieved == existing_rates.last_retrieved
+    assert retrieved_rates.last_evaluated == existing_rates.last_evaluated
     assert retrieved_rates.rates == existing_rates.rates
     assert retrieved_rates.last_error == raised_exception
     assert mock_api_called == True
