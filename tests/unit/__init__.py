@@ -28,7 +28,7 @@ def create_consumption_data(period_from: datetime, period_to: datetime, reverse 
 
   return consumption
 
-def create_rate_data(period_from: datetime, period_to: datetime, expected_rates: list):
+def create_rate_data(period_from: datetime, period_to: datetime, expected_rates: list, tariff_code = None):
   rates = []
   current_valid_from = period_from
   current_valid_to = None
@@ -41,7 +41,7 @@ def create_rate_data(period_from: datetime, period_to: datetime, expected_rates:
       "start": current_valid_from,
       "end": current_valid_to,
       "value_inc_vat": expected_rates[rate_index],
-      "tariff_code": "E-1R-Test-L",
+      "tariff_code": tariff_code if tariff_code is not None else "E-1R-Test-L",
       "is_capped": False
     })
 

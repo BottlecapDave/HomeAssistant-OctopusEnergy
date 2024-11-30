@@ -19,8 +19,10 @@ dispatches_last_retrieved = datetime.strptime("2023-07-14T10:00:01+01:00", "%Y-%
 
 mpan = "1234567890"
 serial_number = "abcdefgh"
+default_tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A"
+default_product_code = "SUPER-GREEN-24M-21-07-30"
 
-def get_account_info(is_active_agreement = True, tariff_code = "E-1R-SUPER-GREEN-24M-21-07-30-A", product_code = "SUPER-GREEN-24M-21-07-30"):
+def get_account_info(is_active_agreement = True, tariff_code = default_tariff_code, product_code = "SUPER-GREEN-24M-21-07-30"):
   return {
     "electricity_meter_points": [
       {
@@ -397,7 +399,7 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
 
 @pytest.mark.asyncio
-async def test_when_existing_rates_are_requested_period_then_existing_rates_used():
+async def test_when_existing_rates_are_requested_period_and_same_tariff_then_existing_rates_used():
   expected_period_from = (current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
   mock_api_called = False
@@ -413,7 +415,7 @@ async def test_when_existing_rates_are_requested_period_then_existing_rates_used
     return None
   
   account_info = get_account_info()
-  existing_rates = ElectricityRatesCoordinatorResult(period_to - timedelta(days=1), 1, create_rate_data(expected_period_from, expected_period_to, [2, 4]))
+  existing_rates = ElectricityRatesCoordinatorResult(period_to - timedelta(days=1), 1, create_rate_data(expected_period_from, expected_period_to, [2, 4], default_tariff_code))
   expected_retrieved_rates = ElectricityRatesCoordinatorResult(current, 1, existing_rates.rates)
   dispatches_result = IntelligentDispatchesCoordinatorResult(dispatches_last_retrieved, 1, IntelligentDispatches([], []))
 
@@ -448,7 +450,67 @@ async def test_when_existing_rates_are_requested_period_then_existing_rates_used
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
 
 @pytest.mark.asyncio
-async def test_when_existing_rates_contains_some_of_period_then_partial_rates_retrieved():
+async def test_when_existing_rates_are_requested_period_and_different_tariff_then_existing_rates_not_used():
+  expected_period_from = (current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+  expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
+  mock_api_called = False
+  expected_rates = create_rate_data(expected_period_from, expected_period_to, [2], default_tariff_code)
+  requested_period_from = None
+  requested_period_to = None
+  async def async_mocked_get_electricity_rates(*args, **kwargs):
+    nonlocal mock_api_called, requested_period_from, requested_period_to
+
+    requested_client, requested_product_code, requested_tariff_code, is_smart_meter, requested_period_from, requested_period_to = args
+
+    mock_api_called = True
+    return expected_rates
+  
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
+  
+  account_info = get_account_info()
+  existing_rates = ElectricityRatesCoordinatorResult(period_to - timedelta(days=1), 1, create_rate_data(expected_period_from, expected_period_to, [2, 4], f"{default_tariff_code}-diff"))
+  expected_retrieved_rates = ElectricityRatesCoordinatorResult(current, 1, existing_rates.rates)
+  dispatches_result = IntelligentDispatchesCoordinatorResult(dispatches_last_retrieved, 1, IntelligentDispatches([], []))
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_rates=async_mocked_get_electricity_rates):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_rates: ElectricityRatesCoordinatorResult = await async_refresh_electricity_rates_data(
+      current,
+      client,
+      account_info,
+      mpan,
+      serial_number,
+      True,
+      False,
+      existing_rates,
+      None,
+      dispatches_result,
+      True,
+      fire_event
+    )
+
+    assert retrieved_rates is not None
+    assert retrieved_rates.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
+    assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
+    assert retrieved_rates.rates == expected_rates
+    assert retrieved_rates.original_rates == expected_rates
+    assert retrieved_rates.rates_last_adjusted == expected_retrieved_rates.rates_last_adjusted
+    assert mock_api_called == True
+
+    assert requested_period_from == expected_period_from
+    assert requested_period_to == expected_period_to
+    
+    assert len(actual_fired_events.keys()) == 3
+    assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
+    assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
+    assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
+
+@pytest.mark.asyncio
+async def test_when_existing_rates_contains_some_of_period_and_same_tariff_then_partial_rates_retrieved():
   expected_period_from = (current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_rates = create_rate_data(expected_period_from + timedelta(hours=20), expected_period_to, [2])
@@ -470,7 +532,7 @@ async def test_when_existing_rates_contains_some_of_period_then_partial_rates_re
     return None
   
   account_info = get_account_info()
-  existing_rates = ElectricityRatesCoordinatorResult(period_to - timedelta(days=60), 1, create_rate_data(expected_period_from, expected_rates[0]["start"], [1]))
+  existing_rates = ElectricityRatesCoordinatorResult(period_to - timedelta(days=60), 1, create_rate_data(expected_period_from, expected_rates[0]["start"], [1], default_tariff_code))
   expected_retrieved_rates = ElectricityRatesCoordinatorResult(current, 1, expected_rates)
   dispatches_result = IntelligentDispatchesCoordinatorResult(dispatches_last_retrieved, 1, IntelligentDispatches([], []))
 
@@ -526,6 +588,66 @@ async def test_when_existing_rates_contains_some_of_period_then_partial_rates_re
         assert rate["value_inc_vat"] == existing_rates.original_rates[-1]["value_inc_vat"]
       else:
         assert rate["value_inc_vat"] == expected_retrieved_rates.original_rates[-1]["value_inc_vat"]
+
+@pytest.mark.asyncio
+async def test_when_existing_rates_contains_some_of_period_and_different_tariff_then_full_rates_retrieved():
+  expected_period_from = (current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
+  expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
+  expected_rates = create_rate_data(expected_period_from, expected_period_to, [2], default_tariff_code)
+  mock_api_called = False
+  requested_period_from = None
+  requested_period_to = None
+  async def async_mocked_get_electricity_rates(*args, **kwargs):
+    nonlocal mock_api_called, requested_period_from, requested_period_to
+
+    requested_client, requested_product_code, requested_tariff_code, is_smart_meter, requested_period_from, requested_period_to = args
+
+    mock_api_called = True
+    return expected_rates
+  
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
+  
+  account_info = get_account_info()
+  existing_rates = ElectricityRatesCoordinatorResult(period_to - timedelta(days=60), 1, create_rate_data(expected_period_from, expected_rates[0]["start"], [1], f"{default_tariff_code}-new"))
+  expected_retrieved_rates = ElectricityRatesCoordinatorResult(current, 1, expected_rates)
+  dispatches_result = IntelligentDispatchesCoordinatorResult(dispatches_last_retrieved, 1, IntelligentDispatches([], []))
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_rates=async_mocked_get_electricity_rates):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_rates: ElectricityRatesCoordinatorResult = await async_refresh_electricity_rates_data(
+      current,
+      client,
+      account_info,
+      mpan,
+      serial_number,
+      True,
+      False,
+      existing_rates,
+      None,
+      dispatches_result,
+      True,
+      fire_event
+    )
+
+    assert retrieved_rates is not None
+    assert retrieved_rates.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
+    assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
+    assert retrieved_rates.rates_last_adjusted == expected_retrieved_rates.rates_last_adjusted
+    assert retrieved_rates.rates == expected_rates
+    assert retrieved_rates.original_rates == expected_rates
+    assert mock_api_called == True
+    
+    assert len(actual_fired_events.keys()) == 3
+    assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
+    assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
+    assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
+
+    assert requested_period_from == expected_period_from
+    assert requested_period_to == expected_period_to
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("is_export_meter",[

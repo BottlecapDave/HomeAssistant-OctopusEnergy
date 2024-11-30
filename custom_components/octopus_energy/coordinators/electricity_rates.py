@@ -79,7 +79,12 @@ async def async_refresh_electricity_rates_data(
     new_rates = None
     raised_exception = None
     if (existing_rates_result is None or current >= existing_rates_result.next_refresh):
-      adjusted_period_from = existing_rates_result.original_rates[-1]["end"] if existing_rates_result is not None and existing_rates_result.original_rates is not None and len(existing_rates_result.original_rates) > 0 else period_from
+      adjusted_period_from = period_from
+      is_new_tariff = True
+      if existing_rates_result is not None and existing_rates_result.original_rates is not None and len(existing_rates_result.original_rates) > 0:
+        is_new_tariff = existing_rates_result.original_rates[-1]["tariff_code"] != tariff.code
+        if is_new_tariff == False:
+          adjusted_period_from = existing_rates_result.original_rates[-1]["end"]
 
       last_retrieved = None
       if adjusted_period_from < period_to:
@@ -92,7 +97,7 @@ async def async_refresh_electricity_rates_data(
           _LOGGER.debug(f'Failed to retrieve electricity rates for {target_mpan}/{target_serial_number} ({tariff.code})')
           raised_exception = e
 
-        new_rates = combine_rates(existing_rates_result.original_rates if existing_rates_result is not None else [], new_rates, period_from, period_to)
+        new_rates = combine_rates(existing_rates_result.original_rates if existing_rates_result is not None and is_new_tariff == False else [], new_rates, period_from, period_to)
       else:
         _LOGGER.info('All required rates present, so using cached rates')
         new_rates = existing_rates_result.original_rates
