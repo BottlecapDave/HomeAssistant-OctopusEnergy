@@ -8,15 +8,15 @@ Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-
 |-|-|-|
 | Account | 60 | This is mainly used to get the active meters and associated tariffs, which shouldn't change often so no need to poll often. |
 | Intelligent tariff based sensors | 3 | Trying to balance refreshing settings and new dispatch information without overloading the API |
-| Rate information | 15 | This is what drives most people's automations, but doesn't change that frequently. We can afford a bit of lag for API stability. |
+| Rate information | 15 | This is what drives most people's automations, but doesn't change that frequently. We can afford a bit of lag for API stability. This will stop updating once we have the data for the requested time period. |
 | Current consumption data | Configurable (minimum 1) | This is most useful for a smart home to be as up-to-date as possible, but is also rate limited to 100 requests total per hour. 1 minute is enough for most people, but might need to be increased for those with multiple meters (e.g. gas and electricity) |
 | Previous consumption data | 30 | This is usually refreshed once a day at various times throughout the day. We want to be up-to-date as soon as possible, without swamping the API. |
-| Standing charges | 60 | This should only change if the user's tariff changes, so no need to request data too often. Keep in sync with account refreshes. |
+| Standing charges | 60 | This should only change if the user's tariff changes, so no need to request data too often. Keep in sync with account refreshes. This will stop updating once we have the data for the requested time period. |
 | Saving sessions | 15 | Inactive for most of the year and new sessions have enough warning to allow a bit of lag. |
 | Saving session target | 30 | Not relevant most of the time and intensive due to retrieving consumption data |
 | Wheel of fortune | 60 | Doesn't change that frequently, and not fundamental for a smart home (other than knowledge) so no need to request too often. |
 | Greenness Forecast | 180 | Doesn't change frequently |
-| Free electricity sessions | 90 | Data is provided by a private API and there is usually at least half a day notice before the sessions which is why this is refreshed slightly less than saving sessions. |
+| Free electricity sessions | 90 | Data is provided by my own [private API](https://github.com/BottlecapDave/OctopusEnergyApi) and there is usually at least half a day notice before the sessions which is why this is refreshed slightly less than saving sessions. |
 
 If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly waiting longer between each attempt, to a maximum of 30 minutes between each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.
 
