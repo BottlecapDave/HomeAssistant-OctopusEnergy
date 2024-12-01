@@ -1235,7 +1235,7 @@
 
 
 <h1 id="diagnostic-entities">Diagnostic Entities<a class="headerlink" href="#diagnostic-entities" title="Permanent link">#</a></h1>
-<p>This is a range of entities that can help diagnose issues.</p>
+<p>These entities can help diagnose issues.</p>
 <h2 id="account-data-last-retrieved">Account Data Last Retrieved<a class="headerlink" href="#account-data-last-retrieved" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_account_data_last_retrieved</code></p>
 <p>This sensor states when account data was last retrieved.</p>
@@ -1243,6 +1243,32 @@
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
 </div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attempts</code></td>
+<td><code>integer</code></td>
+<td>The number of attempts that have been made to retrieve the data</td>
+</tr>
+<tr>
+<td><code>next_refresh</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp of when the data will next be attempted to be retrieved</td>
+</tr>
+<tr>
+<td><code>last_error</code></td>
+<td><code>string</code></td>
+<td>The error that was raised to cause the last retrieval attempt to fail</td>
+</tr>
+</tbody>
+</table>
 <h2 id="current-consumption-data-last-retrieved">Current Consumption Data Last Retrieved<a class="headerlink" href="#current-consumption-data-last-retrieved" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_consumption_data_last_retrieved</code> or <code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_consumption_data_last_retrieved</code></p>
 <p>This sensor states when the home mini current consumption data was last retrieved.</p>
@@ -1250,6 +1276,32 @@
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
 </div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attempts</code></td>
+<td><code>integer</code></td>
+<td>The number of attempts that have been made to retrieve the data</td>
+</tr>
+<tr>
+<td><code>next_refresh</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp of when the data will next be attempted to be retrieved</td>
+</tr>
+<tr>
+<td><code>last_error</code></td>
+<td><code>string</code></td>
+<td>The error that was raised to cause the last retrieval attempt to fail</td>
+</tr>
+</tbody>
+</table>
 <h2 id="current-consumption-home-pro-data-last-retrieved">Current Consumption Home Pro Data Last Retrieved<a class="headerlink" href="#current-consumption-home-pro-data-last-retrieved" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_home_pro_current_consumption_data_last_retrieved</code> or <code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_home_pro_current_consumption_data_last_retrieved</code></p>
 <p>This sensor states when the home pro current consumption data was last retrieved.</p>
@@ -1257,6 +1309,32 @@
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
 </div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attempts</code></td>
+<td><code>integer</code></td>
+<td>The number of attempts that have been made to retrieve the data</td>
+</tr>
+<tr>
+<td><code>next_refresh</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp of when the data will next be attempted to be retrieved</td>
+</tr>
+<tr>
+<td><code>last_error</code></td>
+<td><code>string</code></td>
+<td>The error that was raised to cause the last retrieval attempt to fail</td>
+</tr>
+</tbody>
+</table>
 <h2 id="greenness-forecast-data-last-retrieved">Greenness Forecast Data Last Retrieved<a class="headerlink" href="#greenness-forecast-data-last-retrieved" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_greenness_forecast_data_last_retrieved</code></p>
 <p>This sensor states when greenness forecast data was last retrieved.</p>
@@ -1264,6 +1342,32 @@
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
 </div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attempts</code></td>
+<td><code>integer</code></td>
+<td>The number of attempts that have been made to retrieve the data</td>
+</tr>
+<tr>
+<td><code>next_refresh</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp of when the data will next be attempted to be retrieved</td>
+</tr>
+<tr>
+<td><code>last_error</code></td>
+<td><code>string</code></td>
+<td>The error that was raised to cause the last retrieval attempt to fail</td>
+</tr>
+</tbody>
+</table>
 <h2 id="intelligent-dispatches-data-last-retrieved">Intelligent Dispatches Data Last Retrieved<a class="headerlink" href="#intelligent-dispatches-data-last-retrieved" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatches_data_last_retrieved</code></p>
 <p>This sensor states when intelligent dispatches data was last retrieved.</p>
@@ -1271,6 +1375,32 @@
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
 </div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attempts</code></td>
+<td><code>integer</code></td>
+<td>The number of attempts that have been made to retrieve the data</td>
+</tr>
+<tr>
+<td><code>next_refresh</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp of when the data will next be attempted to be retrieved</td>
+</tr>
+<tr>
+<td><code>last_error</code></td>
+<td><code>string</code></td>
+<td>The error that was raised to cause the last retrieval attempt to fail</td>
+</tr>
+</tbody>
+</table>
 <h2 id="intelligent-settings-data-last-retrieved">Intelligent Settings Data Last Retrieved<a class="headerlink" href="#intelligent-settings-data-last-retrieved" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_settings_data_last_retrieved</code></p>
 <p>This sensor states when intelligent settings data was last retrieved.</p>
@@ -1278,6 +1408,32 @@
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
 </div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attempts</code></td>
+<td><code>integer</code></td>
+<td>The number of attempts that have been made to retrieve the data</td>
+</tr>
+<tr>
+<td><code>next_refresh</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp of when the data will next be attempted to be retrieved</td>
+</tr>
+<tr>
+<td><code>last_error</code></td>
+<td><code>string</code></td>
+<td>The error that was raised to cause the last retrieval attempt to fail</td>
+</tr>
+</tbody>
+</table>
 <h2 id="previous-consumption-and-rates-data-last-retrieved">Previous Consumption And Rates Data Last Retrieved<a class="headerlink" href="#previous-consumption-and-rates-data-last-retrieved" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_consumption_and_rates_data_last_retrieved</code> or <code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_consumption_and_rates_data_last_retrieved</code></p>
 <p>This sensor states when the previous consumption and associated rate data was last retrieved.</p>
@@ -1285,6 +1441,32 @@
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
 </div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attempts</code></td>
+<td><code>integer</code></td>
+<td>The number of attempts that have been made to retrieve the data</td>
+</tr>
+<tr>
+<td><code>next_refresh</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp of when the data will next be attempted to be retrieved</td>
+</tr>
+<tr>
+<td><code>last_error</code></td>
+<td><code>string</code></td>
+<td>The error that was raised to cause the last retrieval attempt to fail</td>
+</tr>
+</tbody>
+</table>
 <h2 id="rates-data-last-retrieved">Rates Data Last Retrieved<a class="headerlink" href="#rates-data-last-retrieved" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_rates_data_last_retrieved</code> or <code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_rates_data_last_retrieved</code></p>
 <p>This sensor states when the previous/current and next rate data was last retrieved.</p>
@@ -1292,6 +1474,32 @@
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
 </div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attempts</code></td>
+<td><code>integer</code></td>
+<td>The number of attempts that have been made to retrieve the data</td>
+</tr>
+<tr>
+<td><code>next_refresh</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp of when the data will next be attempted to be retrieved</td>
+</tr>
+<tr>
+<td><code>last_error</code></td>
+<td><code>string</code></td>
+<td>The error that was raised to cause the last retrieval attempt to fail</td>
+</tr>
+</tbody>
+</table>
 <h2 id="saving-sessions-data-last-retrieved">Saving Sessions Data Last Retrieved<a class="headerlink" href="#saving-sessions-data-last-retrieved" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_saving_sessions_data_last_retrieved</code></p>
 <p>This sensor states when saving sessions data was last retrieved.</p>
@@ -1299,6 +1507,32 @@
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
 </div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attempts</code></td>
+<td><code>integer</code></td>
+<td>The number of attempts that have been made to retrieve the data</td>
+</tr>
+<tr>
+<td><code>next_refresh</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp of when the data will next be attempted to be retrieved</td>
+</tr>
+<tr>
+<td><code>last_error</code></td>
+<td><code>string</code></td>
+<td>The error that was raised to cause the last retrieval attempt to fail</td>
+</tr>
+</tbody>
+</table>
 <h2 id="free-electricity-sessions-data-last-retrieved">Free Electricity Sessions Data Last Retrieved<a class="headerlink" href="#free-electricity-sessions-data-last-retrieved" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_free_electricity_sessions_data_last_retrieved</code></p>
 <p>This sensor states when free electricity sessions data was last retrieved.</p>
@@ -1306,6 +1540,32 @@
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
 </div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attempts</code></td>
+<td><code>integer</code></td>
+<td>The number of attempts that have been made to retrieve the data</td>
+</tr>
+<tr>
+<td><code>next_refresh</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp of when the data will next be attempted to be retrieved</td>
+</tr>
+<tr>
+<td><code>last_error</code></td>
+<td><code>string</code></td>
+<td>The error that was raised to cause the last retrieval attempt to fail</td>
+</tr>
+</tbody>
+</table>
 <h2 id="standing-charge-data-last-retrieved">Standing Charge Data Last Retrieved<a class="headerlink" href="#standing-charge-data-last-retrieved" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_standing_charge_data_last_retrieved</code> or <code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_standing_charge_data_last_retrieved</code></p>
 <p>This sensor states when the standing charge data was last retrieved.</p>
@@ -1313,6 +1573,32 @@
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
 </div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attempts</code></td>
+<td><code>integer</code></td>
+<td>The number of attempts that have been made to retrieve the data</td>
+</tr>
+<tr>
+<td><code>next_refresh</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp of when the data will next be attempted to be retrieved</td>
+</tr>
+<tr>
+<td><code>last_error</code></td>
+<td><code>string</code></td>
+<td>The error that was raised to cause the last retrieval attempt to fail</td>
+</tr>
+</tbody>
+</table>
 <h2 id="wheel-of-fortune-data-last-retrieved">Wheel Of Fortune Data Last Retrieved<a class="headerlink" href="#wheel-of-fortune-data-last-retrieved" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_data_last_retrieved</code></p>
 <p>This sensor states when wheel of fortune data was last retrieved.</p>
@@ -1320,6 +1606,32 @@
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
 </div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attempts</code></td>
+<td><code>integer</code></td>
+<td>The number of attempts that have been made to retrieve the data</td>
+</tr>
+<tr>
+<td><code>next_refresh</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp of when the data will next be attempted to be retrieved</td>
+</tr>
+<tr>
+<td><code>last_error</code></td>
+<td><code>string</code></td>
+<td>The error that was raised to cause the last retrieval attempt to fail</td>
+</tr>
+</tbody>
+</table>
 
 
 

@@ -1401,7 +1401,7 @@
 <tr>
 <td>Rate information</td>
 <td>15</td>
-<td>This is what drives most people's automations, but doesn't change that frequently. We can afford a bit of lag for API stability.</td>
+<td>This is what drives most people's automations, but doesn't change that frequently. We can afford a bit of lag for API stability. This will stop updating once we have the data for the requested time period.</td>
 </tr>
 <tr>
 <td>Current consumption data</td>
@@ -1416,7 +1416,7 @@
 <tr>
 <td>Standing charges</td>
 <td>60</td>
-<td>This should only change if the user's tariff changes, so no need to request data too often. Keep in sync with account refreshes.</td>
+<td>This should only change if the user's tariff changes, so no need to request data too often. Keep in sync with account refreshes. This will stop updating once we have the data for the requested time period.</td>
 </tr>
 <tr>
 <td>Saving sessions</td>
@@ -1441,7 +1441,7 @@
 <tr>
 <td>Free electricity sessions</td>
 <td>90</td>
-<td>Data is provided by a private API and there is usually at least half a day notice before the sessions which is why this is refreshed slightly less than saving sessions.</td>
+<td>Data is provided by my own <a href="https://github.com/BottlecapDave/OctopusEnergyApi">private API</a> and there is usually at least half a day notice before the sessions which is why this is refreshed slightly less than saving sessions.</td>
 </tr>
 </tbody>
 </table>

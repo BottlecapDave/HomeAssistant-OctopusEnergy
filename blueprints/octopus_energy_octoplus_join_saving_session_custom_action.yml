@@ -23,7 +23,7 @@ mode: single
 variables:
   saving_session_event_entity: !input saving_session_event_entity
   message: >
-    {% if state_attr(saving_session_event_entity, 'available_events') | length > 0 %}
+    {% if state_attr(saving_session_event_entity, 'available_events') != None and state_attr(saving_session_event_entity, 'available_events') | length > 0 %}
       {% set event = state_attr(saving_session_event_entity, 'available_events')[0] %}
       {% set event_start = event['start'] %}
       Joined a new Octopus Energy saving session. It starts at {{ event_start.strftime('%H:%M') }} on {{ event_start.day }}/{{ event_start.month }} for {{ event.duration_in_minutes | int }} minutes.

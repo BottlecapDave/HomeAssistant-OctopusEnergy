@@ -515,6 +515,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#free-electricity-weighting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Free Electricity Weighting
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1334,6 +1343,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#free-electricity-weighting" class="md-nav__link">
+    <span class="md-ellipsis">
+      Free Electricity Weighting
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1561,6 +1579,63 @@
 </ul>
 <p>Each slot weighting must be a whole number or decimal number and be positive.</p>
 <p>You can also use weightings to ignore slots. This can be done by assigning a value of 0 for the desired slot.</p>
+<h3 id="free-electricity-weighting">Free Electricity Weighting<a class="headerlink" href="#free-electricity-weighting" title="Permanent link">#</a></h3>
+<p>If you subscribed to Octopus Energy's <a href="../../entities/octoplus/#free-electricity-sessions">free electricity sessions</a>, then you might want your sensor to favour the hours that these are available, but potentially still favour other times if they're cheaper by a larger portion. Here is where you can have a weighting applied to the rate during free electricity sessions to have them favour them in certain scenarios.</p>
+<p>For example, if we have the following rates</p>
+<table>
+<thead>
+<tr>
+<th>Start</th>
+<th>End</th>
+<th>Rate</th>
+<th>Is Free Electricity Period</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2024-11-26 10:00:00</code></td>
+<td><code>2024-11-26 10:30:00</code></td>
+<td>0.1p</td>
+<td>N</td>
+</tr>
+<tr>
+<td><code>2024-11-26 10:30:00</code></td>
+<td><code>2024-11-26 11:00:00</code></td>
+<td>0.1p</td>
+<td>N</td>
+</tr>
+<tr>
+<td><code>2024-11-26 11:00:00</code></td>
+<td><code>2024-11-26 11:30:00</code></td>
+<td>0.2p</td>
+<td>Y</td>
+</tr>
+<tr>
+<td><code>2024-11-26 11:30:00</code></td>
+<td><code>2024-11-26 12:00:00</code></td>
+<td>0.2p</td>
+<td>Y</td>
+</tr>
+<tr>
+<td><code>2024-11-26 12:00:00</code></td>
+<td><code>2024-11-26 12:30:00</code></td>
+<td>0.3p</td>
+<td>N</td>
+</tr>
+<tr>
+<td><code>2024-11-26 12:30:00</code></td>
+<td><code>2024-11-26 13:00:00</code></td>
+<td>0.3p</td>
+<td>N</td>
+</tr>
+</tbody>
+</table>
+<p>If we had a target rate sensor of 1 hour, the following would occur with the following weightings</p>
+<p>| Weighting | Period | Reason |
+| 1 | <code>2024-11-26 10:00:00</code>-<code>2024-11-26 11:00:00</code> | Cheapest period |
+| 0.5 | <code>2024-11-26 10:00:00</code>-<code>2024-11-26 11:00:00</code> | Cheapest period would be 0.1p, free electricity period would be 0.1p. By default, target rates favour the earliest sessions. |
+| 0.2 | <code>2024-11-26 11:00:00</code>-<code>2024-11-26 12:00:00</code> | Cheapest period would be 0.1p, free electricity period would be 0.02p. |
+| 0 | <code>2024-11-26 11:00:00</code>-<code>2024-11-26 12:00:00</code> | Cheapest period would be 0.1p, free electricity period would be 0p. This will always go for free electricity sessions if available. |</p>
 <h2 id="attributes">Attributes<a class="headerlink" href="#attributes" title="Permanent link">#</a></h2>
 <p>The following attributes are available on each sensor</p>
 <table>
