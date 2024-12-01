@@ -43,16 +43,20 @@ class MultiCoordinatorEntity(CoordinatorEntity):
       )
 
 class BaseCoordinatorResult:
+  last_evaluated: datetime
   last_retrieved: datetime
   next_refresh: datetime
   request_attempts: int
   refresh_rate_in_minutes: float
+  last_error: Exception | None
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, refresh_rate_in_minutes: float):
-    self.last_retrieved = last_retrieved
+  def __init__(self, last_evaluated: datetime, request_attempts: int, refresh_rate_in_minutes: float, last_retrieved: datetime | None = None, last_error: Exception | None = None):
+    self.last_evaluated = last_evaluated
+    self.last_retrieved = last_retrieved if last_retrieved is not None else last_evaluated
     self.request_attempts = request_attempts
-    self.next_refresh = calculate_next_refresh(last_retrieved, request_attempts, refresh_rate_in_minutes)
-    _LOGGER.debug(f'last_retrieved: {last_retrieved}; request_attempts: {request_attempts}; refresh_rate_in_minutes: {refresh_rate_in_minutes}; next_refresh: {self.next_refresh}')
+    self.next_refresh = calculate_next_refresh(last_evaluated, request_attempts, refresh_rate_in_minutes)
+    self.last_error = last_error
+    _LOGGER.debug(f'last_evaluated: {last_evaluated}; last_retrieved: {last_retrieved}; request_attempts: {request_attempts}; refresh_rate_in_minutes: {refresh_rate_in_minutes}; next_refresh: {self.next_refresh}; last_error: {self.last_error}')
 
 async def async_check_valid_product(hass, account_id: str, client: OctopusEnergyApiClient, product_code: str, is_electricity: bool):
   tariff_key = f'{DATA_KNOWN_TARIFF}_{product_code}'
@@ -134,3 +138,26 @@ def get_gas_meter_tariff(current: datetime, account_info, target_mprn: str, targ
            return active_tariff
            
   return None
+
+def combine_rates(old_rates: list | None, new_rates: list | None, period_from: datetime, period_to: datetime):
+  if new_rates is None:
+    return None
+  
+  combined_rates = []
+  combined_rates.extend(new_rates)
+
+  if old_rates is not None:
+    for rate in old_rates:
+      if rate["start"] >= period_from and rate["end"] <= period_to:
+        is_present = False
+        for existing_rate in combined_rates:
+          if existing_rate["start"] == rate["start"]:
+            is_present = True
+            break
+
+        if is_present == False:
+          combined_rates.append(rate)
+
+    combined_rates.sort(key=lambda x: x["start"])
+
+  return combined_rates

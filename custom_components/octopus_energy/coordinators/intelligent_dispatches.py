@@ -35,8 +35,8 @@ _LOGGER = logging.getLogger(__name__)
 class IntelligentDispatchesCoordinatorResult(BaseCoordinatorResult):
   dispatches: IntelligentDispatches
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, dispatches: IntelligentDispatches):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_INTELLIGENT)
+  def __init__(self, last_evaluated: datetime, request_attempts: int, dispatches: IntelligentDispatches, last_error: Exception | None = None):
+    super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_INTELLIGENT, None, last_error)
     self.dispatches = dispatches
 
 async def async_merge_dispatch_data(hass, account_id: str, completed_dispatches):
@@ -69,6 +69,7 @@ async def async_refresh_intelligent_dispatches(
     account_id = account_info["id"]
     if (existing_intelligent_dispatches_result is None or current >= existing_intelligent_dispatches_result.next_refresh):
       dispatches = None
+      raised_exception = None
       if has_intelligent_tariff(current, account_info) and intelligent_device is not None:
         try:
           dispatches = await client.async_get_intelligent_dispatches(account_id)
@@ -77,6 +78,7 @@ async def async_refresh_intelligent_dispatches(
           if isinstance(e, ApiException) == False:
             raise
           
+          raised_exception=e
           _LOGGER.debug('Failed to retrieve intelligent dispatches for account {account_id}')
 
       if is_data_mocked:
@@ -89,15 +91,18 @@ async def async_refresh_intelligent_dispatches(
       result = None
       if (existing_intelligent_dispatches_result is not None):
         result = IntelligentDispatchesCoordinatorResult(
-          existing_intelligent_dispatches_result.last_retrieved,
+          existing_intelligent_dispatches_result.last_evaluated,
           existing_intelligent_dispatches_result.request_attempts + 1,
-          existing_intelligent_dispatches_result.dispatches
+          existing_intelligent_dispatches_result.dispatches,
+          last_error=raised_exception
         )
-        _LOGGER.warning(f"Failed to retrieve new dispatches - using cached dispatches. Next attempt at {result.next_refresh}")
+
+        if (result.request_attempts == 2):
+          _LOGGER.warning(f"Failed to retrieve new dispatches - using cached dispatches. See diagnostics sensor for more information.")
       else:
         # We want to force into our fallback mode
-        result = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT), 2, None)
-        _LOGGER.warning(f"Failed to retrieve new dispatches. Next attempt at {result.next_refresh}")
+        result = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT), 2, None, last_error=raised_exception)
+        _LOGGER.warning(f"Failed to retrieve new dispatches. See diagnostics sensor for more information.")
 
       return result
   

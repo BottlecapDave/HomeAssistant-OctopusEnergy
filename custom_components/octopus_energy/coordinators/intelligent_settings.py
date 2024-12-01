@@ -30,8 +30,8 @@ _LOGGER = logging.getLogger(__name__)
 class IntelligentCoordinatorResult(BaseCoordinatorResult):
   settings: IntelligentSettings
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, settings: IntelligentSettings):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_INTELLIGENT)
+  def __init__(self, last_evaluated: datetime, request_attempts: int, settings: IntelligentSettings, last_error: Exception | None = None):
+    super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_INTELLIGENT, None, last_error)
     self.settings = settings
 
 async def async_refresh_intelligent_settings(
@@ -46,6 +46,7 @@ async def async_refresh_intelligent_settings(
     account_id = account_info["id"]
     if (existing_intelligent_settings_result is None or current >= existing_intelligent_settings_result.next_refresh):
       settings = None
+      raised_exception = None
       if device_id is not None and has_intelligent_tariff(current, account_info):
         try:
           settings = await client.async_get_intelligent_settings(account_id, device_id)
@@ -54,6 +55,7 @@ async def async_refresh_intelligent_settings(
           if isinstance(e, ApiException) == False:
             raise
 
+          raised_exception = e
           _LOGGER.debug('Failed to retrieve intelligent settings for account {account_id}')
 
       if is_settings_mocked:
@@ -65,15 +67,18 @@ async def async_refresh_intelligent_settings(
       result = None
       if (existing_intelligent_settings_result is not None):
         result = IntelligentCoordinatorResult(
-          existing_intelligent_settings_result.last_retrieved,
+          existing_intelligent_settings_result.last_evaluated,
           existing_intelligent_settings_result.request_attempts + 1,
-          existing_intelligent_settings_result.settings
+          existing_intelligent_settings_result.settings,
+          last_error=raised_exception
         )
-        _LOGGER.warning(f"Failed to retrieve new intelligent settings - using cached settings. Next attempt at {result.next_refresh}")
+
+        if (result.request_attempts == 2):
+          _LOGGER.warning(f"Failed to retrieve new intelligent settings - using cached settings. See diagnostics sensor for more information.")
       else:
         # We want to force into our fallback mode
-        result = IntelligentCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT), 2, None)
-        _LOGGER.warning(f"Failed to retrieve new intelligent settings. Next attempt at {result.next_refresh}")
+        result = IntelligentCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT), 2, None, last_error=raised_exception)
+        _LOGGER.warning(f"Failed to retrieve new intelligent settings. See diagnostics sensor for more information.")
       
       return result
   

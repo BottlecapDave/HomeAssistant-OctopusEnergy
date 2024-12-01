@@ -52,14 +52,15 @@ class PreviousConsumptionCoordinatorResult(BaseCoordinatorResult):
   historic_weekend_consumption: list
 
   def __init__(self,
-               last_retrieved: datetime,
+               last_evaluated: datetime,
                request_attempts: int,
                consumption: list,
                rates: list,
                standing_charge,
                historic_weekday_consumption: list = None,
-               historic_weekend_consumption: list = None):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION)
+               historic_weekend_consumption: list = None,
+               last_error: Exception | None = None):
+    super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_PREVIOUS_CONSUMPTION, None, last_error)
     self.consumption = consumption
     self.rates = rates
     self.standing_charge = standing_charge
@@ -118,9 +119,10 @@ async def async_get_missing_consumption(
 
 def remove_old_consumptions(consumptions: list, earliest_datetime: datetime):
   new_rates = []
-  for consumption in consumptions:
-    if (consumption["start"] >= earliest_datetime):
-      new_rates.append(consumption)
+  if consumptions is not None:
+    for consumption in consumptions:
+      if (consumption["start"] >= earliest_datetime):
+        new_rates.append(consumption)
 
   return new_rates
 
@@ -136,7 +138,7 @@ async def async_enhance_with_historic_consumption(
   ):
   """Fetch the historic rates"""
 
-  if data.consumption is None or (previous_data is not None and previous_data.last_retrieved == data.last_retrieved):
+  if data.consumption is None or (previous_data is not None and previous_data.last_evaluated == data.last_evaluated):
     return data
 
   # Determine what our existing historic rates are
@@ -197,7 +199,7 @@ async def async_enhance_with_historic_consumption(
     await async_save_historic_consumptions(identifier, serial_number, False, historic_weekend_consumptions)
 
   return PreviousConsumptionCoordinatorResult(
-    data.last_retrieved,
+    data.last_evaluated,
     data.request_attempts,
     data.consumption,
     data.rates,
@@ -272,10 +274,15 @@ async def async_fetch_consumption_and_rates(
             _LOGGER.debug("Dispatches not available for intelligent tariff. Using existing rate information")
             return previous_data
           
-          [rate_data, standing_charge] = await asyncio.gather(
-            client.async_get_electricity_rates(tariff.product, tariff.code, is_smart_meter, period_from, period_to),
-            client.async_get_electricity_standing_charge(tariff.product, tariff.code, period_from, period_to)
-          )
+          if previous_data is not None and previous_data.rates[0]["start"] == period_from and previous_data.rates[-1]["end"] == period_to:
+            _LOGGER.info('Previous rates are for our target consumption, so using previously retrieved rates and standing charges')
+            rate_data = previous_data.rates
+            standing_charge = { "value_inc_vat": previous_data.standing_charge }
+          else:
+            [rate_data, standing_charge] = await asyncio.gather(
+              client.async_get_electricity_rates(tariff.product, tariff.code, is_smart_meter, period_from, period_to),
+              client.async_get_electricity_standing_charge(tariff.product, tariff.code, period_from, period_to)
+            )
 
           if intelligent_dispatches is not None:
             _LOGGER.debug(f"Adjusting rate data based on intelligent tariff; dispatches: {intelligent_dispatches}")
@@ -295,10 +302,15 @@ async def async_fetch_consumption_and_rates(
             _LOGGER.error(f"Could not determine tariff code for previous consumption for gas {identifier}/{serial_number}")
             return previous_data
           
-          [rate_data, standing_charge] = await asyncio.gather(
-            client.async_get_gas_rates(tariff.product, tariff.code, period_from, period_to),
-            client.async_get_gas_standing_charge(tariff.product, tariff.code, period_from, period_to)
-          )
+          if previous_data is not None and previous_data.rates[0]["start"] == period_from and previous_data.rates[-1]["end"] == period_to:
+            _LOGGER.info('Previous rates are for our target consumption, so using previously retrieved rates and standing charges')
+            rate_data = previous_data.rates
+            standing_charge = { "value_inc_vat": previous_data.standing_charge }
+          else:
+            [rate_data, standing_charge] = await asyncio.gather(
+              client.async_get_gas_rates(tariff.product, tariff.code, period_from, period_to),
+              client.async_get_gas_standing_charge(tariff.product, tariff.code, period_from, period_to)
+            )
       
       _LOGGER.debug(f"{'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}: consumption_data: {len(consumption_data) if consumption_data is not None else None}; rate_data: {len(rate_data) if rate_data is not None else None}; standing_charge: {standing_charge}")
       if consumption_data is not None and len(consumption_data) >= MINIMUM_CONSUMPTION_DATA_LENGTH and rate_data is not None and len(rate_data) > 0 and standing_charge is not None:
@@ -342,15 +354,18 @@ async def async_fetch_consumption_and_rates(
       result = None
       if previous_data is not None:
         result =  PreviousConsumptionCoordinatorResult(
-          previous_data.last_retrieved,
+          previous_data.last_evaluated,
           previous_data.request_attempts + 1,
           previous_data.consumption,
           previous_data.rates,
           previous_data.standing_charge,
           previous_data.historic_weekday_consumption,
-          previous_data.historic_weekend_consumption
+          previous_data.historic_weekend_consumption,
+          last_error=e
         )
-        _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number} - using cached data. Next attempt at {result.next_refresh}. Exception: {e}")
+
+        if (result.request_attempts == 2):
+          _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number} - using cached data. See diagnostics sensor for more information.. Exception: {e}")
       else:
         result = PreviousConsumptionCoordinatorResult(
           # We want to force into our fallback mode
@@ -360,9 +375,10 @@ async def async_fetch_consumption_and_rates(
           None,
           None,
           None,
-          None
+          None,
+          last_error=e
         )
-        _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}. Next attempt at {result.next_refresh}. Exception: {e}")
+        _LOGGER.warning(f"Failed to retrieve previous consumption data for {'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}. See diagnostics sensor for more information.. Exception: {e}")
 
       return result
 

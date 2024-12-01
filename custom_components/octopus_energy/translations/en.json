@@ -43,7 +43,8 @@
           "target_invert_target_rates": "Invert targeted rates",
           "minimum_rate": "The optional minimum rate for target hours",
           "maximum_rate": "The optional maximum rate for target hours",
-          "weighting": "The optional weighting to apply to the discovered rates"
+          "weighting": "The optional weighting to apply to the discovered rates",
+          "free_electricity_weighting": "The weighting to apply to rates during free electricity sessions"
         },
         "data_description": {
           "hours": "This has to be a multiple of 0.5.",
@@ -77,6 +78,8 @@
           "minimum_rate": "The optional minimum rate for target hours",
           "maximum_rate": "The optional maximum rate for target hours",
           "weighting": "The optional weighting to apply to the discovered rates",
+          "rolling_target": "Re-evaluate multiple times a day",
+          "free_electricity_weighting": "The weighting to apply to rates during free electricity sessions",
           "target_times_evaluation_mode": "When should target times be selected"
         }
       },
@@ -184,7 +187,9 @@
           "target_invert_target_rates": "Invert targeted rates",
           "minimum_rate": "The optional minimum rate for target hours",
           "maximum_rate": "The optional maximum rate for target hours",
-          "weighting": "The optional weighting to apply to the discovered rates"
+          "rolling_target": "Re-evaluate multiple times a day",
+          "weighting": "The optional weighting to apply to the discovered rates",
+          "free_electricity_weighting": "The weighting to apply to rates during free electricity sessions"
         }
       },
       "rolling_target_rate": {
@@ -202,6 +207,7 @@
           "minimum_rate": "The optional minimum rate for target hours",
           "maximum_rate": "The optional maximum rate for target hours",
           "weighting": "The optional weighting to apply to the discovered rates",
+          "free_electricity_weighting": "The weighting to apply to rates during free electricity sessions",
           "target_times_evaluation_mode": "When should target times be selected"
         },
         "data_description": {

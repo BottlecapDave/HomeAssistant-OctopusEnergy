@@ -21,11 +21,11 @@ from . import BaseCoordinatorResult
 _LOGGER = logging.getLogger(__name__)
 
 class WheelOfFortuneSpinsCoordinatorResult(BaseCoordinatorResult):
-  last_retrieved: datetime
+  last_evaluated: datetime
   spins: WheelOfFortuneSpinsResponse
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, spins: WheelOfFortuneSpinsResponse):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_OCTOPLUS_WHEEL_OF_FORTUNE)
+  def __init__(self, last_evaluated: datetime, request_attempts: int, spins: WheelOfFortuneSpinsResponse, last_error: Exception | None = None):
+    super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_OCTOPLUS_WHEEL_OF_FORTUNE, None, last_error)
     self.spins = spins
 
 async def async_refresh_wheel_of_fortune_spins(
@@ -45,16 +45,18 @@ async def async_refresh_wheel_of_fortune_spins(
       
       result = None
       if (existing_result is not None):
-        result = WheelOfFortuneSpinsCoordinatorResult(existing_result.last_retrieved, existing_result.request_attempts + 1, existing_result.spins)
-        _LOGGER.warning(f'Failed to retrieve wheel of fortune spins - using cached data. Next attempt at {result.next_refresh}')
+        result = WheelOfFortuneSpinsCoordinatorResult(existing_result.last_evaluated, existing_result.request_attempts + 1, existing_result.spins, last_error=e)
+        if (result.request_attempts == 2):
+          _LOGGER.warning(f'Failed to retrieve wheel of fortune spins - using cached data. See diagnostics sensor for more information.')
       else:
         result = WheelOfFortuneSpinsCoordinatorResult(
           # We want to force into our fallback mode
           current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_WHEEL_OF_FORTUNE),
           2,
-          None
+          None,
+          last_error=e
         )
-        _LOGGER.warning(f'Failed to retrieve wheel of fortune spins. Next attempt at {result.next_refresh}')
+        _LOGGER.warning(f'Failed to retrieve wheel of fortune spins. See diagnostics sensor for more information.')
 
       return result
   

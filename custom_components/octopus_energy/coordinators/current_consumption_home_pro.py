@@ -40,12 +40,14 @@ async def async_get_home_pro_consumption(
       result: CurrentConsumptionCoordinatorResult = None
       if previous_consumption is not None:
         result = CurrentConsumptionCoordinatorResult(
-          previous_consumption.last_retrieved,
+          previous_consumption.last_evaluated,
           previous_consumption.request_attempts + 1,
           REFRESH_RATE_IN_MINUTES_HOME_PRO_CONSUMPTION,
           previous_consumption.data
         )
-        _LOGGER.warning(f'Failed to retrieve current consumption data from home pro data - using cached version. Next attempt at {result.next_refresh}')
+
+        if (result.request_attempts == 2):
+          _LOGGER.warning(f'Failed to retrieve current consumption data from home pro data - using cached version. See diagnostics sensor for more information.')
       else:
         result = CurrentConsumptionCoordinatorResult(
           # We want to force into our fallback mode
@@ -54,7 +56,8 @@ async def async_get_home_pro_consumption(
           REFRESH_RATE_IN_MINUTES_HOME_PRO_CONSUMPTION,
           None
         )
-        _LOGGER.warning(f'Failed to retrieve current consumption data from home pro data. Next attempt at {result.next_refresh}')
+        
+        _LOGGER.warning(f'Failed to retrieve current consumption data from home pro data. See diagnostics sensor for more information.')
       
       return result
   

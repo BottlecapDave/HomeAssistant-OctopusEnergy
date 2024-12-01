@@ -19,16 +19,19 @@ from homeassistant.helpers.entity import generate_entity_id
 
 from ..coordinators import BaseCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
+from ..utils.error import exception_to_string
 
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyBaseDataLastRetrieved(CoordinatorEntity, RestoreSensor):
   """Base sensor for data last retrieved."""
+  _unrecorded_attributes = frozenset({ "attempts", "next_refresh" })
 
   def __init__(self, hass, coordinator):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
     self._state = None
+    self._attributes = {}
 
     self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
 
@@ -54,6 +57,11 @@ class OctopusEnergyBaseDataLastRetrieved(CoordinatorEntity, RestoreSensor):
   def icon(self):
     """Icon of the sensor."""
     return "mdi:clock"
+  
+  @property
+  def extra_state_attributes(self):
+    """Attributes of the sensor."""
+    return self._attributes
 
   @property
   def native_value(self):
@@ -63,6 +71,12 @@ class OctopusEnergyBaseDataLastRetrieved(CoordinatorEntity, RestoreSensor):
   def _handle_coordinator_update(self) -> None:
     result: BaseCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     self._state = result.last_retrieved if result is not None else None
+
+    self._attributes = {
+      "attempts": result.request_attempts if result is not None else None,
+      "next_refresh": result.next_refresh if result is not None else None,
+      "last_error": exception_to_string(result.last_error) if result is not None else None,
+    }
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

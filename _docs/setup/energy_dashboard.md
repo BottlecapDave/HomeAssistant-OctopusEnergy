@@ -39,7 +39,7 @@ This is only available if you have an Octopus Home Mini and a smart gas meter.
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
 2. Click `Add Gas Source` under `Gas consumption`
-3. For `Gas usage` you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption`
+3. For `Gas usage` you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption_kwh`
 4. For `Use an entity tracking the total costs` option you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_cost` 
 
 !!! note

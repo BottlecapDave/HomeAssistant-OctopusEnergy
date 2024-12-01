@@ -68,7 +68,7 @@ async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requ
 
   # Assert
   assert result is not None
-  assert result.last_retrieved == current_utc_timestamp
+  assert result.last_evaluated == current_utc_timestamp
   
   assert len(result.consumption) == 48
 
@@ -152,7 +152,7 @@ async def test_when_next_refresh_is_in_the_past_and_gas_sensor_then_requested_da
 
   # Assert
   assert result is not None
-  assert result.last_retrieved == current_utc_timestamp
+  assert result.last_evaluated == current_utc_timestamp
   
   assert result.consumption is not None
   assert len(result.consumption) == 48

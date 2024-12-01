@@ -38,14 +38,14 @@ def calculate_current_consumption(
 ):
   last_evaluated = last_update
   new_state = current_state
-  data_last_retrieved = consumption_result.last_retrieved if consumption_result is not None else None
+  data_last_evaluated = consumption_result.last_evaluated if consumption_result is not None else None
   consumption_data = consumption_result.data if consumption_result is not None else None
   total_consumption = last_total_consumption
 
   if (consumption_data is not None):
 
     # We should only calculate the delta if our underlying data has updated since we last updated 
-    if last_update is None or consumption_result.last_retrieved > last_update:
+    if last_update is None or consumption_result.last_evaluated > last_update:
       total_consumption = get_total_consumption(consumption_data)
       new_state = get_current_consumption_delta(current_date,
                                                 total_consumption,
@@ -53,17 +53,17 @@ def calculate_current_consumption(
                                                 last_total_consumption)
       if (new_state is not None):
         last_evaluated = current_date
-        data_last_retrieved = consumption_result.last_retrieved
+        data_last_evaluated = consumption_result.last_evaluated
 
       # Store the total consumption ready for the next run
       last_total_consumption = total_consumption
 
     # Reset to zero if we don't have up-to-date information 
-    elif consumption_result.last_retrieved.date() != current_date.date():
+    elif consumption_result.last_evaluated.date() != current_date.date():
       new_state = 0
       last_evaluated = current_date.replace(hour=0, minute=0, second=0, microsecond=0)
       total_consumption = 0
     
     _LOGGER.debug(f'state: {new_state}; total_consumption: {total_consumption}; previous_total_consumption: {last_total_consumption}; consumption_data: {consumption_data}')
     
-  return CurrentConsumption(new_state, total_consumption, last_evaluated, data_last_retrieved)
+  return CurrentConsumption(new_state, total_consumption, last_evaluated, data_last_evaluated)

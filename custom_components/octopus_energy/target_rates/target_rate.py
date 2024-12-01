@@ -1,3 +1,4 @@
+from decimal import Decimal
 import logging
 from datetime import timedelta
 import math
@@ -24,6 +25,7 @@ from homeassistant.helpers import translation
 
 from ..const import (
   CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST,
+  CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING,
   CONFIG_TARGET_HOURS_MODE,
   CONFIG_TARGET_MAX_RATE,
   CONFIG_TARGET_MIN_RATE,
@@ -50,6 +52,7 @@ from ..const import (
 )
 
 from . import (
+  apply_free_electricity_weighting,
   calculate_continuous_times,
   calculate_intermittent_times,
   compare_config,
@@ -62,18 +65,20 @@ from . import (
 from ..config.target_rates import validate_target_rate_config
 from ..target_rates.repairs import check_for_errors
 from ..utils.attributes import dict_to_typed_dict
+from ..coordinators import MultiCoordinatorEntity
+from ..coordinators.free_electricity_sessions import FreeElectricitySessionsCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
+class OctopusEnergyTargetRate(MultiCoordinatorEntity, BinarySensorEntity, RestoreEntity):
   """Sensor for calculating when a target should be turned on or off."""
   
   _unrecorded_attributes = frozenset({"data_last_retrieved", "target_times_last_evaluated"})
 
-  def __init__(self, hass: HomeAssistant, account_id: str, coordinator, config, is_export):
+  def __init__(self, hass: HomeAssistant, account_id: str, config, is_export, coordinator, free_electricity_coordinator):
     """Init sensor."""
     # Pass coordinator to base class
-    CoordinatorEntity.__init__(self, coordinator)
+    MultiCoordinatorEntity.__init__(self, coordinator, [free_electricity_coordinator])
 
     self._state = None
     self._config = config
@@ -83,6 +88,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
     self._attributes["is_target_export"] = is_export
     self._last_evaluated = None
     self._account_id = account_id
+    self._free_electricity_coordinator = free_electricity_coordinator
     
     is_rolling_target = True
     if CONFIG_TARGET_ROLLING_TARGET in self._config:
@@ -200,6 +206,13 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
             is_rolling_target
           )
 
+          free_electricity_sessions: FreeElectricitySessionsCoordinatorResult = self._free_electricity_coordinator.data if self._free_electricity_coordinator is not None else None
+          applicable_rates = apply_free_electricity_weighting(
+            applicable_rates,
+            free_electricity_sessions.events if free_electricity_sessions is not None else [],
+            self._config[CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING] if CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING in self._config else 1
+          )
+
           if applicable_rates is not None:
             number_of_slots = math.ceil(target_hours * 2)
             weighting = create_weighting(self._config[CONFIG_TARGET_WEIGHTING] if CONFIG_TARGET_WEIGHTING in self._config else None, number_of_slots)
@@ -277,6 +290,7 @@ class OctopusEnergyTargetRate(CoordinatorEntity, BinarySensorEntity, RestoreEnti
         self._state = False
         self._attributes = self._config.copy()
         self._attributes["is_target_export"] = self._is_export
+        self._target_rates = None
     
       _LOGGER.debug(f'Restored OctopusEnergyTargetRate state: {self._state}')
 

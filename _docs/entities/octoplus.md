@@ -121,7 +121,7 @@ Binary sensor to indicate if a free electricity session is active.
 
 !!! warning
 
-    This sensor uses public information. However it is only applicable to your account if you have joined Octoplus and have signed up to [free electricity sessions](https://octopus.energy/free-electricity/). Once enrolled into Octoplus, reload the integration to gain access to this sensor.
+    This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi. However it is only applicable to your account if you have joined Octoplus and have signed up to [free electricity sessions](https://octopus.energy/free-electricity/). Once enrolled into Octoplus, reload the integration to gain access to this sensor.
 
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 

@@ -1211,3 +1211,37 @@ def test_when_weighting_present_with_find_latest_rate_then_latest_time_is_picked
     assert rate["start"] == current_start
     current_start = current_start + timedelta(minutes=30)
     assert rate["end"] == current_start
+
+
+def test_when_weighting_present_in_rates_then_weighted_rate_is_picked():
+  applicable_rates = create_rate_data(datetime.strptime("2024-10-10T20:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+                                      datetime.strptime("2024-10-10T23:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+                                      [0.2])
+  
+  applicable_rates[2]["weighting"] = Decimal(0.5)
+  applicable_rates[2]["value_inc_vat"] = 0.3
+  
+  applicable_rates[3]["weighting"] = Decimal(0.5)
+  applicable_rates[3]["value_inc_vat"] = 0.3
+
+  applicable_rates[4]["weighting"] = Decimal(0.5)
+  applicable_rates[4]["value_inc_vat"] = 0.3
+  
+  applicable_rates[5]["weighting"] = Decimal(0.5)
+  applicable_rates[5]["value_inc_vat"] = 0.3
+  
+  result = calculate_continuous_times(
+    applicable_rates,
+    1,
+    False,
+    False
+  )
+
+  assert result is not None
+  assert len(result) == 2
+
+  current_start = datetime.strptime("2024-10-10T21:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  for rate in result:
+    assert rate["start"] == current_start
+    current_start = current_start + timedelta(minutes=30)
+    assert rate["end"] == current_start

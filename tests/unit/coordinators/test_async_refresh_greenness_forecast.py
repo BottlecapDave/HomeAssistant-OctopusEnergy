@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 
 from custom_components.octopus_energy.const import REFRESH_RATE_IN_MINUTES_GREENNESS_FORECAST
 from custom_components.octopus_energy.coordinators.greenness_forecast import GreennessForecastCoordinatorResult, async_refresh_greenness_forecast
-from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
+from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
 from custom_components.octopus_energy.api_client.greenness_forecast import GreennessForecast
 
 greenness_forecast = [
@@ -64,8 +64,41 @@ async def test_when_results_retrieved_then_results_returned():
 
     # Assert
     assert result is not None
-    assert result.last_retrieved == current_utc_timestamp
+    assert result.last_evaluated == current_utc_timestamp
     assert result.next_refresh == current_utc_timestamp + timedelta(minutes=REFRESH_RATE_IN_MINUTES_GREENNESS_FORECAST)
     assert result.forecast == expected_result
 
     assert mock_api_called == True
+
+@pytest.mark.asyncio
+async def test_when_exception_raised_then_existing_results_returned_and_exception_captured():
+  # Arrange
+  current_utc_timestamp = datetime.strptime(f'2024-02-04T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
+  previous_data = GreennessForecastCoordinatorResult(current_utc_timestamp - timedelta(days=1), 1, greenness_forecast)
+  
+  mock_api_called = False
+  raised_exception = RequestException("My exception", [])
+  async def async_mocked_get_greenness_forecast(*args, **kwargs):
+    nonlocal mock_api_called
+    mock_api_called = True
+    raise raised_exception
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_greenness_forecast=async_mocked_get_greenness_forecast): 
+    client = OctopusEnergyApiClient("NOT_REAL")
+
+    # Act
+    result = await async_refresh_greenness_forecast(
+      current_utc_timestamp,
+      client,
+      previous_data
+    )
+
+    # Assert
+    assert mock_api_called == True
+
+    assert result is not None
+    assert result.last_evaluated == previous_data.last_evaluated
+    assert result.last_error == raised_exception
+    assert result.forecast == previous_data.forecast
+    assert result.request_attempts == previous_data.request_attempts + 1
+    assert result.next_refresh == previous_data.next_refresh + timedelta(minutes=1)

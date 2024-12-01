@@ -29,8 +29,8 @@ class SavingSessionsCoordinatorResult(BaseCoordinatorResult):
   available_events: list[SavingSession]
   joined_events: list[SavingSession]
 
-  def __init__(self, last_retrieved: datetime, request_attempts: int, available_events: list[SavingSession], joined_events: list[SavingSession]):
-    super().__init__(last_retrieved, request_attempts, REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSIONS)
+  def __init__(self, last_evaluated: datetime, request_attempts: int, available_events: list[SavingSession], joined_events: list[SavingSession], last_error: Exception | None = None):
+    super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSIONS, None, last_error)
     self.available_events = available_events
     self.joined_events = joined_events
 
@@ -120,21 +120,25 @@ async def async_refresh_saving_sessions(
       result = None
       if (existing_saving_sessions_result is not None):
         result = SavingSessionsCoordinatorResult(
-          existing_saving_sessions_result.last_retrieved,
+          existing_saving_sessions_result.last_evaluated,
           existing_saving_sessions_result.request_attempts + 1,
           existing_saving_sessions_result.available_events,
-          existing_saving_sessions_result.joined_events
+          existing_saving_sessions_result.joined_events,
+          last_error=e
         )
-        _LOGGER.warning(f"Failed to retrieve saving sessions - using cached data. Next attempt at {result.next_refresh}")
+
+        if (result.request_attempts == 2):
+          _LOGGER.warning(f"Failed to retrieve saving sessions - using cached data. See diagnostics sensor for more information.")
       else:
         result = SavingSessionsCoordinatorResult(
           # We want to force into our fallback mode
           current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSIONS),
           2,
           [],
-          []
+          [],
+          last_error=e
         )
-        _LOGGER.warning(f"Failed to retrieve saving sessions. Next attempt at {result.next_refresh}")
+        _LOGGER.warning(f"Failed to retrieve saving sessions. See diagnostics sensor for more information.")
       
       return result
   

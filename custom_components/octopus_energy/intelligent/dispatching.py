@@ -71,7 +71,7 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
   def is_on(self):
     return self._state
   
-  def __init_attributes__(self, planned_dispatches, completed_dispatches, data_last_retrieved):
+  def __init_attributes__(self, planned_dispatches, completed_dispatches, data_last_evaluated):
     self._attributes = {
       "planned_dispatches": planned_dispatches,
       "completed_dispatches": completed_dispatches,
@@ -96,7 +96,7 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
     self.__init_attributes__(
       dispatches_to_dictionary_list(planned_dispatches) if result is not None else [],
       dispatches_to_dictionary_list(result.dispatches.completed if result is not None and result.dispatches is not None else []) if result is not None else [],
-      result.last_retrieved if result is not None else None
+      result.last_evaluated if result is not None else None
     )
 
     off_peak_times = get_off_peak_times(current_date, rates, True)

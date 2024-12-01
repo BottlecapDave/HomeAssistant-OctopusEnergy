@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from decimal import Decimal
 from custom_components.octopus_energy.const import CONFIG_TARGET_HOURS_MODE_MAXIMUM, CONFIG_TARGET_HOURS_MODE_MINIMUM
 import pytest
 
@@ -861,3 +862,45 @@ async def test_when_clocks_go_back_then_correct_rates_are_selected():
   # Assert
   assert result is not None
   assert len(result) == 24
+
+@pytest.mark.parametrize("search_for_highest_rate,find_last_rates,expected_start",[
+  (True, True, datetime.strptime("2024-11-27T23:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")),
+  (True, False, datetime.strptime("2024-11-27T20:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")),
+  (False, True, datetime.strptime("2024-11-27T22:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")),
+  (False, False, datetime.strptime("2024-11-27T21:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")),
+])
+def test_when_weighting_present_in_rates_then_weighted_rate_is_picked(search_for_highest_rate: bool, find_last_rates: bool, expected_start: datetime):
+  applicable_rates = create_rate_data(datetime.strptime("2024-11-27T20:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+                                      datetime.strptime("2024-11-28T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"),
+                                      [0.2])
+  
+  applicable_rates[2]["weighting"] = Decimal(0.5)
+  applicable_rates[2]["value_inc_vat"] = 0.3
+  
+  applicable_rates[3]["weighting"] = Decimal(0.5)
+  applicable_rates[3]["value_inc_vat"] = 0.3
+
+  applicable_rates[4]["weighting"] = Decimal(0.5)
+  applicable_rates[4]["value_inc_vat"] = 0.3
+  
+  applicable_rates[5]["weighting"] = Decimal(0.5)
+  applicable_rates[5]["value_inc_vat"] = 0.3
+
+  # Act
+  result = calculate_intermittent_times(
+    applicable_rates,
+    1,
+    search_for_highest_rate,
+    find_last_rates,
+  )
+
+  # Assert
+  print(result)
+  assert result is not None
+  assert len(result) == 2
+
+  current_start = expected_start
+  for rate in result:
+    assert rate["start"] == current_start
+    current_start = current_start + timedelta(minutes=30)
+    assert rate["end"] == current_start
