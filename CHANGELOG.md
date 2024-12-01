@@ -1,3 +1,10 @@
+## [13.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.2.0...v13.2.1) (2024-12-01)
+
+
+### Bug Fixes
+
+* Fixed retrieving diagnostics (15 minutes dev time) ([c064051](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c0640516fffffc4601016119c60b7d356986932e))
+
 # [13.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.1.3...v13.2.0) (2024-12-01)
 
 
