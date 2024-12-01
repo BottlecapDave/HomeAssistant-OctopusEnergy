@@ -33,7 +33,7 @@ async def test_when_async_get_diagnostics_called_then_account_info_is_returned()
 
     now = utcnow()
 
-    def get_entity_info():
+    def get_entity_info(redacted_mappings):
         return {
             "foo": {
                 "last_updated": now,
