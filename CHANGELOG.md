@@ -1,3 +1,24 @@
+# [13.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.1.3...v13.2.0) (2024-12-01)
+
+
+### Bug Fixes
+
+* Added missing translations for target and rolling target rate sensors ([1a69b9f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1a69b9f478c5a88cac53554957dbedb7d358f720))
+* Fixed join saving session blueprint when available_events is None ([169bdc5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/169bdc5132af2de8854f6c95d56bcfb48bd56598))
+* Fixed late consumption data blueprint when charges is none ([6b6a5c1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6b6a5c181b7d988ecc991fca500f5351e5e0bd1f))
+
+
+### Features
+
+* Added attempts and next refresh attributes to data diagnostic entities (15 minutes dev time) ([e45b219](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e45b2195b52097b6a5f43b32d69ef5d4ab68e9a4))
+* Added last error attribute to data last retrieved diagnostic entities (1.5 hours dev time) ([1a0c91e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1a0c91ef63af230ed42453619b03f6884d97a716))
+* Reduced number of warnings outputted when data can't be retrieved ([0a2eb52](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0a2eb52d3a584582084b0ea817d21a05df1955d3))
+* Updated data last retrieved sensors to report retrieval correctly (1 hour dev time) ([0cd034f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0cd034f29ed4a8984b9b0448fc149974f7ac4470))
+* Updated electricity and gas rates retrieval to not re-retrieve rates that are already available locally (2 hours dev time) ([6601b9f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6601b9f0099b6968f6ed0fd624eeaf3dff0bc032))
+* Updated previous consumption retrieval to not re-retrieve rates and standing charges if already available (30 minutes dev time) ([b454805](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b4548053eaed7d35186601b3631c3055bc3bb648))
+* Updated standing charge retrieval to not re-retrieve standing charges if already available (1 hour dev time) ([2025d2b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2025d2b734041ddbd669d9a539b4bb60f655ea26))
+* Updated target rate and rolling target rate to support custom weighting during free electricity sessions (2.5 hours dev time) ([0d7d724](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0d7d724f4470f7bc3403cce459dcc1700698d5bd))
+
 ## [13.1.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.1.2...v13.1.3) (2024-11-12)
 
 
