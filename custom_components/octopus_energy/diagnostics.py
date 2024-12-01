@@ -42,7 +42,7 @@ async def async_get_device_consumption_data(client: OctopusEnergyApiClient, devi
   except Exception as e:
     return f"Failed to retrieve - {e}"
 
-async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str, account_info, get_entity_info: Callable[[], dict]):
+async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str, account_info, get_entity_info: Callable[[dict], dict]):
   _LOGGER.info('Retrieving account details for diagnostics...')
 
   if account_info is None:
@@ -117,7 +117,7 @@ async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str,
 
   return {
     "account": account_info,
-    "entities": get_entity_info(),
+    "entities": get_entity_info(redacted_mappings),
     "intelligent_device": intelligent_device.to_dict() if intelligent_device is not None else None,
     "intelligent_settings": intelligent_settings.to_dict() if intelligent_settings is not None else None
   }
@@ -135,7 +135,7 @@ async def async_get_device_diagnostics(hass, entry, device):
     account_info = account_result.account if account_result is not None else None
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
-    def get_entity_info():
+    def get_entity_info(redacted_mappings):
       entity_registry = er.async_get(hass)
       entities = entity_registry.entities.items()
       states = hass.states.async_all()
@@ -161,5 +161,3 @@ async def async_get_device_diagnostics(hass, entry, device):
       return entity_info
 
     return await async_get_diagnostics(client, account_id, account_info, get_entity_info)
-
-    
