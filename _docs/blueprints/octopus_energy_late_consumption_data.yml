@@ -59,7 +59,7 @@ trigger:
 - platform: template
   value_template: >
     {% set charges = state_attr(previous_accumulative_consumption_entity, 'charges') %}
-    {% set latest_charge = charges[-1]["end"] %}
+    {% set latest_charge = charges[-1]["end"] if charges else None %}
     {% if latest_charge %}
     {% set hours_since = ((now() - latest_charge).seconds / 3600) %}
     {% else %}
