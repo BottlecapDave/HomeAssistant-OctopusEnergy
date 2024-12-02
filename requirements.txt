@@ -2,3 +2,4 @@ mkdocs-material==9.5.27
 mike==2.0.0
 # mkdocs-git-committers-plugin-2==2.3.0
 mkdocs-git-authors-plugin==0.9.0
+pydantic==2.10.2

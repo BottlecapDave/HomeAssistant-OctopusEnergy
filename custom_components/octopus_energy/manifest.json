@@ -15,5 +15,6 @@
   "issue_tracker": "https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues",
   "ssdp": [],
   "version": "13.2.1",
-  "zeroconf": []
+  "zeroconf": [],
+  "requirements": ["pydantic==2.10.2"]
 }
