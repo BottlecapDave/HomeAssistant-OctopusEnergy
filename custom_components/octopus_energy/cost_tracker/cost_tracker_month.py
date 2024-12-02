@@ -29,7 +29,7 @@ from ..const import (
   DOMAIN,
 )
 
-from . import accumulate_cost
+from . import accumulate_cost, get_device_info_from_device_entry
 
 from ..utils.attributes import dict_to_typed_dict
 
@@ -38,7 +38,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyCostTrackerMonthSensor(RestoreSensor):
   """Sensor for calculating the cost for a given sensor over the course of a month."""
 
-  def __init__(self, hass: HomeAssistant, config_entry, config, tracked_entity_id: str, peak_type = None):
+  def __init__(self, hass: HomeAssistant, config_entry, config, device_entry, tracked_entity_id: str, peak_type = None):
     """Init sensor."""
     # Pass coordinator to base class
 
@@ -54,6 +54,8 @@ class OctopusEnergyCostTrackerMonthSensor(RestoreSensor):
     
     self._hass = hass
     self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
+
+    self._attr_device_info = get_device_info_from_device_entry(device_entry)
 
   @property
   def entity_registry_enabled_default(self) -> bool:

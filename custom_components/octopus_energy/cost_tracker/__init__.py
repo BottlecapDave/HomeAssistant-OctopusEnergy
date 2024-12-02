@@ -4,6 +4,21 @@ from homeassistant.components.sensor import (
   SensorStateClass,
 )
 
+from homeassistant.helpers.entity import DeviceInfo
+
+def get_device_info_from_device_entry(device_entry):
+  if device_entry is None:
+    return None
+
+  return DeviceInfo(
+    identifiers=device_entry.identifiers,
+    name=device_entry.name,
+    connections=device_entry.connections,
+    manufacturer=device_entry.manufacturer,
+    model=device_entry.model,
+    sw_version=device_entry.sw_version
+  )
+
 class CostTrackerResult:
   tracked_consumption_data: list
   untracked_consumption_data: list
