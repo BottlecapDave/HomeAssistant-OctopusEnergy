@@ -56,7 +56,7 @@ async def async_refresh_intelligent_settings(
             raise
 
           raised_exception = e
-          _LOGGER.debug('Failed to retrieve intelligent settings for account {account_id}')
+          _LOGGER.debug(f'Failed to retrieve intelligent settings for account {account_id}')
 
       if is_settings_mocked:
         settings = mock_intelligent_settings()

@@ -1,5 +1,8 @@
+import random
 from ..api_client.heat_pump import HeatPumpResponse
 
+def get_mock_heat_pump_id():
+  return "ABC"
 
 def mock_heat_pump_status_and_configuration():
   data = {
@@ -12,7 +15,7 @@ def mock_heat_pump_status_and_configuration():
             "retrievedAt": "2024-12-01T10:04:54.952000+00:00"
           },
           "telemetry": {
-            "temperatureInCelsius": 57.4,
+            "temperatureInCelsius": 57 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": None,
             "retrievedAt": "2024-12-01T10:04:51.588000+00:00"
           }
@@ -24,7 +27,7 @@ def mock_heat_pump_status_and_configuration():
             "retrievedAt": "2024-12-01T10:04:54.952000+00:00"
           },
           "telemetry": {
-            "temperatureInCelsius": -273.1,
+            "temperatureInCelsius": -273 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": None,
             "retrievedAt": "2024-12-01T10:04:51.588000+00:00"
           }
@@ -36,7 +39,7 @@ def mock_heat_pump_status_and_configuration():
             "retrievedAt": "2024-12-01T10:04:54.953000+00:00"
           },
           "telemetry": {
-            "temperatureInCelsius": -273.1,
+            "temperatureInCelsius": -273 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": None,
             "retrievedAt": "2024-12-01T10:04:51.588000+00:00"
           }
@@ -48,7 +51,7 @@ def mock_heat_pump_status_and_configuration():
             "retrievedAt": "2024-12-01T10:04:54.953000+00:00"
           },
           "telemetry": {
-            "temperatureInCelsius": -273.1,
+            "temperatureInCelsius": -273 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": None,
             "retrievedAt": "2024-12-01T10:04:51.588000+00:00"
           }
@@ -60,8 +63,8 @@ def mock_heat_pump_status_and_configuration():
             "retrievedAt": "2024-12-01T10:04:54.953000+00:00"
           },
           "telemetry": {
-            "temperatureInCelsius": 19.4,
-            "humidityPercentage": 57,
+            "temperatureInCelsius": 18 + (random.randrange(1, 20) * 0.1),
+            "humidityPercentage": 57 + (random.randrange(1, 20) * 0.1),
             "retrievedAt": "2024-12-01T10:03:15.615000+00:00"
           }
         },
@@ -72,8 +75,8 @@ def mock_heat_pump_status_and_configuration():
             "retrievedAt": "2024-12-01T10:04:54.955000+00:00"
           },
           "telemetry": {
-            "temperatureInCelsius": 22.4,
-            "humidityPercentage": 54,
+            "temperatureInCelsius": 22 + (random.randrange(1, 20) * 0.1),
+            "humidityPercentage": 54 + (random.randrange(1, 20) * 0.1),
             "retrievedAt": "2024-12-01T10:03:54.876000+00:00"
           }
         },
@@ -84,8 +87,8 @@ def mock_heat_pump_status_and_configuration():
             "retrievedAt": "2024-12-01T10:04:54.956000+00:00"
           },
           "telemetry": {
-            "temperatureInCelsius": 22.3,
-            "humidityPercentage": 60,
+            "temperatureInCelsius": 22 + (random.randrange(1, 20) * 0.1),
+            "humidityPercentage": 60 + (random.randrange(1, 20) * 0.1),
             "retrievedAt": "2024-12-01T10:04:27.571000+00:00"
           }
         },
@@ -96,8 +99,8 @@ def mock_heat_pump_status_and_configuration():
             "retrievedAt": "2024-12-01T10:04:54.957000+00:00"
           },
           "telemetry": {
-            "temperatureInCelsius": 22.7,
-            "humidityPercentage": 46,
+            "temperatureInCelsius": 22 + (random.randrange(1, 20) * 0.1),
+            "humidityPercentage": 46 + (random.randrange(1, 20) * 0.1),
             "retrievedAt": "2024-12-01T10:03:12.376000+00:00"
           }
         }
@@ -162,7 +165,7 @@ def mock_heat_pump_status_and_configuration():
         "minWaterSetpoint": 40,
         "heatingFlowTemperature": {
           "currentTemperature": {
-            "value": "70",
+            "value": "56",
             "unit": "DEGREES_CELSIUS"
           },
           "allowableRange": {
