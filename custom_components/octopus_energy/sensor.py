@@ -56,8 +56,11 @@ from .diagnostics_entities.wheel_of_fortune_data_last_retrieved import OctopusEn
 from .diagnostics_entities.intelligent_dispatches_data_last_retrieved import OctopusEnergyIntelligentDispatchesDataLastRetrieved
 from .diagnostics_entities.intelligent_settings_data_last_retrieved import OctopusEnergyIntelligentSettingsDataLastRetrieved
 from .diagnostics_entities.free_electricity_sessions_data_last_retrieved import OctopusEnergyFreeElectricitySessionsDataLastRetrieved
+from .heat_pump import get_mock_heat_pump_id
+from .heat_pump.sensor_temperature import OctopusEnergyHeatPumpSensorTemperature
+from .heat_pump.sensor_humidity import OctopusEnergyHeatPumpSensorHumidity
 
-from .utils.debug_overrides import AccountDebugOverride, async_get_account_debug_override, async_get_meter_debug_override
+from .utils.debug_overrides import async_get_account_debug_override, async_get_meter_debug_override
 
 from .coordinators.current_consumption import async_create_current_consumption_coordinator
 from .coordinators.gas_rates import async_setup_gas_rates_coordinator
@@ -69,8 +72,6 @@ from .coordinators.current_consumption_home_pro import async_create_home_pro_cur
 
 from .api_client.heat_pump import HeatPumpResponse
 from .api_client.intelligent_device import IntelligentDevice
-from .heat_pump import get_mock_heat_pump_id
-from .heat_pump.sensor_temperature import OctopusEnergyHeatPumpSensorTemperature
 
 from .api_client import OctopusEnergyApiClient
 from .utils.tariff_cache import async_get_cached_tariff_total_unique_rates, async_save_cached_tariff_total_unique_rates
@@ -543,6 +544,15 @@ def setup_heat_pump_sensors(hass: HomeAssistant, heat_pump_id: str, heat_pump_re
             heat_pump_response.octoHeatPumpControllerConfiguration.heatPump,
             sensor
           ))
+
+          if sensor.type == "ZIGBEE":
+            entities.append(OctopusEnergyHeatPumpSensorHumidity(
+              hass,
+              coordinator,
+              heat_pump_id,
+              heat_pump_response.octoHeatPumpControllerConfiguration.heatPump,
+              sensor
+            ))
 
 
   return entities

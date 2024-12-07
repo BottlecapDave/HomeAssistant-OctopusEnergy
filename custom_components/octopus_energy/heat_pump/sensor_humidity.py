@@ -5,8 +5,7 @@ from typing import List
 from custom_components.octopus_energy.coordinators.heatpump_configuration_and_status import HeatPumpCoordinatorResult
 from homeassistant.const import (
     STATE_UNAVAILABLE,
-    STATE_UNKNOWN,
-    UnitOfTemperature
+    STATE_UNKNOWN
 )
 from homeassistant.core import HomeAssistant, callback
 
@@ -26,8 +25,8 @@ from ..api_client.heat_pump import HeatPump, Sensor, SensorConfiguration
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyHeatPumpSensorTemperature(CoordinatorEntity, BaseOctopusEnergyHeatPumpSensorSensor, RestoreSensor):
-  """Sensor for displaying the temperature of a heat pump sensor."""
+class OctopusEnergyHeatPumpSensorHumidity(CoordinatorEntity, BaseOctopusEnergyHeatPumpSensorSensor, RestoreSensor):
+  """Sensor for displaying the humidity of a heat pump sensor."""
 
   def __init__(self, hass: HomeAssistant, coordinator, heat_pump_id: str, heat_pump: HeatPump, sensor: SensorConfiguration):
     """Init sensor."""
@@ -41,12 +40,12 @@ class OctopusEnergyHeatPumpSensorTemperature(CoordinatorEntity, BaseOctopusEnerg
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_heat_pump_{self._heat_pump_id}_{self._sensor.code}_temperature"
+    return f"octopus_energy_heat_pump_{self._heat_pump_id}_{self._sensor.code}_humidity"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Temperature ({self._sensor.displayName}) Heat Pump ({self._heat_pump_id})"
+    return f"Humidity ({self._sensor.displayName}) Heat Pump ({self._heat_pump_id})"
 
   @property
   def state_class(self):
@@ -56,7 +55,7 @@ class OctopusEnergyHeatPumpSensorTemperature(CoordinatorEntity, BaseOctopusEnerg
   @property
   def device_class(self):
     """The type of sensor"""
-    return SensorDeviceClass.TEMPERATURE
+    return SensorDeviceClass.HUMIDITY
 
   @property
   def icon(self):
@@ -66,7 +65,7 @@ class OctopusEnergyHeatPumpSensorTemperature(CoordinatorEntity, BaseOctopusEnerg
   @property
   def native_unit_of_measurement(self):
     """Unit of measurement of the sensor."""
-    return UnitOfTemperature.CELSIUS
+    return "%"
 
   @property
   def extra_state_attributes(self):
@@ -87,13 +86,13 @@ class OctopusEnergyHeatPumpSensorTemperature(CoordinatorEntity, BaseOctopusEnerg
         result.data is not None and 
         result.data.octoHeatPumpControllerStatus is not None and
         result.data.octoHeatPumpControllerStatus.sensors):
-      _LOGGER.debug(f"Updating OctopusEnergyHeatPumpSensorTemperature for '{self._heat_pump_id}/{self._sensor.code}'")
+      _LOGGER.debug(f"Updating OctopusEnergyHeatPumpSensorHumidity for '{self._heat_pump_id}/{self._sensor.code}'")
 
       self._state = None
       sensors: List[Sensor] = result.data.octoHeatPumpControllerStatus.sensors
       for sensor in sensors:
         if sensor.code == self._sensor.code and sensor.telemetry is not None:
-          self._state = sensor.telemetry.temperatureInCelsius
+          self._state = sensor.telemetry.humidityPercentage
           self._attributes["retrieved_at"] = datetime.strptime(sensor.telemetry.retrievedAt, "%Y-%m-%dT%H:%M:%S%z")
 
       self._last_updated = current
@@ -114,4 +113,4 @@ class OctopusEnergyHeatPumpSensorTemperature(CoordinatorEntity, BaseOctopusEnerg
       self._attributes["type"] = self._sensor.type
       self._attributes["code"] = self._sensor.code
     
-      _LOGGER.debug(f'Restored OctopusEnergyHeatPumpSensorTemperature state: {self._state}')
+      _LOGGER.debug(f'Restored OctopusEnergyHeatPumpSensorHumidity state: {self._state}')
