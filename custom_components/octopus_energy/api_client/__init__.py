@@ -343,7 +343,19 @@ redeem_octoplus_points_account_credit_mutation = '''mutation {{
 }}
 '''
 
-heatpump_status_and_config_query = '''
+heat_pump_set_zone_mode_mutation = '''
+mutation {{
+  octoHeatPumpSetZoneMode(accountNumber: {account_id}, euid: {euid}, operationParameters: {{
+    zone: {zone_code},
+    mode: {zone_mode},
+    setpointInCelsius: {target_temperature}
+  }}) {{
+    transactionId
+  }}
+}}
+'''
+
+heat_pump_status_and_config_query = '''
 query {{
   octoHeatPumpControllerStatus(accountNumber: "{account_id}", euid: "{euid}") {{
     sensors {{
@@ -757,7 +769,7 @@ class OctopusEnergyApiClient:
     try:
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
-      payload = { "query": heatpump_status_and_config_query.format(account_id=account_id, euid=euid) }
+      payload = { "query": heat_pump_status_and_config_query.format(account_id=account_id, euid=euid) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as heatpump_response:
         response = await self.__async_read_response__(heatpump_response, url)
@@ -766,6 +778,22 @@ class OctopusEnergyApiClient:
           return HeatPumpResponse.parse_obj(response["data"])
         
       return None
+    
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+    
+  async def async_set_heat_pump_zone_mode(self, account_id: str, euid: str, zone_id: str, zone_mode: str, target_temperature: float | None):
+    """Sets the mode for a given heat pump zone"""
+    await self.async_refresh_token()
+
+    try:
+      client = self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": heat_pump_set_zone_mode_mutation.format(account_id=account_id, euid=euid, zone_id=zone_id, zone_mode=zone_mode, target_temperature=target_temperature) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as heatpump_response:
+        await self.__async_read_response__(heatpump_response, url)
     
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
