@@ -1,3 +1,17 @@
+# [13.3.0-beta.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.2.1...v13.3.0-beta.1) (2024-12-10)
+
+
+### Features
+
+* Added ability to change zone modes and target temperatures (1 hour dev time) ([56aef85](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/56aef85031be5e4b9a5bb5621b042a5616304fc7))
+* Added climate control for heat pump zone (3 hours dev time) ([5e72161](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5e72161a180119110be950322dfafeab6b755b27))
+* Added endpoint to get heat pump configuration and status ([1826925](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1826925513a288bc1b6a4772c305deb7cf3dc6d6))
+* Added heat pump humidity sensor (1 hour dev time) ([b479c89](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b479c8999256a70273077c8c0b5f001decbdbf84))
+* Added heat pump information to device diagnostics (30 minutes dev time) ([b8468bc](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b8468bce31a4dff419b3bfe21392911b88f05f0d))
+* Added temperature sensors from heat pumps (2.5 hours dev time) ([c79e5b8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c79e5b8bdb50ee974027e2f5d9a7a16360634621))
+* Updated account to include heat pump ids (5 minutes dev time) ([5c411c8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5c411c8efafc41ca323ae4d8415f03cb213da282))
+* Updated cost tracker entities to be associated with device of tracked entity, if one exists (1 hour dev time) ([9fe69a0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9fe69a081b08f1bec3ecfb4ea3b4ed552cc665ef))
+
 ## [13.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.2.0...v13.2.1) (2024-12-01)
 
 
