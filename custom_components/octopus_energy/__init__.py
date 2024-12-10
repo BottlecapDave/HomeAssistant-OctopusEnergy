@@ -22,15 +22,20 @@ from .coordinators.greenness_forecast import async_setup_greenness_forecast_coor
 from .statistics import get_statistic_ids_to_remove
 from .intelligent import get_intelligent_features, is_intelligent_product, mock_intelligent_device
 from .config.rolling_target_rates import async_migrate_rolling_target_config
+from .coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult, async_setup_heat_pump_coordinator
 
 from .config.main import async_migrate_main_config
 from .config.target_rates import async_migrate_target_config
 from .config.cost_tracker import async_migrate_cost_tracker_config
 from .utils import get_active_tariff
-from .utils.debug_overrides import DebugOverride, async_get_debug_override
+from .utils.debug_overrides import MeterDebugOverride, async_get_account_debug_override, async_get_meter_debug_override
 from .utils.error import api_exception_to_string
 from .storage.account import async_load_cached_account, async_save_cached_account
 from .storage.intelligent_device import async_load_cached_intelligent_device, async_save_cached_intelligent_device
+
+
+from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configuration
+from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_heat_pump
 
 from .const import (
   CONFIG_FAVOUR_DIRECT_DEBIT_RATES,
@@ -44,6 +49,7 @@ from .const import (
   CONFIG_MAIN_HOME_PRO_API_KEY,
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_VERSION,
+  DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
   DATA_HOME_PRO_CLIENT,
   DATA_INTELLIGENT_DEVICE,
   DATA_INTELLIGENT_MPAN,
@@ -65,7 +71,7 @@ from .const import (
   REPAIR_UNKNOWN_INTELLIGENT_PROVIDER
 )
 
-ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "number", "switch", "text", "time", "event"]
+ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "number", "switch", "text", "time", "event", "climate"]
 TARGET_RATE_PLATFORMS = ["binary_sensor"]
 COST_TRACKER_PLATFORMS = ["sensor"]
 TARIFF_COMPARISON_PLATFORMS = ["sensor"]
@@ -342,15 +348,13 @@ async def async_setup_dependencies(hass, config):
   has_intelligent_tariff = False
   intelligent_mpan = None
   intelligent_serial_number = None
-  debug_override: DebugOverride | None = None
+  account_debug_override = await async_get_account_debug_override(hass, account_id)
   for point in account_info["electricity_meter_points"]:
     mpan = point["mpan"]
     electricity_tariff = get_active_tariff(now, point["agreements"])
 
     for meter in point["meters"]:  
       serial_number = meter["serial_number"]
-
-      debug_override = await async_get_debug_override(hass, mpan, serial_number)
       
       if electricity_tariff is not None:
         if meter["is_export"] == False:
@@ -364,7 +368,7 @@ async def async_setup_dependencies(hass, config):
         if electricity_device is not None:
           device_registry.async_remove_device(electricity_device.id)
 
-  should_mock_intelligent_data = debug_override.mock_intelligent_controls if debug_override is not None else False
+  should_mock_intelligent_data = account_debug_override.mock_intelligent_controls if account_debug_override is not None else False
   if should_mock_intelligent_data:
     # Pick the first meter if we're mocking our intelligent data
     for point in account_info["electricity_meter_points"]:
@@ -425,16 +429,38 @@ async def async_setup_dependencies(hass, config):
         serial_number = meter["serial_number"]
         is_export_meter = meter["is_export"]
         is_smart_meter = meter["is_smart_meter"]
-        override = await async_get_debug_override(hass, mpan, serial_number)
+        override = await async_get_meter_debug_override(hass, mpan, serial_number)
         tariff_override = override.tariff if override is not None else None
         planned_dispatches_supported = intelligent_features.planned_dispatches_supported if intelligent_features is not None else True
         await async_setup_electricity_rates_coordinator(hass, account_id, mpan, serial_number, is_smart_meter, is_export_meter, planned_dispatches_supported, tariff_override)
 
+  mock_heat_pump = account_debug_override.mock_heat_pump if account_debug_override is not None else False
+  if mock_heat_pump:
+    heat_pump_id = get_mock_heat_pump_id()
+    await async_setup_heat_pump_coordinator(hass, account_id, heat_pump_id, True)
+
+    key = DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY.format(heat_pump_id)
+    try:
+      hass.data[DOMAIN][account_id][key] = HeatPumpCoordinatorResult(now, 1, heat_pump_id, mock_heat_pump_status_and_configuration())
+      await async_save_cached_heat_pump(hass, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data)
+    except:
+      hass.data[DOMAIN][account_id][key] = HeatPumpCoordinatorResult(now, 1, heat_pump_id, await async_load_cached_heat_pump(hass, account_id, heat_pump_id))
+  elif "heat_pump_ids" in account_info:
+    for heat_pump_id in account_info["heat_pump_ids"]:
+      await async_setup_heat_pump_coordinator(hass, account_id, heat_pump_id, False)
+
+      key = DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY.format(heat_pump_id)
+      try:
+        hass.data[DOMAIN][account_id][key] = HeatPumpCoordinatorResult(now, 1, heat_pump_id, await client.async_get_heat_pump_configuration_and_status(account_id, heat_pump_id))
+        await async_save_cached_heat_pump(hass, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data)
+      except:
+        hass.data[DOMAIN][account_id][key] = HeatPumpCoordinatorResult(now, 1, heat_pump_id, await async_load_cached_heat_pump(hass, account_id, heat_pump_id))
+
   await async_setup_account_info_coordinator(hass, account_id)
 
-  await async_setup_intelligent_dispatches_coordinator(hass, account_id, debug_override.mock_intelligent_controls if debug_override is not None else False)
+  await async_setup_intelligent_dispatches_coordinator(hass, account_id, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False)
 
-  await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id if intelligent_device is not None else None, debug_override.mock_intelligent_controls if debug_override is not None else False)
+  await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id if intelligent_device is not None else None, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False)
   
   await async_setup_saving_sessions_coordinators(hass, account_id)
 

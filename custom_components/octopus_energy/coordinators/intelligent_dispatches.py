@@ -79,7 +79,7 @@ async def async_refresh_intelligent_dispatches(
             raise
           
           raised_exception=e
-          _LOGGER.debug('Failed to retrieve intelligent dispatches for account {account_id}')
+          _LOGGER.debug(f'Failed to retrieve intelligent dispatches for account {account_id}')
 
       if is_data_mocked:
         dispatches = mock_intelligent_dispatches()
