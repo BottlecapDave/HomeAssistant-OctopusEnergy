@@ -42,7 +42,7 @@ async def test_when_async_get_diagnostics_called_then_account_info_is_returned()
         }
 
     # Act
-    data = await async_get_diagnostics(client, account_id, None, get_entity_info)
+    data = await async_get_diagnostics(client, account_id, None, None, get_entity_info)
 
     # Assert
     assert data is not None
@@ -94,3 +94,5 @@ async def test_when_async_get_diagnostics_called_then_account_info_is_returned()
 
     assert "intelligent_device" in data
     assert "intelligent_settings" in data
+
+    assert "heat_pumps" in data
