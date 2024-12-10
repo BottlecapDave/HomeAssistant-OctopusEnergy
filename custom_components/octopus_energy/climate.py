@@ -1,6 +1,5 @@
 import logging
 
-from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 from homeassistant.core import HomeAssistant
 
 from .api_client.heat_pump import HeatPumpResponse
@@ -18,6 +17,7 @@ from .const import (
 
   CONFIG_MAIN_API_KEY
 )
+from .api_client import OctopusEnergyApiClient
 
 _LOGGER = logging.getLogger(__name__)
 

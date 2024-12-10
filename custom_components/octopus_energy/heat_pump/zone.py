@@ -27,7 +27,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from .base import (BaseOctopusEnergyHeatPumpSensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..api_client.heat_pump import ConfigurationZone, HeatPump, Sensor, Zone
-from ..coordinators.heatpump_configuration_and_status import HeatPumpCoordinatorResult
+from ..coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult
 from ..api_client import OctopusEnergyApiClient
 
 _LOGGER = logging.getLogger(__name__)

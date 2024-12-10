@@ -461,7 +461,6 @@ query {{
             code
             displayName
             type
-            id
             firmwareVersion
             boostEnabled
           }}
@@ -762,7 +761,7 @@ class OctopusEnergyApiClient:
     
     return None
   
-  async def async_get_heatpump_configuration_and_status(self, account_id: str, euid: str):
+  async def async_get_heat_pump_configuration_and_status(self, account_id: str, euid: str):
     """Get a heat pump configuration and status"""
     await self.async_refresh_token()
 

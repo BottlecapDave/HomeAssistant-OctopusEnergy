@@ -53,7 +53,7 @@ async def async_refresh_heat_pump_configuration_and_status(
         status_and_configuration = mock_heat_pump_status_and_configuration()
       elif euid is not None:
         try:
-          status_and_configuration = await client.async_get_heatpump_configuration_and_status(account_id, euid)
+          status_and_configuration = await client.async_get_heat_pump_configuration_and_status(account_id, euid)
           _LOGGER.debug(f'Heat Pump config and status retrieved for account {account_id} and device {euid}')
         except Exception as e:
           if isinstance(e, ApiException) == False:

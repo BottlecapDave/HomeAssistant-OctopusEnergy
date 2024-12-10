@@ -2,7 +2,6 @@ from datetime import datetime
 import logging
 from typing import List
 
-from custom_components.octopus_energy.coordinators.heatpump_configuration_and_status import HeatPumpCoordinatorResult
 from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN
@@ -22,6 +21,7 @@ from homeassistant.components.sensor import (
 from .base import (BaseOctopusEnergyHeatPumpSensorSensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..api_client.heat_pump import HeatPump, Sensor, SensorConfiguration
+from ..coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 

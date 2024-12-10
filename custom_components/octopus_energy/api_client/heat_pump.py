@@ -95,7 +95,6 @@ class SensorConfiguration(BaseModel):
     displayName: str
     type: str
     enabled: Optional[bool] = None
-    id: Optional[Any] = None
     firmwareVersion: Optional[str] = None
     boostEnabled: Optional[bool] = None
 

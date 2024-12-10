@@ -22,7 +22,7 @@ from .coordinators.greenness_forecast import async_setup_greenness_forecast_coor
 from .statistics import get_statistic_ids_to_remove
 from .intelligent import get_intelligent_features, is_intelligent_product, mock_intelligent_device
 from .config.rolling_target_rates import async_migrate_rolling_target_config
-from .coordinators.heatpump_configuration_and_status import HeatPumpCoordinatorResult, async_setup_heat_pump_coordinator
+from .coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult, async_setup_heat_pump_coordinator
 
 from .config.main import async_migrate_main_config
 from .config.target_rates import async_migrate_target_config
@@ -451,7 +451,7 @@ async def async_setup_dependencies(hass, config):
 
       key = DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY.format(heat_pump_id)
       try:
-        hass.data[DOMAIN][account_id][key] = HeatPumpCoordinatorResult(now, 1, heat_pump_id, await client.async_get_heatpump_configuration_and_status(account_id, heat_pump_id))
+        hass.data[DOMAIN][account_id][key] = HeatPumpCoordinatorResult(now, 1, heat_pump_id, await client.async_get_heat_pump_configuration_and_status(account_id, heat_pump_id))
         await async_save_cached_heat_pump(hass, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data)
       except:
         hass.data[DOMAIN][account_id][key] = HeatPumpCoordinatorResult(now, 1, heat_pump_id, await async_load_cached_heat_pump(hass, account_id, heat_pump_id))

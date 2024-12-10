@@ -1,6 +1,5 @@
 import logging
 
-from custom_components.octopus_energy.coordinators.free_electricity_sessions import FreeElectricitySessionsCoordinatorResult
 from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
@@ -23,6 +22,7 @@ from . import (
 )
 
 from ..utils.attributes import dict_to_typed_dict
+from ..coordinators.free_electricity_sessions import FreeElectricitySessionsCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
