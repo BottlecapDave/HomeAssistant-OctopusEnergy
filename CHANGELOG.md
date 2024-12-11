@@ -1,3 +1,11 @@
+# [13.3.0-beta.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.3.0-beta.1...v13.3.0-beta.2) (2024-12-11)
+
+
+### Bug Fixes
+
+* Fixed heat pump retrieved at parsing (15 minutes dev time) ([cd47109](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cd471094811f120a56c6fa4a7498d532ad32a3bc))
+* Fixed heat pump retrieved at parsing (15 minutes dev time) ([#1118](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1118)) ([aeac537](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/aeac537b1624e1b6bbcb4e8d9089ae44d9ee3f09))
+
 # [13.3.0-beta.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.2.1...v13.3.0-beta.1) (2024-12-10)
 
 
