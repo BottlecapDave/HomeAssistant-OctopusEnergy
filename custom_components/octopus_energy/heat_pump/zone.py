@@ -125,7 +125,7 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
               if sensor.code == self._zone.configuration.primarySensor and sensor.telemetry is not None:
                 self._attr_current_temperature = sensor.telemetry.temperatureInCelsius
           
-          self._attributes["retrieved_at"] = datetime.strptime(zone.telemetry.retrievedAt, "%Y-%m-%dT%H:%M:%S%z")
+          self._attributes["retrieved_at"] = datetime.fromisoformat(zone.telemetry.retrievedAt)
 
       self._last_updated = current
 

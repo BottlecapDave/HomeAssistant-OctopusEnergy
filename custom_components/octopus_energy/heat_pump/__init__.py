@@ -17,60 +17,60 @@ def mock_heat_pump_status_and_configuration():
           "code": "ADC1",
           "connectivity": {
             "online": True,
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           },
           "telemetry": {
             "temperatureInCelsius": 57 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": None,
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         },
         {
           "code": "ADC2",
           "connectivity": {
             "online": True,
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           },
           "telemetry": {
             "temperatureInCelsius": -273 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": None,
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         },
         {
           "code": "ADC3",
           "connectivity": {
             "online": True,
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           },
           "telemetry": {
             "temperatureInCelsius": -273 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": None,
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         },
         {
           "code": "ADC4",
           "connectivity": {
             "online": True,
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           },
           "telemetry": {
             "temperatureInCelsius": -273 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": None,
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         },
         {
           "code": "SENSOR01",
           "connectivity": {
             "online": True,
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           },
           "telemetry": {
             "temperatureInCelsius": 18 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": 57 + (random.randrange(1, 20) * 0.1),
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         },
         {
@@ -82,31 +82,31 @@ def mock_heat_pump_status_and_configuration():
           "telemetry": {
             "temperatureInCelsius": 22 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": 54 + (random.randrange(1, 20) * 0.1),
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         },
         {
           "code": "SENSOR03",
           "connectivity": {
             "online": True,
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           },
           "telemetry": {
             "temperatureInCelsius": 22 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": 60 + (random.randrange(1, 20) * 0.1),
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         },
         {
           "code": "SENSOR04",
           "connectivity": {
             "online": True,
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           },
           "telemetry": {
             "temperatureInCelsius": 22 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": 46 + (random.randrange(1, 20) * 0.1),
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         }
       ],
@@ -118,7 +118,7 @@ def mock_heat_pump_status_and_configuration():
             "mode": "AUTO",
             "relaySwitchedOn": False,
             "heatDemand": False,
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         },
         {
@@ -128,7 +128,7 @@ def mock_heat_pump_status_and_configuration():
             "mode": "AUTO",
             "relaySwitchedOn": False,
             "heatDemand": False,
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         },
         {
@@ -138,7 +138,7 @@ def mock_heat_pump_status_and_configuration():
             "mode": "OFF",
             "relaySwitchedOn": False,
             "heatDemand": False,
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         },
         {
@@ -148,7 +148,7 @@ def mock_heat_pump_status_and_configuration():
             "mode": "OFF",
             "relaySwitchedOn": False,
             "heatDemand": False,
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S%z")
+            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         }
       ]
