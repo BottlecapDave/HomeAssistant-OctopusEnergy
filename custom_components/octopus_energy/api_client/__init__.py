@@ -343,12 +343,23 @@ redeem_octoplus_points_account_credit_mutation = '''mutation {{
 }}
 '''
 
-heat_pump_set_zone_mode_mutation = '''
+heat_pump_set_zone_mode_without_setpoint_mutation = '''
 mutation {{
-  octoHeatPumpSetZoneMode(accountNumber: {account_id}, euid: {euid}, operationParameters: {{
-    zone: {zone_code},
+  octoHeatPumpSetZoneMode(accountNumber: "{account_id}", euid: "{euid}", operationParameters: {{
+    zone: {zone_id},
+    mode: {zone_mode}
+  }}) {{
+    transactionId
+  }}
+}}
+'''
+
+heat_pump_set_zone_mode_with_setpoint_mutation = '''
+mutation {{
+  octoHeatPumpSetZoneMode(accountNumber: "{account_id}", euid: "{euid}", operationParameters: {{
+    zone: {zone_id},
     mode: {zone_mode},
-    setpointInCelsius: {target_temperature}
+    setpointInCelsius: "{target_temperature}"
   }}) {{
     transactionId
   }}
@@ -789,7 +800,10 @@ class OctopusEnergyApiClient:
     try:
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
-      payload = { "query": heat_pump_set_zone_mode_mutation.format(account_id=account_id, euid=euid, zone_id=zone_id, zone_mode=zone_mode, target_temperature=target_temperature) }
+      query = (heat_pump_set_zone_mode_with_setpoint_mutation.format(account_id=account_id, euid=euid, zone_id=zone_id, zone_mode=zone_mode, target_temperature=target_temperature) 
+               if target_temperature is not None 
+               else heat_pump_set_zone_mode_without_setpoint_mutation.format(account_id=account_id, euid=euid, zone_id=zone_id, zone_mode=zone_mode))
+      payload = { "query": query }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as heatpump_response:
         await self.__async_read_response__(heatpump_response, url)

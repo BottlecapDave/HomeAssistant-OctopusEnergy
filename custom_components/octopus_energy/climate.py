@@ -50,16 +50,16 @@ async def async_setup_default_sensors(hass, config, async_add_entities):
     heat_pump_id = get_mock_heat_pump_id()
     key = DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY.format(heat_pump_id)
     coordinator = hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR.format(heat_pump_id)]
-    entities.extend(setup_heat_pump_sensors(hass, client, heat_pump_id, hass.data[DOMAIN][account_id][key].data, coordinator, mock_heat_pump))
+    entities.extend(setup_heat_pump_sensors(hass, client, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data, coordinator, mock_heat_pump))
   elif "heat_pump_ids" in account_info:
     for heat_pump_id in account_info["heat_pump_ids"]:
       key = DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY.format(heat_pump_id)
       coordinator = hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR.format(heat_pump_id)]
-      entities.extend(setup_heat_pump_sensors(hass, client, heat_pump_id, hass.data[DOMAIN][account_id][key].data, coordinator, mock_heat_pump))
+      entities.extend(setup_heat_pump_sensors(hass, client, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data, coordinator, mock_heat_pump))
 
   async_add_entities(entities)
 
-def setup_heat_pump_sensors(hass: HomeAssistant, client: OctopusEnergyApiClient, heat_pump_id: str, heat_pump_response: HeatPumpResponse, coordinator, mock_heat_pump: bool):
+def setup_heat_pump_sensors(hass: HomeAssistant, client: OctopusEnergyApiClient, account_id: str, heat_pump_id: str, heat_pump_response: HeatPumpResponse, coordinator, mock_heat_pump: bool):
 
   entities = []
 
@@ -70,6 +70,7 @@ def setup_heat_pump_sensors(hass: HomeAssistant, client: OctopusEnergyApiClient,
           hass,
           coordinator,
           client,
+          account_id,
           heat_pump_id,
           heat_pump_response.octoHeatPumpControllerConfiguration.heatPump,
           zone,
