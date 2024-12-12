@@ -42,8 +42,6 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     | ClimateEntityFeature.PRESET_MODE
   )
 
-  _attr_min_temp = 5
-  _attr_max_temp = 50
   _attr_hvac_modes = [HVACMode.HEAT, HVACMode.OFF, HVACMode.AUTO]
   _attr_hvac_mode = None
   _attr_preset_modes = [PRESET_NONE, PRESET_BOOST]
@@ -57,6 +55,13 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     self._account_id = account_id
     self._client = client
     self._is_mocked = is_mocked
+
+    if zone.configuration.zoneType == "HEAT":
+      self._attr_min_temp = 7
+      self._attr_max_temp = 30
+    else:
+      self._attr_min_temp = 40
+      self._attr_max_temp = 60
 
     # self._attributes = {
     #   "type": zone.configuration.zoneType,
