@@ -231,7 +231,3 @@ adjust_cost_tracker:
           step: any
           mode: box
           unit_of_measurement: kWh
-
-diagnose_heatpump_apis:
-  name: Diagnose heatpump APIs
-  description: Diagnose available heatpump APIs

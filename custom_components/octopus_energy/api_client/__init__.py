@@ -812,38 +812,6 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
   
-  async def async_diagnose_heatpump_apis(self, account_id):
-    """Diagnose the heatpump apis"""
-    await self.async_refresh_token()
-
-    try:
-      client = self._create_client_session()
-      url = f'{self._base_url}/v1/graphql/'
-      payload = { "query": diagnose_heatpump_apis_query.format(account_id=account_id) }
-      headers = { "Authorization": f"JWT {self._graphql_token}" }
-      async with client.post(url, json=payload, headers=headers) as greenness_forecast_response:
-
-        original_response = await self.__async_read_response__(greenness_forecast_response, url, True)
-        euids = original_response["data"]["octoHeatPumpControllerEuids"] if "data" in original_response and "octoHeatPumpControllerEuids" in original_response["data"] else []
-        euid_responses = []
-        if euids is not None:
-          for euid in euids:
-            client = self._create_client_session()
-            url = f'{self._base_url}/v1/graphql/'
-            payload = { "query": diagnose_heatpump_apis_secondary_query.format(account_id=account_id, euid=euid) }
-            headers = { "Authorization": f"JWT {self._graphql_token}" }
-            async with client.post(url, json=payload, headers=headers) as greenness_forecast_response:
-              euid_responses.append(await self.__async_read_response__(greenness_forecast_response, url, True))
-
-        return {
-          "main": original_response,
-          "euids": euid_responses
-        }
-    
-    except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
-      raise TimeoutException()
-  
   async def async_get_greenness_forecast(self) -> list[GreennessForecast]:
     """Get the latest greenness forecast"""
     await self.async_refresh_token()

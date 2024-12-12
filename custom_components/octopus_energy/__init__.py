@@ -516,22 +516,5 @@ def setup(hass, config):
 
   hass.services.register(DOMAIN, "purge_invalid_external_statistic_ids", purge_invalid_external_statistic_ids)
 
-  async def diagnose_heatpump_apis(call):
-    """Handle the service call."""
-
-    account_id = None
-    for entry in hass.config_entries.async_entries(DOMAIN):
-      if CONFIG_KIND in entry.data and entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
-        account_id = entry.data[CONFIG_ACCOUNT_ID]
-
-    if account_id is None:
-      raise Exception("Failed to find account id")
-    
-    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
-
-    return await client.async_diagnose_heatpump_apis(account_id)
-
-  hass.services.register(DOMAIN, "diagnose_heatpump_apis", diagnose_heatpump_apis, supports_response=SupportsResponse.ONLY)
-
   # Return boolean to indicate that initialization was successful.
   return True
