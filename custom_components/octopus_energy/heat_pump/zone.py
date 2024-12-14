@@ -1,10 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 from typing import List
 
+from homeassistant.util.dt import (utcnow)
+
 from homeassistant.const import (
-    STATE_UNAVAILABLE,
-    STATE_UNKNOWN,
     UnitOfTemperature,
     PRECISION_TENTHS,
     ATTR_TEMPERATURE
@@ -22,7 +22,6 @@ from homeassistant.components.climate import (
   PRESET_NONE,
   PRESET_BOOST,
 )
-from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base import (BaseOctopusEnergyHeatPumpSensor)
 from ..utils.attributes import dict_to_typed_dict
@@ -42,8 +41,6 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     | ClimateEntityFeature.PRESET_MODE
   )
 
-  _attr_min_temp = 5
-  _attr_max_temp = 50
   _attr_hvac_modes = [HVACMode.HEAT, HVACMode.OFF, HVACMode.AUTO]
   _attr_hvac_mode = None
   _attr_preset_modes = [PRESET_NONE, PRESET_BOOST]
@@ -51,11 +48,19 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
   _attr_temperature_unit = UnitOfTemperature.CELSIUS
   _attr_target_temperature_step = PRECISION_TENTHS
 
-  def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, heat_pump_id: str, heat_pump: HeatPump, zone: ConfigurationZone, is_mocked: bool):
+  def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, account_id: str, heat_pump_id: str, heat_pump: HeatPump, zone: ConfigurationZone, is_mocked: bool):
     """Init sensor."""
     self._zone = zone
+    self._account_id = account_id
     self._client = client
     self._is_mocked = is_mocked
+
+    if zone.configuration.zoneType == "HEAT":
+      self._attr_min_temp = 7
+      self._attr_max_temp = 30
+    else:
+      self._attr_min_temp = 40
+      self._attr_max_temp = 60
 
     # self._attributes = {
     #   "type": zone.configuration.zoneType,
@@ -112,7 +117,7 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
           elif zone.telemetry.mode == "AUTO":
             self._attr_hvac_mode = HVACMode.AUTO
             self._attr_preset_mode = PRESET_NONE
-          elif zone.telemetry.mode == "ON":
+          elif zone.telemetry.mode == "BOOST":
             self._attr_preset_mode = PRESET_BOOST
           else:
             raise Exception(f"Unexpected heat pump mode detected: {zone.telemetry.mode}")
@@ -136,9 +141,9 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     """Set new target hvac mode."""
     try:
       await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, hvac_mode, None)
-    except:
+    except Exception as e:
       if self._is_mocked:
-        _LOGGER.warning('Suppress async_set_hvac_mode error due to mocking mode')
+        _LOGGER.warning(f'Suppress async_set_hvac_mode error due to mocking mode: {e}')
       else:
         raise
 
@@ -149,9 +154,9 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     """Turn the entity on."""
     try:
       await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, 'ON', None)
-    except:
+    except Exception as e:
       if self._is_mocked:
-        _LOGGER.warning('Suppress async_turn_on error due to mocking mode')
+        _LOGGER.warning(f'Suppress async_turn_on error due to mocking mode: {e}')
       else:
         raise
 
@@ -162,9 +167,9 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     """Turn the entity off."""
     try:
       await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, 'OFF', None)
-    except:
+    except Exception as e:
       if self._is_mocked:
-        _LOGGER.warning('Suppress async_turn_off error due to mocking mode')
+        _LOGGER.warning(f'Suppress async_turn_off error due to mocking mode: {e}')
       else:
         raise
 
@@ -174,10 +179,15 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
   async def async_set_preset_mode(self, preset_mode):
     """Set new target preset mode."""
     try:
-      await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, 'BOOST' if preset_mode == PRESET_BOOST else 'AUTO', None)
-    except:
+      if preset_mode == PRESET_BOOST:
+        current = utcnow()
+        current += timedelta(hours=1)
+        await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, current)
+      else:
+        await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, self._attr_hvac_mode, None)
+    except Exception as e:
       if self._is_mocked:
-        _LOGGER.warning('Suppress async_set_preset_mode error due to mocking mode')
+        _LOGGER.warning(f'Suppress async_set_preset_mode error due to mocking mode: {e}')
       else:
         raise
     
@@ -188,13 +198,36 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     """Set new target temperature."""
     temperature = kwargs[ATTR_TEMPERATURE]
 
+    zone_mode = None
+    if self._attr_preset_mode == PRESET_BOOST:
+      zone_mode = "BOOST"
+    elif self._attr_hvac_mode == HVACMode.HEAT:
+      zone_mode = "ON"
+    elif self._attr_hvac_mode == HVACMode.OFF:
+      zone_mode = "OFF"
+    elif self._attr_hvac_mode == HVACMode.AUTO:
+      zone_mode = "AUTO"
+    else:
+      raise Exception(f"Unexpected heat pump mode detected: {self._attr_hvac_mode}/{self._attr_preset_mode}")
+
     try:
-      await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, 'BOOST' if self._attr_preset_mode == PRESET_BOOST else self._attr_hvac_mode, temperature)
-    except:
+      await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, zone_mode, temperature)
+    except Exception as e:
       if self._is_mocked:
-        _LOGGER.warning('Suppress async_set_temperature error due to mocking mode')
+        _LOGGER.warning(f'Suppress async_set_temperature error due to mocking mode: {e}')
       else:
         raise
 
     self._attr_target_temperature = temperature
+    self.async_write_ha_state()
+
+  @callback
+  async def async_boost_heat_pump_zone(self, hours: int, minutes: int):
+    """Boost the heat pump zone"""
+
+    current = utcnow()
+    current += timedelta(hours=hours, minutes=minutes)
+    await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, current)
+
+    self._attr_preset_mode = PRESET_BOOST
     self.async_write_ha_state()
