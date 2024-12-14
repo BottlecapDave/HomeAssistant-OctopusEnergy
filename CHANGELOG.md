@@ -1,3 +1,12 @@
+# [13.3.0-beta.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.3.0-beta.2...v13.3.0-beta.3) (2024-12-14)
+
+
+### Features
+
+* Created heat pump boosting action to support custom end time (40 minutes dev time) ([bc047f8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/bc047f866a2047cd3d2cc059cce362d2f56a2ada))
+* Fixed heat pump service calls (30 minutes dev time) ([ff88cd4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ff88cd419b626daccb10d236a772b27931a4f08a))
+* Updated heat pump zone min/max temperatures based on zone type (5 minutes dev time) ([2ce5fe6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2ce5fe64456434552d581aaaa311030fa0cec8f4))
+
 # [13.3.0-beta.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.3.0-beta.1...v13.3.0-beta.2) (2024-12-11)
 
 
