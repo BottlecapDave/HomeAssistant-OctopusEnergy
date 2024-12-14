@@ -536,7 +536,13 @@ def setup_heat_pump_sensors(hass: HomeAssistant, heat_pump_id: str, heat_pump_re
   if heat_pump_response is not None and heat_pump_response.octoHeatPumpControllerConfiguration is not None:
     for zone in heat_pump_response.octoHeatPumpControllerConfiguration.zones:
       if zone.configuration is not None and zone.configuration.sensors is not None:
+        if zone.configuration.enabled == False:
+          continue
+
         for sensor in zone.configuration.sensors:
+          if sensor.enabled == False:
+            continue
+
           entities.append(OctopusEnergyHeatPumpSensorTemperature(
             hass,
             coordinator,
