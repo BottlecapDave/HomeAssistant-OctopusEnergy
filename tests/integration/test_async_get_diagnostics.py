@@ -94,3 +94,78 @@ async def test_when_async_get_diagnostics_called_then_account_info_is_returned()
 
     assert "intelligent_device" in data
     assert "intelligent_settings" in data
+
+
+@pytest.mark.asyncio
+async def test_when_async_get_diagnostics_called_and_account_exists_then_account_info_is_returned():
+    # Arrange
+    context = get_test_context()
+
+    client = OctopusEnergyApiClient(context.api_key)
+    account_id = context.account_id
+    existing_account = await client.async_get_account(account_id)
+
+    now = utcnow()
+
+    def get_entity_info(redacted_mappings):
+        return {
+            "foo": {
+                "last_updated": now,
+                "last_changed": now,
+            }
+        }
+
+    # Act
+    data = await async_get_diagnostics(client, account_id, existing_account, get_entity_info)
+
+    # Assert
+    assert data is not None
+    account = data["account"]
+    assert account is not None
+    assert account != existing_account
+
+    assert "id" in account
+    assert account["id"] == "**REDACTED**"
+
+    assert "electricity_meter_points" in account
+    
+    assert len(account["electricity_meter_points"]) == 1
+    meter_point = account["electricity_meter_points"][0]
+    assert meter_point["mpan"] == 2
+    
+    assert len(meter_point["meters"]) == 1
+    meter = meter_point["meters"][0]
+    assert meter["is_export"] == False
+    assert_meter(meter, 1)
+
+    assert "agreements" in meter_point
+    assert len(meter_point["agreements"]) > 0
+    for agreement in meter_point["agreements"]:
+        assert "tariff_code" in agreement
+        assert "start" in agreement
+        assert "end" in agreement
+    
+    assert "gas_meter_points" in account
+    assert len(account["gas_meter_points"]) == 1
+    meter_point = account["gas_meter_points"][0]
+    assert meter_point["mprn"] == 4
+    
+    assert len(meter_point["meters"]) == 1
+    meter = meter_point["meters"][0]
+    assert_meter(meter, 3)
+
+    assert "agreements" in meter_point
+    assert len(meter_point["agreements"]) > 0
+    for agreement in meter_point["agreements"]:
+        assert "tariff_code" in agreement
+        assert "start" in agreement
+        assert "end" in agreement
+
+    assert "octoplus_enrolled" in account
+
+    assert "entities" in data
+    assert data["entities"]["foo"]["last_updated"] == now
+    assert data["entities"]["foo"]["last_changed"] == now
+
+    assert "intelligent_device" in data
+    assert "intelligent_settings" in data
