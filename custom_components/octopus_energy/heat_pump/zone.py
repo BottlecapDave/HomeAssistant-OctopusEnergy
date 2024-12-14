@@ -1,10 +1,10 @@
-from datetime import datetime
+from datetime import datetime, timedelta
 import logging
 from typing import List
 
+from homeassistant.util.dt import (utcnow)
+
 from homeassistant.const import (
-    STATE_UNAVAILABLE,
-    STATE_UNKNOWN,
     UnitOfTemperature,
     PRECISION_TENTHS,
     ATTR_TEMPERATURE
@@ -22,7 +22,6 @@ from homeassistant.components.climate import (
   PRESET_NONE,
   PRESET_BOOST,
 )
-from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base import (BaseOctopusEnergyHeatPumpSensor)
 from ..utils.attributes import dict_to_typed_dict
@@ -180,7 +179,12 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
   async def async_set_preset_mode(self, preset_mode):
     """Set new target preset mode."""
     try:
-      await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, 'BOOST' if preset_mode == PRESET_BOOST else 'AUTO', None)
+      if preset_mode == PRESET_BOOST:
+        current = utcnow()
+        current += timedelta(hours=1)
+        await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, current)
+      else:
+        await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, self._attr_hvac_mode, None)
     except Exception as e:
       if self._is_mocked:
         _LOGGER.warning(f'Suppress async_set_preset_mode error due to mocking mode: {e}')
@@ -215,4 +219,15 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
         raise
 
     self._attr_target_temperature = temperature
+    self.async_write_ha_state()
+
+  @callback
+  async def async_boost_heat_pump_zone(self, hours: int, minutes: int):
+    """Boost the heat pump zone"""
+
+    current = utcnow()
+    current += timedelta(hours=hours, minutes=minutes)
+    await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, current)
+
+    self._attr_preset_mode = PRESET_BOOST
     self.async_write_ha_state()

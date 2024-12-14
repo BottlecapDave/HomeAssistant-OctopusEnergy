@@ -231,3 +231,32 @@ adjust_cost_tracker:
           step: any
           mode: box
           unit_of_measurement: kWh
+
+boost_heat_pump_zone:
+  name: Boost heat pump zone
+  description: Boost a given heat pump zone for a given time period
+  target:
+    entity:
+      integration: octopus_energy
+      domain: climate
+  fields:
+    hours:
+      name: Hours
+      description: The number of hours to boost for
+      required: true
+      selector:
+        number:
+          step: 1
+          min: 0
+          max: 12
+          mode: box
+    minutes:
+      name: Minutes
+      description: The number of minutes to boost for
+      required: true
+      selector:
+        number:
+          step: 15
+          min: 0
+          max: 45
+          mode: box
