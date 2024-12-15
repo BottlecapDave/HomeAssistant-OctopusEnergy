@@ -14,7 +14,7 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues",
   "ssdp": [],
-  "version": "13.3.0-beta.3",
+  "version": "13.3.0-beta.4",
   "zeroconf": [],
   "requirements": [
     "pydantic"

@@ -1,3 +1,16 @@
+# [13.3.0-beta.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.3.0-beta.3...v13.3.0-beta.4) (2024-12-15)
+
+
+### Bug Fixes
+
+* Fixed issue with downloading diagnostics breaks loading of data (15 minutes dev time) ([4589a6a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4589a6ad0565e4289d3de2d89b525e6110e0605b))
+* Fixed zone mode interpretations in zone climate control and exposed target temperature in boost service (30 minutes dev time) ([7eb6755](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7eb67553119773616097b6cc9360e03ed793fb46))
+
+
+### Features
+
+* Updated heat pump zones and sensors to not be included if not enabled (5 minutes dev time) ([f762c4d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f762c4d214ba635abc8447536a75e4e1402ffea1))
+
 # [13.3.0-beta.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.3.0-beta.2...v13.3.0-beta.3) (2024-12-14)
 
 
