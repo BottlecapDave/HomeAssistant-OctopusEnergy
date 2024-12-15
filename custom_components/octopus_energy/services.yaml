@@ -260,3 +260,11 @@ boost_heat_pump_zone:
           min: 0
           max: 45
           mode: box
+    target_temperature:
+      name: Target Temperature
+      description: The optional target temperature to boost to. If not supplied, then the current target temperature will be used
+      required: false
+      selector:
+        number:
+          step: 0.5
+          mode: box

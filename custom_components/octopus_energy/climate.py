@@ -49,6 +49,7 @@ async def async_setup_default_sensors(hass, config, async_add_entities):
         {
           vol.Required("hours"): cv.positive_int,
           vol.Required("minutes"): cv.positive_int,
+          vol.Optional("target_temperature"): cv.positive_float,
         },
         extra=vol.ALLOW_EXTRA,
       ),
@@ -85,6 +86,9 @@ def setup_heat_pump_sensors(hass: HomeAssistant, client: OctopusEnergyApiClient,
   if heat_pump_response is not None and heat_pump_response.octoHeatPumpControllerConfiguration is not None:
     for zone in heat_pump_response.octoHeatPumpControllerConfiguration.zones:
       if zone.configuration is not None:
+        if zone.configuration.enabled == False:
+          continue
+
         entities.append(OctopusEnergyHeatPumpZone(
           hass,
           coordinator,
