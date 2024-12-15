@@ -117,7 +117,7 @@ async def test_when_async_get_diagnostics_called_and_account_exists_then_account
         }
 
     # Act
-    data = await async_get_diagnostics(client, account_id, existing_account, get_entity_info)
+    data = await async_get_diagnostics(client, account_id, existing_account, None, get_entity_info)
 
     # Assert
     assert data is not None
