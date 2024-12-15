@@ -49,6 +49,7 @@ async def async_setup_default_sensors(hass, config, async_add_entities):
         {
           vol.Required("hours"): cv.positive_int,
           vol.Required("minutes"): cv.positive_int,
+          vol.Optional("target_temperature"): cv.positive_float,
         },
         extra=vol.ALLOW_EXTRA,
       ),

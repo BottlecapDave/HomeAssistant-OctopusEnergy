@@ -275,6 +275,9 @@
     },
     "octoplus_points_maximum_points": {
       "message": "You cannot redeem more than {redeemable_points} points"
+    },
+    "invalid_target_temperature": {
+      "message": "Temperature must be equal or between {min_temperature} and {max_temperature}"
     }
   },
   "issues": {

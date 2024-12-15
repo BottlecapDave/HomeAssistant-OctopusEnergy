@@ -371,6 +371,7 @@ mutation {{
   octoHeatPumpSetZoneMode(accountNumber: "{account_id}", euid: "{euid}", operationParameters: {{
     zone: {zone_id},
     mode: BOOST,
+    setpointInCelsius: "{target_temperature}",
     endAt: "{end_at}"
   }}) {{
     transactionId
@@ -824,14 +825,14 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
     
-  async def async_boost_heat_pump_zone(self, account_id: str, euid: str, zone_id: str, end_datetime: datetime):
+  async def async_boost_heat_pump_zone(self, account_id: str, euid: str, zone_id: str, end_datetime: datetime, target_temperature: float):
     """Boost a given heat pump zone"""
     await self.async_refresh_token()
 
     try:
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
-      query = heat_pump_boost_zone_mutation.format(account_id=account_id, euid=euid, zone_id=zone_id, end_at=end_datetime.isoformat(sep="T")) 
+      query = heat_pump_boost_zone_mutation.format(account_id=account_id, euid=euid, zone_id=zone_id, end_at=end_datetime.isoformat(sep="T"), target_temperature=target_temperature) 
       payload = { "query": query }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as heat_pump_response:
