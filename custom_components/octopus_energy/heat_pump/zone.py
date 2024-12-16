@@ -58,6 +58,7 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     self._account_id = account_id
     self._client = client
     self._is_mocked = is_mocked
+    self._end_timestamp = None
 
     if zone.configuration.zoneType == "HEAT":
       self._attr_min_temp = 7
@@ -65,12 +66,6 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     else:
       self._attr_min_temp = 40
       self._attr_max_temp = 60
-
-    # self._attributes = {
-    #   "type": zone.configuration.zoneType,
-    #   "calling_for_heat": zone.configuration.callForHeat,
-    #   "is_enabled": zone.configuration.enabled
-    # }
 
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
@@ -93,48 +88,42 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
   def _handle_coordinator_update(self) -> None:
     """Retrieve the previous rate."""
 
-    # self._attributes = {
-    #   "type": self._zone.configuration.zoneType,
-    #   "calling_for_heat": self._zone.configuration.callForHeat,
-    #   "is_enabled": self._zone.configuration.enabled
-    # }
-
-    # Find the previous rate. We only need to do this every half an hour
     current = now()
     result: HeatPumpCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     if (result is not None and 
         result.data is not None and 
-        result.data.octoHeatPumpControllerStatus is not None and
-        result.data.octoHeatPumpControllerStatus.zones):
+        result.data.octoHeatPumpControllerConfiguration is not None and
+        result.data.octoHeatPumpControllerConfiguration.zones and
+        (self._last_updated is None or self._last_updated < result.last_retrieved)):
       _LOGGER.debug(f"Updating OctopusEnergyHeatPumpZone for '{self._heat_pump_id}/{self._zone.configuration.code}'")
 
-      zones: List[Zone] = result.data.octoHeatPumpControllerStatus.zones
+      zones: List[ConfigurationZone] = result.data.octoHeatPumpControllerConfiguration.zones
       for zone in zones:
-        if zone.zone == self._zone.configuration.code and zone.telemetry is not None:
+        if zone.configuration is not None and zone.configuration.code == self._zone.configuration.code and zone.configuration.currentOperation is not None:
 
-          if zone.telemetry.mode == "ON":
+          if zone.configuration.currentOperation.mode == "ON":
             self._attr_hvac_mode = HVACMode.HEAT
             self._attr_preset_mode = PRESET_NONE
-          elif zone.telemetry.mode == "OFF":
+          elif zone.configuration.currentOperation.mode == "OFF":
             self._attr_hvac_mode = HVACMode.OFF
             self._attr_preset_mode = PRESET_NONE
-          elif zone.telemetry.mode == "AUTO":
+          elif zone.configuration.currentOperation.mode == "AUTO":
             self._attr_hvac_mode = HVACMode.AUTO
             self._attr_preset_mode = PRESET_NONE
-          elif zone.telemetry.mode == "BOOST":
+          elif zone.configuration.currentOperation.mode == "BOOST":
+            self._attr_hvac_mode = HVACMode.AUTO
             self._attr_preset_mode = PRESET_BOOST
           else:
-            raise Exception(f"Unexpected heat pump mode detected: {zone.telemetry.mode}")
+            raise Exception(f"Unexpected heat pump mode detected: {zone.configuration.currentOperation.mode}")
 
-          self._attr_target_temperature = zone.telemetry.setpointInCelsius
+          self._attr_target_temperature = zone.configuration.currentOperation.setpointInCelsius
+          self._end_timestamp = datetime.fromisoformat(zone.configuration.currentOperation.end)
 
           if (result.data.octoHeatPumpControllerStatus.sensors and self._zone.configuration.primarySensor):
             sensors: List[Sensor] = result.data.octoHeatPumpControllerStatus.sensors
             for sensor in sensors:
               if sensor.code == self._zone.configuration.primarySensor and sensor.telemetry is not None:
                 self._attr_current_temperature = sensor.telemetry.temperatureInCelsius
-          
-          self._attributes["retrieved_at"] = datetime.fromisoformat(zone.telemetry.retrievedAt)
 
       self._last_updated = current
 
@@ -145,6 +134,7 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     """Set new target hvac mode."""
     try:
       self._attr_hvac_mode = hvac_mode
+      self._attr_preset_mode = PRESET_NONE
       zone_mode = self.get_zone_mode()
       await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, zone_mode, self._attr_target_temperature)
     except Exception as e:
@@ -158,6 +148,8 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
   async def async_turn_on(self):
     """Turn the entity on."""
     try:
+      self._attr_hvac_mode = HVACMode.HEAT
+      self._attr_preset_mode = PRESET_NONE
       await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, 'ON', self._attr_target_temperature)
     except Exception as e:
       if self._is_mocked:
@@ -165,12 +157,13 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
       else:
         raise
 
-    self._attr_hvac_mode = HVACMode.HEAT
     self.async_write_ha_state()
 
   async def async_turn_off(self):
     """Turn the entity off."""
     try:
+      self._attr_hvac_mode = HVACMode.OFF
+      self._attr_preset_mode = PRESET_NONE
       await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, 'OFF', None)
     except Exception as e:
       if self._is_mocked:
@@ -178,7 +171,6 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
       else:
         raise
 
-    self._attr_hvac_mode = HVACMode.OFF
     self.async_write_ha_state()
 
   async def async_set_preset_mode(self, preset_mode):
@@ -187,9 +179,9 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
       self._attr_preset_mode = preset_mode
       
       if self._attr_preset_mode == PRESET_BOOST:
-        current = utcnow()
-        current += timedelta(hours=1)
-        await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, current, self._attr_target_temperature)
+        self._end_timestamp = utcnow()
+        self._end_timestamp += timedelta(hours=1)
+        await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, self._end_timestamp, self._attr_target_temperature)
       else:
         zone_mode = self.get_zone_mode()
         await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, zone_mode, self._attr_target_temperature)
@@ -203,31 +195,21 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
 
   async def async_set_temperature(self, **kwargs) -> None:
     """Set new target temperature."""
-    temperature = kwargs[ATTR_TEMPERATURE]
 
     try:
-      zone_mode = self.get_zone_mode()
-      await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, zone_mode, temperature)
+      self._attr_target_temperature = kwargs[ATTR_TEMPERATURE]
+      if self._attr_preset_mode == PRESET_BOOST:
+        await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, self._end_timestamp, self._attr_target_temperature)
+      else:
+        zone_mode = self.get_zone_mode()
+        await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, zone_mode, self._attr_target_temperature)
     except Exception as e:
       if self._is_mocked:
         _LOGGER.warning(f'Suppress async_set_temperature error due to mocking mode: {e}')
       else:
         raise
 
-    self._attr_target_temperature = temperature
     self.async_write_ha_state()
-
-  def get_zone_mode(self):
-    if self._attr_preset_mode == PRESET_BOOST:
-      return "BOOST"
-    elif self._attr_hvac_mode == HVACMode.HEAT:
-      return "ON"
-    elif self._attr_hvac_mode == HVACMode.OFF:
-      return "OFF"
-    elif self._attr_hvac_mode == HVACMode.AUTO:
-      return "AUTO"
-    else:
-      raise Exception(f"Unexpected heat pump mode detected: {self._attr_hvac_mode}/{self._attr_preset_mode}")
 
   @callback
   async def async_boost_heat_pump_zone(self, hours: int, minutes: int, target_temperature: float | None = None):
@@ -244,9 +226,21 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
           },
         )
 
-    current = utcnow()
-    current += timedelta(hours=hours, minutes=minutes)
-    await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, current, target_temperature if target_temperature is not None else self._attr_target_temperature)
-
+    self._end_timestamp = utcnow()
+    self._end_timestamp += timedelta(hours=hours, minutes=minutes)
     self._attr_preset_mode = PRESET_BOOST
+    await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, self._end_timestamp, target_temperature if target_temperature is not None else self._attr_target_temperature)
+
     self.async_write_ha_state()
+
+  def get_zone_mode(self):
+    if self._attr_preset_mode == PRESET_BOOST:
+      return "BOOST"
+    elif self._attr_hvac_mode == HVACMode.HEAT:
+      return "ON"
+    elif self._attr_hvac_mode == HVACMode.OFF:
+      return "OFF"
+    elif self._attr_hvac_mode == HVACMode.AUTO:
+      return "AUTO"
+    else:
+      raise Exception(f"Unexpected heat pump mode detected: {self._attr_hvac_mode}/{self._attr_preset_mode}")
