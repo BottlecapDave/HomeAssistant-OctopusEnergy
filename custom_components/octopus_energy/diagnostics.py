@@ -1,4 +1,5 @@
 """Diagnostics support."""
+import copy
 from datetime import datetime, timedelta
 import logging
 from typing import Callable
@@ -42,11 +43,13 @@ async def async_get_device_consumption_data(client: OctopusEnergyApiClient, devi
   except Exception as e:
     return f"Failed to retrieve - {e}"
 
-async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str, account_info, get_entity_info: Callable[[dict], dict]):
+async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str, existing_account_info: dict, get_entity_info: Callable[[dict], dict]):
   _LOGGER.info('Retrieving account details for diagnostics...')
 
-  if account_info is None:
+  if existing_account_info is None:
     account_info = await client.async_get_account(account_id)
+  else:
+    account_info = copy.deepcopy(existing_account_info)
 
   redacted_mappings = {}
   redacted_mapping_count = 1
@@ -123,6 +126,46 @@ async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str,
   }
 
 async def async_get_device_diagnostics(hass, entry, device):
+    """Return diagnostics for a device."""
+
+    config = dict(entry.data)
+
+    if entry.options:
+      config.update(entry.options)
+    
+    account_id = config[CONFIG_ACCOUNT_ID]
+    account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+    account_info = account_result.account if account_result is not None else None
+    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
+
+    def get_entity_info(redacted_mappings):
+      entity_registry = er.async_get(hass)
+      entities = entity_registry.entities.items()
+      states = hass.states.async_all()
+      entity_info = dict()
+      for item in entities:
+        unique_id: str = item[1].unique_id
+
+        if "octopus_energy" in unique_id:
+          state = None
+          for s in states:
+            if s.entity_id == item[1].entity_id:
+              state = s
+              break
+
+          for key in redacted_mappings.keys():
+            unique_id = unique_id.lower().replace(key.lower(), f"{redacted_mappings[key]}")
+          
+          entity_info[unique_id] = {
+            "last_updated": state.last_updated if state is not None else None,
+            "last_changed": state.last_changed if state is not None else None
+          }
+
+      return entity_info
+
+    return await async_get_diagnostics(client, account_id, account_info, get_entity_info)
+
+async def async_get_config_entry_diagnostics(hass, entry):
     """Return diagnostics for a device."""
 
     config = dict(entry.data)

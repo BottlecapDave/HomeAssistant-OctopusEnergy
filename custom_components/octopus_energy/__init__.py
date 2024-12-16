@@ -155,7 +155,12 @@ async def async_setup_entry(hass, entry):
     # the correct references (e.g. rate coordinators)
     child_entries = hass.config_entries.async_entries(DOMAIN)
     for child_entry in child_entries:
-      if child_entry.data[CONFIG_KIND] != CONFIG_KIND_ACCOUNT and child_entry.data[CONFIG_ACCOUNT_ID] == account_id:
+      child_entry_config = dict(child_entry.data)
+
+      if child_entry.options:
+        child_entry_config.update(child_entry.options)
+
+      if child_entry_config[CONFIG_KIND] != CONFIG_KIND_ACCOUNT and child_entry_config[CONFIG_ACCOUNT_ID] == account_id:
         await hass.config_entries.async_reload(child_entry.entry_id)
   
   elif config[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
@@ -446,6 +451,21 @@ async def options_update_listener(hass, entry):
   """Handle options update."""
   await hass.config_entries.async_reload(entry.entry_id)
 
+  if entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
+    account_id = entry.data[CONFIG_ACCOUNT_ID]
+
+    # If the main account has been reloaded, then reload all other entries to make sure they're referencing
+    # the correct references (e.g. rate coordinators)
+    child_entries = hass.config_entries.async_entries(DOMAIN)
+    for child_entry in child_entries:
+      child_entry_config = dict(child_entry.data)
+
+      if child_entry.options:
+        child_entry_config.update(child_entry.options)
+
+      if child_entry_config[CONFIG_KIND] != CONFIG_KIND_ACCOUNT and child_entry_config[CONFIG_ACCOUNT_ID] == account_id:
+        await hass.config_entries.async_reload(child_entry.entry_id)
+
 async def async_unload_entry(hass, entry):
     """Unload a config entry."""
 
@@ -456,6 +476,9 @@ async def async_unload_entry(hass, entry):
         account_id = entry.data[CONFIG_ACCOUNT_ID]
         await _async_close_client(hass, account_id)
         hass.data[DOMAIN].pop(account_id)
+
+    elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:
+      unload_ok = await hass.config_entries.async_unload_platforms(entry, TARIFF_COMPARISON_PLATFORMS)
 
     elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE or entry.data[CONFIG_KIND] == CONFIG_KIND_ROLLING_TARGET_RATE:
       unload_ok = await hass.config_entries.async_unload_platforms(entry, TARGET_RATE_PLATFORMS)

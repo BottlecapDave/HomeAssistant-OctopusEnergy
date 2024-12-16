@@ -5,7 +5,7 @@ import logging
 
 from homeassistant.util.dt import (utcnow, now)
 from homeassistant.core import HomeAssistant
-from homeassistant.helpers import entity_platform, issue_registry as ir, entity_registry as er
+from homeassistant.helpers import entity_platform, issue_registry as ir, entity_registry as er, device_registry as dr
 import homeassistant.helpers.config_validation as cv
 
 from .electricity.current_consumption import OctopusEnergyCurrentElectricityConsumption
@@ -79,6 +79,7 @@ from .utils import (Tariff, get_active_tariff)
 from .const import (
   CONFIG_COST_TRACKER_MPAN,
   CONFIG_ACCOUNT_ID,
+  CONFIG_COST_TRACKER_TARGET_ENTITY_ID,
   CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_KIND,
@@ -527,13 +528,28 @@ async def async_setup_cost_sensors(hass: HomeAssistant, entry, config, async_add
           serial_number = meter["serial_number"]
           coordinator = hass.data[DOMAIN][account_id][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)]
 
-          sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, config)
+          device_registry = dr.async_get(hass)
+          entity_registry = er.async_get(hass)
+
+          source_entity_id = config[CONFIG_COST_TRACKER_TARGET_ENTITY_ID]
+
+          device_id = None
+          if source_entity_id:
+              entity = entity_registry.async_get(source_entity_id)
+              if entity:
+                  device_id = entity.device_id
+
+          device_entry = None
+          if device_id is not None:
+            device_entry = device_registry.async_get(device_id)
+
+          sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, config, device_entry)
           sensor_entity_id = registry.async_get_entity_id("sensor", DOMAIN, sensor.unique_id)
 
           entities = [
             sensor,
-            OctopusEnergyCostTrackerWeekSensor(hass, entry, config, sensor_entity_id if sensor_entity_id is not None else sensor.entity_id),
-            OctopusEnergyCostTrackerMonthSensor(hass, entry, config, sensor_entity_id if sensor_entity_id is not None else sensor.entity_id),
+            OctopusEnergyCostTrackerWeekSensor(hass, entry, config, device_entry, sensor_entity_id if sensor_entity_id is not None else sensor.entity_id),
+            OctopusEnergyCostTrackerMonthSensor(hass, entry, config, device_entry, sensor_entity_id if sensor_entity_id is not None else sensor.entity_id),
           ]
           
           debug_override = await async_get_debug_override(hass, mpan, serial_number)
@@ -542,12 +558,12 @@ async def async_setup_cost_sensors(hass: HomeAssistant, entry, config, async_add
             for unique_rate_index in range(0, total_unique_rates):
               peak_type = get_peak_type(total_unique_rates, unique_rate_index)
               if peak_type is not None:
-                peak_sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, config, peak_type)
+                peak_sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, config, device_entry, peak_type)
                 peak_sensor_entity_id = registry.async_get_entity_id("sensor", DOMAIN, peak_sensor.unique_id)
                 
                 entities.append(peak_sensor)
-                entities.append(OctopusEnergyCostTrackerWeekSensor(hass, entry, config, peak_sensor_entity_id if peak_sensor_entity_id is not None else f"sensor.{peak_sensor.unique_id}", peak_type))
-                entities.append(OctopusEnergyCostTrackerMonthSensor(hass, entry, config, peak_sensor_entity_id if peak_sensor_entity_id is not None else f"sensor.{peak_sensor.unique_id}", peak_type))
+                entities.append(OctopusEnergyCostTrackerWeekSensor(hass, entry, config, device_entry, peak_sensor_entity_id if peak_sensor_entity_id is not None else f"sensor.{peak_sensor.unique_id}", peak_type))
+                entities.append(OctopusEnergyCostTrackerMonthSensor(hass, entry, config, device_entry, peak_sensor_entity_id if peak_sensor_entity_id is not None else f"sensor.{peak_sensor.unique_id}", peak_type))
 
           async_add_entities(entities)
           break
@@ -563,8 +579,13 @@ async def async_setup_tariff_comparison_sensors(hass: HomeAssistant, entry, conf
   calorific_value = DEFAULT_CALORIFIC_VALUE
   config_entries = hass.config_entries.async_entries(DOMAIN)
   for entry in config_entries:
-    if entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT and entry.data[CONFIG_ACCOUNT_ID] == account_id and CONFIG_MAIN_CALORIFIC_VALUE in config:
-      calorific_value = config[CONFIG_MAIN_CALORIFIC_VALUE]
+    config_entry_data = dict(entry.data)
+
+    if entry.options:
+      config_entry_data.update(entry.options)
+
+    if config_entry_data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT and config_entry_data[CONFIG_ACCOUNT_ID] == account_id and CONFIG_MAIN_CALORIFIC_VALUE in config_entry_data:
+      calorific_value = config_entry_data[CONFIG_MAIN_CALORIFIC_VALUE]
 
   now = utcnow()
   for point in account_info["electricity_meter_points"]:
