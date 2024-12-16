@@ -1,3 +1,16 @@
+# [13.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.2.1...v13.3.0) (2024-12-16)
+
+
+### Bug Fixes
+
+* Fixed issue with downloading diagnostics breaks loading of data (15 minutes dev time) ([4589a6a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4589a6ad0565e4289d3de2d89b525e6110e0605b))
+* Fixed issue with gas tariff comparison not persisting configured calorific value (1 hour dev time) ([b16cd1d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b16cd1dbeeac4224d62c4cdf05b0c845a3ac71dd))
+
+
+### Features
+
+* Updated cost tracker entities to be associated with device of tracked entity, if one exists (1 hour dev time) ([9fe69a0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9fe69a081b08f1bec3ecfb4ea3b4ed552cc665ef))
+
 ## [13.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.2.0...v13.2.1) (2024-12-01)
 
 
