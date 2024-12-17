@@ -24,6 +24,7 @@ class BaseOctopusEnergyHeatPumpSensor:
       identifiers={(DOMAIN, f"heat_pump_{heat_pump.serialNumber}")},
       name=f"Heat Pump ({heat_pump.serialNumber})",
       connections=set(),
+      manufacturer="Octopus" if heat_pump.model is not None and "cosy" in heat_pump.model.lower() else None,
       model=heat_pump.model,
       hw_version=heat_pump.hardwareVersion
     )
@@ -48,6 +49,8 @@ class BaseOctopusEnergyHeatPumpSensorSensor(BaseOctopusEnergyHeatPumpSensor):
       identifiers={(DOMAIN, f"heat_pump_sensor_{heat_pump.serialNumber}_{sensor.code}")},
       name=f"Heat Pump Sensor ({sensor.code})",
       connections=set(),
+      manufacturer="Octopus" if heat_pump.model is not None and "cosy" in heat_pump.model.lower() else None,
+      model=heat_pump.model,
       sw_version=sensor.firmwareVersion,
       hw_version=sensor.type
     )

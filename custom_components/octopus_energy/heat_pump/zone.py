@@ -117,7 +117,7 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
             raise Exception(f"Unexpected heat pump mode detected: {zone.configuration.currentOperation.mode}")
 
           self._attr_target_temperature = zone.configuration.currentOperation.setpointInCelsius
-          self._end_timestamp = datetime.fromisoformat(zone.configuration.currentOperation.end)
+          self._end_timestamp = datetime.fromisoformat(zone.configuration.currentOperation.end) if zone.configuration.currentOperation.end is not None else None
 
           if (result.data.octoHeatPumpControllerStatus.sensors and self._zone.configuration.primarySensor):
             sensors: List[Sensor] = result.data.octoHeatPumpControllerStatus.sensors
