@@ -1,4 +1,7 @@
+import logging
 import os
+
+logging.getLogger().setLevel(logging.DEBUG)
 
 class TestContext:
   def __init__(self, api_key: str, base_url: str):
