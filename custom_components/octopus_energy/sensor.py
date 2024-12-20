@@ -1,5 +1,4 @@
 from datetime import timedelta
-from custom_components.octopus_energy.api_client.intelligent_device import IntelligentDevice
 import voluptuous as vol
 import logging
 
@@ -57,6 +56,9 @@ from .diagnostics_entities.wheel_of_fortune_data_last_retrieved import OctopusEn
 from .diagnostics_entities.intelligent_dispatches_data_last_retrieved import OctopusEnergyIntelligentDispatchesDataLastRetrieved
 from .diagnostics_entities.intelligent_settings_data_last_retrieved import OctopusEnergyIntelligentSettingsDataLastRetrieved
 from .diagnostics_entities.free_electricity_sessions_data_last_retrieved import OctopusEnergyFreeElectricitySessionsDataLastRetrieved
+from .api_client.intelligent_device import IntelligentDevice
+from .intelligent.current_state import OctopusEnergyIntelligentCurrentState
+from .intelligent import get_intelligent_features
 
 from .utils.debug_overrides import async_get_debug_override
 
@@ -280,6 +282,10 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
     intelligent_dispatches_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR] if DATA_INTELLIGENT_DISPATCHES_COORDINATOR in hass.data[DOMAIN][account_id] else None
     if intelligent_dispatches_coordinator is not None:
       entities.append(OctopusEnergyIntelligentDispatchesDataLastRetrieved(hass, intelligent_dispatches_coordinator, account_id))
+
+      intelligent_features = get_intelligent_features(intelligent_device.provider)
+      if intelligent_features.current_state_supported:
+        entities.append(OctopusEnergyIntelligentCurrentState(hass, intelligent_dispatches_coordinator, intelligent_device, account_id))
                       
     intelligent_settings_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS_COORDINATOR] if DATA_INTELLIGENT_SETTINGS_COORDINATOR in hass.data[DOMAIN][account_id] else None
     if intelligent_settings_coordinator is not None:
