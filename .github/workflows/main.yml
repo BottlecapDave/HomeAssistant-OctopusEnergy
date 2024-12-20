@@ -41,8 +41,7 @@ jobs:
         uses: asdf-vm/actions/install@v3
       - name: Install Python modules
         run: |
-          sudo apt update & sudo apt upgrade
-          sudo apt install libffi-dev libncurses5-dev zlib1g zlib1g-dev libssl-dev libreadline-dev libbz2-dev libsqlite3-dev
+          sudo apt install libsqlite3-dev
           pip install -r requirements.test.txt
       - name: Run unit tests
         run: |
@@ -61,8 +60,7 @@ jobs:
         uses: asdf-vm/actions/install@v3
       - name: Install Python modules
         run: |
-          sudo apt update & sudo apt upgrade
-          sudo apt install libffi-dev libncurses5-dev zlib1g zlib1g-dev libssl-dev libreadline-dev libbz2-dev libsqlite3-dev
+          sudo apt install libsqlite3-dev
           pip install -r requirements.test.txt
       - name: Run integration tests
         run: |
