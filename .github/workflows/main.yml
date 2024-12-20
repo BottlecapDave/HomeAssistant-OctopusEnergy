@@ -41,7 +41,6 @@ jobs:
         uses: asdf-vm/actions/install@v3
       - name: Install Python modules
         run: |
-          sudo apt install libsqlite3-dev
           pip install -r requirements.test.txt
       - name: Run unit tests
         run: |
@@ -60,7 +59,6 @@ jobs:
         uses: asdf-vm/actions/install@v3
       - name: Install Python modules
         run: |
-          sudo apt install libsqlite3-dev
           pip install -r requirements.test.txt
       - name: Run integration tests
         run: |
