@@ -37,6 +37,10 @@ async def async_migrate_main_config(version: int, data: {}):
       new_data[CONFIG_ACCOUNT_ID] = new_data[CONFIG_MAIN_OLD_ACCOUNT_ID]
       del new_data[CONFIG_MAIN_OLD_ACCOUNT_ID]
 
+  if (version <= 5):
+    if CONFIG_MAIN_HOME_PRO_ADDRESS in new_data:
+      new_data[CONFIG_MAIN_HOME_PRO_ADDRESS] = f"{new_data[CONFIG_MAIN_HOME_PRO_ADDRESS]}".replace(":8000", "")
+
   return new_data
 
 def merge_main_config(data: dict, options: dict, updated_config: dict = None):
