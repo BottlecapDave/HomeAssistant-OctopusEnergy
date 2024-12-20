@@ -16,5 +16,7 @@
   "ssdp": [],
   "version": "13.3.0",
   "zeroconf": [],
-  "requirements": ["pydantic"]
+  "requirements": [
+    "pydantic"
+  ]
 }
