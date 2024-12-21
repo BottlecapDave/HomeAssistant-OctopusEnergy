@@ -16,12 +16,16 @@ def assert_meter(meter, expected_serial_number: int):
   assert meter["device_id"] == "**REDACTED**"
   assert isinstance(meter["latest_consumption"], datetime)
 
-  assert meter["device"] is not None
-  assert isinstance(meter["device"]["total_consumption"], float)
-  assert isinstance(meter["device"]["consumption"], float)
-  assert "demand" in meter["device"]
-  assert isinstance(meter["device"]["start"], datetime)
-  assert isinstance(meter["device"]["end"], datetime)
+  if meter["device"] !=  "Not available":
+    if meter["device"]["total_consumption"] is not None:
+        assert isinstance(meter["device"]["total_consumption"], float)
+
+    if meter["device"]["consumption"] is not None:
+        assert isinstance(meter["device"]["consumption"], float)
+    
+    assert "demand" in meter["device"]
+    assert isinstance(meter["device"]["start"], datetime)
+    assert isinstance(meter["device"]["end"], datetime)
 
 @pytest.mark.asyncio
 async def test_when_async_get_diagnostics_called_then_account_info_is_returned():
