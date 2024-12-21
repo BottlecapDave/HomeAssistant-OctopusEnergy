@@ -42,9 +42,10 @@ class OctopusEnergyHomeProApiClient:
   async def async_ping(self):
     try:
       client = self._create_client_session()
-      url = f'{self._base_url}/get_meter_info?meter_type=elec'
+      url = f'{self._base_url}:3000/get_meter_consumption'
       headers = { "Authorization": self._api_key }
-      async with client.get(url, headers=headers) as response:
+      data = { "meter_type": "elec" }
+      async with client.post(url, headers=headers, json=data) as response:
         response_body = await self.__async_read_response__(response, url)
         if (response_body is not None and "Status" in response_body):
           status: str = response_body["Status"]
@@ -62,20 +63,23 @@ class OctopusEnergyHomeProApiClient:
     try:
       client = self._create_client_session()
       meter_type = 'elec' if is_electricity else 'gas'
-      url = f'{self._base_url}/get_meter_consumption?meter_type={meter_type}'
+      url = f'{self._base_url}:3000/get_meter_consumption'
       headers = { "Authorization": self._api_key }
-      async with client.get(url, headers=headers) as response:
+      data = { "meter_type": meter_type }
+      async with client.post(url, headers=headers, json=data) as response:
         response_body = await self.__async_read_response__(response, url)
-        if (response_body is not None and "meter_consump" in response_body and "consum" in response_body["meter_consump"]):
-          data = response_body["meter_consump"]["consum"]
-          divisor = int(data["raw"]["divisor"], 16)
-          return [{
-            "total_consumption": int(data["consumption"]) / divisor if divisor > 0 else None,
-            "demand": float(data["instdmand"]) if "instdmand" in data else None,
-            "start": datetime.fromtimestamp(int(response_body["meter_consump"]["time"]), timezone.utc),
-            "end": datetime.fromtimestamp(int(response_body["meter_consump"]["time"]), timezone.utc),
-            "is_kwh": data["unit"] == 0
-          }]
+        if (response_body is not None and "meter_consump"):
+          meter_consump = json.loads(response_body["meter_consump"])
+          if "consum" in meter_consump:
+            data = meter_consump["consum"]
+            divisor = int(data["raw"]["divisor"], 16)
+            return [{
+              "total_consumption": int(data["consumption"]) / divisor if divisor > 0 else None,
+              "demand": float(data["instdmand"]) if "instdmand" in data else None,
+              "start": datetime.fromtimestamp(int(meter_consump["time"]), timezone.utc),
+              "end": datetime.fromtimestamp(int(meter_consump["time"]), timezone.utc),
+              "is_kwh": data["unit"] == 0
+            }]
         
         return None
     
@@ -88,7 +92,7 @@ class OctopusEnergyHomeProApiClient:
 
     try:
       client = self._create_client_session()
-      url = f'{self._base_url}/screen'
+      url = f'{self._base_url}:8000/screen'
       headers = { "Authorization": self._api_key }
       payload = {
         # API doesn't support none or empty string as a valid value
@@ -110,6 +114,7 @@ class OctopusEnergyHomeProApiClient:
     """Reads the response, logging any json errors"""
 
     text = await response.text()
+    _LOGGER.debug(f"response: {text}")
 
     if response.status >= 400:
       if response.status >= 500:

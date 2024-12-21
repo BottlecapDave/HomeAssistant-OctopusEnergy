@@ -1,5 +1,8 @@
+import logging
 import os
 from datetime import datetime, timedelta
+
+logging.getLogger().setLevel(logging.DEBUG)
 
 class TestContext:
   api_key: str

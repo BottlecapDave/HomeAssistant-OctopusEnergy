@@ -633,8 +633,13 @@ async def async_setup_tariff_comparison_sensors(hass: HomeAssistant, entry, conf
   calorific_value = DEFAULT_CALORIFIC_VALUE
   config_entries = hass.config_entries.async_entries(DOMAIN)
   for entry in config_entries:
-    if entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT and entry.data[CONFIG_ACCOUNT_ID] == account_id and CONFIG_MAIN_CALORIFIC_VALUE in config:
-      calorific_value = config[CONFIG_MAIN_CALORIFIC_VALUE]
+    config_entry_data = dict(entry.data)
+
+    if entry.options:
+      config_entry_data.update(entry.options)
+
+    if config_entry_data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT and config_entry_data[CONFIG_ACCOUNT_ID] == account_id and CONFIG_MAIN_CALORIFIC_VALUE in config_entry_data:
+      calorific_value = config_entry_data[CONFIG_MAIN_CALORIFIC_VALUE]
 
   now = utcnow()
   for point in account_info["electricity_meter_points"]:

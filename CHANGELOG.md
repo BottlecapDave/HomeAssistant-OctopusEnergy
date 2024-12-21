@@ -1,45 +1,14 @@
-# [13.3.0-beta.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.3.0-beta.3...v13.3.0-beta.4) (2024-12-15)
+# [13.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.2.1...v13.3.0) (2024-12-16)
 
 
 ### Bug Fixes
 
 * Fixed issue with downloading diagnostics breaks loading of data (15 minutes dev time) ([4589a6a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4589a6ad0565e4289d3de2d89b525e6110e0605b))
-* Fixed zone mode interpretations in zone climate control and exposed target temperature in boost service (30 minutes dev time) ([7eb6755](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7eb67553119773616097b6cc9360e03ed793fb46))
+* Fixed issue with gas tariff comparison not persisting configured calorific value (1 hour dev time) ([b16cd1d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b16cd1dbeeac4224d62c4cdf05b0c845a3ac71dd))
 
 
 ### Features
 
-* Updated heat pump zones and sensors to not be included if not enabled (5 minutes dev time) ([f762c4d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f762c4d214ba635abc8447536a75e4e1402ffea1))
-
-# [13.3.0-beta.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.3.0-beta.2...v13.3.0-beta.3) (2024-12-14)
-
-
-### Features
-
-* Created heat pump boosting action to support custom end time (40 minutes dev time) ([bc047f8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/bc047f866a2047cd3d2cc059cce362d2f56a2ada))
-* Fixed heat pump service calls (30 minutes dev time) ([ff88cd4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ff88cd419b626daccb10d236a772b27931a4f08a))
-* Updated heat pump zone min/max temperatures based on zone type (5 minutes dev time) ([2ce5fe6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2ce5fe64456434552d581aaaa311030fa0cec8f4))
-
-# [13.3.0-beta.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.3.0-beta.1...v13.3.0-beta.2) (2024-12-11)
-
-
-### Bug Fixes
-
-* Fixed heat pump retrieved at parsing (15 minutes dev time) ([cd47109](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cd471094811f120a56c6fa4a7498d532ad32a3bc))
-* Fixed heat pump retrieved at parsing (15 minutes dev time) ([#1118](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1118)) ([aeac537](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/aeac537b1624e1b6bbcb4e8d9089ae44d9ee3f09))
-
-# [13.3.0-beta.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.2.1...v13.3.0-beta.1) (2024-12-10)
-
-
-### Features
-
-* Added ability to change zone modes and target temperatures (1 hour dev time) ([56aef85](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/56aef85031be5e4b9a5bb5621b042a5616304fc7))
-* Added climate control for heat pump zone (3 hours dev time) ([5e72161](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5e72161a180119110be950322dfafeab6b755b27))
-* Added endpoint to get heat pump configuration and status ([1826925](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1826925513a288bc1b6a4772c305deb7cf3dc6d6))
-* Added heat pump humidity sensor (1 hour dev time) ([b479c89](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b479c8999256a70273077c8c0b5f001decbdbf84))
-* Added heat pump information to device diagnostics (30 minutes dev time) ([b8468bc](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b8468bce31a4dff419b3bfe21392911b88f05f0d))
-* Added temperature sensors from heat pumps (2.5 hours dev time) ([c79e5b8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c79e5b8bdb50ee974027e2f5d9a7a16360634621))
-* Updated account to include heat pump ids (5 minutes dev time) ([5c411c8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5c411c8efafc41ca323ae4d8415f03cb213da282))
 * Updated cost tracker entities to be associated with device of tracked entity, if one exists (1 hour dev time) ([9fe69a0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9fe69a081b08f1bec3ecfb4ea3b4ed552cc665ef))
 
 ## [13.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.2.0...v13.2.1) (2024-12-01)
