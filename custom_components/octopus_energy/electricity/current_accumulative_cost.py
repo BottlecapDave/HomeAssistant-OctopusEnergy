@@ -150,7 +150,7 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
 
       if target_rate is None:
         self._attributes["standing_charge"] = consumption_and_cost["standing_charge"]
-        self._attributes["total_cost_without_standing_charge"] = consumption_and_cost["total_cost_without_standing_charge"]
+        self._attributes["total_without_standing_charge"] = consumption_and_cost["total_cost_without_standing_charge"]
 
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
