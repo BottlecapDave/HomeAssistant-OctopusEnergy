@@ -283,10 +283,8 @@ async def async_setup_dependencies(hass, config):
   hass.data[DOMAIN][account_id][DATA_CLIENT] = client
 
   if (CONFIG_MAIN_HOME_PRO_ADDRESS in config and
-      config[CONFIG_MAIN_HOME_PRO_ADDRESS] is not None and
-      CONFIG_MAIN_HOME_PRO_API_KEY in config and
-      config[CONFIG_MAIN_HOME_PRO_API_KEY] is not None):
-    home_pro_client = OctopusEnergyHomeProApiClient(config[CONFIG_MAIN_HOME_PRO_ADDRESS], config[CONFIG_MAIN_HOME_PRO_API_KEY])
+      config[CONFIG_MAIN_HOME_PRO_ADDRESS] is not None):
+    home_pro_client = OctopusEnergyHomeProApiClient(config[CONFIG_MAIN_HOME_PRO_ADDRESS], config[CONFIG_MAIN_HOME_PRO_API_KEY] if CONFIG_MAIN_HOME_PRO_API_KEY in config else None)
     hass.data[DOMAIN][account_id][DATA_HOME_PRO_CLIENT] = home_pro_client
 
   # Delete any issues that may have been previously raised
