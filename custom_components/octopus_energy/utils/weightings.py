@@ -9,7 +9,7 @@ class RateWeighting(BaseModel):
 
 class ValidateRateWeightingsResult:
 
-  def __init__(self, success: bool, weightings:list[RateWeighting] = [], error_message: str | None = None):
+  def __init__(self, success: bool, weightings: list[RateWeighting] = [], error_message: str | None = None):
     self.success = success
     self.weightings = weightings
     self.error_message = error_message
@@ -67,3 +67,29 @@ def _validate_time(value: datetime, key: str, index: int):
     return f"{key} second and microsecond must equal 0"
   
   return None
+
+def merge_weightings(current_date: datetime, new_weighting: list[RateWeighting], current_weighting: list[RateWeighting]):
+  merged_weightings = []
+  merged_weightings.extend(new_weighting)
+
+  for weighting in current_weighting:
+    if weighting.end >= current_date:
+      merged_weightings.append(weighting)
+
+  merged_weightings.sort(key=lambda x: x.start)
+
+  return merged_weightings
+
+def apply_weighting(applicable_rates: list | None, rate_weightings: list[RateWeighting] | None):
+  if applicable_rates is None:
+    return None
+  
+  if rate_weightings is None:
+    return applicable_rates
+  
+  for rate in applicable_rates:
+    for session in rate_weightings:
+      if rate["start"] >= session.start and rate["end"] <= session.end:
+        rate["weighting"] = session.weighting
+
+  return applicable_rates

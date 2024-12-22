@@ -22,8 +22,8 @@ from homeassistant.components.sensor import (
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..coordinators.electricity_rates import ElectricityRatesCoordinatorResult
-from ..utils.weightings import validate_rate_weightings
-from ..const import DOMAIN
+from ..utils.weightings import merge_weightings, validate_rate_weightings
+from ..const import DATA_CUSTOM_RATE_WEIGHTINGS_KEY, DOMAIN
 
 from ..utils.rate_information import (get_current_rate_information)
 
@@ -32,7 +32,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectricitySensor, RestoreSensor):
   """Sensor for displaying the current rate."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, meter, point, electricity_price_cap):
+  def __init__(self, hass: HomeAssistant, coordinator, meter, point, electricity_price_cap, account_id: str):
     """Init sensor."""
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
@@ -41,6 +41,7 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
     self._state = None
     self._last_updated = None
     self._electricity_price_cap = electricity_price_cap
+    self._account_id = account_id
 
     self._attributes = {
       "mpan": self._mpan,
@@ -174,9 +175,16 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
         },
       )
     
-    # TODO
-    # Merge existing weightings
-    # Remove weightings that are in the past
-    # Store weightings in hass data
+    key = DATA_CUSTOM_RATE_WEIGHTINGS_KEY.format(self._mpan)
+    weightings = result.weightings
+    weightings = merge_weightings(
+      now(),
+      weightings,
+      self._hass.data[DOMAIN][self._account_id][key] 
+      if key in self._hass.data[DOMAIN][self._account_id] 
+      else []
+    )
+
+    self._hass.data[DOMAIN][self._account_id][key] = weightings
     
     await async_save_cached_rate_weightings(self._hass, self._mpan, self._serial_number, result.weightings)
