@@ -379,6 +379,30 @@ mutation {{
 }}
 '''
 
+heat_pump_update_flow_temp_config_mutation = '''
+mutation {{
+  octoHeatPumpUpdateFlowTemperatureConfiguration(
+    euid: "{euid}"
+    flowTemperatureInput: {{
+      useWeatherCompensation: false, 
+      flowTemperature: {
+        value: "{flow_temperature}", 
+        unit: DEGREES_CELSIUS
+      }}, 
+      weatherCompensationValues: {{
+        minimum: {{
+          value: "{weather_comp_min_temperature}", 
+          unit: DEGREES_CELSIUS
+        }, 
+        maximum: {{
+          value: "{weather_comp_max_temperature}", 
+          unit: DEGREES_CELSIUS
+        }}
+    }}
+  )
+}}
+'''
+
 heat_pump_status_and_config_query = '''
 query {{
   octoHeatPumpControllerStatus(accountNumber: "{account_id}", euid: "{euid}") {{
@@ -490,6 +514,32 @@ query {{
           }}
         }}
       }}
+    }}
+  }}
+  octoHeatPumpLifetimePerformance(euid: "{euid}") {{
+    seasonalCoefficientOfPerformance
+    heatOutput {{
+      unit
+      value
+    }}
+    energyInput {{
+      unit
+      value
+    }}
+  }}
+  octoHeatPumpLivePerformance(euid: "{euid}") {{
+    coefficientOfPerformance
+    outdoorTemperature {{
+      unit
+      value
+    }}
+    heatOutput {{
+      value
+      unit
+    }}
+    powerInput {{
+      unit
+      value
     }}
   }}
 }}
@@ -797,7 +847,12 @@ class OctopusEnergyApiClient:
       async with client.post(url, json=payload, headers=headers) as heat_pump_response:
         response = await self.__async_read_response__(heat_pump_response, url)
 
-        if (response is not None and "data" in response and "octoHeatPumpControllerConfiguration" in response["data"]  and "octoHeatPumpControllerStatus" in response["data"]):
+        if (response is not None 
+            and "data" in response 
+            and "octoHeatPumpControllerConfiguration" in response["data"] 
+            and "octoHeatPumpControllerStatus" in response["data"]
+            and "octoHeatPumpLifetimePerformance" in response["data"]
+            and "octoHeatPumpLivePerformance" in response["data"]):
           return HeatPumpResponse.parse_obj(response["data"])
         
       return None
