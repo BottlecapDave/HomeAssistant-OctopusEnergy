@@ -1,5 +1,7 @@
-from datetime import timedelta
 import logging
+
+from custom_components.octopus_energy.storage.rate_weightings import async_save_cached_rate_weightings
+from homeassistant.exceptions import ServiceValidationError
 
 from homeassistant.const import (
     STATE_UNAVAILABLE,
@@ -20,6 +22,8 @@ from homeassistant.components.sensor import (
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..coordinators.electricity_rates import ElectricityRatesCoordinatorResult
+from ..utils.weightings import validate_rate_weightings
+from ..const import DOMAIN
 
 from ..utils.rate_information import (get_current_rate_information)
 
@@ -156,3 +160,23 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
       self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
       self._attributes = dict_to_typed_dict(state.attributes, ['all_rates', 'applicable_rates'])
       _LOGGER.debug(f'Restored OctopusEnergyElectricityCurrentRate state: {self._state}')
+
+  @callback
+  async def async_register_rate_weightings(self, weightings):
+    """Apply rate weightings"""
+    result = validate_rate_weightings(weightings)
+    if result.success == False:
+      raise ServiceValidationError(
+        translation_domain=DOMAIN,
+        translation_key="invalid_rate_weightings",
+        translation_placeholders={ 
+          "error": result.error_message,
+        },
+      )
+    
+    # TODO
+    # Merge existing weightings
+    # Remove weightings that are in the past
+    # Store weightings in hass data
+    
+    await async_save_cached_rate_weightings(self._hass, self._mpan, self._serial_number, result.weightings)

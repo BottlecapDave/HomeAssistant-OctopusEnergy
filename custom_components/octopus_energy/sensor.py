@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 from custom_components.octopus_energy.api_client.intelligent_device import IntelligentDevice
 import voluptuous as vol
 import logging
@@ -189,6 +189,28 @@ async def async_setup_entry(hass, entry, async_add_entities):
         "async_redeem_points_into_account_credit",
         # supports_response=SupportsResponse.OPTIONAL
       )
+
+    platform.async_register_entity_service(
+      "register_rate_weightings",
+      vol.All(
+        cv.make_entity_service_schema(
+          {
+            vol.Required("weightings"): vol.All(
+                cv.ensure_list,
+                [
+                  {
+                    vol.Required("start"): str,
+                    vol.Required("end"): str,
+                    vol.Required("weighting"): float
+                  }
+                ],
+            ),
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
+      ),
+      "async_register_rate_weightings",
+    )
   elif config[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
     await async_setup_cost_sensors(hass, entry, config, async_add_entities)
 

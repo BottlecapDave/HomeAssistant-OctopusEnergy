@@ -13,6 +13,7 @@ class OctopusEnergyElectricitySensor:
     """Init sensor"""
     self._point = point
     self._meter = meter
+    self._hass = hass
 
     self._mpan = point["mpan"]
     self._serial_number = meter["serial_number"]
