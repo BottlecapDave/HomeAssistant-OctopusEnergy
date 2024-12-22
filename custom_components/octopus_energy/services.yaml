@@ -268,3 +268,48 @@ boost_heat_pump_zone:
         number:
           step: 0.5
           mode: box
+
+set_heat_pump_flow_temp_config:
+  name: Set heat pump flow temperature configuration
+  description: Sets the fixed and/or weather compensated flow temperatures
+  target:
+    entity:
+      integration: octopus_energy
+      domain: climate
+  fields:
+    weather_comp_enabled:
+      name: Weather compensation enabled
+      description: Switches weather compensation on or off
+      required: true
+      selector:
+        boolean:
+    weather_comp_min_temperature:
+      name: Weather compensated minimum temperature
+      description: Minimum allowable temperature for weather compensation
+      required: true
+      selector:
+        number:
+          step: 0.5
+          min: 30
+          max: 70
+          mode: box
+    weather_comp_max_temperature:
+      name: Weather compensated maximum temperature
+      description: Maximum allowable temperature for weather compensation
+      required: true
+      selector:
+        number:
+          step: 0.5
+          min: 30
+          max: 70
+          mode: box
+    fixed_flow_temperature:
+      name: Fixed flow temperature
+      description: Temperature for a fixed flow without weather compensation
+      required: true
+      selector:
+        number:
+          step: 0.5
+          min: 30
+          max: 70
+          mode: box

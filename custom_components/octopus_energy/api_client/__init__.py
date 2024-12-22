@@ -384,9 +384,9 @@ mutation {{
   octoHeatPumpUpdateFlowTemperatureConfiguration(
     euid: "{euid}"
     flowTemperatureInput: {{
-      useWeatherCompensation: false, 
+      useWeatherCompensation: {use_weather_comp}, 
       flowTemperature: {
-        value: "{flow_temperature}", 
+        value: "{fixed_flow_temperature}", 
         unit: DEGREES_CELSIUS
       }}, 
       weatherCompensationValues: {{
@@ -861,6 +861,23 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
     
+  async def async_set_heat_pump_flow_temp_config(self, euid: str, weather_comp_enabled: bool, weather_comp_min_temperature: float | None, weather_comp_max_temperature: float | None, fixed_flow_temperature: float | None):
+    """Sets the flow temperature  for a given heat pump zone"""
+    await self.async_refresh_token()
+
+    try:
+      client = self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+      query = heat_pump_update_flow_temp_config_mutation.format(euid=euid, weather_comp_enabled=weather_comp_enabled, weather_comp_min_temperature=weather_comp_min_temperature, weather_comp_max_temperature=weather_comp_max_temperature, fixed_flow_temperature=fixed_flow_temperature) 
+      payload = { "query": query }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as heat_pump_response:
+        await self.__async_read_response__(heat_pump_response, url)
+    
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
   async def async_set_heat_pump_zone_mode(self, account_id: str, euid: str, zone_id: str, zone_mode: str, target_temperature: float | None):
     """Sets the mode for a given heat pump zone"""
     await self.async_refresh_token()

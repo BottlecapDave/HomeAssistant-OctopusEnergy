@@ -125,7 +125,7 @@ class OctoHeatPumpControllerConfiguration(BaseModel):
 class OctoHeatPumpLivePerformance(BaseModel):
     coefficientOfPerformance: str 
     heatOutput: ValueAndUnit
-    energyInput: ValueAndUnit
+    powerInput: ValueAndUnit
     outdoorTemperature: ValueAndUnit
 
 

@@ -56,6 +56,21 @@ async def async_setup_default_sensors(hass, config, async_add_entities):
     ),
     "async_boost_heat_pump_zone"
   )
+  platform.async_register_entity_service(
+    "set_heat_pump_flow_temp_config",
+    vol.All(
+      cv.make_entity_service_schema(
+        {
+          vol.Required("weather_comp_enabled"): cv.boolean,
+          vol.Required("weather_comp_min_temperature"): cv.positive_float,
+          vol.Required("weather_comp_max_temperature"): cv.positive_float,
+          vol.Required("fixed_flow_temperature"): cv.positive_float,
+        },
+        extra=vol.ALLOW_EXTRA,
+      ),
+    ),
+    "async_set_heat_pump_flow_temp_config"
+  )
 
   entities = []
 
