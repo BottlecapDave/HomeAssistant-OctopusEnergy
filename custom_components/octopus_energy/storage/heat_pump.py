@@ -20,4 +20,4 @@ async def async_save_cached_heat_pump(hass, account_id: str, euid: str, heat_pum
   if heat_pump is not None:
     store = storage.Store(hass, "1", f"octopus_energy.{account_id}_{euid}_heat_pump")
     await store.async_save(heat_pump.dict())
-    _LOGGER.debug(f"Saved heat pymp data for {account_id}/{euid}")
+    _LOGGER.debug(f"Saved heat pump data for {account_id}/{euid}")

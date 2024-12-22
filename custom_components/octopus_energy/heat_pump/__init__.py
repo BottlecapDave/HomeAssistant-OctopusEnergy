@@ -344,6 +344,32 @@ def mock_heat_pump_status_and_configuration():
           }
         }
       ]
+    },
+    "octoHeatPumpLifetimePerformance": {
+      "seasonalCoefficientOfPerformance": "3.401",
+      "heatOutput": {
+        "unit": "KILOWATT_HOUR",
+        "value": "128.111"
+      },
+      "energyInput": {
+        "unit": "KILOWATT_HOUR",
+        "value": "37.673"
+      }
+    },
+    "octoHeatPumpLivePerformance": {
+      "coefficientOfPerformance": "3.580",
+      "outdoorTemperature": {
+        "unit": "DEGREES_CELSIUS",
+        "value": "4.300"
+      },
+      "heatOutput": {
+        "value": "2.968",
+        "unit": "KILOWATT"
+      },
+      "powerInput": {
+        "unit": "KILOWATT",
+        "value": "0.821"
+      }
     }
   }
 

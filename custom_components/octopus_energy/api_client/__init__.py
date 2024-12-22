@@ -519,27 +519,27 @@ query {{
   octoHeatPumpLifetimePerformance(euid: "{euid}") {{
     seasonalCoefficientOfPerformance
     heatOutput {{
-      unit
       value
+      unit
     }}
     energyInput {{
-      unit
       value
+      unit
     }}
   }}
   octoHeatPumpLivePerformance(euid: "{euid}") {{
     coefficientOfPerformance
     outdoorTemperature {{
-      unit
       value
+      unit
     }}
     heatOutput {{
       value
       unit
     }}
     powerInput {{
-      unit
       value
+      unit
     }}
   }}
 }}
