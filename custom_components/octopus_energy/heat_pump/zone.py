@@ -93,6 +93,8 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
 
     current = now()
     result: HeatPumpCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    _LOGGER.debug(result)
+    
     if (result is not None and 
         result.data is not None and 
         result.data.octoHeatPumpControllerStatus is not None and
@@ -102,7 +104,7 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
 
       zones: List[Zone] = result.data.octoHeatPumpControllerStatus.zones
       for zone in zones:
-        if zone.telemetry is not None and zone.telemetry.zone == self._zone.configuration.code and zone.telemetry.mode is not None:
+        if zone.telemetry is not None and zone.zone == self._zone.configuration.code and zone.telemetry.mode is not None:
 
           if zone.telemetry.mode == "ON":
             self._attr_hvac_mode = HVACMode.HEAT
@@ -120,19 +122,19 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
             raise Exception(f"Unexpected heat pump mode detected: {zone.telemetry.mode}")
 
           self._attr_hvac_action = HVACAction.HEATING if zone.telemetry.relaySwitchedOn else HVACAction.IDLE
-          self._attr_target_temperature = zone.telemetry.setpointInCelsius
+          self._attr_target_temperature = zone.telemetry.setpointInCelsius if zone.telemetry.setpointInCelsius > 0 else None
 
-          if result.data.octoHeatPumpControllerStatus.sensors and self._zone.configuration.primarySenso):
+          if result.data.octoHeatPumpControllerStatus.sensors and self._zone.configuration.primarySensor:
             sensors: List[Sensor] = result.data.octoHeatPumpControllerStatus.sensors
             for sensor in sensors:
               if sensor.code == self._zone.configuration.primarySensor and sensor.telemetry is not None:
                 self._attr_current_temperature = sensor.telemetry.temperatureInCelsius
 
           if result.data.octoHeatPumpControllerConfiguration is not None and result.data.octoHeatPumpControllerConfiguration.zones:
-)           configs: List[ConfigurationZone] = result.data.octoHeatPumpControllerConfiguration.zones
+            configs: List[ConfigurationZone] = result.data.octoHeatPumpControllerConfiguration.zones
             for config in configs:
-              if zone.configuration is not None and zone.configuration.code == self._zone.configuration.code and zone.configuration.currentOperation is not None:
-                self._end_timestamp = datetime.fromisoformat(zone.configuration.currentOperation.end) if zone.configuration.currentOperation.end is not None else None
+              if config.configuration is not None and config.configuration.code == self._zone.configuration.code and config.configuration.currentOperation is not None:
+                self._end_timestamp = datetime.fromisoformat(config.configuration.currentOperation.end) if config.configuration.currentOperation.end is not None else None
       
       self._last_updated = current
 
