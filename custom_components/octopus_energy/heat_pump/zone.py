@@ -92,9 +92,7 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     """Retrieve the previous rate."""
 
     current = now()
-    result: HeatPumpCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
-    _LOGGER.debug(result)
-    
+    result: HeatPumpCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None    
     if (result is not None and 
         result.data is not None and 
         result.data.octoHeatPumpControllerStatus is not None and
