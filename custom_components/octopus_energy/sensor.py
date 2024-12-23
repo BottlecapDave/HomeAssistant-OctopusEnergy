@@ -533,6 +533,8 @@ def setup_heat_pump_sensors(hass: HomeAssistant, heat_pump_id: str, heat_pump_re
 
   entities = []
 
+  #TODO: add power and CoP sensors here
+
   if heat_pump_response is not None and heat_pump_response.octoHeatPumpControllerConfiguration is not None:
     for zone in heat_pump_response.octoHeatPumpControllerConfiguration.zones:
       if zone.configuration is not None and zone.configuration.sensors is not None:

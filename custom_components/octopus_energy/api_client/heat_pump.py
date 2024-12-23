@@ -23,7 +23,7 @@ class Sensor(BaseModel):
 
 
 class ZoneTelemetry(BaseModel):
-    setpointInCelsius: int
+    setpointInCelsius: float
     mode: str
     relaySwitchedOn: bool
     heatDemand: bool
@@ -85,7 +85,7 @@ class HeatPump(BaseModel):
 
 class CurrentOperation(BaseModel):
     mode: str
-    setpointInCelsius: Optional[int]
+    setpointInCelsius: Optional[float]
     action: Optional[str]
     end: str
 
@@ -135,8 +135,12 @@ class OctoHeatPumpLifetimePerformance(BaseModel):
     energyInput: ValueAndUnit
 
 
+class OctoHeatPumpTimeRangedPerformance(BaseModel):
+    coefficientOfPerformance: str 
+    energyOutput: ValueAndUnit
+    energyInput: ValueAndUnit
+
+
 class HeatPumpResponse(BaseModel):
     octoHeatPumpControllerStatus: OctoHeatPumpControllerStatus
     octoHeatPumpControllerConfiguration: OctoHeatPumpControllerConfiguration
-    octoHeatPumpLifetimePerformance: OctoHeatPumpLifetimePerformance
-    octoHeatPumpLivePerformance: OctoHeatPumpLivePerformance

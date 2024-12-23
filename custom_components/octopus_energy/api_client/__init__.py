@@ -516,6 +516,27 @@ query {{
       }}
     }}
   }}
+}}
+'''
+
+heat_pump_time_ranged_performance = '''
+query {{
+  octoHeatPumpTimeRangedPerformance(euid: "{euid}", startAt: "{start_at}", endAt: "{end_at}") {{
+    coefficientOfPerformance
+    energyInput {{
+      unit
+      value
+    }}
+    energyOutput {{
+      unit
+      value
+    }}
+  }}
+}}
+'''
+
+heat_pump_lifetime_performance = '''
+query {{
   octoHeatPumpLifetimePerformance(euid: "{euid}") {{
     seasonalCoefficientOfPerformance
     heatOutput {{
@@ -527,6 +548,11 @@ query {{
       unit
     }}
   }}
+}}
+'''
+
+heat_pump_live_performance = '''
+query {{
   octoHeatPumpLivePerformance(euid: "{euid}") {{
     coefficientOfPerformance
     outdoorTemperature {{
@@ -544,6 +570,7 @@ query {{
   }}
 }}
 '''
+
 
 user_agent_value = "bottlecapdave-ha-octopus-energy"
 
@@ -847,13 +874,71 @@ class OctopusEnergyApiClient:
       async with client.post(url, json=payload, headers=headers) as heat_pump_response:
         response = await self.__async_read_response__(heat_pump_response, url)
 
-        if (response is not None 
-            and "data" in response 
-            and "octoHeatPumpControllerConfiguration" in response["data"] 
-            and "octoHeatPumpControllerStatus" in response["data"]
-            and "octoHeatPumpLifetimePerformance" in response["data"]
-            and "octoHeatPumpLivePerformance" in response["data"]):
+        if (response is not None and "data" in response and "octoHeatPumpControllerConfiguration" in response["data"] and "octoHeatPumpControllerStatus" in response["data"]):
           return HeatPumpResponse.parse_obj(response["data"])
+        
+      return None
+    
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_get_heat_pump_live_performance(self, euid: str):
+    """Get heat pump live performance"""
+    await self.async_refresh_token()
+
+    try:
+      client = self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": heat_pump_live_performance.format(euid=euid) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as heat_pump_response:
+        response = await self.__async_read_response__(heat_pump_response, url)
+
+        if (response is not None and "data" in response and "octoHeatPumpLivePerformance" in response["data"]):
+          return OctoHeatPumpLivePerformance.parse_obj(response["data"]["octoHeatPumpLivePerformance"])
+        
+      return None
+    
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_get_heat_pump_lifetime_performance(self, euid: str):
+    """Get heat pump live performance"""
+    await self.async_refresh_token()
+
+    try:
+      client = self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": heat_pump_lifetime_performance.format(euid=euid) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as heat_pump_response:
+        response = await self.__async_read_response__(heat_pump_response, url)
+
+        if (response is not None and "data" in response and "octoHeatPumpLifetimePerformance" in response["data"]):
+          return OctoHeatPumpLifetimePerformance.parse_obj(response["data"]["octoHeatPumpLifetimePerformance"])
+        
+      return None
+    
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_get_heat_pump_time_ranged_performance(self, euid: str, start_at: datetime, end_at: datetime):
+    """Get heat pump live performance"""
+    await self.async_refresh_token()
+
+    try:
+      client = self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": heat_pump_time_ranged_performance.format(euid=euid, start_at=start_at.isoformat(sep="T"), end_at=end_at.isoformat(sep="T")) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as heat_pump_response:
+        response = await self.__async_read_response__(heat_pump_response, url)
+
+        if (response is not None and "data" in response and "octoHeatPumpTimeRangedPerformance" in response["data"]):
+          return OctoHeatPumpTimeRangedPerformance.parse_obj(response["data"]["octoHeatPumpTimeRangedPerformance"])
         
       return None
     
