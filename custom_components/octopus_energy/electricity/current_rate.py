@@ -187,4 +187,4 @@ class OctopusEnergyElectricityCurrentRate(CoordinatorEntity, OctopusEnergyElectr
 
     self._hass.data[DOMAIN][self._account_id][key] = weightings
     
-    await async_save_cached_rate_weightings(self._hass, self._mpan, self._serial_number, result.weightings)
+    await async_save_cached_rate_weightings(self._hass, self._mpan, result.weightings)
