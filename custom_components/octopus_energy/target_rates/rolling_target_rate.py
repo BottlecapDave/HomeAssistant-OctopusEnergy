@@ -21,7 +21,7 @@ from homeassistant.helpers import translation
 
 from ..const import (
   CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD,
-  CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE,
+  CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE,
   CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING,
   CONFIG_TARGET_HOURS_MODE,
   CONFIG_TARGET_MAX_RATE,
@@ -147,7 +147,7 @@ class OctopusEnergyRollingTargetRate(MultiCoordinatorEntity, BinarySensorEntity,
       _LOGGER.debug(f'Updating OctopusEnergyTargetRate {self._config[CONFIG_TARGET_NAME]}')
       self._last_evaluated = current_date
 
-      should_evaluate = should_evaluate_target_rates(current_date, self._target_rates, self._config[CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE])
+      should_evaluate = should_evaluate_target_rates(current_date, self._target_rates, self._config[CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE])
       if should_evaluate:
         if self.coordinator is not None and self.coordinator.data is not None and self.coordinator.data.rates is not None:
           all_rates = self.coordinator.data.rates

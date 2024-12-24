@@ -7,7 +7,7 @@ import logging
 from homeassistant.util.dt import (as_utc, parse_datetime)
 
 from ..utils.conversions import value_inc_vat_to_pounds
-from ..const import CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST, CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST, CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS, CONFIG_TARGET_HOURS_MODE_EXACT, CONFIG_TARGET_HOURS_MODE_MAXIMUM, CONFIG_TARGET_HOURS_MODE_MINIMUM, CONFIG_TARGET_KEYS, REGEX_OFFSET_PARTS, REGEX_WEIGHTING
+from ..const import CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST, CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST, CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS, CONFIG_TARGET_HOURS_MODE_EXACT, CONFIG_TARGET_HOURS_MODE_MAXIMUM, CONFIG_TARGET_HOURS_MODE_MINIMUM, CONFIG_TARGET_KEYS, REGEX_OFFSET_PARTS, REGEX_WEIGHTING
 from ..api_client.free_electricity_sessions import FreeElectricitySession
 
 _LOGGER = logging.getLogger(__name__)
@@ -419,9 +419,9 @@ def should_evaluate_target_rates(current_date: datetime, target_rates: list, eva
     if rate["start"] <= current_date:
       one_rate_in_past = True
   
-  return ((evaluation_mode == CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST and all_rates_in_past) or
-          (evaluation_mode == CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST and (one_rate_in_past == False or all_rates_in_past)) or
-          (evaluation_mode == CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS))
+  return ((evaluation_mode == CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST and all_rates_in_past) or
+          (evaluation_mode == CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST and (one_rate_in_past == False or all_rates_in_past)) or
+          (evaluation_mode == CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS))
 
 def apply_free_electricity_weighting(applicable_rates: list | None, free_electricity_sessions: list[FreeElectricitySession] | None, weighting: float):
   if applicable_rates is None:

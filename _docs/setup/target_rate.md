@@ -84,6 +84,24 @@ The target rate sensor will try to find the best times for the specified hours. 
 
 For instance if the cheapest period is between `2023-01-01T00:30` and `2023-01-01T05:00` and your target rate is for 1 hour, then it will come on between  `2023-01-01T00:30` and `2023-01-01T01:30`. If the available times are between `2023-01-01T00:30` and `2023-01-01T01:00`, then the sensor will come on between  `2023-01-01T00:30` and `2023-01-01T01:00`.
 
+### Evaluation mode
+
+Because the time frame that is being evaluated could have external factors change the underlying data (e.g. if you're using [external rate weightings](#external-rate-weightings)), you might want to set how/when the target times are evaluated in order to make the selected times more or less dynamic.
+
+#### All existing target rates are in the past
+
+This is the default way of evaluating target times. This will only evaluate new target times if no target times have been calculated or all existing target times are in the past.
+
+#### Existing target rates haven't started or finished
+
+This will only evaluate target times if no target times have been calculated or all existing target times are either in the future or all existing target times are in the past. 
+
+For example, lets say we have a continuous target which looks between `00:00` and `08:00` has existing target times from `2023-01-02T01:00` to `2023-01-02T02:00`. 
+
+* If the current time is `2023-01-02T00:59`, then the target times will be re-evaluated and might change if the target period (i.e. `2023-01-02T00:30` to `2023-01-02T08:30`) has better rates than the existing target times (e.g. the external weightings have changed).
+* If the current time is `2023-01-02T01:00`, the the target times will not be re-evaluated because we've entered our current target times, even if the evaluation period has cheaper times. 
+* If the current time is `2023-01-02T02:01`, the the target times will be re-evaluated because our existing target times are in the past and will find the best times in the new rolling target period (i.e. `2023-01-02T02:00` to `2023-01-02T10:00`). 
+
 ### Offset
 
 You may want your target rate sensors to turn on a period of time before the optimum discovered period. For example, you may be turning on a robot vacuum cleaner for a 30 minute clean and want it to charge during the optimum period. For this, you'd use the `offset` field and set it to `-00:30:00`, which can be both positive and negative and go up to a maximum of 24 hours. This will shift when the sensor turns on relative to the optimum period. For example, if the optimum period is between `2023-01-18T10:00` and `2023-01-18T11:00` with an offset of `-00:30:00`, the sensor will turn on between `2023-01-18T09:30` and `2023-01-18T10:30`.
@@ -178,6 +196,7 @@ The following attributes are available on each sensor
 | `hours` | `string` | The total hours are being discovered.  |
 | `type` | `string` | The type/mode for the target rate sensor. This will be either `continuous` or `intermittent`. |
 | `mpan` | `string` | The `mpan` of the meter being used to determine the rates. |
+| `target_times_evaluation_mode` | `string` | The mode that determines when/how target times are picked |
 | `rolling_target` | `boolean` | Determines if `Re-evaluate multiple times a day` is turned on for the sensor. |
 | `last_rates` | `boolean` | Determines if `Find last applicable rates` is turned off for the sensor. |
 | `offset` | `string` | The offset configured for the sensor. |
