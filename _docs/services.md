@@ -239,7 +239,9 @@ Allows you to adjust the consumption for any given period recorded by a [cost tr
 
 ## octopus_energy.register_rate_weightings
 
-Allows you to configure weightings against rates at given times using factors external to the integration. These are applied when calculating [target rates](./setup/target_rate.md) or [rolling target rates](./setup/rolling_target_rate.md).
+Allows you to configure weightings against rates at given times using factors external to the integration. These are applied when calculating [target rates](./setup/target_rate.md#external-rate-weightings) or [rolling target rates](./setup/rolling_target_rate.md#external-rate-weightings).
+
+Rate weightings are added to any existing rate weightings that have been previously configured. Any rate weightings that are more than 24 hours old are removed. Any rate weightings for periods that have been previously configured are overridden. 
 
 | Attribute                | Optional | Description                                                                                                           |
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
