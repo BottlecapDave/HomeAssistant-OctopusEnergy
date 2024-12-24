@@ -28,6 +28,8 @@ jobs:
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v4
+      - name: Setup
+        uses: ./.github/actions/setup
       - uses: "home-assistant/actions/hassfest@master"
       - name: HACS Action
         uses: "hacs/action@main"
