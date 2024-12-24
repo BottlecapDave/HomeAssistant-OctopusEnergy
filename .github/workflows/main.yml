@@ -38,7 +38,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup
-        uses: ./github/actions/setup
+        uses: ./.github/actions/setup
       - name: Run unit tests
         run: |
           python -m pytest tests/unit
@@ -53,7 +53,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Setup
-        uses: ./github/actions/setup
+        uses: ./.github/actions/setup
       - name: Run integration tests
         run: |
           python -m pytest tests/integration
