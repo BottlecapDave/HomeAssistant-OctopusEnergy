@@ -16,6 +16,11 @@ on:
     paths-ignore:
       - 'mkdocs.yml'
       - '_docs/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   validate:
     if: ${{ github.event_name != 'schedule' || github.repository_owner == 'BottlecapDave' }}
