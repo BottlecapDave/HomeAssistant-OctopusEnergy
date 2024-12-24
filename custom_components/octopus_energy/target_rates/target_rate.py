@@ -20,7 +20,8 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers import translation
 
 from ..const import (
-  CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST,
+  CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE,
+  CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST,
   CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING,
   CONFIG_TARGET_HOURS_MODE,
   CONFIG_TARGET_MAX_RATE,
@@ -153,7 +154,7 @@ class OctopusEnergyTargetRate(MultiCoordinatorEntity, BinarySensorEntity, Restor
       _LOGGER.debug(f'Updating OctopusEnergyTargetRate {self._config[CONFIG_TARGET_NAME]}')
       self._last_evaluated = current_date
 
-      should_evaluate = should_evaluate_target_rates(current_date, self._target_rates, CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST)
+      should_evaluate = should_evaluate_target_rates(current_date, self._target_rates, self._config[CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE] if CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE in self._config else CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST)
       if should_evaluate:
         if self.coordinator is not None and self.coordinator.data is not None and self.coordinator.data.rates is not None:
           all_rates = self.coordinator.data.rates
