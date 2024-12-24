@@ -13,8 +13,8 @@
   "homekit": {},
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues",
+  "requirements": ["pydantic"],
   "ssdp": [],
   "version": "13.3.0",
-  "zeroconf": [],
-  "requirements": ["pydantic"]
+  "zeroconf": []
 }
