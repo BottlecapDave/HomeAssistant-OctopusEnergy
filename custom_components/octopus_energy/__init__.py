@@ -31,6 +31,7 @@ from .utils.debug_overrides import DebugOverride, async_get_debug_override
 from .utils.error import api_exception_to_string
 from .storage.account import async_load_cached_account, async_save_cached_account
 from .storage.intelligent_device import async_load_cached_intelligent_device, async_save_cached_intelligent_device
+from .storage.rate_weightings import async_load_cached_rate_weightings
 
 from .const import (
   CONFIG_FAVOUR_DIRECT_DEBIT_RATES,
@@ -44,6 +45,7 @@ from .const import (
   CONFIG_MAIN_HOME_PRO_API_KEY,
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_VERSION,
+  DATA_CUSTOM_RATE_WEIGHTINGS_KEY,
   DATA_HOME_PRO_CLIENT,
   DATA_INTELLIGENT_DEVICE,
   DATA_INTELLIGENT_MPAN,
@@ -349,6 +351,11 @@ async def async_setup_dependencies(hass, config):
   for point in account_info["electricity_meter_points"]:
     mpan = point["mpan"]
     electricity_tariff = get_active_tariff(now, point["agreements"])
+
+    rate_weightings = await async_load_cached_rate_weightings(hass, mpan)
+    if rate_weightings is not None:
+      key = DATA_CUSTOM_RATE_WEIGHTINGS_KEY.format(mpan)
+      hass.data[DOMAIN][account_id][key] = rate_weightings
 
     for meter in point["meters"]:  
       serial_number = meter["serial_number"]

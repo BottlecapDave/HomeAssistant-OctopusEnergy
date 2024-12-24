@@ -4,6 +4,7 @@ pytest-asyncio
 mock
 homeassistant
 psutil-home-assistant
+pydantic
 sqlalchemy
 fnvhash
 fnv_hash_fast
