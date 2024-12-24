@@ -516,6 +516,22 @@ query {{
       }}
     }}
   }}
+  octoHeatPumpLivePerformance(euid: "{euid}") {{
+    coefficientOfPerformance
+    outdoorTemperature {{
+      value
+      unit
+    }}
+    heatOutput {{
+      value
+      unit
+    }}
+    powerInput {{
+      value
+      unit
+    }}
+    readAt
+  }}
 }}
 '''
 
@@ -548,26 +564,7 @@ query {{
       unit
     }}
   }}
-}}
-'''
-
-heat_pump_live_performance = '''
-query {{
-  octoHeatPumpLivePerformance(euid: "{euid}") {{
-    coefficientOfPerformance
-    outdoorTemperature {{
-      value
-      unit
-    }}
-    heatOutput {{
-      value
-      unit
-    }}
-    powerInput {{
-      value
-      unit
-    }}
-  }}
+  readAt
 }}
 '''
 
@@ -874,29 +871,12 @@ class OctopusEnergyApiClient:
       async with client.post(url, json=payload, headers=headers) as heat_pump_response:
         response = await self.__async_read_response__(heat_pump_response, url)
 
-        if (response is not None and "data" in response and "octoHeatPumpControllerConfiguration" in response["data"] and "octoHeatPumpControllerStatus" in response["data"]):
+        if (response is not None 
+            and "data" in response 
+            and "octoHeatPumpControllerConfiguration" in response["data"] 
+            and "octoHeatPumpControllerStatus" in response["data"]
+            and "octoHeatPumpLivePerformance" in response["data"]):
           return HeatPumpResponse.parse_obj(response["data"])
-        
-      return None
-    
-    except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
-      raise TimeoutException()
-
-  async def async_get_heat_pump_live_performance(self, euid: str):
-    """Get heat pump live performance"""
-    await self.async_refresh_token()
-
-    try:
-      client = self._create_client_session()
-      url = f'{self._base_url}/v1/graphql/'
-      payload = { "query": heat_pump_live_performance.format(euid=euid) }
-      headers = { "Authorization": f"JWT {self._graphql_token}" }
-      async with client.post(url, json=payload, headers=headers) as heat_pump_response:
-        response = await self.__async_read_response__(heat_pump_response, url)
-
-        if (response is not None and "data" in response and "octoHeatPumpLivePerformance" in response["data"]):
-          return OctoHeatPumpLivePerformance.parse_obj(response["data"]["octoHeatPumpLivePerformance"])
         
       return None
     
