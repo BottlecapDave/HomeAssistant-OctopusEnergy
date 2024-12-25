@@ -67,7 +67,7 @@ class OctopusEnergyCurrentTotalGasConsumptionKwh(CoordinatorEntity, OctopusEnerg
   @property
   def state_class(self):
     """The state class of sensor"""
-    return SensorStateClass.TOTAL
+    return SensorStateClass.TOTAL_INCREASING
 
   @property
   def native_unit_of_measurement(self):
