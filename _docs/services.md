@@ -236,3 +236,14 @@ Allows you to adjust the consumption for any given period recorded by a [cost tr
 | `target.entity_id`       | `no`     | The name of the cost tracker sensor(s) that should be updated (e.g. `sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}`). |
 | `data.date`              | `no`     | The date of the data within the cost tracker to be adjusted. |
 | `data.consumption`       | `no`     | The new consumption recorded against the specified date. |
+
+## octopus_energy.boost_heat_pump_zone
+
+Allows you to boost a given heat pump zone for a set amount of time.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the heat pump zone boost mode should be applied to (e.g. `climate.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{ZONE_CODE}}`). |
+| `data.hours`              | `no`     | The number of hours to turn boost mode on for. This can be between 0 and 12. |
+| `data.minutes`       | `no`     | The number of minutes to turn boost mode on for. This can be 0, 15, or 45. |
+| `data.target_temperature`       | `yes`     | The optional target temperature to boost to. If not supplied, then the current target temperature will be used. |
