@@ -1,6 +1,7 @@
 site_name: Home Assistant Octopus Energy
 repo_url: https://github.com/bottlecapdave/homeassistant-octopusenergy
 docs_dir: _docs
+strict: true
 
 nav:
   - Home: index.md
