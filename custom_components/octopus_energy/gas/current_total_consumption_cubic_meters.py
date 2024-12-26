@@ -67,7 +67,7 @@ class OctopusEnergyCurrentTotalGasConsumptionCubicMeters(CoordinatorEntity, Octo
   @property
   def state_class(self):
     """The state class of sensor"""
-    return SensorStateClass.TOTAL
+    return SensorStateClass.TOTAL_INCREASING
 
   @property
   def native_unit_of_measurement(self):
@@ -100,9 +100,9 @@ class OctopusEnergyCurrentTotalGasConsumptionCubicMeters(CoordinatorEntity, Octo
 
       if consumption_data[-1]["total_consumption"] is not None:
         if "is_kwh" not in consumption_data[-1] or consumption_data[-1]["is_kwh"] == True:
-          self._state = convert_kwh_to_m3(consumption_data[-1]["total_consumption"], self._calorific_value) if consumption_data[-1]["total_consumption"] is not None else None
+          self._state = convert_kwh_to_m3(consumption_data[-1]["total_consumption"], self._calorific_value) if consumption_data[-1]["total_consumption"] is not None and consumption_data[-1]["total_consumption"] != 0 else None
         else:
-          self._state = consumption_data[-1]["total_consumption"]
+          self._state = consumption_data[-1]["total_consumption"] if consumption_data[-1]["total_consumption"] is not None and consumption_data[-1]["total_consumption"] != 0 else None
 
         self._attributes = {
           "mprn": self._mprn,

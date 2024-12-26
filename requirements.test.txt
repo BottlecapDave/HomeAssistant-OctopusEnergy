@@ -5,6 +5,7 @@ mock
 homeassistant
 pydantic
 psutil-home-assistant
+pydantic
 sqlalchemy
 fnvhash
 fnv_hash_fast

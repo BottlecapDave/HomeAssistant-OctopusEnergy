@@ -237,6 +237,38 @@ Allows you to adjust the consumption for any given period recorded by a [cost tr
 | `data.date`              | `no`     | The date of the data within the cost tracker to be adjusted. |
 | `data.consumption`       | `no`     | The new consumption recorded against the specified date. |
 
+## octopus_energy.register_rate_weightings
+
+Allows you to configure weightings against rates at given times using factors external to the integration. These are applied when calculating [target rates](./setup/target_rate.md#external-rate-weightings) or [rolling target rates](./setup/rolling_target_rate.md#external-rate-weightings).
+
+Rate weightings are added to any existing rate weightings that have been previously configured. Any rate weightings that are more than 24 hours old are removed. Any rate weightings for periods that have been previously configured are overridden. 
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the electricity current rate sensor for the rates the weighting should be applied to (e.g. `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_rate`). |
+| `data.weightings`        | `no`     | The collection of weightings to add. Each item in the array should represent a given 30 minute period. Example array is `[{ "start": "2025-01-01T00:00:00Z", "end": "2025-01-01T00:30:00Z", "weighting": 0.1 }]` |
+
+### Automation Example
+
+This automation adds weightings based on the national grids carbon intensity, as provided by [Carbon Intensity](https://github.com/BottlecapDave/HomeAssistant-CarbonIntensity).
+
+```yaml
+- alias: Carbon Intensity Rate Weightings
+  triggers:
+  - platform: state
+    entity_id: event.carbon_intensity_national_current_day_rates
+  actions:
+  - action: octopus_energy.register_rate_weightings
+    target:
+      entity_id: sensor.octopus_energy_electricity_xxx_xxx_current_rate
+    data:
+      weightings: >
+        {% set forecast = state_attr('event.carbon_intensity_national_current_day_rates', 'rates') + state_attr('event.carbon_intensity_national_next_day_rates', 'rates') %}
+        {% set ns = namespace(list = [])  %}   {%- for a in forecast -%} 
+          {%- set ns.list = ns.list + [{ "start": a.from.strftime('%Y-%m-%dT%H:%M:%SZ'), "end": a.to.strftime('%Y-%m-%dT%H:%M:%SZ'), "weighting": a.intensity_forecast | float }] -%} 
+        {%- endfor -%} {{ ns.list }}
+```
+
 ## octopus_energy.boost_heat_pump_zone
 
 Allows you to boost a given heat pump zone for a set amount of time.

@@ -14,7 +14,7 @@ If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blo
 
     Export sensors are not provided as the data is not available
 
-See [electricity entities](../entities/electricity.md#home-mini-entities) and [gas entities](../entities/gas.md#home-mini-entities) for more information.
+See [electricity entities](../entities/electricity.md#home-minipro-entities) and [gas entities](../entities/gas.md#home-minipro-entities) for more information.
 
 ### Refresh Rate In Minutes
 
@@ -57,7 +57,13 @@ If you are lucky enough to own an [Octopus Home Pro](https://forum.octopus.energ
 
 ### Prerequisites
 
-The Octopus Home Pro has an internal API which is not currently exposed. In order to make this data available for consumption by this integration you will need to expose a custom API on your device by following the instructions below
+The Octopus Home Pro has a local API which is used to get consumption and demand data. If this is all you need, then you can jump straight to the [settings](./account.md#settings).
+
+However, there is also an internal API for setting the display which is not currently exposed. In order to make this available for consumption by this integration you will need to expose a custom API on your device by following the instructions below
+
+!!! warning
+
+    This custom API can only be configured with the default Home Pro setup. If you set up Home Assistant on your Home Pro device, then it won't be possible to expose this custom API.
 
 1. Follow [the instructions](https://github.com/OctopusSmartEnergy/Home-Pro-SDK-Public/blob/main/Home.md#sdk) to connect to your Octopus Home Pro via SSH
 2. Run the command `wget -O setup_ha.sh https://raw.githubusercontent.com/BottlecapDave/HomeAssistant-OctopusEnergy/main/home_pro_server/setup.sh` to download the installation script
@@ -90,8 +96,9 @@ export SERVER_AUTH_TOKEN=thisisasecrettoken # Replace with your own unique strin
 
 ### Settings
 
-Once the API has been configured, you will need to set the address to the IP address of your Octopus Home Pro followed by the port 8000 (e.g. `http://192.168.1.2:8000`) and the api key to the value you set `SERVER_AUTH_TOKEN` to.
+Once the API has been configured, you will need to set the address to the IP address of your Octopus Home Pro (e.g. `http://192.168.1.2`).
 
+If you have setup the custom API, then you will need to set api key to the value you set `SERVER_AUTH_TOKEN` to.
 
 ### Entities
 
