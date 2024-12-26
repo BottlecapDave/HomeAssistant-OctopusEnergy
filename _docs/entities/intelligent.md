@@ -56,7 +56,7 @@ Each item in `planned_dispatch` or `completed_dispatches` have the following att
 
 `sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_state`
 
-This sensor displays the current state of your intelligent provider. The value of this sensor can be one of the following
+This sensor displays the current state of your intelligent provider as told by the OE API. The value of this sensor can be one of the following
 
 * `AUTHENTICATION_PENDING` - ready to start authentication and authorization, or auth is in progress.
 * `AUTHENTICATION_FAILED` - failed to connect and ready to restart authentication and authorization.
