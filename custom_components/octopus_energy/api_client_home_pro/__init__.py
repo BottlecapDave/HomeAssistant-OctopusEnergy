@@ -12,9 +12,6 @@ class OctopusEnergyHomeProApiClient:
   _session_lock = RLock()
 
   def __init__(self, base_url: str, api_key: str, timeout_in_seconds = 20):
-    if (api_key is None):
-      raise Exception('API KEY is not set')
-    
     if (base_url is None):
       raise Exception('BaseUrl is not set')
 
@@ -25,6 +22,9 @@ class OctopusEnergyHomeProApiClient:
     self._default_headers = {}
 
     self._session = None
+
+  def has_api_key(self):
+    return self._api_key is not None
 
   async def async_close(self):
     with self._session_lock:
@@ -42,9 +42,9 @@ class OctopusEnergyHomeProApiClient:
   async def async_ping(self):
     try:
       client = self._create_client_session()
-      url = f'{self._base_url}/get_meter_info?meter_type=elec'
-      headers = { "Authorization": self._api_key }
-      async with client.get(url, headers=headers) as response:
+      url = f'{self._base_url}:3000/get_meter_consumption'
+      data = { "meter_type": "elec" }
+      async with client.post(url, json=data) as response:
         response_body = await self.__async_read_response__(response, url)
         if (response_body is not None and "Status" in response_body):
           status: str = response_body["Status"]
@@ -62,20 +62,22 @@ class OctopusEnergyHomeProApiClient:
     try:
       client = self._create_client_session()
       meter_type = 'elec' if is_electricity else 'gas'
-      url = f'{self._base_url}/get_meter_consumption?meter_type={meter_type}'
-      headers = { "Authorization": self._api_key }
-      async with client.get(url, headers=headers) as response:
+      url = f'{self._base_url}:3000/get_meter_consumption'
+      data = { "meter_type": meter_type }
+      async with client.post(url, json=data) as response:
         response_body = await self.__async_read_response__(response, url)
-        if (response_body is not None and "meter_consump" in response_body and "consum" in response_body["meter_consump"]):
-          data = response_body["meter_consump"]["consum"]
-          divisor = int(data["raw"]["divisor"], 16)
-          return [{
-            "total_consumption": int(data["consumption"]) / divisor if divisor > 0 else None,
-            "demand": float(data["instdmand"]) if "instdmand" in data else None,
-            "start": datetime.fromtimestamp(int(response_body["meter_consump"]["time"]), timezone.utc),
-            "end": datetime.fromtimestamp(int(response_body["meter_consump"]["time"]), timezone.utc),
-            "is_kwh": data["unit"] == 0
-          }]
+        if (response_body is not None and "meter_consump"):
+          meter_consump = json.loads(response_body["meter_consump"])
+          if "consum" in meter_consump:
+            data = meter_consump["consum"]
+            divisor = int(data["raw"]["divisor"], 16)
+            return [{
+              "total_consumption": int(data["consumption"]) / divisor if divisor > 0 else None,
+              "demand": float(data["instdmand"]) if "instdmand" in data else None,
+              "start": datetime.fromtimestamp(int(meter_consump["time"]), timezone.utc),
+              "end": datetime.fromtimestamp(int(meter_consump["time"]), timezone.utc),
+              "is_kwh": data["unit"] == 0
+            }]
         
         return None
     
@@ -86,9 +88,12 @@ class OctopusEnergyHomeProApiClient:
   async def async_set_screen(self, value: str, animation_type: str, type: str, brightness: int, animation_interval: int):
     """Get the latest consumption"""
 
+    if self._api_key is None:
+      raise Exception('API key is not set, so screen cannot be contacted')
+
     try:
       client = self._create_client_session()
-      url = f'{self._base_url}/screen'
+      url = f'{self._base_url}:8000/screen'
       headers = { "Authorization": self._api_key }
       payload = {
         # API doesn't support none or empty string as a valid value
@@ -110,6 +115,7 @@ class OctopusEnergyHomeProApiClient:
     """Reads the response, logging any json errors"""
 
     text = await response.text()
+    _LOGGER.debug(f"response: {text}")
 
     if response.status >= 400:
       if response.status >= 500:

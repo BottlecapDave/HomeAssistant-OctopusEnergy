@@ -1,8 +1,8 @@
 from datetime import datetime, timedelta
 from custom_components.octopus_energy.const import (
-  CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST,
-  CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST,
-  CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS
+  CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST,
+  CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST,
+  CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS
 )
 import pytest
 
@@ -11,9 +11,9 @@ from custom_components.octopus_energy.target_rates import get_target_rate_info, 
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("evaluation_mode",[
-  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST),
-  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST),
-  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS),
+  (CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST),
+  (CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST),
+  (CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS),
 ])
 async def test_when_target_rates_is_none_then_return_true(evaluation_mode: str):
   # Arrange
@@ -28,9 +28,9 @@ async def test_when_target_rates_is_none_then_return_true(evaluation_mode: str):
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("evaluation_mode",[
-  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST),
-  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST),
-  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS),
+  (CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST),
+  (CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST),
+  (CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS),
 ])
 async def test_when_target_rates_is_empty_then_return_true(evaluation_mode: str):
   # Arrange
@@ -45,9 +45,9 @@ async def test_when_target_rates_is_empty_then_return_true(evaluation_mode: str)
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("evaluation_mode,expected_result",[
-  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST, False),
-  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST, True),
-  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS, True),
+  (CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST, False),
+  (CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST, True),
+  (CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS, True),
 ])
 async def test_when_target_rates_is_in_the_future_then_return_expected_result(evaluation_mode: str, expected_result: bool):
   # Arrange
@@ -66,9 +66,9 @@ async def test_when_target_rates_is_in_the_future_then_return_expected_result(ev
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("evaluation_mode,expected_result",[
-  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST, False),
-  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST, False),
-  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS, True),
+  (CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST, False),
+  (CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST, False),
+  (CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS, True),
 ])
 async def test_when_target_rates_started_then_return_expected_result(evaluation_mode: str, expected_result: bool):
   # Arrange
@@ -87,9 +87,9 @@ async def test_when_target_rates_started_then_return_expected_result(evaluation_
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("evaluation_mode,expected_result",[
-  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST, True),
-  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST, True),
-  (CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS, True),
+  (CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST, True),
+  (CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST, True),
+  (CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS, True),
 ])
 async def test_when_target_rates_in_past_then_return_expected_result(evaluation_mode: str, expected_result: bool):
   # Arrange

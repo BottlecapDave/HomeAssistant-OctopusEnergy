@@ -65,7 +65,7 @@ class OctopusEnergyCurrentTotalElectricityConsumption(CoordinatorEntity, Octopus
   @property
   def state_class(self):
     """The state class of sensor"""
-    return SensorStateClass.TOTAL
+    return SensorStateClass.TOTAL_INCREASING
 
   @property
   def native_unit_of_measurement(self):
@@ -83,11 +83,6 @@ class OctopusEnergyCurrentTotalElectricityConsumption(CoordinatorEntity, Octopus
     return self._attributes
 
   @property
-  def last_reset(self):
-    """Return the time when the sensor was last reset, if any."""
-    return self._last_reset
-
-  @property
   def native_value(self):
     return self._state
   
@@ -102,7 +97,7 @@ class OctopusEnergyCurrentTotalElectricityConsumption(CoordinatorEntity, Octopus
       _LOGGER.debug(f"Calculated total electricity consumption for '{self._mpan}/{self._serial_number}'...")
 
       if consumption_data[-1]["total_consumption"] is not None:
-        self._state = consumption_data[-1]["total_consumption"]
+        self._state = consumption_data[-1]["total_consumption"] if consumption_data[-1]["total_consumption"] is not None and consumption_data[-1]["total_consumption"] != 0 else None
         self._last_reset = current
 
         self._attributes = {

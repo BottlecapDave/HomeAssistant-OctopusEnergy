@@ -230,7 +230,8 @@ FULLY_SUPPORTED_INTELLIGENT_PROVIDERS = [
   "SMARTCAR",
   "TESLA",
   "SMART_PEAR",
-  "HYPERVOLT"
+  "HYPERVOLT",
+  "INDRA"
 ]
 
 def get_intelligent_features(provider: str) -> IntelligentFeatures:
