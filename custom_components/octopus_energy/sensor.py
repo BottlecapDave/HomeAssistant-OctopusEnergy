@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 import voluptuous as vol
 import logging
 
@@ -63,6 +63,7 @@ from .heat_pump.sensor_live_power_input import OctopusEnergyHeatPumpSensorLivePo
 from .heat_pump.sensor_live_heat_output import OctopusEnergyHeatPumpSensorLiveHeatOutput
 from .heat_pump.sensor_live_cop import OctopusEnergyHeatPumpSensorLiveCoP
 from .heat_pump.sensor_live_outdoor_temperature import OctopusEnergyHeatPumpSensorLiveOutdoorTemperature
+from .api_client.intelligent_device import IntelligentDevice
 
 from .utils.debug_overrides import async_get_account_debug_override, async_get_meter_debug_override
 
@@ -200,6 +201,28 @@ async def async_setup_entry(hass, entry, async_add_entities):
         "async_redeem_points_into_account_credit",
         # supports_response=SupportsResponse.OPTIONAL
       )
+
+    platform.async_register_entity_service(
+      "register_rate_weightings",
+      vol.All(
+        cv.make_entity_service_schema(
+          {
+            vol.Required("weightings"): vol.All(
+                cv.ensure_list,
+                [
+                  {
+                    vol.Required("start"): str,
+                    vol.Required("end"): str,
+                    vol.Required("weighting"): float
+                  }
+                ],
+            ),
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
+      ),
+      "async_register_rate_weightings",
+    )
   elif config[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
     await async_setup_cost_sensors(hass, entry, config, async_add_entities)
 
@@ -327,7 +350,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
           electricity_rate_coordinator = hass.data[DOMAIN][account_id][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)]
           electricity_standing_charges_coordinator = await async_setup_electricity_standing_charges_coordinator(hass, account_id, mpan, serial_number)
 
-          entities.append(OctopusEnergyElectricityCurrentRate(hass, electricity_rate_coordinator, meter, point, electricity_price_cap))
+          entities.append(OctopusEnergyElectricityCurrentRate(hass, electricity_rate_coordinator, meter, point, electricity_price_cap, account_id))
           entities.append(OctopusEnergyElectricityPreviousRate(hass, electricity_rate_coordinator, meter, point))
           entities.append(OctopusEnergyElectricityNextRate(hass, electricity_rate_coordinator, meter, point))
           entities.append(OctopusEnergyElectricityCurrentStandingCharge(hass, electricity_standing_charges_coordinator, meter, point))

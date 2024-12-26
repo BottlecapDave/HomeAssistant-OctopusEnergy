@@ -1,3 +1,20 @@
+# [13.4.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.3.0...v13.4.0) (2024-12-26)
+
+
+### Bug Fixes
+
+* Fixed state class for current total consumption sensors (5 minutes dev time) ([9af97a5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9af97a54b7a9dfb091f4e48f0cd66f758e7e2629))
+* Updated total consumption sensors to ignore zero based results reported by home pro (10 minute dev time) ([78748d1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/78748d169887227de1a2f1f8bc73dfd1bf281190))
+
+
+### Features
+
+* Added ability to apply weightings to rates from external sources for use with target rate and rolling target rate sensors (4 hours 30 minutes dev time) ([9350c3f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9350c3fbdb46514033a175e1db7e521b2fc07835))
+* Added support for INDRA intelligent provider (5 minutes dev time) ([7c3596c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7c3596cc920957dfe7ca23e42828aad826e44c43))
+* Updated Home Pro config to support custom API being optional if certain features are not required (see docs for more information) (45 minutes dev time) ([8b94c7d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8b94c7d15109476acb53f930762c7ee17a4e0ed6))
+* Updated Home Pro to contact local API directly instead of via custom API (45 minutes dev time) ([0ace45e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0ace45e325bdbb104a24787bc26556e09e3d804e))
+* Updated target rates to support additional re-evaluation modes for target times. This is to assist with external weightings changing (30 minutes dev time) ([05db8c2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/05db8c2ffcbdc39341a6e419c77bf9113a6aebe6))
+
 # [13.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.2.1...v13.3.0) (2024-12-16)
 
 

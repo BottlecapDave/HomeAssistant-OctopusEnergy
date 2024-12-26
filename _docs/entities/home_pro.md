@@ -13,4 +13,8 @@ Once configured, the following entities will retrieve data locally from your Oct
 
 `text.octopus_energy_{{ACCOUNT_ID}}_home_pro_screen`
 
-Allows you to set scrolling text for the home pro device. If the text is greater than 3 characters, then it will scroll on the device, otherwise it will be statically displayed.
+!!! info
+
+    This is only available if you have setup the [Custom API](../setup/account.md#home-pro).
+
+Allows you to set scrolling text on the home pro device. If the text is greater than 3 characters, then it will scroll on the device, otherwise it will be statically displayed.

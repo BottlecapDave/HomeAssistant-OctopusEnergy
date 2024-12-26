@@ -84,6 +84,24 @@ The target rate sensor will try to find the best times for the specified hours. 
 
 For instance if the cheapest period is between `2023-01-01T00:30` and `2023-01-01T05:00` and your target rate is for 1 hour, then it will come on between  `2023-01-01T00:30` and `2023-01-01T01:30`. If the available times are between `2023-01-01T00:30` and `2023-01-01T01:00`, then the sensor will come on between  `2023-01-01T00:30` and `2023-01-01T01:00`.
 
+### Evaluation mode
+
+Because the time frame that is being evaluated could have external factors change the underlying data (e.g. if you're using [external rate weightings](#external-rate-weightings)), you might want to set how/when the target times are evaluated in order to make the selected times more or less dynamic.
+
+#### All existing target rates are in the past
+
+This is the default way of evaluating target times. This will only evaluate new target times if no target times have been calculated or all existing target times are in the past.
+
+#### Existing target rates haven't started or finished
+
+This will only evaluate target times if no target times have been calculated or all existing target times are either in the future or all existing target times are in the past. 
+
+For example, lets say we have a continuous target which looks between `00:00` and `08:00` has existing target times from `2023-01-02T01:00` to `2023-01-02T02:00`. 
+
+* If the current time is `2023-01-02T00:59`, then the target times will be re-evaluated and might change if the target period (i.e. `2023-01-02T00:30` to `2023-01-02T08:30`) has better rates than the existing target times (e.g. the external weightings have changed).
+* If the current time is `2023-01-02T01:00`, the the target times will not be re-evaluated because we've entered our current target times, even if the evaluation period has cheaper times. 
+* If the current time is `2023-01-02T02:01`, the the target times will be re-evaluated because our existing target times are in the past and will find the best times in the new rolling target period (i.e. `2023-01-02T02:00` to `2023-01-02T10:00`). 
+
 ### Offset
 
 You may want your target rate sensors to turn on a period of time before the optimum discovered period. For example, you may be turning on a robot vacuum cleaner for a 30 minute clean and want it to charge during the optimum period. For this, you'd use the `offset` field and set it to `-00:30:00`, which can be both positive and negative and go up to a maximum of 24 hours. This will shift when the sensor turns on relative to the optimum period. For example, if the optimum period is between `2023-01-18T10:00` and `2023-01-18T11:00` with an offset of `-00:30:00`, the sensor will turn on between `2023-01-18T09:30` and `2023-01-18T10:30`.
@@ -162,6 +180,12 @@ If we had a target rate sensor of 1 hour, the following would occur with the fol
 | 0.2 | `2024-11-26 11:00:00`-`2024-11-26 12:00:00` | Cheapest period would be 0.1p, free electricity period would be 0.02p. |
 | 0 | `2024-11-26 11:00:00`-`2024-11-26 12:00:00` | Cheapest period would be 0.1p, free electricity period would be 0p. This will always go for free electricity sessions if available. |
 
+## External Rate Weightings
+
+There may be times when you want to calculate the best times using factors that are external to data available via the integration, like grid carbon intensity or solar forecasts. This is where external rate weightings come in. Using the [Register Rate Weightings service](../services.md#octopus_energyregister_rate_weightings), you can configured weightings against given rates which are then multiplied against the associated rate. For example if you have a weighting of `2` set and a rate of `0.20`, then the rate will be interpreted as `0.40` during calculation. 
+
+These weightings are used in addition to any [weightings](#weighting) configured against the sensor and [free electricity weightings](#free-electricity-weighting). For example if you have rate weight of `2`, a rate of `0.20`, a sensor weight of `3` and free electricity weight of `0.5`, then rate will be interpreted as `0.6` (2 * 0.20 * 3 * 0.5).
+
 ## Attributes
 
 The following attributes are available on each sensor
@@ -172,6 +196,7 @@ The following attributes are available on each sensor
 | `hours` | `string` | The total hours are being discovered.  |
 | `type` | `string` | The type/mode for the target rate sensor. This will be either `continuous` or `intermittent`. |
 | `mpan` | `string` | The `mpan` of the meter being used to determine the rates. |
+| `target_times_evaluation_mode` | `string` | The mode that determines when/how target times are picked |
 | `rolling_target` | `boolean` | Determines if `Re-evaluate multiple times a day` is turned on for the sensor. |
 | `last_rates` | `boolean` | Determines if `Find last applicable rates` is turned off for the sensor. |
 | `offset` | `string` | The offset configured for the sensor. |

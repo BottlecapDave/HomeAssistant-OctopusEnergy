@@ -12,7 +12,7 @@ class Connectivity(BaseModel):
 
 class Telemetry(BaseModel):
     temperatureInCelsius: float
-    humidityPercentage: Optional[int]
+    humidityPercentage: Optional[float]
     retrievedAt: str
 
 

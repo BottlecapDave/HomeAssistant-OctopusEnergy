@@ -19,6 +19,7 @@ nav:
     - Wheel Of Fortune: ./entities/wheel_of_fortune.md
     - Greenness Forecast: ./entities/greenness_forecast.md
     - Home Pro: ./entities/home_pro.md
+    - Heat Pump: ./entities/heat_pump.md
     - Diagnostics: ./entities/diagnostics.md
   - services.md
   - events.md
@@ -72,3 +73,16 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+
+strict: true
+
+validation:
+  nav:
+    omitted_files: warn
+    not_found: warn
+    absolute_links: warn
+  links:
+    not_found: warn
+    anchors: warn
+    absolute_links: warn
+    unrecognized_links: warn

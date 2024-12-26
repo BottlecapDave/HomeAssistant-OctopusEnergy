@@ -12,9 +12,6 @@ class OctopusEnergyHomeProApiClient:
   _session_lock = RLock()
 
   def __init__(self, base_url: str, api_key: str, timeout_in_seconds = 20):
-    if (api_key is None):
-      raise Exception('API KEY is not set')
-    
     if (base_url is None):
       raise Exception('BaseUrl is not set')
 
@@ -25,6 +22,9 @@ class OctopusEnergyHomeProApiClient:
     self._default_headers = {}
 
     self._session = None
+
+  def has_api_key(self):
+    return self._api_key is not None
 
   async def async_close(self):
     with self._session_lock:
@@ -43,9 +43,8 @@ class OctopusEnergyHomeProApiClient:
     try:
       client = self._create_client_session()
       url = f'{self._base_url}:3000/get_meter_consumption'
-      headers = { "Authorization": self._api_key }
       data = { "meter_type": "elec" }
-      async with client.post(url, headers=headers, json=data) as response:
+      async with client.post(url, json=data) as response:
         response_body = await self.__async_read_response__(response, url)
         if (response_body is not None and "Status" in response_body):
           status: str = response_body["Status"]
@@ -64,9 +63,8 @@ class OctopusEnergyHomeProApiClient:
       client = self._create_client_session()
       meter_type = 'elec' if is_electricity else 'gas'
       url = f'{self._base_url}:3000/get_meter_consumption'
-      headers = { "Authorization": self._api_key }
       data = { "meter_type": meter_type }
-      async with client.post(url, headers=headers, json=data) as response:
+      async with client.post(url, json=data) as response:
         response_body = await self.__async_read_response__(response, url)
         if (response_body is not None and "meter_consump"):
           meter_consump = json.loads(response_body["meter_consump"])
@@ -89,6 +87,9 @@ class OctopusEnergyHomeProApiClient:
     
   async def async_set_screen(self, value: str, animation_type: str, type: str, brightness: int, animation_interval: int):
     """Get the latest consumption"""
+
+    if self._api_key is None:
+      raise Exception('API key is not set, so screen cannot be contacted')
 
     try:
       client = self._create_client_session()
