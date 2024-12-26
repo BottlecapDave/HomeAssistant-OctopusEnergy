@@ -1,7 +1,6 @@
 site_name: Home Assistant Octopus Energy
 repo_url: https://github.com/bottlecapdave/homeassistant-octopusenergy
 docs_dir: _docs
-strict: true
 
 nav:
   - Home: index.md
@@ -73,3 +72,16 @@ theme:
       toggle:
         icon: material/brightness-4
         name: Switch to light mode
+
+strict: true
+
+validation:
+  nav:
+    omitted_files: warn
+    not_found: warn
+    absolute_links: warn
+  links:
+    not_found: warn
+    anchors: warn
+    absolute_links: warn
+    unrecognized_links: warn
