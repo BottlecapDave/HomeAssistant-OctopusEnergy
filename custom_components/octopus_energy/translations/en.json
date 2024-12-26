@@ -13,7 +13,7 @@
           "calorific_value": "Gas calorific value.",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence",
-          "home_pro_address": "Home Pro address and port (e.g. http://localhost:8000)",
+          "home_pro_address": "Home Pro address (e.g. http://192.168.0.1)",
           "home_pro_api_key": "Home Pro API key",
           "favour_direct_debit_rates": "Favour direct debit rates where available"
         },
@@ -24,7 +24,7 @@
           "electricity_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
           "gas_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
           "home_pro_address": "WARNING: This is experimental.",
-          "home_pro_api_key": "WARNING: This is experimental"
+          "home_pro_api_key": "WARNING: This is experimental. This is only required if you have setup the custom API."
         }
       },
       "target_rate": {
@@ -44,7 +44,8 @@
           "minimum_rate": "The optional minimum rate for target hours",
           "maximum_rate": "The optional maximum rate for target hours",
           "weighting": "The optional weighting to apply to the discovered rates",
-          "free_electricity_weighting": "The weighting to apply to rates during free electricity sessions"
+          "free_electricity_weighting": "The weighting to apply to rates during free electricity sessions",
+          "target_times_evaluation_mode": "When should target times be selected"
         },
         "data_description": {
           "hours": "This has to be a multiple of 0.5.",
@@ -137,7 +138,7 @@
       "weighting_not_supported_for_hour_mode": "Weighting is not supported for this hour mode",
       "invalid_product_or_tariff": "Product or tariff code does not exist",
       "minimum_or_maximum_rate_not_specified": "Either minimum and/or maximum rate must be specified for minimum hours mode",
-      "all_home_pro_values_not_set": "Either both Home Pro address and API key must be set, or neither must be set",
+      "all_home_pro_values_not_set": "Home Pro address must be set if API key is set",
       "home_pro_connection_failed": "Cannot connect to Home Pro device. Please check the specified address is correct and that you've installed the custom API as per the instructions.",
       "home_pro_authentication_failed": "Cannot authenticate with API on Home Pro device. Please check authentication token matches the value you configured.",
       "home_pro_not_responding": "Connected to Home Pro device, but responding with unsuccessful status. This implies the Home Pro failed to connect to your meter."
@@ -160,7 +161,7 @@
           "calorific_value": "Gas calorific value",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence",
-          "home_pro_address": "Home Pro address and port (e.g. http://localhost:8000)",
+          "home_pro_address": "Home Pro address (e.g. http://192.168.0.1)",
           "home_pro_api_key": "Home Pro API key",
           "favour_direct_debit_rates": "Favour direct debit rates where available"
         },
@@ -170,7 +171,7 @@
           "electricity_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
           "gas_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
           "home_pro_address": "WARNING: This is experimental",
-          "home_pro_api_key": "WARNING: This is experimental"
+          "home_pro_api_key": "WARNING: This is experimental. This is only required if you have setup the custom API."
         }
       },
       "target_rate": {
@@ -189,7 +190,8 @@
           "maximum_rate": "The optional maximum rate for target hours",
           "rolling_target": "Re-evaluate multiple times a day",
           "weighting": "The optional weighting to apply to the discovered rates",
-          "free_electricity_weighting": "The weighting to apply to rates during free electricity sessions"
+          "free_electricity_weighting": "The weighting to apply to rates during free electricity sessions",
+          "target_times_evaluation_mode": "When should target times be selected"
         }
       },
       "rolling_target_rate": {
@@ -256,7 +258,7 @@
       "weighting_not_supported_for_hour_mode": "Weighting is not supported for this hour mode",
       "invalid_product_or_tariff": "Product or tariff code does not exist",
       "minimum_or_maximum_rate_not_specified": "Either minimum and/or maximum rate must be specified for minimum hours mode",
-      "all_home_pro_values_not_set": "Either both Home Pro address and API key must be set, or neither must be set",
+      "all_home_pro_values_not_set": "Home Pro address must be set if API key is set",
       "home_pro_connection_failed": "Cannot connect to Home Pro device. Please check the specified address is correct and that you've installed the custom API as per the instructions.",
       "home_pro_authentication_failed": "Cannot authenticate with API on Home Pro device. Please check authentication token matches the value you configured.",
       "home_pro_not_responding": "Connected to Home Pro device, but responding with unsuccessful status. This implies the Home Pro failed to connect to your meter."
@@ -275,6 +277,9 @@
     },
     "octoplus_points_maximum_points": {
       "message": "You cannot redeem more than {redeemable_points} points"
+    },
+    "invalid_rate_weightings": {
+      "message": "{error}"
     }
   },
   "issues": {

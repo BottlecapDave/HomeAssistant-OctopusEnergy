@@ -50,9 +50,7 @@ This will display the cost of your previous accumulative consumption against the
 
 !!! info
 
-    These sensors will compare the same time period as the [electricity previous accumulative consumption](../entities/electricity.md#previous-accumulative-consumption) or [gas previous accumulative consumption](../entities/gas.md#previous-accumulative-consumption-m3). 
-    
-    If you have changed the [offset](./account.md#previous-consumption-days-offset), then this sensor will use the same offset.
+    These sensors will compare the same time period as the [electricity previous accumulative consumption](../entities/electricity.md#previous-accumulative-consumption) or [gas previous accumulative consumption](../entities/gas.md#previous-accumulative-consumption-m3).
 
 ### Previous Consumption Override Day Rates
 
@@ -65,9 +63,7 @@ The state of this sensor states when the previous consumption tariff comparison 
 
 !!! info
 
-    These sensors will provide rates for the same time period as the [electricity previous accumulative consumption](../entities/electricity.md#previous-accumulative-consumption) or [gas previous accumulative consumption](../entities/gas.md#previous-accumulative-consumption-m3). 
-    
-    If you have changed the [offset](./account.md#previous-consumption-days-offset), then this sensor will use the same offset.
+    These sensors will provide rates for the same time period as the [electricity previous accumulative consumption](../entities/electricity.md#previous-accumulative-consumption) or [gas previous accumulative consumption](../entities/gas.md#previous-accumulative-consumption-m3).
 
 | Attribute | Type | Description |
 |-----------|------|-------------|

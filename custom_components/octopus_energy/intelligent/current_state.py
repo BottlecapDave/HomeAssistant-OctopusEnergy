@@ -24,25 +24,6 @@ _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyIntelligentCurrentState(CoordinatorEntity, OctopusEnergyIntelligentSensor, RestoreSensor):
   """Sensor for determining the current intelligent state."""
-  
-  _unrecorded_attributes = frozenset({"known_states"})
-
-  known_states = [
-    "AUTHENTICATION_PENDING",
-    "AUTHENTICATION_FAILED",
-    "AUTHENTICATION_COMPLETE",
-    "TEST_CHARGE_IN_PROGRESS",
-    "TEST_CHARGE_FAILED",
-    "TEST_CHARGE_NOT_AVAILABLE",
-    "SETUP_COMPLETE",
-    "SMART_CONTROL_CAPABLE",
-    "SMART_CONTROL_IN_PROGRESS",
-    "BOOSTING",
-    "SMART_CONTROL_OFF",
-    "SMART_CONTROL_NOT_AVAILABLE",
-    "LOST_CONNECTION",
-    "RETIRED",
-  ]
 
   def __init__(self, hass: HomeAssistant, coordinator, device: IntelligentDevice, account_id: str):
     """Init sensor."""
@@ -52,9 +33,6 @@ class OctopusEnergyIntelligentCurrentState(CoordinatorEntity, OctopusEnergyIntel
   
     self._account_id = account_id
     self._state = None
-    self._attributes = {
-      "known_states": self.known_states
-    }
 
     self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
 
@@ -107,5 +85,4 @@ class OctopusEnergyIntelligentCurrentState(CoordinatorEntity, OctopusEnergyIntel
     if state is not None and self._state is None:
       self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
       self._attributes = dict_to_typed_dict(state.attributes, [])
-      self._attributes["known_states"] = self.known_states
       _LOGGER.debug(f'Restored OctopusEnergyIntelligentCurrentState state: {self._state}')

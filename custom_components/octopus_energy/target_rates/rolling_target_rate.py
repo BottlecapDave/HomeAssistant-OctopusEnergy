@@ -1,4 +1,3 @@
-from decimal import Decimal
 import logging
 from datetime import timedelta
 import math
@@ -13,9 +12,6 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 
 from homeassistant.util.dt import (utcnow, now)
-from homeassistant.helpers.update_coordinator import (
-  CoordinatorEntity
-)
 from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
@@ -25,11 +21,12 @@ from homeassistant.helpers import translation
 
 from ..const import (
   CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD,
-  CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE,
+  CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE,
   CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING,
   CONFIG_TARGET_HOURS_MODE,
   CONFIG_TARGET_MAX_RATE,
   CONFIG_TARGET_MIN_RATE,
+  CONFIG_TARGET_MPAN,
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_HOURS,
   CONFIG_TARGET_TYPE,
@@ -41,6 +38,7 @@ from ..const import (
   CONFIG_TARGET_TYPE_INTERMITTENT,
   CONFIG_TARGET_WEIGHTING,
   DATA_ACCOUNT,
+  DATA_CUSTOM_RATE_WEIGHTINGS_KEY,
   DOMAIN,
 )
 
@@ -59,6 +57,7 @@ from ..target_rates.repairs import check_for_errors
 from ..utils.attributes import dict_to_typed_dict
 from ..coordinators import MultiCoordinatorEntity
 from ..coordinators.free_electricity_sessions import FreeElectricitySessionsCoordinatorResult
+from ..utils.weightings import apply_weighting
 
 from ..config.rolling_target_rates import validate_rolling_target_rate_config
 
@@ -148,7 +147,7 @@ class OctopusEnergyRollingTargetRate(MultiCoordinatorEntity, BinarySensorEntity,
       _LOGGER.debug(f'Updating OctopusEnergyTargetRate {self._config[CONFIG_TARGET_NAME]}')
       self._last_evaluated = current_date
 
-      should_evaluate = should_evaluate_target_rates(current_date, self._target_rates, self._config[CONFIG_ROLLING_TARGET_TARGET_TIMES_EVALUATION_MODE])
+      should_evaluate = should_evaluate_target_rates(current_date, self._target_rates, self._config[CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE])
       if should_evaluate:
         if self.coordinator is not None and self.coordinator.data is not None and self.coordinator.data.rates is not None:
           all_rates = self.coordinator.data.rates
@@ -193,6 +192,13 @@ class OctopusEnergyRollingTargetRate(MultiCoordinatorEntity, BinarySensorEntity,
             self._config[CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING] if CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING in self._config else 1
           )
 
+          weightings_key = DATA_CUSTOM_RATE_WEIGHTINGS_KEY.format(self._config[CONFIG_TARGET_MPAN])
+          applicable_rates = apply_weighting(
+            applicable_rates,
+            self._hass.data[DOMAIN][self._account_id][weightings_key] 
+            if weightings_key in self._hass.data[DOMAIN][self._account_id] 
+            else []
+          )
 
           if applicable_rates is not None:
             number_of_slots = math.ceil(target_hours * 2)

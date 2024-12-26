@@ -21,6 +21,21 @@ If you have an Octopus Home Mini and a smart electricity meter you can obtain li
   
     Data will only appear in the energy dashboard from the point you configure the Home Mini within the integration. It doesn't backport any data.
 
+#### Octopus Home Pro
+
+If you have an Octopus Home Pro and a smart electricity meter you can obtain live meter reading data into Home Assistant:
+
+1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
+2. Click `Add Consumption` under `Electricity grid`
+3. For `Consumed energy` you want `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_total_consumption`
+4. Choose the `Use an entity with current price` option and the entity is `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_rate`
+
+![HA modal electricity example](../assets/total_consumption_electricity.png){: style="height:500px"}
+
+!!! note
+  
+    Data will only appear in the energy dashboard from the point you configure the Home Pro within the integration. It doesn't backport any data.
+
 #### Alternative methods to measure current Home Consumption
 
 If you don't have an Octopus Home mini you may have another way to get live or near-live daily consumption into Home Assistant such as a Hildebrand Glow In Home Display, an Energy CT Clamp such as the Shelly EM on the incoming supply cable, or your existing Solar/Battery inverter may have a sensor that provides Grid import information that you can use in the Energy dashboard.
@@ -33,18 +48,35 @@ Do be aware that as you are not directly capturing the smart meter readings in H
 
 ### For Gas
 
-![HA modal gas example](../assets/current_consumption_gas.png){: style="height:500px"}
+#### Octopus Home Mini
 
-This is only available if you have an Octopus Home Mini and a smart gas meter.
+If you have an Octopus Home Mini and a smart electricity meter you can obtain live meter reading data into Home Assistant:
 
 1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
 2. Click `Add Gas Source` under `Gas consumption`
 3. For `Gas usage` you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_consumption_kwh`
 4. For `Use an entity tracking the total costs` option you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_accumulative_cost` 
 
+![HA modal gas example](../assets/current_consumption_gas.png){: style="height:500px"}
+
 !!! note
 
     Data will only appear in the energy dashboard from the point you configure the Home Mini within the integration. It doesn't backport any data.
+
+#### Octopus Home Pro
+
+If you have an Octopus Home Pro and a smart gas meter you can obtain live meter reading data into Home Assistant:
+
+1. Go to your [energy dashboard configuration](https://my.home-assistant.io/redirect/config_energy/)
+2. Click `Add Consumption` under `Electricity grid`
+3. For `Consumed energy` you want `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_total_consumption_kwh`
+4. Choose the `Use an entity with current price` option and the entity is `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_rate`
+
+![HA modal electricity example](../assets/total_consumption_gas.png){: style="height:500px"}
+
+!!! note
+  
+    Data will only appear in the energy dashboard from the point you configure the Home Pro within the integration. It doesn't backport any data.
 
 ## Previous Day Consumption
 

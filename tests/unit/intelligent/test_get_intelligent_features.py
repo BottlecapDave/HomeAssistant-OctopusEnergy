@@ -20,6 +20,7 @@ from custom_components.octopus_energy.intelligent import get_intelligent_feature
   ("TESLA", True, True, True, True, True, False, True),
   ("SMART_PEAR", True, True, True, True, True, False, True),
   ("HYPERVOLT", True, True, True, True, True, False, True),
+  ("INDRA", True, True, True, True, True, False, True),
   ("OHME", False, False, False, False, False, False, False),
   ("DAIKIN".lower(), True, True, True, True, True, False, True),
   ("ECOBEE".lower(), True, True, True, True, True, False, True),
@@ -37,6 +38,7 @@ from custom_components.octopus_energy.intelligent import get_intelligent_feature
   ("TESLA".lower(), True, True, True, True, True, False, True),
   ("SMART_PEAR".lower(), True, True, True, True, True, False, True),
   ("HYPERVOLT".lower(), True, True, True, True, True, False, True),
+  ("INDRA".lower(), True, True, True, True, True, False, True),
   ("OHME".lower(), False, False, False, False, False, False, False),
   # Unexpected providers
   ("unexpected".lower(), False, False, False, False, False, True, False),
