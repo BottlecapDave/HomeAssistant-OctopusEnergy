@@ -532,6 +532,18 @@ query {{
     }}
     readAt
   }}
+  octoHeatPumpLifetimePerformance(euid: "{euid}") {{
+    seasonalCoefficientOfPerformance
+    heatOutput {{
+      value
+      unit
+    }}
+    energyInput {{
+      value
+      unit
+    }}
+    readAt
+  }}
 }}
 '''
 
@@ -548,23 +560,6 @@ query {{
       value
     }}
   }}
-}}
-'''
-
-heat_pump_lifetime_performance = '''
-query {{
-  octoHeatPumpLifetimePerformance(euid: "{euid}") {{
-    seasonalCoefficientOfPerformance
-    heatOutput {{
-      value
-      unit
-    }}
-    energyInput {{
-      value
-      unit
-    }}
-  }}
-  readAt
 }}
 '''
 
@@ -875,7 +870,8 @@ class OctopusEnergyApiClient:
             and "data" in response 
             and "octoHeatPumpControllerConfiguration" in response["data"] 
             and "octoHeatPumpControllerStatus" in response["data"]
-            and "octoHeatPumpLivePerformance" in response["data"]):
+            and "octoHeatPumpLivePerformance" in response["data"]
+            and "octoHeatPumpLifetimePerformance" in response["data"]):
           return HeatPumpResponse.parse_obj(response["data"])
         
       return None

@@ -136,6 +136,7 @@ class OctoHeatPumpLifetimePerformance(BaseModel):
     energyInput: ValueAndUnit
     readAt: str
 
+
 class OctoHeatPumpTimeRangedPerformance(BaseModel):
     coefficientOfPerformance: str 
     energyOutput: ValueAndUnit
@@ -146,3 +147,4 @@ class HeatPumpResponse(BaseModel):
     octoHeatPumpControllerStatus: OctoHeatPumpControllerStatus
     octoHeatPumpControllerConfiguration: OctoHeatPumpControllerConfiguration
     octoHeatPumpLivePerformance: OctoHeatPumpLivePerformance
+    octoHeatPumpLifetimePerformance: OctoHeatPumpLifetimePerformance
