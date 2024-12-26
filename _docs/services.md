@@ -250,7 +250,7 @@ Rate weightings are added to any existing rate weightings that have been previou
 
 ### Automation Example
 
-This automation adds weightings based on the national grids carbon intensity, as provided by [Octopus Energy Carbon Intensity](https://github.com/BottlecapDave/HomeAssistant-CarbonIntensity).
+This automation adds weightings based on the national grids carbon intensity, as provided by [Carbon Intensity](https://github.com/BottlecapDave/HomeAssistant-CarbonIntensity).
 
 ```yaml
 - alias: Carbon Intensity Rate Weightings

@@ -14,7 +14,7 @@ If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blo
 
     Export sensors are not provided as the data is not available
 
-See [electricity entities](../entities/electricity.md#home-mini-entities) and [gas entities](../entities/gas.md#home-mini-entities) for more information.
+See [electricity entities](../entities/electricity.md#home-minipro-entities) and [gas entities](../entities/gas.md#home-minipro-entities) for more information.
 
 ### Refresh Rate In Minutes
 
