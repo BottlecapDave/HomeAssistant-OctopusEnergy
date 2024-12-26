@@ -293,36 +293,6 @@ async def test_when_account_has_been_setup_already_than_one_then_errors_returned
     assert_errors_not_present(errors, config_keys, CONFIG_ACCOUNT_ID)
 
 @pytest.mark.asyncio
-async def test_when_home_pro_address_is_set_and_home_pro_api_key_is_not_set_then_error_returned():
-  # Arrange
-  data = {
-    CONFIG_MAIN_API_KEY: "test-api-key",
-    CONFIG_ACCOUNT_ID: "A-123",
-    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
-    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
-    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
-    CONFIG_MAIN_CALORIFIC_VALUE: 40,
-    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
-    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
-    CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000",
-    CONFIG_MAIN_HOME_PRO_API_KEY: None
-  }
-
-  account_info = get_account_info()
-  async def async_mocked_get_account(*args, **kwargs):
-    return account_info
-
-  # Act
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_account=async_mocked_get_account):
-    errors = await async_validate_main_config(data)
-
-    # Assert
-    assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors
-    assert errors[CONFIG_MAIN_HOME_PRO_ADDRESS] == "all_home_pro_values_not_set"
-
-    assert_errors_not_present(errors, config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
-
-@pytest.mark.asyncio
 async def test_when_home_pro_address_is_not_set_and_home_pro_api_key_is_set_then_error_returned():
   # Arrange
   data = {

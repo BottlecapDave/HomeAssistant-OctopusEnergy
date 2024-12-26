@@ -127,5 +127,5 @@ If you're moving to this integration from [megakid/ha_octopus_intelligent](https
 * `sensor.octopus_intelligent_offpeak_end` - The default off peak end date/time can be found as an attribute on the [off peak sensor](./electricity.md#off-peak). This can be extracted using a [template sensor](https://www.home-assistant.io/integrations/template/).
 * `switch.octopus_intelligent_bump_charge` - Use the [bump charge sensor](#bump-charge)
 * `switch.octopus_intelligent_smart_charging` - Use the [smart charge sensor](#smart-charge)
-* `select.octopus_intelligent_target_time` - Use the [ready time sensor](#ready-time)
-* `select.octopus_intelligent_target_soc` - Use the [charge limit sensor](#charge-limit)
+* `select.octopus_intelligent_target_time` - Use the [target time sensor](#target-time)
+* `select.octopus_intelligent_target_soc` - Use the [charge target sensor](#charge-target)

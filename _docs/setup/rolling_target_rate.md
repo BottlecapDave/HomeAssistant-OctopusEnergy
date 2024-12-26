@@ -136,6 +136,12 @@ If we had a target rate sensor of 1 hour, the following would occur with the fol
 | 0.2 | `2024-11-26 11:00:00`-`2024-11-26 12:00:00` | Cheapest period would be 0.1p, free electricity period would be 0.02p. |
 | 0 | `2024-11-26 11:00:00`-`2024-11-26 12:00:00` | Cheapest period would be 0.1p, free electricity period would be 0p. This will always go for free electricity sessions if available. |
 
+## External Rate Weightings
+
+There may be times when you want to calculate the best times using factors that are external to data available via the integration, like grid carbon intensity or solar forecasts. This is where external rate weightings come in. Using the [Register Rate Weightings service](../services.md#octopus_energyregister_rate_weightings), you can configured weightings against given rates which are then multiplied against the associated rate. For example if you have a weighting of `2` set and a rate of `0.20`, then the rate will be interpreted as `0.40` during calculation. 
+
+These weightings are used in addition to any [weightings](#weighting) configured against the sensor and [free electricity weightings](#free-electricity-weighting). For example if you have rate weight of `2`, a rate of `0.20`, a sensor weight of `3` and free electricity weight of `0.5`, then rate will be interpreted as `0.6` (2 * 0.20 * 3 * 0.5).
+
 ## Attributes
 
 The following attributes are available on each sensor

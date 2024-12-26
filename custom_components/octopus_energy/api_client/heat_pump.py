@@ -12,7 +12,7 @@ class Connectivity(BaseModel):
 
 class Telemetry(BaseModel):
     temperatureInCelsius: float
-    humidityPercentage: Optional[int]
+    humidityPercentage: Optional[float]
     retrievedAt: str
 
 
@@ -23,7 +23,7 @@ class Sensor(BaseModel):
 
 
 class ZoneTelemetry(BaseModel):
-    setpointInCelsius: int
+    setpointInCelsius: float
     mode: str
     relaySwitchedOn: bool
     heatDemand: bool
@@ -85,7 +85,7 @@ class HeatPump(BaseModel):
 
 class CurrentOperation(BaseModel):
     mode: str
-    setpointInCelsius: Optional[int]
+    setpointInCelsius: Optional[float]
     action: Optional[str]
     end: str
 

@@ -3,6 +3,7 @@ import logging
 from homeassistant.core import HomeAssistant
 
 from .home_pro.screen_text import OctopusEnergyHomeProScreenText
+from .api_client_home_pro import OctopusEnergyHomeProApiClient
 
 from .const import (
   CONFIG_ACCOUNT_ID,
@@ -27,11 +28,11 @@ async def async_setup_entry(hass, entry, async_add_entities):
 async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_entities):
   account_id = config[CONFIG_ACCOUNT_ID]
   
-  home_pro_client = hass.data[DOMAIN][account_id][DATA_HOME_PRO_CLIENT] if DATA_HOME_PRO_CLIENT in hass.data[DOMAIN][account_id] else None
+  home_pro_client: OctopusEnergyHomeProApiClient = hass.data[DOMAIN][account_id][DATA_HOME_PRO_CLIENT] if DATA_HOME_PRO_CLIENT in hass.data[DOMAIN][account_id] else None
 
   entities = []
 
-  if home_pro_client is not None:
+  if home_pro_client is not None and home_pro_client.has_api_key():
     entities.append(OctopusEnergyHomeProScreenText(hass, account_id, home_pro_client))
 
   async_add_entities(entities)

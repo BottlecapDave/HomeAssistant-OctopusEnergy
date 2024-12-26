@@ -232,6 +232,28 @@ adjust_cost_tracker:
           mode: box
           unit_of_measurement: kWh
 
+register_rate_weightings:
+  name: Register rate weightings
+  description: Registers external weightings against rates, for use with target rate sensors when calculating target periods.
+  target:
+    entity:
+      integration: octopus_energy
+      domain: sensor
+  fields:
+    weightings:
+      name: Weightings
+      description: The collection of time periods and associated weightings to apply.
+      example: >-
+        [
+          {
+            "start": "2025-01-01T00:00:00Z",
+            "end": "2025-01-01T00:30:00Z",
+            "weighting": 0.1
+          }
+        ]
+      selector:
+        object:
+
 boost_heat_pump_zone:
   name: Boost heat pump zone
   description: Boost a given heat pump zone for a given time period
