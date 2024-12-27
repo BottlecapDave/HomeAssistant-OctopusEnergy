@@ -127,6 +127,7 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
             for sensor in sensors:
               if sensor.code == self._zone.configuration.primarySensor and sensor.telemetry is not None:
                 self._attr_current_temperature = sensor.telemetry.temperatureInCelsius
+                self._attr_current_humidity = sensor.telemetry.humidityPercentage
 
           if result.data.octoHeatPumpControllerConfiguration is not None and result.data.octoHeatPumpControllerConfiguration.zones:
             configs: List[ConfigurationZone] = result.data.octoHeatPumpControllerConfiguration.zones
