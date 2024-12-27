@@ -889,6 +889,7 @@ async def test_when_intelligent_dispatches_available_then_adjusted_requested_dat
     )
 
     intelligent_dispatches = IntelligentDispatches(
+      "SMART_CONTROL_IN_PROGRESS",
       [], 
       [
         IntelligentDispatchItem(
