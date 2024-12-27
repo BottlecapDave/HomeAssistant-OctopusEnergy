@@ -46,7 +46,7 @@ class OctopusEnergyHeatPumpSensorLiveCoP(CoordinatorEntity, BaseOctopusEnergyHea
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Live CoP ({self._heat_pump_id})"
+    return f"Live CoP Heat Pump ({self._heat_pump_id})"
 
   @property
   def state_class(self):
@@ -74,7 +74,7 @@ class OctopusEnergyHeatPumpSensorLiveCoP(CoordinatorEntity, BaseOctopusEnergyHea
       _LOGGER.debug(f"Updating OctopusEnergyHeatPumpSensorLiveCoP for '{self._heat_pump_id}'")
 
       self._state = 0
-      # Only update the CoP if active
+      # Only update the CoP if heat pump is actively running
       if float(result.data.octoHeatPumpLivePerformance.powerInput.value) != 0:
         self._state = float(result.data.octoHeatPumpLivePerformance.coefficientOfPerformance)
 

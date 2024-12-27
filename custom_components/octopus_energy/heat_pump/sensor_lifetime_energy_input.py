@@ -46,7 +46,7 @@ class OctopusEnergyHeatPumpSensorLifetimeEnergyInput(CoordinatorEntity, BaseOcto
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Lifetime Energy Input ({self._heat_pump_id})"
+    return f"Lifetime Energy Input Heat Pump ({self._heat_pump_id})"
 
   @property
   def state_class(self):
@@ -79,7 +79,7 @@ class OctopusEnergyHeatPumpSensorLifetimeEnergyInput(CoordinatorEntity, BaseOcto
   
   @callback
   def _handle_coordinator_update(self) -> None:
-    """Retrieve the live CoP for the heat pump."""
+    """Retrieve the lifetime energy input for the heat pump."""
     current = now()
     result: HeatPumpCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
 

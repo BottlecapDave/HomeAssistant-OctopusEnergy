@@ -346,30 +346,32 @@ def mock_heat_pump_status_and_configuration():
       ]
     },
     "octoHeatPumpLifetimePerformance": {
-      "seasonalCoefficientOfPerformance": "3.401",
+      "seasonalCoefficientOfPerformance": str(3 + (random.randrange(1, 9) * 0.1)),
       "heatOutput": {
         "unit": "KILOWATT_HOUR",
-        "value": "128.111"
+        "value": str(100 + (random.randrange(1, 20) * 0.1))
       },
       "energyInput": {
         "unit": "KILOWATT_HOUR",
-        "value": "37.673"
-      }
+        "value": str(20 + (random.randrange(1, 20) * 0.1))
+      },
+      "readAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
     },
     "octoHeatPumpLivePerformance": {
-      "coefficientOfPerformance": "3.580",
+      "coefficientOfPerformance": str(3 + (random.randrange(1, 20) * 0.1)),
       "outdoorTemperature": {
         "unit": "DEGREES_CELSIUS",
-        "value": "4.300"
+        "value": str(10 + (random.randrange(1, 20) * 0.1))
       },
       "heatOutput": {
-        "value": "2.968",
+        "value": str(4 + (random.randrange(1, 9) * 0.1)),
         "unit": "KILOWATT"
       },
       "powerInput": {
         "unit": "KILOWATT",
-        "value": "0.821"
+        "value": str(1 + (random.randrange(1, 9) * 0.1))
       }
+      "readAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
     }
   }
 

@@ -120,7 +120,10 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
             raise Exception(f"Unexpected heat pump mode detected: {zone.telemetry.mode}")
 
           self._attr_hvac_action = HVACAction.HEATING if zone.telemetry.relaySwitchedOn else HVACAction.IDLE
-          self._attr_target_temperature = zone.telemetry.setpointInCelsius if zone.telemetry.setpointInCelsius > 0 else None
+
+          self._attr_target_temperature = None
+          if zone.telemetry.setpointInCelsius is not None and zone.telemetry.setpointInCelsius > 0:
+            self._attr_target_temperature = zone.telemetry.setpointInCelsius
 
           if result.data.octoHeatPumpControllerStatus.sensors and self._zone.configuration.primarySensor:
             sensors: List[Sensor] = result.data.octoHeatPumpControllerStatus.sensors

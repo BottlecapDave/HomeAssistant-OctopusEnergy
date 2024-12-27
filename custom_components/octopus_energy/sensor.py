@@ -622,6 +622,7 @@ def setup_heat_pump_sensors(hass: HomeAssistant, heat_pump_id: str, heat_pump_re
         heat_pump_response.octoHeatPumpControllerConfiguration.heatPump
       ))
 
+    if heat_pump_response.octoHeatPumpLifetimePerformance is not None:
       entities.append(OctopusEnergyHeatPumpSensorLifetimeEnergyInput(
         hass,
         coordinator,

@@ -46,7 +46,7 @@ class OctopusEnergyHeatPumpSensorLivePowerInput(CoordinatorEntity, BaseOctopusEn
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Live Power Input ({self._heat_pump_id})"
+    return f"Live Power Input Heat Pump ({self._heat_pump_id})"
 
   @property
   def state_class(self):
