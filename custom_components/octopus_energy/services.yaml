@@ -293,7 +293,7 @@ boost_heat_pump_zone:
 
 set_heat_pump_flow_temp_config:
   name: Set heat pump flow temperature configuration
-  description: Sets the full flow temperature configuration for fixed and weather compensated flow temperatures, with the option to select which is active.
+  description: Sets the full flow temperature configuration for fixed and weather compensated flow temperatures, with the option to select which is active. Changing this configuration without a good understanding of heat loss and emitter output can cause cycling, defrosting, or incorrect heat delivery.
   target:
     entity:
       integration: octopus_energy
