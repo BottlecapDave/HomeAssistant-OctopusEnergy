@@ -34,7 +34,11 @@ This should be true if the tracked entity's state increases over time (true) or 
 
 ### Don't automatically reset the cost sensor
 
-By default, the sensor will automatically reset when a new reading has been received and it's a different day to the previous reading. There may be times that you want to track costs for something over this threshold (e.g. how much it last cost you to charge your car). In these scenarios, you can turn off the automatic resets. In this scenario, you are in charge of resetting the sensor via it's [available service](../services.md#octopus_energyreset_cost_tracker).
+By default, the sensor will automatically reset when a new reading has been received and it's a different day to the previous reading. There may be times that you want to track costs for something over this threshold (e.g. how much it last cost you to charge your car). In these scenarios, you can turn off the automatic resets. In this scenario, you are in charge of resetting the core sensor via it's [available service](../services.md#octopus_energyreset_cost_tracker).
+
+!!! info
+
+    The weekly and monthly sensors will reset as normal with this settings turned on.
 
 !!! warning
 
