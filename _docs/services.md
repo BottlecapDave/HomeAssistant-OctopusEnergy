@@ -285,8 +285,8 @@ Allows you to boost a given heat pump zone for a set amount of time.
 
 Allows you to set the heat pump configuration for fixed and weather compensated flow temperatures, with the option to select which is active.
 
-> [!WARNING]  
-> Changing this configuration without a good understanding of heat loss and emitter output can cause cycling, defrosting, or incorrect heat delivery. 
+!!! warning
+    Changing this configuration without a good understanding of heat loss and emitter output can cause cycling, defrosting, or incorrect heat delivery. 
 
 | Attribute                | Optional | Description                                                                                                           |
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
