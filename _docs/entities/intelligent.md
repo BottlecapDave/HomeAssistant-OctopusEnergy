@@ -102,7 +102,7 @@ This sensor is used to see and set the charge target for your future intelligent
 
 ### Target Time
 
-`time.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time`
+`select.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time`
 
 This sensor is used to see and set the target time for your future intelligent charges.
 
@@ -115,6 +115,10 @@ This sensor is used to see and set the target time for your future intelligent c
 !!! info
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-settings-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+
+!!! warning
+
+    There is a time based sensor called `select.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time` which represents this functionality. This is a legacy sensor which will be removed in the future. 
 
 ## Migrating from megakid/ha_octopus_intelligent?
 
