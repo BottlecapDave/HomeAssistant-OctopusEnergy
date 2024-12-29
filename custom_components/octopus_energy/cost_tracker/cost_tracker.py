@@ -27,6 +27,7 @@ from homeassistant.const import (
 
 from ..const import (
   CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE,
+  CONFIG_COST_TRACKER_MANUAL_RESET,
   CONFIG_COST_TRACKER_TARGET_ENTITY_ID,
   CONFIG_COST_TRACKER_NAME,
   DOMAIN,
@@ -181,6 +182,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
                                        old_last_reset,
                                        self._config[CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE],
                                        self._attributes["is_tracking"] if "is_tracking" in self._attributes else True,
+                                       CONFIG_COST_TRACKER_MANUAL_RESET not in self._config or self._config[CONFIG_COST_TRACKER_MANUAL_RESET] == False,
                                        new_state.attributes["state_class"] if "state_class" in new_state.attributes else None)
     
     
@@ -291,7 +293,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
       self._last_reset = start_of_day
       return True
     
-    if self._last_reset.date() != current.date():
+    if self._last_reset.date() != current.date() and (CONFIG_COST_TRACKER_MANUAL_RESET not in self._config or self._config[CONFIG_COST_TRACKER_MANUAL_RESET] == False):
       self._state = 0
       self._attributes["tracked_charges"] = []
       self._attributes["untracked_charges"] = []
