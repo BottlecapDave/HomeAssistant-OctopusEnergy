@@ -1,4 +1,5 @@
 from datetime import timedelta
+from custom_components.octopus_energy.diagnostics_entities.heat_pump_data_last_retrieved import OctopusEnergyHeatPumpDataLastRetrieved
 import voluptuous as vol
 import logging
 
@@ -539,12 +540,12 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
     heat_pump_id = get_mock_heat_pump_id()
     key = DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY.format(heat_pump_id)
     coordinator = hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR.format(heat_pump_id)]
-    entities.extend(setup_heat_pump_sensors(hass, heat_pump_id, hass.data[DOMAIN][account_id][key].data, coordinator))
+    entities.extend(setup_heat_pump_sensors(hass, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data, coordinator))
   elif "heat_pump_ids" in account_info:
     for heat_pump_id in account_info["heat_pump_ids"]:
       key = DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY.format(heat_pump_id)
       coordinator = hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR.format(heat_pump_id)]
-      entities.extend(setup_heat_pump_sensors(hass, heat_pump_id, hass.data[DOMAIN][account_id][key].data, coordinator))
+      entities.extend(setup_heat_pump_sensors(hass, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data, coordinator))
 
   # Migrate entity ids that might have changed
   # for item in entity_ids_to_migrate:
@@ -558,9 +559,12 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
 
   async_add_entities(entities)
 
-def setup_heat_pump_sensors(hass: HomeAssistant, heat_pump_id: str, heat_pump_response: HeatPumpResponse, coordinator):
+def setup_heat_pump_sensors(hass: HomeAssistant, account_id: str, heat_pump_id: str, heat_pump_response: HeatPumpResponse, coordinator):
 
   entities = []
+
+  if coordinator is not None:
+    entities.append(OctopusEnergyHeatPumpDataLastRetrieved(hass, coordinator, account_id, heat_pump_id))
 
   if heat_pump_response is not None and heat_pump_response.octoHeatPumpControllerConfiguration is not None:
     for zone in heat_pump_response.octoHeatPumpControllerConfiguration.zones:
