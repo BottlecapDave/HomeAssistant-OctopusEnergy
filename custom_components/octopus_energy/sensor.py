@@ -565,7 +565,7 @@ async def async_setup_cost_sensors(hass: HomeAssistant, entry, config, async_add
           if device_id is not None:
             device_entry = device_registry.async_get(device_id)
 
-          sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, config, device_entry)
+          sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, entry, config, device_entry)
           sensor_entity_id = registry.async_get_entity_id("sensor", DOMAIN, sensor.unique_id)
 
           entities = [
@@ -580,7 +580,7 @@ async def async_setup_cost_sensors(hass: HomeAssistant, entry, config, async_add
             for unique_rate_index in range(0, total_unique_rates):
               peak_type = get_peak_type(total_unique_rates, unique_rate_index)
               if peak_type is not None:
-                peak_sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, config, device_entry, peak_type)
+                peak_sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, entry, config, device_entry, peak_type)
                 peak_sensor_entity_id = registry.async_get_entity_id("sensor", DOMAIN, peak_sensor.unique_id)
                 
                 entities.append(peak_sensor)
