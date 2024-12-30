@@ -182,7 +182,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
                                        old_last_reset,
                                        self._config[CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE],
                                        self._attributes["is_tracking"] if "is_tracking" in self._attributes else True,
-                                       CONFIG_COST_TRACKER_MANUAL_RESET not in self._config or self._config[CONFIG_COST_TRACKER_MANUAL_RESET] == False,
+                                       CONFIG_COST_TRACKER_MANUAL_RESET in self._config and self._config[CONFIG_COST_TRACKER_MANUAL_RESET] == True,
                                        new_state.attributes["state_class"] if "state_class" in new_state.attributes else None)
     
     
