@@ -21,6 +21,7 @@ _LOGGER = logging.getLogger(__name__)
 def mock_intelligent_dispatches() -> IntelligentDispatches:
   planned: list[IntelligentDispatchItem] = []
   completed: list[IntelligentDispatchItem] = []
+  current_state = "SMART_CONTROL_CAPABLE"
 
   dispatches = [
     IntelligentDispatchItem(
@@ -71,12 +72,18 @@ def mock_intelligent_dispatches() -> IntelligentDispatches:
     )
 
   for dispatch in dispatches:
+    if utcnow() >= dispatch.start and utcnow() <= dispatch.end:
+      if dispatch.source == INTELLIGENT_SOURCE_SMART_CHARGE:
+        current_state = "SMART_CONTROL_IN_PROGRESS"
+      elif dispatch.source == INTELLIGENT_SOURCE_BUMP_CHARGE:
+        current_state = "BOOSTING"
+
     if (dispatch.end > utcnow()):
       planned.append(dispatch)
     else:
       completed.append(dispatch)
 
-  return IntelligentDispatches(planned, completed)
+  return IntelligentDispatches(current_state, planned, completed)
 
 def mock_intelligent_settings():
   return IntelligentSettings(
@@ -206,13 +213,15 @@ class IntelligentFeatures:
                charge_limit_supported: bool,
                planned_dispatches_supported: bool,
                ready_time_supported: bool,
-               smart_charge_supported: bool):
+               smart_charge_supported: bool,
+               current_state_supported: bool):
     self.is_default_features = is_default_features
     self.bump_charge_supported = bump_charge_supported
     self.charge_limit_supported = charge_limit_supported
     self.planned_dispatches_supported = planned_dispatches_supported
     self.ready_time_supported = ready_time_supported
     self.smart_charge_supported = smart_charge_supported
+    self.current_state_supported = current_state_supported
 
 FULLY_SUPPORTED_INTELLIGENT_PROVIDERS = [
   "DAIKIN",
@@ -237,8 +246,8 @@ FULLY_SUPPORTED_INTELLIGENT_PROVIDERS = [
 def get_intelligent_features(provider: str) -> IntelligentFeatures:
   normalised_provider = provider.upper() if provider is not None else None
   if normalised_provider is not None and normalised_provider in FULLY_SUPPORTED_INTELLIGENT_PROVIDERS:
-    return IntelligentFeatures(False, True, True, True, True, True)
+    return IntelligentFeatures(False, True, True, True, True, True, True)
   elif normalised_provider == "OHME":
-    return IntelligentFeatures(False, False, False, False, False, False)
+    return IntelligentFeatures(False, False, False, False, False, False, False)
 
-  return IntelligentFeatures(True, False, False, False, False, False)
+  return IntelligentFeatures(True, False, False, False, False, False, False)

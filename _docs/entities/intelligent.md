@@ -52,6 +52,27 @@ Each item in `planned_dispatch` or `completed_dispatches` have the following att
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-dispatches-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
+### Current State
+
+`sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_state`
+
+This sensor displays the current state of your intelligent provider as told by the OE API. The value of this sensor can be one of the following
+
+* `AUTHENTICATION_PENDING` - ready to start authentication and authorization, or auth is in progress.
+* `AUTHENTICATION_FAILED` - failed to connect and ready to restart authentication and authorization.
+* `AUTHENTICATION_COMPLETE`- ready to start test (if needed) or pending live where auth or telemetry is delayed.
+* `TEST_CHARGE_IN_PROGRESS` - connection and smart control test has successfully started and is occurring.
+* `TEST_CHARGE_FAILED` - connection or smart control test has failed or could not start, ready to retry test.
+* `TEST_CHARGE_NOT_AVAILABLE` - not currently capable of smart control test (e.g. away from home or unplugged).
+* `SETUP_COMPLETE` - test is complete (if needed) and device is live, but not ready for smart control.
+* `SMART_CONTROL_CAPABLE` - live and ready for smart control (e.g. at home and plugged in) but none is scheduled.
+* `SMART_CONTROL_IN_PROGRESS` - smart control (e.g. smart charging) is scheduled or is currently occurring.
+* `BOOSTING` - user has overridden the schedule to immediately boost (e.g. bump charge now).
+* `SMART_CONTROL_OFF` - smart control has been (temporarily) disabled (e.g. by the user with holiday mode).
+* `SMART_CONTROL_NOT_AVAILABLE` - not currently capable of smart control (e.g. away from home or unplugged).
+* `LOST_CONNECTION` - lost connection to the device, ready to re-auth (if not temporary / automatic fix).
+* `RETIRED` - / de-authed (re-auth not possible, re-register device to onboard again).
+
 ### Bump Charge
 
 `switch.octopus_energy_{{ACCOUNT_ID}}_intelligent_bump_charge`
