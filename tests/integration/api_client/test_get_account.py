@@ -60,6 +60,10 @@ async def test_when_get_account_is_called_then_electricity_and_gas_points_return
 
     assert "octoplus_enrolled" in account
 
+    assert "heat_pump_ids" in account
+    assert account["heat_pump_ids"] is not None
+    assert len(account["heat_pump_ids"]) >= 0
+
 @pytest.mark.asyncio
 async def test_when_get_account_is_called_and_not_found_then_exception_is_raised():
     # Arrange

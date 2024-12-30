@@ -270,3 +270,14 @@ This automation adds weightings based on the national grids carbon intensity, as
           {%- set ns.list = ns.list + [{ "start": a.from.strftime('%Y-%m-%dT%H:%M:%SZ'), "end": a.to.strftime('%Y-%m-%dT%H:%M:%SZ'), "weighting": a.intensity_forecast | float }] -%} 
         {%- endfor -%} {{ ns.list }}
 ```
+
+## octopus_energy.boost_heat_pump_zone
+
+Allows you to boost a given heat pump zone for a set amount of time.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the heat pump zone boost mode should be applied to (e.g. `climate.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{ZONE_CODE}}`). |
+| `data.hours`              | `no`     | The number of hours to turn boost mode on for. This can be between 0 and 12. |
+| `data.minutes`       | `no`     | The number of minutes to turn boost mode on for. This can be 0, 15, or 45. |
+| `data.target_temperature`       | `yes`     | The optional target temperature to boost to. If not supplied, then the current target temperature will be used. |

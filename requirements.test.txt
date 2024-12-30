@@ -3,6 +3,7 @@ pytest-socket
 pytest-asyncio
 mock
 homeassistant
+pydantic
 psutil-home-assistant
 pydantic
 sqlalchemy

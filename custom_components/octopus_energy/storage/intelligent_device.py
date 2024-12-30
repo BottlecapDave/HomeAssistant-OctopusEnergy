@@ -12,15 +12,15 @@ async def async_load_cached_intelligent_device(hass, account_id: str) -> Intelli
     data = await store.async_load()
     if data is not None:
       _LOGGER.debug(f"Loaded cached intelligent device data for {account_id}")
-    return IntelligentDevice(
-      data["id"],
-      data["provider"],
-      data["make"],
-      data["model"],
-      data["vehicleBatterySizeInKwh"],
-      data["chargePointPowerInKw"],
-      data["is_charger"]
-    )
+      return IntelligentDevice(
+        data["id"],
+        data["provider"],
+        data["make"],
+        data["model"],
+        data["vehicleBatterySizeInKwh"],
+        data["chargePointPowerInKw"],
+        data["is_charger"]
+      )
   except:
     return None
   
