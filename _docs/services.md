@@ -33,6 +33,7 @@ For updating a given [target rate's](./setup/target_rate.md) config. This allows
 | `data.target_minimum_rate`     | `yes`    | The optional minimum rate the selected rates should not go below. |
 | `data.target_maximum_rate`     | `yes`    | The optional maximum rate the selected rates should not go above. |
 | `data.target_weighting`     | `yes`    | The optional weighting that should be applied to the selected rates. |
+| `data.persist_changes` | `yes` | Determines if the changes should be persisted to the original configuration or should be temporary and reset upon integration reload. If not supplied, then the changes are temporary |
 
 ### Automation Example
 
@@ -103,6 +104,7 @@ For updating a given [rolling target rate's](./setup/rolling_target_rate.md) con
 | `data.target_minimum_rate`     | `yes`    | The optional minimum rate the selected rates should not go below. |
 | `data.target_maximum_rate`     | `yes`    | The optional maximum rate the selected rates should not go above. |
 | `data.target_weighting`     | `yes`    | The optional weighting that should be applied to the selected rates. |
+| `data.persist_changes` | `yes` | Determines if the changes should be persisted to the original configuration or should be temporary and reset upon integration reload. If not supplied, then the changes are temporary |
 
 ### Automation Example
 
