@@ -52,6 +52,27 @@ Each item in `planned_dispatch` or `completed_dispatches` have the following att
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-dispatches-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
+### Current State
+
+`sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_state`
+
+This sensor displays the current state of your intelligent provider as told by the OE API. The value of this sensor can be one of the following
+
+* `AUTHENTICATION_PENDING` - ready to start authentication and authorization, or auth is in progress.
+* `AUTHENTICATION_FAILED` - failed to connect and ready to restart authentication and authorization.
+* `AUTHENTICATION_COMPLETE`- ready to start test (if needed) or pending live where auth or telemetry is delayed.
+* `TEST_CHARGE_IN_PROGRESS` - connection and smart control test has successfully started and is occurring.
+* `TEST_CHARGE_FAILED` - connection or smart control test has failed or could not start, ready to retry test.
+* `TEST_CHARGE_NOT_AVAILABLE` - not currently capable of smart control test (e.g. away from home or unplugged).
+* `SETUP_COMPLETE` - test is complete (if needed) and device is live, but not ready for smart control.
+* `SMART_CONTROL_CAPABLE` - live and ready for smart control (e.g. at home and plugged in) but none is scheduled.
+* `SMART_CONTROL_IN_PROGRESS` - smart control (e.g. smart charging) is scheduled or is currently occurring.
+* `BOOSTING` - user has overridden the schedule to immediately boost (e.g. bump charge now).
+* `SMART_CONTROL_OFF` - smart control has been (temporarily) disabled (e.g. by the user with holiday mode).
+* `SMART_CONTROL_NOT_AVAILABLE` - not currently capable of smart control (e.g. away from home or unplugged).
+* `LOST_CONNECTION` - lost connection to the device, ready to re-auth (if not temporary / automatic fix).
+* `RETIRED` - / de-authed (re-auth not possible, re-register device to onboard again).
+
 ### Bump Charge
 
 `switch.octopus_energy_{{ACCOUNT_ID}}_intelligent_bump_charge`
@@ -102,7 +123,7 @@ This sensor is used to see and set the charge target for your future intelligent
 
 ### Target Time
 
-`time.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time`
+`select.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time`
 
 This sensor is used to see and set the target time for your future intelligent charges.
 
@@ -116,13 +137,17 @@ This sensor is used to see and set the target time for your future intelligent c
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-settings-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
+!!! warning
+
+    There is a time based sensor called `select.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time` which represents this functionality. This is a legacy sensor which will be removed in the future. 
+
 ## Migrating from megakid/ha_octopus_intelligent?
 
 If you're moving to this integration from [megakid/ha_octopus_intelligent](https://github.com/megakid/ha_octopus_intelligent), below is a quick guide on what entities you should use
 
 * `binary_sensor.octopus_intelligent_slot` - Use the [is dispatching sensor](#is-dispatching)
 * `binary_sensor.octopus_intelligent_planned_dispatch_slot` - There is no alternative for this.
-* `binary_sensor.octopus_intelligent_slot_next_1_hour`, `binary_sensor.octopus_intelligent_slot_next_2_hours` and `binary_sensor.octopus_intelligent_slot_next_3_hours` - These sensors felt like they would always fall short of peoples requirements as everyone has different time periods they wish to know about. The [is dispatching sensor](#is-dispatching) exposes the current and next start/end times which could be used in a template sensor to determine how long the rate is cheap for when on.
+* `binary_sensor.octopus_intelligent_slot_next_1_hour`, `binary_sensor.octopus_intelligent_slot_next_2_hours` and `binary_sensor.octopus_intelligent_slot_next_3_hours` - These sensors felt like they would always fall short of peoples requirements as everyone has different time periods they wish to know about. The [is dispatching sensor](#is-dispatching) exposes the current and next start/end times which could be used in a template sensor to determine how long the rate is cheap for when on. Or the [target rate](../setup/target_rate.md) or [rolling target rate](../setup/rolling_target_rate.md) might help for what you need.
 * `sensor.octopus_intelligent_next_offpeak_start` - The default off peak start date/time can be found as an attribute on the [off peak sensor](./electricity.md#off-peak). This can be extracted using a [template sensor](https://www.home-assistant.io/integrations/template/).
 * `sensor.octopus_intelligent_offpeak_end` - The default off peak end date/time can be found as an attribute on the [off peak sensor](./electricity.md#off-peak). This can be extracted using a [template sensor](https://www.home-assistant.io/integrations/template/).
 * `switch.octopus_intelligent_bump_charge` - Use the [bump charge sensor](#bump-charge)

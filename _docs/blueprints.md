@@ -12,6 +12,16 @@ This blueprint will raise a persistent notification within HA when a rate update
 
 ## Consumption
 
+### Alert when gas anomaly detected
+
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_gas_anomaly.yaml) | [Source](./blueprints/octopus_energy_gas_anomaly.yaml)
+
+This blueprint will fire a configured action when the consumption has 24 hours worth of records and all thirty minute periods exceed the configured threshold. This can be used to alert you to _potential_ gas leaks.
+
+!!! warning
+
+    Like everything else with this integration, this is provided _as is_ and should be used as a guide and early warning sign. It will only trigger if all data is available. If triggered, you should use your own judgment to determine if the warning is legitimate.
+
 ### Alert when consumption data is late
 
 [Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%octopus_energy_late_consumption_data.yml) | [Source](./blueprints/octopus_energy_late_consumption_data.yml)

@@ -8,8 +8,8 @@
           "account_id": "Account ID (e.g. A-AAAA1111)",
           "api_key": "Api key",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
-          "live_electricity_consumption_refresh_in_minutes": "Home Mini/Pro electricity refresh rate in minutes",
-          "live_gas_consumption_refresh_in_minutes": "Home Mini/Pro gas refresh rate in minutes",
+          "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
+          "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
           "calorific_value": "Gas calorific value.",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence",
@@ -156,8 +156,8 @@
         "data": {
           "api_key": "Api key",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
-          "live_electricity_consumption_refresh_in_minutes": "Home Mini/Pro electricity refresh rate in minutes",
-          "live_gas_consumption_refresh_in_minutes": "Home Mini/Pro gas refresh rate in minutes",
+          "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
+          "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
           "calorific_value": "Gas calorific value",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence",
@@ -321,6 +321,10 @@
     "unknown_intelligent_provider": {
       "title": "Unknown intelligent provider \"{provider}\"",
       "description": "You have an intelligent provider of \"{provider}\" which is not recognised and therefore a reduced feature set has been enabled. Click on \"Learn More\" with instructions on what to do next."
+    },
+    "intelligent_target_time_deprecated": {
+      "title": "Intelligent target time sensor has been deprecated",
+      "description": "The target time sensor (defaults to time.octopus_energy_{account_id}_intelligent_target_time) has been deprecated in favour of a select based sensor (select.octopus_energy_{account_id}_intelligent_target_time) to make it easier to select a valid time. This old sensor will be removed in a future release."
     }
   }
 }

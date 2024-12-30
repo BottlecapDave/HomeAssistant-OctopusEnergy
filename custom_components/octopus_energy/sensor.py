@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 import voluptuous as vol
 import logging
 
@@ -60,6 +60,8 @@ from .heat_pump import get_mock_heat_pump_id
 from .heat_pump.sensor_temperature import OctopusEnergyHeatPumpSensorTemperature
 from .heat_pump.sensor_humidity import OctopusEnergyHeatPumpSensorHumidity
 from .api_client.intelligent_device import IntelligentDevice
+from .intelligent.current_state import OctopusEnergyIntelligentCurrentState
+from .intelligent import get_intelligent_features
 
 from .utils.debug_overrides import async_get_account_debug_override, async_get_meter_debug_override
 
@@ -310,6 +312,10 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
     intelligent_dispatches_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR] if DATA_INTELLIGENT_DISPATCHES_COORDINATOR in hass.data[DOMAIN][account_id] else None
     if intelligent_dispatches_coordinator is not None:
       entities.append(OctopusEnergyIntelligentDispatchesDataLastRetrieved(hass, intelligent_dispatches_coordinator, account_id))
+
+      intelligent_features = get_intelligent_features(intelligent_device.provider)
+      if intelligent_features.current_state_supported:
+        entities.append(OctopusEnergyIntelligentCurrentState(hass, intelligent_dispatches_coordinator, intelligent_device, account_id))
                       
     intelligent_settings_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS_COORDINATOR] if DATA_INTELLIGENT_SETTINGS_COORDINATOR in hass.data[DOMAIN][account_id] else None
     if intelligent_settings_coordinator is not None:
@@ -620,7 +626,7 @@ async def async_setup_cost_sensors(hass: HomeAssistant, entry, config, async_add
           if device_id is not None:
             device_entry = device_registry.async_get(device_id)
 
-          sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, config, device_entry)
+          sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, entry, config, device_entry)
           sensor_entity_id = registry.async_get_entity_id("sensor", DOMAIN, sensor.unique_id)
 
           entities = [
@@ -635,7 +641,7 @@ async def async_setup_cost_sensors(hass: HomeAssistant, entry, config, async_add
             for unique_rate_index in range(0, total_unique_rates):
               peak_type = get_peak_type(total_unique_rates, unique_rate_index)
               if peak_type is not None:
-                peak_sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, config, device_entry, peak_type)
+                peak_sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, entry, config, device_entry, peak_type)
                 peak_sensor_entity_id = registry.async_get_entity_id("sensor", DOMAIN, peak_sensor.unique_id)
                 
                 entities.append(peak_sensor)

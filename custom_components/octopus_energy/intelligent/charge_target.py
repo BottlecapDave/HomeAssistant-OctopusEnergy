@@ -91,14 +91,17 @@ class OctopusEnergyIntelligentChargeTarget(CoordinatorEntity, RestoreNumber, Oct
 
   async def async_set_native_value(self, value: float) -> None:
     """Set new value."""
-    await self._client.async_update_intelligent_car_target_percentage(
-      self._account_id,
-      self._device.id,
-      int(value)
-    )
-    self._state = value
-    self._last_updated = utcnow()
-    self.async_write_ha_state()
+    if value and value % self._attr_native_step == 0:
+      await self._client.async_update_intelligent_car_target_percentage(
+        self._account_id,
+        self._device.id,
+        int(value)
+      )
+      self._state = value
+      self._last_updated = utcnow()
+      self.async_write_ha_state()
+    else:
+      raise Exception(f"Value must be between {self._attr_native_min_value} and {self._attr_native_max_value} and be a multiple of 5")
 
   async def async_added_to_hass(self) -> None:
     """Restore last state."""

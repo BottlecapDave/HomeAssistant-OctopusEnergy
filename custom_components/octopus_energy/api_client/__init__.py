@@ -117,6 +117,12 @@ live_consumption_query = '''query {{
 }}'''
 
 intelligent_dispatches_query = '''query {{
+  devices(accountNumber: "{account_id}", deviceId: "{device_id}") {{
+		id
+    status {{
+      currentState
+    }}
+  }}
 	plannedDispatches(accountNumber: "{account_id}") {{
 		start
 		end
@@ -1264,7 +1270,7 @@ class OctopusEnergyApiClient:
         _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
         raise TimeoutException()
   
-  async def async_get_intelligent_dispatches(self, account_id: str):
+  async def async_get_intelligent_dispatches(self, account_id: str, device_id: str):
     """Get the user's intelligent dispatches"""
     await self.async_refresh_token()
 
@@ -1272,14 +1278,21 @@ class OctopusEnergyApiClient:
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
       # Get account response
-      payload = { "query": intelligent_dispatches_query.format(account_id=account_id) }
+      payload = { "query": intelligent_dispatches_query.format(account_id=account_id, device_id=device_id) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
         _LOGGER.debug(f'async_get_intelligent_dispatches: {response_body}')
 
+        current_state = None
+        if (response_body is not None and "data" in response_body and "devices" in response_body["data"]):
+          for device in response_body["data"]["devices"]:
+            if device["id"] == device_id:
+              current_state = device["status"]["currentState"]
+
         if (response_body is not None and "data" in response_body):
           return IntelligentDispatches(
+            current_state,
             list(map(lambda ev: IntelligentDispatchItem(
                 as_utc(parse_datetime(ev["start"])),
                 as_utc(parse_datetime(ev["end"])),
