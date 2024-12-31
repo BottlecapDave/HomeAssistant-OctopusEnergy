@@ -16,12 +16,16 @@ def assert_meter(meter, expected_serial_number: int):
   assert meter["device_id"] == "**REDACTED**"
   assert isinstance(meter["latest_consumption"], datetime)
 
-  assert meter["device"] is not None
-  assert isinstance(meter["device"]["total_consumption"], float)
-  assert isinstance(meter["device"]["consumption"], float)
-  assert "demand" in meter["device"]
-  assert isinstance(meter["device"]["start"], datetime)
-  assert isinstance(meter["device"]["end"], datetime)
+  if meter["device"] !=  "Not available":
+    if meter["device"]["total_consumption"] is not None:
+        assert isinstance(meter["device"]["total_consumption"], float)
+
+    if meter["device"]["consumption"] is not None:
+        assert isinstance(meter["device"]["consumption"], float)
+    
+    assert "demand" in meter["device"]
+    assert isinstance(meter["device"]["start"], datetime)
+    assert isinstance(meter["device"]["end"], datetime)
 
 @pytest.mark.asyncio
 async def test_when_async_get_diagnostics_called_then_account_info_is_returned():
@@ -42,7 +46,7 @@ async def test_when_async_get_diagnostics_called_then_account_info_is_returned()
         }
 
     # Act
-    data = await async_get_diagnostics(client, account_id, None, get_entity_info)
+    data = await async_get_diagnostics(client, account_id, None, None, get_entity_info)
 
     # Assert
     assert data is not None
@@ -95,6 +99,7 @@ async def test_when_async_get_diagnostics_called_then_account_info_is_returned()
     assert "intelligent_device" in data
     assert "intelligent_settings" in data
 
+    assert "heat_pumps" in data
 
 @pytest.mark.asyncio
 async def test_when_async_get_diagnostics_called_and_account_exists_then_account_info_is_returned():
@@ -116,7 +121,7 @@ async def test_when_async_get_diagnostics_called_and_account_exists_then_account
         }
 
     # Act
-    data = await async_get_diagnostics(client, account_id, existing_account, get_entity_info)
+    data = await async_get_diagnostics(client, account_id, existing_account, None, get_entity_info)
 
     # Assert
     assert data is not None
@@ -169,3 +174,5 @@ async def test_when_async_get_diagnostics_called_and_account_exists_then_account
 
     assert "intelligent_device" in data
     assert "intelligent_settings" in data
+
+    assert "heat_pumps" in data

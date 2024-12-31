@@ -66,7 +66,7 @@ class OctopusEnergyHomeProApiClient:
       data = { "meter_type": meter_type }
       async with client.post(url, json=data) as response:
         response_body = await self.__async_read_response__(response, url)
-        if (response_body is not None and "meter_consump"):
+        if (response_body is not None and "meter_consump" in response_body):
           meter_consump = json.loads(response_body["meter_consump"])
           if "consum" in meter_consump:
             data = meter_consump["consum"]

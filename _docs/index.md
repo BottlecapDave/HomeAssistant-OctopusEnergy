@@ -14,6 +14,7 @@ Below are the main features of the integration
 * [Saving sessions support](#octoplus)
 * [Wheel of fortune support](#wheel-of-fortune)
 * [Greener days support](#greenness-forecast)
+* [Heat Pump support](#heat-pumps)
 
 ## How to install
 
@@ -92,7 +93,7 @@ To support the wheel of fortune that is awarded every month to customers. [Full 
 
 ### Greenness Forecast
 
-To support Octopus Energy's [greener days](https://octopus.energy/smart/greener-days/). [Full list of greenness forecast entites](./entities/greenness_forecast.md).
+To support Octopus Energy's [greener days](https://octopus.energy/smart/greener-days/). [Full list of greenness forecast entities](./entities/greenness_forecast.md).
 
 ## Target Rate Sensors
 
@@ -113,6 +114,10 @@ Please follow the [setup guide](./setup/cost_tracker.md).
 These sensors compare the cost of the previous consumption to another tariff to see if you're on the best tariff.
 
 Please follow the [setup guide](./setup/tariff_comparison.md).
+
+### Heat Pumps
+
+To support heat pumps connected to Octopus Energy, like the [Cosy 6](https://octopus.energy/cosy-heat-pump/). [Full list of heat pump entities](./entities/heat_pump.md).
 
 ## Events
 

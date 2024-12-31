@@ -8,8 +8,8 @@
           "account_id": "Account ID (e.g. A-AAAA1111)",
           "api_key": "Api key",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
-          "live_electricity_consumption_refresh_in_minutes": "Home Mini/Pro electricity refresh rate in minutes",
-          "live_gas_consumption_refresh_in_minutes": "Home Mini/Pro gas refresh rate in minutes",
+          "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
+          "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
           "calorific_value": "Gas calorific value.",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence",
@@ -160,8 +160,8 @@
         "data": {
           "api_key": "Api key",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
-          "live_electricity_consumption_refresh_in_minutes": "Home Mini/Pro electricity refresh rate in minutes",
-          "live_gas_consumption_refresh_in_minutes": "Home Mini/Pro gas refresh rate in minutes",
+          "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
+          "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
           "calorific_value": "Gas calorific value",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence",
@@ -285,6 +285,9 @@
     },
     "octoplus_points_maximum_points": {
       "message": "You cannot redeem more than {redeemable_points} points"
+    },
+    "invalid_target_temperature": {
+      "message": "Temperature must be equal or between {min_temperature} and {max_temperature}"
     },
     "invalid_rate_weightings": {
       "message": "{error}"

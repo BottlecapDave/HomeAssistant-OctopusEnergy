@@ -62,6 +62,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
               vol.Optional("target_minimum_rate"): str,
               vol.Optional("target_maximum_rate"): str,
               vol.Optional("target_weighting"): str,
+              vol.Optional("persist_changes"): bool,
             },
             extra=vol.ALLOW_EXTRA,
           ),
@@ -83,6 +84,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
               vol.Optional("target_minimum_rate"): str,
               vol.Optional("target_maximum_rate"): str,
               vol.Optional("target_weighting"): str,
+              vol.Optional("persist_changes"): bool,
             },
             extra=vol.ALLOW_EXTRA,
           ),
@@ -172,9 +174,9 @@ async def async_setup_target_sensors(hass, entry, async_add_entities):
           entities = []
 
           if config[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
-            entities.append(OctopusEnergyTargetRate(hass, account_id, config, is_export, coordinator, free_electricity_coordinator))
+            entities.append(OctopusEnergyTargetRate(hass, account_id, entry, config, is_export, coordinator, free_electricity_coordinator))
           else:
-            entities.append(OctopusEnergyRollingTargetRate(hass, account_id, config, is_export, coordinator, free_electricity_coordinator))
+            entities.append(OctopusEnergyRollingTargetRate(hass, account_id, entry, config, is_export, coordinator, free_electricity_coordinator))
 
           async_add_entities(entities)
           return
