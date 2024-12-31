@@ -370,7 +370,7 @@ def mock_heat_pump_status_and_configuration():
       "powerInput": {
         "unit": "KILOWATT",
         "value": str(1 + (random.randrange(1, 9) * 0.1))
-      }
+      },
       "readAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
     }
   }
