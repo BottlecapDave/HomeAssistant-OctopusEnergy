@@ -122,6 +122,23 @@ class OctoHeatPumpControllerConfiguration(BaseModel):
     zones: List[ConfigurationZone]
 
 
+class OctoHeatPumpLivePerformance(BaseModel):
+    coefficientOfPerformance: str 
+    heatOutput: ValueAndUnit
+    powerInput: ValueAndUnit
+    outdoorTemperature: ValueAndUnit
+    readAt: str
+
+
+class OctoHeatPumpLifetimePerformance(BaseModel):
+    seasonalCoefficientOfPerformance: str
+    heatOutput: ValueAndUnit
+    energyInput: ValueAndUnit
+    readAt: str
+
+
 class HeatPumpResponse(BaseModel):
     octoHeatPumpControllerStatus: OctoHeatPumpControllerStatus
     octoHeatPumpControllerConfiguration: OctoHeatPumpControllerConfiguration
+    octoHeatPumpLivePerformance: OctoHeatPumpLivePerformance
+    octoHeatPumpLifetimePerformance: OctoHeatPumpLifetimePerformance

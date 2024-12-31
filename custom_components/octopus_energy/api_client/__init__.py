@@ -385,6 +385,30 @@ mutation {{
 }}
 '''
 
+heat_pump_update_flow_temp_config_mutation = '''
+mutation {{
+  octoHeatPumpUpdateFlowTemperatureConfiguration(
+    euid: "{euid}"
+    flowTemperatureInput: {{
+      useWeatherCompensation: {use_weather_comp}, 
+      flowTemperature: {
+        value: "{fixed_flow_temperature}", 
+        unit: DEGREES_CELSIUS
+      }}, 
+      weatherCompensationValues: {{
+        minimum: {{
+          value: "{weather_comp_min_temperature}", 
+          unit: DEGREES_CELSIUS
+        }, 
+        maximum: {{
+          value: "{weather_comp_max_temperature}", 
+          unit: DEGREES_CELSIUS
+        }}
+    }}
+  )
+}}
+'''
+
 heat_pump_status_and_config_query = '''
 query {{
   octoHeatPumpControllerStatus(accountNumber: "{account_id}", euid: "{euid}") {{
@@ -498,8 +522,37 @@ query {{
       }}
     }}
   }}
+  octoHeatPumpLivePerformance(euid: "{euid}") {{
+    coefficientOfPerformance
+    outdoorTemperature {{
+      value
+      unit
+    }}
+    heatOutput {{
+      value
+      unit
+    }}
+    powerInput {{
+      value
+      unit
+    }}
+    readAt
+  }}
+  octoHeatPumpLifetimePerformance(euid: "{euid}") {{
+    seasonalCoefficientOfPerformance
+    heatOutput {{
+      value
+      unit
+    }}
+    energyInput {{
+      value
+      unit
+    }}
+    readAt
+  }}
 }}
 '''
+
 
 user_agent_value = "bottlecapdave-ha-octopus-energy"
 
@@ -803,7 +856,12 @@ class OctopusEnergyApiClient:
       async with client.post(url, json=payload, headers=headers) as heat_pump_response:
         response = await self.__async_read_response__(heat_pump_response, url)
 
-        if (response is not None and "data" in response and "octoHeatPumpControllerConfiguration" in response["data"]  and "octoHeatPumpControllerStatus" in response["data"]):
+        if (response is not None 
+            and "data" in response 
+            and "octoHeatPumpControllerConfiguration" in response["data"] 
+            and "octoHeatPumpControllerStatus" in response["data"]
+            and "octoHeatPumpLivePerformance" in response["data"]
+            and "octoHeatPumpLifetimePerformance" in response["data"]):
           return HeatPumpResponse.parse_obj(response["data"])
         
       return None
@@ -812,6 +870,23 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
     
+  async def async_set_heat_pump_flow_temp_config(self, euid: str, weather_comp_enabled: bool, weather_comp_min_temperature: float | None, weather_comp_max_temperature: float | None, fixed_flow_temperature: float | None):
+    """Sets the flow temperature  for a given heat pump zone"""
+    await self.async_refresh_token()
+
+    try:
+      client = self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+      query = heat_pump_update_flow_temp_config_mutation.format(euid=euid, weather_comp_enabled=weather_comp_enabled, weather_comp_min_temperature=weather_comp_min_temperature, weather_comp_max_temperature=weather_comp_max_temperature, fixed_flow_temperature=fixed_flow_temperature) 
+      payload = { "query": query }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as heat_pump_response:
+        await self.__async_read_response__(heat_pump_response, url)
+    
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
   async def async_set_heat_pump_zone_mode(self, account_id: str, euid: str, zone_id: str, zone_mode: str, target_temperature: float | None):
     """Sets the mode for a given heat pump zone"""
     await self.async_refresh_token()
