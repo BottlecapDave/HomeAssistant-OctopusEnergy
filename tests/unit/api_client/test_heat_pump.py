@@ -336,6 +336,34 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
           }
         }
       ]
+    },
+    "octoHeatPumpLifetimePerformance": {
+      "seasonalCoefficientOfPerformance": 3.5,
+      "heatOutput": {
+        "unit": "KILOWATT_HOUR",
+        "value": 100.4
+      },
+      "energyInput": {
+        "unit": "KILOWATT_HOUR",
+        "value": 100.2
+      },
+      "readAt": "2024-12-31T09:10:00+00:00"
+    },
+    "octoHeatPumpLivePerformance": {
+      "coefficientOfPerformance": 3.4,
+      "outdoorTemperature": {
+        "unit": "DEGREES_CELSIUS",
+        "value": 30.1
+      },
+      "heatOutput": {
+        "value": 10.5,
+        "unit": "KILOWATT"
+      },
+      "powerInput": {
+        "unit": "KILOWATT",
+        "value": 5.4
+      },
+      "readAt": "2024-12-31T09:10:00+00:00"
     }
   }
 
