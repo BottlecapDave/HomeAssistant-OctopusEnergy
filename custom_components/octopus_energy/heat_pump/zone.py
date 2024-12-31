@@ -21,6 +21,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.components.climate import (
   ClimateEntity,
   ClimateEntityFeature,
+  HVACAction,
   HVACMode,
   PRESET_NONE,
   PRESET_BOOST,
@@ -44,6 +45,8 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     | ClimateEntityFeature.PRESET_MODE
   )
 
+  _attr_hvac_actions = [HVACAction.HEATING, HVACAction.IDLE]
+  _attr_hvac_action = None
   _attr_hvac_modes = [HVACMode.HEAT, HVACMode.OFF, HVACMode.AUTO]
   _attr_hvac_mode = None
   _attr_preset_modes = [PRESET_NONE, PRESET_BOOST]
@@ -89,42 +92,52 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     """Retrieve the previous rate."""
 
     current = now()
-    result: HeatPumpCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    result: HeatPumpCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None    
     if (result is not None and 
         result.data is not None and 
-        result.data.octoHeatPumpControllerConfiguration is not None and
-        result.data.octoHeatPumpControllerConfiguration.zones and
+        result.data.octoHeatPumpControllerStatus is not None and
+        result.data.octoHeatPumpControllerStatus.zones and
         (self._last_updated is None or self._last_updated < result.last_retrieved)):
       _LOGGER.debug(f"Updating OctopusEnergyHeatPumpZone for '{self._heat_pump_id}/{self._zone.configuration.code}'")
 
-      zones: List[ConfigurationZone] = result.data.octoHeatPumpControllerConfiguration.zones
+      zones: List[Zone] = result.data.octoHeatPumpControllerStatus.zones
       for zone in zones:
-        if zone.configuration is not None and zone.configuration.code == self._zone.configuration.code and zone.configuration.currentOperation is not None:
+        if zone.telemetry is not None and zone.zone == self._zone.configuration.code and zone.telemetry.mode is not None:
 
-          if zone.configuration.currentOperation.mode == "ON":
+          if zone.telemetry.mode == "ON":
             self._attr_hvac_mode = HVACMode.HEAT
             self._attr_preset_mode = PRESET_NONE
-          elif zone.configuration.currentOperation.mode == "OFF":
+          elif zone.telemetry.mode == "OFF":
             self._attr_hvac_mode = HVACMode.OFF
             self._attr_preset_mode = PRESET_NONE
-          elif zone.configuration.currentOperation.mode == "AUTO":
+          elif zone.telemetry.mode == "AUTO":
             self._attr_hvac_mode = HVACMode.AUTO
             self._attr_preset_mode = PRESET_NONE
-          elif zone.configuration.currentOperation.mode == "BOOST":
+          elif zone.telemetry.mode == "BOOST":
             self._attr_hvac_mode = HVACMode.AUTO
             self._attr_preset_mode = PRESET_BOOST
           else:
-            raise Exception(f"Unexpected heat pump mode detected: {zone.configuration.currentOperation.mode}")
+            raise Exception(f"Unexpected heat pump mode detected: {zone.telemetry.mode}")
 
-          self._attr_target_temperature = zone.configuration.currentOperation.setpointInCelsius
-          self._end_timestamp = datetime.fromisoformat(zone.configuration.currentOperation.end) if zone.configuration.currentOperation.end is not None else None
+          self._attr_hvac_action = HVACAction.HEATING if zone.telemetry.relaySwitchedOn else HVACAction.IDLE
 
-          if (result.data.octoHeatPumpControllerStatus.sensors and self._zone.configuration.primarySensor):
+          self._attr_target_temperature = None
+          if zone.telemetry.setpointInCelsius is not None and zone.telemetry.setpointInCelsius > 0:
+            self._attr_target_temperature = zone.telemetry.setpointInCelsius
+
+          if result.data.octoHeatPumpControllerStatus.sensors and self._zone.configuration.primarySensor:
             sensors: List[Sensor] = result.data.octoHeatPumpControllerStatus.sensors
             for sensor in sensors:
               if sensor.code == self._zone.configuration.primarySensor and sensor.telemetry is not None:
                 self._attr_current_temperature = sensor.telemetry.temperatureInCelsius
+                self._attr_current_humidity = sensor.telemetry.humidityPercentage
 
+          if result.data.octoHeatPumpControllerConfiguration is not None and result.data.octoHeatPumpControllerConfiguration.zones:
+            configs: List[ConfigurationZone] = result.data.octoHeatPumpControllerConfiguration.zones
+            for config in configs:
+              if config.configuration is not None and config.configuration.code == self._zone.configuration.code and config.configuration.currentOperation is not None:
+                self._end_timestamp = datetime.fromisoformat(config.configuration.currentOperation.end) if config.configuration.currentOperation.end is not None else None
+      
       self._last_updated = current
 
     self._attributes = dict_to_typed_dict(self._attributes)

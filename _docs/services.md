@@ -281,3 +281,19 @@ Allows you to boost a given heat pump zone for a set amount of time.
 | `data.hours`              | `no`     | The number of hours to turn boost mode on for. This can be between 0 and 12. |
 | `data.minutes`       | `no`     | The number of minutes to turn boost mode on for. This can be 0, 15, or 45. |
 | `data.target_temperature`       | `yes`     | The optional target temperature to boost to. If not supplied, then the current target temperature will be used. |
+
+
+## octopus_energy.set_heat_pump_flow_temp_config
+
+Allows you to set the heat pump configuration for fixed and weather compensated flow temperatures, with the option to select which is active.
+
+!!! warning
+    Changing this configuration without a good understanding of heat loss and emitter output can cause cycling, defrosting, or incorrect heat delivery. 
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | Any climate entity belonging to the heat pump which the configuration should be applied to (e.g. `climate.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{ZONE_CODE}}`). |
+| `data.weather_comp_enabled`              | `no`     | Switches weather compensation on or off. |
+| `data.weather_comp_min_temperature`       | `no`     | Minimum allowable temperature for weather compensation, typically no lower than 30. |
+| `data.weather_comp_max_temperature`       | `no`     | Maximum allowable temperature for weather compensation, typically no higher than 70. |
+| `data.fixed_flow_temperature`        | `no`     | If a fixed flow temperature is enabled this value will be used, typically between 30 and 70. |
