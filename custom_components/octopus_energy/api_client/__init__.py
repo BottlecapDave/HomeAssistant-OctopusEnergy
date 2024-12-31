@@ -390,8 +390,8 @@ mutation {{
   octoHeatPumpUpdateFlowTemperatureConfiguration(
     euid: "{euid}"
     flowTemperatureInput: {{
-      useWeatherCompensation: {use_weather_comp}, 
-      flowTemperature: {
+      useWeatherCompensation: {weather_comp_enabled}, 
+      flowTemperature: {{
         value: "{fixed_flow_temperature}", 
         unit: DEGREES_CELSIUS
       }}, 
@@ -399,13 +399,16 @@ mutation {{
         minimum: {{
           value: "{weather_comp_min_temperature}", 
           unit: DEGREES_CELSIUS
-        }, 
+        }}, 
         maximum: {{
           value: "{weather_comp_max_temperature}", 
           unit: DEGREES_CELSIUS
         }}
+      }}
     }}
-  )
+  ) {{
+    transactionId
+  }}
 }}
 '''
 
@@ -870,14 +873,14 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
     
-  async def async_set_heat_pump_flow_temp_config(self, euid: str, weather_comp_enabled: bool, weather_comp_min_temperature: float | None, weather_comp_max_temperature: float | None, fixed_flow_temperature: float | None):
-    """Sets the flow temperature  for a given heat pump zone"""
+  async def async_set_heat_pump_flow_temp_config(self, euid: str, weather_comp_enabled: bool, weather_comp_min_temperature: float, weather_comp_max_temperature: float, fixed_flow_temperature: float):
+    """Sets the flow temperature for a given heat pump zone"""
     await self.async_refresh_token()
 
     try:
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
-      query = heat_pump_update_flow_temp_config_mutation.format(euid=euid, weather_comp_enabled=weather_comp_enabled, weather_comp_min_temperature=weather_comp_min_temperature, weather_comp_max_temperature=weather_comp_max_temperature, fixed_flow_temperature=fixed_flow_temperature) 
+      query = heat_pump_update_flow_temp_config_mutation.format(euid=euid, weather_comp_enabled=str(weather_comp_enabled).lower(), weather_comp_min_temperature=weather_comp_min_temperature, weather_comp_max_temperature=weather_comp_max_temperature, fixed_flow_temperature=fixed_flow_temperature) 
       payload = { "query": query }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as heat_pump_response:
