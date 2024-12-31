@@ -50,7 +50,7 @@ def get_account_info(is_active_agreement = True, active_product_code = product_c
 
 @pytest.mark.asyncio
 async def test_when_account_info_is_none_then_existing_settings_returned():
-  expected_dispatches = IntelligentDispatches([], [])
+  expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], [])
   mock_api_called = False
   async def async_mock_get_intelligent_dispatches(*args, **kwargs):
     nonlocal mock_api_called
@@ -81,7 +81,7 @@ async def test_when_account_info_is_none_then_existing_settings_returned():
 
 @pytest.mark.asyncio
 async def test_when_intelligent_device_is_none_then_none_returned():
-  expected_dispatches = IntelligentDispatches([], [])
+  expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], [])
   mock_api_called = False
   async def async_mock_get_intelligent_dispatches(*args, **kwargs):
     nonlocal mock_api_called
@@ -113,7 +113,7 @@ async def test_when_intelligent_device_is_none_then_none_returned():
 
 @pytest.mark.asyncio
 async def test_when_not_on_intelligent_tariff_then_none_returned():
-  expected_dispatches = IntelligentDispatches([], [])
+  expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], [])
   mock_api_called = False
   async def async_mock_get_intelligent_dispatches(*args, **kwargs):
     nonlocal mock_api_called
@@ -194,7 +194,7 @@ async def test_when_mock_is_true_then_none_returned():
 @pytest.mark.asyncio
 async def test_when_next_refresh_is_in_the_future_then_existing_dispatches_returned():
   current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  expected_dispatches = IntelligentDispatches([], [])
+  expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], [])
   mock_api_called = False
   async def async_mock_get_intelligent_dispatches(*args, **kwargs):
     nonlocal mock_api_called
@@ -230,7 +230,7 @@ async def test_when_next_refresh_is_in_the_future_then_existing_dispatches_retur
   (IntelligentDispatchesCoordinatorResult(last_retrieved, 1, None)),
 ])
 async def test_when_existing_settings_is_none_then_settings_retrieved(existing_settings):
-  expected_dispatches = IntelligentDispatches([], [])
+  expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], [])
   mock_api_called = False
   async def async_mock_get_intelligent_dispatches(*args, **kwargs):
     nonlocal mock_api_called, expected_dispatches
@@ -263,7 +263,7 @@ async def test_when_existing_settings_is_none_then_settings_retrieved(existing_s
     
 @pytest.mark.asyncio
 async def test_when_existing_settings_is_old_then_settings_retrieved():
-  expected_dispatches = IntelligentDispatches([], [])
+  expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], [])
   mock_api_called = False
   async def async_mock_get_intelligent_dispatches(*args, **kwargs):
     nonlocal mock_api_called
@@ -309,7 +309,7 @@ async def test_when_settings_not_retrieved_then_existing_settings_returned():
     return completed_dispatches
   
   account_info = get_account_info()
-  existing_settings = IntelligentDispatchesCoordinatorResult(last_retrieved, 1, IntelligentDispatches([], []))
+  existing_settings = IntelligentDispatchesCoordinatorResult(last_retrieved, 1, IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], []))
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -345,7 +345,7 @@ async def test_when_exception_raised_then_existing_settings_returned_and_excepti
     return completed_dispatches
   
   account_info = get_account_info()
-  existing_settings = IntelligentDispatchesCoordinatorResult(last_retrieved, 1, IntelligentDispatches([], []))
+  existing_settings = IntelligentDispatchesCoordinatorResult(last_retrieved, 1, IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], []))
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")

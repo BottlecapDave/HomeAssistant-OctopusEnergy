@@ -12,6 +12,14 @@ from ..api_client.free_electricity_sessions import FreeElectricitySession
 
 _LOGGER = logging.getLogger(__name__)
 
+def extract_config(config: dict, keys: list[str]):
+  new_config = {}
+  for key in config.keys():
+    if key in keys:
+      new_config[key] = config[key]
+
+  return new_config
+
 def apply_offset(date_time: datetime, offset: str, inverse = False):
   matches = re.search(REGEX_OFFSET_PARTS, offset)
   if matches == None:

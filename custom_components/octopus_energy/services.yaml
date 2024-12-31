@@ -1,6 +1,6 @@
 update_target_config:
   name: Update target rate config
-  description: Updates a given target rate's config. Please note this is temporary and will not persist between restarts.
+  description: Updates a given target rate's config.
   target:
     entity:
       integration: octopus_energy
@@ -51,6 +51,11 @@ update_target_config:
       example: '1,2,1'
       selector:
         text:
+    persist_changes:
+      name: Persist Changes
+      description: Determines if the changes should be persisted to the original configuration or should be temporary and reset upon integration reload.
+      selector:
+        boolean:
 
 update_rolling_target_config:
   name: Update rolling target rate config
@@ -99,6 +104,11 @@ update_rolling_target_config:
       example: '1,2,1'
       selector:
         text:
+    persist_changes:
+      name: Persist Changes
+      description: Determines if the changes should be persisted to the original configuration or should be temporary and reset upon integration reload.
+      selector:
+        boolean:
 
 purge_invalid_external_statistic_ids:
   name: Purge invalid external statistics

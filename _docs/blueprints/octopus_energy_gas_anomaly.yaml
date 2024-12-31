@@ -1,0 +1,56 @@
+blueprint:
+  name: Octopus Energy - Gas Anomaly
+  description: Once all data is available for a day, detects if at least one 30 minute segment is equal or below the configured threshold. This is to try and detect potential gas leaks. If triggered, you should use your own judgment to determine if the warning is legitimate.
+  domain: automation
+  author: BottlecapDave
+  input:
+    consumption_entity:
+      name: Consumption entity
+      description: The entity which reports the previous accumulative consumption (e.g sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption)
+      selector:
+        entity:
+          filter:
+          - domain:
+            - sensor
+            integration: octopus_energy
+    threshold:
+      name: Threshold
+      description: The threshold that at least one 30 minute segment must be equal or below
+      selector:
+        number:
+          mode: box
+          min: 0
+    actions:
+      name: Actions
+      description: Notifications or similar to be run. {{message}} is an example message
+      selector:
+        action: {}
+trigger_variables:
+  consumption_entity: !input consumption_entity
+  threshold: !input threshold
+variables:
+  message: 'All 30 minute periods have exceeded the threshold of {{ threshold }}, which is an indication of a potential gas leak. Please review your consumption data and make your own assessments.'
+mode: queued
+max: 4
+trigger:
+- platform: state
+  entity_id: !input consumption_entity
+condition:
+  - condition: template
+    value_template: >
+      {% set consumptions = state_attr(consumption_entity, 'charges') %}
+      {% set unit_of_measurement = state_attr(consumption_entity, 'unit_of_measurement') %}
+      {% if consumptions != none and consumptions | length == 48 %}
+      {% set is_valid = namespace(value=True) %}
+      {% for consumption in consumptions %}
+      {% if (unit_of_measurement == "kWh" and consumption["consumption_kwh"] <= threshold) or (unit_of_measurement != "kWh" and consumption["consumption_m3"] <= threshold) %} 
+      {% set is_valid.value = False %}
+      {% endif %}
+      {% endfor %}
+      {{ is_valid.value }}
+      {% else %}
+      {{ False }}
+      {% endif %}
+action:
+- choose: []
+  default: !input actions
