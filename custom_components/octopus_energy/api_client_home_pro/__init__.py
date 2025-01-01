@@ -73,7 +73,7 @@ class OctopusEnergyHomeProApiClient:
             divisor = int(data["raw"]["divisor"], 16)
             return [{
               "total_consumption": int(data["consumption"]) / divisor if divisor > 0 else None,
-              "demand": float(data["instdmand"]) if "instdmand" in data else None,
+              "demand": float(data["instdmand"]) / (divisor / 1000) if divisor > 0 and "instdmand" in data else None,
               "start": datetime.fromtimestamp(int(meter_consump["time"]), timezone.utc),
               "end": datetime.fromtimestamp(int(meter_consump["time"]), timezone.utc),
               "is_kwh": data["unit"] == 0
