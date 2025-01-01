@@ -32,6 +32,18 @@ This should be true if the tracked entity's state increases over time (true) or 
     
     However, there have [been reports](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/901) of some sensors misbehaving. To counteract this, if there is less than a 10% decrease, then the difference between the new and old state will be recorded.
 
+### Don't automatically reset the cost sensor
+
+By default, the sensor will automatically reset when a new reading has been received and it's a different day to the previous reading. There may be times that you want to track costs for something over this threshold (e.g. how much it last cost you to charge your car). In these scenarios, you can turn off the automatic resets. In this scenario, you are in charge of resetting the core sensor via it's [available service](../services.md#octopus_energyreset_cost_tracker).
+
+!!! info
+
+    The weekly and monthly sensors will reset as normal with this settings turned on.
+
+!!! warning
+
+    Not resetting this sensor for long periods of time can cause Home Assistant warnings around recording of state. This results in the attributes of the sensor not being persisted to the database for long term storage. This is a known limitation of the feature and cannot be fixed due to how the sensor tracks cost.
+
 ### Week sensor day reset
 
 This is the day of the week the accumulative week sensor should reset. This defaults to Monday.
@@ -61,6 +73,7 @@ This is in pounds and pence (e.g. 1.01 = £1.01).
 | `target_entity_id` | `string` | The entity whose consumption data is being tracked (based on config) |
 | `entity_accumulative_value` | `boolean` | Determines if the tracked entity has accumulative data (based on config) |
 | `account_id` | `string` | The id of the account the cost tracker is for (based on config) |
+| `is_manual` | `boolean` | Determines if the tracker only resets when manually reset via the available service |
 | `is_tracking` | `boolean` | Determines if the tracker is currently tracking consumption/cost data |
 | `tracked_changes` | `array` | The collection of tracked entity changes where the costs have been tracked in 30 minute increments |
 | `untracked_changes` | `array` | The collection of tracked entity changes where the costs have **not** been tracked in 30 minute increments |

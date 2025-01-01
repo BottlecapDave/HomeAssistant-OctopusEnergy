@@ -1,6 +1,6 @@
 update_target_config:
   name: Update target rate config
-  description: Updates a given target rate's config. Please note this is temporary and will not persist between restarts.
+  description: Updates a given target rate's config.
   target:
     entity:
       integration: octopus_energy
@@ -51,6 +51,11 @@ update_target_config:
       example: '1,2,1'
       selector:
         text:
+    persist_changes:
+      name: Persist Changes
+      description: Determines if the changes should be persisted to the original configuration or should be temporary and reset upon integration reload.
+      selector:
+        boolean:
 
 update_rolling_target_config:
   name: Update rolling target rate config
@@ -99,6 +104,11 @@ update_rolling_target_config:
       example: '1,2,1'
       selector:
         text:
+    persist_changes:
+      name: Persist Changes
+      description: Determines if the changes should be persisted to the original configuration or should be temporary and reset upon integration reload.
+      selector:
+        boolean:
 
 purge_invalid_external_statistic_ids:
   name: Purge invalid external statistics
@@ -232,10 +242,6 @@ adjust_cost_tracker:
           mode: box
           unit_of_measurement: kWh
 
-diagnose_heatpump_apis:
-  name: Diagnose heatpump APIs
-  description: Diagnose available heatpump APIs
-
 register_rate_weightings:
   name: Register rate weightings
   description: Registers external weightings against rates, for use with target rate sensors when calculating target periods.
@@ -257,3 +263,85 @@ register_rate_weightings:
         ]
       selector:
         object:
+
+boost_heat_pump_zone:
+  name: Boost heat pump zone
+  description: Boost a given heat pump zone for a given time period
+  target:
+    entity:
+      integration: octopus_energy
+      domain: climate
+  fields:
+    hours:
+      name: Hours
+      description: The number of hours to boost for
+      required: true
+      selector:
+        number:
+          step: 1
+          min: 0
+          max: 12
+          mode: box
+    minutes:
+      name: Minutes
+      description: The number of minutes to boost for
+      required: true
+      selector:
+        number:
+          step: 15
+          min: 0
+          max: 45
+          mode: box
+    target_temperature:
+      name: Target Temperature
+      description: The optional target temperature to boost to. If not supplied, then the current target temperature will be used
+      required: false
+      selector:
+        number:
+          step: 0.5
+          mode: box
+
+set_heat_pump_flow_temp_config:
+  name: Set heat pump flow temperature configuration
+  description: Sets the full flow temperature configuration for fixed and weather compensated flow temperatures, with the option to select which is active. Changing this configuration without a good understanding of heat loss and emitter output can cause cycling, defrosting, or incorrect heat delivery.
+  target:
+    entity:
+      integration: octopus_energy
+      domain: climate
+  fields:
+    weather_comp_enabled:
+      name: Weather compensation enabled
+      description: Switches weather compensation on or off
+      required: true
+      selector:
+        boolean:
+    weather_comp_min_temperature:
+      name: Weather compensated minimum temperature
+      description: Minimum allowable temperature for weather compensation
+      required: true
+      selector:
+        number:
+          step: 0.5
+          min: 30
+          max: 70
+          mode: box
+    weather_comp_max_temperature:
+      name: Weather compensated maximum temperature
+      description: Maximum allowable temperature for weather compensation
+      required: true
+      selector:
+        number:
+          step: 0.5
+          min: 30
+          max: 70
+          mode: box
+    fixed_flow_temperature:
+      name: Fixed flow temperature
+      description: Temperature for a fixed flow without weather compensation
+      required: true
+      selector:
+        number:
+          step: 0.5
+          min: 30
+          max: 70
+          mode: box

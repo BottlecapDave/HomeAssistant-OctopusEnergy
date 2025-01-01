@@ -181,3 +181,18 @@ This sensor states when wheel of fortune data was last retrieved.
 | `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
 | `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
 | `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
+
+## Heat Pump Data Last Retrieved
+
+`sensor.octopus_energy_{{HEAT_PUMP_ID}}_heat_pump_data_last_retrieved`
+
+This sensor states when heat pump data was last retrieved.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
+| `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
+| `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |

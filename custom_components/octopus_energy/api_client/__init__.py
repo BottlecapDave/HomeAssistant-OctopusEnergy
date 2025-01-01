@@ -21,6 +21,7 @@ from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSes
 from .wheel_of_fortune import WheelOfFortuneSpinsResponse
 from .greenness_forecast import GreennessForecast
 from .free_electricity_sessions import FreeElectricitySession, FreeElectricitySessionsResponse
+from .heat_pump import HeatPumpResponse
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -34,6 +35,7 @@ account_query = '''query {{
   octoplusAccountInfo(accountNumber: "{account_id}") {{
     isOctoplusEnrolled
   }}
+  octoHeatPumpControllerEuids(accountNumber: "{account_id}")
   account(accountNumber: "{account_id}") {{
     electricityAgreements(active: true) {{
 			meterPoint {{
@@ -115,6 +117,12 @@ live_consumption_query = '''query {{
 }}'''
 
 intelligent_dispatches_query = '''query {{
+  devices(accountNumber: "{account_id}", deviceId: "{device_id}") {{
+		id
+    status {{
+      currentState
+    }}
+  }}
 	plannedDispatches(accountNumber: "{account_id}") {{
 		start
 		end
@@ -341,23 +349,70 @@ redeem_octoplus_points_account_credit_mutation = '''mutation {{
 }}
 '''
 
-diagnose_heatpump_apis_query = '''query {{
-  octoHeatPumpControllerEuids(accountNumber: "{account_id}")
-  heatPumpStatus(accountNumber: "{account_id}") {{
-    isConnected
-    climateControlStatus {{
-      climateControlEnabled
-      targetClimateControlTemperature
-      currentClimateControlTemperature
-    }}
-    waterTemperatureStatus {{
-      waterTemperatureEnabled
-      currentWaterTemperature
-    }}
+heat_pump_set_zone_mode_without_setpoint_mutation = '''
+mutation {{
+  octoHeatPumpSetZoneMode(accountNumber: "{account_id}", euid: "{euid}", operationParameters: {{
+    zone: {zone_id},
+    mode: {zone_mode}
+  }}) {{
+    transactionId
   }}
-}}'''
+}}
+'''
 
-diagnose_heatpump_apis_secondary_query = '''
+heat_pump_set_zone_mode_with_setpoint_mutation = '''
+mutation {{
+  octoHeatPumpSetZoneMode(accountNumber: "{account_id}", euid: "{euid}", operationParameters: {{
+    zone: {zone_id},
+    mode: {zone_mode},
+    setpointInCelsius: "{target_temperature}"
+  }}) {{
+    transactionId
+  }}
+}}
+'''
+
+heat_pump_boost_zone_mutation = '''
+mutation {{
+  octoHeatPumpSetZoneMode(accountNumber: "{account_id}", euid: "{euid}", operationParameters: {{
+    zone: {zone_id},
+    mode: BOOST,
+    setpointInCelsius: "{target_temperature}",
+    endAt: "{end_at}"
+  }}) {{
+    transactionId
+  }}
+}}
+'''
+
+heat_pump_update_flow_temp_config_mutation = '''
+mutation {{
+  octoHeatPumpUpdateFlowTemperatureConfiguration(
+    euid: "{euid}"
+    flowTemperatureInput: {{
+      useWeatherCompensation: {weather_comp_enabled}, 
+      flowTemperature: {{
+        value: "{fixed_flow_temperature}", 
+        unit: DEGREES_CELSIUS
+      }}, 
+      weatherCompensationValues: {{
+        minimum: {{
+          value: "{weather_comp_min_temperature}", 
+          unit: DEGREES_CELSIUS
+        }}, 
+        maximum: {{
+          value: "{weather_comp_max_temperature}", 
+          unit: DEGREES_CELSIUS
+        }}
+      }}
+    }}
+  ) {{
+    transactionId
+  }}
+}}
+'''
+
+heat_pump_status_and_config_query = '''
 query {{
   octoHeatPumpControllerStatus(accountNumber: "{account_id}", euid: "{euid}") {{
     sensors {{
@@ -383,45 +438,11 @@ query {{
       }}
     }}
   }}
-  heatPumpControllerConfiguration(accountNumber: "{account_id}", euid: "{euid}") {{
+  octoHeatPumpControllerConfiguration(accountNumber: "{account_id}", euid: "{euid}") {{
     controller {{
       state
+      heatPumpTimezone
       connected
-      lastReset
-    }}
-    zones {{
-      configuration {{
-        code
-        zoneType
-        enabled
-        displayName
-        primarySensor
-        currentOperation {{
-          mode
-          setpointInCelsius
-          action
-          end
-        }}
-        callForHeat
-        heatDemand
-        emergency
-        sensors {{
-          ... on ADCSensorConfiguration {{
-            code
-            displayName
-            type
-            enabled
-          }}
-          ... on ZigbeeSensorConfiguration {{
-            code
-            displayName
-            type
-            id
-            firmwareVersion
-            boostEnabled
-          }}
-        }}
-      }}
     }}
     heatPump {{
       serialNumber
@@ -470,13 +491,6 @@ query {{
         }}
       }}
     }}
-  }}
-  octoHeatPumpControllerConfiguration(accountNumber: "{account_id}", euid: "{euid}") {{
-    controller {{
-      state
-      heatPumpTimezone
-      connected
-    }}
     zones {{
       configuration {{
         code
@@ -504,7 +518,6 @@ query {{
             code
             displayName
             type
-            id
             firmwareVersion
             boostEnabled
           }}
@@ -512,8 +525,37 @@ query {{
       }}
     }}
   }}
+  octoHeatPumpLivePerformance(euid: "{euid}") {{
+    coefficientOfPerformance
+    outdoorTemperature {{
+      value
+      unit
+    }}
+    heatOutput {{
+      value
+      unit
+    }}
+    powerInput {{
+      value
+      unit
+    }}
+    readAt
+  }}
+  octoHeatPumpLifetimePerformance(euid: "{euid}") {{
+    seasonalCoefficientOfPerformance
+    heatOutput {{
+      value
+      unit
+    }}
+    energyInput {{
+      value
+      unit
+    }}
+    readAt
+  }}
 }}
 '''
+
 
 user_agent_value = "bottlecapdave-ha-octopus-energy"
 
@@ -784,6 +826,7 @@ class OctopusEnergyApiClient:
             "octoplus_enrolled": account_response_body["data"]["octoplusAccountInfo"]["isOctoplusEnrolled"] == True 
             if "octoplusAccountInfo" in account_response_body["data"] and "isOctoplusEnrolled" in account_response_body["data"]["octoplusAccountInfo"]
             else False,
+            "heat_pump_ids": account_response_body["data"]["octoHeatPumpControllerEuids"] if "data" in account_response_body and "octoHeatPumpControllerEuids" in account_response_body["data"] else [],
             "electricity_meter_points": list(map(self.map_electricity_meters, 
               account_response_body["data"]["account"]["electricityAgreements"]
               if "electricityAgreements" in account_response_body["data"]["account"] and account_response_body["data"]["account"]["electricityAgreements"] is not None
@@ -804,33 +847,80 @@ class OctopusEnergyApiClient:
     
     return None
   
-  async def async_diagnose_heatpump_apis(self, account_id):
-    """Diagnose the heatpump apis"""
+  async def async_get_heat_pump_configuration_and_status(self, account_id: str, euid: str):
+    """Get a heat pump configuration and status"""
     await self.async_refresh_token()
 
     try:
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
-      payload = { "query": diagnose_heatpump_apis_query.format(account_id=account_id) }
+      payload = { "query": heat_pump_status_and_config_query.format(account_id=account_id, euid=euid) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
-      async with client.post(url, json=payload, headers=headers) as greenness_forecast_response:
+      async with client.post(url, json=payload, headers=headers) as heat_pump_response:
+        response = await self.__async_read_response__(heat_pump_response, url)
 
-        original_response = await self.__async_read_response__(greenness_forecast_response, url, True)
-        euids = original_response["data"]["octoHeatPumpControllerEuids"] if "data" in original_response and "octoHeatPumpControllerEuids" in original_response["data"] else []
-        euid_responses = []
-        if euids is not None:
-          for euid in euids:
-            client = self._create_client_session()
-            url = f'{self._base_url}/v1/graphql/'
-            payload = { "query": diagnose_heatpump_apis_secondary_query.format(account_id=account_id, euid=euid) }
-            headers = { "Authorization": f"JWT {self._graphql_token}" }
-            async with client.post(url, json=payload, headers=headers) as greenness_forecast_response:
-              euid_responses.append(await self.__async_read_response__(greenness_forecast_response, url, True))
+        if (response is not None 
+            and "data" in response 
+            and "octoHeatPumpControllerConfiguration" in response["data"] 
+            and "octoHeatPumpControllerStatus" in response["data"]
+            and "octoHeatPumpLivePerformance" in response["data"]
+            and "octoHeatPumpLifetimePerformance" in response["data"]):
+          return HeatPumpResponse.parse_obj(response["data"])
+        
+      return None
+    
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+    
+  async def async_set_heat_pump_flow_temp_config(self, euid: str, weather_comp_enabled: bool, weather_comp_min_temperature: float, weather_comp_max_temperature: float, fixed_flow_temperature: float):
+    """Sets the flow temperature for a given heat pump zone"""
+    await self.async_refresh_token()
 
-        return {
-          "main": original_response,
-          "euids": euid_responses
-        }
+    try:
+      client = self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+      query = heat_pump_update_flow_temp_config_mutation.format(euid=euid, weather_comp_enabled=str(weather_comp_enabled).lower(), weather_comp_min_temperature=weather_comp_min_temperature, weather_comp_max_temperature=weather_comp_max_temperature, fixed_flow_temperature=fixed_flow_temperature) 
+      payload = { "query": query }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as heat_pump_response:
+        await self.__async_read_response__(heat_pump_response, url)
+    
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_set_heat_pump_zone_mode(self, account_id: str, euid: str, zone_id: str, zone_mode: str, target_temperature: float | None):
+    """Sets the mode for a given heat pump zone"""
+    await self.async_refresh_token()
+
+    try:
+      client = self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+      query = (heat_pump_set_zone_mode_with_setpoint_mutation.format(account_id=account_id, euid=euid, zone_id=zone_id, zone_mode=zone_mode, target_temperature=target_temperature) 
+               if target_temperature is not None 
+               else heat_pump_set_zone_mode_without_setpoint_mutation.format(account_id=account_id, euid=euid, zone_id=zone_id, zone_mode=zone_mode))
+      payload = { "query": query }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as heat_pump_response:
+        await self.__async_read_response__(heat_pump_response, url)
+    
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+    
+  async def async_boost_heat_pump_zone(self, account_id: str, euid: str, zone_id: str, end_datetime: datetime, target_temperature: float):
+    """Boost a given heat pump zone"""
+    await self.async_refresh_token()
+
+    try:
+      client = self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+      query = heat_pump_boost_zone_mutation.format(account_id=account_id, euid=euid, zone_id=zone_id, end_at=end_datetime.isoformat(sep="T"), target_temperature=target_temperature) 
+      payload = { "query": query }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as heat_pump_response:
+        await self.__async_read_response__(heat_pump_response, url)
     
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
@@ -1258,7 +1348,7 @@ class OctopusEnergyApiClient:
         _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
         raise TimeoutException()
   
-  async def async_get_intelligent_dispatches(self, account_id: str):
+  async def async_get_intelligent_dispatches(self, account_id: str, device_id: str):
     """Get the user's intelligent dispatches"""
     await self.async_refresh_token()
 
@@ -1266,14 +1356,21 @@ class OctopusEnergyApiClient:
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
       # Get account response
-      payload = { "query": intelligent_dispatches_query.format(account_id=account_id) }
+      payload = { "query": intelligent_dispatches_query.format(account_id=account_id, device_id=device_id) }
       headers = { "Authorization": f"JWT {self._graphql_token}" }
       async with client.post(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
         _LOGGER.debug(f'async_get_intelligent_dispatches: {response_body}')
 
+        current_state = None
+        if (response_body is not None and "data" in response_body and "devices" in response_body["data"]):
+          for device in response_body["data"]["devices"]:
+            if device["id"] == device_id:
+              current_state = device["status"]["currentState"]
+
         if (response_body is not None and "data" in response_body):
           return IntelligentDispatches(
+            current_state,
             list(map(lambda ev: IntelligentDispatchItem(
                 as_utc(parse_datetime(ev["start"])),
                 as_utc(parse_datetime(ev["end"])),

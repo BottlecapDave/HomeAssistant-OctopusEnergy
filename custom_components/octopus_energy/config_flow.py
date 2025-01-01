@@ -16,6 +16,7 @@ from .config.cost_tracker import merge_cost_tracker_config, validate_cost_tracke
 from .config.target_rates import merge_target_rate_config, validate_target_rate_config
 from .config.main import async_validate_main_config, merge_main_config
 from .const import (
+  CONFIG_COST_TRACKER_MANUAL_RESET,
   CONFIG_FAVOUR_DIRECT_DEBIT_RATES,
   CONFIG_KIND_ROLLING_TARGET_RATE,
   CONFIG_MAIN_HOME_PRO_ADDRESS,
@@ -326,6 +327,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
           selector.EntitySelectorConfig(domain="sensor", device_class=[SensorDeviceClass.ENERGY]),
       ),
       vol.Optional(CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE, default=False): bool,
+      vol.Required(CONFIG_COST_TRACKER_MANUAL_RESET, default=False): bool,
       vol.Required(CONFIG_COST_TRACKER_WEEKDAY_RESET, default="0"): selector.SelectSelector(
           selector.SelectSelectorConfig(
               options=get_weekday_options(),
@@ -839,6 +841,7 @@ class OptionsFlowHandler(OptionsFlow):
               selector.EntitySelectorConfig(domain="sensor", device_class=[SensorDeviceClass.ENERGY]),
           ),
           vol.Optional(CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE): bool,
+          vol.Required(CONFIG_COST_TRACKER_MANUAL_RESET): bool,
           vol.Required(CONFIG_COST_TRACKER_WEEKDAY_RESET): selector.SelectSelector(
               selector.SelectSelectorConfig(
                   options=get_weekday_options(),
@@ -854,6 +857,7 @@ class OptionsFlowHandler(OptionsFlow):
           CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE: config[CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE],
           CONFIG_COST_TRACKER_WEEKDAY_RESET: f"{config[CONFIG_COST_TRACKER_WEEKDAY_RESET]}" if CONFIG_COST_TRACKER_WEEKDAY_RESET in config else "0",
           CONFIG_COST_TRACKER_MONTH_DAY_RESET: config[CONFIG_COST_TRACKER_MONTH_DAY_RESET] if CONFIG_COST_TRACKER_MONTH_DAY_RESET in config else 1,
+          CONFIG_COST_TRACKER_MANUAL_RESET: config[CONFIG_COST_TRACKER_MANUAL_RESET] if CONFIG_COST_TRACKER_MANUAL_RESET in config else False
         }
       ),
       errors=errors

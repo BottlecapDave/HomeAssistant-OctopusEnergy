@@ -48,6 +48,7 @@ from . import (
   calculate_intermittent_times,
   compare_config,
   create_weighting,
+  extract_config,
   get_rates,
   get_target_rate_info,
   should_evaluate_target_rates
@@ -68,12 +69,13 @@ class OctopusEnergyRollingTargetRate(MultiCoordinatorEntity, BinarySensorEntity,
   
   _unrecorded_attributes = frozenset({"data_last_retrieved", "target_times_last_evaluated"})
 
-  def __init__(self, hass: HomeAssistant, account_id: str, config, is_export, coordinator, free_electricity_coordinator):
+  def __init__(self, hass: HomeAssistant, account_id: str, config_entry, config, is_export, coordinator, free_electricity_coordinator):
     """Init sensor."""
     # Pass coordinator to base class
     MultiCoordinatorEntity.__init__(self, coordinator, [free_electricity_coordinator])
 
     self._state = None
+    self._config_entry = config_entry
     self._config = config
     self._is_export = is_export
     self._attributes = self._config.copy()
@@ -282,7 +284,7 @@ class OctopusEnergyRollingTargetRate(MultiCoordinatorEntity, BinarySensorEntity,
       _LOGGER.debug(f'Restored OctopusEnergyTargetRate state: {self._state}')
 
   @callback
-  async def async_update_rolling_target_rate_config(self, target_hours=None, target_look_ahead_hours=None, target_offset=None, target_minimum_rate=None, target_maximum_rate=None, target_weighting=None):
+  async def async_update_rolling_target_rate_config(self, target_hours=None, target_look_ahead_hours=None, target_offset=None, target_minimum_rate=None, target_maximum_rate=None, target_weighting=None, persist_changes=False):
     """Update sensors config"""
 
     config = dict(self._config)
@@ -339,3 +341,16 @@ class OctopusEnergyRollingTargetRate(MultiCoordinatorEntity, BinarySensorEntity,
     self._attributes["is_target_export"] = self._is_export
     self._target_rates = []
     self.async_write_ha_state()
+
+    if persist_changes:
+      updatable_keys = [CONFIG_TARGET_HOURS, CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD, CONFIG_TARGET_OFFSET, CONFIG_TARGET_MIN_RATE, CONFIG_TARGET_MAX_RATE, CONFIG_TARGET_WEIGHTING]
+      new_config_data = { **self._config_entry.data }
+      new_config_data.update(extract_config(config, updatable_keys))
+      new_config_options = { **self._config_entry.options }
+      new_config_options.update(extract_config(config, updatable_keys))
+
+      self._hass.config_entries.async_update_entry(
+        self._config_entry,
+        data = new_config_data,
+        options = new_config_options
+      )

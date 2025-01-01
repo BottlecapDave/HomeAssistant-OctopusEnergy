@@ -8,8 +8,8 @@
           "account_id": "Account ID (e.g. A-AAAA1111)",
           "api_key": "Api key",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
-          "live_electricity_consumption_refresh_in_minutes": "Home Mini/Pro electricity refresh rate in minutes",
-          "live_gas_consumption_refresh_in_minutes": "Home Mini/Pro gas refresh rate in minutes",
+          "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
+          "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
           "calorific_value": "Gas calorific value.",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence",
@@ -92,7 +92,11 @@
           "target_entity_id": "The entity to track the costs for.",
           "entity_accumulative_value": "Tracked entity state is accumulative",
           "weekday_reset": "The day when the week cost sensor should reset",
-          "month_day_reset": "The day when the month cost sensor should reset"
+          "month_day_reset": "The day when the month cost sensor should reset",
+          "manual_reset": "Don't automatically reset the cost sensor"
+        },
+        "data_description": {
+          "manual_reset": "If enabled, you will need to manually reset this sensor via the available service. You will also not get week and month sensors. This may produce Home Assistant warnings if not reset for long periods of times."
         }
       },
       "cost_tracker_account": {
@@ -156,8 +160,8 @@
         "data": {
           "api_key": "Api key",
           "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
-          "live_electricity_consumption_refresh_in_minutes": "Home Mini/Pro electricity refresh rate in minutes",
-          "live_gas_consumption_refresh_in_minutes": "Home Mini/Pro gas refresh rate in minutes",
+          "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
+          "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
           "calorific_value": "Gas calorific value",
           "electricity_price_cap": "Optional electricity price cap in pence",
           "gas_price_cap": "Optional gas price cap in pence",
@@ -226,7 +230,11 @@
           "target_entity_id": "The entity to track the costs for.",
           "entity_accumulative_value": "Tracked entity state is accumulative",
           "weekday_reset": "The day when the week cost sensor should reset",
-          "month_day_reset": "The day when the month cost sensor should reset"
+          "month_day_reset": "The day when the month cost sensor should reset",
+          "manual_reset": "Don't automatically reset the cost sensor"
+        },
+        "data_description": {
+          "manual_reset": "If enabled, you will need to manually reset this sensor via the available service. You will also not get week and month sensors. This may produce Home Assistant warnings if not reset for long periods of times."
         }
       },
       "tariff_comparison": {
@@ -278,6 +286,9 @@
     "octoplus_points_maximum_points": {
       "message": "You cannot redeem more than {redeemable_points} points"
     },
+    "invalid_target_temperature": {
+      "message": "Temperature must be equal or between {min_temperature} and {max_temperature}"
+    },
     "invalid_rate_weightings": {
       "message": "{error}"
     }
@@ -318,6 +329,10 @@
     "unknown_intelligent_provider": {
       "title": "Unknown intelligent provider \"{provider}\"",
       "description": "You have an intelligent provider of \"{provider}\" which is not recognised and therefore a reduced feature set has been enabled. Click on \"Learn More\" with instructions on what to do next."
+    },
+    "intelligent_target_time_deprecated": {
+      "title": "Intelligent target time sensor has been deprecated",
+      "description": "The target time sensor (defaults to time.octopus_energy_{account_id}_intelligent_target_time) has been deprecated in favour of a select based sensor (select.octopus_energy_{account_id}_intelligent_target_time) to make it easier to select a valid time. This old sensor will be removed in a future release."
     }
   }
 }
