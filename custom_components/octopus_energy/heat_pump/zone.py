@@ -253,7 +253,7 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
       await self._client.async_set_heat_pump_flow_temp_config(self._heat_pump_id, weather_comp_enabled, weather_comp_min_temperature, weather_comp_max_temperature, fixed_flow_temperature)
     except Exception as e:
       if self._is_mocked:
-        _LOGGER.warning(f'Suppress async_turn_on error due to mocking mode: {e}')
+        _LOGGER.warning(f'Suppress async_set_heat_pump_flow_temp_config error due to mocking mode: {e}')
       else:
         raise
 
