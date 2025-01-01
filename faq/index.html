@@ -1464,6 +1464,11 @@
 <td>90</td>
 <td>Data is provided by my own <a href="https://github.com/BottlecapDave/OctopusEnergyApi">private API</a> and there is usually at least half a day notice before the sessions which is why this is refreshed slightly less than saving sessions.</td>
 </tr>
+<tr>
+<td>Heat Pump state</td>
+<td>1</td>
+<td>Data is updated frequently and doesn't seem to cause any issues around rate limits. This might change in the future.</td>
+</tr>
 </tbody>
 </table>
 <p>If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly waiting longer between each attempt, to a maximum of 30 minutes between each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at <code>10:35</code>.</p>
