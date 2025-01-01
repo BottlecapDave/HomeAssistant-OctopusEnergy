@@ -73,6 +73,8 @@ class OctopusEnergyHomeProApiClient:
             divisor = int(data["raw"]["divisor"], 16)
             return [{
               "total_consumption": int(data["consumption"]) / divisor if divisor > 0 else None,
+              # Base divisor is 1000, but reports of it being 10000 which represent a factor of 10 out in the reported value. Therefore we are using
+              # 1000 as our baseline for our divisor so our demand is still reported in watts https://forum.octopus.energy/t/for-the-pro-user/8453/2892
               "demand": float(data["instdmand"]) / (divisor / 1000) if divisor > 0 and "instdmand" in data else None,
               "start": datetime.fromtimestamp(int(meter_consump["time"]), timezone.utc),
               "end": datetime.fromtimestamp(int(meter_consump["time"]), timezone.utc),
