@@ -1,3 +1,24 @@
+# [13.5.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.4.0...v13.5.0) (2025-01-01)
+
+
+### Bug Fixes
+
+* Fixed demand for Home Pro when divisor is not standard value (Thanks [@reidjr2](https://github.com/reidjr2)) ([d3cf93b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d3cf93b4f991d8e5199ed6ce51a0d12997362a17))
+* Fixed guard against invalid data in home pro client ([e2dc331](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e2dc331aca8a6cb1706c01e72873b6a965be89e2))
+* Fixed intelligent charge target to not send invalid value to OE (10 minutes dev time) ([52bb498](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/52bb498905e3db43f1069961fe651c7b35f00afe))
+* Updated cost tracker sensor configuration to update when underlying entity id changes (30 minutes dev time) ([5701e4d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5701e4dfba2d4344e5822e25f153397792f81b51))
+
+
+### Features
+
+* Added additional lifetime and live sensors for heat pumps (Thanks [@lwis](https://github.com/lwis)) ([37b69c8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/37b69c842754f3312b0c2e6c0f2b814893d14f71))
+* Added Cosy 6 Heat Pump support (10 hours 45 minutes dev time) ([7d59da8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7d59da8c550c0250a44102258e099afdf963dc92))
+* Added manual reset mode to cost trackers (1.5 hours dev time) ([0bd38af](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0bd38affc3178bde899a1d41ce7909a9d0e526e5))
+* Added select sensor for intelligent target time to make it easier to pick a valid time. The existing time sensor is deprecated and will be removed in a future release (45 minutes dev time) ([7554228](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7554228bdc507e1f1f918f63d50874c995db6d5f))
+* Added sensor to show the current raw intelligent state (1 hour dev time) ([fb0f8e3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fb0f8e3b0cd4c050cd5a99abc25dc0169172535e))
+* Added sensor to show the current raw intelligent state (1 hour dev time) ([#1142](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1142)) ([083ed1d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/083ed1dfadd5e37ae21fdda599090141f55e146c))
+* Updated update target rate and rolling target rate services to support persisting changes between restarts (1 hour dev time) ([6cdffb0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6cdffb02ffb59543c707eeb6987baeaf35b17bbe))
+
 # [13.4.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.3.0...v13.4.0) (2024-12-26)
 
 
