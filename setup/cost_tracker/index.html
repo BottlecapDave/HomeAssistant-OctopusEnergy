@@ -465,6 +465,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#dont-automatically-reset-the-cost-sensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Don't automatically reset the cost sensor
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#week-sensor-day-reset" class="md-nav__link">
     <span class="md-ellipsis">
       Week sensor day reset
@@ -938,6 +947,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../../entities/heat_pump/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Heat Pump
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../../entities/diagnostics/" class="md-nav__link">
         
   
@@ -1320,6 +1350,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#dont-automatically-reset-the-cost-sensor" class="md-nav__link">
+    <span class="md-ellipsis">
+      Don't automatically reset the cost sensor
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#week-sensor-day-reset" class="md-nav__link">
     <span class="md-ellipsis">
       Week sensor day reset
@@ -1585,6 +1624,16 @@
 <p>If you are tracking a "total_increasing" sensor, then based on <a href="https://developers.home-assistant.io/docs/core/entity/sensor#available-state-classes">HA documentation</a> any decrease in value will be treated as a reset and the new state will be recorded as is. </p>
 <p>However, there have <a href="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/901">been reports</a> of some sensors misbehaving. To counteract this, if there is less than a 10% decrease, then the difference between the new and old state will be recorded.</p>
 </div>
+<h3 id="dont-automatically-reset-the-cost-sensor">Don't automatically reset the cost sensor<a class="headerlink" href="#dont-automatically-reset-the-cost-sensor" title="Permanent link">#</a></h3>
+<p>By default, the sensor will automatically reset when a new reading has been received and it's a different day to the previous reading. There may be times that you want to track costs for something over this threshold (e.g. how much it last cost you to charge your car). In these scenarios, you can turn off the automatic resets. In this scenario, you are in charge of resetting the core sensor via it's <a href="../../services/#octopus_energyreset_cost_tracker">available service</a>.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>The weekly and monthly sensors will reset as normal with this settings turned on.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Not resetting this sensor for long periods of time can cause Home Assistant warnings around recording of state. This results in the attributes of the sensor not being persisted to the database for long term storage. This is a known limitation of the feature and cannot be fixed due to how the sensor tracks cost.</p>
+</div>
 <h3 id="week-sensor-day-reset">Week sensor day reset<a class="headerlink" href="#week-sensor-day-reset" title="Permanent link">#</a></h3>
 <p>This is the day of the week the accumulative week sensor should reset. This defaults to Monday.</p>
 <h3 id="month-sensor-day-reset">Month sensor day reset<a class="headerlink" href="#month-sensor-day-reset" title="Permanent link">#</a></h3>
@@ -1629,6 +1678,11 @@
 <td><code>account_id</code></td>
 <td><code>string</code></td>
 <td>The id of the account the cost tracker is for (based on config)</td>
+</tr>
+<tr>
+<td><code>is_manual</code></td>
+<td><code>boolean</code></td>
+<td>Determines if the tracker only resets when manually reset via the available service</td>
 </tr>
 <tr>
 <td><code>is_tracking</code></td>

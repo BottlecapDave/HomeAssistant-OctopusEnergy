@@ -596,6 +596,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#current-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current State
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#bump-charge" class="md-nav__link">
     <span class="md-ellipsis">
       Bump Charge
@@ -703,6 +712,27 @@
   
   <span class="md-ellipsis">
     Home Pro
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../heat_pump/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Heat Pump
   </span>
   
 
@@ -1064,6 +1094,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#current-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current State
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#bump-charge" class="md-nav__link">
     <span class="md-ellipsis">
       Bump Charge
@@ -1245,6 +1284,25 @@
 <p class="admonition-title">Info</p>
 <p>You can use the <a href="../diagnostics/#intelligent-dispatches-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
 </div>
+<h3 id="current-state">Current State<a class="headerlink" href="#current-state" title="Permanent link">#</a></h3>
+<p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_state</code></p>
+<p>This sensor displays the current state of your intelligent provider as told by the OE API. The value of this sensor can be one of the following</p>
+<ul>
+<li><code>AUTHENTICATION_PENDING</code> - ready to start authentication and authorization, or auth is in progress.</li>
+<li><code>AUTHENTICATION_FAILED</code> - failed to connect and ready to restart authentication and authorization.</li>
+<li><code>AUTHENTICATION_COMPLETE</code>- ready to start test (if needed) or pending live where auth or telemetry is delayed.</li>
+<li><code>TEST_CHARGE_IN_PROGRESS</code> - connection and smart control test has successfully started and is occurring.</li>
+<li><code>TEST_CHARGE_FAILED</code> - connection or smart control test has failed or could not start, ready to retry test.</li>
+<li><code>TEST_CHARGE_NOT_AVAILABLE</code> - not currently capable of smart control test (e.g. away from home or unplugged).</li>
+<li><code>SETUP_COMPLETE</code> - test is complete (if needed) and device is live, but not ready for smart control.</li>
+<li><code>SMART_CONTROL_CAPABLE</code> - live and ready for smart control (e.g. at home and plugged in) but none is scheduled.</li>
+<li><code>SMART_CONTROL_IN_PROGRESS</code> - smart control (e.g. smart charging) is scheduled or is currently occurring.</li>
+<li><code>BOOSTING</code> - user has overridden the schedule to immediately boost (e.g. bump charge now).</li>
+<li><code>SMART_CONTROL_OFF</code> - smart control has been (temporarily) disabled (e.g. by the user with holiday mode).</li>
+<li><code>SMART_CONTROL_NOT_AVAILABLE</code> - not currently capable of smart control (e.g. away from home or unplugged).</li>
+<li><code>LOST_CONNECTION</code> - lost connection to the device, ready to re-auth (if not temporary / automatic fix).</li>
+<li><code>RETIRED</code> - / de-authed (re-auth not possible, re-register device to onboard again).</li>
+</ul>
 <h3 id="bump-charge">Bump Charge<a class="headerlink" href="#bump-charge" title="Permanent link">#</a></h3>
 <p><code>switch.octopus_energy_{{ACCOUNT_ID}}_intelligent_bump_charge</code></p>
 <p>This sensor is used to turn on/off bump ("on-demand") charging.</p>
@@ -1288,7 +1346,7 @@
 <p>You can use the <a href="../diagnostics/#intelligent-settings-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
 </div>
 <h3 id="target-time">Target Time<a class="headerlink" href="#target-time" title="Permanent link">#</a></h3>
-<p><code>time.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time</code></p>
+<p><code>select.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time</code></p>
 <p>This sensor is used to see and set the target time for your future intelligent charges.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -1301,12 +1359,16 @@
 <p class="admonition-title">Info</p>
 <p>You can use the <a href="../diagnostics/#intelligent-settings-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
 </div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>There is a time based sensor called <code>select.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time</code> which represents this functionality. This is a legacy sensor which will be removed in the future. </p>
+</div>
 <h2 id="migrating-from-megakidha_octopus_intelligent">Migrating from megakid/ha_octopus_intelligent?<a class="headerlink" href="#migrating-from-megakidha_octopus_intelligent" title="Permanent link">#</a></h2>
 <p>If you're moving to this integration from <a href="https://github.com/megakid/ha_octopus_intelligent">megakid/ha_octopus_intelligent</a>, below is a quick guide on what entities you should use</p>
 <ul>
 <li><code>binary_sensor.octopus_intelligent_slot</code> - Use the <a href="#is-dispatching">is dispatching sensor</a></li>
 <li><code>binary_sensor.octopus_intelligent_planned_dispatch_slot</code> - There is no alternative for this.</li>
-<li><code>binary_sensor.octopus_intelligent_slot_next_1_hour</code>, <code>binary_sensor.octopus_intelligent_slot_next_2_hours</code> and <code>binary_sensor.octopus_intelligent_slot_next_3_hours</code> - These sensors felt like they would always fall short of peoples requirements as everyone has different time periods they wish to know about. The <a href="#is-dispatching">is dispatching sensor</a> exposes the current and next start/end times which could be used in a template sensor to determine how long the rate is cheap for when on.</li>
+<li><code>binary_sensor.octopus_intelligent_slot_next_1_hour</code>, <code>binary_sensor.octopus_intelligent_slot_next_2_hours</code> and <code>binary_sensor.octopus_intelligent_slot_next_3_hours</code> - These sensors felt like they would always fall short of peoples requirements as everyone has different time periods they wish to know about. The <a href="#is-dispatching">is dispatching sensor</a> exposes the current and next start/end times which could be used in a template sensor to determine how long the rate is cheap for when on. Or the <a href="../../setup/target_rate/">target rate</a> or <a href="../../setup/rolling_target_rate/">rolling target rate</a> might help for what you need.</li>
 <li><code>sensor.octopus_intelligent_next_offpeak_start</code> - The default off peak start date/time can be found as an attribute on the <a href="../electricity/#off-peak">off peak sensor</a>. This can be extracted using a <a href="https://www.home-assistant.io/integrations/template/">template sensor</a>.</li>
 <li><code>sensor.octopus_intelligent_offpeak_end</code> - The default off peak end date/time can be found as an attribute on the <a href="../electricity/#off-peak">off peak sensor</a>. This can be extracted using a <a href="https://www.home-assistant.io/integrations/template/">template sensor</a>.</li>
 <li><code>switch.octopus_intelligent_bump_charge</code> - Use the <a href="#bump-charge">bump charge sensor</a></li>

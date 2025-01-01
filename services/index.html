@@ -623,6 +623,27 @@
   
   
     <li class="md-nav__item">
+      <a href="../entities/heat_pump/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Heat Pump
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../entities/diagnostics/" class="md-nav__link">
         
   
@@ -906,6 +927,24 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#octopus_energyboost_heat_pump_zone" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.boost_heat_pump_zone
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#octopus_energyset_heat_pump_flow_temp_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.set_heat_pump_flow_temp_config
+    </span>
+  </a>
   
 </li>
       
@@ -1424,6 +1463,24 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#octopus_energyboost_heat_pump_zone" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.boost_heat_pump_zone
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#octopus_energyset_heat_pump_flow_temp_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.set_heat_pump_flow_temp_config
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1507,6 +1564,11 @@
 <td><code>data.target_weighting</code></td>
 <td><code>yes</code></td>
 <td>The optional weighting that should be applied to the selected rates.</td>
+</tr>
+<tr>
+<td><code>data.persist_changes</code></td>
+<td><code>yes</code></td>
+<td>Determines if the changes should be persisted to the original configuration or should be temporary and reset upon integration reload. If not supplied, then the changes are temporary</td>
 </tr>
 </tbody>
 </table>
@@ -1604,6 +1666,11 @@
 <td><code>data.target_weighting</code></td>
 <td><code>yes</code></td>
 <td>The optional weighting that should be applied to the selected rates.</td>
+</tr>
+<tr>
+<td><code>data.persist_changes</code></td>
+<td><code>yes</code></td>
+<td>Determines if the changes should be persisted to the original configuration or should be temporary and reset upon integration reload. If not supplied, then the changes are temporary</td>
 </tr>
 </tbody>
 </table>
@@ -1869,6 +1936,81 @@
 <span class="w">          </span><span class="no">{%- set ns.list = ns.list + [{ &quot;start&quot;: a.from.strftime(&#39;%Y-%m-%dT%H:%M:%SZ&#39;), &quot;end&quot;: a.to.strftime(&#39;%Y-%m-%dT%H:%M:%SZ&#39;), &quot;weighting&quot;: a.intensity_forecast | float }] -%} </span>
 <span class="w">        </span><span class="no">{%- endfor -%} {{ ns.list }}</span>
 </code></pre></div>
+<h2 id="octopus_energyboost_heat_pump_zone">octopus_energy.boost_heat_pump_zone<a class="headerlink" href="#octopus_energyboost_heat_pump_zone" title="Permanent link">#</a></h2>
+<p>Allows you to boost a given heat pump zone for a set amount of time.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Optional</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>target.entity_id</code></td>
+<td><code>no</code></td>
+<td>The name of the heat pump zone boost mode should be applied to (e.g. <code>climate.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{ZONE_CODE}}</code>).</td>
+</tr>
+<tr>
+<td><code>data.hours</code></td>
+<td><code>no</code></td>
+<td>The number of hours to turn boost mode on for. This can be between 0 and 12.</td>
+</tr>
+<tr>
+<td><code>data.minutes</code></td>
+<td><code>no</code></td>
+<td>The number of minutes to turn boost mode on for. This can be 0, 15, or 45.</td>
+</tr>
+<tr>
+<td><code>data.target_temperature</code></td>
+<td><code>yes</code></td>
+<td>The optional target temperature to boost to. If not supplied, then the current target temperature will be used.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="octopus_energyset_heat_pump_flow_temp_config">octopus_energy.set_heat_pump_flow_temp_config<a class="headerlink" href="#octopus_energyset_heat_pump_flow_temp_config" title="Permanent link">#</a></h2>
+<p>Allows you to set the heat pump configuration for fixed and weather compensated flow temperatures, with the option to select which is active.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Changing this configuration without a good understanding of heat loss and emitter output can cause cycling, defrosting, or incorrect heat delivery. </p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Optional</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>target.entity_id</code></td>
+<td><code>no</code></td>
+<td>Any climate entity belonging to the heat pump which the configuration should be applied to (e.g. <code>climate.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{ZONE_CODE}}</code>).</td>
+</tr>
+<tr>
+<td><code>data.weather_comp_enabled</code></td>
+<td><code>no</code></td>
+<td>Switches weather compensation on or off.</td>
+</tr>
+<tr>
+<td><code>data.weather_comp_min_temperature</code></td>
+<td><code>no</code></td>
+<td>Minimum allowable temperature for weather compensation, typically no lower than 30.</td>
+</tr>
+<tr>
+<td><code>data.weather_comp_max_temperature</code></td>
+<td><code>no</code></td>
+<td>Maximum allowable temperature for weather compensation, typically no higher than 70.</td>
+</tr>
+<tr>
+<td><code>data.fixed_flow_temperature</code></td>
+<td><code>no</code></td>
+<td>If a fixed flow temperature is enabled this value will be used, typically between 30 and 70.</td>
+</tr>
+</tbody>
+</table>
 
 
 

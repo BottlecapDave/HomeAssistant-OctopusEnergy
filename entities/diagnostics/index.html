@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../home_pro/">
+        <link rel="prev" href="../heat_pump/">
       
       
         <link rel="next" href="../../services/">
@@ -622,6 +622,27 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="../heat_pump/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Heat Pump
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -773,6 +794,15 @@
   <a href="#wheel-of-fortune-data-last-retrieved" class="md-nav__link">
     <span class="md-ellipsis">
       Wheel Of Fortune Data Last Retrieved
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#heat-pump-data-last-retrieved" class="md-nav__link">
+    <span class="md-ellipsis">
+      Heat Pump Data Last Retrieved
     </span>
   </a>
   
@@ -1216,6 +1246,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#heat-pump-data-last-retrieved" class="md-nav__link">
+    <span class="md-ellipsis">
+      Heat Pump Data Last Retrieved
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1602,6 +1641,39 @@
 <h2 id="wheel-of-fortune-data-last-retrieved">Wheel Of Fortune Data Last Retrieved<a class="headerlink" href="#wheel-of-fortune-data-last-retrieved" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_data_last_retrieved</code></p>
 <p>This sensor states when wheel of fortune data was last retrieved.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attempts</code></td>
+<td><code>integer</code></td>
+<td>The number of attempts that have been made to retrieve the data</td>
+</tr>
+<tr>
+<td><code>next_refresh</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp of when the data will next be attempted to be retrieved</td>
+</tr>
+<tr>
+<td><code>last_error</code></td>
+<td><code>string</code></td>
+<td>The error that was raised to cause the last retrieval attempt to fail</td>
+</tr>
+</tbody>
+</table>
+<h2 id="heat-pump-data-last-retrieved">Heat Pump Data Last Retrieved<a class="headerlink" href="#heat-pump-data-last-retrieved" title="Permanent link">#</a></h2>
+<p><code>sensor.octopus_energy_{{HEAT_PUMP_ID}}_heat_pump_data_last_retrieved</code></p>
+<p>This sensor states when heat pump data was last retrieved.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
