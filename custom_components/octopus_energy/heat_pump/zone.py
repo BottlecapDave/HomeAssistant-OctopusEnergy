@@ -246,6 +246,19 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
 
     self.async_write_ha_state()
 
+  @callback
+  async def async_set_heat_pump_flow_temp_config(self, weather_comp_enabled: bool, weather_comp_min_temperature: float, weather_comp_max_temperature: float, fixed_flow_temperature: float):
+    """Update flow temperature configuration"""
+    try:
+      await self._client.async_set_heat_pump_flow_temp_config(self._heat_pump_id, weather_comp_enabled, weather_comp_min_temperature, weather_comp_max_temperature, fixed_flow_temperature)
+    except Exception as e:
+      if self._is_mocked:
+        _LOGGER.warning(f'Suppress async_set_heat_pump_flow_temp_config error due to mocking mode: {e}')
+      else:
+        raise
+
+    self.async_write_ha_state()
+
   def get_zone_mode(self):
     if self._attr_preset_mode == PRESET_BOOST:
       return "BOOST"
