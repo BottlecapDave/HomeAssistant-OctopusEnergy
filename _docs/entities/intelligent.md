@@ -139,7 +139,7 @@ This sensor is used to see and set the target time for your future intelligent c
 
 !!! warning
 
-    There is a time based sensor called `select.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time` which represents this functionality. This is a legacy sensor which will be removed in the future. 
+    There is a time based sensor called `time.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time` which represents this functionality. This is a legacy sensor which will be removed in the future. 
 
 ## Migrating from megakid/ha_octopus_intelligent?
 

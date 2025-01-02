@@ -199,9 +199,10 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
     # If not None, we got an initial value.
     await super().async_added_to_hass()
     state = await self.async_get_last_state()
+    last_sensor_state = await self.async_get_last_sensor_data()
     
-    if state is not None and self._state is None:
-      self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
+    if state is not None and last_sensor_state is not None and self._state is None:
+      self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else last_sensor_state.native_value
       self._attributes = dict_to_typed_dict(state.attributes)
 
       _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeGasCostOverride state: {self._state}')
