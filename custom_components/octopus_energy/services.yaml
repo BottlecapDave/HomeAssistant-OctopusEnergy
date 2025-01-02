@@ -59,7 +59,7 @@ update_target_config:
 
 update_rolling_target_config:
   name: Update rolling target rate config
-  description: Updates a given rolling target rate's config. Please note this is temporary and will not persist between restarts.
+  description: Updates a given rolling target rate's config.
   target:
     entity:
       integration: octopus_energy

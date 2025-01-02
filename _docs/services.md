@@ -19,10 +19,6 @@ This service is only available for the following sensors
 
 For updating a given [target rate's](./setup/target_rate.md) config. This allows you to change target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
 
-!!! info
-
-    This is temporary and will not persist between restarts.
-
 | Attribute                | Optional | Description                                                                                                           |
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
 | `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated.                                                   |
@@ -90,10 +86,6 @@ action:
 ## octopus_energy.update_rolling_target_config
 
 For updating a given [rolling target rate's](./setup/rolling_target_rate.md) config. This allows you to change rolling target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
-
-!!! info
-
-    This is temporary and will not persist between restarts.
 
 | Attribute                | Optional | Description                                                                                                           |
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
