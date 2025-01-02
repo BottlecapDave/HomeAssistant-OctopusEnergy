@@ -1,3 +1,10 @@
+## [13.5.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.5.0...v13.5.1) (2025-01-02)
+
+
+### Bug Fixes
+
+* Fixed issue with restoring sensors where the unit of measurement has been changed (1 hour dev time) ([0c61292](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0c61292994f052f1782c2163a46ff4c5d7c04471))
+
 # [13.5.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.4.0...v13.5.0) (2025-01-01)
 
 
