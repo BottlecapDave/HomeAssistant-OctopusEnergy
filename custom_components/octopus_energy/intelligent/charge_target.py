@@ -39,7 +39,7 @@ class OctopusEnergyIntelligentChargeTarget(CoordinatorEntity, RestoreNumber, Oct
 
     self._attr_native_min_value = 10
     self._attr_native_max_value = 100
-    self._attr_native_step = 5
+    self._attr_native_step = 1
     self._attr_mode = NumberMode.BOX
 
   @property
@@ -101,7 +101,7 @@ class OctopusEnergyIntelligentChargeTarget(CoordinatorEntity, RestoreNumber, Oct
       self._last_updated = utcnow()
       self.async_write_ha_state()
     else:
-      raise Exception(f"Value must be between {self._attr_native_min_value} and {self._attr_native_max_value} and be a multiple of 5")
+      raise Exception(f"Value must be between {self._attr_native_min_value} and {self._attr_native_max_value} and be a multiple of {self._attr_native_step}")
 
   async def async_added_to_hass(self) -> None:
     """Restore last state."""
