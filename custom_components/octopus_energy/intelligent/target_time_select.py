@@ -26,7 +26,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyIntelligentTargetTimeSelect(CoordinatorEntity, SelectEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
   """Sensor for setting the target time to charge the car to the desired percentage."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, device, account_id: str):
+  def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, device, account_id: str, is_mocked: bool):
     """Init sensor."""
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
@@ -37,6 +37,7 @@ class OctopusEnergyIntelligentTargetTimeSelect(CoordinatorEntity, SelectEntity, 
     self._client = client
     self._account_id = account_id
     self._attributes = {}
+    self._is_mocked = is_mocked
     self.entity_id = generate_entity_id("select.{}", self.unique_id, hass=hass)
 
     self._options = []
@@ -92,12 +93,19 @@ class OctopusEnergyIntelligentTargetTimeSelect(CoordinatorEntity, SelectEntity, 
     """Change the selected option."""
     parts = option.split(":")
     value = time(int(parts[0]), int(parts[1]))
-    await self._client.async_update_intelligent_car_target_time(
-      self._account_id,
-      self._device.id,
-      value,
-    )
-    self._state = value
+    try:
+      await self._client.async_update_intelligent_car_target_time(
+        self._account_id,
+        self._device.id,
+        value,
+      )
+    except Exception as e:
+      if self._is_mocked:
+        _LOGGER.warning(f'Suppress async_select_option error due to mocking mode: {e}')
+      else:
+        raise
+
+    self._state = option
     self._last_updated = utcnow()
     self.async_write_ha_state()
 

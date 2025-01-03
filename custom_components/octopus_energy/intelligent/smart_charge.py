@@ -24,7 +24,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyIntelligentSmartCharge(CoordinatorEntity, SwitchEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
   """Switch for turning intelligent smart charge on and off."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, device, account_id: str):
+  def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, device, account_id: str, is_mocked: bool):
     """Init sensor."""
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
@@ -35,6 +35,7 @@ class OctopusEnergyIntelligentSmartCharge(CoordinatorEntity, SwitchEntity, Octop
     self._client = client
     self._account_id = account_id
     self._attributes = {}
+    self._is_mocked = is_mocked
     self.entity_id = generate_entity_id("switch.{}", self.unique_id, hass=hass)
 
   @property
@@ -76,18 +77,32 @@ class OctopusEnergyIntelligentSmartCharge(CoordinatorEntity, SwitchEntity, Octop
 
   async def async_turn_on(self):
     """Turn on the switch."""
-    await self._client.async_turn_on_intelligent_smart_charge(
-      self._account_id
-    )
+    try:
+      await self._client.async_turn_on_intelligent_smart_charge(
+        self._account_id
+      )
+    except Exception as e:
+      if self._is_mocked:
+        _LOGGER.warning(f'Suppress async_turn_on error due to mocking mode: {e}')
+      else:
+        raise
+
     self._state = True
     self._last_updated = utcnow()
     self.async_write_ha_state()
 
   async def async_turn_off(self):
     """Turn off the switch."""
-    await self._client.async_turn_off_intelligent_smart_charge(
-      self._account_id
-    )
+    try:
+      await self._client.async_turn_off_intelligent_smart_charge(
+        self._account_id
+      )
+    except Exception as e:
+      if self._is_mocked:
+        _LOGGER.warning(f'Suppress async_turn_off error due to mocking mode: {e}')
+      else:
+        raise
+
     self._state = False
     self._last_updated = utcnow()
     self.async_write_ha_state()
