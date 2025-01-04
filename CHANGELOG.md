@@ -1,3 +1,10 @@
+## [13.5.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.5.1...v13.5.2) (2025-01-03)
+
+
+### Bug Fixes
+
+* Fixed intelligent charge target to support increments of 1 (5 minutes dev time) ([416dcf7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/416dcf7dec683f40c9876b381363cba6aceb3044))
+
 ## [13.5.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.5.0...v13.5.1) (2025-01-02)
 
 
