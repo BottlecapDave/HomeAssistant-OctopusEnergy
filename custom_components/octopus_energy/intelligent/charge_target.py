@@ -24,7 +24,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyIntelligentChargeTarget(CoordinatorEntity, RestoreNumber, OctopusEnergyIntelligentSensor):
   """Sensor for setting the target percentage for car charging."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, device, account_id: str):
+  def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, device, account_id: str, is_mocked: bool):
     """Init sensor."""
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
@@ -35,6 +35,7 @@ class OctopusEnergyIntelligentChargeTarget(CoordinatorEntity, RestoreNumber, Oct
     self._client = client
     self._account_id = account_id
     self._attributes = {}
+    self._is_mocked = is_mocked
     self.entity_id = generate_entity_id("number.{}", self.unique_id, hass=hass)
 
     self._attr_native_min_value = 10
@@ -92,11 +93,18 @@ class OctopusEnergyIntelligentChargeTarget(CoordinatorEntity, RestoreNumber, Oct
   async def async_set_native_value(self, value: float) -> None:
     """Set new value."""
     if value and value % self._attr_native_step == 0:
-      await self._client.async_update_intelligent_car_target_percentage(
-        self._account_id,
-        self._device.id,
-        int(value)
-      )
+      try:
+        await self._client.async_update_intelligent_car_target_percentage(
+          self._account_id,
+          self._device.id,
+          int(value)
+        )
+      except Exception as e:
+        if self._is_mocked:
+          _LOGGER.warning(f'Suppress async_set_native_value error due to mocking mode: {e}')
+        else:
+          raise
+
       self._state = value
       self._last_updated = utcnow()
       self.async_write_ha_state()
