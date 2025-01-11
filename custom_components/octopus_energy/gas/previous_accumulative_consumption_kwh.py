@@ -5,7 +5,7 @@ from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
 )
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -27,23 +27,28 @@ from . import (
 from .base import (OctopusEnergyGasSensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
-from ..statistics.consumption import async_import_external_statistics_from_consumption, get_gas_consumption_statistic_unique_id
+from ..statistics.consumption import async_import_external_statistics_from_consumption, async_import_statistics_from_consumption, get_gas_consumption_statistic_unique_id
+from ..statistics.refresh import async_refresh_previous_gas_consumption_data
+from ..api_client import OctopusEnergyApiClient
 
 _LOGGER = logging.getLogger(__name__)
 
 class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative gas consumption in kwh."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, meter, point, calorific_value):
+  def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, coordinator, account_id: str, meter, point, calorific_value: float):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
 
     self._hass = hass
+    self._client = client
     self._native_consumption_units = meter["consumption_units"]
     self._state = None
     self._last_reset = None
+    self._account_id = account_id
     self._calorific_value = calorific_value
+    self._import_statistics = False
 
   @property
   def entity_registry_enabled_default(self) -> bool:
@@ -117,24 +122,41 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
       consumption_data,
       rate_data,
       standing_charge,
-      self._last_reset,
+      self._last_reset if self._import_statistics == False else None,
       self._native_consumption_units,
       self._calorific_value
     )
 
     if (consumption_and_cost is not None):
       _LOGGER.debug(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
+ 
+      if self._import_statistics:
+        await async_import_external_statistics_from_consumption(
+          utcnow(),
+          self._hass,
+          get_gas_consumption_statistic_unique_id(self._serial_number, self._mprn, True),
+          self.name,
+          consumption_and_cost["charges"],
+          rate_data,
+          UnitOfEnergy.KILO_WATT_HOUR,
+          "consumption_kwh"
+        )
 
-      await async_import_external_statistics_from_consumption(
-        utcnow(),
-        self._hass,
-        get_gas_consumption_statistic_unique_id(self._serial_number, self._mprn, True),
-        self.name,
-        consumption_and_cost["charges"],
-        rate_data,
-        UnitOfEnergy.KILO_WATT_HOUR,
-        "consumption_kwh"
-      )
+        await async_import_statistics_from_consumption(
+          utcnow(),
+          self._hass,
+          self.entity_id,
+          self.name,
+          consumption_and_cost["charges"],
+          rate_data,
+          UnitOfEnergy.KILO_WATT_HOUR,
+          "consumption_kwh",
+          True
+        )
+          
+        self._import_statistics = False
+      else:
+        self._import_statistics = True
 
       self._state = consumption_and_cost["total_consumption_kwh"]
       self._last_reset = consumption_and_cost["last_reset"]
@@ -166,3 +188,21 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
       self._attributes = dict_to_typed_dict(state.attributes)
     
       _LOGGER.debug(f'Restored OctopusEnergyPreviousAccumulativeGasConsumptionKwh state: {self._state}')
+
+  @callback
+  async def async_refresh_previous_consumption_data(self, start_date):
+    """Refresh the underlying consumption data"""
+
+    await async_refresh_previous_gas_consumption_data(
+      self._hass,
+      self._client,
+      self.entity_id,
+      self.name,
+      False,
+      self._account_id,
+      start_date,
+      self._mprn,
+      self._serial_number,
+      self._native_consumption_units,
+      self._calorific_value,
+    )

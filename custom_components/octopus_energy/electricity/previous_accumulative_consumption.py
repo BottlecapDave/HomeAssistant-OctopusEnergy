@@ -28,7 +28,7 @@ from . import (
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
 
-from ..statistics.consumption import async_import_external_statistics_from_consumption, get_electricity_consumption_statistic_unique_id
+from ..statistics.consumption import async_import_external_statistics_from_consumption, async_import_statistics_from_consumption, get_electricity_consumption_statistic_unique_id
 from ..statistics.refresh import async_refresh_previous_electricity_consumption_data
 from ..api_client import OctopusEnergyApiClient
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
@@ -49,6 +49,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
     self._last_reset = None
     self._hass = hass
     self._peak_type = peak_type
+    self._import_statistics = False
     
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
 
@@ -141,7 +142,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
       consumption_data,
       rate_data,
       standing_charge if target_rate is None else 0,
-      self._last_reset,
+      self._last_reset if self._import_statistics == False else None,
       target_rate=target_rate
     )
 
@@ -149,16 +150,33 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
       _LOGGER.debug(f"Calculated previous electricity consumption for '{self._mpan}/{self._serial_number}' ({self.unique_id})...")
 
       if self._peak_type is None:
-        await async_import_external_statistics_from_consumption(
-          current,
-          self._hass,
-          get_electricity_consumption_statistic_unique_id(self._serial_number, self._mpan, self._is_export),
-          self.name,
-          consumption_and_cost["charges"],
-          rate_data,
-          UnitOfEnergy.KILO_WATT_HOUR,
-          "consumption"
-        )
+        if self._import_statistics:
+          await async_import_external_statistics_from_consumption(
+            current,
+            self._hass,
+            get_electricity_consumption_statistic_unique_id(self._serial_number, self._mpan, self._is_export),
+            self.name,
+            consumption_and_cost["charges"],
+            rate_data,
+            UnitOfEnergy.KILO_WATT_HOUR,
+            "consumption"
+          )
+
+          await async_import_statistics_from_consumption(
+            current,
+            self._hass,
+            self.entity_id,
+            self.name,
+            consumption_and_cost["charges"],
+            rate_data,
+            UnitOfEnergy.KILO_WATT_HOUR,
+            "consumption",
+            True
+          )
+          
+          self._import_statistics = False
+        else:
+          self._import_statistics = True
 
       self._state = consumption_and_cost["total_consumption"]
       self._last_reset = consumption_and_cost["last_reset"]
@@ -198,6 +216,8 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
     await async_refresh_previous_electricity_consumption_data(
       self._hass,
       self._client,
+      self.entity_id,
+      self.name,
       self._account_id,
       start_date,
       self._mpan,

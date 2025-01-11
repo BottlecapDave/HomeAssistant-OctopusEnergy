@@ -13,7 +13,7 @@ from ..utils import get_active_tariff
 
 _LOGGER = logging.getLogger(__name__)
 
-def build_consumption_statistics(current: datetime, consumptions, rates, consumption_key: str, latest_total_sum: float, target_rate = None):
+def build_consumption_statistics(current: datetime, consumptions, rates, consumption_key: str, latest_total_sum: float, is_final_entry: bool = False, target_rate = None):
   last_reset = consumptions[0]["start"].replace(minute=0, second=0, microsecond=0)
   sums = {
     "total": latest_total_sum,
@@ -53,9 +53,23 @@ def build_consumption_statistics(current: datetime, consumptions, rates, consump
         )
       )
 
+  if is_final_entry and len(consumptions) > 0:
+    start = total_statistics[-1].start + timedelta(hours=1)
+    while start < current:
+      total_statistics.append(
+        StatisticData(
+            start=start,
+            last_reset=last_reset,
+            sum=total_statistics[-1].sum,
+            state=total_statistics[-1].state
+        )
+      )
+
+      start += timedelta(hours=1)
+
   return total_statistics
 
-def build_cost_statistics(current: datetime, consumptions, rates, consumption_key: str, latest_total_sum: float, target_rate = None):
+def build_cost_statistics(current: datetime, consumptions, rates, consumption_key: str, latest_total_sum: float, is_final_entry: bool = False, target_rate = None):
   last_reset = consumptions[0]["start"].replace(minute=0, second=0, microsecond=0)
   sums = {
     "total": latest_total_sum
@@ -94,6 +108,20 @@ def build_cost_statistics(current: datetime, consumptions, rates, consumption_ke
             state=states["total"]
         )
       )
+
+  if is_final_entry and len(consumptions) > 0:
+    start = total_statistics[-1].start + timedelta(hours=1)
+    while start < current:
+      total_statistics.append(
+        StatisticData(
+            start=start,
+            last_reset=last_reset,
+            sum=total_statistics[-1].sum,
+            state=total_statistics[-1].state
+        )
+      )
+
+      start += timedelta(hours=1)
 
   return total_statistics
 

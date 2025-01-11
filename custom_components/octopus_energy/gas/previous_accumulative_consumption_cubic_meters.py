@@ -29,7 +29,7 @@ from ..utils.attributes import dict_to_typed_dict
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
 
 from ..api_client import OctopusEnergyApiClient
-from ..statistics.consumption import async_import_external_statistics_from_consumption, get_gas_consumption_statistic_unique_id
+from ..statistics.consumption import async_import_external_statistics_from_consumption, async_import_statistics_from_consumption, get_gas_consumption_statistic_unique_id
 from ..statistics.refresh import async_refresh_previous_gas_consumption_data
 
 _LOGGER = logging.getLogger(__name__)
@@ -37,7 +37,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEntity, OctopusEnergyGasSensor, RestoreSensor):
   """Sensor for displaying the previous days accumulative gas reading."""
 
-  def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, coordinator, account_id, meter, point, calorific_value):
+  def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, coordinator, account_id: str, meter, point, calorific_value: float):
     """Init sensor."""
     CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
@@ -49,6 +49,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEnti
     self._last_reset = None
     self._account_id = account_id
     self._calorific_value = calorific_value
+    self._import_statistics = False
 
   @property
   def entity_registry_enabled_default(self) -> bool:
@@ -122,7 +123,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEnti
       consumption_data,
       rate_data,
       standing_charge,
-      self._last_reset,
+      self._last_reset if self._import_statistics == False else None,
       self._native_consumption_units,
       self._calorific_value
     )
@@ -130,16 +131,33 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEnti
     if (consumption_and_cost is not None):
       _LOGGER.debug(f"Calculated previous gas consumption for '{self._mprn}/{self._serial_number}'...")
 
-      await async_import_external_statistics_from_consumption(
-        utcnow(),
-        self._hass,
-        get_gas_consumption_statistic_unique_id(self._serial_number, self._mprn),
-        self.name,
-        consumption_and_cost["charges"],
-        rate_data,
-        UnitOfVolume.CUBIC_METERS,
-        "consumption_m3"
-      )
+      if self._import_statistics:
+        await async_import_external_statistics_from_consumption(
+          utcnow(),
+          self._hass,
+          get_gas_consumption_statistic_unique_id(self._serial_number, self._mprn),
+          self.name,
+          consumption_and_cost["charges"],
+          rate_data,
+          UnitOfVolume.CUBIC_METERS,
+          "consumption_m3"
+        )
+
+        await async_import_statistics_from_consumption(
+          utcnow(),
+          self._hass,
+          self.entity_id,
+          self.name,
+          consumption_and_cost["charges"],
+          rate_data,
+          UnitOfVolume.CUBIC_METERS,
+          "consumption_m3",
+          True
+        )
+          
+        self._import_statistics = False
+      else:
+        self._import_statistics = True
 
       self._state = consumption_and_cost["total_consumption_m3"]
       self._last_reset = consumption_and_cost["last_reset"]
@@ -182,6 +200,9 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEnti
     await async_refresh_previous_gas_consumption_data(
       self._hass,
       self._client,
+      self.entity_id,
+      self.name,
+      True,
       self._account_id,
       start_date,
       self._mprn,

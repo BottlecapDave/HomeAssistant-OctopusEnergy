@@ -24,6 +24,7 @@ async def test_when_target_rate_specified_then_statistics_restricted():
     rates,
     consumption_key,
     latest_total_sum,
+    False,
     2
   )
 

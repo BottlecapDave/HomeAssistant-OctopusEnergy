@@ -26,7 +26,7 @@ from .base import (OctopusEnergyGasSensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
 
-from ..statistics.cost import async_import_external_statistics_from_cost, get_gas_cost_statistic_unique_id
+from ..statistics.cost import async_import_external_statistics_from_cost, async_import_statistics_from_cost, get_gas_cost_statistic_unique_id
 
 _LOGGER = logging.getLogger(__name__)
   
@@ -44,6 +44,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
     self._state = None
     self._last_reset = None
     self._calorific_value = calorific_value
+    self._import_statistics = False
 
   @property
   def entity_registry_enabled_default(self) -> bool:
@@ -118,7 +119,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
       consumption_data,
       rate_data,
       standing_charge,
-      self._last_reset,
+      self._last_reset if self._import_statistics == False else None,
       self._native_consumption_units,
       self._calorific_value
     )
@@ -126,16 +127,33 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
     if (consumption_and_cost is not None):
       _LOGGER.debug(f"Calculated previous gas consumption cost for '{self._mprn}/{self._serial_number}'...")
 
-      await async_import_external_statistics_from_cost(
-        current,
-        self._hass,
-        get_gas_cost_statistic_unique_id(self._serial_number, self._mprn),
-        self.name,
-        consumption_and_cost["charges"],
-        rate_data,
-        "GBP",
-        "consumption_kwh"
-      )
+      if self._import_statistics:
+        await async_import_external_statistics_from_cost(
+          current,
+          self._hass,
+          get_gas_cost_statistic_unique_id(self._serial_number, self._mprn),
+          self.name,
+          consumption_and_cost["charges"],
+          rate_data,
+          "GBP",
+          "consumption_kwh"
+        )
+
+        await async_import_statistics_from_cost(
+          current,
+          self._hass,
+          self.entity_id,
+          self.name,
+          consumption_and_cost["charges"],
+          rate_data,
+          "GBP",
+          "consumption_kwh",
+          False
+        )
+          
+        self._import_statistics = False
+      else:
+        self._import_statistics = True
 
       self._last_reset = consumption_and_cost["last_reset"]
       self._state = consumption_and_cost["total_cost"]

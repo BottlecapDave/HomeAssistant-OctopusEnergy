@@ -486,7 +486,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
             debug_override.tariff if debug_override is not None and debug_override.tariff is not None else None
           )
           entities.append(OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(hass, client, previous_consumption_coordinator, account_id, meter, point, calorific_value))
-          entities.append(OctopusEnergyPreviousAccumulativeGasConsumptionKwh(hass, previous_consumption_coordinator, meter, point, calorific_value))
+          entities.append(OctopusEnergyPreviousAccumulativeGasConsumptionKwh(hass, client, previous_consumption_coordinator, account_id, meter, point, calorific_value))
           entities.append(OctopusEnergyPreviousAccumulativeGasCost(hass, previous_consumption_coordinator, meter, point, calorific_value))
           entities.append(OctopusEnergyPreviousConsumptionAndRatesDataLastRetrieved(hass, previous_consumption_coordinator, False, meter, point))
 

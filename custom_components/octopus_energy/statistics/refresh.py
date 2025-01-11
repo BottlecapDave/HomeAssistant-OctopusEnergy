@@ -13,7 +13,7 @@ from homeassistant.util.dt import (now, parse_datetime)
 
 from ..api_client import OctopusEnergyApiClient
 from ..const import DATA_ACCOUNT, DOMAIN, REGEX_DATE
-from .consumption import async_import_external_statistics_from_consumption, get_electricity_consumption_statistic_name, get_electricity_consumption_statistic_unique_id, get_gas_consumption_statistic_name, get_gas_consumption_statistic_unique_id
+from .consumption import async_import_external_statistics_from_consumption, async_import_statistics_from_consumption, get_electricity_consumption_statistic_name, get_electricity_consumption_statistic_unique_id, get_gas_consumption_statistic_name, get_gas_consumption_statistic_unique_id
 from .cost import async_import_external_statistics_from_cost, get_electricity_cost_statistic_name, get_electricity_cost_statistic_unique_id, get_gas_cost_statistic_name, get_gas_cost_statistic_unique_id
 from ..electricity import calculate_electricity_consumption_and_cost
 from ..gas import calculate_gas_consumption_and_cost
@@ -22,6 +22,8 @@ from ..coordinators import get_electricity_meter_tariff, get_gas_meter_tariff
 async def async_refresh_previous_electricity_consumption_data(
   hass: HomeAssistant,
   client: OctopusEnergyApiClient,
+  entity_id: str,
+  entity_name: str,
   account_id: str,
   start_date: str,
   mpan: str,
@@ -48,8 +50,9 @@ async def async_refresh_previous_electricity_consumption_data(
 
   period_from = parse_datetime(f'{trimmed_date}T00:00:00Z')
 
+  previous_external_consumption_result = None
+  previous_external_cost_result = None
   previous_consumption_result = None
-  previous_cost_result= None
   while period_from < now():
     period_to = period_from + timedelta(days=1)
 
@@ -73,7 +76,7 @@ async def async_refresh_previous_electricity_consumption_data(
     )
   
     if consumption_and_cost is not None:
-      previous_consumption_result = await async_import_external_statistics_from_consumption(
+      previous_external_consumption_result = await async_import_external_statistics_from_consumption(
         period_from,
         hass,
         get_electricity_consumption_statistic_unique_id(serial_number, mpan, is_export),
@@ -82,10 +85,10 @@ async def async_refresh_previous_electricity_consumption_data(
         rates,
         UnitOfEnergy.KILO_WATT_HOUR,
         "consumption",
-        initial_statistics=previous_consumption_result
+        initial_statistics=previous_external_consumption_result
       )
 
-      previous_cost_result = await async_import_external_statistics_from_cost(
+      previous_external_cost_result = await async_import_external_statistics_from_cost(
         period_from,
         hass,
         get_electricity_cost_statistic_unique_id(serial_number, mpan, is_export),
@@ -94,7 +97,20 @@ async def async_refresh_previous_electricity_consumption_data(
         rates,
         "GBP",
         "consumption",
-        initial_statistics=previous_cost_result
+        initial_statistics=previous_external_cost_result
+      )
+
+      previous_consumption_result = await async_import_statistics_from_consumption(
+        period_from,
+        hass,
+        entity_id,
+        entity_name,
+        consumption_and_cost["charges"],
+        rates,
+        UnitOfEnergy.KILO_WATT_HOUR,
+        "consumption",
+        False,
+        initial_statistics=previous_consumption_result
       )
 
     period_from = period_to
@@ -108,6 +124,9 @@ async def async_refresh_previous_electricity_consumption_data(
 async def async_refresh_previous_gas_consumption_data(
   hass: HomeAssistant,
   client: OctopusEnergyApiClient,
+  entity_id: str,
+  entity_name: str,
+  is_kwh: bool,
   account_id: str,
   start_date: str,
   mprn: str,
@@ -195,6 +214,19 @@ async def async_refresh_previous_gas_consumption_data(
         "GBP",
         "consumption_kwh",
         previous_cost_result
+      )
+
+      previous_consumption_result = await async_import_statistics_from_consumption(
+        period_from,
+        hass,
+        entity_id,
+        entity_name,
+        consumption_and_cost["charges"],
+        rates,
+        UnitOfEnergy.KILO_WATT_HOUR if is_kwh else UnitOfVolume.CUBIC_METERS,
+        "consumption_kwh" if is_kwh else "consumption_m3",
+        False,
+        initial_statistics=previous_consumption_result
       )
 
     period_from = period_to

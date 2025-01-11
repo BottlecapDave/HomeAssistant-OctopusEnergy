@@ -83,7 +83,7 @@ async def async_import_external_statistics_from_cost(
       peak_statistic_id = f'{statistic_id}_{peak_type}'
       latest_peak_sum = initial_statistics.peak_totals[peak_type] if initial_statistics is not None and peak_type in initial_statistics.peak_totals else await async_get_last_sum(hass, consumptions[0]["start"], peak_statistic_id)
 
-      peak_statistics = build_cost_statistics(current, consumptions, rates, consumption_key, latest_peak_sum, target_rate)
+      peak_statistics = build_cost_statistics(current, consumptions, rates, consumption_key, latest_peak_sum, False, target_rate)
       
       async_add_external_statistics(
         hass,
@@ -92,6 +92,75 @@ async def async_import_external_statistics_from_cost(
           has_sum=True,
           name=f'{name} {get_peak_name(peak_type)}',
           source=DOMAIN,
+          statistic_id=peak_statistic_id,
+          unit_of_measurement=unit_of_measurement,
+        ),
+        peak_statistics
+      )
+
+      peak_totals[peak_type] = peak_statistics[-1]["sum"] if len(peak_statistics) > 0 and peak_statistics[-1] is not None else 0
+
+  return ImportCostStatisticsResult(statistics[-1]["sum"] if statistics[-1] is not None else 0,
+                                    peak_totals)
+
+async def async_import_statistics_from_cost(
+    current: datetime,
+    hass: HomeAssistant,
+    entity_id: str,
+    name: str,
+    consumptions,
+    rates,
+    unit_of_measurement: str,
+    consumption_key: str,
+    is_final_entry: bool,
+    initial_statistics: ImportCostStatisticsResult = None
+  ):
+  if (consumptions is None or len(consumptions) < 1 or rates is None or len(rates) < 1):
+    return
+
+  # Our sum needs to be based from the last total, so we need to grab the last record from the previous day
+  latest_total_sum = initial_statistics.total if initial_statistics is not None else await async_get_last_sum(hass, consumptions[0]["start"], entity_id)
+
+  unique_rates = get_unique_rates(current, rates)
+  total_unique_rates = len(unique_rates)
+  
+  _LOGGER.debug(f"statistic_id: {entity_id}; latest_total_sum: {latest_total_sum}; total_unique_rates: {total_unique_rates};")
+
+  statistics = build_cost_statistics(current, consumptions, rates, consumption_key, latest_total_sum, is_final_entry)
+
+  async_add_external_statistics(
+    hass,
+    StatisticMetaData(
+      has_mean=False,
+      has_sum=True,
+      name=name,
+      source="recorder",
+      statistic_id=entity_id,
+      unit_of_measurement=unit_of_measurement,
+    ),
+    statistics
+  )
+
+  peak_totals = {}
+  if has_peak_rates(total_unique_rates):
+    for index in range(0, total_unique_rates):
+      peak_type = get_peak_type(total_unique_rates, index)
+
+      _LOGGER.debug(f"Importing cost statistics for '{peak_type}'...")
+
+      target_rate = unique_rates[index]
+      peak_statistic_id = f'{entity_id}_{peak_type}'
+      latest_peak_sum = initial_statistics.peak_totals[peak_type] if initial_statistics is not None and peak_type in initial_statistics.peak_totals else await async_get_last_sum(hass, consumptions[0]["start"], peak_statistic_id)
+
+      peak_statistics = build_cost_statistics(current, consumptions, rates, consumption_key, latest_peak_sum, is_final_entry, target_rate)
+      
+      async_add_external_statistics(
+        hass,
+        StatisticMetaData(
+          has_mean=False,
+          has_sum=True,
+          name=f'{name} {get_peak_name(peak_type)}',
+          source="recorder",
           statistic_id=peak_statistic_id,
           unit_of_measurement=unit_of_measurement,
         ),
