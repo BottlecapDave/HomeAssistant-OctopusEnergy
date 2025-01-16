@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import timedelta
 
 from homeassistant.const import (
     STATE_UNAVAILABLE,
@@ -31,6 +31,7 @@ from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoo
 from ..api_client import OctopusEnergyApiClient
 from ..statistics.consumption import async_import_external_statistics_from_consumption, async_import_statistics_from_consumption, get_gas_consumption_statistic_unique_id
 from ..statistics.refresh import async_refresh_previous_gas_consumption_data
+from ..statistics.fill import async_import_filler_statistics
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -143,7 +144,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEnti
           "consumption_m3"
         )
 
-        await async_import_statistics_from_consumption(
+        previous_consumption_result = await async_import_statistics_from_consumption(
           utcnow(),
           self._hass,
           self.entity_id,
@@ -151,9 +152,20 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEnti
           consumption_and_cost["charges"],
           rate_data,
           UnitOfVolume.CUBIC_METERS,
-          "consumption_m3",
-          True
+          "consumption_m3"
         )
+
+        if (consumption_and_cost["charges"] is not None and len(consumption_and_cost["charges"]) > 0):
+          await async_import_filler_statistics(
+            self._hass,
+            self.entity_id,
+            self.name,
+            consumption_and_cost["charges"][-1]["start"] + timedelta(hours=1),
+            utcnow(),
+            rate_data,
+            UnitOfVolume.CUBIC_METERS,
+            previous_consumption_result
+          )
           
         self._import_statistics = False
       else:

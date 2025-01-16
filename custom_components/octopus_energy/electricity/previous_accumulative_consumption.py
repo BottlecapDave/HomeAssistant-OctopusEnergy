@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import timedelta
 
 from homeassistant.const import (
     STATE_UNAVAILABLE,
@@ -33,6 +33,7 @@ from ..statistics.refresh import async_refresh_previous_electricity_consumption_
 from ..api_client import OctopusEnergyApiClient
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
 from ..utils.rate_information import get_peak_name, get_rate_index, get_unique_rates
+from ..statistics.fill import async_import_filler_statistics
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -162,17 +163,28 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
             "consumption"
           )
 
-          await async_import_statistics_from_consumption(
-            current,
+          previous_consumption_result = await async_import_statistics_from_consumption(
+            utcnow(),
             self._hass,
             self.entity_id,
             self.name,
             consumption_and_cost["charges"],
             rate_data,
             UnitOfEnergy.KILO_WATT_HOUR,
-            "consumption",
-            True
+            "consumption"
           )
+
+          if (consumption_and_cost["charges"] is not None and len(consumption_and_cost["charges"]) > 0):
+            await async_import_filler_statistics(
+              self._hass,
+              self.entity_id,
+              self.name,
+              consumption_and_cost["charges"][-1]["start"] + timedelta(hours=1),
+              utcnow(),
+              rate_data,
+              UnitOfEnergy.KILO_WATT_HOUR,
+              previous_consumption_result
+            )
           
           self._import_statistics = False
         else:

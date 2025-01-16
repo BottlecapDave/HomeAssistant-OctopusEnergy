@@ -1,5 +1,5 @@
 import logging
-from datetime import datetime
+from datetime import timedelta
 
 from homeassistant.const import (
     STATE_UNAVAILABLE,
@@ -27,6 +27,7 @@ from ..utils.attributes import dict_to_typed_dict
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
 
 from ..statistics.cost import async_import_external_statistics_from_cost, async_import_statistics_from_cost, get_gas_cost_statistic_unique_id
+from ..statistics.fill import async_import_filler_statistics
 
 _LOGGER = logging.getLogger(__name__)
   
@@ -139,7 +140,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
           "consumption_kwh"
         )
 
-        await async_import_statistics_from_cost(
+        previous_consumption_result = await async_import_statistics_from_cost(
           current,
           self._hass,
           self.entity_id,
@@ -147,9 +148,20 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
           consumption_and_cost["charges"],
           rate_data,
           "GBP",
-          "consumption_kwh",
-          False
+          "consumption_kwh"
         )
+
+        if (consumption_and_cost["charges"] is not None and len(consumption_and_cost["charges"]) > 0):
+          await async_import_filler_statistics(
+              self._hass,
+              self.entity_id,
+              self.name,
+              consumption_and_cost["charges"][-1]["start"] + timedelta(hours=1),
+              utcnow(),
+              rate_data,
+              "GBP",
+              previous_consumption_result
+            )
           
         self._import_statistics = False
       else:

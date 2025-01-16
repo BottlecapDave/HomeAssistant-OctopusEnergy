@@ -13,7 +13,7 @@ from ..utils import get_active_tariff
 
 _LOGGER = logging.getLogger(__name__)
 
-def build_consumption_statistics(current: datetime, consumptions, rates, consumption_key: str, latest_total_sum: float, is_final_entry: bool = False, target_rate = None):
+def build_consumption_statistics(consumptions, rates, consumption_key: str, latest_total_sum: float, target_rate = None):
   last_reset = consumptions[0]["start"].replace(minute=0, second=0, microsecond=0)
   sums = {
     "total": latest_total_sum,
@@ -53,24 +53,9 @@ def build_consumption_statistics(current: datetime, consumptions, rates, consump
         )
       )
 
-  if is_final_entry and len(consumptions) > 0:
-    start = total_statistics[-1].start + timedelta(hours=1)
-    while start < current:
-      total_statistics.append(
-        StatisticData(
-            start=start,
-            last_reset=last_reset,
-            sum=total_statistics[-1].sum,
-            state=total_statistics[-1].state
-        )
-      )
-
-      start += timedelta(hours=1)
-
   return total_statistics
 
-def build_cost_statistics(current: datetime, consumptions, rates, consumption_key: str, latest_total_sum: float, is_final_entry: bool = False, target_rate = None):
-  last_reset = consumptions[0]["start"].replace(minute=0, second=0, microsecond=0)
+def build_cost_statistics(consumptions, rates, consumption_key: str, latest_total_sum: float, target_rate = None):
   sums = {
     "total": latest_total_sum
   }
@@ -80,48 +65,53 @@ def build_cost_statistics(current: datetime, consumptions, rates, consumption_ke
   
   total_statistics = []
 
-  _LOGGER.debug(f'total_sum: {latest_total_sum}; target_rate: {target_rate}; last_reset: {last_reset};')
+  if (consumptions is not None and len(consumptions) > 0):
+    last_reset = consumptions[0]["start"].replace(minute=0, second=0, microsecond=0)
+    _LOGGER.debug(f'total_sum: {latest_total_sum}; target_rate: {target_rate}; last_reset: {last_reset};')
 
-  for index in range(len(consumptions)):
-    consumption = consumptions[index]
-    consumption_from = consumption["start"]
-    consumption_to = consumption["end"]
-    start = consumption["start"].replace(minute=0, second=0, microsecond=0)
+    for index in range(len(consumptions)):
+      consumption = consumptions[index]
+      consumption_from = consumption["start"]
+      consumption_to = consumption["end"]
+      start = consumption["start"].replace(minute=0, second=0, microsecond=0)
 
-    try:
-      rate = next(r for r in rates if r["start"] == consumption_from and r["end"] == consumption_to)
-    except StopIteration:
-      raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to}")
+      try:
+        rate = next(r for r in rates if r["start"] == consumption_from and r["end"] == consumption_to)
+      except StopIteration:
+        raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to}")
 
-    if target_rate is None or target_rate == rate["value_inc_vat"]:
-      sums["total"] += round((consumption[consumption_key] * rate["value_inc_vat"]) / 100, 2)
-      states["total"] += round((consumption[consumption_key] * rate["value_inc_vat"]) / 100, 2)
+      if target_rate is None or target_rate == rate["value_inc_vat"]:
+        sums["total"] += round((consumption[consumption_key] * rate["value_inc_vat"]) / 100, 2)
+        states["total"] += round((consumption[consumption_key] * rate["value_inc_vat"]) / 100, 2)
 
-    _LOGGER.debug(f'index: {index}; start: {start}; sums: {sums}; states: {states}; added: {(index) % 2 == 1}')
+      _LOGGER.debug(f'index: {index}; start: {start}; sums: {sums}; states: {states}; added: {(index) % 2 == 1}')
 
-    if index % 2 == 1:
-      total_statistics.append(
-        StatisticData(
-            start=start,
-            last_reset=last_reset,
-            sum=sums["total"],
-            state=states["total"]
+      if index % 2 == 1:
+        total_statistics.append(
+          StatisticData(
+              start=start,
+              last_reset=last_reset,
+              sum=sums["total"],
+              state=states["total"]
+          )
         )
-      )
 
-  if is_final_entry and len(consumptions) > 0:
-    start = total_statistics[-1].start + timedelta(hours=1)
-    while start < current:
-      total_statistics.append(
-        StatisticData(
-            start=start,
-            last_reset=last_reset,
-            sum=total_statistics[-1].sum,
-            state=total_statistics[-1].state
-        )
-      )
+  return total_statistics
 
-      start += timedelta(hours=1)
+def build_filler_statistics(start: datetime, end: datetime, last_reset: datetime, sum: float, state: float):
+  total_statistics = []
+  final = end - timedelta(hours=1) # We don't want to fill in stats for the current hour block or we'll get SQL errors
+  while start < final:
+    total_statistics.append(
+      StatisticData(
+          start=start,
+          last_reset=last_reset,
+          sum=sum,
+          state=state
+      )
+    )
+
+    start += timedelta(hours=1)
 
   return total_statistics
 
@@ -172,3 +162,15 @@ def get_statistic_ids_to_remove(now, account_info):
     _LOGGER.info('No gas meters available')
 
   return external_statistic_ids_to_remove
+
+class ImportStatisticsResult:
+  total: float
+  state: float
+  peak_totals: "dict[str, float]"
+  peak_states: "dict[str, float]"
+
+  def __init__(self, total: float, state: float, peak_totals: "dict[str, float]", peak_states: "dict[str, float]"):
+    self.total = total
+    self.state = state
+    self.peak_totals = peak_totals
+    self.peak_states = peak_states

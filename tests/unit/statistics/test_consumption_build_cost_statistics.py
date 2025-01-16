@@ -10,7 +10,6 @@ async def test_when_target_rate_specified_then_statistics_restructed():
   # Arrange
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  current = datetime.strptime("2022-02-28T00:00:01Z", "%Y-%m-%dT%H:%M:%S%z")
   consumptions = create_consumption_data(period_from, period_to, False, "start", "end")
   consumption_key = 'consumption'
   latest_total_sum = 3
@@ -19,7 +18,6 @@ async def test_when_target_rate_specified_then_statistics_restructed():
 
   # Act
   result = build_cost_statistics(
-    current,
     consumptions,
     rates,
     consumption_key,
@@ -59,7 +57,6 @@ async def test_when_target_rate_not_specified_then_statistics_not_restricted():
   # Arrange
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
-  current = datetime.strptime("2022-02-28T00:00:01Z", "%Y-%m-%dT%H:%M:%S%z")
   consumptions = create_consumption_data(period_from, period_to, False, "start", "end")
   rates = create_rate_data(period_from, period_to, [2, 4, 6])
   consumption_key = 'consumption'
@@ -67,7 +64,6 @@ async def test_when_target_rate_not_specified_then_statistics_not_restricted():
 
   # Act
   result = build_cost_statistics(
-    current,
     consumptions,
     rates,
     consumption_key,
