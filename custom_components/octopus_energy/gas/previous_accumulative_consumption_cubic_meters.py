@@ -160,7 +160,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEnti
             self._hass,
             self.entity_id,
             self.name,
-            consumption_and_cost["charges"][-1]["start"] + timedelta(hours=1),
+            consumption_and_cost["charges"][-1]["end"],
             utcnow(),
             rate_data,
             UnitOfVolume.CUBIC_METERS,

@@ -159,7 +159,7 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionKwh(CoordinatorEntity, Octo
             self._hass,
             self.entity_id,
             self.name,
-            consumption_and_cost["charges"][-1]["start"] + timedelta(hours=1),
+            consumption_and_cost["charges"][-1]["end"],
             utcnow(),
             rate_data,
             UnitOfEnergy.KILO_WATT_HOUR,

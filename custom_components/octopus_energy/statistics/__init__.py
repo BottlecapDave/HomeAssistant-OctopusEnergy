@@ -102,6 +102,7 @@ def build_filler_statistics(start: datetime, end: datetime, last_reset: datetime
   total_statistics = []
   final = end - timedelta(hours=1) # We don't want to fill in stats for the current hour block or we'll get SQL errors
   while start < final:
+    _LOGGER.debug(f'total_statistics: start: {start}; last_reset: {last_reset}; sum: {sum}; state: {state};')
     total_statistics.append(
       StatisticData(
           start=start,
@@ -164,12 +165,14 @@ def get_statistic_ids_to_remove(now, account_info):
   return external_statistic_ids_to_remove
 
 class ImportStatisticsResult:
+  last_reset: datetime
   total: float
   state: float
   peak_totals: "dict[str, float]"
   peak_states: "dict[str, float]"
 
-  def __init__(self, total: float, state: float, peak_totals: "dict[str, float]", peak_states: "dict[str, float]"):
+  def __init__(self, last_reset: datetime, total: float, state: float, peak_totals: "dict[str, float]", peak_states: "dict[str, float]"):
+    self.last_reset = last_reset
     self.total = total
     self.state = state
     self.peak_totals = peak_totals

@@ -167,15 +167,15 @@ class OctopusEnergyPreviousAccumulativeElectricityCost(CoordinatorEntity, Octopu
 
           if (consumption_and_cost["charges"] is not None and len(consumption_and_cost["charges"]) > 0):
             await async_import_filler_statistics(
-                self._hass,
-                self.entity_id,
-                self.name,
-                consumption_and_cost["charges"][-1]["start"] + timedelta(hours=1),
-                utcnow(),
-                rate_data,
-                "GBP",
-                previous_consumption_result
-              )
+              self._hass,
+              self.entity_id,
+              self.name,
+              consumption_and_cost["charges"][-1]["end"],
+              utcnow(),
+              rate_data,
+              "GBP",
+              previous_consumption_result
+            )
           
           self._import_statistics = False
         else:

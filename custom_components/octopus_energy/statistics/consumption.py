@@ -39,7 +39,7 @@ async def async_import_external_statistics_from_consumption(
     initial_statistics: ImportStatisticsResult = None
   ):
   if (consumptions is None or len(consumptions) < 1 or rates is None or len(rates) < 1):
-    return
+    return initial_statistics
 
   statistic_id = f"{DOMAIN}:{unique_id}".lower()
 
@@ -51,7 +51,7 @@ async def async_import_external_statistics_from_consumption(
 
   _LOGGER.debug(f"statistic_id: {statistic_id}; latest_total_sum: {latest_total_sum}; total_unique_rates: {total_unique_rates};")
 
-  statistics = build_consumption_statistics(current, consumptions, rates, consumption_key, latest_total_sum)
+  statistics = build_consumption_statistics(consumptions, rates, consumption_key, latest_total_sum)
 
   async_add_external_statistics(
     hass,
@@ -78,7 +78,7 @@ async def async_import_external_statistics_from_consumption(
       peak_statistic_id = f'{statistic_id}_{peak_type}'
       latest_peak_sum = initial_statistics.peak_totals[peak_type] if initial_statistics is not None and peak_type in initial_statistics.peak_totals else await async_get_last_sum(hass, consumptions[0]["start"], peak_statistic_id)
 
-      peak_statistics = build_consumption_statistics(current, consumptions, rates, consumption_key, latest_peak_sum, target_rate)
+      peak_statistics = build_consumption_statistics(consumptions, rates, consumption_key, latest_peak_sum, target_rate)
       
       async_add_external_statistics(
         hass,
@@ -96,7 +96,8 @@ async def async_import_external_statistics_from_consumption(
       peak_totals[peak_type] = peak_statistics[-1]["sum"] if len(peak_statistics) > 0 and peak_statistics[-1] is not None else 0
       peak_states[peak_type] = peak_statistics[-1]["state"] if len(peak_statistics) > 0 and peak_statistics[-1] is not None else 0
 
-  return ImportStatisticsResult(statistics[-1]["sum"] if statistics[-1] is not None else 0,
+  return ImportStatisticsResult(consumptions[0]["start"].replace(minute=0, second=0, microsecond=0),
+                                statistics[-1]["sum"] if statistics[-1] is not None else 0,
                                 statistics[-1]["state"] if statistics[-1] is not None else 0,
                                 peak_totals,
                                 peak_states)
@@ -112,8 +113,8 @@ async def async_import_statistics_from_consumption(
     consumption_key: str,
     initial_statistics: ImportStatisticsResult = None
   ):
-  if (consumptions is None or rates is None or len(rates) < 1 or (len(consumptions) < 1 and initial_statistics is None)):
-    return
+  if (consumptions is None or len(consumptions) < 1 or rates is None or len(rates) < 1):
+    return initial_statistics
 
   # Our sum needs to be based from the last total, so we need to grab the last record from the previous day
   latest_total_sum = initial_statistics.total if initial_statistics is not None else await async_get_last_sum(hass, consumptions[0]["start"], entity_id)
@@ -140,6 +141,7 @@ async def async_import_statistics_from_consumption(
     )
 
   peak_totals = {}
+  peak_states = {}
   if has_peak_rates(total_unique_rates):
     for index in range(0, total_unique_rates):
       peak_type = get_peak_type(total_unique_rates, index)
@@ -166,6 +168,10 @@ async def async_import_statistics_from_consumption(
         )
 
       peak_totals[peak_type] = peak_statistics[-1]["sum"] if len(peak_statistics) > 0 and peak_statistics[-1] is not None else 0
+      peak_states[peak_type] = peak_statistics[-1]["state"] if len(peak_statistics) > 0 and peak_statistics[-1] is not None else 0
 
-  return ImportStatisticsResult(statistics[-1]["sum"] if statistics[-1] is not None else 0,
-                                           peak_totals)
+  return ImportStatisticsResult(consumptions[0]["start"].replace(minute=0, second=0, microsecond=0),
+                                statistics[-1]["sum"] if statistics[-1] is not None else 0,
+                                statistics[-1]["state"] if statistics[-1] is not None else 0,
+                                peak_totals,
+                                peak_states)

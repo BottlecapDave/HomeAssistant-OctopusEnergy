@@ -33,17 +33,15 @@ async def async_import_filler_statistics(
     end: datetime,
     rates,
     unit_of_measurement: str,
-    statistics: ImportStatisticsResult
+    target_statistics: ImportStatisticsResult
   ):
   if (rates is None or len(rates) < 1):
-    return
+    return target_statistics
 
   unique_rates = get_unique_rates(start, rates)
   total_unique_rates = len(unique_rates)
 
-  last_reset = start.replace(hour=0, minute=0, second=0, microsecond=0)
-
-  statistics = build_filler_statistics(start, end, last_reset, statistics.total)
+  statistics = build_filler_statistics(start, end, target_statistics.last_reset, target_statistics.total, target_statistics.state)
 
   if statistics is not None and len(statistics) > 0:
     async_import_statistics(
@@ -68,7 +66,7 @@ async def async_import_filler_statistics(
       _LOGGER.debug(f"Filling statistics for '{peak_type}'...")
 
       peak_statistic_id = f'{statistic_id}_{peak_type}'
-      peak_statistics = build_filler_statistics(start, end, last_reset, statistics.peak_totals[peak_type])
+      peak_statistics = build_filler_statistics(start, end, target_statistics.last_reset, target_statistics.peak_totals[peak_type], target_statistics.peak_states[peak_type])
       if peak_statistics is not None and len(peak_statistics) > 0:
         async_import_statistics(
           hass,
@@ -86,7 +84,8 @@ async def async_import_filler_statistics(
       peak_totals[peak_type] = peak_statistics[-1]["sum"] if len(peak_statistics) > 0 and peak_statistics[-1] is not None else 0
       peak_states[peak_type] = peak_statistics[-1]["state"] if len(peak_statistics) > 0 and peak_statistics[-1] is not None else 0
 
-  return ImportStatisticsResult(statistics[-1]["sum"] if statistics[-1] is not None else 0,
-                                statistics[-1]["state"] if statistics[-1] is not None else 0,
+  return ImportStatisticsResult(target_statistics.last_reset,
+                                target_statistics.total,
+                                target_statistics.state,
                                 peak_totals,
                                 peak_states)

@@ -104,54 +104,52 @@ async def async_refresh_previous_electricity_consumption_data(
         initial_statistics=previous_external_cost_result
       )
 
-    previous_consumption_result = await async_import_statistics_from_consumption(
-      current,
-      hass,
-      entity_id,
-      entity_name,
-      consumption_and_cost["charges"] if consumption_and_cost is not None else [],
-      rates,
-      UnitOfEnergy.KILO_WATT_HOUR,
-      "consumption",
-      initial_statistics=previous_consumption_result
-    ) 
+      previous_consumption_result = await async_import_statistics_from_consumption(
+        period_from,
+        hass,
+        entity_id,
+        entity_name,
+        consumption_and_cost["charges"],
+        rates,
+        UnitOfEnergy.KILO_WATT_HOUR,
+        "consumption",
+        initial_statistics=previous_consumption_result
+      ) 
 
-    previous_cost_result = await async_import_statistics_from_cost(
-      current,
-      hass,
-      entity_id,
-      entity_name,
-      consumption_and_cost["charges"] if consumption_and_cost is not None else [],
-      rates,
-      "GBP",
-      "consumption",
-      is_final_entry,
-      initial_statistics=previous_cost_result
-    )
+      # previous_cost_result = await async_import_statistics_from_cost(
+      #   period_from,
+      #   hass,
+      #   entity_id,
+      #   entity_name,
+      #   consumption_and_cost["charges"],
+      #   rates,
+      #   "GBP",
+      #   "consumption",
+      #   initial_statistics=previous_cost_result
+      # )
 
-    is_final_entry = period_from + timedelta(days=1) > current
-    if is_final_entry:
+    if consumption_and_cost is None or len(consumption_and_cost["charges"]) < 1:
       await async_import_filler_statistics(
         hass,
         entity_id,
         entity_name,
-        period_to,
-        current,
+        period_from,
+        current if current < period_to else period_to,
         rates,
         UnitOfEnergy.KILO_WATT_HOUR,
         previous_consumption_result
       )
 
-      await async_import_filler_statistics(
-        hass,
-        entity_id,
-        entity_name,
-        period_to,
-        current,
-        rates,
-        "GBP",
-        previous_cost_result
-      )
+      # await async_import_filler_statistics(
+      #   hass,
+      #   entity_id,
+      #   entity_name,
+      #   period_to,
+      #   current,
+      #   rates,
+      #   "GBP",
+      #   previous_cost_result
+      # )
 
     period_from = period_to
 
@@ -258,53 +256,52 @@ async def async_refresh_previous_gas_consumption_data(
         previous_cost_result
       )
 
-    previous_consumption_result = await async_import_statistics_from_consumption(
-      period_from,
-      hass,
-      entity_id,
-      entity_name,
-      consumption_and_cost["charges"] if consumption_and_cost is not None else [],
-      rates,
-      UnitOfEnergy.KILO_WATT_HOUR if is_kwh else UnitOfVolume.CUBIC_METERS,
-      "consumption_kwh" if is_kwh else "consumption_m3",
-      initial_statistics=previous_consumption_result
-    )
+      previous_consumption_result = await async_import_statistics_from_consumption(
+        period_from,
+        hass,
+        entity_id,
+        entity_name,
+        consumption_and_cost["charges"],
+        rates,
+        UnitOfEnergy.KILO_WATT_HOUR if is_kwh else UnitOfVolume.CUBIC_METERS,
+        "consumption_kwh" if is_kwh else "consumption_m3",
+        initial_statistics=previous_consumption_result
+      )
 
-    previous_cost_result = await async_import_statistics_from_cost(
-      period_from,
-      hass,
-      entity_id,
-      entity_name,
-      consumption_and_cost["charges"] if consumption_and_cost is not None else [],
-      rates,
-      "GBP",
-      "consumption_kwh",
-      initial_statistics=previous_cost_result
-    )
+      # previous_cost_result = await async_import_statistics_from_cost(
+      #   period_from,
+      #   hass,
+      #   entity_id,
+      #   entity_name,
+      #   consumption_and_cost["charges"],
+      #   rates,
+      #   "GBP",
+      #   "consumption_kwh",
+      #   initial_statistics=previous_cost_result
+      # )
 
-    is_final_entry = period_from + timedelta(days=1) > current
-    if is_final_entry:
+    if consumption_and_cost is None or len(consumption_and_cost["charges"]) < 1:
       await async_import_filler_statistics(
         hass,
         entity_id,
         entity_name,
-        period_to,
-        current,
+        period_from,
+        current if current < period_to else period_to,
         rates,
         UnitOfEnergy.KILO_WATT_HOUR if is_kwh else UnitOfVolume.CUBIC_METERS,
         previous_consumption_result
       )
 
-      await async_import_filler_statistics(
-        hass,
-        entity_id,
-        entity_name,
-        period_to,
-        current,
-        rates,
-        "GBP",
-        previous_cost_result
-      )
+      # await async_import_filler_statistics(
+      #   hass,
+      #   entity_id,
+      #   entity_name,
+      #   period_to,
+      #   current,
+      #   rates,
+      #   "GBP",
+      #   previous_cost_result
+      # )
 
     period_from = period_to
 
