@@ -2,14 +2,15 @@ from datetime import datetime, timedelta
 import logging
 from typing import List
 
-from custom_components.octopus_energy.const import DOMAIN
 from homeassistant.util.dt import (utcnow)
 from homeassistant.exceptions import ServiceValidationError
 
 from homeassistant.const import (
     UnitOfTemperature,
     PRECISION_HALVES,
-    ATTR_TEMPERATURE
+    ATTR_TEMPERATURE,
+    STATE_OFF,
+    STATE_ON
 )
 from homeassistant.core import HomeAssistant, callback
 
@@ -17,13 +18,11 @@ from homeassistant.util.dt import (now)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
-from homeassistant.components.climate import (
-  ClimateEntity,
-  ClimateEntityFeature,
-  HVACAction,
-  HVACMode,
-  PRESET_NONE,
-  PRESET_BOOST,
+from homeassistant.components.water_heater import (
+    WaterHeaterEntity,
+    WaterHeaterEntityFeature,
+    STATE_HEAT_PUMP,
+    STATE_HIGH_DEMAND
 )
 
 from .base import (BaseOctopusEnergyHeatPumpSensor)
@@ -31,27 +30,37 @@ from ..utils.attributes import dict_to_typed_dict
 from ..api_client.heat_pump import ConfigurationZone, HeatPump, Sensor, Zone
 from ..coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult
 from ..api_client import OctopusEnergyApiClient
+from ..const import DEFAULT_BOOST_WATER_TEMPERATURE, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSensor, ClimateEntity):
-  """Sensor for interacting with a heat pump zone."""
+OE_TO_HA_STATE = {
+    "AUTO": STATE_HEAT_PUMP,
+    "BOOST": STATE_HIGH_DEMAND,
+    "ON": STATE_ON,
+    "OFF": STATE_OFF,
+}
+
+HA_TO_OE_STATE = {
+    STATE_HEAT_PUMP: "AUTO",
+    STATE_HIGH_DEMAND: "BOOST",
+    STATE_ON: "ON",
+    STATE_OFF: "OFF",
+}
+
+class OctopusEnergyHeatPumpWaterHeater(CoordinatorEntity, BaseOctopusEnergyHeatPumpSensor, WaterHeaterEntity):
+  """Sensor for interacting with a heat pump water heater zone."""
 
   _attr_supported_features = (
-    ClimateEntityFeature.TURN_OFF
-    | ClimateEntityFeature.TURN_ON
-    | ClimateEntityFeature.TARGET_TEMPERATURE
-    | ClimateEntityFeature.PRESET_MODE
+    WaterHeaterEntityFeature.ON_OFF
+    | WaterHeaterEntityFeature.TARGET_TEMPERATURE
+    | WaterHeaterEntityFeature.OPERATION_MODE
   )
 
-  _attr_hvac_actions = [HVACAction.HEATING, HVACAction.IDLE]
-  _attr_hvac_action = None
-  _attr_hvac_modes = [HVACMode.HEAT, HVACMode.OFF, HVACMode.AUTO]
-  _attr_hvac_mode = None
-  _attr_preset_modes = [PRESET_NONE, PRESET_BOOST]
-  _attr_preset_mode = None
+  _attr_operation_list = [STATE_ON, STATE_OFF, STATE_HEAT_PUMP, STATE_HIGH_DEMAND]
+  _attr_current_operation = None
   _attr_temperature_unit = UnitOfTemperature.CELSIUS
-  _attr_target_temperature_step = PRECISION_HALVES
+  _attr_precision = PRECISION_HALVES
 
   def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, account_id: str, heat_pump_id: str, heat_pump: HeatPump, zone: ConfigurationZone, is_mocked: bool):
     """Init sensor."""
@@ -61,16 +70,12 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     self._is_mocked = is_mocked
     self._end_timestamp = None
 
-    if zone.configuration.zoneType == "HEAT":
-      self._attr_min_temp = 7
-      self._attr_max_temp = 30
-    else:
-      self._attr_min_temp = 40
-      self._attr_max_temp = 60
+    self._attr_min_temp = 40
+    self._attr_max_temp = 60
 
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
-    BaseOctopusEnergyHeatPumpSensor.__init__(self, hass, heat_pump_id, heat_pump, "climate")
+    BaseOctopusEnergyHeatPumpSensor.__init__(self, hass, heat_pump_id, heat_pump, "water_heater")
 
     self._state = None
     self._last_updated = None
@@ -78,7 +83,7 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_heat_pump_{self._heat_pump_id}_{self._zone.configuration.code}"
+    return f"octopus_energy_heat_pump_{self._heat_pump_id}"
     
   @property
   def name(self):
@@ -96,28 +101,16 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
         result.data.octoHeatPumpControllerStatus is not None and
         result.data.octoHeatPumpControllerStatus.zones and
         (self._last_updated is None or self._last_updated < result.last_retrieved)):
-      _LOGGER.debug(f"Updating OctopusEnergyHeatPumpZone for '{self._heat_pump_id}/{self._zone.configuration.code}'")
+      _LOGGER.debug(f"Updating OctopusEnergyHeatPumpWaterHeater for '{self._heat_pump_id}/{self._zone.configuration.code}'")
 
       zones: List[Zone] = result.data.octoHeatPumpControllerStatus.zones
       for zone in zones:
         if zone.telemetry is not None and zone.zone == self._zone.configuration.code and zone.telemetry.mode is not None:
 
-          if zone.telemetry.mode == "ON":
-            self._attr_hvac_mode = HVACMode.HEAT
-            self._attr_preset_mode = PRESET_NONE
-          elif zone.telemetry.mode == "OFF":
-            self._attr_hvac_mode = HVACMode.OFF
-            self._attr_preset_mode = PRESET_NONE
-          elif zone.telemetry.mode == "AUTO":
-            self._attr_hvac_mode = HVACMode.AUTO
-            self._attr_preset_mode = PRESET_NONE
-          elif zone.telemetry.mode == "BOOST":
-            self._attr_hvac_mode = HVACMode.AUTO
-            self._attr_preset_mode = PRESET_BOOST
+          if zone.telemetry.mode in OE_TO_HA_STATE:
+            self._attr_current_operation = OE_TO_HA_STATE[zone.telemetry.mode]
           else:
             raise Exception(f"Unexpected heat pump mode detected: {zone.telemetry.mode}")
-
-          self._attr_hvac_action = HVACAction.HEATING if zone.telemetry.relaySwitchedOn else HVACAction.IDLE
 
           self._attr_target_temperature = None
           if zone.telemetry.setpointInCelsius is not None and zone.telemetry.setpointInCelsius > 0:
@@ -141,16 +134,27 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
-  async def async_set_hvac_mode(self, hvac_mode):
-    """Set new target hvac mode."""
+  async def async_set_operation_mode(self, operation_mode: str):
+    """Set new target operation mode."""
     try:
-      self._attr_hvac_mode = hvac_mode
-      self._attr_preset_mode = PRESET_NONE
-      zone_mode = self.get_zone_mode()
-      await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, zone_mode, self._attr_target_temperature)
+      self._attr_current_operation = operation_mode
+      
+      if OE_TO_HA_STATE["BOOST"] == self._attr_current_operation:
+        self._end_timestamp = utcnow()
+        self._end_timestamp += timedelta(hours=1)
+        await self._client.async_boost_heat_pump_zone(
+          self._account_id,
+          self._heat_pump_id,
+          self._zone.configuration.code,
+          self._end_timestamp,
+          self._attr_target_temperature if self._attr_target_temperature is not None else DEFAULT_BOOST_WATER_TEMPERATURE
+        )
+      else:
+        zone_mode = self.get_zone_mode()
+        await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, zone_mode, self._attr_target_temperature)
     except Exception as e:
       if self._is_mocked:
-        _LOGGER.warning(f'Suppress async_set_hvac_mode error due to mocking mode: {e}')
+        _LOGGER.warning(f'Suppress async_set_preset_mode error due to mocking mode: {e}')
       else:
         raise
 
@@ -159,8 +163,7 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
   async def async_turn_on(self):
     """Turn the entity on."""
     try:
-      self._attr_hvac_mode = HVACMode.HEAT
-      self._attr_preset_mode = PRESET_NONE
+      self._attr_current_operation = OE_TO_HA_STATE["ON"]
       await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, 'ON', self._attr_target_temperature)
     except Exception as e:
       if self._is_mocked:
@@ -173,8 +176,7 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
   async def async_turn_off(self):
     """Turn the entity off."""
     try:
-      self._attr_hvac_mode = HVACMode.OFF
-      self._attr_preset_mode = PRESET_NONE
+      self._attr_current_operation = OE_TO_HA_STATE["OFF"]
       await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, 'OFF', None)
     except Exception as e:
       if self._is_mocked:
@@ -184,32 +186,12 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
 
     self.async_write_ha_state()
 
-  async def async_set_preset_mode(self, preset_mode):
-    """Set new target preset mode."""
-    try:
-      self._attr_preset_mode = preset_mode
-      
-      if self._attr_preset_mode == PRESET_BOOST:
-        self._end_timestamp = utcnow()
-        self._end_timestamp += timedelta(hours=1)
-        await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, self._end_timestamp, self._attr_target_temperature)
-      else:
-        zone_mode = self.get_zone_mode()
-        await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, zone_mode, self._attr_target_temperature)
-    except Exception as e:
-      if self._is_mocked:
-        _LOGGER.warning(f'Suppress async_set_preset_mode error due to mocking mode: {e}')
-      else:
-        raise
-    
-    self.async_write_ha_state()
-
   async def async_set_temperature(self, **kwargs) -> None:
     """Set new target temperature."""
 
     try:
       self._attr_target_temperature = kwargs[ATTR_TEMPERATURE]
-      if self._attr_preset_mode == PRESET_BOOST:
+      if OE_TO_HA_STATE["BOOST"] == self._attr_current_operation:
         await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, self._end_timestamp, self._attr_target_temperature)
       else:
         zone_mode = self.get_zone_mode()
@@ -239,32 +221,13 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
 
     self._end_timestamp = utcnow()
     self._end_timestamp += timedelta(hours=hours, minutes=minutes)
-    self._attr_preset_mode = PRESET_BOOST
+    self._attr_current_operation = OE_TO_HA_STATE["BOOST"]
     await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, self._end_timestamp, target_temperature if target_temperature is not None else self._attr_target_temperature)
 
     self.async_write_ha_state()
 
-  @callback
-  async def async_set_heat_pump_flow_temp_config(self, weather_comp_enabled: bool, weather_comp_min_temperature: float, weather_comp_max_temperature: float, fixed_flow_temperature: float):
-    """Update flow temperature configuration"""
-    try:
-      await self._client.async_set_heat_pump_flow_temp_config(self._heat_pump_id, weather_comp_enabled, weather_comp_min_temperature, weather_comp_max_temperature, fixed_flow_temperature)
-    except Exception as e:
-      if self._is_mocked:
-        _LOGGER.warning(f'Suppress async_set_heat_pump_flow_temp_config error due to mocking mode: {e}')
-      else:
-        raise
-
-    self.async_write_ha_state()
-
   def get_zone_mode(self):
-    if self._attr_preset_mode == PRESET_BOOST:
-      return "BOOST"
-    elif self._attr_hvac_mode == HVACMode.HEAT:
-      return "ON"
-    elif self._attr_hvac_mode == HVACMode.OFF:
-      return "OFF"
-    elif self._attr_hvac_mode == HVACMode.AUTO:
-      return "AUTO"
+    if self._attr_current_operation in HA_TO_OE_STATE:
+      return HA_TO_OE_STATE[self._attr_current_operation]
     else:
-      raise Exception(f"Unexpected heat pump mode detected: {self._attr_hvac_mode}/{self._attr_preset_mode}")
+      raise Exception(f"Unexpected heat pump mode detected: {self._attr_current_operation}")

@@ -20,7 +20,7 @@ This represents the temperature reported by a sensor (e.g. Cosy Pod) that is ass
 
 `climate.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{ZONE_CODE}}`
 
-This can be used to control the target temperature and mode for a given zone (e.g. water or zone 1) linked to your heat pump. It will also display the current temperature linked to the primary sensor for the zone.
+This can be used to control the target temperature and mode for a given zone (e.g. zone 1) linked to your heat pump. It will also display the current temperature linked to the primary sensor for the zone.
 
 The following operation modes are available
 
@@ -28,7 +28,22 @@ The following operation modes are available
 * `Off` - This represents as `off` in the app
 * `Auto` - This represents as `auto` in the app
 
-In addition, there is the preset of `boost`, which activates boost mode for the zone for 1 hour. If you require boost to be on for a different amount of time, then you can use the [available service](../services.md#octopus_energyboost_heat_pump_zone).
+In addition, there is the preset of `boost`. When `boost` is selected, this activates boost mode for the zone for 1 hour. If a target temperature is not set, then this will default to 50 degrees c. If you require boost to be on for a different amount of time or with a different target temperature, then you can use the [available service](../services.md#octopus_energyboost_heat_pump_zone).
+
+## Water Heater
+
+`water_heater.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}`
+
+This can be used to control the target temperature and mode for a given water heater linked to your heat pump. It will also display the current temperature linked to the primary sensor for the zone.
+
+The following operation modes are available
+
+* `on` - This represents as `on` in the app
+* `off` - This represents as `off` in the app
+* `heat_pump` - This represents as `auto` in the app
+* `high_demand` - This represents as `boost` in the app
+
+When `boost` is selected, this activates boost mode for the zone for 1 hour. If a target temperature is not set, then this will default to 50 degrees c. If you require boost to be on for a different amount of time or with a different target temperature, then you can use the [available service](../services.md#octopus_energyboost_heat_pump_zone).
 
 ## Lifetime Seasonal Coefficient of Performance
 
