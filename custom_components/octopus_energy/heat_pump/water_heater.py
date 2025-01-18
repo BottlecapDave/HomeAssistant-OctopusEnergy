@@ -30,7 +30,7 @@ from ..utils.attributes import dict_to_typed_dict
 from ..api_client.heat_pump import ConfigurationZone, HeatPump, Sensor, Zone
 from ..coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult
 from ..api_client import OctopusEnergyApiClient
-from ..const import DEFAULT_BOOST_WATER_TEMPERATURE, DOMAIN
+from ..const import DEFAULT_BOOST_TEMPERATURE_WATER, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -147,7 +147,7 @@ class OctopusEnergyHeatPumpWaterHeater(CoordinatorEntity, BaseOctopusEnergyHeatP
           self._heat_pump_id,
           self._zone.configuration.code,
           self._end_timestamp,
-          self._attr_target_temperature if self._attr_target_temperature is not None else DEFAULT_BOOST_WATER_TEMPERATURE
+          self._attr_target_temperature if self._attr_target_temperature is not None else DEFAULT_BOOST_TEMPERATURE_WATER
         )
       else:
         zone_mode = self.get_zone_mode()

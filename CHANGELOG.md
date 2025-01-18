@@ -1,3 +1,10 @@
+## [13.5.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.5.2...v13.5.3) (2025-01-04)
+
+
+### Bug Fixes
+
+* Fixed issue with changing intelligent target time always throwing an error (30 minutes dev time) ([7ce15bd](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7ce15bd907e544bd7b24a76fc3140ab82517fdee))
+
 ## [13.5.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.5.1...v13.5.2) (2025-01-03)
 
 

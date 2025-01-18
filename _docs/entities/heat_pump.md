@@ -45,6 +45,10 @@ The following operation modes are available
 
 When `boost` is selected, this activates boost mode for the zone for 1 hour. If a target temperature is not set, then this will default to 50 degrees c. If you require boost to be on for a different amount of time or with a different target temperature, then you can use the [available service](../services.md#octopus_energyboost_heat_pump_zone).
 
+!!! note
+
+    If you boost and a target temperature is not defined, then a default value will be set. This will be 50 degrees C for `water` zones and 30 degrees C for all other zones.
+
 ## Lifetime Seasonal Coefficient of Performance
 
 `sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_lifetime_scop`
