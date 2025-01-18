@@ -274,6 +274,9 @@ Allows you to boost a given heat pump zone for a set amount of time.
 | `data.minutes`       | `no`     | The number of minutes to turn boost mode on for. This can be 0, 15, or 45. |
 | `data.target_temperature`       | `yes`     | The optional target temperature to boost to. If not supplied, then the current target temperature will be used. |
 
+!!! note
+
+    If you boost and a target temperature is both not provided and not defined on the sensor itself, then a default value will be set. This will be 50 degrees C for `water` zones and 30 degrees C for all other zones.
 
 ## octopus_energy.set_heat_pump_flow_temp_config
 
