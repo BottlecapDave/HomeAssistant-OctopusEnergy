@@ -1217,10 +1217,11 @@ class OctopusEnergyApiClient:
           for item in data:
             item = self.__process_consumption(item)
 
-            # For some reason, the end point returns slightly more data than we requested, so we need to filter out
-            # the results
+            # For some reason, the end point sometimes returns slightly more data than we requested, so we need to filter out the results
             if (period_from is None or as_utc(item["start"]) >= period_from) and (period_to is None or as_utc(item["end"]) <= period_to):
               results.append(item)
+            else:
+              _LOGGER.debug(f'Skipping gas consumption item due to outside requested scope - period_from: {period_from}; period_to: {period_to}; item: {item}; mpan: {mpan}; serial_number: {serial_number}')
           
           results.sort(key=self.__get_interval_end)
           return results
@@ -1279,7 +1280,12 @@ class OctopusEnergyApiClient:
           results = []
           for item in data:
             item = self.__process_consumption(item)
-            results.append(item)
+
+            # For some reason, the end point sometimes returns slightly more data than we requested, so we need to filter out the results
+            if (period_from is None or as_utc(item["start"]) >= period_from) and (period_to is None or as_utc(item["end"]) <= period_to): 
+              results.append(item)
+            else:
+              _LOGGER.debug(f'Skipping gas consumption item due to outside requested scope - period_from: {period_from}; period_to: {period_to}; item: {item}; mprn: {mprn}; serial_number: {serial_number}')
 
           results.sort(key=self.__get_interval_end)
           return results
