@@ -21,6 +21,8 @@ This is the meter whose tariff will determine the rate the entity consumption is
 ### Entity
 
 This is the entity whose consumption should be tracked and the cost calculated against. This entity should be reporting in `kwh`.
+For example, `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_consumption` for grid import today reported with an Octopus Home Mini,
+or `sensor.givtcp_XXyywwXnnn_export_energy_total_kwh` for grid export if you have a GivEnergy inverter (there is no equivalent export sensor in the Octopus Integration, even if you have an Octopus Home Mini).
 
 ### Tracked entity state is accumulative
 
