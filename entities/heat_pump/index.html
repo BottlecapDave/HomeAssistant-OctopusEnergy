@@ -1240,6 +1240,10 @@
 <li><code>Auto</code> - This represents as <code>auto</code> in the app</li>
 </ul>
 <p>In addition, there is the preset of <code>boost</code>, which activates boost mode for the zone for 1 hour. If you require boost to be on for a different amount of time, then you can use the <a href="../../services/#octopus_energyboost_heat_pump_zone">available service</a>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you boost and a target temperature is not defined, then a default value will be set. This will be 50 degrees C for <code>water</code> zones and 30 degrees C for all other zones.</p>
+</div>
 <h2 id="lifetime-seasonal-coefficient-of-performance">Lifetime Seasonal Coefficient of Performance<a class="headerlink" href="#lifetime-seasonal-coefficient-of-performance" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_lifetime_scop</code></p>
 <p>This represents the efficiency by the heat pump since commissioning or last reset.</p>
