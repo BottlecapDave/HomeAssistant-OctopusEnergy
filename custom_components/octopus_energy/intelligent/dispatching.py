@@ -112,9 +112,19 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
         if len(off_peak_times) > 0:
           self._attributes["next_start"] = off_peak_times[0].start
           self._attributes["next_end"] = off_peak_times[0].end
+        else:
+          self._attributes["next_start"] = None
+          self._attributes["next_end"] = None
       else:
+        self._attributes["current_start"] = None
+        self._attributes["current_end"] = None
         self._attributes["next_start"] = time.start
         self._attributes["next_end"] = time.end
+    else:
+      self._attributes["current_start"] = None
+      self._attributes["current_end"] = None
+      self._attributes["next_start"] = None
+      self._attributes["next_end"] = None
 
     self._state = is_dispatching
 
