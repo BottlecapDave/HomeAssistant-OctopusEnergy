@@ -2,7 +2,6 @@ from datetime import datetime, timedelta
 import logging
 from typing import List
 
-from custom_components.octopus_energy.const import DOMAIN
 from homeassistant.util.dt import (utcnow)
 from homeassistant.exceptions import ServiceValidationError
 
@@ -32,6 +31,7 @@ from ..utils.attributes import dict_to_typed_dict
 from ..api_client.heat_pump import ConfigurationZone, HeatPump, Sensor, Zone
 from ..coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult
 from ..api_client import OctopusEnergyApiClient
+from ..const import DEFAULT_BOOST_TEMPERATURE_HEAT, DEFAULT_BOOST_TEMPERATURE_WATER, DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -194,7 +194,18 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
       if self._attr_preset_mode == PRESET_BOOST:
         self._end_timestamp = utcnow()
         self._end_timestamp += timedelta(hours=1)
-        await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, self._end_timestamp, self._attr_target_temperature)
+
+        boost_temperature = self._attr_target_temperature
+        if boost_temperature is None:
+          boost_temperature = DEFAULT_BOOST_TEMPERATURE_WATER if self._zone.configuration.zoneType == "WATER" else DEFAULT_BOOST_TEMPERATURE_HEAT
+
+        await self._client.async_boost_heat_pump_zone(
+          self._account_id,
+          self._heat_pump_id,
+          self._zone.configuration.code,
+          self._end_timestamp,
+          boost_temperature
+        )
       else:
         zone_mode = self.get_zone_mode()
         await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, zone_mode, self._attr_target_temperature)
@@ -242,7 +253,18 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     self._end_timestamp = utcnow()
     self._end_timestamp += timedelta(hours=hours, minutes=minutes)
     self._attr_preset_mode = PRESET_BOOST
-    await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, self._end_timestamp, target_temperature if target_temperature is not None else self._attr_target_temperature)
+
+    boost_temperature = target_temperature if target_temperature is not None else self._attr_target_temperature
+    if boost_temperature is None:
+      boost_temperature = DEFAULT_BOOST_TEMPERATURE_WATER if self._zone.configuration.zoneType == "WATER" else DEFAULT_BOOST_TEMPERATURE_HEAT
+
+    await self._client.async_boost_heat_pump_zone(
+      self._account_id,
+      self._heat_pump_id,
+      self._zone.configuration.code,
+      self._end_timestamp,
+      boost_temperature
+    )
 
     self.async_write_ha_state()
 

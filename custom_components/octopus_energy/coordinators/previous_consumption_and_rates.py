@@ -274,7 +274,10 @@ async def async_fetch_consumption_and_rates(
             _LOGGER.debug("Dispatches not available for intelligent tariff. Using existing rate information")
             return previous_data
           
-          if previous_data is not None and previous_data.rates[0]["start"] == period_from and previous_data.rates[-1]["end"] == period_to:
+          if (previous_data is not None and 
+              previous_data.rates is not None and 
+              len(previous_data.rates) > 0 and 
+              previous_data.rates[0]["start"] == period_from and previous_data.rates[-1]["end"] == period_to):
             _LOGGER.info('Previous rates are for our target consumption, so using previously retrieved rates and standing charges')
             rate_data = previous_data.rates
             standing_charge = { "value_inc_vat": previous_data.standing_charge }
@@ -302,7 +305,10 @@ async def async_fetch_consumption_and_rates(
             _LOGGER.error(f"Could not determine tariff code for previous consumption for gas {identifier}/{serial_number}")
             return previous_data
           
-          if previous_data is not None and previous_data.rates[0]["start"] == period_from and previous_data.rates[-1]["end"] == period_to:
+          if (previous_data is not None and 
+              previous_data.rates is not None and 
+              len(previous_data.rates) > 0 and 
+              previous_data.rates[0]["start"] == period_from and previous_data.rates[-1]["end"] == period_to):
             _LOGGER.info('Previous rates are for our target consumption, so using previously retrieved rates and standing charges')
             rate_data = previous_data.rates
             standing_charge = { "value_inc_vat": previous_data.standing_charge }
