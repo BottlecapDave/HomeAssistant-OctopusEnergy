@@ -150,6 +150,24 @@ Service for joining a new saving session event. When used, it may take a couple 
 
 For an automation example, please refer to the available [blueprint](./blueprints.md#automatically-join-saving-sessions).
 
+### octopus_energy.redeem_octoplus_points_into_account_credit
+
+Allows you to redeem a certain number of of Octoplus points and convert them into account credit.
+
+!!! info
+    This service is only available if you have signed up to Octoplus
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the Octoplus points that hold the points to be redeemed. This should always point at one of the [octoplus points sensor](./entities/octoplus.md#octoplus-points) entities. |
+| `data.points_to_redeem`  | `no`     | The number of points to redeem. |
+
+#### Automation Example
+
+For automation examples, please refer to the available [blueprints](./blueprints.md#automatically-redeem-octoplus-points-for-account-credit).
+
+## Wheel of fortune
+
 ### octopus_energy.spin_wheel_of_fortune
 
 This service allows the user to perform a spin on the [wheel of fortune](./entities/wheel_of_fortune.md) that is awarded to users every month. No point letting them go to waste :)
@@ -168,23 +186,7 @@ For automation examples, please refer to the available [blueprints](./blueprints
 
 ## Cost Trackers
 
-### octopus_energy.redeem_octoplus_points_into_account_credit
-
-Allows you to redeem a certain number of of Octoplus points and convert them into account credit.
-
-!!! info
-    This service is only available if you have signed up to Octoplus
-
-| Attribute                | Optional | Description                                                                                                           |
-| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
-| `target.entity_id`       | `no`     | The name of the Octoplus points that hold the points to be redeemed. This should always point at one of the [octoplus points sensor](./entities/octoplus.md#octoplus-points) entities. |
-| `data.points_to_redeem`  | `no`     | The number of points to redeem. |
-
-### Automation Example
-
-For automation examples, please refer to the available [blueprints](./blueprints.md#automatically-redeem-octoplus-points-for-account-credit).
-
-## octopus_energy.update_cost_tracker
+### octopus_energy.update_cost_tracker
 
 This service allows the user to turn the tracking on/off for a given [cost tracker](./setup/cost_tracker.md) sensor.
 
@@ -193,7 +195,7 @@ This service allows the user to turn the tracking on/off for a given [cost track
 | `target.entity_id`       | `no`     | The name of the cost tracker sensor(s) whose configuration is to be updated. |
 | `data.is_tracking_enabled`      | `no`    | Determines if tracking should be enabled (true) or disabled (false) for the specified cost trackers |
 
-### Automation Example
+#### Automation Example
 
 For automation examples, please refer to the available [blueprints](./blueprints.md#cost-tracker).
 
@@ -258,7 +260,25 @@ Allows you to set the heat pump configuration for fixed and weather compensated 
 | `data.weather_comp_max_temperature`       | `no`     | Maximum allowable temperature for weather compensation, typically no higher than 70. |
 | `data.fixed_flow_temperature`        | `no`     | If a fixed flow temperature is enabled this value will be used, typically between 30 and 70. |
 
-## Misc
+## Intelligent
+
+### octopus_energy.refresh_intelligent_dispatches
+
+Refreshes intelligent dispatches for a given account.
+
+!!! info
+
+    This service is only available if you have switched to manual polling in your configuration.
+
+!!! warning
+
+    This service can only be called a maximum of 20 times per hour.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The [dispatching](./entities/intelligent.md#is-dispatching) entity that you want to refresh the content for (e.g. `binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching`). |
+
+## Miscellaneous
 
 ### octopus_energy.purge_invalid_external_statistic_ids
 
