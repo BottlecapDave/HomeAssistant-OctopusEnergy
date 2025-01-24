@@ -1,3 +1,12 @@
+## [13.5.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.5.3...v13.5.4) (2025-01-20)
+
+
+### Bug Fixes
+
+* Added more guards against invalid data when retrieving previous consumption data (15 minutes dev time) ([68550fb](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/68550fba4346d62e38de3fb173b334e02f16a839))
+* Fixed issue where OE sometimes returns more gas consumption data than requested, which caused issues in other parts of the system (15 minutes dev time) ([22ea34b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/22ea34b05462525e474816e4ee71e9385cb83dd7))
+* Fixed issue with boosting water heat pump zones when target temperature is not defined. This will now boost with a default temperature. See docs for more information ([ff7fa9b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ff7fa9bc0f817387ce44983b863a61fe246fab78))
+
 ## [13.5.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.5.2...v13.5.3) (2025-01-04)
 
 
