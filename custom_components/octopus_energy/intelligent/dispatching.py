@@ -22,7 +22,7 @@ from ..intelligent import (
 
 from ..utils import get_off_peak_times
 from .base import OctopusEnergyIntelligentSensor
-from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
+from ..coordinators.intelligent_dispatches import IntelligentDispatchDataUpdateCoordinator, IntelligentDispatchesCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
 from ..api_client.intelligent_device import IntelligentDevice
 from ..coordinators import MultiCoordinatorEntity
@@ -32,7 +32,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
   """Sensor for determining if an intelligent is dispatching."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, mpan: str, device: IntelligentDevice, account_id: str, planned_dispatches_supported: bool):
+  def __init__(self, hass: HomeAssistant, coordinator: IntelligentDispatchDataUpdateCoordinator, rates_coordinator, mpan: str, device: IntelligentDevice, account_id: str, planned_dispatches_supported: bool):
     """Init sensor."""
 
     MultiCoordinatorEntity.__init__(self, coordinator, [rates_coordinator])
@@ -145,3 +145,8 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
       self._state = False
     
     _LOGGER.debug(f'Restored OctopusEnergyIntelligentDispatching state: {self._state}')
+
+  @callback
+  async def async_refresh_dispatches(self):
+    """Refresh dispatches"""
+    await self.coordinator.refresh_dispatches()

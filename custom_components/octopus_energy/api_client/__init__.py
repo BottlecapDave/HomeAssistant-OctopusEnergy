@@ -1873,6 +1873,8 @@ class OctopusEnergyApiClient:
       
       _LOGGER.info(f"Response received - {url} ({request_context}) - Unexpected response received: {response.status}; {text}")
       return None
+    
+    _LOGGER.debug(f'Response received - {url} ({request_context}) - Successful response')
 
     data_as_json = None
     try:

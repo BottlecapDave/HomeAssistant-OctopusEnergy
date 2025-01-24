@@ -139,6 +139,19 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
   intelligent_mpan = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] if DATA_INTELLIGENT_MPAN in hass.data[DOMAIN][account_id] else None
   intelligent_serial_number = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] if DATA_INTELLIGENT_SERIAL_NUMBER in hass.data[DOMAIN][account_id] else None
   if intelligent_device is not None and intelligent_mpan is not None and intelligent_serial_number is not None:
+
+    platform = entity_platform.async_get_current_platform()
+    platform.async_register_entity_service(
+      "refresh_intelligent_dispatches",
+      vol.All(
+        cv.make_entity_service_schema(
+          {},
+          extra=vol.ALLOW_EXTRA,
+        ),
+      ),
+      "async_refresh_dispatches"
+    )
+
     intelligent_features = get_intelligent_features(intelligent_device.provider)
     coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR]
     electricity_rate_coordinator = hass.data[DOMAIN][account_id][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(intelligent_mpan, intelligent_serial_number)]
