@@ -6,11 +6,9 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
+from homeassistant.exceptions import ServiceValidationError
 
-from homeassistant.util.dt import (now, utcnow)
-from homeassistant.helpers.update_coordinator import (
-  CoordinatorEntity
-)
+from homeassistant.util.dt import (utcnow)
 from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
@@ -149,4 +147,6 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
   @callback
   async def async_refresh_dispatches(self):
     """Refresh dispatches"""
-    await self.coordinator.refresh_dispatches()
+    result: IntelligentDispatchesCoordinatorResult = await self.coordinator.refresh_dispatches()
+    if result is not None and result.last_error is not None:
+      raise ServiceValidationError(result.last_error)

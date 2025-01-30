@@ -352,4 +352,4 @@ refresh_intelligent_dispatches:
   target:
     entity:
       integration: octopus_energy
-      domain: sensor
+      domain: binary_sensor

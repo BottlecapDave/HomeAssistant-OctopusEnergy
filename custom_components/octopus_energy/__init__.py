@@ -39,7 +39,7 @@ from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configur
 from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_heat_pump
 
 from .const import (
-  CONFIG_FAVOUR_DIRECT_DEBIT_RATES,
+  CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES,
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
   CONFIG_KIND_ROLLING_TARGET_RATE,
@@ -48,6 +48,7 @@ from .const import (
   CONFIG_KIND_TARGET_RATE,
   CONFIG_MAIN_HOME_PRO_ADDRESS,
   CONFIG_MAIN_HOME_PRO_API_KEY,
+  CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_VERSION,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
@@ -279,8 +280,8 @@ async def async_setup_dependencies(hass, config):
     gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
 
   favour_direct_debit_rates = True
-  if CONFIG_FAVOUR_DIRECT_DEBIT_RATES in config:
-    favour_direct_debit_rates = config[CONFIG_FAVOUR_DIRECT_DEBIT_RATES]
+  if CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES in config:
+    favour_direct_debit_rates = config[CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES]
 
   _LOGGER.info(f'electricity_price_cap: {electricity_price_cap}')
   _LOGGER.info(f'gas_price_cap: {gas_price_cap}')
@@ -468,7 +469,12 @@ async def async_setup_dependencies(hass, config):
 
   await async_setup_account_info_coordinator(hass, account_id)
 
-  await async_setup_intelligent_dispatches_coordinator(hass, account_id, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False)
+  await async_setup_intelligent_dispatches_coordinator(
+    hass,
+    account_id,
+    account_debug_override.mock_intelligent_controls if account_debug_override is not None else False,
+    config[CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == True if CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES in config else False
+  )
 
   await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id if intelligent_device is not None else None, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False)
   
