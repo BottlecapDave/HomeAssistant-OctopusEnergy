@@ -73,6 +73,7 @@ async def test_when_account_info_is_none_then_existing_dispatches_returned():
       intelligent_device,
       existing_dispatches,
       False,
+      False,
       async_merge_dispatch_data
     )
 
@@ -103,6 +104,7 @@ async def test_when_intelligent_device_is_none_then_none_returned():
       account_info,
       None,
       existing_dispatches,
+      False,
       False,
       async_merge_dispatch_data
     )
@@ -136,6 +138,7 @@ async def test_when_not_on_intelligent_tariff_then_none_returned():
       intelligent_device,
       existing_dispatches,
       False,
+      False,
       async_merge_dispatch_data
     )
 
@@ -167,6 +170,7 @@ async def test_when_mock_is_true_then_none_returned():
       intelligent_device,
       existing_dispatches,
       True,
+      False,
       async_merge_dispatch_data
     )
 
@@ -217,6 +221,7 @@ async def test_when_next_refresh_is_in_the_future_then_existing_dispatches_retur
       intelligent_device,
       existing_dispatches,
       False,
+      False,
       async_merge_dispatch_data
     )
 
@@ -253,6 +258,7 @@ async def test_when_existing_dispatches_is_none_then_settings_retrieved(existing
       intelligent_device,
       existing_dispatches,
       False,
+      False,
       async_merge_dispatch_data
     )
 
@@ -287,6 +293,7 @@ async def test_when_existing_dispatches_is_old_then_settings_retrieved():
       intelligent_device,
       existing_dispatches,
       False,
+      False,
       async_merge_dispatch_data
     )
 
@@ -319,6 +326,7 @@ async def test_when_settings_not_retrieved_then_existing_dispatches_returned():
       account_info,
       intelligent_device,
       existing_dispatches,
+      False,
       False,
       async_merge_dispatch_data
     )
@@ -355,6 +363,7 @@ async def test_when_exception_raised_then_existing_dispatches_returned_and_excep
       account_info,
       intelligent_device,
       existing_dispatches,
+      False,
       False,
       async_merge_dispatch_data
     )
@@ -394,6 +403,7 @@ async def test_when_requests_reached_for_hour_and_due_to_be_reset_then_settings_
       intelligent_device,
       existing_dispatches,
       False,
+      False,
       async_merge_dispatch_data
     )
 
@@ -427,6 +437,7 @@ async def test_when_requests_reached_for_hour_and_not_due_to_be_reset_then_exist
       account_info,
       intelligent_device,
       existing_dispatches,
+      False,
       False,
       async_merge_dispatch_data
     )
