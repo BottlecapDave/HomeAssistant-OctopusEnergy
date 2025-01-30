@@ -337,6 +337,10 @@
     "intelligent_target_time_deprecated": {
       "title": "Intelligent target time sensor has been deprecated",
       "description": "The target time sensor (defaults to time.octopus_energy_{account_id}_intelligent_target_time) has been deprecated in favour of a select based sensor (select.octopus_energy_{account_id}_intelligent_target_time) to make it easier to select a valid time. This old sensor will be removed in a future release."
+    },
+    "intelligent_manual_service": {
+      "title": "Manual intelligent dispatch refresh service available for {account_id}",
+      "description": "By default, dispatches are retrieved every {polling_time} minutes. If you know when your car has started charging via other means, you might want to activate manual polling mode which will expose a service for retrieving dispatches on-demand. This is the recommended way to get the information as soon as possible and reduce unnecessary calls to the Octopus Energy servers. If you can't do this, then just ignore this repair notice and continue with the automatic polling.\n\nClick \"Learn More\" to find out more about the service."
     }
   }
 }

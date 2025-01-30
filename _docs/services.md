@@ -268,7 +268,7 @@ Refreshes intelligent dispatches for a given account.
 
 !!! info
 
-    This service is only available if you have switched to manual polling in your configuration.
+    This service is only available if you have switched to [manual polling](./setup/account.md#manually-refresh-intelligent-dispatches) in your configuration.
 
 !!! warning
 

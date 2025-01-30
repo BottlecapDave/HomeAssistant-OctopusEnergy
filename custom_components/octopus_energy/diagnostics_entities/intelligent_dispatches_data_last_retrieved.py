@@ -39,4 +39,4 @@ class OctopusEnergyIntelligentDispatchesDataLastRetrieved(OctopusEnergyBaseDataL
       "request_limits_last_reset": result.requests_current_hour_last_reset if result is not None else None
     }
 
-    CoordinatorEntity()._handle_coordinator_update()
+    CoordinatorEntity._handle_coordinator_update(self)

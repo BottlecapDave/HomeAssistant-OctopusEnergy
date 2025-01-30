@@ -68,6 +68,7 @@ from .const import (
   DATA_CLIENT,
   DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
   DATA_ACCOUNT,
+  REFRESH_RATE_IN_MINUTES_INTELLIGENT,
   REPAIR_ACCOUNT_NOT_FOUND,
   REPAIR_INVALID_API_KEY,
   REPAIR_UNIQUE_RATES_CHANGED_KEY,
@@ -390,6 +391,7 @@ async def async_setup_dependencies(hass, config):
           intelligent_serial_number = meter["serial_number"]
           break
 
+  intelligent_manual_service = False
   intelligent_device = None
   if has_intelligent_tariff or should_mock_intelligent_data:
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
@@ -416,6 +418,9 @@ async def async_setup_dependencies(hass, config):
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] = intelligent_mpan
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] = intelligent_serial_number
 
+      if CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES not in config or config[CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == False:
+        intelligent_manual_service = True
+
       await async_save_cached_intelligent_device(hass, account_id, intelligent_device)
 
   intelligent_features = get_intelligent_features(intelligent_device.provider)  if intelligent_device is not None else None
@@ -430,6 +435,21 @@ async def async_setup_dependencies(hass, config):
       translation_key="unknown_intelligent_provider",
       translation_placeholders={ "account_id": account_id, "provider": intelligent_device.provider },
     )
+
+  intelligent_repair_key = f"intelligent_manual_service_{account_id}"
+  if intelligent_manual_service and intelligent_features is not None and intelligent_features.planned_dispatches_supported:
+    ir.async_create_issue(
+      hass,
+      DOMAIN,
+      intelligent_repair_key,
+      is_fixable=False,
+      severity=ir.IssueSeverity.WARNING,
+      learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/services/#octopus_energyrefresh_intelligent_dispatches",
+      translation_key="intelligent_manual_service",
+      translation_placeholders={ "account_id": account_id, "polling_time": REFRESH_RATE_IN_MINUTES_INTELLIGENT },
+    )
+  else:
+    ir.async_delete_issue(hass, DOMAIN, intelligent_repair_key)
 
   for point in account_info["electricity_meter_points"]:
     # We only care about points that have active agreements
