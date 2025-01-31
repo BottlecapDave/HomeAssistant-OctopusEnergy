@@ -4,6 +4,8 @@ There are a few services available within this integration, which are detailed h
 
 ## Target Rates
 
+The following services are available if you have set up at least one [target rate](./setup/target_rate.md).
+
 ### octopus_energy.update_target_config
 
 For updating a given [target rate's](./setup/target_rate.md) config. This allows you to change target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
@@ -74,6 +76,8 @@ action:
 
 ## Rolling Target Rates
 
+The following services are available if you have set up at least one [rolling target rate](./setup/rolling_target_rate.md).
+
 ### octopus_energy.update_rolling_target_config
 
 For updating a given [rolling target rate's](./setup/rolling_target_rate.md) config. This allows you to change rolling target rates sensors dynamically based on other outside criteria (e.g. you need to adjust the target hours to top up home batteries).
@@ -137,6 +141,8 @@ action:
 
 ## Octoplus
 
+The following services are available if your account is enrolled into [Octoplus](./entities/octoplus.md).
+
 ### octopus_energy.join_octoplus_saving_session_event
 
 Service for joining a new saving session event. When used, it may take a couple of minutes for the other sensors to refresh the changes.
@@ -186,6 +192,8 @@ For automation examples, please refer to the available [blueprints](./blueprints
 
 ## Cost Trackers
 
+The following services are available if you have set up at least one [cost tracker](./setup/cost_tracker.md).
+
 ### octopus_energy.update_cost_tracker
 
 This service allows the user to turn the tracking on/off for a given [cost tracker](./setup/cost_tracker.md) sensor.
@@ -230,6 +238,8 @@ Allows you to adjust the consumption for any given period recorded by a [cost tr
 
 ## Heat Pump
 
+The following services are available if you have a heat pump registered against your account.
+
 ### octopus_energy.boost_heat_pump_zone
 
 Allows you to boost a given heat pump zone for a set amount of time.
@@ -261,6 +271,8 @@ Allows you to set the heat pump configuration for fixed and weather compensated 
 | `data.fixed_flow_temperature`        | `no`     | If a fixed flow temperature is enabled this value will be used, typically between 30 and 70. |
 
 ## Intelligent
+
+The following services are available if you are on an intelligent tariff.
 
 ### octopus_energy.refresh_intelligent_dispatches
 
