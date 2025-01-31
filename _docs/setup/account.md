@@ -47,6 +47,10 @@ There are some tariffs where direct debit and non direct debit rates are availab
 
     It might take a couple of minutes for these changes to reflect once changed.
 
+## Manually refresh intelligent dispatches
+
+By default, intelligent dispatches are retrieved [periodically](../faq.md#how-often-is-data-refreshed). This is fine for most scenarios, but this can be a little slow depending on what else you're doing off the back of the dispatches. If you have other ways of knowing when new dispatches should be available (e.g. your charger changes to a charging state or a manual button in your HA dashboard), then you can turn on `Manually refresh intelligent dispatches`. This will disable the periodic refreshing and expose a [service](../services.md#octopus_energyrefresh_intelligent_dispatches) which can be called to refresh the dispatches.
+
 ## Home Pro
 
 If you are lucky enough to own an [Octopus Home Pro](https://forum.octopus.energy/t/for-the-pro-user/8453/2352/), you can now receive this data locally from within Home Assistant. 
