@@ -61,7 +61,9 @@ If you are lucky enough to own an [Octopus Home Pro](https://forum.octopus.energ
 
 ### Prerequisites
 
-The Octopus Home Pro has a local API which is used to get consumption and demand data. If this is all you need, then you can jump straight to the [settings](./account.md#settings).
+!!! info
+
+    The Octopus Home Pro has a local API which is used to get consumption and demand data. If this is all you need, then you can jump straight to the [settings](./account.md#settings).
 
 However, there is also an internal API for setting the display which is not currently exposed. In order to make this available for consumption by this integration you will need to expose a custom API on your device by following the instructions below
 
@@ -96,13 +98,13 @@ export SERVER_AUTH_TOKEN=thisisasecrettoken # Replace with your own unique strin
 /usr/sbin/sshd -D
 ```
 
-6. Restart your Octopus Home Pro
+Once saved, restart your Octopus Home Pro to boot up the custom API on start.
 
 ### Settings
 
 Once the API has been configured, you will need to set the address to the IP address of your Octopus Home Pro (e.g. `http://192.168.1.2`).
 
-If you have setup the custom API, then you will need to set api key to the value you set `SERVER_AUTH_TOKEN` to.
+**If you have setup the custom API**, then you will need to set api key to the value you set `SERVER_AUTH_TOKEN` to.
 
 ### Entities
 
