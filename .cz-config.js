@@ -1,9 +1,4 @@
-var scopes = [
-  'api-client',
-  'sensor', 
-  'binary-sensor', 
-  'config'
-]
+var scopes = []
 
 module.exports = {
   types: [
@@ -49,11 +44,11 @@ module.exports = {
     confirmCommit: 'Are you sure you want to proceed with the commit above?',
   },
 
-  allowCustomScopes: true,
+  allowCustomScopes: false,
   allowBreakingChanges: ['feat', 'fix'],
   // skip any questions you want
   skipQuestions: ['body'],
 
   // limit subject length
-  subjectLimit: 100,
+  subjectLimit: 500,
 };
