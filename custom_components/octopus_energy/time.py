@@ -48,17 +48,6 @@ async def async_setup_intelligent_sensors(hass, config, async_add_entities):
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
     if intelligent_features.ready_time_supported:
-      ir.async_create_issue(
-        hass,
-        DOMAIN,
-        "intelligent_target_time_deprecated",
-        is_fixable=False,
-        severity=ir.IssueSeverity.WARNING,
-        translation_key="intelligent_target_time_deprecated",
-        translation_placeholders={ "account_id": account_id },
-        learn_more_url="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1079",
-      )
-
       entities.append(OctopusEnergyIntelligentTargetTime(hass, settings_coordinator, client, intelligent_device, account_id))
 
   async_add_entities(entities)

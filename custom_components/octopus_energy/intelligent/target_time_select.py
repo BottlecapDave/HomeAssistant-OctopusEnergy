@@ -85,6 +85,9 @@ class OctopusEnergyIntelligentTargetTimeSelect(CoordinatorEntity, SelectEntity, 
 
     if settings_result.settings is not None:
       self._state = f"{settings_result.settings.ready_time_weekday.hour:02}:{settings_result.settings.ready_time_weekday.minute:02}"
+      self._attributes["raw_time"] = settings_result.settings.ready_time_weekday
+    else:
+      self._attributes["raw_time"] = None
 
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
