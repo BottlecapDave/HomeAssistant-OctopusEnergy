@@ -6,7 +6,6 @@
   "scripts": {
     "prepare": "husky",
     "build": "tsc ./.build/*.ts --noEmit",
-    "commit": "cz",
     "release": "semantic-release",
     "test-unit": "python -m pytest tests/unit",
     "test-integration": "python -m pytest tests/integration",

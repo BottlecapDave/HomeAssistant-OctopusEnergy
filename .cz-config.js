@@ -20,6 +20,7 @@ module.exports = {
     },
     { value: 'test', name: 'test: Adding missing tests' },
     { value: 'build', name: 'build: Changes to the build system' },
+    { value: 'chore', name: 'chore: Changes that does not fit into another category' },
     { value: 'ci', name: 'ci: Changes to the ci system' },
     { value: 'revert', name: 'revert: Revert to a commit' },
     { value: 'release', name: 'release: a release of the project' },
