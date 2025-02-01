@@ -48,6 +48,14 @@ class OctopusEnergyIntelligentTargetTime(CoordinatorEntity, TimeEntity, OctopusE
   def name(self):
     """Name of the sensor."""
     return f"Intelligent Target Time ({self._account_id})"
+  
+  @property
+  def entity_registry_enabled_default(self) -> bool:
+    """Return if the entity should be enabled when first added.
+
+    This only applies when fist added to the entity registry.
+    """
+    return False
 
   @property
   def icon(self):

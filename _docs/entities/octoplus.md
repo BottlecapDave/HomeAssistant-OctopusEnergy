@@ -51,7 +51,7 @@ Each available event item will include the following attributes
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `id` | `integer` | The id of the event |
-| `code` | `string` | The event code of the event. This will be required to join via the [join service](../services.md) |
+| `code` | `string` | The event code of the event. This will be required to join via the [join service](../services.md#octopus_energyjoin_octoplus_saving_session_event) |
 | `start` | `datetime` | The date/time the event starts |
 | `end` | `datetime` | The date/time the event starts |
 | `duration_in_minutes` | `integer` | The duration of the event in minutes |
@@ -208,5 +208,5 @@ Each item within `baselines` consists of the following attributes
 
 ## Services
 
-There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services.md).
+There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services.md#octoplus).
 

@@ -47,6 +47,10 @@ There are some tariffs where direct debit and non direct debit rates are availab
 
     It might take a couple of minutes for these changes to reflect once changed.
 
+## Manually refresh intelligent dispatches
+
+By default, intelligent dispatches are retrieved [periodically](../faq.md#how-often-is-data-refreshed). This is fine for most scenarios, but this can be a little slow depending on what else you're doing off the back of the dispatches. If you have other ways of knowing when new dispatches should be available (e.g. your charger changes to a charging state or a manual button in your HA dashboard), then you can turn on `Manually refresh intelligent dispatches`. This will disable the periodic refreshing and expose a [service](../services.md#octopus_energyrefresh_intelligent_dispatches) which can be called to refresh the dispatches.
+
 ## Home Pro
 
 If you are lucky enough to own an [Octopus Home Pro](https://forum.octopus.energy/t/for-the-pro-user/8453/2352/), you can now receive this data locally from within Home Assistant. 
@@ -57,7 +61,9 @@ If you are lucky enough to own an [Octopus Home Pro](https://forum.octopus.energ
 
 ### Prerequisites
 
-The Octopus Home Pro has a local API which is used to get consumption and demand data. If this is all you need, then you can jump straight to the [settings](./account.md#settings).
+!!! info
+
+    The Octopus Home Pro has a local API which is used to get consumption and demand data. If this is all you need, then you can jump straight to the [settings](./account.md#settings).
 
 However, there is also an internal API for setting the display which is not currently exposed. In order to make this available for consumption by this integration you will need to expose a custom API on your device by following the instructions below
 
@@ -92,13 +98,13 @@ export SERVER_AUTH_TOKEN=thisisasecrettoken # Replace with your own unique strin
 /usr/sbin/sshd -D
 ```
 
-6. Restart your Octopus Home Pro
+Once saved, restart your Octopus Home Pro to boot up the custom API on start.
 
 ### Settings
 
 Once the API has been configured, you will need to set the address to the IP address of your Octopus Home Pro (e.g. `http://192.168.1.2`).
 
-If you have setup the custom API, then you will need to set api key to the value you set `SERVER_AUTH_TOKEN` to.
+**If you have setup the custom API**, then you will need to set api key to the value you set `SERVER_AUTH_TOKEN` to.
 
 ### Entities
 

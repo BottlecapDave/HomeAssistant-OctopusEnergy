@@ -345,3 +345,11 @@ set_heat_pump_flow_temp_config:
           min: 30
           max: 70
           mode: box
+
+refresh_intelligent_dispatches:
+  name: Refresh intelligent dispatches
+  description: Refreshes the intelligent dispatches. For more information please see https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/services/#octopus_energyrefresh_intelligent_dispatches.
+  target:
+    entity:
+      integration: octopus_energy
+      domain: binary_sensor

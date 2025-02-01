@@ -39,7 +39,7 @@ from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configur
 from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_heat_pump
 
 from .const import (
-  CONFIG_FAVOUR_DIRECT_DEBIT_RATES,
+  CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES,
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
   CONFIG_KIND_ROLLING_TARGET_RATE,
@@ -48,6 +48,7 @@ from .const import (
   CONFIG_KIND_TARGET_RATE,
   CONFIG_MAIN_HOME_PRO_ADDRESS,
   CONFIG_MAIN_HOME_PRO_API_KEY,
+  CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_VERSION,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
@@ -67,6 +68,7 @@ from .const import (
   DATA_CLIENT,
   DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
   DATA_ACCOUNT,
+  REFRESH_RATE_IN_MINUTES_INTELLIGENT,
   REPAIR_ACCOUNT_NOT_FOUND,
   REPAIR_INVALID_API_KEY,
   REPAIR_UNIQUE_RATES_CHANGED_KEY,
@@ -279,8 +281,8 @@ async def async_setup_dependencies(hass, config):
     gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
 
   favour_direct_debit_rates = True
-  if CONFIG_FAVOUR_DIRECT_DEBIT_RATES in config:
-    favour_direct_debit_rates = config[CONFIG_FAVOUR_DIRECT_DEBIT_RATES]
+  if CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES in config:
+    favour_direct_debit_rates = config[CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES]
 
   _LOGGER.info(f'electricity_price_cap: {electricity_price_cap}')
   _LOGGER.info(f'gas_price_cap: {gas_price_cap}')
@@ -389,6 +391,7 @@ async def async_setup_dependencies(hass, config):
           intelligent_serial_number = meter["serial_number"]
           break
 
+  intelligent_manual_service = False
   intelligent_device = None
   if has_intelligent_tariff or should_mock_intelligent_data:
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
@@ -415,6 +418,9 @@ async def async_setup_dependencies(hass, config):
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] = intelligent_mpan
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] = intelligent_serial_number
 
+      if CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES not in config or config[CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == False:
+        intelligent_manual_service = True
+
       await async_save_cached_intelligent_device(hass, account_id, intelligent_device)
 
   intelligent_features = get_intelligent_features(intelligent_device.provider)  if intelligent_device is not None else None
@@ -429,6 +435,21 @@ async def async_setup_dependencies(hass, config):
       translation_key="unknown_intelligent_provider",
       translation_placeholders={ "account_id": account_id, "provider": intelligent_device.provider },
     )
+
+  intelligent_repair_key = f"intelligent_manual_service_{account_id}"
+  if intelligent_manual_service and intelligent_features is not None and intelligent_features.planned_dispatches_supported:
+    ir.async_create_issue(
+      hass,
+      DOMAIN,
+      intelligent_repair_key,
+      is_fixable=False,
+      severity=ir.IssueSeverity.WARNING,
+      learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/services/#octopus_energyrefresh_intelligent_dispatches",
+      translation_key="intelligent_manual_service",
+      translation_placeholders={ "account_id": account_id, "polling_time": REFRESH_RATE_IN_MINUTES_INTELLIGENT },
+    )
+  else:
+    ir.async_delete_issue(hass, DOMAIN, intelligent_repair_key)
 
   for point in account_info["electricity_meter_points"]:
     # We only care about points that have active agreements
@@ -468,7 +489,12 @@ async def async_setup_dependencies(hass, config):
 
   await async_setup_account_info_coordinator(hass, account_id)
 
-  await async_setup_intelligent_dispatches_coordinator(hass, account_id, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False)
+  await async_setup_intelligent_dispatches_coordinator(
+    hass,
+    account_id,
+    account_debug_override.mock_intelligent_controls if account_debug_override is not None else False,
+    config[CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == True if CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES in config else False
+  )
 
   await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id if intelligent_device is not None else None, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False)
   

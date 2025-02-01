@@ -1,9 +1,4 @@
-var scopes = [
-  'api-client',
-  'sensor', 
-  'binary-sensor', 
-  'config'
-]
+var scopes = []
 
 module.exports = {
   types: [
@@ -25,6 +20,7 @@ module.exports = {
     },
     { value: 'test', name: 'test: Adding missing tests' },
     { value: 'build', name: 'build: Changes to the build system' },
+    { value: 'chore', name: 'chore: Changes that does not fit into another category' },
     { value: 'ci', name: 'ci: Changes to the ci system' },
     { value: 'revert', name: 'revert: Revert to a commit' },
     { value: 'release', name: 'release: a release of the project' },
@@ -49,11 +45,11 @@ module.exports = {
     confirmCommit: 'Are you sure you want to proceed with the commit above?',
   },
 
-  allowCustomScopes: true,
+  allowCustomScopes: false,
   allowBreakingChanges: ['feat', 'fix'],
   // skip any questions you want
   skipQuestions: ['body'],
 
   // limit subject length
-  subjectLimit: 100,
+  subjectLimit: 500,
 };

@@ -41,37 +41,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
 async def async_setup_default_sensors(hass, config, async_add_entities):
   _LOGGER.debug('Setting up default sensors')
 
-  platform = entity_platform.async_get_current_platform()
-  platform.async_register_entity_service(
-    "boost_heat_pump_zone",
-    vol.All(
-      cv.make_entity_service_schema(
-        {
-          vol.Required("hours"): cv.positive_int,
-          vol.Required("minutes"): cv.positive_int,
-          vol.Optional("target_temperature"): cv.positive_float,
-        },
-        extra=vol.ALLOW_EXTRA,
-      ),
-    ),
-    "async_boost_heat_pump_zone"
-  )
-  platform.async_register_entity_service(
-    "set_heat_pump_flow_temp_config",
-    vol.All(
-      cv.make_entity_service_schema(
-        {
-          vol.Required("weather_comp_enabled"): cv.boolean,
-          vol.Required("weather_comp_min_temperature"): cv.positive_float,
-          vol.Required("weather_comp_max_temperature"): cv.positive_float,
-          vol.Required("fixed_flow_temperature"): cv.positive_float,
-        },
-        extra=vol.ALLOW_EXTRA,
-      ),
-    ),
-    "async_set_heat_pump_flow_temp_config"
-  )
-
   entities = []
 
   account_id = config[CONFIG_ACCOUNT_ID]
@@ -91,6 +60,38 @@ async def async_setup_default_sensors(hass, config, async_add_entities):
       key = DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY.format(heat_pump_id)
       coordinator = hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR.format(heat_pump_id)]
       entities.extend(setup_heat_pump_sensors(hass, client, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data, coordinator, mock_heat_pump))
+
+  if len(entities) > 0:
+    platform = entity_platform.async_get_current_platform()
+    platform.async_register_entity_service(
+      "boost_heat_pump_zone",
+      vol.All(
+        cv.make_entity_service_schema(
+          {
+            vol.Required("hours"): cv.positive_int,
+            vol.Required("minutes"): cv.positive_int,
+            vol.Optional("target_temperature"): cv.positive_float,
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
+      ),
+      "async_boost_heat_pump_zone"
+    )
+    platform.async_register_entity_service(
+      "set_heat_pump_flow_temp_config",
+      vol.All(
+        cv.make_entity_service_schema(
+          {
+            vol.Required("weather_comp_enabled"): cv.boolean,
+            vol.Required("weather_comp_min_temperature"): cv.positive_float,
+            vol.Required("weather_comp_max_temperature"): cv.positive_float,
+            vol.Required("fixed_flow_temperature"): cv.positive_float,
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
+      ),
+      "async_set_heat_pump_flow_temp_config"
+    )
 
   async_add_entities(entities)
 

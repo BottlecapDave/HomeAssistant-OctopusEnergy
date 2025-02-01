@@ -6,11 +6,9 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
+from homeassistant.exceptions import ServiceValidationError
 
-from homeassistant.util.dt import (now, utcnow)
-from homeassistant.helpers.update_coordinator import (
-  CoordinatorEntity
-)
+from homeassistant.util.dt import (utcnow)
 from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
@@ -22,7 +20,7 @@ from ..intelligent import (
 
 from ..utils import get_off_peak_times
 from .base import OctopusEnergyIntelligentSensor
-from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
+from ..coordinators.intelligent_dispatches import IntelligentDispatchDataUpdateCoordinator, IntelligentDispatchesCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
 from ..api_client.intelligent_device import IntelligentDevice
 from ..coordinators import MultiCoordinatorEntity
@@ -32,7 +30,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
   """Sensor for determining if an intelligent is dispatching."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, mpan: str, device: IntelligentDevice, account_id: str, planned_dispatches_supported: bool):
+  def __init__(self, hass: HomeAssistant, coordinator: IntelligentDispatchDataUpdateCoordinator, rates_coordinator, mpan: str, device: IntelligentDevice, account_id: str, planned_dispatches_supported: bool):
     """Init sensor."""
 
     MultiCoordinatorEntity.__init__(self, coordinator, [rates_coordinator])
@@ -112,9 +110,19 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
         if len(off_peak_times) > 0:
           self._attributes["next_start"] = off_peak_times[0].start
           self._attributes["next_end"] = off_peak_times[0].end
+        else:
+          self._attributes["next_start"] = None
+          self._attributes["next_end"] = None
       else:
+        self._attributes["current_start"] = None
+        self._attributes["current_end"] = None
         self._attributes["next_start"] = time.start
         self._attributes["next_end"] = time.end
+    else:
+      self._attributes["current_start"] = None
+      self._attributes["current_end"] = None
+      self._attributes["next_start"] = None
+      self._attributes["next_end"] = None
 
     self._state = is_dispatching
 
@@ -135,3 +143,10 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
       self._state = False
     
     _LOGGER.debug(f'Restored OctopusEnergyIntelligentDispatching state: {self._state}')
+
+  @callback
+  async def async_refresh_dispatches(self):
+    """Refresh dispatches"""
+    result: IntelligentDispatchesCoordinatorResult = await self.coordinator.refresh_dispatches()
+    if result is not None and result.last_error is not None:
+      raise ServiceValidationError(result.last_error)

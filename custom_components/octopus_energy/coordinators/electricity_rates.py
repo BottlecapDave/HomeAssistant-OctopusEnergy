@@ -10,6 +10,7 @@ from homeassistant.helpers import issue_registry as ir
 
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
+  DATA_ACCOUNT_COORDINATOR,
   DATA_INTELLIGENT_DEVICE,
   DOMAIN,
   DATA_CLIENT,
@@ -231,6 +232,10 @@ async def async_setup_electricity_rates_coordinator(hass,
   
   async def async_update_electricity_rates_data():
     """Fetch data from API endpoint."""
+    account_coordinator = hass.data[DOMAIN][account_id][DATA_ACCOUNT_COORDINATOR]
+    if account_coordinator is not None:
+      await account_coordinator.async_request_refresh()
+
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
     account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN][account_id] else None
