@@ -518,7 +518,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     """Setup choice menu"""
     return self.async_show_menu(
       step_id="choice", menu_options={
-        "account": "New Account",
+        "account": "Additional Account",
         "target_rate_account": "Target Rate",
         "rolling_target_rate_account": "Rolling Target Rate",
         "cost_tracker_account": "Cost Tracker",
