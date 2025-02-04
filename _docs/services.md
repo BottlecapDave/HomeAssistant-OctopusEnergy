@@ -284,7 +284,7 @@ Refreshes intelligent dispatches for a given account.
 
 !!! warning
 
-    This service can only be called a maximum of 20 times per hour.
+    This service can only be called once every minute to a maximum of 20 times per hour.
 
 | Attribute                | Optional | Description                                                                                                           |
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |

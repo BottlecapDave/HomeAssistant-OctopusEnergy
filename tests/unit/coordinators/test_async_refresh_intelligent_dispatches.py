@@ -451,3 +451,78 @@ async def test_when_requests_reached_for_hour_and_not_due_to_be_reset_then_exist
     assert retrieved_dispatches.requests_current_hour_last_reset == existing_dispatches.requests_current_hour_last_reset
     assert retrieved_dispatches.last_error == f"Maximum requests of 20/hour reached. Will reset after {current + timedelta(hours=1)}"
     assert mock_api_called == False
+
+@pytest.mark.asyncio
+async def test_when_manual_refresh_is_called_within_one_minute_then_existing_dispatches_returned_with_error():
+  expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], [])
+  mock_api_called = False
+  async def async_mock_get_intelligent_dispatches(*args, **kwargs):
+    nonlocal mock_api_called
+    mock_api_called = True
+    return expected_dispatches
+  
+  async def async_merge_dispatch_data(*args, **kwargs):
+    account_id, completed_dispatches = args
+    return completed_dispatches
+  
+  account_info = get_account_info()
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(seconds=1), 1, mock_intelligent_dispatches(), 1, current)
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_dispatches = await async_refresh_intelligent_dispatches(
+      current,
+      client,
+      account_info,
+      intelligent_device,
+      existing_dispatches,
+      False,
+      True,
+      async_merge_dispatch_data
+    )
+
+    assert retrieved_dispatches is not None
+    assert retrieved_dispatches.next_refresh == existing_dispatches.next_refresh
+    assert retrieved_dispatches.last_evaluated == existing_dispatches.last_evaluated
+    assert retrieved_dispatches.dispatches == existing_dispatches.dispatches
+    assert retrieved_dispatches.request_attempts == existing_dispatches.request_attempts
+    assert retrieved_dispatches.requests_current_hour == existing_dispatches.requests_current_hour
+    assert retrieved_dispatches.requests_current_hour_last_reset == existing_dispatches.requests_current_hour_last_reset
+    assert retrieved_dispatches.last_error == f"Manual refreshing of dispatches cannot be be called again until {existing_dispatches.last_retrieved + timedelta(minutes=1)}"
+    assert mock_api_called == False
+
+@pytest.mark.asyncio
+async def test_when_manual_refresh_is_called_after_one_minute_then_settings_retrieved():
+  expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], [])
+  mock_api_called = False
+  async def async_mock_get_intelligent_dispatches(*args, **kwargs):
+    nonlocal mock_api_called
+    mock_api_called = True
+    return expected_dispatches
+  
+  async def async_merge_dispatch_data(*args, **kwargs):
+    account_id, completed_dispatches = args
+    return completed_dispatches
+  
+  account_info = get_account_info()
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=1), 1, mock_intelligent_dispatches(), 1, current - timedelta(hours=1))
+  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, 1, last_retrieved)
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_dispatches: IntelligentDispatchesCoordinatorResult = await async_refresh_intelligent_dispatches(
+      current,
+      client,
+      account_info,
+      intelligent_device,
+      existing_dispatches,
+      False,
+      True,
+      async_merge_dispatch_data
+    )
+
+    assert mock_api_called == True
+    assert retrieved_dispatches is not None
+    assert retrieved_dispatches.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)
+    assert retrieved_dispatches.last_evaluated == current
+    assert retrieved_dispatches.dispatches == expected_retrieved_dispatches.dispatches
