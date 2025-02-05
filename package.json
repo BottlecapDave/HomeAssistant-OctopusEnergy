@@ -4,7 +4,7 @@
   "description": "Home Assistant integration for interacting with Octopus Energy",
   "main": "index.js",
   "scripts": {
-    "prepare": "husky",
+    "prepare": "husky || true",
     "build": "tsc ./.build/*.ts --noEmit",
     "release": "semantic-release",
     "test-unit": "python -m pytest tests/unit",
