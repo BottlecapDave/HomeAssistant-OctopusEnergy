@@ -1,3 +1,35 @@
+# [14.0.0-beta.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.5.4...v14.0.0-beta.1) (2025-02-05)
+
+
+### Bug Fixes
+
+* **custom:** renamed total_cost_without_standing_charge attributes to total_without_standing_charge for consistency with docs and other sensors (10 minutes dev time) ([75f023c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/75f023c1e166d9c6a3e487e0033aa8470328df3c))
+* Fixed issue where account information wasn't refreshed unless you were on intelligent or had a heat pump (15 minutes dev time) ([54e8c6d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/54e8c6d21859e8f57a16aaae4ec5b39940bc6df5))
+* Fixed issue where current/next start/end attributes on dispatching sensor don't reset properly (15 minutes dev time) ([c70643b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c70643b4862ae565c55a76be1999914b264cb676))
+* Fixed issue with importing previous consumption/cost when no data was available for the timeframe (5 minutes dev time) ([2fcd8e8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2fcd8e864d9dc9a687c4fba1fc440971d763d3f9))
+* Removed unneccessary print statement (Thanks [@andrewaylett](https://github.com/andrewaylett)) ([11765a1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/11765a1684861c597cf8e69122d3533add9bdef1))
+* Updated heat pump related services to only register (5 minutes dev time) ([a2bfccc](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a2bfccc42bc5d0a5ae92c257eb4341a8c6f21154))
+
+
+### Features
+
+* Added context headers to requests for OE (15 minutes dev time) ([1c4e41c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1c4e41c602f50eff7c4e467172e7b0b68b7e995a))
+* Added new service for refreshing intelligent dispatches. This has some caveats, so please review the docs (4 hours 45 minutes dev time) ([11cc47c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/11cc47c70a9e35f6d9a848b40afdee67506fb683))
+* **custom:** added cool-off period for calling manual intelligent dispatch refreshes (45 minutes dev time) ([c1e397b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c1e397beed33b957eff5811417f83d7f5c28c285))
+* Renamed "New Account" option to "Additional Account" to avoid confusion ([59e1093](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/59e10936874ee604472e5b5f2a3b88dfec4adbe4))
+* updated intelligent target time (time based) sensor to be disabled by default ([33fd9a6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/33fd9a608c29a9185c89be749a83834b3e0ad7ff))
+
+
+### BREAKING CHANGES
+
+* **custom:** If you are using the total_cost_without_standing_charge attribute, then these references will need
+to be updated to total_without_standing_charge
+* The intelligent target time (time based) sensor is disabled by default. If you are using this
+variation of the sensor, you might need to re-enable the sensor and you should disable the select
+variation. If you are using the select variation, the time variation should be disabled. This is
+instead of removing the time variation as previously advertised. See docs for side effects of these
+sensors.
+
 ## [13.5.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.5.3...v13.5.4) (2025-01-20)
 
 
