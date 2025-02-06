@@ -51,16 +51,16 @@ Then an automation might look like the following
 ```yaml
 mode: single
 alias: Update target rate config
-trigger:
-  - platform: state
+triggers:
+  - trigger: state
     entity_id:
       - input_number.octopus_energy_target_hours
       - input_text.octopus_energy_target_from
       - input_text.octopus_energy_target_to
       - input_text.octopus_energy_target_offset
-condition: []
-action:
-  - service: octopus_energy.update_target_config
+conditions: []
+actions:
+  - action: octopus_energy.update_target_config
     data:
       target_hours: >
         "{{ states('input_number.octopus_energy_target_hours') | string }}"
@@ -119,15 +119,15 @@ Then an automation might look like the following
 ```yaml
 mode: single
 alias: Update target rate config
-trigger:
-  - platform: state
+triggers:
+  - trigger: state
     entity_id:
       - input_number.octopus_energy_rolling_target_hours
       - input_number.octopus_energy_rolling_target_look_ahead_hours
       - input_text.octopus_energy_target_offset
-condition: []
-action:
-  - service: octopus_energy.update_target_config
+conditions: []
+actions:
+  - action: octopus_energy.update_target_config
     data:
       target_hours: >
         "{{ states('input_number.octopus_energy_target_hours') | string }}"
@@ -290,6 +290,34 @@ Refreshes intelligent dispatches for a given account.
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
 | `target.entity_id`       | `no`     | The [dispatching](./entities/intelligent.md#is-dispatching) entity that you want to refresh the content for (e.g. `binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching`). |
 
+#### Automation Example
+
+The below example is how you might refresh the dispatches when you car is plugged in, or every 3 minutes when your car is plugged in
+
+!!! warn
+
+    There is a chance that the automation may fail due to the service call limit when the car is plugged in
+
+```yaml
+mode: single
+alias: Refresh intelligent dispatches
+triggers:
+- trigger: state
+   entity_id: binary_sensor.car_is_plugged_in
+   to: 'on'
+# Refresh every 3 minutes in case the schedule has changed
+- trigger: time_pattern
+   minutes: "/3"
+conditions:
+- condition: state
+   entity_id: binary_sensor.car_is_plugged_in
+   state: 'on'
+actions:
+- action: octopus_energy.refresh_intelligent_dispatches
+  target:
+    entity_id: binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching
+```
+
 ## Miscellaneous
 
 ### octopus_energy.purge_invalid_external_statistic_ids
@@ -323,7 +351,7 @@ This automation adds weightings based on the national grids carbon intensity, as
 ```yaml
 - alias: Carbon Intensity Rate Weightings
   triggers:
-  - platform: state
+  - trigger: state
     entity_id: event.carbon_intensity_national_current_day_rates
   actions:
   - action: octopus_energy.register_rate_weightings
