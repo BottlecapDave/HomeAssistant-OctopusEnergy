@@ -15,7 +15,7 @@ blueprint:
             integration: octopus_energy
           multiple: false
     threshold:
-      name: Threshold hours
+      name: Threshold points
       description: The minimum number of redeemable points to be available for the automatic redemption to occur
       default: 1
       selector:
