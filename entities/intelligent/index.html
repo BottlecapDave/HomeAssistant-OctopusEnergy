@@ -632,9 +632,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#target-time" class="md-nav__link">
+  <a href="#target-time-select" class="md-nav__link">
     <span class="md-ellipsis">
-      Target Time
+      Target Time (Select)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#target-time-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Target Time (Time)
     </span>
   </a>
   
@@ -1130,9 +1139,18 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#target-time" class="md-nav__link">
+  <a href="#target-time-select" class="md-nav__link">
     <span class="md-ellipsis">
-      Target Time
+      Target Time (Select)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#target-time-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Target Time (Time)
     </span>
   </a>
   
@@ -1345,9 +1363,9 @@
 <p class="admonition-title">Info</p>
 <p>You can use the <a href="../diagnostics/#intelligent-settings-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
 </div>
-<h3 id="target-time">Target Time<a class="headerlink" href="#target-time" title="Permanent link">#</a></h3>
+<h3 id="target-time-select">Target Time (Select)<a class="headerlink" href="#target-time-select" title="Permanent link">#</a></h3>
 <p><code>select.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time</code></p>
-<p>This sensor is used to see and set the target time for your future intelligent charges.</p>
+<p>This sensor is used to see and set the target time for your future intelligent charges. This is limited to 30 minute increments between 4 and 11 to match the Octopus Energy app. This is useful if you use the app or have non-technical people interacting with the integration.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>This entity is not available for the following intelligent providers</p>
@@ -1359,9 +1377,39 @@
 <p class="admonition-title">Info</p>
 <p>You can use the <a href="../diagnostics/#intelligent-settings-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>There is a time based sensor called <code>time.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time</code> which represents this functionality. This is a legacy sensor which will be removed in the future. </p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>raw_value</code></td>
+<td><code>time</code></td>
+<td>The raw target time. This is useful if the time is set to a value outside of the range available in the select options (e.g. from another integration)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="target-time-time">Target Time (Time)<a class="headerlink" href="#target-time-time" title="Permanent link">#</a></h3>
+<p><code>time.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time</code></p>
+<p>This sensor is used to see and set the target time for your future intelligent charges. This gives you finer control over the times (still within valid time periods), but may have unintended consequences with other apps (e.g. the Octopus Energy app) that use the data.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>This entity is not available for the following intelligent providers</p>
+<ul>
+<li>OHME</li>
+</ul>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#intelligent-settings-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. If enabled, it is advised to disable the <a href="#target-time-select">select based sensor</a> as the two can get out of sync. </p>
 </div>
 <h2 id="migrating-from-megakidha_octopus_intelligent">Migrating from megakid/ha_octopus_intelligent?<a class="headerlink" href="#migrating-from-megakidha_octopus_intelligent" title="Permanent link">#</a></h2>
 <p>If you're moving to this integration from <a href="https://github.com/megakid/ha_octopus_intelligent">megakid/ha_octopus_intelligent</a>, below is a quick guide on what entities you should use</p>
@@ -1373,7 +1421,7 @@
 <li><code>sensor.octopus_intelligent_offpeak_end</code> - The default off peak end date/time can be found as an attribute on the <a href="../electricity/#off-peak">off peak sensor</a>. This can be extracted using a <a href="https://www.home-assistant.io/integrations/template/">template sensor</a>.</li>
 <li><code>switch.octopus_intelligent_bump_charge</code> - Use the <a href="#bump-charge">bump charge sensor</a></li>
 <li><code>switch.octopus_intelligent_smart_charging</code> - Use the <a href="#smart-charge">smart charge sensor</a></li>
-<li><code>select.octopus_intelligent_target_time</code> - Use the <a href="#target-time">target time sensor</a></li>
+<li><code>select.octopus_intelligent_target_time</code> - Use the <a href="#target-time-time">target time (time) sensor</a> or <a href="#target-time-select">target time (select) sensor</a></li>
 <li><code>select.octopus_intelligent_target_soc</code> - Use the <a href="#charge-target">charge target sensor</a></li>
 </ul>
 

@@ -407,6 +407,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#manually-refresh-intelligent-dispatches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manually refresh intelligent dispatches
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#home-pro" class="md-nav__link">
     <span class="md-ellipsis">
       Home Pro
@@ -1166,6 +1175,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#manually-refresh-intelligent-dispatches" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manually refresh intelligent dispatches
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#home-pro" class="md-nav__link">
     <span class="md-ellipsis">
       Home Pro
@@ -1259,6 +1277,8 @@
 <p class="admonition-title">Info</p>
 <p>It might take a couple of minutes for these changes to reflect once changed.</p>
 </div>
+<h2 id="manually-refresh-intelligent-dispatches">Manually refresh intelligent dispatches<a class="headerlink" href="#manually-refresh-intelligent-dispatches" title="Permanent link">#</a></h2>
+<p>By default, intelligent dispatches are retrieved <a href="../../faq/#how-often-is-data-refreshed">periodically</a>. This is fine for most scenarios, but this can be a little slow depending on what else you're doing off the back of the dispatches. If you have other ways of knowing when new dispatches should be available (e.g. your charger changes to a charging state or a manual button in your HA dashboard), then you can turn on <code>Manually refresh intelligent dispatches</code>. This will disable the periodic refreshing and expose a <a href="../../services/#octopus_energyrefresh_intelligent_dispatches">service</a> which can be called to refresh the dispatches.</p>
 <h2 id="home-pro">Home Pro<a class="headerlink" href="#home-pro" title="Permanent link">#</a></h2>
 <p>If you are lucky enough to own an <a href="https://forum.octopus.energy/t/for-the-pro-user/8453/2352/">Octopus Home Pro</a>, you can now receive this data locally from within Home Assistant. </p>
 <div class="admonition warning">
@@ -1266,7 +1286,10 @@
 <p>Integrating with the Octopus Home Pro is currently experimental. Use at your own risk.</p>
 </div>
 <h3 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">#</a></h3>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
 <p>The Octopus Home Pro has a local API which is used to get consumption and demand data. If this is all you need, then you can jump straight to the <a href="./#settings">settings</a>.</p>
+</div>
 <p>However, there is also an internal API for setting the display which is not currently exposed. In order to make this available for consumption by this integration you will need to expose a custom API on your device by following the instructions below</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -1295,12 +1318,10 @@ export SERVER_AUTH_TOKEN=thisisasecrettoken # Replace with your own unique strin
 # Start the ssh server
 /usr/sbin/sshd -D
 </code></pre></div>
-<ol>
-<li>Restart your Octopus Home Pro</li>
-</ol>
+<p>Once saved, restart your Octopus Home Pro to boot up the custom API on start.</p>
 <h3 id="settings">Settings<a class="headerlink" href="#settings" title="Permanent link">#</a></h3>
 <p>Once the API has been configured, you will need to set the address to the IP address of your Octopus Home Pro (e.g. <code>http://192.168.1.2</code>).</p>
-<p>If you have setup the custom API, then you will need to set api key to the value you set <code>SERVER_AUTH_TOKEN</code> to.</p>
+<p><strong>If you have setup the custom API</strong>, then you will need to set api key to the value you set <code>SERVER_AUTH_TOKEN</code> to.</p>
 <h3 id="entities">Entities<a class="headerlink" href="#entities" title="Permanent link">#</a></h3>
 <p>See <a href="../../entities/home_pro/">entities</a> for more information.</p>
 
