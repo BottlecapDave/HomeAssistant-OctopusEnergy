@@ -9,6 +9,7 @@ from homeassistant.helpers.update_coordinator import (
 
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
+  DATA_ACCOUNT_COORDINATOR,
   DOMAIN,
   DATA_GAS_RATES_KEY,
   DATA_ACCOUNT,
@@ -118,6 +119,10 @@ async def async_setup_gas_rates_coordinator(hass, account_id: str, client: Octop
   
   async def async_update_gas_rates_data():
     """Fetch data from API endpoint."""
+    account_coordinator = hass.data[DOMAIN][account_id][DATA_ACCOUNT_COORDINATOR]
+    if account_coordinator is not None:
+      await account_coordinator.async_request_refresh()
+
     current = now()
     account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN][account_id] else None
     account_info = account_result.account if account_result is not None else None

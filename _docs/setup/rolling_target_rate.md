@@ -175,4 +175,4 @@ The following attributes are available on each sensor
 
 ## Services
 
-There are services available associated with target rate sensors. Please review them in the [services doc](../services.md).
+There are services available associated with target rate sensors. Please review them in the [services doc](../services.md#rolling-target-rates).

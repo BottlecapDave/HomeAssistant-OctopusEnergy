@@ -87,3 +87,7 @@ This represents the current outdoor temperature as observed by the heat pump.
 
 !!! note
     As the integration uses cloud polling this will inherently have a delay.
+
+## Services
+
+There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services.md#heat-pump).
