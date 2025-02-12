@@ -2285,7 +2285,7 @@
 </tbody>
 </table>
 <h4 id="automation-example_6">Automation Example<a class="headerlink" href="#automation-example_6" title="Permanent link">#</a></h4>
-<p>The below example is how you might refresh the dispatches when you car is plugged in, or every 3 minutes when your car is plugged in</p>
+<p>The below example is how you might refresh the dispatches when you car is plugged in, or every 3 minutes when your car is plugged in. Please note that the entity <code>binary_sensor.car_is_plugged_in</code> is not provided by the integration and should be replaced by an external source (e.g. the plug status from the <a href="https://github.com/CJNE/ha-myenergi">MyEnergi integration</a> or a manual input switch that you switch on manually when you plug in your car).</p>
 <div class="admonition warn">
 <p class="admonition-title">Warn</p>
 <p>There is a chance that the automation may fail due to the service call limit when the car is plugged in</p>
@@ -2293,20 +2293,20 @@
 <div class="highlight"><pre><span></span><code><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">single</span>
 <span class="nt">alias</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Refresh intelligent dispatches</span>
 <span class="nt">triggers</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">trigger</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">state</span>
-<span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">entity_id</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">binary_sensor.car_is_plugged_in</span>
-<span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">to</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&#39;on&#39;</span>
-<span class="c1"># Refresh every 3 minutes in case the schedule has changed</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">trigger</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">time_pattern</span>
-<span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">minutes</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&quot;/3&quot;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">trigger</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">state</span>
+<span class="w">    </span><span class="nt">entity_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">binary_sensor.car_is_plugged_in</span>
+<span class="w">    </span><span class="nt">to</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">on</span>
+<span class="w">  </span><span class="c1"># Refresh every 3 minutes in case the schedule has changed</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">trigger</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">time_pattern</span>
+<span class="w">    </span><span class="nt">minutes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/3</span>
 <span class="nt">conditions</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">state</span>
-<span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">entity_id</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">binary_sensor.car_is_plugged_in</span>
-<span class="w">   </span><span class="l l-Scalar l-Scalar-Plain">state</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="s">&#39;on&#39;</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">state</span>
+<span class="w">    </span><span class="nt">entity_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">binary_sensor.car_is_plugged_in</span>
+<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">on</span>
 <span class="nt">actions</span><span class="p">:</span>
-<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">octopus_energy.refresh_intelligent_dispatches</span>
-<span class="w">  </span><span class="nt">target</span><span class="p">:</span>
-<span class="w">    </span><span class="nt">entity_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">octopus_energy.refresh_intelligent_dispatches</span>
+<span class="w">    </span><span class="nt">target</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">entity_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching</span>
 </code></pre></div>
 <h2 id="miscellaneous">Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permanent link">#</a></h2>
 <h3 id="octopus_energypurge_invalid_external_statistic_ids">octopus_energy.purge_invalid_external_statistic_ids<a class="headerlink" href="#octopus_energypurge_invalid_external_statistic_ids" title="Permanent link">#</a></h3>
