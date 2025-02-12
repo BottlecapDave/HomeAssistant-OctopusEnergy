@@ -68,6 +68,7 @@ from .heat_pump.sensor_lifetime_scop import OctopusEnergyHeatPumpSensorLifetimeS
 from .heat_pump.sensor_lifetime_heat_output import OctopusEnergyHeatPumpSensorLifetimeHeatOutput
 from .heat_pump.sensor_lifetime_energy_input import OctopusEnergyHeatPumpSensorLifetimeEnergyInput
 from .heat_pump.sensor_fixed_target_flow_temperature import OctopusEnergyHeatPumpSensorFixedTargetFlowTemperature
+from .heat_pump.number_fixed_target_flow_temperature import OctopusEnergyHeatPumpNumberFixedTargetFlowTemperature
 from .api_client.intelligent_device import IntelligentDevice
 from .intelligent.current_state import OctopusEnergyIntelligentCurrentState
 from .intelligent import get_intelligent_features
@@ -579,6 +580,13 @@ def setup_heat_pump_sensors(hass: HomeAssistant, account_id: str, heat_pump_id: 
 
   if heat_pump_response.octoHeatPumpControllerConfiguration is not None:
     entities.append(OctopusEnergyHeatPumpSensorFixedTargetFlowTemperature(
+        hass,
+        coordinator,
+        heat_pump_id,
+        heat_pump_response.octoHeatPumpControllerConfiguration.heatPump
+      ))
+    
+    entities.append(OctopusEnergyHeatPumpNumberFixedTargetFlowTemperature(
         hass,
         coordinator,
         heat_pump_id,
