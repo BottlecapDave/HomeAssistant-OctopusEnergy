@@ -292,7 +292,7 @@ Refreshes intelligent dispatches for a given account.
 
 #### Automation Example
 
-The below example is how you might refresh the dispatches when you car is plugged in, or every 3 minutes when your car is plugged in
+The below example is how you might refresh the dispatches when you car is plugged in, or every 3 minutes when your car is plugged in. Please note that the entity `binary_sensor.car_is_plugged_in` is not provided by the integration and should be replaced by an external source (e.g. the plug status from the [MyEnergi integration](https://github.com/CJNE/ha-myenergi) or a manual input switch that you switch on manually when you plug in your car).
 
 !!! warn
 
