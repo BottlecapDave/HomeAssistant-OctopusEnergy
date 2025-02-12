@@ -302,20 +302,20 @@ The below example is how you might refresh the dispatches when you car is plugge
 mode: single
 alias: Refresh intelligent dispatches
 triggers:
-- trigger: state
-   entity_id: binary_sensor.car_is_plugged_in
-   to: 'on'
-# Refresh every 3 minutes in case the schedule has changed
-- trigger: time_pattern
-   minutes: "/3"
+  - trigger: state
+    entity_id: binary_sensor.car_is_plugged_in
+    to: on
+  # Refresh every 3 minutes in case the schedule has changed
+  - trigger: time_pattern
+    minutes: /3
 conditions:
-- condition: state
-   entity_id: binary_sensor.car_is_plugged_in
-   state: 'on'
+  - condition: state
+    entity_id: binary_sensor.car_is_plugged_in
+    state: on
 actions:
-- action: octopus_energy.refresh_intelligent_dispatches
-  target:
-    entity_id: binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching
+  - action: octopus_energy.refresh_intelligent_dispatches
+    target:
+      entity_id: binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching
 ```
 
 ## Miscellaneous
