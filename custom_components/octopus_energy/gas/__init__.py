@@ -95,7 +95,7 @@ def calculate_gas_consumption_and_cost(
         "charges": charges
       }
     else:
-      _LOGGER.debug('Skipping gas consumption and cost calculation as last reset has not changed')
+      _LOGGER.debug(f'Skipping gas consumption and cost calculation as last reset has not changed - last_reset: {last_reset}; consumption start: {sorted_consumption_data[0]["start"]}')
   else:
     _LOGGER.debug(f'Skipping gas consumption and cost calculation due to lack of data; consumption: {len(consumption_data) if consumption_data is not None else 0}; rates: {len(rate_data) if rate_data is not None else 0}; standing_charge: {standing_charge}')
     

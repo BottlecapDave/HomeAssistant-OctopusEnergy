@@ -121,11 +121,11 @@ This sensor is used to see and set the charge target for your future intelligent
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-settings-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
-### Target Time
+### Target Time (Select)
 
 `select.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time`
 
-This sensor is used to see and set the target time for your future intelligent charges.
+This sensor is used to see and set the target time for your future intelligent charges. This is limited to 30 minute increments between 4 and 11 to match the Octopus Energy app. This is useful if you use the app or have non-technical people interacting with the integration.
 
 !!! info
 
@@ -137,9 +137,28 @@ This sensor is used to see and set the target time for your future intelligent c
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-settings-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
-!!! warning
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `raw_value` | `time` | The raw target time. This is useful if the time is set to a value outside of the range available in the select options (e.g. from another integration) |
 
-    There is a time based sensor called `time.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time` which represents this functionality. This is a legacy sensor which will be removed in the future. 
+### Target Time (Time)
+
+`time.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time`
+
+This sensor is used to see and set the target time for your future intelligent charges. This gives you finer control over the times (still within valid time periods), but may have unintended consequences with other apps (e.g. the Octopus Energy app) that use the data.
+
+!!! info
+
+    This entity is not available for the following intelligent providers
+
+    * OHME
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-settings-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). If enabled, it is advised to disable the [select based sensor](#target-time-select) as the two can get out of sync. 
 
 ## Migrating from megakid/ha_octopus_intelligent?
 
@@ -152,5 +171,5 @@ If you're moving to this integration from [megakid/ha_octopus_intelligent](https
 * `sensor.octopus_intelligent_offpeak_end` - The default off peak end date/time can be found as an attribute on the [off peak sensor](./electricity.md#off-peak). This can be extracted using a [template sensor](https://www.home-assistant.io/integrations/template/).
 * `switch.octopus_intelligent_bump_charge` - Use the [bump charge sensor](#bump-charge)
 * `switch.octopus_intelligent_smart_charging` - Use the [smart charge sensor](#smart-charge)
-* `select.octopus_intelligent_target_time` - Use the [target time sensor](#target-time)
+* `select.octopus_intelligent_target_time` - Use the [target time (time) sensor](#target-time-time) or [target time (select) sensor](#target-time-select)
 * `select.octopus_intelligent_target_soc` - Use the [charge target sensor](#charge-target)

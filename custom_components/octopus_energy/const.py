@@ -2,7 +2,7 @@ import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 
 DOMAIN = "octopus_energy"
-INTEGRATION_VERSION = "13.5.4"
+INTEGRATION_VERSION = "14.0.0"
 
 REFRESH_RATE_IN_MINUTES_ACCOUNT = 60
 REFRESH_RATE_IN_MINUTES_INTELLIGENT = 3
@@ -40,7 +40,8 @@ CONFIG_MAIN_ELECTRICITY_PRICE_CAP = "electricity_price_cap"
 CONFIG_MAIN_GAS_PRICE_CAP = "gas_price_cap"
 CONFIG_MAIN_HOME_PRO_ADDRESS = "home_pro_address"
 CONFIG_MAIN_HOME_PRO_API_KEY = "home_pro_api_key"
-CONFIG_FAVOUR_DIRECT_DEBIT_RATES = "favour_direct_debit_rates"
+CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES = "favour_direct_debit_rates"
+CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES = "intelligent_manual_dispatches"
 
 CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES = 1
 CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES = 2
@@ -188,7 +189,8 @@ DATA_SCHEMA_ACCOUNT = vol.Schema({
   vol.Required(CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES, default=CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
   vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP): cv.positive_float,
   vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float,
-  vol.Required(CONFIG_FAVOUR_DIRECT_DEBIT_RATES): bool
+  vol.Required(CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES): bool,
+  vol.Required(CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES): bool,
 })
 
 EVENT_ELECTRICITY_PREVIOUS_DAY_RATES = "octopus_energy_electricity_previous_day_rates"

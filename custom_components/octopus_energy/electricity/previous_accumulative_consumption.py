@@ -175,6 +175,8 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
           "consumption": charge["consumption"]
         }, consumption_and_cost["charges"]))
       }
+    else:
+      _LOGGER.debug(f"Skipping calculation for '{self._mpan}/{self._serial_number}'")
 
     self._attributes = dict_to_typed_dict(self._attributes)
 

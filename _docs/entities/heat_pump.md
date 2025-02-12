@@ -96,3 +96,7 @@ This represents the configured fixed target flow temperature for the heat pump, 
 
 !!! note
     This is not the actual current flow temperature, but rather the configured target.
+
+## Services
+
+There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services.md#heat-pump).

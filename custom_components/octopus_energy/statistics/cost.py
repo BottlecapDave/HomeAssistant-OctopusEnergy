@@ -100,5 +100,5 @@ async def async_import_external_statistics_from_cost(
 
       peak_totals[peak_type] = peak_statistics[-1]["sum"] if len(peak_statistics) > 0 and peak_statistics[-1] is not None else 0
 
-  return ImportCostStatisticsResult(statistics[-1]["sum"] if statistics[-1] is not None else 0,
+  return ImportCostStatisticsResult(statistics[-1]["sum"] if len(statistics) > 0 and statistics[-1] is not None else 0,
                                     peak_totals)

@@ -12,6 +12,7 @@
         "adjust_cost_tracker": "mdi:numeric",
         "redeem_octoplus_points_into_account_credit": "mdi:currency-gbp",
         "boost_heat_pump_zone": "mdi:thermometer-plus",
-        "set_heat_pump_flow_temp_config": "mdi:heat-pump"
+        "set_heat_pump_flow_temp_config": "mdi:heat-pump",
+        "refresh_intelligent_dispatches": "mdi:refresh"
     }
 }

@@ -156,6 +156,8 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
         }, consumption_and_cost["charges"])),
         "calorific_value": self._calorific_value
       }
+    else:
+      _LOGGER.debug(f"Skipping calculation for '{self._mprn}/{self._serial_number}'")
     
     self._attributes = dict_to_typed_dict(self._attributes)
 

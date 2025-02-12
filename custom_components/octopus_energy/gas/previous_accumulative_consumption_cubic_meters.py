@@ -158,9 +158,10 @@ class OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(CoordinatorEnti
         }, consumption_and_cost["charges"])),
         "calorific_value": self._calorific_value
       }
+    else:
+      _LOGGER.debug(f"Skipping calculation for '{self._mprn}/{self._serial_number}'")
 
     self._attributes = dict_to_typed_dict(self._attributes)
-    super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

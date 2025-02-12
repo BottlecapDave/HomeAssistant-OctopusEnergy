@@ -292,4 +292,4 @@ This is the total cost of the tracked entity for the current month during peak h
 
 ## Services
 
-There are services available associated with cost tracker sensors. Please review them in the [services doc](../services.md#octopus_energyupdate_cost_tracker).
+There are services available associated with cost tracker sensors. Please review them in the [services doc](../services.md#cost-trackers).

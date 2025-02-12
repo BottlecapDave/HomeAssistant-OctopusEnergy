@@ -90,7 +90,7 @@ def mock_intelligent_settings():
     True,
     90,
     80,
-    time(7,30),
+    time(7,20),
     time(9,10),
   )
 
