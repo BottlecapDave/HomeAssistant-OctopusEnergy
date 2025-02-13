@@ -444,12 +444,12 @@ async def async_setup_dependencies(hass, config):
       intelligent_repair_key,
       is_fixable=False,
       severity=ir.IssueSeverity.WARNING,
-      learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/services/#octopus_energyrefresh_intelligent_dispatches",
+      learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account/#manually-refresh-intelligent-dispatches",
       translation_key="intelligent_manual_service",
       translation_placeholders={ "account_id": account_id, "polling_time": REFRESH_RATE_IN_MINUTES_INTELLIGENT },
     )
   else:
-    ir.async_delete_issue(hass, DOMAIN, intelligent_repair_key)
+    ir.async_ignore_issue(hass, DOMAIN, intelligent_repair_key, True)
 
   for point in account_info["electricity_meter_points"]:
     # We only care about points that have active agreements
