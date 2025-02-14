@@ -13,7 +13,7 @@ from homeassistant.core import SupportsResponse
 
 from .api_client_home_pro import OctopusEnergyHomeProApiClient
 from .coordinators.account import AccountCoordinatorResult, async_setup_account_info_coordinator
-from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatches_coordinator
+from .coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult, async_setup_intelligent_dispatches_coordinator
 from .coordinators.intelligent_settings import async_setup_intelligent_settings_coordinator
 from .coordinators.electricity_rates import async_setup_electricity_rates_coordinator
 from .coordinators.saving_sessions import async_setup_saving_sessions_coordinators
@@ -33,7 +33,8 @@ from .utils.error import api_exception_to_string
 from .storage.account import async_load_cached_account, async_save_cached_account
 from .storage.intelligent_device import async_load_cached_intelligent_device, async_save_cached_intelligent_device
 from .storage.rate_weightings import async_load_cached_rate_weightings
-
+from .storage.intelligent_dispatches import async_load_cached_intelligent_dispatches
+from .api_client.intelligent_dispatches import IntelligentDispatches
 
 from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configuration
 from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_heat_pump
@@ -55,6 +56,7 @@ from .const import (
   DATA_CUSTOM_RATE_WEIGHTINGS_KEY,
   DATA_HOME_PRO_CLIENT,
   DATA_INTELLIGENT_DEVICE,
+  DATA_INTELLIGENT_DISPATCHES,
   DATA_INTELLIGENT_MPAN,
   DATA_INTELLIGENT_SERIAL_NUMBER,
   DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY,
@@ -391,7 +393,7 @@ async def async_setup_dependencies(hass, config):
           intelligent_serial_number = meter["serial_number"]
           break
 
-  intelligent_manual_service = False
+  intelligent_manual_service_enabled = True
   intelligent_device = None
   if has_intelligent_tariff or should_mock_intelligent_data:
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
@@ -418,8 +420,10 @@ async def async_setup_dependencies(hass, config):
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] = intelligent_mpan
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] = intelligent_serial_number
 
+      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] = await async_load_cached_intelligent_dispatches(hass, account_id)
+
       if CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES not in config or config[CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == False:
-        intelligent_manual_service = True
+        intelligent_manual_service_enabled = False
 
       await async_save_cached_intelligent_device(hass, account_id, intelligent_device)
 
@@ -437,19 +441,31 @@ async def async_setup_dependencies(hass, config):
     )
 
   intelligent_repair_key = f"intelligent_manual_service_{account_id}"
-  if intelligent_manual_service and intelligent_features is not None and intelligent_features.planned_dispatches_supported:
-    ir.async_create_issue(
-      hass,
-      DOMAIN,
-      intelligent_repair_key,
-      is_fixable=False,
-      severity=ir.IssueSeverity.WARNING,
-      learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account/#manually-refresh-intelligent-dispatches",
-      translation_key="intelligent_manual_service",
-      translation_placeholders={ "account_id": account_id, "polling_time": REFRESH_RATE_IN_MINUTES_INTELLIGENT },
-    )
-  else:
-    ir.async_ignore_issue(hass, DOMAIN, intelligent_repair_key, True)
+  if intelligent_features is not None and intelligent_features.planned_dispatches_supported:
+    if intelligent_manual_service_enabled == False:
+      ir.async_create_issue(
+        hass,
+        DOMAIN,
+        intelligent_repair_key,
+        is_fixable=False,
+        severity=ir.IssueSeverity.WARNING,
+        learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account/#manually-refresh-intelligent-dispatches",
+        translation_key="intelligent_manual_service",
+        translation_placeholders={ "account_id": account_id, "polling_time": REFRESH_RATE_IN_MINUTES_INTELLIGENT },
+      )
+    else:
+      ir.async_delete_issue(hass, DOMAIN, intelligent_repair_key)
+      
+      # Need to set initial data otherwise our rates won't update properly until an initial result has been requested
+      if hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] is None:
+        _LOGGER.info('Loading dummy dispatches result')
+        hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] = IntelligentDispatchesCoordinatorResult(
+          now - timedelta(hours=1),
+          1,
+          IntelligentDispatches(None, [], []),
+          0,
+          now - timedelta(hours=1)
+        )
 
   for point in account_info["electricity_meter_points"]:
     # We only care about points that have active agreements

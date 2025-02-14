@@ -61,6 +61,16 @@ async def test_when_account_info_is_none_then_existing_dispatches_returned():
     account_id, completed_dispatches = args
     return completed_dispatches
   
+  save_dispatches_called = False
+  save_dispatches_account_id = None
+  save_dispatches_dispatches = None
+  async def async_save_dispatches(*args, **kwargs):
+    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    save_dispatches_called = True
+    account_id, dispatches = args
+    save_dispatches_account_id = account_id
+    save_dispatches_dispatches = dispatches
+  
   account_info = None
   existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved, 1, mock_intelligent_dispatches(), 1, last_retrieved)
   
@@ -74,11 +84,16 @@ async def test_when_account_info_is_none_then_existing_dispatches_returned():
       existing_dispatches,
       False,
       False,
-      async_merge_dispatch_data
+      async_merge_dispatch_data,
+      async_save_dispatches
     )
 
     assert retrieved_dispatches == existing_dispatches
     assert mock_api_called == False
+
+    assert save_dispatches_called == False
+    assert save_dispatches_account_id == None
+    assert save_dispatches_dispatches == None
 
 @pytest.mark.asyncio
 async def test_when_intelligent_device_is_none_then_none_returned():
@@ -93,6 +108,16 @@ async def test_when_intelligent_device_is_none_then_none_returned():
     account_id, completed_dispatches = args
     return completed_dispatches
   
+  save_dispatches_called = False
+  save_dispatches_account_id = None
+  save_dispatches_dispatches = None
+  async def async_save_dispatches(*args, **kwargs):
+    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    save_dispatches_called = True
+    account_id, dispatches = args
+    save_dispatches_account_id = account_id
+    save_dispatches_dispatches = dispatches
+  
   account_info = get_account_info(True, active_product_code="GO-18-06-12")
   existing_dispatches = None
   
@@ -106,12 +131,17 @@ async def test_when_intelligent_device_is_none_then_none_returned():
       existing_dispatches,
       False,
       False,
-      async_merge_dispatch_data
+      async_merge_dispatch_data,
+      async_save_dispatches
     )
 
     assert mock_api_called == False
     assert retrieved_dispatches is not None
     assert retrieved_dispatches.dispatches is None
+
+    assert save_dispatches_called == False
+    assert save_dispatches_account_id == None
+    assert save_dispatches_dispatches == None
 
 @pytest.mark.asyncio
 async def test_when_not_on_intelligent_tariff_then_none_returned():
@@ -126,6 +156,16 @@ async def test_when_not_on_intelligent_tariff_then_none_returned():
     account_id, completed_dispatches = args
     return completed_dispatches
   
+  save_dispatches_called = False
+  save_dispatches_account_id = None
+  save_dispatches_dispatches = None
+  async def async_save_dispatches(*args, **kwargs):
+    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    save_dispatches_called = True
+    account_id, dispatches = args
+    save_dispatches_account_id = account_id
+    save_dispatches_dispatches = dispatches
+  
   account_info = get_account_info(True, active_product_code="GO-18-06-12")
   existing_dispatches = None
   
@@ -139,12 +179,17 @@ async def test_when_not_on_intelligent_tariff_then_none_returned():
       existing_dispatches,
       False,
       False,
-      async_merge_dispatch_data
+      async_merge_dispatch_data,
+      async_save_dispatches
     )
 
     assert mock_api_called == False
     assert retrieved_dispatches is not None
     assert retrieved_dispatches.dispatches is None
+
+    assert save_dispatches_called == False
+    assert save_dispatches_account_id == None
+    assert save_dispatches_dispatches == None
 
 @pytest.mark.asyncio
 async def test_when_mock_is_true_then_none_returned():
@@ -157,6 +202,16 @@ async def test_when_mock_is_true_then_none_returned():
   async def async_merge_dispatch_data(*args, **kwargs):
     account_id, completed_dispatches = args
     return completed_dispatches
+  
+  save_dispatches_called = False
+  save_dispatches_account_id = None
+  save_dispatches_dispatches = None
+  async def async_save_dispatches(*args, **kwargs):
+    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    save_dispatches_called = True
+    account_id, dispatches = args
+    save_dispatches_account_id = account_id
+    save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
   existing_dispatches = None
@@ -171,7 +226,8 @@ async def test_when_mock_is_true_then_none_returned():
       existing_dispatches,
       True,
       False,
-      async_merge_dispatch_data
+      async_merge_dispatch_data,
+      async_save_dispatches
     )
 
     mocked_data = mock_intelligent_dispatches()
@@ -195,6 +251,10 @@ async def test_when_mock_is_true_then_none_returned():
       assert retrieved_dispatches.dispatches.planned[index].source == mocked_data.planned[index].source
       assert retrieved_dispatches.dispatches.planned[index].start == mocked_data.planned[index].start
 
+    assert save_dispatches_called == True
+    assert save_dispatches_account_id == account_info["id"]
+    assert save_dispatches_dispatches == retrieved_dispatches.dispatches
+
 @pytest.mark.asyncio
 async def test_when_next_refresh_is_in_the_future_then_existing_dispatches_returned():
   current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
@@ -209,6 +269,16 @@ async def test_when_next_refresh_is_in_the_future_then_existing_dispatches_retur
     account_id, completed_dispatches = args
     return completed_dispatches
   
+  save_dispatches_called = False
+  save_dispatches_account_id = None
+  save_dispatches_dispatches = None
+  async def async_save_dispatches(*args, **kwargs):
+    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    save_dispatches_called = True
+    account_id, dispatches = args
+    save_dispatches_account_id = account_id
+    save_dispatches_dispatches = dispatches
+  
   account_info = get_account_info()
   existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=(REFRESH_RATE_IN_MINUTES_INTELLIGENT - 1), seconds=59), 1, mock_intelligent_dispatches(), 1, last_retrieved)
   
@@ -222,19 +292,24 @@ async def test_when_next_refresh_is_in_the_future_then_existing_dispatches_retur
       existing_dispatches,
       False,
       False,
-      async_merge_dispatch_data
+      async_merge_dispatch_data,
+      async_save_dispatches
     )
 
     assert mock_api_called == False
     assert retrieved_dispatches == existing_dispatches
 
+    assert save_dispatches_called == False
+    assert save_dispatches_account_id == None
+    assert save_dispatches_dispatches == None
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("existing_dispatches",[
   (None),
-  (IntelligentDispatchesCoordinatorResult(last_retrieved, 1, [], 1, last_retrieved)),
+  (IntelligentDispatchesCoordinatorResult(last_retrieved, 1, IntelligentDispatches(None, None, None), 1, last_retrieved)),
   (IntelligentDispatchesCoordinatorResult(last_retrieved, 1, None, 1, last_retrieved)),
 ])
-async def test_when_existing_dispatches_is_none_then_settings_retrieved(existing_dispatches):
+async def test_when_existing_dispatches_is_none_then_dispatches_retrieved(existing_dispatches):
   expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], [])
   mock_api_called = False
   async def async_mock_get_intelligent_dispatches(*args, **kwargs):
@@ -245,6 +320,16 @@ async def test_when_existing_dispatches_is_none_then_settings_retrieved(existing
   async def async_merge_dispatch_data(*args, **kwargs):
     account_id, completed_dispatches = args
     return completed_dispatches
+  
+  save_dispatches_called = False
+  save_dispatches_account_id = None
+  save_dispatches_dispatches = None
+  async def async_save_dispatches(*args, **kwargs):
+    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    save_dispatches_called = True
+    account_id, dispatches = args
+    save_dispatches_account_id = account_id
+    save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
   expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, 1, last_retrieved)
@@ -259,16 +344,21 @@ async def test_when_existing_dispatches_is_none_then_settings_retrieved(existing
       existing_dispatches,
       False,
       False,
-      async_merge_dispatch_data
+      async_merge_dispatch_data,
+      async_save_dispatches
     )
 
     assert retrieved_dispatches is not None
     assert retrieved_dispatches.last_evaluated == expected_retrieved_dispatches.last_evaluated
     assert retrieved_dispatches.dispatches == expected_retrieved_dispatches.dispatches
     assert mock_api_called == True
+
+    assert save_dispatches_called == True
+    assert save_dispatches_account_id == account_info["id"]
+    assert save_dispatches_dispatches == retrieved_dispatches.dispatches
     
 @pytest.mark.asyncio
-async def test_when_existing_dispatches_is_old_then_settings_retrieved():
+async def test_when_existing_dispatches_is_old_then_dispatches_retrieved():
   expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], [])
   mock_api_called = False
   async def async_mock_get_intelligent_dispatches(*args, **kwargs):
@@ -279,6 +369,16 @@ async def test_when_existing_dispatches_is_old_then_settings_retrieved():
   async def async_merge_dispatch_data(*args, **kwargs):
     account_id, completed_dispatches = args
     return completed_dispatches
+  
+  save_dispatches_called = False
+  save_dispatches_account_id = None
+  save_dispatches_dispatches = None
+  async def async_save_dispatches(*args, **kwargs):
+    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    save_dispatches_called = True
+    account_id, dispatches = args
+    save_dispatches_account_id = account_id
+    save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
   existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), 1, last_retrieved)
@@ -294,7 +394,8 @@ async def test_when_existing_dispatches_is_old_then_settings_retrieved():
       existing_dispatches,
       False,
       False,
-      async_merge_dispatch_data
+      async_merge_dispatch_data,
+      async_save_dispatches
     )
 
     assert retrieved_dispatches is not None
@@ -302,6 +403,10 @@ async def test_when_existing_dispatches_is_old_then_settings_retrieved():
     assert retrieved_dispatches.last_evaluated == expected_retrieved_dispatches.last_evaluated
     assert retrieved_dispatches.dispatches == expected_retrieved_dispatches.dispatches
     assert mock_api_called == True
+
+    assert save_dispatches_called == True
+    assert save_dispatches_account_id == account_info["id"]
+    assert save_dispatches_dispatches == retrieved_dispatches.dispatches
 
 @pytest.mark.asyncio
 async def test_when_settings_not_retrieved_then_existing_dispatches_returned():
@@ -314,6 +419,16 @@ async def test_when_settings_not_retrieved_then_existing_dispatches_returned():
   async def async_merge_dispatch_data(*args, **kwargs):
     account_id, completed_dispatches = args
     return completed_dispatches
+  
+  save_dispatches_called = False
+  save_dispatches_account_id = None
+  save_dispatches_dispatches = None
+  async def async_save_dispatches(*args, **kwargs):
+    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    save_dispatches_called = True
+    account_id, dispatches = args
+    save_dispatches_account_id = account_id
+    save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
   existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved, 1, IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], []), 1, last_retrieved)
@@ -328,7 +443,8 @@ async def test_when_settings_not_retrieved_then_existing_dispatches_returned():
       existing_dispatches,
       False,
       False,
-      async_merge_dispatch_data
+      async_merge_dispatch_data,
+      async_save_dispatches
     )
 
     assert retrieved_dispatches is not None
@@ -338,6 +454,10 @@ async def test_when_settings_not_retrieved_then_existing_dispatches_returned():
     assert retrieved_dispatches.request_attempts == existing_dispatches.request_attempts + 1
 
     assert mock_api_called == True
+
+    assert save_dispatches_called == False
+    assert save_dispatches_account_id == None
+    assert save_dispatches_dispatches == None
 
 @pytest.mark.asyncio
 async def test_when_exception_raised_then_existing_dispatches_returned_and_exception_captured():
@@ -352,6 +472,16 @@ async def test_when_exception_raised_then_existing_dispatches_returned_and_excep
     account_id, completed_dispatches = args
     return completed_dispatches
   
+  save_dispatches_called = False
+  save_dispatches_account_id = None
+  save_dispatches_dispatches = None
+  async def async_save_dispatches(*args, **kwargs):
+    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    save_dispatches_called = True
+    account_id, dispatches = args
+    save_dispatches_account_id = account_id
+    save_dispatches_dispatches = dispatches
+  
   account_info = get_account_info()
   existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved, 1, IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], []), 1, last_retrieved)
   
@@ -365,7 +495,8 @@ async def test_when_exception_raised_then_existing_dispatches_returned_and_excep
       existing_dispatches,
       False,
       False,
-      async_merge_dispatch_data
+      async_merge_dispatch_data,
+      async_save_dispatches
     )
 
     assert retrieved_dispatches is not None
@@ -377,8 +508,12 @@ async def test_when_exception_raised_then_existing_dispatches_returned_and_excep
 
     assert mock_api_called == True
 
+    assert save_dispatches_called == False
+    assert save_dispatches_account_id == None
+    assert save_dispatches_dispatches == None
+
 @pytest.mark.asyncio
-async def test_when_requests_reached_for_hour_and_due_to_be_reset_then_settings_retrieved():
+async def test_when_requests_reached_for_hour_and_due_to_be_reset_then_dispatches_retrieved():
   expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], [])
   mock_api_called = False
   async def async_mock_get_intelligent_dispatches(*args, **kwargs):
@@ -389,6 +524,16 @@ async def test_when_requests_reached_for_hour_and_due_to_be_reset_then_settings_
   async def async_merge_dispatch_data(*args, **kwargs):
     account_id, completed_dispatches = args
     return completed_dispatches
+  
+  save_dispatches_called = False
+  save_dispatches_account_id = None
+  save_dispatches_dispatches = None
+  async def async_save_dispatches(*args, **kwargs):
+    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    save_dispatches_called = True
+    account_id, dispatches = args
+    save_dispatches_account_id = account_id
+    save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
   existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), 20, current - timedelta(hours=1))
@@ -404,7 +549,8 @@ async def test_when_requests_reached_for_hour_and_due_to_be_reset_then_settings_
       existing_dispatches,
       False,
       False,
-      async_merge_dispatch_data
+      async_merge_dispatch_data,
+      async_save_dispatches
     )
 
     assert retrieved_dispatches is not None
@@ -412,6 +558,10 @@ async def test_when_requests_reached_for_hour_and_due_to_be_reset_then_settings_
     assert retrieved_dispatches.last_evaluated == expected_retrieved_dispatches.last_evaluated
     assert retrieved_dispatches.dispatches == expected_retrieved_dispatches.dispatches
     assert mock_api_called == True
+
+    assert save_dispatches_called == True
+    assert save_dispatches_account_id == account_info["id"]
+    assert save_dispatches_dispatches == retrieved_dispatches.dispatches
 
 @pytest.mark.asyncio
 async def test_when_requests_reached_for_hour_and_not_due_to_be_reset_then_existing_dispatches_returned_with_error():
@@ -426,6 +576,16 @@ async def test_when_requests_reached_for_hour_and_not_due_to_be_reset_then_exist
     account_id, completed_dispatches = args
     return completed_dispatches
   
+  save_dispatches_called = False
+  save_dispatches_account_id = None
+  save_dispatches_dispatches = None
+  async def async_save_dispatches(*args, **kwargs):
+    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    save_dispatches_called = True
+    account_id, dispatches = args
+    save_dispatches_account_id = account_id
+    save_dispatches_dispatches = dispatches
+  
   account_info = get_account_info()
   existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), 20, current)
   
@@ -439,7 +599,8 @@ async def test_when_requests_reached_for_hour_and_not_due_to_be_reset_then_exist
       existing_dispatches,
       False,
       False,
-      async_merge_dispatch_data
+      async_merge_dispatch_data,
+      async_save_dispatches
     )
 
     assert retrieved_dispatches is not None
@@ -451,6 +612,10 @@ async def test_when_requests_reached_for_hour_and_not_due_to_be_reset_then_exist
     assert retrieved_dispatches.requests_current_hour_last_reset == existing_dispatches.requests_current_hour_last_reset
     assert retrieved_dispatches.last_error == f"Maximum requests of 20/hour reached. Will reset after {current + timedelta(hours=1)}"
     assert mock_api_called == False
+
+    assert save_dispatches_called == False
+    assert save_dispatches_account_id == None
+    assert save_dispatches_dispatches == None
 
 @pytest.mark.asyncio
 async def test_when_manual_refresh_is_called_within_one_minute_then_existing_dispatches_returned_with_error():
@@ -465,6 +630,16 @@ async def test_when_manual_refresh_is_called_within_one_minute_then_existing_dis
     account_id, completed_dispatches = args
     return completed_dispatches
   
+  save_dispatches_called = False
+  save_dispatches_account_id = None
+  save_dispatches_dispatches = None
+  async def async_save_dispatches(*args, **kwargs):
+    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    save_dispatches_called = True
+    account_id, dispatches = args
+    save_dispatches_account_id = account_id
+    save_dispatches_dispatches = dispatches
+  
   account_info = get_account_info()
   existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(seconds=1), 1, mock_intelligent_dispatches(), 1, current)
   
@@ -478,7 +653,8 @@ async def test_when_manual_refresh_is_called_within_one_minute_then_existing_dis
       existing_dispatches,
       False,
       True,
-      async_merge_dispatch_data
+      async_merge_dispatch_data,
+      async_save_dispatches
     )
 
     assert retrieved_dispatches is not None
@@ -491,8 +667,12 @@ async def test_when_manual_refresh_is_called_within_one_minute_then_existing_dis
     assert retrieved_dispatches.last_error == f"Manual refreshing of dispatches cannot be be called again until {existing_dispatches.last_retrieved + timedelta(minutes=1)}"
     assert mock_api_called == False
 
+    assert save_dispatches_called == False
+    assert save_dispatches_account_id == None
+    assert save_dispatches_dispatches == None
+
 @pytest.mark.asyncio
-async def test_when_manual_refresh_is_called_after_one_minute_then_settings_retrieved():
+async def test_when_manual_refresh_is_called_after_one_minute_then_dispatches_retrieved():
   expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], [])
   mock_api_called = False
   async def async_mock_get_intelligent_dispatches(*args, **kwargs):
@@ -503,6 +683,16 @@ async def test_when_manual_refresh_is_called_after_one_minute_then_settings_retr
   async def async_merge_dispatch_data(*args, **kwargs):
     account_id, completed_dispatches = args
     return completed_dispatches
+  
+  save_dispatches_called = False
+  save_dispatches_account_id = None
+  save_dispatches_dispatches = None
+  async def async_save_dispatches(*args, **kwargs):
+    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    save_dispatches_called = True
+    account_id, dispatches = args
+    save_dispatches_account_id = account_id
+    save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
   existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=1), 1, mock_intelligent_dispatches(), 1, current - timedelta(hours=1))
@@ -518,7 +708,8 @@ async def test_when_manual_refresh_is_called_after_one_minute_then_settings_retr
       existing_dispatches,
       False,
       True,
-      async_merge_dispatch_data
+      async_merge_dispatch_data,
+      async_save_dispatches
     )
 
     assert mock_api_called == True
@@ -526,3 +717,7 @@ async def test_when_manual_refresh_is_called_after_one_minute_then_settings_retr
     assert retrieved_dispatches.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)
     assert retrieved_dispatches.last_evaluated == current
     assert retrieved_dispatches.dispatches == expected_retrieved_dispatches.dispatches
+
+    assert save_dispatches_called == True
+    assert save_dispatches_account_id == account_info["id"]
+    assert save_dispatches_dispatches == retrieved_dispatches.dispatches
