@@ -58,13 +58,13 @@ class IntelligentDispatches:
   def to_dict(self):
     return {
       "current_state": self.current_state,
-      "planned": map(lambda x: x.to_dict(), self.planned),
-      "completed": map(lambda x: x.to_dict(), self.completed),
+      "planned": list(map(lambda x: x.to_dict(), self.planned)),
+      "completed": list(map(lambda x: x.to_dict(), self.completed)),
     }
   
   def from_dict(data):
     return IntelligentDispatches(
       data["current_state"],
-      map(lambda x: IntelligentDispatchItem.from_dict(x), data["planned"]),
-      map(lambda x: IntelligentDispatchItem.from_dict(x), data["completed"]),
+      list(map(lambda x: IntelligentDispatchItem.from_dict(x), data["planned"])),
+      list(map(lambda x: IntelligentDispatchItem.from_dict(x), data["completed"])),
     )
