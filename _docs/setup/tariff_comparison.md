@@ -6,9 +6,18 @@ The tariff comparison allows you to elect a new tariff which will generate some 
 
 After you've configured your [account](./account.md), you'll be able to configure tariff comparison sensors. These are configured by adding subsequent instances of the integration going through the [normal flow](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy), and selecting `Tariff Comparison` in the provided menu.
 
+!!! note
+
+    This will only look and provide data inline with previous consumption data. There are no plans to provide data for any other time frame (e.g. "today"). This is for two reasons.
+
+    1. I personally don't see the point of tracking this information against the current consumption as the value of the data will be larger in scope to just today (e.g. you're probably not going to switch tariffs because this morning is cheaper on another tariff) and while a tariff might be cheaper at one point during the day, it might be more expensive at another point. The value, to me, is in the historic trend of the data and knowing this a few hours early isn't going to save much.
+    
+    2. I only want the integration to retrieve data that is required for functionality to stay in the good books with OE
+
 !!! info
     
     When updating the tariff depending on what previous consumption data is available, it can take up to 24 hours to update the cost. This will be improved in the future.
+
 
 ## Setup
 

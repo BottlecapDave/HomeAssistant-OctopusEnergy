@@ -336,7 +336,7 @@
     },
     "intelligent_manual_service": {
       "title": "Manual intelligent dispatch refresh service available for {account_id}",
-      "description": "By default, dispatches are retrieved every {polling_time} minutes. If you know when your car has started charging via other means, you might want to activate manual polling mode which will expose a service for retrieving dispatches on-demand. This is the recommended way to get the information as soon as possible and reduce unnecessary calls to the Octopus Energy servers. If you can't do this, then just ignore this repair notice and continue with the automatic polling.\n\nClick \"Learn More\" to find out more about the service."
+      "description": "By default, dispatches are retrieved every {polling_time} minutes. If you know when your car has started charging via other means, you might want to activate manual polling mode which will expose a service for retrieving dispatches on-demand. This is the recommended way to get the information as soon as possible and reduce unnecessary calls to the Octopus Energy servers. If you can't do this, then just ignore this repair notice and continue with the automatic polling.\n\nIf you wish to enable this service, then click \"Learn More\" to find out more about the setting and associated service. Once enabled, this repair notice will be removed."
     }
   }
 }

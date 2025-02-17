@@ -292,7 +292,7 @@ Refreshes intelligent dispatches for a given account.
 
 #### Automation Example
 
-The below example is how you might refresh the dispatches when you car is plugged in, or every 3 minutes when your car is plugged in
+The below example is how you might refresh the dispatches when you car is plugged in, or every 3 minutes when your car is plugged in. Please note that the entity `binary_sensor.car_is_plugged_in` is not provided by the integration and should be replaced by an external source (e.g. the plug status from the [MyEnergi integration](https://github.com/CJNE/ha-myenergi) or a manual input switch that you switch on manually when you plug in your car).
 
 !!! warn
 
@@ -302,20 +302,22 @@ The below example is how you might refresh the dispatches when you car is plugge
 mode: single
 alias: Refresh intelligent dispatches
 triggers:
-- trigger: state
-   entity_id: binary_sensor.car_is_plugged_in
-   to: 'on'
-# Refresh every 3 minutes in case the schedule has changed
-- trigger: time_pattern
-   minutes: "/3"
+  - trigger: state
+    entity_id: binary_sensor.car_is_plugged_in
+    to: on
+  # Refresh every 3 minutes in case the schedule has changed
+  - trigger: time_pattern
+    minutes: /3
 conditions:
-- condition: state
-   entity_id: binary_sensor.car_is_plugged_in
-   state: 'on'
+  - condition: state
+    entity_id: binary_sensor.car_is_plugged_in
+    state: on
 actions:
-- action: octopus_energy.refresh_intelligent_dispatches
-  target:
-    entity_id: binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching
+  # Wait 30 seconds to give OE a chance to update the dispatches
+  - delay: 00:00:30
+  - action: octopus_energy.refresh_intelligent_dispatches
+    target:
+      entity_id: binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching
 ```
 
 ## Miscellaneous
