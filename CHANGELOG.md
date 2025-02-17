@@ -1,3 +1,11 @@
+## [14.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v14.0.0...v14.0.1) (2025-02-17)
+
+
+### Bug Fixes
+
+* **custom:** fixed issue where rates are not refreshed after reloading if intelligent dispatches refreshing is manual (2 hours dev time) ([011b0cd](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/011b0cd4553c5e144d39059bd8e0455b173394df))
+* **custom:** updated manual intelligent service to provide further clarification and point at setting instead of service (5 minutes dev time) ([1d34c41](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1d34c414e736f06a6a6a2dfb4418114c7b4fbbed))
+
 # [14.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v13.5.4...v14.0.0) (2025-02-11)
 
 
