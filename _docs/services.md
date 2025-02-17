@@ -313,6 +313,8 @@ conditions:
     entity_id: binary_sensor.car_is_plugged_in
     state: on
 actions:
+  # Wait 30 seconds to give OE a chance to update the dispatches
+  - delay: 00:00:30
   - action: octopus_energy.refresh_intelligent_dispatches
     target:
       entity_id: binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching
