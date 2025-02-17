@@ -2304,6 +2304,8 @@
 <span class="w">    </span><span class="nt">entity_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">binary_sensor.car_is_plugged_in</span>
 <span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">on</span>
 <span class="nt">actions</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># Wait 30 seconds to give OE a chance to update the dispatches</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">delay</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00:00:30</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">octopus_energy.refresh_intelligent_dispatches</span>
 <span class="w">    </span><span class="nt">target</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">entity_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching</span>
