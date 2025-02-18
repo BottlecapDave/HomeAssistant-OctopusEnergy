@@ -1,3 +1,10 @@
+## [14.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v14.0.1...v14.0.2) (2025-02-18)
+
+
+### Bug Fixes
+
+* fixed issue where cached intelligent dispatches didn't load correctly ([e541624](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e541624747b8e502efe60de00055e5bc80415b65))
+
 ## [14.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v14.0.0...v14.0.1) (2025-02-17)
 
 
