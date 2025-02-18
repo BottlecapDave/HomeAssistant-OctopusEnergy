@@ -420,7 +420,15 @@ async def async_setup_dependencies(hass, config):
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] = intelligent_mpan
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] = intelligent_serial_number
 
-      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] = await async_load_cached_intelligent_dispatches(hass, account_id)
+      cached_dispatches = await async_load_cached_intelligent_dispatches(hass, account_id)
+      if cached_dispatches is not None:
+        hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] = IntelligentDispatchesCoordinatorResult(
+          now - timedelta(hours=1),
+          1,
+          cached_dispatches,
+          0,
+          now - timedelta(hours=1)
+        )
 
       if CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES not in config or config[CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == False:
         intelligent_manual_service_enabled = False
