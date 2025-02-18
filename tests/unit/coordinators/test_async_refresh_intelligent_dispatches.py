@@ -721,3 +721,68 @@ async def test_when_manual_refresh_is_called_after_one_minute_then_dispatches_re
     assert save_dispatches_called == True
     assert save_dispatches_account_id == account_info["id"]
     assert save_dispatches_dispatches == retrieved_dispatches.dispatches
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("planned_is_empty,completed_is_empty",[
+  (True, False),
+  (False, True),
+])
+async def test_when_no_dispatches_are_retrieved_and_none_exist_then_dispatches_retrieved(planned_is_empty: bool, completed_is_empty: bool):
+  expected_dispatches = mock_intelligent_dispatches()
+  if planned_is_empty:
+    expected_dispatches.planned = []
+  elif completed_is_empty:
+    expected_dispatches.completed = []
+  
+  mock_api_called = False
+  async def async_mock_get_intelligent_dispatches(*args, **kwargs):
+    nonlocal mock_api_called
+    mock_api_called = True
+    return expected_dispatches
+  
+  async def async_merge_dispatch_data(*args, **kwargs):
+    account_id, completed_dispatches = args
+    return completed_dispatches
+  
+  save_dispatches_called = False
+  save_dispatches_account_id = None
+  save_dispatches_dispatches = None
+  async def async_save_dispatches(*args, **kwargs):
+    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    save_dispatches_called = True
+    account_id, dispatches = args
+    save_dispatches_account_id = account_id
+    save_dispatches_dispatches = dispatches
+  
+  account_info = get_account_info()
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=1), 1, mock_intelligent_dispatches(), 1, current - timedelta(hours=1))
+  if planned_is_empty:
+    existing_dispatches.dispatches.planned = []
+  elif completed_is_empty:
+    existing_dispatches.dispatches.completed = []
+
+  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, 1, last_retrieved)
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_dispatches: IntelligentDispatchesCoordinatorResult = await async_refresh_intelligent_dispatches(
+      current,
+      client,
+      account_info,
+      intelligent_device,
+      existing_dispatches,
+      False,
+      True,
+      async_merge_dispatch_data,
+      async_save_dispatches
+    )
+
+    assert mock_api_called == True
+    assert retrieved_dispatches is not None
+    assert retrieved_dispatches.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)
+    assert retrieved_dispatches.last_evaluated == current
+    assert retrieved_dispatches.dispatches == expected_retrieved_dispatches.dispatches
+
+    assert save_dispatches_called == False
+    assert save_dispatches_account_id == None
+    assert save_dispatches_dispatches == None

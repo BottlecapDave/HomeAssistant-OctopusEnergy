@@ -465,7 +465,7 @@ async def async_setup_dependencies(hass, config):
       ir.async_delete_issue(hass, DOMAIN, intelligent_repair_key)
       
       # Need to set initial data otherwise our rates won't update properly until an initial result has been requested
-      if hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] is None:
+      if DATA_INTELLIGENT_DISPATCHES not in hass.data[DOMAIN][account_id] or hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] is None:
         _LOGGER.info('Loading dummy dispatches result')
         hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] = IntelligentDispatchesCoordinatorResult(
           now - timedelta(hours=1),

@@ -25,7 +25,7 @@ from ..const import (
 )
 
 from ..api_client import ApiException, OctopusEnergyApiClient
-from ..api_client.intelligent_dispatches import IntelligentDispatches
+from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
 from . import BaseCoordinatorResult
 from ..api_client.intelligent_device import IntelligentDevice
 
@@ -95,6 +95,28 @@ async def async_merge_dispatch_data(hass, account_id: str, completed_dispatches)
 
   await store.async_save(dispatches_to_dictionary_list(new_data))
   return new_data
+
+def has_dispatches_changed(existing_dispatches: IntelligentDispatches, new_dispatches: IntelligentDispatches):
+  return (
+    existing_dispatches.current_state != new_dispatches.current_state or
+    len(existing_dispatches.completed) != len(new_dispatches.completed) or
+    (
+      len(existing_dispatches.completed) > 0 and
+      (
+        existing_dispatches.completed[0].start != new_dispatches.completed[0].start or
+        existing_dispatches.completed[-1].start != new_dispatches.completed[-1].start
+      )
+    ) 
+    or
+    len(existing_dispatches.planned) != len(new_dispatches.planned) or
+    (
+      len(existing_dispatches.planned) > 0 and
+      (
+        existing_dispatches.planned[0].start != new_dispatches.planned[0].start or
+        existing_dispatches.planned[-1].start != new_dispatches.planned[-1].start
+      )
+    )
+  )
 
 async def async_refresh_intelligent_dispatches(
   current: datetime,
@@ -166,13 +188,7 @@ async def async_refresh_intelligent_dispatches(
 
         if (existing_intelligent_dispatches_result is None or
             existing_intelligent_dispatches_result.dispatches is None or
-            existing_intelligent_dispatches_result.dispatches.current_state != dispatches.current_state or
-            len(existing_intelligent_dispatches_result.dispatches.completed) != len(dispatches.completed) or
-            existing_intelligent_dispatches_result.dispatches.completed[0].start != dispatches.completed[0].start or
-            existing_intelligent_dispatches_result.dispatches.completed[-1].start != dispatches.completed[-1].start or
-            len(existing_intelligent_dispatches_result.dispatches.planned) != len(dispatches.planned) or
-            existing_intelligent_dispatches_result.dispatches.planned[0].start != dispatches.planned[0].start or
-            existing_intelligent_dispatches_result.dispatches.planned[-1].start != dispatches.planned[-1].start):
+            has_dispatches_changed(existing_intelligent_dispatches_result.dispatches, dispatches)):
           await async_save_dispatches(account_id, dispatches)
 
         return IntelligentDispatchesCoordinatorResult(current, 1, dispatches, requests_current_hour + 1, requests_last_reset)
