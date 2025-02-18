@@ -1,3 +1,11 @@
+## [14.0.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v14.0.2...v14.0.3) (2025-02-18)
+
+
+### Bug Fixes
+
+* Fixed issue with indexing on startup ([e6972c6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e6972c62845d62f3108af0a19521ea3a17e3470d))
+* fixed issue with intelligent dispatches when no planned or completed dispatches are retrieved (30 minutes dev time) ([9e53ba6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9e53ba650acf276ddae848f60627ca68e64fecdd))
+
 ## [14.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v14.0.1...v14.0.2) (2025-02-18)
 
 
