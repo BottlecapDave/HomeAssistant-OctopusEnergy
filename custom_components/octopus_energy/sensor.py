@@ -725,7 +725,7 @@ async def async_setup_tariff_comparison_sensors(hass: HomeAssistant, entry, conf
   mpan_mprn = config[CONFIG_TARIFF_COMPARISON_MPAN_MPRN]
 
   calorific_value = DEFAULT_CALORIFIC_VALUE
-  config_entries = hass.config_entries.async_entries(DOMAIN)
+  config_entries = hass.config_entries.async_entries(DOMAIN, include_ignore=False)
   for entry in config_entries:
     config_entry_data = dict(entry.data)
 
