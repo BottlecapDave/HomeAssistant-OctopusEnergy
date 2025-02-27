@@ -89,6 +89,7 @@ from .utils.tariff_cache import async_get_cached_tariff_total_unique_rates, asyn
 from .utils.rate_information import get_peak_type, get_unique_rates, has_peak_rates
 
 from .octoplus.points import OctopusEnergyOctoplusPoints
+from .octoplus.rewards import OctopusEnergyOctoplusRewards
 from .octoplus.saving_session_baseline import OctopusEnergySavingSessionBaseline
 
 from .utils import (Tariff, get_active_tariff)
@@ -205,6 +206,19 @@ async def async_setup_entry(hass, entry, async_add_entities):
           ),
         ),
         "async_redeem_points_into_account_credit",
+        # supports_response=SupportsResponse.OPTIONAL
+      )
+      platform.async_register_entity_service(
+        "claim_octoplus_reward",
+        vol.All(
+          cv.make_entity_service_schema(
+            {
+              vol.Required("reward_slug"): str,
+            },
+            extra=vol.ALLOW_EXTRA,
+          ),
+        ),
+        "async_claim_octoplus_reward",
         # supports_response=SupportsResponse.OPTIONAL
       )
 
@@ -336,6 +350,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   
   if octoplus_enrolled:
     entities.append(OctopusEnergyOctoplusPoints(hass, client, account_id))
+    entities.append(OctopusEnergyOctoplusRewards(hass, client, account_id))
     entities.append(OctopusEnergyFreeElectricitySessionsDataLastRetrieved(hass, free_electricity_session_coordinator, account_id))
 
   account_debug_override = await async_get_account_debug_override(hass, account_id)

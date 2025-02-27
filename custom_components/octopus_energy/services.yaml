@@ -353,3 +353,17 @@ refresh_intelligent_dispatches:
     entity:
       integration: octopus_energy
       domain: binary_sensor
+
+claim_octoplus_reward:
+  name: Claim octoplus reward
+  description: Claim a given octoplus reward
+  target:
+    entity:
+      integration: octopus_energy
+      domain: sensor
+  fields:
+    reward_slug:
+      name: Reward slug
+      description: The name of the reward type to claim
+      selector:
+        text:

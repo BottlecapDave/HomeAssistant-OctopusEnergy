@@ -14,7 +14,7 @@ from ..utils import (
 )
 
 from .intelligent_device import IntelligentDevice
-from .octoplus import RedeemOctoplusPointsResponse
+from .octoplus import RedeemOctoplusPointsResponse, ClaimOctoplusRewardResponse
 from .intelligent_settings import IntelligentSettings
 from .intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
 from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSessionsResponse
@@ -345,6 +345,46 @@ redeem_octoplus_points_account_credit_mutation = '''mutation {{
     points: {points}
   }}) {{
     pointsRedeemed
+  }}
+}}
+'''
+
+available_octoplus_rewards_query = '''
+query getOctoplusRewards {{
+  octoplusRewards(accountNumber: "{account_id}") {{
+    id
+    claimedAt
+    status
+    vouchers {{
+      ... on ShoptopusVoucherType {{
+        code
+      }}
+      ... on OctoplusVoucherType {{
+        code
+        expiresAt
+      }}
+    }}
+    offer {{
+      imageUrls {{
+        banner
+        bannerMobile
+        logo
+      }}
+      name
+      priceTag
+      slug
+    }}
+  }}
+}}
+'''
+
+claim_octoplus_reward_mutation = '''
+mutation {{
+  claimOctoplusReward(
+    accountNumber: "{account_id}",
+    offerSlug: "{offer_slug}"
+  ) {{
+    rewardId
   }}
 }}
 '''
@@ -1127,6 +1167,60 @@ class OctopusEnergyApiClient:
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
+
+  async def async_get_octoplus_rewards(self, account_id: str):
+    """Get all octoplus rewards (pending and issued)"""
+    await self.async_refresh_token()
+
+    try:
+      client = self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+
+      payload = { "query": available_octoplus_rewards_query.format(account_id=account_id) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as octoplus_rewards_response:
+        response_body = await self.__async_read_response__(octoplus_rewards_response, url)
+
+        if response_body is not None and "data" in response_body and "octoplusRewards" in response_body["data"]:
+          return response_body["data"]["octoplusRewards"]
+        else:
+          _LOGGER.debug(f"Failed to retrieve octoplus rewards data")
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+    return None
+
+  async def async_claim_octoplus_reward(self, account_id: str, offer_slug: str) -> ClaimOctoplusRewardResponse:
+    await self.async_refresh_token()
+
+    try:
+      client = self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+
+      payload = { "query": claim_octoplus_reward_mutation.format(account_id=account_id, offer_slug=offer_slug) }
+      headers = { "Authorization": f"JWT {self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as octoplus_reward_response:
+        response_body = await self.__async_read_response__(octoplus_reward_response, url)
+
+        if response_body is not None and "data" in response_body and "rewardId" in response_body["data"]:
+          return ClaimOctoplusRewardResponse.success(response_body["data"]["rewardId"])
+
+        _LOGGER.debug(f"Failed to claim octoplus reward")
+
+    except RequestException as e:
+      if len(e.errors):
+        errors = [e["message"] for e in response_body["errors"]]
+        return ClaimOctoplusRewardResponse.error(errors)
+
+      raise
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+    return None
 
   async def async_get_smart_meter_consumption(self, device_id: str, period_from: datetime, period_to: datetime):
     """Get the user's smart meter consumption"""
