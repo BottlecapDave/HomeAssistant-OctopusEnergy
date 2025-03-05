@@ -54,6 +54,7 @@ from .const import (
   CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_VERSION,
+  DATA_DISCOVERY_MANAGER,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
   DATA_CUSTOM_RATE_WEIGHTINGS_KEY,
   DATA_HOME_PRO_CLIENT,
@@ -179,7 +180,8 @@ async def async_setup_entry(hass, entry):
 
     if CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS in config and config[CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS] == True:
       discovery_manager = DiscoveryManager(hass, account_id)
-      await discovery_manager.start_discovery()
+      await discovery_manager.async_setup()
+      hass.data[DOMAIN][account_id][DATA_DISCOVERY_MANAGER] = discovery_manager
   
   elif config[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
     if DOMAIN not in hass.data or account_id not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN][account_id]:

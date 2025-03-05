@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import datetime
 import logging
 from typing import Any
 
@@ -10,8 +11,10 @@ from homeassistant.config_entries import SOURCE_INTEGRATION_DISCOVERY
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import discovery_flow
 from homeassistant.const import (
-    UnitOfEnergy
+    UnitOfEnergy,
+    EVENT_HOMEASSISTANT_STOP
 )
+from homeassistant.helpers.event import async_track_time_interval
 
 from .const import (
     CONFIG_COST_TRACKER_DISCOVERY_ACCOUNT_ID,
@@ -19,6 +22,7 @@ from .const import (
     CONFIG_COST_TRACKER_TARGET_ENTITY_ID,
     CONFIG_KIND,
     CONFIG_KIND_COST_TRACKER,
+    DISCOVERY_REFRESH_IN_HOURS,
     DOMAIN,
 )
 
@@ -32,7 +36,25 @@ class DiscoveryManager:
         self._hass = hass
         self._account_id = account_id
 
-    async def start_discovery(self) -> None:
+    async def async_setup(self):
+        @callback
+        async def _async_refresh(_: datetime) -> None:
+            await self._async_start_discovery()
+
+        cancel = async_track_time_interval(
+            self._hass, _async_refresh, datetime.timedelta(hours=DISCOVERY_REFRESH_IN_HOURS)
+        )
+
+        @callback
+        def _on_homeassistant_stop(event) -> None:
+            """Cancel cleanup."""
+            cancel()
+
+        self._hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, _on_homeassistant_stop)
+
+        await self._async_start_discovery()
+
+    async def _async_start_discovery(self) -> None:
         """Start the discovery procedure."""
         _LOGGER.debug("Start auto discovering of entities")
         entity_registry = er.async_get(self._hass)
