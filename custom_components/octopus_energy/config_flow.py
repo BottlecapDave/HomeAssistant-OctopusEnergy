@@ -159,6 +159,8 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
   VERSION = CONFIG_VERSION
 
+  _target_entity_id = None
+
   async def async_step_integration_discovery(
     self,
     discovery_info: DiscoveryInfoType,
