@@ -271,7 +271,7 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
     )
 
     assert retrieved_rates is not None
-    assert retrieved_rates.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
+    assert retrieved_rates.next_refresh == current.replace(second=0, microsecond=0) + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
     assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_retrieved_rates.rates
     assert mock_api_called == True
@@ -314,7 +314,7 @@ async def test_when_existing_rates_are_requested_period_and_same_tariff_code_the
     )
 
     assert retrieved_rates is not None
-    assert retrieved_rates.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
+    assert retrieved_rates.next_refresh == current.replace(second=0, microsecond=0) + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
     assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_retrieved_rates.rates
     assert mock_api_called == False
@@ -364,7 +364,7 @@ async def test_when_existing_rates_are_requested_period_and_different_tariff_cod
     )
 
     assert retrieved_rates is not None
-    assert retrieved_rates.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
+    assert retrieved_rates.next_refresh == current.replace(second=0, microsecond=0) + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
     assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_rates
     assert mock_api_called == True
@@ -416,7 +416,7 @@ async def test_when_existing_rates_contains_some_of_period_and_same_tariff_code_
     )
 
     assert retrieved_rates is not None
-    assert retrieved_rates.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
+    assert retrieved_rates.next_refresh == current.replace(second=0, microsecond=0) + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
     assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert mock_api_called == True
     
@@ -478,7 +478,7 @@ async def test_when_existing_rates_contains_some_of_period_and_different_tariff_
     )
 
     assert retrieved_rates is not None
-    assert retrieved_rates.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
+    assert retrieved_rates.next_refresh == current.replace(second=0, microsecond=0) + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
     assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_rates
     assert mock_api_called == True

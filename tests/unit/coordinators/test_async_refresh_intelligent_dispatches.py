@@ -280,7 +280,7 @@ async def test_when_next_refresh_is_in_the_future_then_existing_dispatches_retur
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=(REFRESH_RATE_IN_MINUTES_INTELLIGENT - 1), seconds=59), 1, mock_intelligent_dispatches(), 1, last_retrieved)
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, mock_intelligent_dispatches(), 1, last_retrieved)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -399,7 +399,7 @@ async def test_when_existing_dispatches_is_old_then_dispatches_retrieved():
     )
 
     assert retrieved_dispatches is not None
-    assert retrieved_dispatches.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)
+    assert retrieved_dispatches.next_refresh == current.replace(second=0, microsecond=0) + timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)
     assert retrieved_dispatches.last_evaluated == expected_retrieved_dispatches.last_evaluated
     assert retrieved_dispatches.dispatches == expected_retrieved_dispatches.dispatches
     assert mock_api_called == True
@@ -554,7 +554,7 @@ async def test_when_requests_reached_for_hour_and_due_to_be_reset_then_dispatche
     )
 
     assert retrieved_dispatches is not None
-    assert retrieved_dispatches.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)
+    assert retrieved_dispatches.next_refresh == current.replace(second=0, microsecond=0) + timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)
     assert retrieved_dispatches.last_evaluated == expected_retrieved_dispatches.last_evaluated
     assert retrieved_dispatches.dispatches == expected_retrieved_dispatches.dispatches
     assert mock_api_called == True
@@ -714,7 +714,7 @@ async def test_when_manual_refresh_is_called_after_one_minute_then_dispatches_re
 
     assert mock_api_called == True
     assert retrieved_dispatches is not None
-    assert retrieved_dispatches.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)
+    assert retrieved_dispatches.next_refresh == current.replace(second=0, microsecond=0) + timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)
     assert retrieved_dispatches.last_evaluated == current
     assert retrieved_dispatches.dispatches == expected_retrieved_dispatches.dispatches
 
@@ -779,7 +779,7 @@ async def test_when_no_dispatches_are_retrieved_and_none_exist_then_dispatches_r
 
     assert mock_api_called == True
     assert retrieved_dispatches is not None
-    assert retrieved_dispatches.next_refresh == current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)
+    assert retrieved_dispatches.next_refresh == current.replace(second=0, microsecond=0) + timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)
     assert retrieved_dispatches.last_evaluated == current
     assert retrieved_dispatches.dispatches == expected_retrieved_dispatches.dispatches
 
