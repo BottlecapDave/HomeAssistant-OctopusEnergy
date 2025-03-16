@@ -2,6 +2,7 @@ name: Close inactive issues
 on:
   schedule:
     - cron: "30 1 * * *"
+  workflow_dispatch:
 jobs:
   close-issues:
     if: ${{ github.repository_owner == 'BottlecapDave' }}
@@ -9,6 +10,7 @@ jobs:
     permissions:
       issues: write
       pull-requests: write
+      discussions: write
     steps:
       - uses: actions/stale@v9
         with:
@@ -24,4 +26,6 @@ jobs:
       - uses: dessant/lock-threads@v5
         with:
           issue-inactive-days: '30'
-          process-only: 'issues'
+          pr-inactive-days: '30'
+          discussion-inactive-days: '30'
+          log-output: true
