@@ -26,6 +26,7 @@ jobs:
       - uses: dessant/lock-threads@v5
         with:
           issue-inactive-days: '30'
+          issue-comment: 'This issue has been automatically locked due to inactivity for more than 30 days. This is to reduce noise for original parties. Please open a new issue for related bugs.'
           pr-inactive-days: '30'
           discussion-inactive-days: '30'
           log-output: true
