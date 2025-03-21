@@ -335,6 +335,10 @@ This service is only available for the following sensors
 - `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption` (this will populate both consumption and cost)
 - `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption_m3` (this will populate both consumption and cost for both m3 and kwh)
 
+!!! information
+
+    Due to limitations with Home Assistant entities, this service will only refresh data for the associated statistic ids used for the recommended approach in the [energy dashboard](./setup/energy_dashboard.md#previous-day-consumption). This will not update the history of the entities themselves.
+
 ### octopus_energy.register_rate_weightings
 
 Allows you to configure weightings against rates at given times using factors external to the integration. These are applied when calculating [target rates](./setup/target_rate.md#external-rate-weightings) or [rolling target rates](./setup/rolling_target_rate.md#external-rate-weightings).
