@@ -94,6 +94,12 @@ async def test_when_account_info_is_none_then_existing_gas_rates_returned():
     nonlocal actual_fired_events
     actual_fired_events[name] = metadata
     return None
+
+  raise_no_active_tariff_called = False
+  async def raise_no_active_tariff(*args, **kwargs):
+    nonlocal raise_no_active_tariff_called
+    raise_no_active_tariff_called = True
+    return None
   
   account_info = None
   existing_rates = GasRatesCoordinatorResult(period_from, 1, create_rate_data(period_from, period_to, [2, 4]))
@@ -107,11 +113,13 @@ async def test_when_account_info_is_none_then_existing_gas_rates_returned():
       mprn,
       serial_number,
       existing_rates,
-      fire_event
+      fire_event,
+      raise_no_active_rate=raise_no_active_tariff
     )
 
     assert retrieved_rates == existing_rates
     assert mock_api_called == False
+    assert raise_no_active_tariff_called == False
     assert len(actual_fired_events.keys()) == 0
 
 @pytest.mark.asyncio
@@ -128,6 +136,12 @@ async def test_when_no_active_rates_then_none_returned():
     nonlocal actual_fired_events
     actual_fired_events[name] = metadata
     return None
+
+  raise_no_active_tariff_called = False
+  async def raise_no_active_tariff(*args, **kwargs):
+    nonlocal raise_no_active_tariff_called
+    raise_no_active_tariff_called = True
+    return None
   
   account_info = get_account_info(False)
   existing_rates = GasRatesCoordinatorResult(period_from, 1, create_rate_data(period_from, period_to, [2, 4]))
@@ -141,11 +155,13 @@ async def test_when_no_active_rates_then_none_returned():
       mprn,
       serial_number,
       existing_rates,
-      fire_event
+      fire_event,
+      raise_no_active_rate=raise_no_active_tariff
     )
 
     assert retrieved_rates == None
     assert mock_api_called == False
+    assert raise_no_active_tariff_called == True
     assert len(actual_fired_events.keys()) == 0
 
 @pytest.mark.asyncio
@@ -163,6 +179,12 @@ async def test_when_next_refresh_is_in_the_past_then_existing_gas_rates_returned
     nonlocal actual_fired_events
     actual_fired_events[name] = metadata
     return None
+
+  raise_no_active_tariff_called = False
+  async def raise_no_active_tariff(*args, **kwargs):
+    nonlocal raise_no_active_tariff_called
+    raise_no_active_tariff_called = True
+    return None
   
   account_info = get_account_info()
   existing_rates = GasRatesCoordinatorResult(current - timedelta(minutes=4, seconds=59), 1, create_rate_data(period_from, period_to, [2, 4]))
@@ -176,11 +198,13 @@ async def test_when_next_refresh_is_in_the_past_then_existing_gas_rates_returned
       mprn,
       serial_number,
       existing_rates,
-      fire_event
+      fire_event,
+      raise_no_active_rate=raise_no_active_tariff
     )
 
     assert retrieved_rates == existing_rates
     assert mock_api_called == False
+    assert raise_no_active_tariff_called == False
     assert len(actual_fired_events.keys()) == 0
 
 @pytest.mark.asyncio
@@ -208,6 +232,12 @@ async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
     nonlocal actual_fired_events
     actual_fired_events[name] = metadata
     return None
+
+  raise_no_active_tariff_called = False
+  async def raise_no_active_tariff(*args, **kwargs):
+    nonlocal raise_no_active_tariff_called
+    raise_no_active_tariff_called = True
+    return None
   
   account_info = get_account_info()
   expected_retrieved_rates = GasRatesCoordinatorResult(current, 1, expected_rates)
@@ -221,13 +251,15 @@ async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
       mprn,
       serial_number,
       existing_rates,
-      fire_event
+      fire_event,
+      raise_no_active_rate=raise_no_active_tariff
     )
 
     assert retrieved_rates is not None
     assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_retrieved_rates.rates
     assert mock_api_called == True
+    assert raise_no_active_tariff_called == False
     assert requested_period_from == expected_period_from
     assert requested_period_to == expected_period_to
     
@@ -253,6 +285,12 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
     nonlocal actual_fired_events
     actual_fired_events[name] = metadata
     return None
+
+  raise_no_active_tariff_called = False
+  async def raise_no_active_tariff(*args, **kwargs):
+    nonlocal raise_no_active_tariff_called
+    raise_no_active_tariff_called = True
+    return None
   
   account_info = get_account_info()
   existing_rates = GasRatesCoordinatorResult(period_from, 1, create_rate_data(period_from - timedelta(days=60), period_to - timedelta(days=60), [2, 4]))
@@ -267,7 +305,8 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
       mprn,
       serial_number,
       existing_rates,
-      fire_event
+      fire_event,
+      raise_no_active_rate=raise_no_active_tariff
     )
 
     assert retrieved_rates is not None
@@ -275,6 +314,7 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
     assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_retrieved_rates.rates
     assert mock_api_called == True
+    assert raise_no_active_tariff_called == False
     
     assert len(actual_fired_events.keys()) == 3
     assert_raised_events(actual_fired_events, EVENT_GAS_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
@@ -296,6 +336,12 @@ async def test_when_existing_rates_are_requested_period_and_same_tariff_code_the
     nonlocal actual_fired_events
     actual_fired_events[name] = metadata
     return None
+
+  raise_no_active_tariff_called = False
+  async def raise_no_active_tariff(*args, **kwargs):
+    nonlocal raise_no_active_tariff_called
+    raise_no_active_tariff_called = True
+    return None
   
   account_info = get_account_info()
   existing_rates = GasRatesCoordinatorResult(period_to - timedelta(days=1), 1, create_rate_data(expected_period_from, expected_period_to, [2, 4], tariff_code))
@@ -310,7 +356,8 @@ async def test_when_existing_rates_are_requested_period_and_same_tariff_code_the
       mprn,
       serial_number,
       existing_rates,
-      fire_event
+      fire_event,
+      raise_no_active_rate=raise_no_active_tariff
     )
 
     assert retrieved_rates is not None
@@ -318,6 +365,7 @@ async def test_when_existing_rates_are_requested_period_and_same_tariff_code_the
     assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_retrieved_rates.rates
     assert mock_api_called == False
+    assert raise_no_active_tariff_called == False
     
     assert len(actual_fired_events.keys()) == 3
     assert_raised_events(actual_fired_events, EVENT_GAS_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
@@ -346,6 +394,12 @@ async def test_when_existing_rates_are_requested_period_and_different_tariff_cod
     nonlocal actual_fired_events
     actual_fired_events[name] = metadata
     return None
+
+  raise_no_active_tariff_called = False
+  async def raise_no_active_tariff(*args, **kwargs):
+    nonlocal raise_no_active_tariff_called
+    raise_no_active_tariff_called = True
+    return None
   
   account_info = get_account_info()
   existing_rates = GasRatesCoordinatorResult(period_to - timedelta(days=1), 1, create_rate_data(expected_period_from, expected_period_to, [2, 4], f"{tariff_code}-diff"))
@@ -360,7 +414,8 @@ async def test_when_existing_rates_are_requested_period_and_different_tariff_cod
       mprn,
       serial_number,
       existing_rates,
-      fire_event
+      fire_event,
+      raise_no_active_rate=raise_no_active_tariff
     )
 
     assert retrieved_rates is not None
@@ -368,6 +423,7 @@ async def test_when_existing_rates_are_requested_period_and_different_tariff_cod
     assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_rates
     assert mock_api_called == True
+    assert raise_no_active_tariff_called == False
 
     assert requested_period_from == expected_period_from
     assert requested_period_to == expected_period_to
@@ -398,6 +454,12 @@ async def test_when_existing_rates_contains_some_of_period_and_same_tariff_code_
     nonlocal actual_fired_events
     actual_fired_events[name] = metadata
     return None
+
+  raise_no_active_tariff_called = False
+  async def raise_no_active_tariff(*args, **kwargs):
+    nonlocal raise_no_active_tariff_called
+    raise_no_active_tariff_called = True
+    return None
   
   account_info = get_account_info()
   existing_rates = GasRatesCoordinatorResult(period_to - timedelta(days=60), 1, create_rate_data(expected_period_from, expected_rates[0]["start"], [1], tariff_code))
@@ -412,13 +474,15 @@ async def test_when_existing_rates_contains_some_of_period_and_same_tariff_code_
       mprn,
       serial_number,
       existing_rates,
-      fire_event
+      fire_event,
+      raise_no_active_rate=raise_no_active_tariff
     )
 
     assert retrieved_rates is not None
     assert retrieved_rates.next_refresh == current.replace(second=0, microsecond=0) + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES)
     assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert mock_api_called == True
+    assert raise_no_active_tariff_called == False
     
     assert len(actual_fired_events.keys()) == 3
     assert_raised_events(actual_fired_events, EVENT_GAS_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
@@ -460,6 +524,12 @@ async def test_when_existing_rates_contains_some_of_period_and_different_tariff_
     nonlocal actual_fired_events
     actual_fired_events[name] = metadata
     return None
+
+  raise_no_active_tariff_called = False
+  async def raise_no_active_tariff(*args, **kwargs):
+    nonlocal raise_no_active_tariff_called
+    raise_no_active_tariff_called = True
+    return None
   
   account_info = get_account_info()
   existing_rates = GasRatesCoordinatorResult(period_to - timedelta(days=60), 1, create_rate_data(expected_period_from, expected_rates[0]["start"], [1], f"{tariff_code}-diff"))
@@ -474,7 +544,8 @@ async def test_when_existing_rates_contains_some_of_period_and_different_tariff_
       mprn,
       serial_number,
       existing_rates,
-      fire_event
+      fire_event,
+      raise_no_active_rate=raise_no_active_tariff
     )
 
     assert retrieved_rates is not None
@@ -482,6 +553,7 @@ async def test_when_existing_rates_contains_some_of_period_and_different_tariff_
     assert retrieved_rates.last_evaluated == expected_retrieved_rates.last_evaluated
     assert retrieved_rates.rates == expected_rates
     assert mock_api_called == True
+    assert raise_no_active_tariff_called == False
     
     assert len(actual_fired_events.keys()) == 3
     assert_raised_events(actual_fired_events, EVENT_GAS_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
@@ -504,6 +576,12 @@ async def test_when_rates_not_retrieved_then_existing_gas_rates_returned():
     nonlocal actual_fired_events
     actual_fired_events[name] = metadata
     return None
+
+  raise_no_active_tariff_called = False
+  async def raise_no_active_tariff(*args, **kwargs):
+    nonlocal raise_no_active_tariff_called
+    raise_no_active_tariff_called = True
+    return None
   
   account_info = get_account_info()
   existing_rates = GasRatesCoordinatorResult(period_from, 1, create_rate_data(period_from, period_to, [1, 2, 3, 4]))
@@ -517,7 +595,8 @@ async def test_when_rates_not_retrieved_then_existing_gas_rates_returned():
       mprn,
       serial_number,
       existing_rates,
-      fire_event
+      fire_event,
+      raise_no_active_rate=raise_no_active_tariff
     )
 
     assert retrieved_rates is not None
@@ -525,6 +604,7 @@ async def test_when_rates_not_retrieved_then_existing_gas_rates_returned():
     assert retrieved_rates.last_evaluated == existing_rates.last_evaluated
     assert retrieved_rates.rates == existing_rates.rates
     assert mock_api_called == True
+    assert raise_no_active_tariff_called == False
     assert len(actual_fired_events.keys()) == 0
 
 @pytest.mark.asyncio
@@ -545,6 +625,12 @@ async def test_when_negative_rates_present_then_existing_rates_retrieved():
     nonlocal actual_fired_events
     actual_fired_events[name] = metadata
     return None
+
+  raise_no_active_tariff_called = False
+  async def raise_no_active_tariff(*args, **kwargs):
+    nonlocal raise_no_active_tariff_called
+    raise_no_active_tariff_called = True
+    return None
   
   account_info = get_account_info()
   existing_rates = GasRatesCoordinatorResult(period_from, 1, create_rate_data(period_from - timedelta(days=60), period_to - timedelta(days=60), [2, 4]))
@@ -558,7 +644,8 @@ async def test_when_negative_rates_present_then_existing_rates_retrieved():
       mprn,
       serial_number,
       existing_rates,
-      fire_event
+      fire_event,
+      raise_no_active_rate=raise_no_active_tariff
     )
 
     assert retrieved_rates is not None
@@ -568,6 +655,7 @@ async def test_when_negative_rates_present_then_existing_rates_retrieved():
     assert retrieved_rates.request_attempts == existing_rates.request_attempts + 1
     
     assert mock_api_called == True
+    assert raise_no_active_tariff_called == False
     assert expected_rates[0]["value_inc_vat"] < 0
     
     assert len(actual_fired_events.keys()) == 0
@@ -586,6 +674,12 @@ async def test_when_exception_raised_then_existing_gas_rates_returned_and_except
     nonlocal actual_fired_events
     actual_fired_events[name] = metadata
     return None
+
+  raise_no_active_tariff_called = False
+  async def raise_no_active_tariff(*args, **kwargs):
+    nonlocal raise_no_active_tariff_called
+    raise_no_active_tariff_called = True
+    return None
   
   account_info = get_account_info()
   existing_rates = GasRatesCoordinatorResult(period_from, 1, create_rate_data(period_from, period_to, [1, 2, 3, 4]))
@@ -599,7 +693,8 @@ async def test_when_exception_raised_then_existing_gas_rates_returned_and_except
       mprn,
       serial_number,
       existing_rates,
-      fire_event
+      fire_event,
+      raise_no_active_rate=raise_no_active_tariff
     )
 
     assert retrieved_rates is not None
@@ -608,4 +703,5 @@ async def test_when_exception_raised_then_existing_gas_rates_returned_and_except
     assert retrieved_rates.rates == existing_rates.rates
     assert retrieved_rates.last_error == raised_exception
     assert mock_api_called == True
+    assert raise_no_active_tariff_called == False
     assert len(actual_fired_events.keys()) == 0

@@ -42,8 +42,8 @@ async def async_refresh_gas_rates_data(
     target_serial_number: str,
     existing_rates_result: GasRatesCoordinatorResult,
     fire_event: Callable[[str, "dict[str, Any]"], None],
-    raise_no_active_rate: Callable[[], None],
-    remove_no_active_rate: Callable[[], None]
+    raise_no_active_rate: Callable[[], None] = None,
+    remove_no_active_rate: Callable[[], None] = None
   ) -> GasRatesCoordinatorResult: 
   if (account_info is not None):
     period_from = as_utc((current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
