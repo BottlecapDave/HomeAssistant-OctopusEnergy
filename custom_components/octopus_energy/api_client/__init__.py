@@ -1883,7 +1883,7 @@ class OctopusEnergyApiClient:
       raise Exception(f'Failed to extract response json: {url}; {text}')
     
     if ("graphql" in url and "errors" in data_as_json and ignore_errors == False):
-      msg = f'Errors in request ({url}): {data_as_json["errors"]}'
+      msg = f'Errors in request ({url}) ({request_context}): {data_as_json["errors"]}'
       errors = list(map(lambda error: error["message"], data_as_json["errors"]))
       _LOGGER.warning(msg)
 

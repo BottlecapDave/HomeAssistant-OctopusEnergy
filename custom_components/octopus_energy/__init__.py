@@ -52,6 +52,8 @@ from .const import (
   CONFIG_MAIN_HOME_PRO_ADDRESS,
   CONFIG_MAIN_HOME_PRO_API_KEY,
   CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES,
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_VERSION,
   DATA_DISCOVERY_MANAGER,
@@ -495,7 +497,15 @@ async def async_setup_dependencies(hass, config):
         override = await async_get_meter_debug_override(hass, mpan, serial_number)
         tariff_override = override.tariff if override is not None else None
         planned_dispatches_supported = intelligent_features.planned_dispatches_supported if intelligent_features is not None else True
-        await async_setup_electricity_rates_coordinator(hass, account_id, mpan, serial_number, is_smart_meter, is_export_meter, planned_dispatches_supported, tariff_override)
+        await async_setup_electricity_rates_coordinator(hass,
+                                                        account_id,
+                                                        mpan,
+                                                        serial_number,
+                                                        is_smart_meter,
+                                                        is_export_meter,
+                                                        planned_dispatches_supported,
+                                                        config[CONFIG_MAIN_INTELLIGENT_RATE_MODE] if CONFIG_MAIN_INTELLIGENT_RATE_MODE in config else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES,
+                                                        tariff_override)
 
   mock_heat_pump = account_debug_override.mock_heat_pump if account_debug_override is not None else False
   if mock_heat_pump:

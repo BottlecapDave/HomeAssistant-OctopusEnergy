@@ -18,6 +18,7 @@
           "home_pro_api_key": "Home Pro API key",
           "favour_direct_debit_rates": "Favour direct debit rates where available",
           "intelligent_manual_dispatches": "Manually refresh intelligent dispatches",
+          "intelligent_rate_mode": "Intelligent tariff rate mode",
           "auto_discover_cost_trackers": "Automatically discover sensors suitable for cost trackers"
         },
         "data_description": {
@@ -28,7 +29,8 @@
           "gas_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
           "home_pro_address": "WARNING: This is experimental.",
           "home_pro_api_key": "WARNING: This is experimental. This is only required if you have setup the custom API.",
-          "intelligent_manual_dispatches": "This will expose a service which can be called to refresh the dispatches on demand. See docs for more information."
+          "intelligent_manual_dispatches": "This will expose a service which can be called to refresh the dispatches on demand. See docs for more information.",
+          "intelligent_rate_mode": "Determines how rates should be adjusted when dispatches are found outside of normal off peak periods"
         }
       },
       "target_rate": {
@@ -181,6 +183,7 @@
           "home_pro_api_key": "Home Pro API key",
           "favour_direct_debit_rates": "Favour direct debit rates where available",
           "intelligent_manual_dispatches": "Manually refresh intelligent dispatches",
+          "intelligent_rate_mode": "Intelligent tariff rate mode",
           "auto_discover_cost_trackers": "Automatically discover sensors suitable for cost trackers"
         },
         "data_description": {
@@ -190,7 +193,8 @@
           "gas_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
           "home_pro_address": "WARNING: This is experimental",
           "home_pro_api_key": "WARNING: This is experimental. This is only required if you have setup the custom API.",
-          "intelligent_manual_dispatches": "This will expose a service which can be called to refresh the dispatches on demand. See docs for more information."
+          "intelligent_manual_dispatches": "This will expose a service which can be called to refresh the dispatches on demand. See docs for more information.",
+          "intelligent_rate_mode": "Determines how rates should be adjusted when dispatches are found outside of normal off peak periods"
         }
       },
       "target_rate": {

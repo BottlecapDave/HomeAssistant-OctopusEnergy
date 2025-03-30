@@ -4,6 +4,7 @@ from homeassistant.util.dt import (as_utc, parse_datetime)
 from custom_components.octopus_energy.intelligent import adjust_intelligent_rates
 from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatchItem
 from tests.integration import create_rate_data
+from custom_components.octopus_energy.const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_COMPLETED_DISPATCHES_ONLY, CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES
 
 def create_rates():
   return [
@@ -43,9 +44,10 @@ async def test_when_no_planned_or_completed_dispatches_then_rates_not_adjusted()
   rates = create_rates()
   planned_dispatches = []
   complete_dispatches = []
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES
 
   # Act
-  adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches)
+  adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches, mode)
 
   # Assert
   assert rates == adjusted_rates
@@ -69,9 +71,10 @@ async def test_when_planned_smart_charge_dispatch_present_in_rate_then_rates_adj
       "home"
   )]
   complete_dispatches: list[IntelligentDispatchItem] = []
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES
 
   # Act
-  adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches)
+  adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches, mode)
 
   # Assert
   assert len(rates) == len(adjusted_rates)
@@ -100,9 +103,10 @@ async def test_when_planned_smart_charge_dispatch_spans_multiple_rates_then_rate
       "home"
   )]
   complete_dispatches: list[IntelligentDispatchItem] = []
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES
 
   # Act
-  adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches)
+  adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches, mode)
 
   # Assert
   assert len(rates) == len(adjusted_rates)
@@ -143,9 +147,10 @@ async def test_when_planned_smart_charge_dispatch_spans_two_parts_then_rates_adj
     )
   ]
   complete_dispatches: list[IntelligentDispatchItem] = []
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES
 
   # Act
-  adjusted_rates = adjust_intelligent_rates(rates.copy(), planned_dispatches, complete_dispatches)
+  adjusted_rates = adjust_intelligent_rates(rates.copy(), planned_dispatches, complete_dispatches, mode)
 
   # Assert
   assert len(rates) == len(adjusted_rates)
@@ -161,6 +166,42 @@ async def test_when_planned_smart_charge_dispatch_spans_two_parts_then_rates_adj
       assert rate == adjusted_rates[index]
 
 @pytest.mark.asyncio
+async def test_when_planned_smart_charge_dispatch_spans_two_parts_and_completed_only_mode_then_rates_not_adjusted():
+  # Arrange
+  rates = (
+    create_rate_data(as_utc(parse_datetime("2022-10-10T20:00:00Z")), as_utc(parse_datetime("2022-10-10T23:30:00Z")), [30.1]) +
+    create_rate_data(as_utc(parse_datetime("2022-10-10T23:30:00Z")), as_utc(parse_datetime("2022-10-11T04:30:00Z")), [9.12]) +
+    create_rate_data(as_utc(parse_datetime("2022-10-11T04:30:00Z")), as_utc(parse_datetime("2022-10-11T05:30:00Z")), [30.1])
+  )
+  off_peak = 9.12
+  planned_dispatches: list[IntelligentDispatchItem] = [
+    IntelligentDispatchItem(
+      as_utc(parse_datetime("2022-10-10T21:30:00Z")),
+      as_utc(parse_datetime("2022-10-10T22:00:00Z")),
+      1,
+      "smart-charge",
+      "home"
+    ),
+    IntelligentDispatchItem(
+      as_utc(parse_datetime("2022-10-10T22:00:00Z")),
+      as_utc(parse_datetime("2022-10-11T04:00:00Z")),
+      1,
+      None,
+      "home"
+    )
+  ]
+  complete_dispatches: list[IntelligentDispatchItem] = []
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_COMPLETED_DISPATCHES_ONLY
+
+  # Act
+  adjusted_rates = adjust_intelligent_rates(rates.copy(), planned_dispatches, complete_dispatches, mode)
+
+  # Assert
+  assert len(rates) == len(adjusted_rates)
+  for index, rate in enumerate(rates):
+    assert rate == adjusted_rates[index]
+
+@pytest.mark.asyncio
 async def test_when_planned_non_smart_charge_dispatch_present_in_rate_then_rates_not_adjusted():
   # Arrange
   rates = create_rates()
@@ -173,9 +214,10 @@ async def test_when_planned_non_smart_charge_dispatch_present_in_rate_then_rates
       "home"
   )]
   complete_dispatches: list[IntelligentDispatchItem] = []
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES
 
   # Act
-  adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches)
+  adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches, mode)
 
   # Assert
   assert rates == adjusted_rates
@@ -199,9 +241,10 @@ async def test_when_complete_smart_charge_dispatch_present_in_rate_then_rates_ad
       "home"
   )]
   planned_dispatches: list[IntelligentDispatchItem] = []
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES
 
   # Act
-  adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches)
+  adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches, mode)
 
   # Assert
   assert len(rates) == len(adjusted_rates)
@@ -230,9 +273,10 @@ async def test_when_complete_non_smart_charge_dispatch_present_in_rate_then_rate
       "home"
   )]
   planned_dispatches: list[IntelligentDispatchItem] = []
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES
 
   # Act
-  adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches)
+  adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, complete_dispatches, mode)
 
   # Assert
   assert len(rates) == len(adjusted_rates)

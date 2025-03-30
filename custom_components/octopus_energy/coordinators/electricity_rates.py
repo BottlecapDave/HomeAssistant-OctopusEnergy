@@ -9,6 +9,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.helpers import issue_registry as ir
 
 from ..const import (
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES,
   COORDINATOR_REFRESH_IN_SECONDS,
   DATA_ACCOUNT_COORDINATOR,
   DATA_INTELLIGENT_DEVICE,
@@ -65,7 +66,8 @@ async def async_refresh_electricity_rates_data(
     tariff_override = None,
     unique_rates_changed: Callable[[Tariff, int], Awaitable[None]] = None,
     raise_no_active_rate: Callable[[], Awaitable[None]] = None,
-    remove_no_active_rate: Callable[[], Awaitable[None]] = None
+    remove_no_active_rate: Callable[[], Awaitable[None]] = None,
+    intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES
   ) -> ElectricityRatesCoordinatorResult: 
   if (account_info is not None):
     period_from = as_utc((current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
@@ -120,7 +122,8 @@ async def async_refresh_electricity_rates_data(
         if dispatches_result is not None and dispatches_result.dispatches is not None and is_export_meter == False:
           new_rates = adjust_intelligent_rates(new_rates,
                                                dispatches_result.dispatches.planned if planned_dispatches_supported else [],
-                                               dispatches_result.dispatches.completed)
+                                               dispatches_result.dispatches.completed,
+                                               intelligent_rate_mode)
           
           _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches_result.dispatches}")
 
@@ -186,7 +189,8 @@ async def async_refresh_electricity_rates_data(
           dispatches_result.last_evaluated > existing_rates_result.rates_last_adjusted):
       new_rates = adjust_intelligent_rates(existing_rates_result.original_rates,
                                            dispatches_result.dispatches.planned,
-                                           dispatches_result.dispatches.completed)
+                                           dispatches_result.dispatches.completed,
+                                           intelligent_rate_mode)
       
       _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches_result.dispatches}")
 
@@ -250,6 +254,7 @@ async def async_setup_electricity_rates_coordinator(hass,
                                                     is_smart_meter: bool,
                                                     is_export_meter: bool,
                                                     planned_dispatches_supported: bool,
+                                                    intelligent_rate_mode: str,
                                                     tariff_override = None):
   key = DATA_ELECTRICITY_RATES_KEY.format(target_mpan, target_serial_number)
 
@@ -286,7 +291,8 @@ async def async_setup_electricity_rates_coordinator(hass,
       tariff_override,
       lambda tariff, total_unique_rates: async_update_unique_rates(hass, account_id, tariff, total_unique_rates),
       lambda: async_raise_no_active_tariff(hass, account_id, target_mpan, target_serial_number),
-      lambda: async_remove_no_active_tariff(hass, target_mpan, target_serial_number)
+      lambda: async_remove_no_active_tariff(hass, target_mpan, target_serial_number),
+      intelligent_rate_mode
     )
 
     return hass.data[DOMAIN][account_id][key]

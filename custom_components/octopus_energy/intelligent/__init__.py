@@ -8,7 +8,7 @@ from homeassistant.helpers import storage
 
 from ..utils import get_active_tariff
 
-from ..const import INTELLIGENT_SOURCE_BUMP_CHARGE, INTELLIGENT_SOURCE_SMART_CHARGE, REFRESH_RATE_IN_MINUTES_INTELLIGENT
+from ..const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_COMPLETED_DISPATCHES_ONLY, CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES, INTELLIGENT_SOURCE_BUMP_CHARGE, INTELLIGENT_SOURCE_SMART_CHARGE, REFRESH_RATE_IN_MINUTES_INTELLIGENT
 
 from ..api_client.intelligent_settings import IntelligentSettings
 from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
@@ -136,7 +136,10 @@ def __get_dispatch(rate, dispatches: list[IntelligentDispatchItem], expected_sou
     
   return None
 
-def adjust_intelligent_rates(rates, planned_dispatches: list[IntelligentDispatchItem], completed_dispatches: list[IntelligentDispatchItem]):
+def adjust_intelligent_rates(rates,
+                             planned_dispatches: list[IntelligentDispatchItem],
+                             completed_dispatches: list[IntelligentDispatchItem],
+                             mode: str):
   off_peak_rate = min(rates, key = lambda x: x["value_inc_vat"])
   adjusted_rates = []
 
@@ -145,7 +148,11 @@ def adjust_intelligent_rates(rates, planned_dispatches: list[IntelligentDispatch
       adjusted_rates.append(rate)
       continue
 
-    if __get_dispatch(rate, planned_dispatches, INTELLIGENT_SOURCE_SMART_CHARGE) is not None or __get_dispatch(rate, completed_dispatches, None) is not None:
+    is_planned_dispatch = __get_dispatch(rate, planned_dispatches, INTELLIGENT_SOURCE_SMART_CHARGE) is not None
+    is_completed_dispatch = __get_dispatch(rate, completed_dispatches, None) is not None
+
+    if ((mode == CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES and (is_planned_dispatch or is_completed_dispatch)) or
+        (mode == CONFIG_MAIN_INTELLIGENT_RATE_MODE_COMPLETED_DISPATCHES_ONLY and is_completed_dispatch)):
       adjusted_rates.append({
         "start": rate["start"],
         "end": rate["end"],
