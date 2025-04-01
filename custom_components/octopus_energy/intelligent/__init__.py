@@ -48,6 +48,18 @@ def mock_intelligent_dispatches() -> IntelligentDispatches:
     )
   ]
 
+  # Simulate a pending dispatch being removed just before it begins
+  if (utcnow() <= utcnow().replace(hour=11, minute=0, second=0, microsecond=0) - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)):
+    dispatches.append(
+      IntelligentDispatchItem(
+        utcnow().replace(hour=11, minute=0, second=0, microsecond=0),
+        utcnow().replace(hour=11, minute=20, second=0, microsecond=0),
+        1.2,
+        INTELLIGENT_SOURCE_SMART_CHARGE,
+        "home"
+      )
+    ) 
+
   # Simulate a dispatch coming in late
   if (utcnow() >= utcnow().replace(hour=10, minute=10, second=0, microsecond=0) - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)):
     dispatches.append(
@@ -81,6 +93,7 @@ def mock_intelligent_dispatches() -> IntelligentDispatches:
     if (dispatch.end > utcnow()):
       planned.append(dispatch)
     else:
+      dispatch.source = None
       completed.append(dispatch)
 
   return IntelligentDispatches(current_state, planned, completed)
