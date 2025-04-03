@@ -1,8 +1,8 @@
 import { readFileSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
-const manifestFilePath = join(__dirname, '../custom_components/octopus_energy/manifest.json');
-const constantFilePath = join(__dirname, '../custom_components/octopus_energy/const.py');
+const manifestFilePath = join(__dirname, '../custom_components/octopus_germany/manifest.json');
+const constantFilePath = join(__dirname, '../custom_components/octopus_germany/const.py');
 
 function updateManifestVersion(version: string) {
   const buffer = readFileSync(manifestFilePath);
