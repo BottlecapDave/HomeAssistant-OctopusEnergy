@@ -216,13 +216,7 @@ def dispatches_to_dictionary_list(dispatches: list[IntelligentDispatchItem]):
   items = []
   if (dispatches is not None):
     for dispatch in dispatches:
-      items.append({
-        "start": dispatch.start,
-        "end": dispatch.end,
-        "charge_in_kwh": dispatch.charge_in_kwh,
-        "source": dispatch.source,
-        "location": dispatch.location
-      })
+      items.append(dispatch.to_dict())
 
   return items
 

@@ -139,7 +139,7 @@ def merge_started_dispatches(current: datetime, current_state: str, started_disp
           continue
 
         is_extended = False
-        start = current.replace(minute=0 if current.minute % 30 == 0 else 30)
+        start = current.replace(minute=0 if current.minute < 30 else 30, second=0, microsecond=0)
         end = start + timedelta(minutes=30)
         for started_dispatch in new_started_dispatches:
           if (started_dispatch.end == end):

@@ -97,5 +97,5 @@ class IntelligentDispatches:
       data["current_state"],
       list(map(lambda x: IntelligentDispatchItem.from_dict(x), data["planned"])),
       list(map(lambda x: IntelligentDispatchItem.from_dict(x), data["completed"])),
-      list(map(lambda x: IntelligentDispatchItem.from_dict(x), data["started"] if "started" in data  else [])),
+      list(map(lambda x: SimpleIntelligentDispatchItem.from_dict(x), data["started"] if "started" in data else [])),
     )
