@@ -8,10 +8,10 @@ from homeassistant.helpers import storage
 
 from ..utils import get_active_tariff
 
-from ..const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_COMPLETED_DISPATCHES_ONLY, CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES, INTELLIGENT_SOURCE_BUMP_CHARGE, INTELLIGENT_SOURCE_SMART_CHARGE, REFRESH_RATE_IN_MINUTES_INTELLIGENT
+from ..const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES, INTELLIGENT_SOURCE_BUMP_CHARGE, INTELLIGENT_SOURCE_SMART_CHARGE, REFRESH_RATE_IN_MINUTES_INTELLIGENT
 
 from ..api_client.intelligent_settings import IntelligentSettings
-from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
+from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches, SimpleIntelligentDispatchItem
 from ..api_client.intelligent_device import IntelligentDevice
 
 mock_intelligent_data_key = "MOCK_INTELLIGENT_DATA"
@@ -89,6 +89,10 @@ def mock_intelligent_dispatches() -> IntelligentDispatches:
         current_state = "SMART_CONTROL_IN_PROGRESS"
       elif dispatch.source == INTELLIGENT_SOURCE_BUMP_CHARGE:
         current_state = "BOOSTING"
+      else:
+        # If there is one without a source, then don't push it to completed dispatch to simulate
+        # a planned dispatch not turning into a completed dispatch
+        continue
 
     if (dispatch.end > utcnow()):
       planned.append(dispatch)
@@ -151,7 +155,7 @@ def __get_dispatch(rate, dispatches: list[IntelligentDispatchItem], expected_sou
 
 def adjust_intelligent_rates(rates,
                              planned_dispatches: list[IntelligentDispatchItem],
-                             completed_dispatches: list[IntelligentDispatchItem],
+                             started_dispatches: list[SimpleIntelligentDispatchItem],
                              mode: str):
   off_peak_rate = min(rates, key = lambda x: x["value_inc_vat"])
   adjusted_rates = []
@@ -162,10 +166,10 @@ def adjust_intelligent_rates(rates,
       continue
 
     is_planned_dispatch = __get_dispatch(rate, planned_dispatches, INTELLIGENT_SOURCE_SMART_CHARGE) is not None
-    is_completed_dispatch = __get_dispatch(rate, completed_dispatches, None) is not None
+    is_started_dispatch = __get_dispatch(rate, started_dispatches, None) is not None
 
-    if ((mode == CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES and (is_planned_dispatch or is_completed_dispatch)) or
-        (mode == CONFIG_MAIN_INTELLIGENT_RATE_MODE_COMPLETED_DISPATCHES_ONLY and is_completed_dispatch)):
+    if ((mode == CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES and (is_planned_dispatch or is_started_dispatch)) or
+        (mode == CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY and is_started_dispatch)):
       adjusted_rates.append({
         "start": rate["start"],
         "end": rate["end"],

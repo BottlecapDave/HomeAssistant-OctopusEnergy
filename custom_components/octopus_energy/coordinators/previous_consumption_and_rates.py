@@ -11,7 +11,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.helpers import storage
 
 from ..const import (
-  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
   COORDINATOR_REFRESH_IN_SECONDS,
   DATA_ACCOUNT,
   DATA_INTELLIGENT_DEVICE,
@@ -243,7 +243,7 @@ async def async_fetch_consumption_and_rates(
   intelligent_device: IntelligentDevice | None = None,
   intelligent_dispatches: IntelligentDispatches | None = None,
   tariff_override: Tariff = None,
-  intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES
+  intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
 
 ):
   """Fetch the previous consumption and rates"""
@@ -293,7 +293,7 @@ async def async_fetch_consumption_and_rates(
             _LOGGER.debug(f"Adjusting rate data based on intelligent tariff; dispatches: {intelligent_dispatches}")
             rate_data = adjust_intelligent_rates(rate_data,
                                                   intelligent_dispatches.planned,
-                                                  intelligent_dispatches.completed,
+                                                  intelligent_dispatches.started,
                                                   intelligent_rate_mode)
       else:
         consumption_data = await client.async_get_gas_consumption(identifier, serial_number, page_size=52)
