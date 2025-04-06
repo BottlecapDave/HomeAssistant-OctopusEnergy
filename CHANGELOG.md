@@ -1,3 +1,25 @@
+# [15.0.0-beta.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v14.0.3...v15.0.0-beta.1) (2025-04-06)
+
+
+### Bug Fixes
+
+* Added tracking of started planned dispatches for intelligent tariffs to improve cost sensor accuracy (3.5 hours dev time) ([94a4f16](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/94a4f16d80a78620d0f415cfd955a37604cd0356))
+* **custom:** fixed planned and completed dispatches not being ordered (5 minutes dev time) ([ff0519d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ff0519ddcc5bd9d3348d6f85fbf4a219d75f827a))
+* **custom:** updated diagnostics to determine if cached account data was used (5 minutes dev time) ([4d5a79c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4d5a79c084207cabb2f52cac45fb532b36252b9f))
+* Fixed issue when next refresh could be seconds out, causing a longer than advertised wait time for data to be refreshed (30 minutes dev time) ([abe855e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/abe855e3ec7aa6cbf3627e7a37792a141bd7e793))
+
+
+### Features
+
+* Added the ability to automatically discover cost tracker options (3 hours dev time) ([4e6d33c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4e6d33c4883acca8b80d6ad4c5a330d975996cee))
+* **custom:** added intelligent rate mode for changing how pending/completed dispatches adjust rates (1 hour dev time) ([ea17a07](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ea17a07cee2f47ffa761ef47915e2a4bd4f61145))
+* Raise repair notice when active tariff not found for active meter (1 hour dev time) ([0b70277](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0b70277e55cb0583ef204f5f6fd80077d7959935))
+
+
+### BREAKING CHANGES
+
+* The rate adjustments for intelligent tariffs have moved from using completed dispatches to started dispatches. This means that cost sensors may be in accurate for a couple of days while data is gathered.
+
 ## [14.0.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v14.0.2...v14.0.3) (2025-02-18)
 
 
