@@ -53,25 +53,23 @@ By default, intelligent dispatches are retrieved [periodically](../faq.md#how-of
 
 ## Intelligent rates mode
 
-If you are on an intelligent tariff then it's possible for you to get cheaper rates outside of your normal off peak periods if Octopus Energy schedules the charges and your car accepts the charges. The rate information provides by Octopus Energy doesn't take these periods into account, so the integration has to use the pending/completed dispatch information to adjust the rates appropriately. Due to the quality of the available data, this _can_ be off sometimes. This feature allows how the rate information is adjusted in these scenarios.
+If you are on an intelligent tariff then it's possible for you to get cheaper rates outside of your normal off peak periods if Octopus Energy schedules the charges and your car accepts the charges. The rate information provides by Octopus Energy doesn't take these periods into account, so the integration has to use the planned/completed dispatch information to adjust the rates appropriately. Due to the quality of the available data, this _can_ be off sometimes. This feature allows how the rate information is adjusted in these scenarios.
 
-### Pending and completed dispatches will turn into off peak rates
+### Planned and started dispatches will turn into off peak rates
 
-This is the default behaviour. In this scenario, all pending dispatches will be assumed to be converted into successful off peak charges by the car and therefore all rates during these periods will be converted into the off peak rate. This will be indicated by the `is_intelligent_adjusted` property. This is useful when planning other devices to turn on in the future during these cheap periods (e.g. by using a [target rate sensor](./target_rate.md)). 
-
-!!! warning
-
-    One side effect of this is around cost sensors, where if a pending dispatch does not turn into a completed dispatch, the cost sensor can increase in value when the pending dispatch is removed.
-
-### Only completed dispatches will turn into off peak rates
-
-In this scenario only completed dispatches will be taken into account for adjustments meaning all rates during only completed dispatch periods will be converted into the off peak rate. This will be indicated by the `is_intelligent_adjusted` property. This means no future planning can be made to take advantage of these cheap periods by rates alone.
+This is the default behaviour. In this scenario, all planned dispatches will be assumed to be converted into successful off peak charges by the car and therefore all rates during these periods will be converted into the off peak rate. This will be indicated by the `is_intelligent_adjusted` property. This is useful when planning other devices to turn on in the future during these cheap periods (e.g. by using a [target rate sensor](./target_rate.md)). 
 
 !!! warning
 
-    One side effect of this is around cost sensors, where when a completed dispatch arrives the cost sensor will decrease in value.
+    One side effect of this is around cost sensors, where if a planned dispatch does not turn into a started dispatch, the cost sensor can increase in value when the planned dispatch is removed.
 
-    There have also been reports of some successful charges not resolving into completed dispatches.
+### Only started dispatches will turn into off peak rates
+
+In this scenario only started dispatches will be taken into account for adjustments meaning all rates during only started dispatch periods will be converted into the off peak rate. This will be indicated by the `is_intelligent_adjusted` property. This means no future planning can be made to take advantage of these cheap periods by rates alone.
+
+!!! warning
+
+    One side effect of this is around cost sensors, where when a started dispatch arrives the cost sensor will decrease in value.
 
 ## Home Pro
 

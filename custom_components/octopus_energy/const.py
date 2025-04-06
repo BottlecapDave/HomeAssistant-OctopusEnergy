@@ -45,8 +45,8 @@ CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES = "favour_direct_debit_rates"
 CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES = "intelligent_manual_dispatches"
 CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS = "auto_discover_cost_trackers"
 CONFIG_MAIN_INTELLIGENT_RATE_MODE = "intelligent_rate_mode"
-CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES = "pending_and_completed_dispatches"
-CONFIG_MAIN_INTELLIGENT_RATE_MODE_COMPLETED_DISPATCHES_ONLY = "completed_dispatches_only"
+CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES = "pending_and_started_dispatches"
+CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY = "started_dispatches_only"
 
 CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES = 1
 CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES = 2
@@ -202,8 +202,8 @@ DATA_SCHEMA_ACCOUNT = vol.Schema({
   vol.Required(CONFIG_MAIN_INTELLIGENT_RATE_MODE): selector.SelectSelector(
     selector.SelectSelectorConfig(
         options=[
-          selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES, label="Pending and completed dispatches will turn into off peak rates"),
-          selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_COMPLETED_DISPATCHES_ONLY, label="Only completed dispatches will turn into off peak rates"),
+          selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES, label="Planned and started dispatches will turn into off peak rates"),
+          selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, label="Only started dispatches will turn into off peak rates"),
         ],
         mode=selector.SelectSelectorMode.DROPDOWN,
     )
