@@ -1438,28 +1438,35 @@ class OctopusEnergyApiClient:
               current_state = device["status"]["currentState"]
 
         if (response_body is not None and "data" in response_body):
+          planned_dispatches = list(map(lambda ev: IntelligentDispatchItem(
+              as_utc(parse_datetime(ev["start"])),
+              as_utc(parse_datetime(ev["end"])),
+              float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
+              ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
+              ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
+            ), response_body["data"]["plannedDispatches"]
+            if "plannedDispatches" in response_body["data"] and response_body["data"]["plannedDispatches"] is not None
+            else [])
+          )
+
+          completed_dispatches = list(map(lambda ev: IntelligentDispatchItem(
+              as_utc(parse_datetime(ev["start"])),
+              as_utc(parse_datetime(ev["end"])),
+              float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
+              ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
+              ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
+            ), response_body["data"]["completedDispatches"]
+            if "completedDispatches" in response_body["data"] and response_body["data"]["completedDispatches"] is not None
+            else [])
+          )
+
+          planned_dispatches.sort(key=lambda x: x.start)
+          completed_dispatches.sort(key=lambda x: x.start)
+
           return IntelligentDispatches(
             current_state,
-            list(map(lambda ev: IntelligentDispatchItem(
-                as_utc(parse_datetime(ev["start"])),
-                as_utc(parse_datetime(ev["end"])),
-                float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
-                ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
-                ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
-              ), response_body["data"]["plannedDispatches"]
-              if "plannedDispatches" in response_body["data"] and response_body["data"]["plannedDispatches"] is not None
-              else [])
-            ),
-            list(map(lambda ev: IntelligentDispatchItem(
-                as_utc(parse_datetime(ev["start"])),
-                as_utc(parse_datetime(ev["end"])),
-                float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
-                ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
-                ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
-              ), response_body["data"]["completedDispatches"]
-              if "completedDispatches" in response_body["data"] and response_body["data"]["completedDispatches"] is not None
-              else [])
-            )
+            planned_dispatches,
+            completed_dispatches
           )
         else:
           _LOGGER.error("Failed to retrieve intelligent dispatches")
