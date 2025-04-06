@@ -30,6 +30,7 @@ This sensor is used to determine if you're currently in a planned dispatch perio
 |-----------|------|-------------|
 | `planned_dispatches` | `array` | An array of the dispatches that are currently planned by Octopus Energy. |
 | `completed_dispatches` | `array` | An array of the dispatches that have been completed by Octopus Energy. This will only store up to the last 3 days worth of completed dispatches. |
+| `started_dispatches` | `array` | An array of the dispatches that have been planned by Octopus Energy and upon API refresh are still planned when the current 30 minute period started and is not in a boosting state. A planned dispatch will be added one 30 minute period at a time. This will only store up to the last 3 days worth of started dispatches. This is used to determine historic off peak rates. For example if you have a planned dispatch of `2025-04-01T10:00:00`-`2025-04-01T11:00:00`, at `2025-04-01T10:01:00` if the planned dispatch is still available the period of `2025-04-01T10:00:00`-`2025-04-01T10:30:00` will be added. |
 | `provider` | `string` | The provider of the intelligent features |
 | `vehicle_battery_size_in_kwh` | `float` | The size of the target vehicle battery in kWh. |
 | `charge_point_power_in_kw` | `float` | The power of the charge point battery in kW. |
@@ -45,8 +46,15 @@ Each item in `planned_dispatch` or `completed_dispatches` have the following att
 | `start` | `datetime` | The start date/time of the dispatch |
 | `end` | `datetime` | The end date/time of the dispatch |
 | `charge_in_kwh` | `float` | The amount to be charged within the dispatch period. |
-| `source` | `string` | Determines what has caused the dispatch to be generated. Will be `smart-charge` or `bump-charge`. |
+| `source` | `string` | Determines what has caused the dispatch to be generated. Will be `smart-charge`, `bump-charge` or None. |
 | `location` | `string` | The location of the smart charge |
+
+Each item in `started_dispatch` have the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The start date/time of the dispatch |
+| `end` | `datetime` | The end date/time of the dispatch |
 
 !!! info
 

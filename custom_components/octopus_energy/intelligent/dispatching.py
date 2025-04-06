@@ -41,7 +41,7 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
     self._account_id = account_id
     self._state = None
     self._planned_dispatches_supported = planned_dispatches_supported
-    self.__init_attributes__([], [], None)
+    self.__init_attributes__([], [], [])
 
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
 
@@ -69,10 +69,11 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
   def is_on(self):
     return self._state
   
-  def __init_attributes__(self, planned_dispatches, completed_dispatches, data_last_evaluated):
+  def __init_attributes__(self, planned_dispatches, completed_dispatches, started_dispatches):
     self._attributes = {
       "planned_dispatches": planned_dispatches,
       "completed_dispatches": completed_dispatches,
+      "started_dispatches": started_dispatches,
       "provider": self._device.provider,
       "vehicle_battery_size_in_kwh": self._device.vehicleBatterySizeInKwh,
       "charge_point_power_in_kw": self._device.chargePointPowerInKw,
@@ -94,7 +95,7 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
     self.__init_attributes__(
       dispatches_to_dictionary_list(planned_dispatches) if result is not None else [],
       dispatches_to_dictionary_list(result.dispatches.completed if result is not None and result.dispatches is not None else []) if result is not None else [],
-      result.last_evaluated if result is not None else None
+      dispatches_to_dictionary_list(result.dispatches.started if result is not None and result.dispatches is not None else []) if result is not None else [],
     )
 
     off_peak_times = get_off_peak_times(current_date, rates, True)

@@ -9,7 +9,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.helpers import issue_registry as ir
 
 from ..const import (
-  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
   COORDINATOR_REFRESH_IN_SECONDS,
   DATA_ACCOUNT_COORDINATOR,
   DATA_INTELLIGENT_DEVICE,
@@ -67,7 +67,7 @@ async def async_refresh_electricity_rates_data(
     unique_rates_changed: Callable[[Tariff, int], Awaitable[None]] = None,
     raise_no_active_rate: Callable[[], Awaitable[None]] = None,
     remove_no_active_rate: Callable[[], Awaitable[None]] = None,
-    intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_COMPLETED_DISPATCHES
+    intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
   ) -> ElectricityRatesCoordinatorResult: 
   if (account_info is not None):
     period_from = as_utc((current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
@@ -122,7 +122,7 @@ async def async_refresh_electricity_rates_data(
         if dispatches_result is not None and dispatches_result.dispatches is not None and is_export_meter == False:
           new_rates = adjust_intelligent_rates(new_rates,
                                                dispatches_result.dispatches.planned if planned_dispatches_supported else [],
-                                               dispatches_result.dispatches.completed,
+                                               dispatches_result.dispatches.started,
                                                intelligent_rate_mode)
           
           _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches_result.dispatches}")
@@ -189,7 +189,7 @@ async def async_refresh_electricity_rates_data(
           dispatches_result.last_evaluated > existing_rates_result.rates_last_adjusted):
       new_rates = adjust_intelligent_rates(existing_rates_result.original_rates,
                                            dispatches_result.dispatches.planned,
-                                           dispatches_result.dispatches.completed,
+                                           dispatches_result.dispatches.started,
                                            intelligent_rate_mode)
       
       _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches_result.dispatches}")
