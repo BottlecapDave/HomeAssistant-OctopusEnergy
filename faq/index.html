@@ -1110,6 +1110,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#do-you-support-older-versions-of-the-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Do you support older versions of the integration?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#how-do-i-know-when-theres-an-update-available" class="md-nav__link">
     <span class="md-ellipsis">
       How do I know when there's an update available?
@@ -1338,6 +1347,15 @@
   <a href="#the-rates-are-different-to-whats-on-my-bill-or-the-octopus-energy-dashboard-is-there-something-wrong" class="md-nav__link">
     <span class="md-ellipsis">
       The rates are different to what's on my bill or the Octopus Energy dashboard. Is there something wrong?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#do-you-support-older-versions-of-the-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Do you support older versions of the integration?
     </span>
   </a>
   
@@ -1603,6 +1621,8 @@
 <h2 id="the-rates-are-different-to-whats-on-my-bill-or-the-octopus-energy-dashboard-is-there-something-wrong">The rates are different to what's on my bill or the Octopus Energy dashboard. Is there something wrong?<a class="headerlink" href="#the-rates-are-different-to-whats-on-my-bill-or-the-octopus-energy-dashboard-is-there-something-wrong" title="Permanent link">#</a></h2>
 <p>The first thing to do is make sure the correct tariff has been picked up. This can be done by confirming the tariff code on the <a href="../entities/electricity/#current-rate">electricity</a> or <a href="../entities/gas/#current-rate">gas</a> current rate sensors. This is picked up automatically via the API, so if this is wrong, then it means that either your account doesn't have your tariff configured yet or the wrong one is being picked up. This can be confirmed via your <a href="#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this">meter information</a>.</p>
 <p>If the correct tariff is present, it might be that you're on a tariff that has different rates depending on if you pay by direct debit or not. This can be configured via your <a href="../setup/account/#favour-direct-debit-rates">account configuration</a>.</p>
+<h2 id="do-you-support-older-versions-of-the-integration">Do you support older versions of the integration?<a class="headerlink" href="#do-you-support-older-versions-of-the-integration" title="Permanent link">#</a></h2>
+<p>Due to time constraints, I will only ever support the latest version of the integration. If you have an issue with an older version of the integration, my initial answer will always be to update to the latest version. This might be different to what HACS is reporting if you are not on the minimum supported Home Assistant version (which is highlighted in each release's changelog). </p>
 <h2 id="how-do-i-know-when-theres-an-update-available">How do I know when there's an update available?<a class="headerlink" href="#how-do-i-know-when-theres-an-update-available" title="Permanent link">#</a></h2>
 <p>If you've installed via HACS, and you are on version 2 or above, then updates will be surfaced in the normal update location within Home Assistant. If you are on a version below 2, then you can keep an eye on <code>sensor.hacs</code> to see the number of pending updates. This could be used with an automation or highlighted on your dashboard. This will include any HACS integration update, not just this one.</p>
 <p>If you've installed the integration manually, then you should keep an eye on the <a href="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases">GitHub releases</a>. You could even subscribe to the <a href="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases.atom">RSS feed</a>.</p>
