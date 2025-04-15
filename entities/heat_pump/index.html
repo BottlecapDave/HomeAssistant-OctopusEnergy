@@ -1248,6 +1248,10 @@
 <h2 id="temperature-sensor">Temperature Sensor<a class="headerlink" href="#temperature-sensor" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{SENSOR_CODE}}_temperature</code></p>
 <p>This represents the temperature reported by a sensor (e.g. Cosy Pod) that is associated with a heat pump.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>There are reports that some of these sensors can report negative values in certain installations. Unfortunately, there doesn't appear to be anything in the API that determines when these sensors are or are not applicable. In these situations, you'll need to manually disable or ignore them.</p>
+</div>
 <h2 id="zone">Zone<a class="headerlink" href="#zone" title="Permanent link">#</a></h2>
 <p><code>climate.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{ZONE_CODE}}</code></p>
 <p>This can be used to control the target temperature and mode for a given zone (e.g. water or zone 1) linked to your heat pump. It will also display the current temperature linked to the primary sensor for the zone.</p>
