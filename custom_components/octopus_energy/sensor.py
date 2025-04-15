@@ -102,6 +102,8 @@ from .const import (
   CONFIG_KIND_ACCOUNT,
   CONFIG_KIND_COST_TRACKER,
   CONFIG_KIND_TARIFF_COMPARISON,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_TARIFF_COMPARISON_MPAN_MPRN,
@@ -376,6 +378,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
             serial_number,
             True,
             meter["is_smart_meter"],
+            config[CONFIG_MAIN_INTELLIGENT_RATE_MODE] if CONFIG_MAIN_INTELLIGENT_RATE_MODE in config else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
             debug_override.tariff if debug_override is not None else None
           )
           entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumption(hass, client, previous_consumption_coordinator, account_id, meter, point))
@@ -483,6 +486,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
             serial_number,
             False,
             None,
+            config[CONFIG_MAIN_INTELLIGENT_RATE_MODE] if CONFIG_MAIN_INTELLIGENT_RATE_MODE in config else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
             debug_override.tariff if debug_override is not None and debug_override.tariff is not None else None
           )
           entities.append(OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(hass, client, previous_consumption_coordinator, account_id, meter, point, calorific_value))
@@ -725,7 +729,7 @@ async def async_setup_tariff_comparison_sensors(hass: HomeAssistant, entry, conf
   mpan_mprn = config[CONFIG_TARIFF_COMPARISON_MPAN_MPRN]
 
   calorific_value = DEFAULT_CALORIFIC_VALUE
-  config_entries = hass.config_entries.async_entries(DOMAIN)
+  config_entries = hass.config_entries.async_entries(DOMAIN, include_ignore=False)
   for entry in config_entries:
     config_entry_data = dict(entry.data)
 

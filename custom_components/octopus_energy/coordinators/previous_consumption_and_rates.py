@@ -11,6 +11,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.helpers import storage
 
 from ..const import (
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
   COORDINATOR_REFRESH_IN_SECONDS,
   DATA_ACCOUNT,
   DATA_INTELLIGENT_DEVICE,
@@ -241,7 +242,8 @@ async def async_fetch_consumption_and_rates(
   fire_event: Callable[[str, "dict[str, Any]"], None],
   intelligent_device: IntelligentDevice | None = None,
   intelligent_dispatches: IntelligentDispatches | None = None,
-  tariff_override: Tariff = None
+  tariff_override: Tariff = None,
+  intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
 
 ):
   """Fetch the previous consumption and rates"""
@@ -291,7 +293,8 @@ async def async_fetch_consumption_and_rates(
             _LOGGER.debug(f"Adjusting rate data based on intelligent tariff; dispatches: {intelligent_dispatches}")
             rate_data = adjust_intelligent_rates(rate_data,
                                                   intelligent_dispatches.planned,
-                                                  intelligent_dispatches.completed)
+                                                  intelligent_dispatches.started,
+                                                  intelligent_rate_mode)
       else:
         consumption_data = await client.async_get_gas_consumption(identifier, serial_number, page_size=52)
         consumption_data = get_latest_day(consumption_data)
@@ -398,6 +401,7 @@ async def async_create_previous_consumption_and_rates_coordinator(
     serial_number: str,
     is_electricity: bool,
     is_smart_meter: bool,
+    intelligent_rate_mode: str,
     tariff_override: Tariff = None):
   """Create reading coordinator"""
   previous_consumption_data_key = f'{identifier}_{serial_number}_previous_consumption_and_rates'
@@ -449,7 +453,8 @@ async def async_create_previous_consumption_and_rates_coordinator(
       hass.bus.async_fire,
       intelligent_device,
       dispatches.dispatches if dispatches is not None else None,
-      tariff_override
+      tariff_override,
+      intelligent_rate_mode
     )
 
     if (result is not None):

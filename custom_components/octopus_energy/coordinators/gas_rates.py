@@ -6,6 +6,7 @@ from homeassistant.util.dt import (now, as_utc)
 from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
 )
+from homeassistant.helpers import issue_registry as ir
 
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
@@ -17,6 +18,7 @@ from ..const import (
   EVENT_GAS_NEXT_DAY_RATES,
   EVENT_GAS_PREVIOUS_DAY_RATES,
   REFRESH_RATE_IN_MINUTES_RATES,
+  REPAIR_NO_ACTIVE_TARIFF,
 )
 
 from ..api_client import ApiException, OctopusEnergyApiClient
@@ -40,6 +42,8 @@ async def async_refresh_gas_rates_data(
     target_serial_number: str,
     existing_rates_result: GasRatesCoordinatorResult,
     fire_event: Callable[[str, "dict[str, Any]"], None],
+    raise_no_active_rate: Callable[[], None] = None,
+    remove_no_active_rate: Callable[[], None] = None
   ) -> GasRatesCoordinatorResult: 
   if (account_info is not None):
     period_from = as_utc((current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
@@ -47,7 +51,11 @@ async def async_refresh_gas_rates_data(
 
     tariff = get_gas_meter_tariff(current, account_info, target_mprn, target_serial_number)
     if tariff is None:
+      if raise_no_active_rate is not None:
+        await raise_no_active_rate()
       return None
+    elif remove_no_active_rate is not None:
+      await remove_no_active_rate()
 
     new_rates = None
     raised_exception = None
@@ -111,6 +119,25 @@ async def async_refresh_gas_rates_data(
   
   return existing_rates_result
 
+async def async_raise_no_active_tariff(hass, account_id: str, mprn: str, serial_number: str):
+  ir.async_create_issue(
+    hass,
+    DOMAIN,
+    REPAIR_NO_ACTIVE_TARIFF.format(mprn, serial_number),
+    is_fixable=False,
+    severity=ir.IssueSeverity.ERROR,
+    learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/repairs/no_active_tariff",
+    translation_key="no_active_tariff",
+    translation_placeholders={ "account_id": account_id, "mpan_mprn": mprn, "serial_number": serial_number, "meter_type": "Gas" }
+  )
+
+async def async_remove_no_active_tariff(hass, mprn: str, serial_number: str):
+  ir.async_delete_issue(
+    hass,
+    DOMAIN,
+    REPAIR_NO_ACTIVE_TARIFF.format(mprn, serial_number)
+  )
+
 async def async_setup_gas_rates_coordinator(hass, account_id: str, client: OctopusEnergyApiClient, target_mprn: str, target_serial_number: str):
   key = DATA_GAS_RATES_KEY.format(target_mprn, target_serial_number)
 
@@ -135,7 +162,9 @@ async def async_setup_gas_rates_coordinator(hass, account_id: str, client: Octop
       target_mprn,
       target_serial_number,
       rates,
-      hass.bus.async_fire
+      hass.bus.async_fire,
+      lambda: async_raise_no_active_tariff(hass, account_id, target_mprn, target_serial_number),
+      lambda: async_remove_no_active_tariff(hass, target_mprn, target_serial_number)
     )
 
     return hass.data[DOMAIN][account_id][key]

@@ -2,7 +2,6 @@ import logging
 from datetime import datetime, timedelta
 from typing import Awaitable, Callable
 
-from custom_components.octopus_energy.storage.intelligent_dispatches import async_save_cached_intelligent_dispatches
 from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
@@ -19,15 +18,17 @@ from ..const import (
   DATA_ACCOUNT_COORDINATOR,
   DATA_INTELLIGENT_DISPATCHES,
   DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
+  INTELLIGENT_SOURCE_BUMP_CHARGE,
   REFRESH_RATE_IN_MINUTES_INTELLIGENT,
 
   STORAGE_COMPLETED_DISPATCHES_NAME
 )
 
 from ..api_client import ApiException, OctopusEnergyApiClient
-from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
+from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches, SimpleIntelligentDispatchItem
 from . import BaseCoordinatorResult
 from ..api_client.intelligent_device import IntelligentDevice
+from ..storage.intelligent_dispatches import async_save_cached_intelligent_dispatches
 
 from ..intelligent import clean_previous_dispatches, dictionary_list_to_dispatches, dispatches_to_dictionary_list, has_intelligent_tariff, mock_intelligent_dispatches
 
@@ -116,7 +117,44 @@ def has_dispatches_changed(existing_dispatches: IntelligentDispatches, new_dispa
         existing_dispatches.planned[-1].start != new_dispatches.planned[-1].start
       )
     )
+    or
+    len(existing_dispatches.started) != len(new_dispatches.started) or
+    (
+      len(existing_dispatches.started) > 0 and
+      (
+        existing_dispatches.started[0].start != new_dispatches.started[0].start or
+        existing_dispatches.started[-1].start != new_dispatches.started[-1].start
+      )
+    )
   )
+
+def merge_started_dispatches(current: datetime, current_state: str, started_dispatches: list[SimpleIntelligentDispatchItem], planned_dispatches: list[IntelligentDispatchItem]):
+  new_started_dispatches = clean_previous_dispatches(current, started_dispatches)
+
+  if current_state == "SMART_CONTROL_IN_PROGRESS":
+    for planned_dispatch in planned_dispatches:
+      if planned_dispatch.start <= current and planned_dispatch.end >= current:
+        # Skip any bump charges
+        if (planned_dispatch.source == INTELLIGENT_SOURCE_BUMP_CHARGE):
+          continue
+
+        is_extended = False
+        start = current.replace(minute=0 if current.minute < 30 else 30, second=0, microsecond=0)
+        end = start + timedelta(minutes=30)
+        for started_dispatch in new_started_dispatches:
+          if (started_dispatch.end == end):
+            # Skip as we are already covering the current 30 minute period
+            is_extended = True
+            break
+          elif (started_dispatch.end == start):
+            started_dispatch.end = end
+            is_extended = True
+            break
+
+        if is_extended == False:
+          new_started_dispatches.append(SimpleIntelligentDispatchItem(start, end))
+
+  return new_started_dispatches
 
 async def async_refresh_intelligent_dispatches(
   current: datetime,
@@ -185,6 +223,12 @@ async def async_refresh_intelligent_dispatches(
 
       if dispatches is not None:
         dispatches.completed = await async_merge_dispatch_data(account_id, dispatches.completed)
+        dispatches.started = merge_started_dispatches(current,
+                                                      dispatches.current_state,
+                                                      existing_intelligent_dispatches_result.dispatches.started 
+                                                      if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and  existing_intelligent_dispatches_result.dispatches.started is not None
+                                                      else [],
+                                                      dispatches.planned)
 
         if (existing_intelligent_dispatches_result is None or
             existing_intelligent_dispatches_result.dispatches is None or

@@ -8,7 +8,7 @@ from custom_components.octopus_energy.coordinators.previous_consumption_and_rate
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
 from custom_components.octopus_energy.api_client.intelligent_device import IntelligentDevice
 
-from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
+from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatches, SimpleIntelligentDispatchItem
 from custom_components.octopus_energy.const import EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, EVENT_GAS_PREVIOUS_CONSUMPTION_RATES
 
 sensor_identifier = "ABC123"
@@ -822,7 +822,7 @@ async def test_when_gas_and_consumption_data_spans_multiple_days_then_previous_d
     assert len(actual_fired_events) == 0
 
 @pytest.mark.asyncio
-async def test_when_intelligent_dispatches_available_then_adjusted_requested_data_returned():
+async def test_when_started_intelligent_dispatches_available_then_adjusted_requested_data_returned():
   # Arrange
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -890,14 +890,12 @@ async def test_when_intelligent_dispatches_available_then_adjusted_requested_dat
 
     intelligent_dispatches = IntelligentDispatches(
       "SMART_CONTROL_IN_PROGRESS",
-      [], 
+      [],
+      [],
       [
-        IntelligentDispatchItem(
+        SimpleIntelligentDispatchItem(
           datetime.strptime("2022-02-28T07:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-          datetime.strptime("2022-02-28T08:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-          1,
-          "smart-charge",
-          "home"
+          datetime.strptime("2022-02-28T08:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
         )
       ]
     )
@@ -937,7 +935,7 @@ async def test_when_intelligent_dispatches_available_then_adjusted_requested_dat
 
     assert len(result.rates) == len(expected_rates)
     for index, rate in enumerate(result.rates):
-      if rate["start"] >= intelligent_dispatches.completed[0].start and rate["end"] <= intelligent_dispatches.completed[0].end:
+      if rate["start"] >= intelligent_dispatches.started[0].start and rate["end"] <= intelligent_dispatches.started[0].end:
         assert result.rates[index]["start"] == expected_rates[index]["start"]
         assert result.rates[index]["end"] == expected_rates[index]["end"]
         assert result.rates[index]["value_inc_vat"] == 1
