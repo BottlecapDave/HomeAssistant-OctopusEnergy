@@ -1,3 +1,10 @@
+## [14.0.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v14.0.3...v14.0.4) (2025-04-11)
+
+
+### Bug Fixes
+
+* **custom:** added support for new fixed intelligent tariff (15 minutes dev time) ([dd607ea](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/dd607ea68ffa168eefbfec6fc617f12f7ad291ff))
+
 ## [14.0.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v14.0.2...v14.0.3) (2025-02-18)
 
 
