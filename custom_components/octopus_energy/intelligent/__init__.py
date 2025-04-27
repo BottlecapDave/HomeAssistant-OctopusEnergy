@@ -127,6 +127,7 @@ def is_intelligent_product(product_code: str):
   return product_code is not None and (
     "INTELLI-BB-VAR" in product_code.upper() or
     "INTELLI-VAR" in product_code.upper() or
+    "INTELLI-FIX" in product_code.upper() or
     re.search("INTELLI-[0-9]", product_code.upper()) is not None
   )
 
