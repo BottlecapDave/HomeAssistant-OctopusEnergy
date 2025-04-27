@@ -11,10 +11,13 @@ from homeassistant.config_entries import SOURCE_INTEGRATION_DISCOVERY
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import discovery_flow
 from homeassistant.const import (
-    UnitOfEnergy,
     EVENT_HOMEASSISTANT_STOP
 )
 from homeassistant.helpers.event import async_track_time_interval
+
+from homeassistant.util.unit_conversion import (
+    EnergyConverter,
+)
 
 from .const import (
     CONFIG_COST_TRACKER_DISCOVERY_ACCOUNT_ID,
@@ -69,7 +72,7 @@ class DiscoveryManager:
             if item[1].disabled_by is not None:
                 continue
 
-            if item[1].unit_of_measurement != UnitOfEnergy.KILO_WATT_HOUR:
+            if item[1].unit_of_measurement not in (EnergyConverter.VALID_UNITS):
                 continue
 
             config_exists = False

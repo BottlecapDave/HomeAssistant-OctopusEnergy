@@ -20,7 +20,7 @@ This is the meter whose tariff will determine the rate the entity consumption is
 
 ### Entity
 
-This is the entity whose consumption should be tracked and the cost calculated against. This entity should be reporting in `kwh`.
+This is the entity whose consumption should be tracked and the cost calculated against. This entity will be assumed to be reporting `kwh`, unless stated otherwise.
 
 ### Tracked entity state is accumulative
 
@@ -86,7 +86,7 @@ Each item within the `tracked_changes` and `untracked_changes` have the followin
 | `start` | `datetime` | The date/time when the consumption starts |
 | `end` | `datetime` | The date/time when the consumption ends |
 | `rate` | `float` | The rate the consumption is charged at. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `consumption` | `float` | The consumption value of the specified period |
+| `consumption` | `float` | The consumption value of the specified period. This will be in `kwh`. |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
 
 #### Variants
@@ -162,7 +162,7 @@ Each item within the `accumulated_data` has the following attributes
 |-----------|------|-------------|
 | `start` | `datetime` | The date/time when the consumption starts |
 | `end` | `datetime` | The date/time when the consumption ends |
-| `consumption` | `float` | The consumption value of the specified period |
+| `consumption` | `float` | The consumption value of the specified period. This will be in `kwh`. |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
 
 #### Variants
@@ -238,7 +238,7 @@ Each item within the `accumulated_data` has the following attributes
 |-----------|------|-------------|
 | `start` | `datetime` | The date/time when the consumption starts |
 | `end` | `datetime` | The date/time when the consumption ends |
-| `consumption` | `float` | The consumption value of the specified period |
+| `consumption` | `float` | The consumption value of the specified period. This will be in `kwh`. |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
 
 #### Variants
