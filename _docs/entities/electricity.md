@@ -175,6 +175,8 @@ If you are wishing to use these sensors with the Energy Dashboard, then you can 
 
 The total consumption reported by the meter (not other devices e.g. Home Mini) for the previous available full day. If for example data is available up to `01:00` of `2024-09-02`, then this sensor will report the cost between `2024-09-01T00:00:00Z` and `2024-09-02T00:00:00Z`.
 
+Due to limitation of HA entities, the data will be updated as a single record, which means the history of the sensor will not be broken down further than once a day. If you want the cost broken down into hourly chunks, you can use the statistic entities used for the [energy dashboard](../setup/energy_dashboard.md#previous-day-consumption).
+
 !!! info
 
     This retrieves the data reported directly by the meter which is used to calculate your bill. If you have an Octopus Home Mini (or similar), then data reported by this device will not be exposed in this sensor. This is to avoid confusion when comparing the data against your bill and to provide consistency between users with and without an Octopus Home Mini.
@@ -259,7 +261,9 @@ The total consumption reported by the meter for the previous available full day 
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost`
 
-The total cost for the previous available full day, including the standing charge. If for example data is available up to `01:00` of `2024-09-02`, then this sensor will report the cost between `2024-09-01T00:00:00Z` and `2024-09-02T00:00:00Z`.
+The total cost for the previous available full day, including the standing charge. If for example data is available up to `01:00` of `2024-09-02`, then this sensor will report the cost between `2024-09-01T00:00:00Z` and `2024-09-02T00:00:00Z`. 
+
+Due to limitation of HA entities, the data will be updated as a single record, which means the history of the sensor will not be broken down further than once a day. If you want the cost broken down into hourly chunks, you can use the statistic entities used for the [energy dashboard](../setup/energy_dashboard.md#previous-day-consumption).
 
 !!! info
 
