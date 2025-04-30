@@ -10,6 +10,8 @@ from homeassistant.components.recorder.statistics import (
 
 from ..const import DOMAIN
 from ..utils import get_active_tariff
+from ..utils.cost import consumption_cost_in_pence
+from ..utils.conversions import pence_to_pounds_pence
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -80,8 +82,8 @@ def build_cost_statistics(current: datetime, consumptions, rates, consumption_ke
       raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to}")
 
     if target_rate is None or target_rate == rate["value_inc_vat"]:
-      sums["total"] += round((consumption[consumption_key] * rate["value_inc_vat"]) / 100, 2)
-      states["total"] += round((consumption[consumption_key] * rate["value_inc_vat"]) / 100, 2)
+      sums["total"] += pence_to_pounds_pence(consumption_cost_in_pence(consumption[consumption_key], rate["value_inc_vat"]))
+      states["total"] += pence_to_pounds_pence(consumption_cost_in_pence(consumption[consumption_key], rate["value_inc_vat"]))
 
     _LOGGER.debug(f'index: {index}; start: {start}; sums: {sums}; states: {states}; added: {(index) % 2 == 1}')
 

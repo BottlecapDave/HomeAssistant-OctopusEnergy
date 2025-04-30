@@ -289,7 +289,6 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
       0,
       None, # We want to always recalculate
       0,
-      False,
       target_rate=target_rate
     )
 
@@ -299,7 +298,6 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
       0,
       None, # We want to always recalculate
       0,
-      False,
       target_rate=target_rate
     )
 
