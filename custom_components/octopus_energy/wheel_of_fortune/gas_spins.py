@@ -6,29 +6,28 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
-from homeassistant.util.dt import (utcnow)
-from homeassistant.helpers.update_coordinator import (
-  CoordinatorEntity,
-)
 from homeassistant.components.sensor import (
   RestoreSensor,
   SensorStateClass
 )
 
 from ..coordinators.wheel_of_fortune import WheelOfFortuneSpinsCoordinatorResult
+from ..coordinators.account import AccountCoordinatorResult
 from ..api_client import OctopusEnergyApiClient
 from ..utils.attributes import dict_to_typed_dict
+from ..coordinators import MultiCoordinatorEntity
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyWheelOfFortuneGasSpins(CoordinatorEntity, RestoreSensor):
+class OctopusEnergyWheelOfFortuneGasSpins(MultiCoordinatorEntity, RestoreSensor):
   """Sensor for current wheel of fortune spins for gas"""
   
   _unrecorded_attributes = frozenset({"data_last_retrieved"})
 
-  def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, account_id: str):
+  def __init__(self, hass: HomeAssistant, coordinator, account_coordinator, client: OctopusEnergyApiClient, account_id: str):
     """Init sensor."""
-    CoordinatorEntity.__init__(self, coordinator)
+    MultiCoordinatorEntity.__init__(self, coordinator, [account_coordinator])
+    self._account_coordinator = account_coordinator
   
     self._account_id = account_id
     self._client = client
@@ -92,7 +91,10 @@ class OctopusEnergyWheelOfFortuneGasSpins(CoordinatorEntity, RestoreSensor):
   async def async_spin_wheel(self):
     """Spin the wheel of fortune"""
 
-    result = await self._client.async_spin_wheel_of_fortune(self._account_id, False)
+    account_info: AccountCoordinatorResult = self._account_coordinator.data if self._account_coordinator is not None else None
+    is_octoplus_enrolled = account_info.account["octoplus_enrolled"] if account_info is not None and account_info.account is not None and "octoplus_enrolled" in account_info.account else False
+
+    result = await self._client.async_spin_wheel_of_fortune(self._account_id, False, is_octoplus_enrolled)
     return {
       "amount_won_in_pence": result
     }

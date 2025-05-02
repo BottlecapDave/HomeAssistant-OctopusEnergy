@@ -305,11 +305,12 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
 
   wheel_of_fortune_coordinator = await async_setup_wheel_of_fortune_spins_coordinator(hass, account_id)
   greenness_forecast_coordinator = hass.data[DOMAIN][account_id][DATA_GREENNESS_FORECAST_COORDINATOR]
+  account_coordinator = hass.data[DOMAIN][account_id][DATA_ACCOUNT_COORDINATOR]
   
   entities = [
-    OctopusEnergyAccountDataLastRetrieved(hass, hass.data[DOMAIN][account_id][DATA_ACCOUNT_COORDINATOR], account_id),
-    OctopusEnergyWheelOfFortuneElectricitySpins(hass, wheel_of_fortune_coordinator, client, account_id),
-    OctopusEnergyWheelOfFortuneGasSpins(hass, wheel_of_fortune_coordinator, client, account_id),
+    OctopusEnergyAccountDataLastRetrieved(hass, account_coordinator, account_id),
+    OctopusEnergyWheelOfFortuneElectricitySpins(hass, wheel_of_fortune_coordinator, account_coordinator, client, account_id),
+    OctopusEnergyWheelOfFortuneGasSpins(hass, wheel_of_fortune_coordinator, account_coordinator, client, account_id),
     OctopusEnergyGreennessForecastCurrentIndex(hass, greenness_forecast_coordinator, account_id),
     OctopusEnergyGreennessForecastNextIndex(hass, greenness_forecast_coordinator, account_id),
     OctopusEnergyGreennessForecastDataLastRetrieved(hass, greenness_forecast_coordinator, account_id),

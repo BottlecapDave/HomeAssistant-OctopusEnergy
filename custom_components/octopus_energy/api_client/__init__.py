@@ -321,10 +321,18 @@ wheel_of_fortune_query = '''query {{
   }}
 }}'''
 
-wheel_of_fortune_mutation = '''mutation {{
+wheel_of_fortune_standard_mutation = '''mutation {{
   spinWheelOfFortune(input: {{ accountNumber: "{account_id}", supplyType: {supply_type}, termsAccepted: true }}) {{
     spinResult {{
       prizeAmount
+    }}
+  }}
+}}'''
+
+wheel_of_fortune_octoplus_mutation = '''mutation {{
+  spinWheelOfFortune(input: {{ accountNumber: "{account_id}", supplyType: {supply_type} }}) {{
+    prize {{
+      value
     }}
   }}
 }}'''
@@ -654,6 +662,8 @@ class OctopusEnergyApiClient:
 
     self._api_key = api_key
     self._base_url = 'https://api.octopus.energy'
+    # For some reason, OE seem to have a secondary API with some other services
+    self._base_backend_url = 'https://api.backend.octopus.energy'
 
     self._graphql_token = None
     self._graphql_expiration = None
@@ -1787,7 +1797,7 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
   
-  async def async_spin_wheel_of_fortune(self, account_id: str, is_electricity: bool) -> int:
+  async def _async_spin_wheel_of_fortune_standard(self, account_id: str, is_electricity: bool) -> int:
     """Get the user's wheel of fortune spins"""
     await self.async_refresh_token()
 
@@ -1795,7 +1805,7 @@ class OctopusEnergyApiClient:
       request_context = "spin-wheel-of-fortune"
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
-      payload = { "query": wheel_of_fortune_mutation.format(account_id=account_id, supply_type="ELECTRICITY" if is_electricity == True else "GAS") }
+      payload = { "query": wheel_of_fortune_standard_mutation.format(account_id=account_id, supply_type="ELECTRICITY" if is_electricity == True else "GAS") }
       headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
@@ -1815,6 +1825,42 @@ class OctopusEnergyApiClient:
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
+    
+  async def _async_spin_wheel_of_fortune_octoplus(self, account_id: str, is_electricity: bool) -> int:
+    """Get the user's wheel of fortune spins"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "spin-wheel-of-fortune"
+      client = self._create_client_session()
+      url = f'{self._base_backend_url}/v1/graphql/'
+      payload = { "query": wheel_of_fortune_octoplus_mutation.format(account_id=account_id, supply_type="ELECTRICITY" if is_electricity == True else "GAS") }
+      headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_spin_wheel_of_fortune: {response_body}')
+
+        if (response_body is not None and 
+            "data" in response_body and
+            "spinWheelOfFortune" in response_body["data"] and
+            "prize" in response_body["data"]["spinWheelOfFortune"] and
+            "value" in response_body["data"]["spinWheelOfFortune"]["prize"]):
+          
+          return int(response_body["data"]["spinWheelOfFortune"]["prize"]["value"])
+        else:
+          _LOGGER.error("Failed to spin wheel of fortune")
+      
+      return None
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_spin_wheel_of_fortune(self, account_id: str, is_electricity: bool, is_octoplus_member: bool) -> int:
+    """Get the user's wheel of fortune spins"""
+    if is_octoplus_member:
+      return self._async_spin_wheel_of_fortune_octoplus(account_id, is_electricity)
+    
+    return self._async_spin_wheel_of_fortune_standard(account_id, is_electricity)
 
   def __get_interval_end(self, item):
     return (item["end"].timestamp(), item["end"].fold)
