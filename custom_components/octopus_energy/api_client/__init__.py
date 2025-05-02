@@ -448,7 +448,6 @@ query {{
       serialNumber
       model
       hardwareVersion
-      faultCodes
       maxWaterSetpoint
       minWaterSetpoint
       heatingFlowTemperature {{
@@ -1895,7 +1894,9 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(msg)
 
       for error in data_as_json["errors"]:
-        if (error["extensions"]["errorCode"] in ("KT-CT-1139", "KT-CT-1111", "KT-CT-1143")):
+        if ("extensions" in error and
+            "errorCode" in error["extensions"] and
+            error["extensions"]["errorCode"] in ("KT-CT-1139", "KT-CT-1111", "KT-CT-1143")):
           raise AuthenticationException(msg, errors)
 
       raise RequestException(msg, errors)
