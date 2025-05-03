@@ -296,15 +296,27 @@ The below example is how you might refresh the dispatches when you car is plugge
 
 !!! warn
 
-    There is a chance that the automation may fail due to the service call limit when the car is plugged in
+    There is a chance that the automation may fail due to the service call limit when the car is plugged in. 
 
 ```yaml
 mode: single
-alias: Refresh intelligent dispatches
+alias: Refresh intelligent dispatches when car is plugged in
 triggers:
   - trigger: state
     entity_id: binary_sensor.car_is_plugged_in
     to: on
+actions:
+  # Wait 30 seconds to give OE a chance to update the dispatches
+  - delay: 00:00:30
+  - action: octopus_energy.refresh_intelligent_dispatches
+    target:
+      entity_id: binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching
+```
+
+```yaml
+mode: single
+alias: Refresh intelligent dispatches periodically
+triggers:
   # Refresh every 3 minutes in case the schedule has changed
   - trigger: time_pattern
     minutes: /3
@@ -313,8 +325,8 @@ conditions:
     entity_id: binary_sensor.car_is_plugged_in
     state: on
 actions:
-  # Wait 30 seconds to give OE a chance to update the dispatches
-  - delay: 00:00:30
+  # Pick a random delay offset, so that the intelligent octopus API isn't hit with a wave of requests on the 3 minute mark. Each user should pick their own random value
+  - delay: 00:02:31
   - action: octopus_energy.refresh_intelligent_dispatches
     target:
       entity_id: binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching
