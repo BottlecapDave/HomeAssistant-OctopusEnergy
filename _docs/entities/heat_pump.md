@@ -16,6 +16,10 @@ This represents the humidity reported by a sensor (e.g. Cosy Pod) that is associ
 
 This represents the temperature reported by a sensor (e.g. Cosy Pod) that is associated with a heat pump.
 
+!!! warning
+
+    There are reports that some of these sensors can report negative values in certain installations. Unfortunately, there doesn't appear to be anything in the API that determines when these sensors are or are not applicable. In these situations, you'll need to manually disable or ignore them.
+
 ## Zone
 
 `climate.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{ZONE_CODE}}`
