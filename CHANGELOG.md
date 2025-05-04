@@ -1,3 +1,33 @@
+# [15.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v14.0.4...v15.0.0) (2025-05-04)
+
+
+### Bug Fixes
+
+* Added tracking of started planned dispatches for intelligent tariffs to improve cost sensor accuracy (3.5 hours dev time) ([94a4f16](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/94a4f16d80a78620d0f415cfd955a37604cd0356))
+* **custom:** fixed cost tracker to handle sensors reporting in measurements other than kwh (2 hours dev time) ([3c3119e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3c3119ebb1fa94833209d98ecf5a476e161511c6))
+* **custom:** Fixed discrepencies between cost sensors and statistic sensors for energy dashboard. The calculation has been revised to meet OE recommendations (3 hours dev time) ([c314ae0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c314ae00571da05d140a528c4b7ed081a374d102))
+* **custom:** fixed planned and completed dispatches not being ordered (5 minutes dev time) ([ff0519d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ff0519ddcc5bd9d3348d6f85fbf4a219d75f827a))
+* **custom:** updated diagnostics to determine if cached account data was used (5 minutes dev time) ([4d5a79c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4d5a79c084207cabb2f52cac45fb532b36252b9f))
+* fixed issue when COP not provided by heat pump (10 minutes dev time) ([b98167f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b98167f438da704e4f18fec0f02007074c86b45a))
+* Fixed issue when next refresh could be seconds out, causing a longer than advertised wait time for data to be refreshed (30 minutes dev time) ([abe855e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/abe855e3ec7aa6cbf3627e7a37792a141bd7e793))
+* fixed issue when processing API errors that don't have error codes provided (10 minutes dev time) ([d502160](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d5021605dd923174c620a81747e15d1147da23a5))
+* Removed old way of preserving completed dispatches beyond the standard API timeframe (15 minutes dev time) ([00a1809](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/00a18090a7ec6783e01f29fe2ac57c32d5e2a23c))
+
+
+### Features
+
+* Added the ability to automatically discover cost tracker options (3 hours dev time) ([4e6d33c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4e6d33c4883acca8b80d6ad4c5a330d975996cee))
+* **custom:** added intelligent rate mode for changing how pending/completed dispatches adjust rates (1 hour dev time) ([ea17a07](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ea17a07cee2f47ffa761ef47915e2a4bd4f61145))
+* **custom:** added support for JEDLIX-V2 intelligent provider (5 minutes dev time) ([670f3d7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/670f3d7f703acdb64404b7f304f007e86f6383d5))
+* Raise repair notice when active tariff not found for active meter (1 hour dev time) ([0b70277](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0b70277e55cb0583ef204f5f6fd80077d7959935))
+
+
+### BREAKING CHANGES
+
+* If you upgrade from before v14, then you might lose old completed dispatches as these will not be
+preserved using the new way before this version
+* The rate adjustments for intelligent tariffs have moved from using completed dispatches to started dispatches. This means that cost sensors may be in accurate for a couple of days while data is gathered.
+
 ## [14.0.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v14.0.3...v14.0.4) (2025-04-11)
 
 
