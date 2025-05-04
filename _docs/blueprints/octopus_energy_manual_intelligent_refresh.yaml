@@ -1,0 +1,76 @@
+blueprint:
+  name: Octopus Energy - Manual Intelligent Refresh
+  description: Handle the refresh of intelligent dispatches automatically, while refreshing when an external car sensor is plugged in. When automatic, will use normal backoff methods in event of failure.
+  domain: automation
+  author: BottlecapDave
+
+  input:
+    intelligent_dispatches_data_last_retrieved_sensor:
+      name: Intelligent dispatches data last retrieved
+      description: "The sensor that determines when intelligent dispatches data was last retrieved (e.g. sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatches_data_last_retrieved). More information can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/diagnostics/#intelligent-dispatches-data-last-retrieved"
+      selector:
+        entity:
+          filter:
+            domain: sensor
+            integration: octopus_energy
+
+    intelligent_dispatches_sensor:
+      name: Intelligent dispatches
+      description: "The sensor that determines if intelligent dispatches is active (e.g. binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching)"
+      selector:
+        entity:
+          filter:
+            domain: binary_sensor
+            integration: octopus_energy
+
+    car_plugged_in_sensor:
+      name: Car plugged in sensor (external)
+      description: "The external sensor that determines if the car has been plugged in (e.g. binary_sensor.car_is_plugged_in). This sensor is provided by an integration outside of the Octopus Energy integration."
+      selector:
+        entity:
+          filter:
+            domain:
+            - binary_sensor
+            - sensor
+            - input_boolean
+
+    car_plugged_in_sensor_state:
+      name: Car plugged in sensor expected state
+      description: "The expected state of the external sensor that determines if the car has been plugged in (e.g. 'on')."
+      selector:
+        text:
+
+    actions:
+      name: Actions
+      description: Additional actions to run after refresh
+      default: []
+      selector:
+        action: {}
+
+variables:
+  intelligent_dispatches_sensor: !input intelligent_dispatches_sensor
+  car_plugged_in_sensor: !input car_plugged_in_sensor
+
+mode: queued
+max: 4
+trigger_variables:
+  intelligent_dispatches_data_last_retrieved_sensor: !input intelligent_dispatches_data_last_retrieved_sensor
+triggers:
+  - trigger: state
+    entity_id: !input car_plugged_in_sensor
+    to: !input car_plugged_in_sensor_state
+  - trigger: template
+    value_template: >
+      {{ state_attr(intelligent_dispatches_data_last_retrieved_sensor, 'next_refresh') | as_datetime | as_local < now() }}
+conditions:
+  - condition: state
+    entity_id: !input car_plugged_in_sensor
+    state: !input car_plugged_in_sensor_state
+actions:
+  # Wait 30 seconds to give OE a chance to update the dispatches
+  - delay: 00:00:30
+  - action: octopus_energy.refresh_intelligent_dispatches
+    target:
+      entity_id: !input intelligent_dispatches_sensor
+  - choose: []
+    default: !input actions
