@@ -1281,6 +1281,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repairs/no_active_tariff/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - No active tariff
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -2285,31 +2306,7 @@
 </tbody>
 </table>
 <h4 id="automation-example_6">Automation Example<a class="headerlink" href="#automation-example_6" title="Permanent link">#</a></h4>
-<p>The below example is how you might refresh the dispatches when you car is plugged in, or every 3 minutes when your car is plugged in. Please note that the entity <code>binary_sensor.car_is_plugged_in</code> is not provided by the integration and should be replaced by an external source (e.g. the plug status from the <a href="https://github.com/CJNE/ha-myenergi">MyEnergi integration</a> or a manual input switch that you switch on manually when you plug in your car).</p>
-<div class="admonition warn">
-<p class="admonition-title">Warn</p>
-<p>There is a chance that the automation may fail due to the service call limit when the car is plugged in</p>
-</div>
-<div class="highlight"><pre><span></span><code><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">single</span>
-<span class="nt">alias</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Refresh intelligent dispatches</span>
-<span class="nt">triggers</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">trigger</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">state</span>
-<span class="w">    </span><span class="nt">entity_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">binary_sensor.car_is_plugged_in</span>
-<span class="w">    </span><span class="nt">to</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">on</span>
-<span class="w">  </span><span class="c1"># Refresh every 3 minutes in case the schedule has changed</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">trigger</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">time_pattern</span>
-<span class="w">    </span><span class="nt">minutes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">/3</span>
-<span class="nt">conditions</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">condition</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">state</span>
-<span class="w">    </span><span class="nt">entity_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">binary_sensor.car_is_plugged_in</span>
-<span class="w">    </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">on</span>
-<span class="nt">actions</span><span class="p">:</span>
-<span class="w">  </span><span class="c1"># Wait 30 seconds to give OE a chance to update the dispatches</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">delay</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">00:00:30</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">octopus_energy.refresh_intelligent_dispatches</span>
-<span class="w">    </span><span class="nt">target</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">entity_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching</span>
-</code></pre></div>
+<p>For an automation example, please refer to the available <a href="../blueprints/#manual-intelligent-dispatch-refreshes">blueprint</a>.</p>
 <h2 id="miscellaneous">Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permanent link">#</a></h2>
 <h3 id="octopus_energypurge_invalid_external_statistic_ids">octopus_energy.purge_invalid_external_statistic_ids<a class="headerlink" href="#octopus_energypurge_invalid_external_statistic_ids" title="Permanent link">#</a></h3>
 <p>For removing all external statistics that are associated with meters that don't have an active tariff. This is useful if you've been using the integration and obtained new smart meters.</p>
@@ -2320,6 +2317,14 @@
 <li><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption</code> (this will populate both consumption and cost)</li>
 <li><code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption_m3</code> (this will populate both consumption and cost for both m3 and kwh)</li>
 </ul>
+<div class="admonition information">
+<p class="admonition-title">Information</p>
+<p>Due to limitations with Home Assistant entities, this service will only refresh data for the associated statistic ids used for the recommended approach in the <a href="../setup/energy_dashboard/#previous-day-consumption">energy dashboard</a>. This will not update the history of the entities themselves.</p>
+</div>
+<div class="admonition warn">
+<p class="admonition-title">Warn</p>
+<p>If you are on intelligent, the cost data will not be correct for charges outside of the normal off peak times. This is because this data isn't available.</p>
+</div>
 <h3 id="octopus_energyregister_rate_weightings">octopus_energy.register_rate_weightings<a class="headerlink" href="#octopus_energyregister_rate_weightings" title="Permanent link">#</a></h3>
 <p>Allows you to configure weightings against rates at given times using factors external to the integration. These are applied when calculating <a href="../setup/target_rate/#external-rate-weightings">target rates</a> or <a href="../setup/rolling_target_rate/#external-rate-weightings">rolling target rates</a>.</p>
 <p>Rate weightings are added to any existing rate weightings that have been previously configured. Any rate weightings that are more than 24 hours old are removed. Any rate weightings for periods that have been previously configured are overridden. </p>

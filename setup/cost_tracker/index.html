@@ -1190,6 +1190,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../repairs/no_active_tariff/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - No active tariff
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1616,7 +1637,7 @@
 <h3 id="meter">Meter<a class="headerlink" href="#meter" title="Permanent link">#</a></h3>
 <p>This is the meter whose tariff will determine the rate the entity consumption is calculated at. This can be either an import or export based meter, meaning that you can track the money you're potentially making from your exports. </p>
 <h3 id="entity">Entity<a class="headerlink" href="#entity" title="Permanent link">#</a></h3>
-<p>This is the entity whose consumption should be tracked and the cost calculated against. This entity should be reporting in <code>kwh</code>.</p>
+<p>This is the entity whose consumption should be tracked and the cost calculated against. This entity will be assumed to be reporting <code>kwh</code>, unless stated otherwise.</p>
 <h3 id="tracked-entity-state-is-accumulative">Tracked entity state is accumulative<a class="headerlink" href="#tracked-entity-state-is-accumulative" title="Permanent link">#</a></h3>
 <p>This should be true if the tracked entity's state increases over time (true) or if it's the difference between updates (false).</p>
 <div class="admonition info">
@@ -1734,7 +1755,7 @@
 <tr>
 <td><code>consumption</code></td>
 <td><code>float</code></td>
-<td>The consumption value of the specified period</td>
+<td>The consumption value of the specified period. This will be in <code>kwh</code>.</td>
 </tr>
 <tr>
 <td><code>cost</code></td>
@@ -1848,7 +1869,7 @@
 <tr>
 <td><code>consumption</code></td>
 <td><code>float</code></td>
-<td>The consumption value of the specified period</td>
+<td>The consumption value of the specified period. This will be in <code>kwh</code>.</td>
 </tr>
 <tr>
 <td><code>cost</code></td>
@@ -1962,7 +1983,7 @@
 <tr>
 <td><code>consumption</code></td>
 <td><code>float</code></td>
-<td>The consumption value of the specified period</td>
+<td>The consumption value of the specified period. This will be in <code>kwh</code>.</td>
 </tr>
 <tr>
 <td><code>cost</code></td>

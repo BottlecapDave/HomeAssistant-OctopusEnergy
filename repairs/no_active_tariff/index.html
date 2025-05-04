@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../unknown_product/">
+        <link rel="prev" href="../unknown_intelligent_provider/">
       
       
-        <link rel="next" href="../unknown_intelligent_provider/">
+        <link rel="next" href="../../community/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Repairs - Cost override deprecated - Home Assistant Octopus Energy</title>
+        <title>Repairs - No active tariff - Home Assistant Octopus Energy</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#repairs-cost-override-deprecated" class="md-skip">
+        <a href="#repairs-no-active-tariff" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Repairs - Cost override deprecated
+              Repairs - No active tariff
             
           </span>
         </div>
@@ -830,19 +830,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../cost_override_obsolete/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -851,7 +842,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -882,10 +872,19 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../no_active_tariff/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -894,6 +893,7 @@
   
 
       </a>
+      
     </li>
   
 
@@ -1022,11 +1022,14 @@
   
 
 
-<h1 id="repairs-cost-override-deprecated">Repairs - Cost override deprecated<a class="headerlink" href="#repairs-cost-override-deprecated" title="Permanent link">#</a></h1>
-<p>If you receive this fixable warning, it means that you are using the cost tariff override sensors. These default sensors are going away in favour of opting in via the integrations page.</p>
-<p>To fix
-1. Navigate to your cost tariff override sensors and reset the tariff to your current tariff (this will remove the repair warning)
-2. Follow the <a href="../../setup/tariff_comparison/">tariff comparison instructions</a> to setup the new entities that replace these entities.</p>
+<h1 id="repairs-no-active-tariff">Repairs - No active tariff<a class="headerlink" href="#repairs-no-active-tariff" title="Permanent link">#</a></h1>
+<p>If you receive this repair notice it means that no active tariff was found for one or more of your meters. There are a few reasons why this might be the case.</p>
+<ol>
+<li>You are in the middle of switching tariffs. There can sometimes be a gap in your tariff information coming through when your existing tariff ends and your new tariff begins.</li>
+<li>You are new to OE and your tariff hasn't begun yet. Once your tariff starts, the integration will pick it up and should start working.</li>
+<li>There is a configuration issue with your account. In this scenario, you'll need to contact Octopus Energy support to get this rectified.</li>
+</ol>
+<p>All of the above scenarios can be confirmed within your <a href="../../faq/#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this">diagnostic data</a>. This will contain your account data including your meters. Under each of your meters, you'll have a list of tariff agreements. For each meter, you should have an agreement with a start date in the past and an end date either in the future or with no end date.</p>
 
 
 

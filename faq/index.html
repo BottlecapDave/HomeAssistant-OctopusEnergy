@@ -866,6 +866,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repairs/no_active_tariff/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - No active tariff
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1110,6 +1131,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#how-are-costs-sensors-calculated" class="md-nav__link">
+    <span class="md-ellipsis">
+      How are costs sensors calculated?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#do-you-support-older-versions-of-the-integration" class="md-nav__link">
     <span class="md-ellipsis">
       Do you support older versions of the integration?
@@ -1347,6 +1377,15 @@
   <a href="#the-rates-are-different-to-whats-on-my-bill-or-the-octopus-energy-dashboard-is-there-something-wrong" class="md-nav__link">
     <span class="md-ellipsis">
       The rates are different to what's on my bill or the Octopus Energy dashboard. Is there something wrong?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#how-are-costs-sensors-calculated" class="md-nav__link">
+    <span class="md-ellipsis">
+      How are costs sensors calculated?
     </span>
   </a>
   
@@ -1621,6 +1660,9 @@
 <h2 id="the-rates-are-different-to-whats-on-my-bill-or-the-octopus-energy-dashboard-is-there-something-wrong">The rates are different to what's on my bill or the Octopus Energy dashboard. Is there something wrong?<a class="headerlink" href="#the-rates-are-different-to-whats-on-my-bill-or-the-octopus-energy-dashboard-is-there-something-wrong" title="Permanent link">#</a></h2>
 <p>The first thing to do is make sure the correct tariff has been picked up. This can be done by confirming the tariff code on the <a href="../entities/electricity/#current-rate">electricity</a> or <a href="../entities/gas/#current-rate">gas</a> current rate sensors. This is picked up automatically via the API, so if this is wrong, then it means that either your account doesn't have your tariff configured yet or the wrong one is being picked up. This can be confirmed via your <a href="#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this">meter information</a>.</p>
 <p>If the correct tariff is present, it might be that you're on a tariff that has different rates depending on if you pay by direct debit or not. This can be configured via your <a href="../setup/account/#favour-direct-debit-rates">account configuration</a>.</p>
+<h2 id="how-are-costs-sensors-calculated">How are costs sensors calculated?<a class="headerlink" href="#how-are-costs-sensors-calculated" title="Permanent link">#</a></h2>
+<p>Cost sensors are calculated by multiplying the consumption by the rate for each half hour block, which are then all added together.</p>
+<p>Each half hour block has it's consumption rounded to the nearest 0.01kwh before multiplying by the rate, which is rounded to the nearest penny. The rounding method used is rounding half to even, where numbers ending in 5 are rounded up or down, towards the nearest even hundredth decimal place. As a result, 0.015 would be rounded up to 0.02, while 0.025 is rounded down to 0.02. This is based on <a href="https://developer.octopus.energy/rest/guides/endpoints">Octopus Energy API documentation</a></p>
 <h2 id="do-you-support-older-versions-of-the-integration">Do you support older versions of the integration?<a class="headerlink" href="#do-you-support-older-versions-of-the-integration" title="Permanent link">#</a></h2>
 <p>Due to time constraints, I will only ever support the latest version of the integration. If you have an issue with an older version of the integration, my initial answer will always be to update to the latest version. This might be different to what HACS is reporting if you are not on the minimum supported Home Assistant version (which is highlighted in each release's changelog). </p>
 <h2 id="how-do-i-know-when-theres-an-update-available">How do I know when there's an update available?<a class="headerlink" href="#how-do-i-know-when-theres-an-update-available" title="Permanent link">#</a></h2>

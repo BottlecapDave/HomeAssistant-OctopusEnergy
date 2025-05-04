@@ -980,6 +980,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../repairs/no_active_tariff/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - No active tariff
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1225,6 +1246,11 @@
 <td>An array of the dispatches that have been completed by Octopus Energy. This will only store up to the last 3 days worth of completed dispatches.</td>
 </tr>
 <tr>
+<td><code>started_dispatches</code></td>
+<td><code>array</code></td>
+<td>An array of the dispatches that have been planned by Octopus Energy and upon API refresh are still planned when the current 30 minute period started and is not in a boosting state. A planned dispatch will be added one 30 minute period at a time. This will only store up to the last 3 days worth of started dispatches. This is used to determine historic off peak rates. For example if you have a planned dispatch of <code>2025-04-01T10:00:00</code>-<code>2025-04-01T11:00:00</code>, at <code>2025-04-01T10:01:00</code> if the planned dispatch is still available the period of <code>2025-04-01T10:00:00</code>-<code>2025-04-01T10:30:00</code> will be added.</td>
+</tr>
+<tr>
 <td><code>provider</code></td>
 <td><code>string</code></td>
 <td>The provider of the intelligent features</td>
@@ -1289,12 +1315,34 @@
 <tr>
 <td><code>source</code></td>
 <td><code>string</code></td>
-<td>Determines what has caused the dispatch to be generated. Will be <code>smart-charge</code> or <code>bump-charge</code>.</td>
+<td>Determines what has caused the dispatch to be generated. Will be <code>smart-charge</code>, <code>bump-charge</code> or None.</td>
 </tr>
 <tr>
 <td><code>location</code></td>
 <td><code>string</code></td>
 <td>The location of the smart charge</td>
+</tr>
+</tbody>
+</table>
+<p>Each item in <code>started_dispatch</code> have the following attributes</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>start</code></td>
+<td><code>datetime</code></td>
+<td>The start date/time of the dispatch</td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td><code>datetime</code></td>
+<td>The end date/time of the dispatch</td>
 </tr>
 </tbody>
 </table>

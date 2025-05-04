@@ -866,6 +866,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repairs/no_active_tariff/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - No active tariff
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1050,6 +1071,24 @@
         
       </ul>
     </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#intelligent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Intelligent
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#manual-intelligent-dispatch-refreshes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manual Intelligent Dispatch Refreshes
+    </span>
+  </a>
   
 </li>
       
@@ -1302,6 +1341,24 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#intelligent" class="md-nav__link">
+    <span class="md-ellipsis">
+      Intelligent
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#manual-intelligent-dispatch-refreshes" class="md-nav__link">
+    <span class="md-ellipsis">
+      Manual Intelligent Dispatch Refreshes
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#wheel-of-fortune" class="md-nav__link">
     <span class="md-ellipsis">
       Wheel of Fortune
@@ -1428,6 +1485,14 @@
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This blueprint requires sensors provided by Octopus Energy Home Mini</p>
+</div>
+<h2 id="intelligent">Intelligent<a class="headerlink" href="#intelligent" title="Permanent link">#</a></h2>
+<h2 id="manual-intelligent-dispatch-refreshes">Manual Intelligent Dispatch Refreshes<a class="headerlink" href="#manual-intelligent-dispatch-refreshes" title="Permanent link">#</a></h2>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%octopus_energy_manual_intelligent_refresh.yaml">Install blueprint</a> | <a href="octopus_energy_manual_intelligent_refresh.yaml">Source</a></p>
+<p>This blueprint will fire the <a href="../services/#octopus_energyrefresh_intelligent_dispatches">intelligent dispatches service</a> either when a sensor from another integration determines the car has been plugged in (e.g. the plug status from the <a href="https://github.com/CJNE/ha-myenergi">MyEnergi integration</a>) or when the data is stale and overdue a refresh (in case the dispatch information has changed).</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This blueprint requires you to be on an intelligent tariff and a way to determine that your car is plugged in from another integration.</p>
 </div>
 <h2 id="wheel-of-fortune">Wheel of Fortune<a class="headerlink" href="#wheel-of-fortune" title="Permanent link">#</a></h2>
 <h3 id="automatically-spin-wheel-of-fortune-single">Automatically spin wheel of fortune (single)<a class="headerlink" href="#automatically-spin-wheel-of-fortune-single" title="Permanent link">#</a></h3>

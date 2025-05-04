@@ -416,6 +416,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#intelligent-rates-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Intelligent rates mode
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Intelligent rates mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#planned-and-started-dispatches-will-turn-into-off-peak-rates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Planned and started dispatches will turn into off peak rates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#only-started-dispatches-will-turn-into-off-peak-rates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Only started dispatches will turn into off peak rates
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#home-pro" class="md-nav__link">
     <span class="md-ellipsis">
       Home Pro
@@ -1010,6 +1043,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../repairs/no_active_tariff/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - No active tariff
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1184,6 +1238,39 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#intelligent-rates-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Intelligent rates mode
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Intelligent rates mode">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#planned-and-started-dispatches-will-turn-into-off-peak-rates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Planned and started dispatches will turn into off peak rates
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#only-started-dispatches-will-turn-into-off-peak-rates" class="md-nav__link">
+    <span class="md-ellipsis">
+      Only started dispatches will turn into off peak rates
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#home-pro" class="md-nav__link">
     <span class="md-ellipsis">
       Home Pro
@@ -1279,6 +1366,20 @@
 </div>
 <h2 id="manually-refresh-intelligent-dispatches">Manually refresh intelligent dispatches<a class="headerlink" href="#manually-refresh-intelligent-dispatches" title="Permanent link">#</a></h2>
 <p>By default, intelligent dispatches are retrieved <a href="../../faq/#how-often-is-data-refreshed">periodically</a>. This is fine for most scenarios, but this can be a little slow depending on what else you're doing off the back of the dispatches. If you have other ways of knowing when new dispatches should be available (e.g. your charger changes to a charging state or a manual button in your HA dashboard), then you can turn on <code>Manually refresh intelligent dispatches</code>. This will disable the periodic refreshing and expose a <a href="../../services/#octopus_energyrefresh_intelligent_dispatches">service</a> which can be called to refresh the dispatches.</p>
+<h2 id="intelligent-rates-mode">Intelligent rates mode<a class="headerlink" href="#intelligent-rates-mode" title="Permanent link">#</a></h2>
+<p>If you are on an intelligent tariff then it's possible for you to get cheaper rates outside of your normal off peak periods if Octopus Energy schedules the charges and your car accepts the charges. The rate information provides by Octopus Energy doesn't take these periods into account, so the integration has to use the planned/completed dispatch information to adjust the rates appropriately. Due to the quality of the available data, this <em>can</em> be off sometimes. This feature allows how the rate information is adjusted in these scenarios.</p>
+<h3 id="planned-and-started-dispatches-will-turn-into-off-peak-rates">Planned and started dispatches will turn into off peak rates<a class="headerlink" href="#planned-and-started-dispatches-will-turn-into-off-peak-rates" title="Permanent link">#</a></h3>
+<p>This is the default behaviour. In this scenario, all planned dispatches will be assumed to be converted into successful off peak charges by the car and therefore all rates during these periods will be converted into the off peak rate. This will be indicated by the <code>is_intelligent_adjusted</code> property. This is useful when planning other devices to turn on in the future during these cheap periods (e.g. by using a <a href="../target_rate/">target rate sensor</a>). </p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>One side effect of this is around cost sensors, where if a planned dispatch does not turn into a started dispatch, the cost sensor can increase in value when the planned dispatch is removed.</p>
+</div>
+<h3 id="only-started-dispatches-will-turn-into-off-peak-rates">Only started dispatches will turn into off peak rates<a class="headerlink" href="#only-started-dispatches-will-turn-into-off-peak-rates" title="Permanent link">#</a></h3>
+<p>In this scenario only started dispatches will be taken into account for adjustments meaning all rates during only started dispatch periods will be converted into the off peak rate. This will be indicated by the <code>is_intelligent_adjusted</code> property. This means no future planning can be made to take advantage of these cheap periods by rates alone.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>One side effect of this is around cost sensors, where when a started dispatch arrives the cost sensor will decrease in value.</p>
+</div>
 <h2 id="home-pro">Home Pro<a class="headerlink" href="#home-pro" title="Permanent link">#</a></h2>
 <p>If you are lucky enough to own an <a href="https://forum.octopus.energy/t/for-the-pro-user/8453/2352/">Octopus Home Pro</a>, you can now receive this data locally from within Home Assistant. </p>
 <div class="admonition warning">
