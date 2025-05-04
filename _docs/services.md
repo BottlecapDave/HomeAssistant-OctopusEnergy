@@ -292,33 +292,7 @@ Refreshes intelligent dispatches for a given account.
 
 #### Automation Example
 
-The below example is how you might refresh the dispatches when you car is plugged in, or every 3 minutes when your car is plugged in. Please note that the entity `binary_sensor.car_is_plugged_in` is not provided by the integration and should be replaced by an external source (e.g. the plug status from the [MyEnergi integration](https://github.com/CJNE/ha-myenergi) or a manual input switch that you switch on manually when you plug in your car).
-
-!!! warn
-
-    There is a chance that the automation may fail due to the service call limit when the car is plugged in
-
-```yaml
-mode: single
-alias: Refresh intelligent dispatches
-triggers:
-  - trigger: state
-    entity_id: binary_sensor.car_is_plugged_in
-    to: on
-  # Refresh every 3 minutes in case the schedule has changed
-  - trigger: time_pattern
-    minutes: /3
-conditions:
-  - condition: state
-    entity_id: binary_sensor.car_is_plugged_in
-    state: on
-actions:
-  # Wait 30 seconds to give OE a chance to update the dispatches
-  - delay: 00:00:30
-  - action: octopus_energy.refresh_intelligent_dispatches
-    target:
-      entity_id: binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching
-```
+For an automation example, please refer to the available [blueprint](./blueprints.md#manual-intelligent-dispatch-refreshes).
 
 ## Miscellaneous
 
@@ -334,6 +308,14 @@ This service is only available for the following sensors
 
 - `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption` (this will populate both consumption and cost)
 - `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_consumption_m3` (this will populate both consumption and cost for both m3 and kwh)
+
+!!! information
+
+    Due to limitations with Home Assistant entities, this service will only refresh data for the associated statistic ids used for the recommended approach in the [energy dashboard](./setup/energy_dashboard.md#previous-day-consumption). This will not update the history of the entities themselves.
+
+!!! warn
+
+    If you are on intelligent, the cost data will not be correct for charges outside of the normal off peak times. This is because this data isn't available.
 
 ### octopus_energy.register_rate_weightings
 

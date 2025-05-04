@@ -10,18 +10,25 @@ from homeassistant.helpers import selector
 from homeassistant.components.sensor import (
   SensorDeviceClass,
 )
+from homeassistant.helpers.typing import DiscoveryInfoType
 
 from .coordinators.account import AccountCoordinatorResult
 from .config.cost_tracker import merge_cost_tracker_config, validate_cost_tracker_config
 from .config.target_rates import merge_target_rate_config, validate_target_rate_config
 from .config.main import async_validate_main_config, merge_main_config
 from .const import (
+  CONFIG_COST_TRACKER_DISCOVERY_ACCOUNT_ID,
+  CONFIG_COST_TRACKER_DISCOVERY_NAME,
   CONFIG_COST_TRACKER_MANUAL_RESET,
+  CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS,
   CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES,
   CONFIG_KIND_ROLLING_TARGET_RATE,
   CONFIG_MAIN_HOME_PRO_ADDRESS,
   CONFIG_MAIN_HOME_PRO_API_KEY,
   CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
   CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD,
   CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE,
   CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST,
@@ -143,7 +150,7 @@ def get_weekday_options():
 
 def get_account_ids(hass):
     account_ids: list[str] = []
-    for entry in hass.config_entries.async_entries(DOMAIN):
+    for entry in hass.config_entries.async_entries(DOMAIN, include_ignore=False):
       if CONFIG_KIND in entry.data and entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
         account_id = entry.data[CONFIG_ACCOUNT_ID]
         account_ids.append(account_id)
@@ -154,6 +161,30 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
   """Config flow."""
 
   VERSION = CONFIG_VERSION
+
+  _target_entity_id = None
+
+  async def async_step_integration_discovery(
+    self,
+    discovery_info: DiscoveryInfoType,
+  ):
+    """Handle integration discovery."""
+    _LOGGER.debug("Starting discovery flow: %s", discovery_info)
+
+    if discovery_info[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
+      self._target_entity_id = discovery_info[CONFIG_COST_TRACKER_TARGET_ENTITY_ID]
+      self._account_id = discovery_info[CONFIG_COST_TRACKER_DISCOVERY_ACCOUNT_ID]
+      self.context["title_placeholders"] = {
+        "name": discovery_info[CONFIG_COST_TRACKER_DISCOVERY_NAME],
+      }
+
+      unique_id = f"octopus_energy_ct_{self._account_id}_{self._target_entity_id}"
+      await self.async_set_unique_id(unique_id)
+      self._abort_if_unique_id_configured()
+      
+      return await self.async_step_cost_tracker(None)
+    
+    return self.async_abort(reason="unexpected_discovery")
 
   async def async_step_account(self, user_input):
     """Setup the initial account based on the provided user input"""
@@ -464,6 +495,11 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
         title=f"{user_input[CONFIG_COST_TRACKER_NAME]} (cost tracker)", 
         data=user_input
       )
+
+    if user_input is None and self._target_entity_id is not None:
+      user_input = {
+        CONFIG_COST_TRACKER_TARGET_ENTITY_ID: self._target_entity_id
+      }
 
     # Reshow our form with raised logins
     data_schema = await self.__async_setup_cost_tracker_schema__(self._account_id)
@@ -801,6 +837,16 @@ class OptionsFlowHandler(OptionsFlow):
           vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float,
           vol.Required(CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES): bool,
           vol.Required(CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES): bool,
+          vol.Required(CONFIG_MAIN_INTELLIGENT_RATE_MODE): selector.SelectSelector(
+          selector.SelectSelectorConfig(
+              options=[
+                selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES, label="Planned and started dispatches will turn into off peak rates"),
+                selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, label="Only stared dispatches will turn into off peak rates"),
+              ],
+              mode=selector.SelectSelectorMode.DROPDOWN,
+          )
+        ),
+          vol.Required(CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS): bool,
         }),
         {
           CONFIG_MAIN_API_KEY: config[CONFIG_MAIN_API_KEY],
@@ -814,6 +860,8 @@ class OptionsFlowHandler(OptionsFlow):
           CONFIG_MAIN_GAS_PRICE_CAP: config[CONFIG_MAIN_GAS_PRICE_CAP] if CONFIG_MAIN_GAS_PRICE_CAP in config else None,
           CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES: config[CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES] if CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES in config else True,
           CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES: config[CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] if CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES in config else False,
+          CONFIG_MAIN_INTELLIGENT_RATE_MODE: config[CONFIG_MAIN_INTELLIGENT_RATE_MODE] if CONFIG_MAIN_INTELLIGENT_RATE_MODE in config else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+          CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS: config[CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS] if CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS in config else False,
         }
       ),
       errors=errors

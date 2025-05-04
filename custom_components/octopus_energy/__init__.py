@@ -35,11 +35,13 @@ from .storage.intelligent_device import async_load_cached_intelligent_device, as
 from .storage.rate_weightings import async_load_cached_rate_weightings
 from .storage.intelligent_dispatches import async_load_cached_intelligent_dispatches
 from .api_client.intelligent_dispatches import IntelligentDispatches
+from .discovery import DiscoveryManager
 
 from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configuration
 from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_heat_pump
 
 from .const import (
+  CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS,
   CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES,
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
@@ -50,8 +52,11 @@ from .const import (
   CONFIG_MAIN_HOME_PRO_ADDRESS,
   CONFIG_MAIN_HOME_PRO_API_KEY,
   CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_VERSION,
+  DATA_DISCOVERY_MANAGER,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
   DATA_CUSTOM_RATE_WEIGHTINGS_KEY,
   DATA_HOME_PRO_CLIENT,
@@ -165,7 +170,7 @@ async def async_setup_entry(hass, entry):
 
     # If the main account has been reloaded, then reload all other entries to make sure they're referencing
     # the correct references (e.g. rate coordinators)
-    child_entries = hass.config_entries.async_entries(DOMAIN)
+    child_entries = hass.config_entries.async_entries(DOMAIN, include_ignore=False)
     for child_entry in child_entries:
       child_entry_config = dict(child_entry.data)
 
@@ -174,6 +179,11 @@ async def async_setup_entry(hass, entry):
 
       if child_entry_config[CONFIG_KIND] != CONFIG_KIND_ACCOUNT and child_entry_config[CONFIG_ACCOUNT_ID] == account_id:
         await hass.config_entries.async_reload(child_entry.entry_id)
+
+    if CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS in config and config[CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS] == True:
+      discovery_manager = DiscoveryManager(hass, account_id)
+      await discovery_manager.async_setup()
+      hass.data[DOMAIN][account_id][DATA_DISCOVERY_MANAGER] = discovery_manager
   
   elif config[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
     if DOMAIN not in hass.data or account_id not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN][account_id]:
@@ -487,7 +497,15 @@ async def async_setup_dependencies(hass, config):
         override = await async_get_meter_debug_override(hass, mpan, serial_number)
         tariff_override = override.tariff if override is not None else None
         planned_dispatches_supported = intelligent_features.planned_dispatches_supported if intelligent_features is not None else True
-        await async_setup_electricity_rates_coordinator(hass, account_id, mpan, serial_number, is_smart_meter, is_export_meter, planned_dispatches_supported, tariff_override)
+        await async_setup_electricity_rates_coordinator(hass,
+                                                        account_id,
+                                                        mpan,
+                                                        serial_number,
+                                                        is_smart_meter,
+                                                        is_export_meter,
+                                                        planned_dispatches_supported,
+                                                        config[CONFIG_MAIN_INTELLIGENT_RATE_MODE] if CONFIG_MAIN_INTELLIGENT_RATE_MODE in config else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+                                                        tariff_override)
 
   mock_heat_pump = account_debug_override.mock_heat_pump if account_debug_override is not None else False
   if mock_heat_pump:
@@ -537,7 +555,7 @@ async def options_update_listener(hass, entry):
 
     # If the main account has been reloaded, then reload all other entries to make sure they're referencing
     # the correct references (e.g. rate coordinators)
-    child_entries = hass.config_entries.async_entries(DOMAIN)
+    child_entries = hass.config_entries.async_entries(DOMAIN, include_ignore=False)
     for child_entry in child_entries:
       child_entry_config = dict(child_entry.data)
 
@@ -576,7 +594,7 @@ def setup(hass, config):
     """Handle the service call."""
 
     account_id = None
-    for entry in hass.config_entries.async_entries(DOMAIN):
+    for entry in hass.config_entries.async_entries(DOMAIN, include_ignore=False):
       if CONFIG_KIND in entry.data and entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
         account_id = entry.data[CONFIG_ACCOUNT_ID]
 

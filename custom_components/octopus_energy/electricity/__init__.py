@@ -1,6 +1,7 @@
 import logging
 
-from ..utils.conversions import value_inc_vat_to_pounds
+from ..utils.cost import consumption_cost_in_pence
+from ..utils.conversions import pence_to_pounds_pence, round_pounds, value_inc_vat_to_pounds
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -18,7 +19,6 @@ def calculate_electricity_consumption_and_cost(
     standing_charge,
     last_reset,
     minimum_consumption_records = 0,
-    round_cost = True,
     target_rate = None
   ):
   if (consumption_data is not None and len(consumption_data) >= minimum_consumption_records and rate_data is not None and len(rate_data) > 0 and standing_charge is not None):
@@ -29,7 +29,7 @@ def calculate_electricity_consumption_and_cost(
     if (last_reset is None or last_reset < sorted_consumption_data[0]["start"]):
 
       charges = []
-      total_cost_in_pence = 0
+      total_cost = 0
       total_consumption = 0
 
       for consumption in sorted_consumption_data:
@@ -48,27 +48,26 @@ def calculate_electricity_consumption_and_cost(
           continue
 
         total_consumption = total_consumption + consumption_value
-        cost = (value * consumption_value)
-        total_cost_in_pence = total_cost_in_pence + cost
+        cost = pence_to_pounds_pence(consumption_cost_in_pence(consumption_value, value))
+        total_cost = round_pounds(total_cost + cost)
 
         current_charge = {
           "start": rate["start"],
           "end": rate["end"],
           "rate": value_inc_vat_to_pounds(value),
           "consumption": consumption_value,
-          "cost": round(cost / 100, 2) if round_cost else cost / 100
+          "cost": cost,
         }
 
         charges.append(current_charge)
       
-      total_cost = round(total_cost_in_pence / 100, 2) if round_cost else total_cost_in_pence / 100
-      total_cost_plus_standing_charge = round((total_cost_in_pence + standing_charge) / 100, 2) if round_cost else (total_cost_in_pence + standing_charge) / 100
+      total_cost_plus_standing_charge = total_cost + pence_to_pounds_pence(standing_charge)
 
       last_reset = sorted_consumption_data[0]["start"] if len(sorted_consumption_data) > 0 else None
       last_calculated_timestamp = sorted_consumption_data[-1]["end"] if len(sorted_consumption_data) > 0 else None
 
       result = {
-        "standing_charge": round(standing_charge / 100, 2) if round_cost else standing_charge / 100,
+        "standing_charge": pence_to_pounds_pence(standing_charge),
         "total_cost_without_standing_charge": total_cost,
         "total_cost": total_cost_plus_standing_charge,
         "total_consumption": total_consumption,

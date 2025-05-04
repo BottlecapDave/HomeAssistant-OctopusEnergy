@@ -1,5 +1,6 @@
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers import selector
 
 DOMAIN = "octopus_energy"
 INTEGRATION_VERSION = "14.0.4"
@@ -42,6 +43,10 @@ CONFIG_MAIN_HOME_PRO_ADDRESS = "home_pro_address"
 CONFIG_MAIN_HOME_PRO_API_KEY = "home_pro_api_key"
 CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES = "favour_direct_debit_rates"
 CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES = "intelligent_manual_dispatches"
+CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS = "auto_discover_cost_trackers"
+CONFIG_MAIN_INTELLIGENT_RATE_MODE = "intelligent_rate_mode"
+CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES = "pending_and_started_dispatches"
+CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY = "started_dispatches_only"
 
 CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES = 1
 CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES = 2
@@ -106,6 +111,8 @@ CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE = "entity_accumulative_value"
 CONFIG_COST_TRACKER_WEEKDAY_RESET = "weekday_reset"
 CONFIG_COST_TRACKER_MONTH_DAY_RESET = "month_day_reset"
 CONFIG_COST_TRACKER_MANUAL_RESET = "manual_reset"
+CONFIG_COST_TRACKER_DISCOVERY_NAME = "discovery_name"
+CONFIG_COST_TRACKER_DISCOVERY_ACCOUNT_ID = "account_id"
 
 CONFIG_TARIFF_COMPARISON_NAME = "name"
 CONFIG_TARIFF_COMPARISON_MPAN_MPRN = "mpan_mprn"
@@ -143,13 +150,13 @@ DATA_HOME_PRO_CURRENT_CONSUMPTION_KEY = "HOME_PRO_CURRENT_CONSUMPTION_{}"
 DATA_FREE_ELECTRICITY_SESSIONS = "FREE_ELECTRICITY_SESSIONS"
 DATA_FREE_ELECTRICITY_SESSIONS_COORDINATOR = "FREE_ELECTRICITY_SESSIONS_COORDINATOR"
 DATA_CUSTOM_RATE_WEIGHTINGS_KEY = "DATA_CUSTOM_RATE_WEIGHTINGS_{}"
+DATA_DISCOVERY_MANAGER = "DATA_DISCOVERY_MANAGER"
 
 DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY = "HEAT_PUMP_CONFIGURATION_AND_STATUS_{}"
 DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR = "HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR_{}"
 
 DATA_SAVING_SESSIONS_FORCE_UPDATE = "SAVING_SESSIONS_FORCE_UPDATE"
 
-STORAGE_COMPLETED_DISPATCHES_NAME = "octopus_energy.{}-completed-intelligent-dispatches.json"
 STORAGE_ELECTRICITY_TARIFF_OVERRIDE_NAME = "octopus_energy.{}-{}-tariff-override.json"
 STORAGE_TARIFF_CACHE_NAME = "octopus_energy.tariff-{}.json"
 STORAGE_METER_DEBUG_OVERRIDE_NAME = "octopus_energy.{}-{}-override.json"
@@ -191,6 +198,16 @@ DATA_SCHEMA_ACCOUNT = vol.Schema({
   vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float,
   vol.Required(CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES): bool,
   vol.Required(CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES): bool,
+  vol.Required(CONFIG_MAIN_INTELLIGENT_RATE_MODE): selector.SelectSelector(
+    selector.SelectSelectorConfig(
+        options=[
+          selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES, label="Planned and started dispatches will turn into off peak rates"),
+          selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, label="Only started dispatches will turn into off peak rates"),
+        ],
+        mode=selector.SelectSelectorMode.DROPDOWN,
+    )
+  ),
+  vol.Required(CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS): bool,
 })
 
 EVENT_ELECTRICITY_PREVIOUS_DAY_RATES = "octopus_energy_electricity_previous_day_rates"
@@ -215,9 +232,11 @@ REPAIR_UNIQUE_RATES_CHANGED_KEY = "electricity_unique_rates_updated_{}"
 REPAIR_INVALID_API_KEY = "invalid_api_key_{}"
 REPAIR_ACCOUNT_NOT_FOUND = "account_not_found_{}"
 REPAIR_UNKNOWN_INTELLIGENT_PROVIDER = "unknown_intelligent_provider_{}"
+REPAIR_NO_ACTIVE_TARIFF = "no_active_tariff_{}_{}"
 
 # During BST, two records are returned before the rest of the data is available
 MINIMUM_CONSUMPTION_DATA_LENGTH = 3
 
 COORDINATOR_REFRESH_IN_SECONDS = 60
 HOME_PRO_COORDINATOR_REFRESH_IN_SECONDS = 10
+DISCOVERY_REFRESH_IN_HOURS = 2

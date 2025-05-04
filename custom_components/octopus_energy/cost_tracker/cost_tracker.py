@@ -24,6 +24,11 @@ from homeassistant.helpers.event import (
 from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
+    UnitOfEnergy,
+)
+
+from homeassistant.util.unit_conversion import (
+    EnergyConverter,
 )
 
 from ..const import (
@@ -204,11 +209,16 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
       else:
         old_last_reset = parse_datetime(old_state.attributes["last_reset"])
 
+    new_value = float(new_state.state)
+    new_value = EnergyConverter.convert(new_value, new_state.attributes["unit_of_measurement"], UnitOfEnergy.KILO_WATT_HOUR) if "unit_of_measurement" in new_state.attributes else new_value
+    old_value = None if old_state.state is None or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else float(old_state.state)
+    old_value = EnergyConverter.convert(old_value, old_state.attributes["unit_of_measurement"], UnitOfEnergy.KILO_WATT_HOUR) if "unit_of_measurement" in old_state.attributes else old_value
+
     consumption_data = add_consumption(current,
                                        self._attributes["tracked_charges"] if "tracked_charges" in self._attributes else [],
                                        self._attributes["untracked_charges"] if "untracked_charges" in self._attributes else [],
-                                       float(new_state.state),
-                                       None if old_state.state is None or old_state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else float(old_state.state),
+                                       new_value,
+                                       old_value,
                                        new_last_reset,
                                        old_last_reset,
                                        self._config[CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE],
@@ -279,7 +289,6 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
       0,
       None, # We want to always recalculate
       0,
-      False,
       target_rate=target_rate
     )
 
@@ -289,7 +298,6 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
       0,
       None, # We want to always recalculate
       0,
-      False,
       target_rate=target_rate
     )
 

@@ -140,8 +140,9 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
     assert result["total_consumption_kwh"] == 48 * 1
     assert round(result["total_consumption_m3"], 3) == round(48 * 0.088, 3)
 
-  assert result["total_cost_without_standing_charge"] == round((expected_total_values * 48 * expected_rate_price) / 100, 2)
-  assert result["total_cost"] == round(((expected_total_values * 48 * expected_rate_price) + standing_charge) / 100, 2)
+  expected_consumption_cost = round((round(expected_total_values, 2) * round(expected_rate_price, 2)) / 100, 2)
+  assert result["total_cost_without_standing_charge"] == expected_consumption_cost * 48
+  assert result["total_cost"] == (expected_consumption_cost * 48) + round(standing_charge / 100, 2)
 
   # Make sure our data is returned in 30 minute increments
   expected_valid_from = period_from
@@ -223,8 +224,9 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
     assert result["total_consumption_kwh"] == 48 * 1
     assert round(result["total_consumption_m3"], 3) == round(48 * 0.088, 3)
 
-  assert result["total_cost_without_standing_charge"] == round((expected_total_values * 48 * expected_rate_price) / 100, 2)
-  assert result["total_cost"] == round(((expected_total_values * 48 * expected_rate_price) + standing_charge) / 100, 2)
+  expected_consumption_cost = round((round(expected_total_values, 2) * round(expected_rate_price, 2)) / 100, 2)
+  assert result["total_cost_without_standing_charge"] == expected_consumption_cost * 48
+  assert result["total_cost"] == (expected_consumption_cost * 48) + round(standing_charge / 100, 2)
 
   # Make sure our data is returned in 30 minute increments
   expected_valid_from = period_from

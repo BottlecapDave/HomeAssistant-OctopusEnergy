@@ -4,21 +4,45 @@ labels: ["enhancement"]
 assignees:
   - BottlecapDave
 body:
-  - type: textarea
+  - type: input
     id: provider
     attributes:
       label: Provider name
       description: Please provide the name of the provider as presented in the raised repair notice
     validations:
       required: true
-  - type: checkboxes
-    id: features
+  - type: textarea
+    id: bump_charge
     attributes:
-      label: Features
-      description: Please specify the features that are available within the Octopus Energy app for your provider
-      options:
-        - label: Ability to bump charge
-        - label: Ability to set the charge limit/target
-        - label: Ability to set the time the charge will be at its target for
-        - label: Ability to turn smart charge on/off
-        - label: Ability to see planned dispatches
+      label: Ability to bump charge
+      description: Please provide a screenshot of the feature within the app or type "Not available"
+    validations:
+      required: true
+  - type: textarea
+    id: target_charge
+    attributes:
+      label: Ability to set the charge limit/target
+      description: Please provide a screenshot of the feature within the app or type "Not available"
+    validations:
+      required: true
+  - type: textarea
+    id: target_time
+    attributes:
+      label: Ability to set the time the charge will be at its target for
+      description: Please provide a screenshot of the feature within the app or type "Not available"
+    validations:
+      required: true
+  - type: textarea
+    id: smart_charge
+    attributes:
+      label: Ability to turn smart charge on/off
+      description: Please provide a screenshot of the feature within the app or type "Not available"
+    validations:
+      required: true
+  - type: textarea
+    id: planned_dispatches
+    attributes:
+      label: Ability to see planned dispatches
+      description: Please provide a screenshot of the feature within the app or type "Not available"
+    validations:
+      required: true

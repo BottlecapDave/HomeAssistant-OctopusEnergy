@@ -7,7 +7,9 @@ def triangle_number(n):
   return sum
 
 def calculate_next_refresh(current: datetime, request_attempts: int, refresh_rate_in_minutes: float):
-  next_rate = current + timedelta(minutes=refresh_rate_in_minutes)
+  # Ignore seconds and microseconds to account request taking a long time and pushing the next refresh into
+  # the next request (causing an additional 1 minute wait)
+  next_rate = current.replace(second=0, microsecond=0) + timedelta(minutes=refresh_rate_in_minutes)
   if (request_attempts > 1):
     i = request_attempts - 1
 

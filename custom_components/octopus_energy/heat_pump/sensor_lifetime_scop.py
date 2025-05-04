@@ -73,7 +73,7 @@ class OctopusEnergyHeatPumpSensorLifetimeSCoP(CoordinatorEntity, BaseOctopusEner
         and result.data.octoHeatPumpLifetimePerformance is not None):
       _LOGGER.debug(f"Updating OctopusEnergyHeatPumpSensorLifetimeSCoP for '{self._heat_pump_id}'")
 
-      self._state = float(result.data.octoHeatPumpLifetimePerformance.seasonalCoefficientOfPerformance)
+      self._state = float(result.data.octoHeatPumpLifetimePerformance.seasonalCoefficientOfPerformance) if result.data.octoHeatPumpLifetimePerformance.seasonalCoefficientOfPerformance is not None else None
       self._attributes["read_at"] = datetime.fromisoformat(result.data.octoHeatPumpLifetimePerformance.readAt)
       self._last_updated = current
 

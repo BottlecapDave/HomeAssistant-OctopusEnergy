@@ -2,7 +2,6 @@ import logging
 from datetime import datetime, timedelta
 from typing import Awaitable, Callable
 
-from custom_components.octopus_energy.storage.intelligent_dispatches import async_save_cached_intelligent_dispatches
 from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
@@ -19,15 +18,15 @@ from ..const import (
   DATA_ACCOUNT_COORDINATOR,
   DATA_INTELLIGENT_DISPATCHES,
   DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
+  INTELLIGENT_SOURCE_BUMP_CHARGE,
   REFRESH_RATE_IN_MINUTES_INTELLIGENT,
-
-  STORAGE_COMPLETED_DISPATCHES_NAME
 )
 
 from ..api_client import ApiException, OctopusEnergyApiClient
-from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
+from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches, SimpleIntelligentDispatchItem
 from . import BaseCoordinatorResult
 from ..api_client.intelligent_device import IntelligentDevice
+from ..storage.intelligent_dispatches import async_save_cached_intelligent_dispatches
 
 from ..intelligent import clean_previous_dispatches, dictionary_list_to_dispatches, dispatches_to_dictionary_list, has_intelligent_tariff, mock_intelligent_dispatches
 
@@ -79,23 +78,6 @@ class IntelligentDispatchesCoordinatorResult(BaseCoordinatorResult):
     self.requests_current_hour = requests_current_hour
     self.requests_current_hour_last_reset = requests_current_hour_last_reset
 
-async def async_merge_dispatch_data(hass, account_id: str, completed_dispatches):
-  storage_key = STORAGE_COMPLETED_DISPATCHES_NAME.format(account_id)
-  store = storage.Store(hass, "1", storage_key)
-
-  try:
-    saved_dispatches = await store.async_load()
-  except:
-    saved_dispatches = []
-    _LOGGER.warning('Local intelligent dispatch data corrupted. Resetting...')
-
-  saved_completed_dispatches = dictionary_list_to_dispatches(saved_dispatches)
-
-  new_data = clean_previous_dispatches(utcnow(), (saved_completed_dispatches if saved_completed_dispatches is not None else []) + completed_dispatches)
-
-  await store.async_save(dispatches_to_dictionary_list(new_data))
-  return new_data
-
 def has_dispatches_changed(existing_dispatches: IntelligentDispatches, new_dispatches: IntelligentDispatches):
   return (
     existing_dispatches.current_state != new_dispatches.current_state or
@@ -116,7 +98,44 @@ def has_dispatches_changed(existing_dispatches: IntelligentDispatches, new_dispa
         existing_dispatches.planned[-1].start != new_dispatches.planned[-1].start
       )
     )
+    or
+    len(existing_dispatches.started) != len(new_dispatches.started) or
+    (
+      len(existing_dispatches.started) > 0 and
+      (
+        existing_dispatches.started[0].start != new_dispatches.started[0].start or
+        existing_dispatches.started[-1].start != new_dispatches.started[-1].start
+      )
+    )
   )
+
+def merge_started_dispatches(current: datetime, current_state: str, started_dispatches: list[SimpleIntelligentDispatchItem], planned_dispatches: list[IntelligentDispatchItem]):
+  new_started_dispatches = clean_previous_dispatches(current, started_dispatches)
+
+  if current_state == "SMART_CONTROL_IN_PROGRESS":
+    for planned_dispatch in planned_dispatches:
+      if planned_dispatch.start <= current and planned_dispatch.end >= current:
+        # Skip any bump charges
+        if (planned_dispatch.source == INTELLIGENT_SOURCE_BUMP_CHARGE):
+          continue
+
+        is_extended = False
+        start = current.replace(minute=0 if current.minute < 30 else 30, second=0, microsecond=0)
+        end = start + timedelta(minutes=30)
+        for started_dispatch in new_started_dispatches:
+          if (started_dispatch.end == end):
+            # Skip as we are already covering the current 30 minute period
+            is_extended = True
+            break
+          elif (started_dispatch.end == start):
+            started_dispatch.end = end
+            is_extended = True
+            break
+
+        if is_extended == False:
+          new_started_dispatches.append(SimpleIntelligentDispatchItem(start, end))
+
+  return new_started_dispatches
 
 async def async_refresh_intelligent_dispatches(
   current: datetime,
@@ -126,7 +145,6 @@ async def async_refresh_intelligent_dispatches(
   existing_intelligent_dispatches_result: IntelligentDispatchesCoordinatorResult,
   is_data_mocked: bool,
   is_manual_refresh: bool,
-  async_merge_dispatch_data: Callable[[str, list], Awaitable[list]],
   async_save_dispatches: Callable[[str, IntelligentDispatches], Awaitable[list]],
 ):
   requests_current_hour = existing_intelligent_dispatches_result.requests_current_hour if existing_intelligent_dispatches_result is not None else 0
@@ -184,7 +202,13 @@ async def async_refresh_intelligent_dispatches(
         _LOGGER.debug(f'Intelligent dispatches mocked for account {account_id}')
 
       if dispatches is not None:
-        dispatches.completed = await async_merge_dispatch_data(account_id, dispatches.completed)
+        dispatches.completed = clean_previous_dispatches(utcnow(), (existing_intelligent_dispatches_result.dispatches.completed if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and existing_intelligent_dispatches_result.dispatches.completed is not None else []) + dispatches.completed)
+        dispatches.started = merge_started_dispatches(current,
+                                                      dispatches.current_state,
+                                                      existing_intelligent_dispatches_result.dispatches.started 
+                                                      if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and  existing_intelligent_dispatches_result.dispatches.started is not None
+                                                      else [],
+                                                      dispatches.planned)
 
         if (existing_intelligent_dispatches_result is None or
             existing_intelligent_dispatches_result.dispatches is None or
@@ -236,7 +260,6 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, 
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None,
       mock_intelligent_data,
       is_manual_refresh,
-      lambda account_id, completed_dispatches: async_merge_dispatch_data(hass, account_id, completed_dispatches),
       lambda account_id, dispatches: async_save_cached_intelligent_dispatches(hass, account_id, dispatches)
     )
     

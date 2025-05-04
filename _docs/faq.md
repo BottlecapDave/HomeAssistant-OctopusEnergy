@@ -176,6 +176,12 @@ The first thing to do is make sure the correct tariff has been picked up. This c
 
 If the correct tariff is present, it might be that you're on a tariff that has different rates depending on if you pay by direct debit or not. This can be configured via your [account configuration](./setup/account.md#favour-direct-debit-rates).
 
+## How are costs sensors calculated?
+
+Cost sensors are calculated by multiplying the consumption by the rate for each half hour block, which are then all added together.
+
+Each half hour block has it's consumption rounded to the nearest 0.01kwh before multiplying by the rate, which is rounded to the nearest penny. The rounding method used is rounding half to even, where numbers ending in 5 are rounded up or down, towards the nearest even hundredth decimal place. As a result, 0.015 would be rounded up to 0.02, while 0.025 is rounded down to 0.02. This is based on [Octopus Energy API documentation](https://developer.octopus.energy/rest/guides/endpoints)
+
 ## Do you support older versions of the integration?
 
 Due to time constraints, I will only ever support the latest version of the integration. If you have an issue with an older version of the integration, my initial answer will always be to update to the latest version. This might be different to what HACS is reporting if you are not on the minimum supported Home Assistant version (which is highlighted in each release's changelog). 

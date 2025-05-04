@@ -1,5 +1,7 @@
 import logging
-from ..utils.conversions import value_inc_vat_to_pounds
+
+from ..utils.cost import consumption_cost_in_pence
+from ..utils.conversions import pence_to_pounds_pence, round_pounds, value_inc_vat_to_pounds
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -39,7 +41,7 @@ def calculate_gas_consumption_and_cost(
     if (last_reset == None or last_reset < sorted_consumption_data[0]["start"]):
 
       charges = []
-      total_cost_in_pence = 0
+      total_cost = 0
       total_consumption_m3 = 0
       total_consumption_kwh = 0
       for consumption in sorted_consumption_data:
@@ -67,8 +69,8 @@ def calculate_gas_consumption_and_cost(
           raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to}")
 
         value = rate["value_inc_vat"]
-        cost = (value * current_consumption_kwh)
-        total_cost_in_pence = total_cost_in_pence + cost
+        cost = pence_to_pounds_pence(consumption_cost_in_pence(current_consumption_kwh, value))
+        total_cost = round_pounds(total_cost + cost)
 
         charges.append({
           "start": rate["start"],
@@ -76,16 +78,15 @@ def calculate_gas_consumption_and_cost(
           "rate": value_inc_vat_to_pounds(value),
           "consumption_m3": current_consumption_m3,
           "consumption_kwh": current_consumption_kwh,
-          "cost": round(cost / 100, 2)
+          "cost": cost,
         })
       
-      total_cost = round(total_cost_in_pence / 100, 2)
-      total_cost_plus_standing_charge = round((total_cost_in_pence + standing_charge) / 100, 2)
+      total_cost_plus_standing_charge = total_cost + pence_to_pounds_pence(standing_charge)
       last_reset = sorted_consumption_data[0]["start"]
       last_calculated_timestamp = sorted_consumption_data[-1]["end"]
 
       return {
-        "standing_charge": round(standing_charge / 100, 2),
+        "standing_charge": pence_to_pounds_pence(standing_charge),
         "total_cost_without_standing_charge": total_cost,
         "total_cost": total_cost_plus_standing_charge,
         "total_consumption_m3": total_consumption_m3,

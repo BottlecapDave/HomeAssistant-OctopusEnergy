@@ -448,7 +448,6 @@ query {{
       serialNumber
       model
       hardwareVersion
-      faultCodes
       maxWaterSetpoint
       minWaterSetpoint
       heatingFlowTemperature {{
@@ -1438,28 +1437,35 @@ class OctopusEnergyApiClient:
               current_state = device["status"]["currentState"]
 
         if (response_body is not None and "data" in response_body):
+          planned_dispatches = list(map(lambda ev: IntelligentDispatchItem(
+              as_utc(parse_datetime(ev["start"])),
+              as_utc(parse_datetime(ev["end"])),
+              float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
+              ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
+              ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
+            ), response_body["data"]["plannedDispatches"]
+            if "plannedDispatches" in response_body["data"] and response_body["data"]["plannedDispatches"] is not None
+            else [])
+          )
+
+          completed_dispatches = list(map(lambda ev: IntelligentDispatchItem(
+              as_utc(parse_datetime(ev["start"])),
+              as_utc(parse_datetime(ev["end"])),
+              float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
+              ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
+              ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
+            ), response_body["data"]["completedDispatches"]
+            if "completedDispatches" in response_body["data"] and response_body["data"]["completedDispatches"] is not None
+            else [])
+          )
+
+          planned_dispatches.sort(key=lambda x: x.start)
+          completed_dispatches.sort(key=lambda x: x.start)
+
           return IntelligentDispatches(
             current_state,
-            list(map(lambda ev: IntelligentDispatchItem(
-                as_utc(parse_datetime(ev["start"])),
-                as_utc(parse_datetime(ev["end"])),
-                float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
-                ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
-                ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
-              ), response_body["data"]["plannedDispatches"]
-              if "plannedDispatches" in response_body["data"] and response_body["data"]["plannedDispatches"] is not None
-              else [])
-            ),
-            list(map(lambda ev: IntelligentDispatchItem(
-                as_utc(parse_datetime(ev["start"])),
-                as_utc(parse_datetime(ev["end"])),
-                float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
-                ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
-                ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
-              ), response_body["data"]["completedDispatches"]
-              if "completedDispatches" in response_body["data"] and response_body["data"]["completedDispatches"] is not None
-              else [])
-            )
+            planned_dispatches,
+            completed_dispatches
           )
         else:
           _LOGGER.error("Failed to retrieve intelligent dispatches")
@@ -1883,12 +1889,14 @@ class OctopusEnergyApiClient:
       raise Exception(f'Failed to extract response json: {url}; {text}')
     
     if ("graphql" in url and "errors" in data_as_json and ignore_errors == False):
-      msg = f'Errors in request ({url}): {data_as_json["errors"]}'
+      msg = f'Errors in request ({url}) ({request_context}): {data_as_json["errors"]}'
       errors = list(map(lambda error: error["message"], data_as_json["errors"]))
       _LOGGER.warning(msg)
 
       for error in data_as_json["errors"]:
-        if (error["extensions"]["errorCode"] in ("KT-CT-1139", "KT-CT-1111", "KT-CT-1143")):
+        if ("extensions" in error and
+            "errorCode" in error["extensions"] and
+            error["extensions"]["errorCode"] in ("KT-CT-1139", "KT-CT-1111", "KT-CT-1143")):
           raise AuthenticationException(msg, errors)
 
       raise RequestException(msg, errors)

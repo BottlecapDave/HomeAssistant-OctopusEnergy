@@ -76,7 +76,7 @@ class OctopusEnergyHeatPumpSensorLiveCoP(CoordinatorEntity, BaseOctopusEnergyHea
       self._state = 0
       # Only update the CoP if heat pump is actively running
       if float(result.data.octoHeatPumpLivePerformance.powerInput.value) != 0:
-        self._state = float(result.data.octoHeatPumpLivePerformance.coefficientOfPerformance)
+        self._state = float(result.data.octoHeatPumpLivePerformance.coefficientOfPerformance) if result.data.octoHeatPumpLivePerformance.coefficientOfPerformanc is not None else None
 
       self._attributes["read_at"] = datetime.fromisoformat(result.data.octoHeatPumpLivePerformance.readAt)
       self._last_updated = current
