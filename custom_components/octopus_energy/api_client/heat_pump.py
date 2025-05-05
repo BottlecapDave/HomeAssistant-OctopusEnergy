@@ -76,7 +76,6 @@ class HeatPump(BaseModel):
     serialNumber: Any
     model: str
     hardwareVersion: str
-    faultCodes: List
     maxWaterSetpoint: int
     minWaterSetpoint: int
     heatingFlowTemperature: HeatingFlowTemperature
