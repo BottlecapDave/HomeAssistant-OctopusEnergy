@@ -157,7 +157,6 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
         "serialNumber": None,
         "model": "Cosy 6",
         "hardwareVersion": "v5.1.0",
-        "faultCodes": [],
         "maxWaterSetpoint": 60,
         "minWaterSetpoint": 40,
         "heatingFlowTemperature": {

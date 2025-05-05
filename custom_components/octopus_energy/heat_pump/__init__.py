@@ -165,7 +165,6 @@ def mock_heat_pump_status_and_configuration():
         "serialNumber": "ABC",
         "model": "Cosy 6",
         "hardwareVersion": "v5.1.0",
-        "faultCodes": [],
         "maxWaterSetpoint": 60,
         "minWaterSetpoint": 40,
         "heatingFlowTemperature": {

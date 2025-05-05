@@ -356,6 +356,10 @@
     "no_active_tariff": {
       "title": "No active tariff - {meter_type} ({mpan_mprn}/{serial_number})",
       "description": "You do not have an active tariff associated with your {meter_type} meter ({mpan_mprn}/{serial_number}). Please click \"Learn More\" with instructions on how this can be resolved."
+    },
+    "target_rate_removal_proposal": {
+      "title": "Proposal: The removal of target rate sensors from the integration",
+      "description": "It looks like you're using target rate sensors. There is currently a proposal to remove this functionality due to it existing in a separate integration. Please click \"Learn More\" to see the full reasoning and provide your feedback. Click ignore to not see this proposal again."
     }
   }
 }
