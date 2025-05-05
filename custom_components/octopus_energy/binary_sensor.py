@@ -2,7 +2,7 @@ import logging
 
 import voluptuous as vol
 
-from homeassistant.helpers import config_validation as cv, entity_platform
+from homeassistant.helpers import config_validation as cv, entity_platform, issue_registry as ir
 from homeassistant.util.dt import (utcnow)
 
 from .electricity.off_peak import OctopusEnergyElectricityOffPeak
@@ -35,7 +35,8 @@ from .const import (
 
   DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
   DATA_SAVING_SESSIONS_COORDINATOR,
-  DATA_ACCOUNT
+  DATA_ACCOUNT,
+  REPAIR_TARGET_RATE_REMOVAL_PROPOSAL
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -47,6 +48,16 @@ async def async_setup_entry(hass, entry, async_add_entities):
     await async_setup_main_sensors(hass, entry, async_add_entities)
   elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE or entry.data[CONFIG_KIND] == CONFIG_KIND_ROLLING_TARGET_RATE:
     await async_setup_target_sensors(hass, entry, async_add_entities)
+
+    ir.async_create_issue(
+      hass,
+      DOMAIN,
+      REPAIR_TARGET_RATE_REMOVAL_PROPOSAL,
+      is_fixable=False,
+      severity=ir.IssueSeverity.WARNING,
+      learn_more_url="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions/1305",
+      translation_key="target_rate_removal_proposal",
+    )
 
     platform = entity_platform.async_get_current_platform()
 

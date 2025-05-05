@@ -233,6 +233,7 @@ REPAIR_INVALID_API_KEY = "invalid_api_key_{}"
 REPAIR_ACCOUNT_NOT_FOUND = "account_not_found_{}"
 REPAIR_UNKNOWN_INTELLIGENT_PROVIDER = "unknown_intelligent_provider_{}"
 REPAIR_NO_ACTIVE_TARIFF = "no_active_tariff_{}_{}"
+REPAIR_TARGET_RATE_REMOVAL_PROPOSAL = "target_rate_removal_proposal"
 
 # During BST, two records are returned before the rest of the data is available
 MINIMUM_CONSUMPTION_DATA_LENGTH = 3
