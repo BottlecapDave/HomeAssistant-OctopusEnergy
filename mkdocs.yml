@@ -21,6 +21,8 @@ nav:
     - Home Pro: ./entities/home_pro.md
     - Heat Pump: ./entities/heat_pump.md
     - Diagnostics: ./entities/diagnostics.md
+  - Migrations:
+    - ./migrations/target_timeframes.md
   - services.md
   - events.md
   - Repairs:

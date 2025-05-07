@@ -313,7 +313,7 @@ This service is only available for the following sensors
 
     Due to limitations with Home Assistant entities, this service will only refresh data for the associated statistic ids used for the recommended approach in the [energy dashboard](./setup/energy_dashboard.md#previous-day-consumption). This will not update the history of the entities themselves.
 
-!!! warn
+!!! warning
 
     If you are on intelligent, the cost data will not be correct for charges outside of the normal off peak times. This is because this data isn't available.
 
