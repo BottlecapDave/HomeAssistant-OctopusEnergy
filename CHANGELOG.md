@@ -1,3 +1,11 @@
+## [15.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v15.0.0...v15.0.1) (2025-05-05)
+
+
+### Bug Fixes
+
+* Fixed JEDLIX_V2 provider to match graphql provider ([af264bb](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/af264bba05a3445c5d4df43bfdc8516891f807c9))
+* Removed fault code references from heat pump as not used ([3cd8318](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3cd831852b731c6ae63d2532f57a3643172c9d8a))
+
 # [15.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v14.0.4...v15.0.0) (2025-05-04)
 
 
