@@ -911,6 +911,69 @@
   
   
   
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Migrations
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            Migrations
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../migrations/target_timeframes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Migrating Target Rate Sensors To Target Timeframes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../../services/" class="md-nav__link">
         
@@ -959,10 +1022,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -973,8 +1036,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             Repairs
           </label>
@@ -1457,6 +1520,11 @@
 
 
 <h1 id="rolling-target-rate-sensors">Rolling Target Rate Sensor(s)<a class="headerlink" href="#rolling-target-rate-sensors" title="Permanent link">#</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>It has been <a href="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions/1305">proposed</a> that the rolling target rate feature of the integration be deprecated and removed in favour of a new external integration, <a href="https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/">Target Timeframes</a>. The full reasoning can be found in the proposal.</p>
+<p>A <a href="../../migrations/target_timeframes/">migration guide</a> is available for migrating rolling target rate sensors to the new integration.</p>
+</div>
 <p>After you've configured your <a href="../account/">account</a>, you'll be able to configure rolling target rate sensors. These are configured by adding subsequent instances of the integration going through the <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy">normal flow</a>, and selecting <code>Rolling Target Rate</code> in the provided menu.</p>
 <p>These sensors calculate the lowest continuous or intermittent rates within the next available <code>x</code> hours, where <code>x</code> is configurable via the sensor, and turn on when these periods are active. If you are targeting an export meter, then the sensors will calculate the highest continuous or intermittent rates within the next available <code>x</code> hours and turn on when these periods are active. If you are wanting to evaluate on a fixed basis (e.g. every 24 hours), you might be interested in the <a href="../target_rate/">standard target rate sensors</a></p>
 <p>These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money. You can go through this flow as many times as you need rolling target rate sensors.</p>
