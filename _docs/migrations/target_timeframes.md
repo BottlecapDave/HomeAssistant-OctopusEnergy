@@ -32,6 +32,10 @@ All options within the sensors should feel familiar, as they represent what's av
 
 * `Invert targeted rates` in the Octopus Energy integration is represented by `Find highest values`. If `Invert targeted rates` is checked, for sensors using data sources targeting import meters, `Find highest values` should be checked. If `Invert targeted rates` is checked, for sensors using data sources targeting export meters, `Find highest values` should be checked.
 
+!!! info
+
+  If you are wanting to minimise updates of automations, once the target timeframe sensor has been created and you delete the old sensor from the Octopus Energy integration, you can rename the entity id to have the name of the old sensor. For example, if you have a target sensor with the entity id of `sensor.target_timeframe_octopus_energy_import_dishwasher`, your could rename it to `sensor.octopus_energy_target_dishwasher`.
+
 !!! warning
 
     There is currently a bug in HA where you'll need to reload the data source when a target rate sensor is added/updated in order to see the target rate sensor.
