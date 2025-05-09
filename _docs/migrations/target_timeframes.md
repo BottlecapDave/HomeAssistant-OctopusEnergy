@@ -39,3 +39,13 @@ All options within the sensors should feel familiar, as they represent what's av
 !!! warning
 
     There is currently a bug in HA where you'll need to reload the data source when a target rate sensor is added/updated in order to see the target rate sensor.
+
+## Available services
+
+The following list of related services and their counterparts.
+
+| OE Service | Target Timeframes Service |
+|-|-|
+| [octopus_energy.update_target_config](../services.md#octopus_energyupdate_target_config) | [target_timeframes.update_target_timeframe_config](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/services/#target_timeframesupdate_target_timeframe_config) |
+| [octopus_energy.update_rolling_target_config](../services.md#octopus_energyupdate_rolling_target_config) | [target_timeframes.update_rolling_target_timeframe_config](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/services/#target_timeframesupdate_rolling_target_timeframe_config) |
+| [octopus_energy.register_rate_weightings](../services.md#octopus_energyregister_rate_weightings) | Data is now loaded as part of [target_timeframes.update_target_timeframe_data_source](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/services/#target_timeframesupdate_target_timeframe_data_source). Therefore data can be manipulated before this service is called. A [blueprint](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/blueprints/#octopus-energy-and-carbon-intensity) is available as an example. |
