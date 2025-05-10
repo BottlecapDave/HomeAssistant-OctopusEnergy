@@ -790,6 +790,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#available-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Available services
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1177,6 +1186,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#available-services" class="md-nav__link">
+    <span class="md-ellipsis">
+      Available services
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1216,12 +1234,36 @@
 </ul>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
-</div>
 <p>If you are wanting to minimise updates of automations, once the target timeframe sensor has been created and you delete the old sensor from the Octopus Energy integration, you can rename the entity id to have the name of the old sensor. For example, if you have a target sensor with the entity id of <code>sensor.target_timeframe_octopus_energy_import_dishwasher</code>, your could rename it to <code>sensor.octopus_energy_target_dishwasher</code>.</p>
+</div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>There is currently a bug in HA where you'll need to reload the data source when a target rate sensor is added/updated in order to see the target rate sensor.</p>
 </div>
+<h2 id="available-services">Available services<a class="headerlink" href="#available-services" title="Permanent link">#</a></h2>
+<p>The following list of related services and their counterparts.</p>
+<table>
+<thead>
+<tr>
+<th>OE Service</th>
+<th>Target Timeframes Service</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../../services/#octopus_energyupdate_target_config">octopus_energy.update_target_config</a></td>
+<td><a href="https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/services/#target_timeframesupdate_target_timeframe_config">target_timeframes.update_target_timeframe_config</a></td>
+</tr>
+<tr>
+<td><a href="../../services/#octopus_energyupdate_rolling_target_config">octopus_energy.update_rolling_target_config</a></td>
+<td><a href="https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/services/#target_timeframesupdate_rolling_target_timeframe_config">target_timeframes.update_rolling_target_timeframe_config</a></td>
+</tr>
+<tr>
+<td><a href="../../services/#octopus_energyregister_rate_weightings">octopus_energy.register_rate_weightings</a></td>
+<td>Data is now loaded as part of <a href="https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/services/#target_timeframesupdate_target_timeframe_data_source">target_timeframes.update_target_timeframe_data_source</a>. Therefore data can be manipulated before this service is called. A <a href="https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/blueprints/#octopus-energy-and-carbon-intensity">blueprint</a> is available as an example.</td>
+</tr>
+</tbody>
+</table>
 
 
 
