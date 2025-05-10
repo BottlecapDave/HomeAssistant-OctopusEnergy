@@ -65,6 +65,10 @@ This represents the instantaneous efficiency of the heat pump.
 !!! note
     As this integration uses cloud polling this will inherently have a delay.
 
+!!! info
+
+    This sensor will report zero when the heat pump is not reporting input power, otherwise the reported COP can be inaccurate.
+
 ## Live Power Input 
 
 `sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_live_power_input`
