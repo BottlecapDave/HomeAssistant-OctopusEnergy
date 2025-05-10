@@ -34,7 +34,7 @@ All options within the sensors should feel familiar, as they represent what's av
 
 !!! info
 
-  If you are wanting to minimise updates of automations, once the target timeframe sensor has been created and you delete the old sensor from the Octopus Energy integration, you can rename the entity id to have the name of the old sensor. For example, if you have a target sensor with the entity id of `sensor.target_timeframe_octopus_energy_import_dishwasher`, your could rename it to `sensor.octopus_energy_target_dishwasher`.
+    If you are wanting to minimise updates of automations, once the target timeframe sensor has been created and you delete the old sensor from the Octopus Energy integration, you can rename the entity id to have the name of the old sensor. For example, if you have a target sensor with the entity id of `sensor.target_timeframe_octopus_energy_import_dishwasher`, your could rename it to `sensor.octopus_energy_target_dishwasher`.
 
 !!! warning
 
