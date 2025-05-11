@@ -124,7 +124,6 @@ async def test_when_account_info_is_none_then_existing_rates_returned():
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -172,7 +171,6 @@ async def test_when_no_active_rates_then_none_returned():
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -222,7 +220,6 @@ async def test_when_next_refresh_is_in_the_future_then_existing_rates_returned()
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -289,7 +286,6 @@ async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -367,7 +363,6 @@ async def test_when_dispatches_is_not_defined_and_existing_rates_is_none_then_ra
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -428,7 +423,6 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -487,7 +481,6 @@ async def test_when_existing_rates_are_requested_period_and_same_tariff_then_exi
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -552,7 +545,6 @@ async def test_when_existing_rates_are_requested_period_and_different_tariff_the
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -620,7 +612,6 @@ async def test_when_existing_rates_contains_some_of_period_and_same_tariff_then_
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -708,7 +699,6 @@ async def test_when_existing_rates_contains_some_of_period_and_different_tariff_
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -790,7 +780,6 @@ async def test_when_dispatched_rates_provided_then_rates_are_adjusted_if_meter_i
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -884,7 +873,6 @@ async def test_when_started_dispatched_rates_provided_then_rates_are_adjusted_if
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -921,11 +909,7 @@ async def test_when_started_dispatched_rates_provided_then_rates_are_adjusted_if
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("planned_dispatches_supported",[
-  (True),
-  (False),
-])
-async def test_when_dispatched_rates_provided_then_rates_are_adjusted_if_planned_dispatches_supported(planned_dispatches_supported: bool):
+async def test_when_dispatched_rates_provided_then_rates_are_adjusted():
   expected_period_from = (current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
   expected_rates = create_rate_data(expected_period_from, expected_period_to, [1, 2, 3, 4])
@@ -980,7 +964,6 @@ async def test_when_dispatched_rates_provided_then_rates_are_adjusted_if_planned
       existing_rates,
       None,
       dispatches_result,
-      planned_dispatches_supported,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -993,12 +976,12 @@ async def test_when_dispatched_rates_provided_then_rates_are_adjusted_if_planned
     assert len(retrieved_rates.rates) == len(expected_retrieved_rates.rates)
 
     number_of_intelligent_rates = 0
-    expected_number_of_intelligent_rates = 3 if planned_dispatches_supported else 0
+    expected_number_of_intelligent_rates = 3
     for index in range(len(retrieved_rates.rates)):
       expected_rate = expected_retrieved_rates.rates[index]
       actual_rate = retrieved_rates.rates[index]
 
-      if planned_dispatches_supported == True and actual_rate["start"] >= expected_dispatch_start and actual_rate["end"] <= expected_dispatch_end:
+      if actual_rate["start"] >= expected_dispatch_start and actual_rate["end"] <= expected_dispatch_end:
         assert "is_intelligent_adjusted" in actual_rate
         assert actual_rate["is_intelligent_adjusted"] == True
         assert actual_rate["value_inc_vat"] == 1
@@ -1053,7 +1036,6 @@ async def test_when_rates_not_retrieved_then_existing_rates_returned():
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -1108,7 +1090,6 @@ async def test_when_exception_is_raised_then_existing_rates_returned_and_excepti
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -1180,7 +1161,6 @@ async def test_when_rates_next_refresh_is_in_the_future_dispatches_retrieved_aft
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -1271,7 +1251,6 @@ async def test_when_rates_next_refresh_is_in_the_future_started_dispatches_retri
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -1308,12 +1287,7 @@ async def test_when_rates_next_refresh_is_in_the_future_started_dispatches_retri
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("is_export_meter,planned_dispatches_supported",[
-  (True, False),
-  (True, True),
-  (False, False),
-])
-async def test_when_rates_next_refresh_is_in_the_future_dispatches_retrieved_before_rates_and_dispatches_not_valid_then_existing_rates_returned(is_export_meter: bool, planned_dispatches_supported: bool):
+async def test_when_rates_next_refresh_is_in_the_future_dispatches_retrieved_before_rates_and_dispatches_not_valid_then_existing_rates_returned():
   current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
   expected_rates = create_rate_data(period_from, period_to, [1, 2])
   mock_api_called = False
@@ -1361,11 +1335,10 @@ async def test_when_rates_next_refresh_is_in_the_future_dispatches_retrieved_bef
       mpan,
       serial_number,
       True,
-      is_export_meter,
+      True,
       existing_rates,
       None,
       dispatches_result,
-      planned_dispatches_supported,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -1428,7 +1401,6 @@ async def test_when_rates_next_refresh_is_in_the_future_dispatches_retrieved_bef
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -1487,7 +1459,6 @@ async def test_when_rate_is_intelligent_and_intelligent_device_is_available_and_
       existing_rates,
       intelligent_device,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -1552,7 +1523,6 @@ async def test_when_rate_is_intelligent_and_intelligent_device_is_not_available_
       existing_rates,
       intelligent_device,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )
@@ -1644,7 +1614,6 @@ async def test_when_rates_change_correctly_then_unique_rates_changed_event_fired
       existing_rates,
       None,
       None,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff,
       unique_rates_changed=unique_rates_changed
@@ -1733,7 +1702,6 @@ async def test_when_clocks_change_then_rates_are_correct(existing_rates):
       existing_rates,
       None,
       dispatches_result,
-      True,
       fire_event,
       raise_no_active_rate=raise_no_active_tariff
     )

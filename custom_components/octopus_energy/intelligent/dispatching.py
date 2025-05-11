@@ -30,7 +30,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
   """Sensor for determining if an intelligent is dispatching."""
 
-  def __init__(self, hass: HomeAssistant, coordinator: IntelligentDispatchDataUpdateCoordinator, rates_coordinator, mpan: str, device: IntelligentDevice, account_id: str, planned_dispatches_supported: bool):
+  def __init__(self, hass: HomeAssistant, coordinator: IntelligentDispatchDataUpdateCoordinator, rates_coordinator, mpan: str, device: IntelligentDevice, account_id: str):
     """Init sensor."""
 
     MultiCoordinatorEntity.__init__(self, coordinator, [rates_coordinator])
@@ -40,7 +40,6 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
     self._mpan = mpan
     self._account_id = account_id
     self._state = None
-    self._planned_dispatches_supported = planned_dispatches_supported
     self.__init_attributes__([], [], [])
 
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
@@ -90,10 +89,9 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
     rates = self._rates_coordinator.data.rates if self._rates_coordinator is not None and self._rates_coordinator.data is not None else None
 
     current_date = utcnow()
-    planned_dispatches = result.dispatches.planned if result is not None and result.dispatches is not None and self._planned_dispatches_supported else []
     
     self.__init_attributes__(
-      dispatches_to_dictionary_list(planned_dispatches) if result is not None else [],
+      dispatches_to_dictionary_list(result.dispatches.planned) if result is not None else [],
       dispatches_to_dictionary_list(result.dispatches.completed if result is not None and result.dispatches is not None else []) if result is not None else [],
       dispatches_to_dictionary_list(result.dispatches.started if result is not None and result.dispatches is not None else []) if result is not None else [],
     )

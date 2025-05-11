@@ -24,7 +24,7 @@ This sensor is used to determine if you're currently in a planned dispatch perio
 
     * OHME
 
-    If you are supplied by one of the above providers, `planned_dispatches` will always return an empty collection and this entity will only turn on when within the standard off peak period.
+    If you are supplied by one of the above providers, `planned_dispatches` will always return an empty collection and this entity will only turn on when within the standard off peak period. 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
