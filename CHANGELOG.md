@@ -1,3 +1,12 @@
+## [15.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v15.0.1...v15.0.2) (2025-05-12)
+
+
+### Bug Fixes
+
+* Fixed issue with heatpump live cop not updating (30 minutes dev time) ([829e01e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/829e01e617bf9d887bdbb6195aa4ee052f26014f))
+* Fixed issue with intelligent dispatches incorrect turning on when on OHME (2 hours dev time) ([46fb3a0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/46fb3a0df3816d36d934961af1fad50a711e8aad))
+* Fixed spelling mistake in account config (5 minutes dev time) ([f0dcd1d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f0dcd1dcd9f734d08d56cdc51440f25a6e5cd685))
+
 ## [15.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v15.0.0...v15.0.1) (2025-05-05)
 
 

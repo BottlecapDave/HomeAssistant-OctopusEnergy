@@ -3,7 +3,7 @@ import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers import selector
 
 DOMAIN = "octopus_energy"
-INTEGRATION_VERSION = "15.0.1"
+INTEGRATION_VERSION = "15.0.2"
 
 REFRESH_RATE_IN_MINUTES_ACCOUNT = 60
 REFRESH_RATE_IN_MINUTES_INTELLIGENT = 3
