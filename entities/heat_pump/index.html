@@ -1366,6 +1366,10 @@
 <p class="admonition-title">Note</p>
 <p>As this integration uses cloud polling this will inherently have a delay.</p>
 </div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>This sensor will report zero when the heat pump is not reporting input power, otherwise the reported COP can be inaccurate.</p>
+</div>
 <h2 id="live-power-input">Live Power Input<a class="headerlink" href="#live-power-input" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_live_power_input</code></p>
 <p>This represents the instantaneous energy/power being drawn by the heat pump in kWh. </p>

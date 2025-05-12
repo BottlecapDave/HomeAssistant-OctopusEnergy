@@ -1839,6 +1839,10 @@
 <p>If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>.</p>
 </div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you are on intelligent and are using a provider where <a href="../../entities/intelligent/#is-dispatching">planned_dispatches</a> are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.</p>
+</div>
 <h5 id="standard">Standard<a class="headerlink" href="#standard" title="Permanent link">#</a></h5>
 <p><code>sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_standard</code></p>
 <p>This is the total cost of the tracked entity for the current day during standard hours (the middle rate).</p>
@@ -1953,6 +1957,10 @@
 <p>If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>.</p>
 </div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you are on intelligent and are using a provider where <a href="../../entities/intelligent/#is-dispatching">planned_dispatches</a> are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.</p>
+</div>
 <h5 id="standard_1">Standard<a class="headerlink" href="#standard_1" title="Permanent link">#</a></h5>
 <p><code>sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_week_standard</code></p>
 <p>This is the total cost of the tracked entity for the current week during standard hours (the middle rate).</p>
@@ -2066,6 +2074,10 @@
 <p>If you switch to a tariff that meets this criteria, you will need to reload the integration to gain access to this entity.</p>
 <p>If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>.</p>
+</div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>If you are on intelligent and are using a provider where <a href="../../entities/intelligent/#is-dispatching">planned_dispatches</a> are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.</p>
 </div>
 <h5 id="standard_2">Standard<a class="headerlink" href="#standard_2" title="Permanent link">#</a></h5>
 <p><code>sensor.octopus_energy_cost_tracker_{{COST_TRACKER_NAME}}_month_standard</code></p>
