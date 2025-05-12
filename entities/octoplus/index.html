@@ -1348,6 +1348,10 @@
 <h2 id="saving-session-events">Saving Session Events<a class="headerlink" href="#saving-session-events" title="Permanent link">#</a></h2>
 <p><code>event.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_session_events</code></p>
 <p>The state of this sensor states when the saving session events were last updated. The attributes of this sensor exposes the joined and available saving sessions.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor.</p>
+</div>
 <table>
 <thead>
 <tr>
@@ -1457,6 +1461,10 @@
 <p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_octoplus_saving_session_baseline</code></p>
 <p>This will indicate the baseline consumption that you need to be below for the current 30 minute period of the current saving session or the first 30 minute period of the next saving session. </p>
 <p>You can use the <a href="../electricity/#current-interval-accumulative-consumption">current period consumption</a> sensor (if available) to see how on track you are.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor.</p>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
@@ -1572,9 +1580,9 @@
 <h2 id="free-electricity-sessions">Free Electricity Sessions<a class="headerlink" href="#free-electricity-sessions" title="Permanent link">#</a></h2>
 <p><code>binary_sensor.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session</code></p>
 <p>Binary sensor to indicate if a free electricity session is active.</p>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi. However it is only applicable to your account if you have joined Octoplus and have signed up to <a href="https://octopus.energy/free-electricity/">free electricity sessions</a>. Once enrolled into Octoplus, reload the integration to gain access to this sensor.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to <a href="https://octopus.energy/free-electricity/">free electricity sessions</a>. This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi.</p>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1628,6 +1636,10 @@
 <h2 id="free-electricity-session-events">Free Electricity Session Events<a class="headerlink" href="#free-electricity-session-events" title="Permanent link">#</a></h2>
 <p><code>event.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session_events</code></p>
 <p>The state of this sensor states when the free electricity session events were last updated. The attributes of this sensor exposes the past, present and future free electricity sessions.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to <a href="https://octopus.energy/free-electricity/">free electricity sessions</a>. This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi.</p>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
@@ -1684,6 +1696,10 @@
 <p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_octoplus_free_electricity_session_baseline</code></p>
 <p>This will indicate the baseline consumption that you need to be above for the current 30 minute period of the current free electricity session or the first 30 minute period of the next free electricity session. </p>
 <p>You can use the <a href="../electricity/#current-interval-accumulative-consumption">current period consumption</a> sensor (if available) to see how on track you are.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to <a href="https://octopus.energy/free-electricity/">free electricity sessions</a>. This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi.</p>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
