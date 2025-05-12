@@ -80,6 +80,7 @@ async def test_when_account_info_is_none_then_existing_dispatches_returned():
       existing_dispatches,
       False,
       False,
+      True,
       async_save_dispatches
     )
 
@@ -122,6 +123,7 @@ async def test_when_intelligent_device_is_none_then_none_returned():
       existing_dispatches,
       False,
       False,
+      True,
       async_save_dispatches
     )
 
@@ -165,6 +167,7 @@ async def test_when_not_on_intelligent_tariff_then_none_returned():
       existing_dispatches,
       False,
       False,
+      True,
       async_save_dispatches
     )
 
@@ -207,6 +210,7 @@ async def test_when_mock_is_true_then_none_returned():
       existing_dispatches,
       True,
       False,
+      True,
       async_save_dispatches
     )
 
@@ -268,6 +272,7 @@ async def test_when_next_refresh_is_in_the_future_then_existing_dispatches_retur
       existing_dispatches,
       False,
       False,
+      True,
       async_save_dispatches
     )
 
@@ -315,6 +320,7 @@ async def test_when_existing_dispatches_is_none_then_dispatches_retrieved(existi
       existing_dispatches,
       False,
       False,
+      True,
       async_save_dispatches
     )
 
@@ -360,6 +366,7 @@ async def test_when_existing_dispatches_is_old_then_dispatches_retrieved():
       existing_dispatches,
       False,
       False,
+      True,
       async_save_dispatches
     )
 
@@ -404,6 +411,7 @@ async def test_when_settings_not_retrieved_then_existing_dispatches_returned():
       existing_dispatches,
       False,
       False,
+      True,
       async_save_dispatches
     )
 
@@ -451,6 +459,7 @@ async def test_when_exception_raised_then_existing_dispatches_returned_and_excep
       existing_dispatches,
       False,
       False,
+      True,
       async_save_dispatches
     )
 
@@ -500,6 +509,7 @@ async def test_when_requests_reached_for_hour_and_due_to_be_reset_then_dispatche
       existing_dispatches,
       False,
       False,
+      True,
       async_save_dispatches
     )
 
@@ -545,6 +555,7 @@ async def test_when_requests_reached_for_hour_and_not_due_to_be_reset_then_exist
       existing_dispatches,
       False,
       False,
+      True,
       async_save_dispatches
     )
 
@@ -593,6 +604,7 @@ async def test_when_manual_refresh_is_called_within_one_minute_then_existing_dis
       intelligent_device,
       existing_dispatches,
       False,
+      True,
       True,
       async_save_dispatches
     )
@@ -643,6 +655,7 @@ async def test_when_manual_refresh_is_called_after_one_minute_then_dispatches_re
       intelligent_device,
       existing_dispatches,
       False,
+      True,
       True,
       async_save_dispatches
     )
@@ -704,6 +717,7 @@ async def test_when_no_dispatches_are_retrieved_and_none_exist_then_dispatches_r
       existing_dispatches,
       False,
       True,
+      True,
       async_save_dispatches
     )
 
@@ -758,6 +772,7 @@ async def test_when_retrieved_planned_dispatch_started_and_in_boosting_mode_then
       existing_dispatches,
       False,
       False,
+      True,
       async_save_dispatches
     )
 
@@ -809,6 +824,7 @@ async def test_when_retrieved_planned_dispatch_started_and_not_in_boosting_mode_
       existing_dispatches,
       False,
       False,
+      True,
       async_save_dispatches
     )
 
@@ -869,6 +885,7 @@ async def test_when_retrieved_planned_dispatch_started_and_existing_started_disp
       existing_dispatches,
       False,
       False,
+      True,
       async_save_dispatches
     )
 
@@ -929,6 +946,7 @@ async def test_when_retrieved_planned_dispatch_started_and_existing_started_disp
       existing_dispatches,
       False,
       False,
+      True,
       async_save_dispatches
     )
 
@@ -992,6 +1010,7 @@ async def test_when_existing_started_dispatches_more_than_three_days_old_then_ol
       existing_dispatches,
       False,
       False,
+      True,
       async_save_dispatches
     )
 

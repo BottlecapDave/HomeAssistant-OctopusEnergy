@@ -1,5 +1,11 @@
 # Rolling Target Rate Sensor(s)
 
+!!! warning
+
+    It has been [proposed](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions/1305) that the rolling target rate feature of the integration be deprecated and removed in favour of a new external integration, [Target Timeframes](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/). The full reasoning can be found in the proposal.
+
+    A [migration guide](../migrations/target_timeframes.md) is available for migrating rolling target rate sensors to the new integration.
+
 After you've configured your [account](./account.md), you'll be able to configure rolling target rate sensors. These are configured by adding subsequent instances of the integration going through the [normal flow](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy), and selecting `Rolling Target Rate` in the provided menu.
 
 These sensors calculate the lowest continuous or intermittent rates within the next available `x` hours, where `x` is configurable via the sensor, and turn on when these periods are active. If you are targeting an export meter, then the sensors will calculate the highest continuous or intermittent rates within the next available `x` hours and turn on when these periods are active. If you are wanting to evaluate on a fixed basis (e.g. every 24 hours), you might be interested in the [standard target rate sensors](./target_rate.md)

@@ -48,27 +48,41 @@ blueprint:
         action: {}
 
 variables:
+  intelligent_dispatches_data_last_retrieved_sensor: !input intelligent_dispatches_data_last_retrieved_sensor
   intelligent_dispatches_sensor: !input intelligent_dispatches_sensor
   car_plugged_in_sensor: !input car_plugged_in_sensor
+  millisecond_jitter: >
+    {{ range(1, 1000) | random }}
 
 mode: queued
 max: 4
-trigger_variables:
-  intelligent_dispatches_data_last_retrieved_sensor: !input intelligent_dispatches_data_last_retrieved_sensor
 triggers:
   - trigger: state
+    id: car_plugged_in
     entity_id: !input car_plugged_in_sensor
     to: !input car_plugged_in_sensor_state
-  - trigger: template
-    value_template: >
-      {{ state_attr(intelligent_dispatches_data_last_retrieved_sensor, 'next_refresh') | as_datetime | as_local < now() }}
+  - trigger: time_pattern
+    minutes: "/1"
 conditions:
   - condition: state
     entity_id: !input car_plugged_in_sensor
     state: !input car_plugged_in_sensor_state
+  # Make sure that our dispatches are either due to be updated or our automation was triggered due to the vehicle being plugged in
+  - condition: or
+    conditions:
+    - condition: template
+      value_template: >
+        {{ trigger.id == "car_plugged_in" }}
+    - condition: template
+      value_template: >
+        {{ state_attr(intelligent_dispatches_data_last_retrieved_sensor, 'next_refresh') | as_datetime | as_local < now() }}
 actions:
   # Wait 30 seconds to give OE a chance to update the dispatches
   - delay: 00:00:30
+  # Add a bit of jitter so the API isn't hit at once
+  - delay:
+      milliseconds: >
+         {{ millisecond_jitter }}
   - action: octopus_energy.refresh_intelligent_dispatches
     target:
       entity_id: !input intelligent_dispatches_sensor

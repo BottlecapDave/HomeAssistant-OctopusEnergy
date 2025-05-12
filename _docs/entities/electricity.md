@@ -227,6 +227,10 @@ The total consumption reported by the meter for the previous available full day 
 
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
+!!! warning
+
+    If you are on intelligent and are using a provider where [planned_dispatches](./intelligent.md#is-dispatching) are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.
+
 ##### Standard
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_standard`
@@ -319,6 +323,10 @@ The total cost reported by the meter for the previous available full day during 
     If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
 
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+!!! warning
+
+    If you are on intelligent and are using a provider where [planned_dispatches](./intelligent.md#is-dispatching) are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.
 
 ##### Standard
 
@@ -521,6 +529,10 @@ The total cost reported by the meter for the current day during off peak hours (
 
 !!! warning
     This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
+
+!!! warning
+
+    If you are on intelligent and are using a provider where [planned_dispatches](./intelligent.md#is-dispatching) are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available

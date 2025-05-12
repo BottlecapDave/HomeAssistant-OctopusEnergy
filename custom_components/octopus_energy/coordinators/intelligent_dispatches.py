@@ -145,6 +145,7 @@ async def async_refresh_intelligent_dispatches(
   existing_intelligent_dispatches_result: IntelligentDispatchesCoordinatorResult,
   is_data_mocked: bool,
   is_manual_refresh: bool,
+  planned_dispatches_supported: bool,
   async_save_dispatches: Callable[[str, IntelligentDispatches], Awaitable[list]],
 ):
   requests_current_hour = existing_intelligent_dispatches_result.requests_current_hour if existing_intelligent_dispatches_result is not None else 0
@@ -201,6 +202,11 @@ async def async_refresh_intelligent_dispatches(
         dispatches = mock_intelligent_dispatches()
         _LOGGER.debug(f'Intelligent dispatches mocked for account {account_id}')
 
+      if planned_dispatches_supported == False:
+        # If planned dispatches are not supported, then we should clear down the planned dispatches as they are not useful
+        _LOGGER.debug("Clearing planned dispatches due to not being supported for provider")
+        dispatches.planned.clear()
+
       if dispatches is not None:
         dispatches.completed = clean_previous_dispatches(utcnow(), (existing_intelligent_dispatches_result.dispatches.completed if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and existing_intelligent_dispatches_result.dispatches.completed is not None else []) + dispatches.completed)
         dispatches.started = merge_started_dispatches(current,
@@ -239,7 +245,7 @@ async def async_refresh_intelligent_dispatches(
   
   return existing_intelligent_dispatches_result
 
-async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, mock_intelligent_data: bool, manual_dispatch_refreshes: bool):
+async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, mock_intelligent_data: bool, manual_dispatch_refreshes: bool, planned_dispatches_supported: bool):
   async def async_update_intelligent_dispatches_data(is_manual_refresh = False):
     """Fetch data from API endpoint."""
     # Request our account data to be refreshed
@@ -260,6 +266,7 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, 
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None,
       mock_intelligent_data,
       is_manual_refresh,
+      planned_dispatches_supported,
       lambda account_id, dispatches: async_save_cached_intelligent_dispatches(hass, account_id, dispatches)
     )
     

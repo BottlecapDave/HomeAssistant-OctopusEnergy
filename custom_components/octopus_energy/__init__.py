@@ -496,14 +496,12 @@ async def async_setup_dependencies(hass, config):
         is_smart_meter = meter["is_smart_meter"]
         override = await async_get_meter_debug_override(hass, mpan, serial_number)
         tariff_override = override.tariff if override is not None else None
-        planned_dispatches_supported = intelligent_features.planned_dispatches_supported if intelligent_features is not None else True
         await async_setup_electricity_rates_coordinator(hass,
                                                         account_id,
                                                         mpan,
                                                         serial_number,
                                                         is_smart_meter,
                                                         is_export_meter,
-                                                        planned_dispatches_supported,
                                                         config[CONFIG_MAIN_INTELLIGENT_RATE_MODE] if CONFIG_MAIN_INTELLIGENT_RATE_MODE in config else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
                                                         tariff_override)
 
@@ -535,7 +533,8 @@ async def async_setup_dependencies(hass, config):
     hass,
     account_id,
     account_debug_override.mock_intelligent_controls if account_debug_override is not None else False,
-    config[CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == True if CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES in config else False
+    config[CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == True if CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES in config else False,
+    intelligent_features.planned_dispatches_supported if intelligent_features is not None else True
   )
 
   await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id if intelligent_device is not None else None, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False)
