@@ -110,7 +110,7 @@ This is the total cost of the tracked entity for the current day during off peak
 
 !!! warning
 
-    If you are on intelligent and are using a provider where [planned_dispatches](./intelligent.md#is-dispatching) are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.
+    If you are on intelligent and are using a provider where [planned_dispatches](../entities/intelligent.md#is-dispatching) are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.
 
 ##### Standard
 
@@ -190,7 +190,7 @@ This is the total cost of the tracked entity for the current week during off pea
 
 !!! warning
 
-    If you are on intelligent and are using a provider where [planned_dispatches](./intelligent.md#is-dispatching) are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.
+    If you are on intelligent and are using a provider where [planned_dispatches](../entities/intelligent.md#is-dispatching) are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.
 
 ##### Standard
 
@@ -270,7 +270,7 @@ This is the total cost of the tracked entity for the current month during off pe
 
 !!! warning
 
-    If you are on intelligent and are using a provider where [planned_dispatches](./intelligent.md#is-dispatching) are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.
+    If you are on intelligent and are using a provider where [planned_dispatches](../entities/intelligent.md#is-dispatching) are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.
 
 ##### Standard
 
