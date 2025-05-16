@@ -80,7 +80,7 @@ class OctopusEnergyIntelligentBumpCharge(CoordinatorEntity, SwitchEntity, Octopu
     """Turn on the switch."""
     try:
       await self._client.async_turn_on_intelligent_bump_charge(
-        self._account_id
+        self._device.id
       )
     except Exception as e:
       if self._is_mocked:
@@ -96,7 +96,7 @@ class OctopusEnergyIntelligentBumpCharge(CoordinatorEntity, SwitchEntity, Octopu
     """Turn off the switch."""
     try:
       await self._client.async_turn_off_intelligent_bump_charge(
-        self._account_id
+        self._device.id
       )
     except Exception as e:
       if self._is_mocked:
