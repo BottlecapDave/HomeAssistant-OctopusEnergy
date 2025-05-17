@@ -100,7 +100,7 @@ To support Octopus Energy's [greener days](https://octopus.energy/smart/greener-
 
 To support heat pumps connected to Octopus Energy, like the [Cosy 6](https://octopus.energy/cosy-heat-pump/). [Full list of heat pump entities](./entities/heat_pump.md).
 
-### Fan Clubs
+### Fan Club
 
 To support the [Octopus Energy Fan Club](https://www.octopusenergygeneration.com/fan-club/). [Full list of fan club entities](./entities/fan_club.md).
 
