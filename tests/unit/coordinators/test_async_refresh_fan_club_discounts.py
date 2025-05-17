@@ -5,13 +5,15 @@ from datetime import datetime, timedelta
 from custom_components.octopus_energy.const import REFRESH_RATE_IN_MINUTES_FAN_CLUB_DISCOUNTS
 from custom_components.octopus_energy.coordinators.fan_club_discounts import FanClubDiscountCoordinatorResult, async_refresh_fan_club_discounts
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
-from custom_components.octopus_energy.api_client.fan_club import FanClubStatusItem, DiscountPeriod, ForecastInfo, FanClubResponse 
+from custom_components.octopus_energy.api_client.fan_club import FanClubStatusItem, DiscountPeriod, ForecastData, ForecastInfo, FanClubResponse 
 
 fan_club_discounts = [
   FanClubStatusItem(discountSource="Fan #1",
-                    current=DiscountPeriod(startAt='2024-02-04T00:00:00Z', discount="0.5"),
-                    historic=[],
-                    forecast=ForecastInfo(baseTime='2024-02-04T00:00:00Z', data=[])),
+                    current=DiscountPeriod(startAt=datetime.strptime(f'2024-02-04T00:30:00Z', "%Y-%m-%dT%H:%M:%S%z"), discount="0.5"),
+                    historic=[DiscountPeriod(startAt=datetime.strptime(f'2024-02-04T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z"), discount="0.5")],
+                    forecast=ForecastInfo(baseTime=datetime.strptime(f'2024-02-04T01:00:00Z', "%Y-%m-%dT%H:%M:%S%z"), data=[
+                      ForecastData(validTime=datetime.strptime(f'2024-02-04T01:00:00Z', "%Y-%m-%dT%H:%M:%S%z"), projectedDiscount="0.5")
+                    ])),
 ]
 
 @pytest.mark.asyncio
@@ -64,7 +66,17 @@ async def test_when_results_retrieved_then_results_returned():
     assert result is not None
     assert result.last_evaluated == current_utc_timestamp
     assert result.next_refresh == current_utc_timestamp.replace(second=0, microsecond=0) + timedelta(minutes=REFRESH_RATE_IN_MINUTES_FAN_CLUB_DISCOUNTS)
-    assert result.discounts == expected_result
+    assert result.discounts is not None
+
+    for actual in result.discounts:
+      assert actual.source == fan_club_discounts[0].discountSource
+
+      expected_start = fan_club_discounts[0].historic[0].startAt
+      for actual_discount in actual.discounts:
+        assert actual_discount.start == expected_start
+        expected_start = expected_start + timedelta(minutes=30)
+        assert actual_discount.end == expected_start
+        assert actual_discount.discount == 50
 
     assert mock_api_called == True
 

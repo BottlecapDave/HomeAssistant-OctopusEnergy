@@ -20,6 +20,7 @@ nav:
     - Greenness Forecast: ./entities/greenness_forecast.md
     - Home Pro: ./entities/home_pro.md
     - Heat Pump: ./entities/heat_pump.md
+    - Fan Club: ./entities/fan_club.md
     - Diagnostics: ./entities/diagnostics.md
   - Migrations:
     - ./migrations/target_timeframes.md

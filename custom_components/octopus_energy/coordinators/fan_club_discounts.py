@@ -17,15 +17,15 @@ from ..const import (
 
 from ..api_client import ApiException, OctopusEnergyApiClient
 from . import BaseCoordinatorResult
-from ..api_client.fan_club import FanClubStatusItem
+from ..fan_club import DiscountSource, combine_discounts, mock_fan_club_forecast
 
 _LOGGER = logging.getLogger(__name__)
 
 class FanClubDiscountCoordinatorResult(BaseCoordinatorResult):
   last_evaluated: datetime
-  discounts: list[FanClubStatusItem]
+  discounts: list[DiscountSource]
 
-  def __init__(self, last_evaluated: datetime, request_attempts: int, discounts: list[FanClubStatusItem], last_error: Exception | None = None):
+  def __init__(self, last_evaluated: datetime, request_attempts: int, discounts: list[DiscountSource], last_error: Exception | None = None):
     super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_FAN_CLUB_DISCOUNTS, None, last_error)
     self.discounts = discounts
 
@@ -33,13 +33,22 @@ async def async_refresh_fan_club_discounts(
     current: datetime,
     account_id: str,
     client: OctopusEnergyApiClient,
-    existing_result: FanClubDiscountCoordinatorResult
+    existing_result: FanClubDiscountCoordinatorResult,
+    mock_fan_club: bool = False
 ) -> FanClubDiscountCoordinatorResult:
   if existing_result is None or current >= existing_result.next_refresh:
     try:
-      result = await client.async_get_fan_club_discounts(account_id)
+      if mock_fan_club:
+        result = mock_fan_club_forecast()
+      else:
+        result = await client.async_get_fan_club_discounts(account_id)
 
-      return FanClubDiscountCoordinatorResult(current, 1, result.fanClubStatus if result is not None else [])
+      discounts: list[DiscountSource] = []
+      if result is not None and result.fanClubStatus is not None:
+        for item in result.fanClubStatus:
+          discounts.append(DiscountSource(source=item.discountSource, discounts=combine_discounts(item)))
+
+      return FanClubDiscountCoordinatorResult(current, 1, discounts)
     except Exception as e:
       if isinstance(e, ApiException) == False:
         raise
@@ -64,7 +73,7 @@ async def async_refresh_fan_club_discounts(
   
   return existing_result
 
-async def async_setup_fan_club_discounts_coordinator(hass, account_id: str):
+async def async_setup_fan_club_discounts_coordinator(hass, account_id: str, mock_fan_club: bool):
   async def async_update_data():
     """Fetch data from API endpoint."""
     current = now()
@@ -74,7 +83,8 @@ async def async_setup_fan_club_discounts_coordinator(hass, account_id: str):
       current,
       account_id,
       client,
-      hass.data[DOMAIN][account_id][DATA_FAN_CLUB_DISCOUNTS] if DATA_FAN_CLUB_DISCOUNTS in hass.data[DOMAIN][account_id] else None
+      hass.data[DOMAIN][account_id][DATA_FAN_CLUB_DISCOUNTS] if DATA_FAN_CLUB_DISCOUNTS in hass.data[DOMAIN][account_id] else None,
+      mock_fan_club
     )
 
     return hass.data[DOMAIN][account_id][DATA_FAN_CLUB_DISCOUNTS]
