@@ -909,8 +909,9 @@ class OctopusEnergyApiClient:
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": fan_club_discount_query.format(account_id=account_id) }
       headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
-      async with client.post(url, json=payload, headers=headers) as heat_pump_response:
-        response = await self.__async_read_response__(heat_pump_response, url)
+      async with client.post(url, json=payload, headers=headers) as fan_club_response:
+        response = await self.__async_read_response__(fan_club_response, url)
+        _LOGGER.debug(f'async_get_fan_club_discounts response: {response}')
 
         if (response is not None 
             and "data" in response 

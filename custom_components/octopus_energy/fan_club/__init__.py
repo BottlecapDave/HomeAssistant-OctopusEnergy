@@ -42,9 +42,11 @@ def get_fan_club_number(discountSource: str):
   return discountSource.split(":")[0].strip()
 
 def mock_fan_club_forecast() -> FanClubResponse:
+  # This is based on data provided by https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions/538#discussioncomment-7613665
   now: datetime = utcnow()
   now_thirty_minute = now.replace(minute=30 if now.minute >= 30 else 0, second=0, microsecond=0)
   historic = []
+  # Data is in 30 minute intervals
   current = now_thirty_minute
   for i in range(0, 48):
     current = current - timedelta(minutes=30)
@@ -54,7 +56,8 @@ def mock_fan_club_forecast() -> FanClubResponse:
     })
 
   forecast = []
-  current = now_thirty_minute
+  # Data is in 1 hour intervals
+  current = now.replace(minute=0, second=0, microsecond=0)
   for i in range(0, 48):
     current = current + timedelta(minutes=60)
     forecast.append({
