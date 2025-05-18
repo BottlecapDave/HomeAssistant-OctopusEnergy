@@ -85,6 +85,8 @@ class OctopusEnergyFanClubNextDiscount(CoordinatorEntity, RestoreSensor, Octopus
       discount_information = None
       if target_discount is not None:
         discount_information = get_next_fan_club_discount_information(target_discount.discounts, next)
+      else:
+        _LOGGER.warning(f"Unable to find discount information for '{self._discount_source}'")
 
       if discount_information is not None:
         self._attributes = {

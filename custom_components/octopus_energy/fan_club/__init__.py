@@ -9,23 +9,33 @@ class Discount(BaseModel):
     start: datetime
     end: datetime
     discount: float
+    is_estimated: bool
 
 class DiscountSource(BaseModel):
     source: str
     discounts: list[Discount]
 
-def discount_period_to_discount(period: DiscountPeriod) -> Discount:
-  return Discount(start=period.startAt, end=period.startAt + timedelta(minutes=30), discount=float(period.discount) * 100)
+def discount_period_to_discount(period: DiscountPeriod, is_estimated: bool) -> Discount:
+  return Discount(start=period.startAt, end=period.startAt + timedelta(minutes=30), discount=float(period.discount) * 100, is_estimated=is_estimated)
 
 def combine_discounts(status: FanClubStatusItem) -> list[Discount]:
   discounts: list[Discount] = []
 
-  discounts.extend(list(map(lambda x: discount_period_to_discount(x), status.historic)))
-  discounts.append(discount_period_to_discount(status.current))
-  for forecast in status.forecast.data:
-    discounts.append(Discount(start=forecast.validTime, end=forecast.validTime + timedelta(minutes=30), discount=float(forecast.projectedDiscount) * 100))
-    discounts.append(Discount(start=forecast.validTime + timedelta(minutes=30), end=forecast.validTime + timedelta(minutes=60), discount=float(forecast.projectedDiscount) * 100))
+  discounts.extend(list(map(lambda x: discount_period_to_discount(x, False), status.historic)))
 
+  # Add current discount period. The current time is basically "now", so depending on where we are will depend on
+  # the number of current discounts that need to be added
+  current = discount_period_to_discount(status.current, True)
+  current.start = current.start.replace(minute=30 if current.start.minute >= 30 else 0, second=0, microsecond=0)
+  current.end = current.start + timedelta(minutes=30)
+  discounts.append(current)
+  if (current.start.minute < 30):
+    discounts.append(Discount(start=current.end, end=current.end + timedelta(minutes=30), discount=current.discount, is_estimated=True))
+  for forecast in status.forecast.data:
+    discounts.append(Discount(start=forecast.validTime, end=forecast.validTime + timedelta(minutes=30), discount=float(forecast.projectedDiscount) * 100, is_estimated=True))
+    discounts.append(Discount(start=forecast.validTime + timedelta(minutes=30), end=forecast.validTime + timedelta(minutes=60), discount=float(forecast.projectedDiscount) * 100, is_estimated=True))
+
+  discounts.sort(key=lambda x: x.start)
   return discounts
 
 def get_fan_club_number(discountSource: str):
@@ -33,9 +43,9 @@ def get_fan_club_number(discountSource: str):
 
 def mock_fan_club_forecast() -> FanClubResponse:
   now: datetime = utcnow()
-  now = now.replace(minute=30 if now.minute >= 30 else 0, second=0, microsecond=0)
+  now_thirty_minute = now.replace(minute=30 if now.minute >= 30 else 0, second=0, microsecond=0)
   historic = []
-  current = now
+  current = now_thirty_minute
   for i in range(0, 48):
     current = current - timedelta(minutes=30)
     historic.append({
@@ -44,7 +54,7 @@ def mock_fan_club_forecast() -> FanClubResponse:
     })
 
   forecast = []
-  current = now
+  current = now_thirty_minute
   for i in range(0, 48):
     current = current + timedelta(minutes=60)
     forecast.append({
@@ -58,7 +68,7 @@ def mock_fan_club_forecast() -> FanClubResponse:
         "discountSource": "#1 Fan: Market Weighton - Carr Farm",
         "current": {
             "startAt": now,
-            "discount": "0.500"
+            "discount": f"{random.choice([0,0.200,0.500])}"
         },
         "historic": historic,
         "forecast": {

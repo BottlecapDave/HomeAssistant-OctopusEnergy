@@ -563,7 +563,8 @@ async def async_setup_dependencies(hass, config):
         discounts.append(DiscountSource(source=item.discountSource, discounts=combine_discounts(item)))
 
     if (len(discounts) > 0):
-      hass.data[DOMAIN][account_id][DATA_FAN_CLUB_DISCOUNTS] = FanClubDiscountCoordinatorResult(now, 1, discounts)
+      # Make it old so we can force a refresh
+      hass.data[DOMAIN][account_id][DATA_FAN_CLUB_DISCOUNTS] = FanClubDiscountCoordinatorResult(now - timedelta(days=1), 1, discounts)
       await async_setup_fan_club_discounts_coordinator(hass, account_id, mock_fan_club)
 
 async def options_update_listener(hass, entry):

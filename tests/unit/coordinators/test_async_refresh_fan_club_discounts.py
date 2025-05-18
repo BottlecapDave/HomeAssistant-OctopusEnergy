@@ -2,7 +2,7 @@ import pytest
 import mock
 from datetime import datetime, timedelta
 
-from custom_components.octopus_energy.const import REFRESH_RATE_IN_MINUTES_FAN_CLUB_DISCOUNTS
+from custom_components.octopus_energy.const import EVENT_FAN_CLUB_DISCOUNTS, REFRESH_RATE_IN_MINUTES_FAN_CLUB_DISCOUNTS
 from custom_components.octopus_energy.coordinators.fan_club_discounts import FanClubDiscountCoordinatorResult, async_refresh_fan_club_discounts
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
 from custom_components.octopus_energy.api_client.fan_club import FanClubStatusItem, DiscountPeriod, ForecastData, ForecastInfo, FanClubResponse 
@@ -16,31 +16,48 @@ fan_club_discounts = [
                     ])),
 ]
 
+account_id = "ABC"
+
+def assert_raised_events(raised_events: dict, expected_event_name: str):
+  assert expected_event_name in raised_events
+  assert "account_id" in raised_events[expected_event_name]
+  assert raised_events[expected_event_name]["account_id"] == account_id
+  assert "source" in raised_events[expected_event_name]
+  assert raised_events[expected_event_name]["source"] == fan_club_discounts[0].discountSource
+  assert "discounts" in raised_events[expected_event_name]
+  assert len(raised_events[expected_event_name]["discounts"]) == 4
+
 @pytest.mark.asyncio
 async def test_when_next_refresh_is_in_the_future_and_previous_data_is_available_then_previous_data_returned():
   # Arrange
   client = OctopusEnergyApiClient("NOT_REAL")
   current_utc_timestamp = datetime.strptime(f'2024-02-04T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
-  account_id = "ABC"
 
   previous_data = FanClubDiscountCoordinatorResult(current_utc_timestamp, 1, fan_club_discounts)
+  
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
 
   # Act
   result = await async_refresh_fan_club_discounts(
     current_utc_timestamp,
     account_id,
     client,
-    previous_data
+    previous_data,
+    fire_event
   )
 
   # Assert
   assert result == previous_data
+  assert len(actual_fired_events.keys()) == 0
 
 @pytest.mark.asyncio
 async def test_when_results_retrieved_then_results_returned():
   # Arrange
   previous_data = None
-  account_id = "ABC"
     
   current_utc_timestamp = datetime.strptime(f'2024-02-04T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
   
@@ -50,6 +67,12 @@ async def test_when_results_retrieved_then_results_returned():
     nonlocal mock_api_called
     mock_api_called = True
     return FanClubResponse(fanClubStatus=expected_result)
+  
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_fan_club_discounts=async_mocked_get_fan_club_discounts): 
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -59,7 +82,8 @@ async def test_when_results_retrieved_then_results_returned():
       current_utc_timestamp,
       account_id,
       client,
-      previous_data
+      previous_data,
+      fire_event
     )
 
     # Assert
@@ -80,10 +104,12 @@ async def test_when_results_retrieved_then_results_returned():
 
     assert mock_api_called == True
 
+    assert len(actual_fired_events.keys()) == 1
+    assert_raised_events(actual_fired_events, EVENT_FAN_CLUB_DISCOUNTS)
+
 @pytest.mark.asyncio
 async def test_when_exception_raised_then_existing_results_returned_and_exception_captured():
   # Arrange
-  account_id = "ABC"
   current_utc_timestamp = datetime.strptime(f'2024-02-04T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
   previous_data = FanClubDiscountCoordinatorResult(current_utc_timestamp - timedelta(days=1), 1, fan_club_discounts)
   
@@ -93,6 +119,12 @@ async def test_when_exception_raised_then_existing_results_returned_and_exceptio
     nonlocal mock_api_called
     mock_api_called = True
     raise raised_exception
+  
+  actual_fired_events = {}
+  def fire_event(name, metadata):
+    nonlocal actual_fired_events
+    actual_fired_events[name] = metadata
+    return None
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_fan_club_discounts=async_mocked_get_fan_club_discounts): 
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -102,7 +134,8 @@ async def test_when_exception_raised_then_existing_results_returned_and_exceptio
       current_utc_timestamp,
       account_id,
       client,
-      previous_data
+      previous_data,
+      fire_event
     )
 
     # Assert
@@ -114,3 +147,5 @@ async def test_when_exception_raised_then_existing_results_returned_and_exceptio
     assert result.discounts == previous_data.discounts
     assert result.request_attempts == previous_data.request_attempts + 1
     assert result.next_refresh == previous_data.next_refresh + timedelta(minutes=1)
+
+    assert len(actual_fired_events.keys()) == 0

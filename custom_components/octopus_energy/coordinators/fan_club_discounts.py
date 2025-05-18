@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from typing import Any, Callable
 
 from homeassistant.util.dt import (now)
 from homeassistant.helpers.update_coordinator import (
@@ -12,6 +13,7 @@ from ..const import (
   DOMAIN,
   DATA_CLIENT,
   DATA_FAN_CLUB_DISCOUNTS,
+  EVENT_FAN_CLUB_DISCOUNTS,
   REFRESH_RATE_IN_MINUTES_FAN_CLUB_DISCOUNTS,
 )
 
@@ -34,6 +36,7 @@ async def async_refresh_fan_club_discounts(
     account_id: str,
     client: OctopusEnergyApiClient,
     existing_result: FanClubDiscountCoordinatorResult,
+    fire_event: Callable[[str, "dict[str, Any]"], None],
     mock_fan_club: bool = False
 ) -> FanClubDiscountCoordinatorResult:
   if existing_result is None or current >= existing_result.next_refresh:
@@ -47,6 +50,10 @@ async def async_refresh_fan_club_discounts(
       if result is not None and result.fanClubStatus is not None:
         for item in result.fanClubStatus:
           discounts.append(DiscountSource(source=item.discountSource, discounts=combine_discounts(item)))
+
+          # Fire events
+          event_data = { "discounts": list(map(lambda x: x.dict(), discounts[-1].discounts)), "account_id": account_id, "source": discounts[-1].source }
+          fire_event(EVENT_FAN_CLUB_DISCOUNTS, event_data)
 
       return FanClubDiscountCoordinatorResult(current, 1, discounts)
     except Exception as e:
@@ -84,6 +91,7 @@ async def async_setup_fan_club_discounts_coordinator(hass, account_id: str, mock
       account_id,
       client,
       hass.data[DOMAIN][account_id][DATA_FAN_CLUB_DISCOUNTS] if DATA_FAN_CLUB_DISCOUNTS in hass.data[DOMAIN][account_id] else None,
+      hass.bus.async_fire,
       mock_fan_club
     )
 

@@ -11,7 +11,7 @@ def create_discount_data(period_from: datetime, period_to: datetime, expected_di
   while current_end is None or current_end < period_to:
     current_end = current_start + timedelta(minutes=30)
 
-    discounts.append(Discount(start=current_start, end=current_end, discount=expected_discounts[discount_index]))
+    discounts.append(Discount(start=current_start, end=current_end, discount=expected_discounts[discount_index], is_estimated=False))
 
     current_start = current_end
     discount_index = discount_index + 1

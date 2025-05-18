@@ -42,3 +42,24 @@ The next discount for the specified fan club, that differs from the current disc
 | `source` | `string` | The source of the discount |
 | `start` | `datetime` | The date/time when the discount starts |
 | `end` | `datetime` | The date/time when the discount ends |
+
+## Discounts
+
+`event.octopus_energy_fan_club_{{ACCOUNT_ID}}_{{FAN_CLUB_ID}}_discounts`
+
+The state of this sensor states when the discounts were last retrieved. The attributes of this sensor exposes the available discounts for a given fan club source.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `discounts` | `array` | The list of past, present and future discounts |
+| `account_id` | `string` | The id of the account the discounts are for |
+| `source` | `string` | The source of the discounts (e.g. Fan #1) |
+
+Each rate item has the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The date/time when the discount starts/started |
+| `end` | `datetime` | The date/time when the discount ends/ended |
+| `discount` | `float` | The value of the discount |
+| `is_estimated` | `boolean` | Determines if the discount is estimated |
