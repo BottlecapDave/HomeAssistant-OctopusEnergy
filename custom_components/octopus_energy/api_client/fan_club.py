@@ -25,7 +25,7 @@ class FanClubStatusItem(BaseModel):
     discountSource: str
     current: DiscountPeriod
     historic: List[DiscountPeriod]
-    forecast: ForecastInfo
+    forecast: ForecastInfo | None
 
 
 class FanClubResponse(BaseModel):
