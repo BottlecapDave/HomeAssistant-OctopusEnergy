@@ -223,27 +223,21 @@ intelligent_settings_mutation = '''mutation vehicleChargingPreferences {{
 }}'''
 
 intelligent_turn_on_bump_charge_mutation = '''mutation {{
-	triggerBoostCharge(
-    input: {{
-      accountNumber: "{account_id}"
-    }}
-  ) {{
-		krakenflexDevice {{
-			 krakenflexDeviceId
-		}}
-	}}
+	updateBoostCharge(input: {{
+    deviceId: "{device_id}"
+    action: BOOST
+  }}) {{
+    id
+  }}
 }}'''
 
 intelligent_turn_off_bump_charge_mutation = '''mutation {{
-	deleteBoostCharge(
-    input: {{
-      accountNumber: "{account_id}"
-    }}
-  ) {{
-		krakenflexDevice {{
-			 krakenflexDeviceId
-		}}
-	}}
+	updateBoostCharge(input: {{
+    deviceId: "{device_id}"
+    action: CANCEL
+  }}) {{
+    id
+  }}
 }}'''
 
 intelligent_turn_on_smart_charge_mutation = '''mutation {{
@@ -1593,7 +1587,7 @@ class OctopusEnergyApiClient:
       raise TimeoutException()
 
   async def async_turn_on_intelligent_bump_charge(
-      self, account_id: str,
+      self, device_id: str,
     ):
     """Turn on an intelligent bump charge"""
     await self.async_refresh_token()
@@ -1603,7 +1597,7 @@ class OctopusEnergyApiClient:
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": intelligent_turn_on_bump_charge_mutation.format(
-        account_id=account_id,
+        device_id=device_id,
       ) }
 
       headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
@@ -1615,7 +1609,7 @@ class OctopusEnergyApiClient:
       raise TimeoutException()
 
   async def async_turn_off_intelligent_bump_charge(
-      self, account_id: str,
+      self, device_id: str,
     ):
     """Turn off an intelligent bump charge"""
     await self.async_refresh_token()
@@ -1625,7 +1619,7 @@ class OctopusEnergyApiClient:
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": intelligent_turn_off_bump_charge_mutation.format(
-        account_id=account_id,
+        device_id=device_id,
       ) }
 
       headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
