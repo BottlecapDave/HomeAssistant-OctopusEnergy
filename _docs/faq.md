@@ -182,6 +182,19 @@ Cost sensors are calculated by multiplying the consumption by the rate for each 
 
 Each half hour block has it's consumption rounded to the nearest 0.01kwh before multiplying by the rate, which is rounded to the nearest penny. The rounding method used is rounding half to even, where numbers ending in 5 are rounded up or down, towards the nearest even hundredth decimal place. As a result, 0.015 would be rounded up to 0.02, while 0.025 is rounded down to 0.02. This is based on [Octopus Energy API documentation](https://developer.octopus.energy/rest/guides/endpoints)
 
+## I'm having issues with a sensor. Is there any way I can see the attributes for a certain point in time?
+
+The majority of attributes for entities are stored in the database for a short amount of time (default is around 10 days). Unfortunately, the only way of obtaining historic attributes is via the database. This can be done via the [SQLite Web Add-On](https://my.home-assistant.io/redirect/supervisor_addon/?addon=a0d7b954_sqlite-web), where the following SQL query can be executed. You'll need to change the target entity id from `binary_sensor.octopus_energy_xxx_intelligent_dispatching` to the one you want to target.
+
+```
+SELECT states_meta.entity_id, states.state, state_attributes.shared_attrs, DATETIME(last_changed_ts, 'unixepoch'), DATETIME(last_updated_ts, 'unixepoch')
+FROM "states"
+join state_attributes on states.attributes_id = state_attributes.attributes_id
+join states_meta on states_meta.metadata_id = states.metadata_id
+where states_meta.entity_id = 'binary_sensor.octopus_energy_xxx_intelligent_dispatching'
+order by last_updated_ts desc
+```
+
 ## Do you support older versions of the integration?
 
 Due to time constraints, I will only ever support the latest version of the integration. If you have an issue with an older version of the integration, my initial answer will always be to update to the latest version. This might be different to what HACS is reporting if you are not on the minimum supported Home Assistant version (which is highlighted in each release's changelog). 

@@ -131,8 +131,8 @@ class OctopusEnergyPreviousAccumulativeGasCostOverride(CoordinatorEntity, Octopu
             self._standing_charge is None or
             self._rates[0]["start"] != period_from or
             self._rates[-1]["end"] != period_to or
-            self._standing_charge[0]["start"] != period_from or
-            self._standing_charge[-1]["end"] != period_to):
+            self._standing_charge["start"] != period_from or
+            self._standing_charge["end"] != period_to):
 
           _LOGGER.debug(f"Retrieving rates and standing charge overrides for '{self._mprn}/{self._serial_number}' ({period_from} - {period_to})...")
           [rate_data, standing_charge] = await asyncio.gather(
