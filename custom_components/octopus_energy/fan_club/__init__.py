@@ -31,9 +31,11 @@ def combine_discounts(status: FanClubStatusItem) -> list[Discount]:
   discounts.append(current)
   if (current.start.minute < 30):
     discounts.append(Discount(start=current.end, end=current.end + timedelta(minutes=30), discount=current.discount, is_estimated=True))
-  for forecast in status.forecast.data:
-    discounts.append(Discount(start=forecast.validTime, end=forecast.validTime + timedelta(minutes=30), discount=float(forecast.projectedDiscount) * 100, is_estimated=True))
-    discounts.append(Discount(start=forecast.validTime + timedelta(minutes=30), end=forecast.validTime + timedelta(minutes=60), discount=float(forecast.projectedDiscount) * 100, is_estimated=True))
+  
+  if status.forecast is not None:
+    for forecast in status.forecast.data:
+      discounts.append(Discount(start=forecast.validTime, end=forecast.validTime + timedelta(minutes=30), discount=float(forecast.projectedDiscount) * 100, is_estimated=True))
+      discounts.append(Discount(start=forecast.validTime + timedelta(minutes=30), end=forecast.validTime + timedelta(minutes=60), discount=float(forecast.projectedDiscount) * 100, is_estimated=True))
 
   discounts.sort(key=lambda x: x.start)
   return discounts

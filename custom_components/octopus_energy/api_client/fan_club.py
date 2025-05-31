@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List
+from typing import List, Optional
 from datetime import datetime
 
 from pydantic import BaseModel
@@ -25,7 +25,7 @@ class FanClubStatusItem(BaseModel):
     discountSource: str
     current: DiscountPeriod
     historic: List[DiscountPeriod]
-    forecast: ForecastInfo | None
+    forecast: Optional[ForecastInfo] = None
 
 
 class FanClubResponse(BaseModel):

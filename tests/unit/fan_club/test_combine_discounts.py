@@ -49,6 +49,44 @@ async def test_when_status_has_historic_current_and_forecast_data_then_all_disco
         assert item.discount == 50
 
 @pytest.mark.asyncio
+async def test_when_forecast_is_none_then_all_discounts_are_combined():
+    # Arrange
+    now = datetime.strptime("2022-03-01T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    
+    # Create historic discount periods (2 entries)
+    historic = [
+        DiscountPeriod(startAt=now - timedelta(hours=1), discount="0.500"),
+        DiscountPeriod(startAt=now - timedelta(minutes=30), discount="0.500")
+    ]
+    
+    # Create current discount period
+    current = DiscountPeriod(startAt=now + timedelta(minutes=10), discount="0.500")
+    
+    forecast = None
+    
+    # Create the status item
+    status = FanClubStatusItem(
+        discountSource="#1 Fan: Test Farm",
+        current=current,
+        historic=historic,
+        forecast=forecast
+    )
+    
+    # Act
+    result = combine_discounts(status)
+    
+    # Assert
+    assert result is not None
+    assert len(result) == 4
+    
+    expected_start = datetime.strptime("2022-03-01T11:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    for item in result:
+        assert item.start == expected_start
+        expected_start += timedelta(minutes=30)
+        assert item.end == expected_start
+        assert item.discount == 50
+
+@pytest.mark.asyncio
 async def test_when_status_has_only_current_data_then_two_discounts_are_returned():
     # Arrange
     now = datetime.strptime("2022-03-01T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
