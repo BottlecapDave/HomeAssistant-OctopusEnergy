@@ -36,9 +36,9 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
             "retrievedAt": "2025-05-09T17:28:51.555000+00:00"
           },
           "telemetry": {
-            "temperatureInCelsius": -90.3,
+            "temperatureInCelsius": None,
             "humidityPercentage": None,
-            "retrievedAt": "2025-05-09T17:28:44.152000+00:00"
+            "retrievedAt": None
           }
         },
         {
