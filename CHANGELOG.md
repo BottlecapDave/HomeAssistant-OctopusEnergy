@@ -1,3 +1,18 @@
+# [15.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v15.0.2...v15.1.0) (2025-05-31)
+
+
+### Bug Fixes
+
+* Fixed cost trackers handling low powered devices (1 hour dev time) ([b65ca55](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b65ca5566d7a9897a9dfb183c2c198e0bb1c2bfd))
+* Handle temperature and retrieved at times not being provided for heat pumps (15 minutes dev time) ([4e59e29](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4e59e291ed8efc7e1ef1fa925043155073d7a06b))
+* Updated tariff consumption overrides to only retrieve rate/standing charge information for periods that are missing (30 minutes dev time) ([0fa274e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0fa274e731bf8cd929a44a1626cec26f793a9270))
+
+
+### Features
+
+* Added support for Tesla V2 for intelligent tariffs (5 minutes dev time) ([f219012](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f219012f590d677094197a9bd8e69ac3fbfb4c44))
+* Updated underlying intelligent bump charge API due to deprecation warning (30 minutes dev time) ([0d79c85](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0d79c8554fb34bfa62f08d6b7908650cb6dd9705))
+
 ## [15.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v15.0.1...v15.0.2) (2025-05-12)
 
 
