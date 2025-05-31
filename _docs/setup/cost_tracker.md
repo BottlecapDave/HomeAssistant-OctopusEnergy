@@ -88,6 +88,7 @@ Each item within the `tracked_changes` and `untracked_changes` have the followin
 | `rate` | `float` | The rate the consumption is charged at. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `consumption` | `float` | The consumption value of the specified period. This will be in `kwh`. |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `cost_raw` | `float` | The raw cost of the consumption at the specified rate. This is in pounds and pence, but not rounded. This is to account for low cost devices |
 
 #### Variants
 
