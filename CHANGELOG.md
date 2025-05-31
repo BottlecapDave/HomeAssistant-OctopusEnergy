@@ -1,3 +1,18 @@
+# [15.2.0-beta.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v15.1.0...v15.2.0-beta.1) (2025-05-31)
+
+
+### Bug Fixes
+
+* Fixed handling of no forecasts (30 minutes dev time) ([9429df5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9429df5e11a6ca85755f4b1c04ac8c56c0197e2e))
+
+
+### Features
+
+* Added API client and coordinator for retrieving fan club discounts (1.5 hours dev time) ([6cf07e7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6cf07e7af9421a579783ebfacb6557db563970cf))
+* Added entities for showing previous, current and next fan club discounts (4 hours dev time) ([89d0164](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/89d016410178491c2eb2d4c64c1e3bd1bc2a2154))
+* Added event sensor for exposing the discounts (1.5 hours dev time) ([57ab2ed](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/57ab2edf7e34bf9389c78aad6c2f93e656d0fb00))
+* Updated underlying intelligent bump charge API due to deprecation warning (30 minutes dev time) ([5649a72](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5649a723d2801db574c4465d9b3f032a3f885985))
+
 # [15.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v15.0.2...v15.1.0) (2025-05-31)
 
 
