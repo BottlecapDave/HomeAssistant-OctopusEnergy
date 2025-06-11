@@ -1,3 +1,10 @@
+# [15.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v15.1.0...v15.2.0) (2025-06-11)
+
+
+### Features
+
+* Added support for HUAWEI_V2 and MYENERGI_V2 intelligent providers (15 minutes dev time) ([96ac524](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/96ac524df5f854be6277fff0fd221ea4771b380d))
+
 # [15.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v15.0.2...v15.1.0) (2025-05-31)
 
 
