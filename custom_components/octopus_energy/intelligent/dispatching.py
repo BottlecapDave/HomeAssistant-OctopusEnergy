@@ -88,6 +88,10 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
     result: IntelligentDispatchesCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
     rates = self._rates_coordinator.data.rates if self._rates_coordinator is not None and self._rates_coordinator.data is not None else None
 
+    # Skip if no rates are available otherwise our sensor can go off after a restart when it should be restored as one
+    if rates is None:
+      return
+
     current_date = utcnow()
     
     self.__init_attributes__(
