@@ -24,7 +24,7 @@ This is the entity whose consumption should be tracked and the cost calculated a
 
 ### Tracked entity state is accumulative
 
-This should be true if the tracked entity's state increases over time (true) or if it's the difference between updates (false).
+This should be true if the tracked entity's state increases over time (true) or if it's the raw value (false).
 
 !!! info
 
