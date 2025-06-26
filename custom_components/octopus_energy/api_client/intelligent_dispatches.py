@@ -87,9 +87,9 @@ class IntelligentDispatches:
   def to_dict(self):
     return {
       "current_state": self.current_state,
-      "planned": list(map(lambda x: x.to_dict(), self.planned)),
-      "completed": list(map(lambda x: x.to_dict(), self.completed)),
-      "started": list(map(lambda x: x.to_dict(), self.started)),
+      "planned": list(map(lambda x: x.to_dict(), self.planned)) if self.planned is not None else [],
+      "completed": list(map(lambda x: x.to_dict(), self.completed)) if self.completed is not None else [],
+      "started": list(map(lambda x: x.to_dict(), self.started)) if self.started is not None else [],
     }
   
   def from_dict(data):
