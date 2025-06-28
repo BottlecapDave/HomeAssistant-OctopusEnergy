@@ -162,8 +162,8 @@ STORAGE_TARIFF_CACHE_NAME = "octopus_energy.tariff-{}.json"
 STORAGE_METER_DEBUG_OVERRIDE_NAME = "octopus_energy.{}-{}-override.json"
 STORAGE_ACCOUNT_DEBUG_OVERRIDE_NAME = "octopus_energy.{}-override.json"
 
-INTELLIGENT_SOURCE_SMART_CHARGE = "smart-charge"
-INTELLIGENT_SOURCE_BUMP_CHARGE = "bump-charge"
+INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS = ["smart-charge", "smart"]
+INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS = ["bump-charge", "boost"]
 
 REGEX_HOURS = "^[0-9]+(\\.[0-9]+)*$"
 REGEX_TIME = "^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$"

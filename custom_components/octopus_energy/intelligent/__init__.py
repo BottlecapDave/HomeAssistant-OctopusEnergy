@@ -4,11 +4,9 @@ import re
 
 from homeassistant.util.dt import (utcnow, parse_datetime)
 
-from homeassistant.helpers import storage
-
 from ..utils import get_active_tariff
 
-from ..const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES, INTELLIGENT_SOURCE_BUMP_CHARGE, INTELLIGENT_SOURCE_SMART_CHARGE, REFRESH_RATE_IN_MINUTES_INTELLIGENT
+from ..const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES, INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS, INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS, REFRESH_RATE_IN_MINUTES_INTELLIGENT
 
 from ..api_client.intelligent_settings import IntelligentSettings
 from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches, SimpleIntelligentDispatchItem
@@ -28,7 +26,7 @@ def mock_intelligent_dispatches() -> IntelligentDispatches:
       utcnow().replace(hour=19, minute=0, second=0, microsecond=0),
       utcnow().replace(hour=20, minute=0, second=0, microsecond=0),
       1,
-      INTELLIGENT_SOURCE_SMART_CHARGE,
+      INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS[0],
       "home"
     ),
     IntelligentDispatchItem(
@@ -43,7 +41,7 @@ def mock_intelligent_dispatches() -> IntelligentDispatches:
       utcnow().replace(hour=12, minute=0, second=0, microsecond=0),
       utcnow().replace(hour=13, minute=0, second=0, microsecond=0),
       4.6,
-      INTELLIGENT_SOURCE_BUMP_CHARGE,
+      INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS[-1].upper(),
       "home"
     )
   ]
@@ -55,7 +53,7 @@ def mock_intelligent_dispatches() -> IntelligentDispatches:
         utcnow().replace(hour=11, minute=0, second=0, microsecond=0),
         utcnow().replace(hour=11, minute=20, second=0, microsecond=0),
         1.2,
-        INTELLIGENT_SOURCE_SMART_CHARGE,
+        INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS[0].upper(),
         "home"
       )
     ) 
@@ -67,7 +65,7 @@ def mock_intelligent_dispatches() -> IntelligentDispatches:
         utcnow().replace(hour=10, minute=10, second=0, microsecond=0),
         utcnow().replace(hour=10, minute=30, second=0, microsecond=0),
         1.2,
-        INTELLIGENT_SOURCE_SMART_CHARGE,
+        INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS[-1].upper(),
         "home"
       )
     )
@@ -78,16 +76,16 @@ def mock_intelligent_dispatches() -> IntelligentDispatches:
         utcnow().replace(hour=18, minute=0, second=0, microsecond=0),
         utcnow().replace(hour=18, minute=20, second=0, microsecond=0),
         1.2,
-        INTELLIGENT_SOURCE_SMART_CHARGE,
+        INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS[0].upper(),
         "home"
       )
     )
 
   for dispatch in dispatches:
     if utcnow() >= dispatch.start and utcnow() <= dispatch.end:
-      if dispatch.source == INTELLIGENT_SOURCE_SMART_CHARGE:
+      if (dispatch.source.lower() in INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS if dispatch.source is not None else False):
         current_state = "SMART_CONTROL_IN_PROGRESS"
-      elif dispatch.source == INTELLIGENT_SOURCE_BUMP_CHARGE:
+      elif (dispatch.source.lower() in INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS if dispatch.source is not None else False):
         current_state = "BOOSTING"
       else:
         # If there is one without a source, then don't push it to completed dispatch to simulate
@@ -140,11 +138,11 @@ def has_intelligent_tariff(current: datetime, account_info):
 
   return False
 
-def __get_dispatch(rate, dispatches: list[IntelligentDispatchItem], expected_source: str):
+def __get_dispatch(rate, dispatches: list[IntelligentDispatchItem], expected_sources: list[str]):
   if dispatches is not None:
     for dispatch in dispatches:
       # Source as none counts as smart charge - https://forum.octopus.energy/t/pending-and-completed-octopus-intelligent-dispatches/8510/102
-      if ((expected_source is None or dispatch.source is None or dispatch.source == expected_source) and 
+      if ((expected_sources is None or dispatch.source is None or (dispatch.source.lower() in expected_sources if dispatch.source is not None else False)) and 
           ((dispatch.start <= rate["start"] and dispatch.end >= rate["end"]) or # Rate is within dispatch
            (dispatch.start >= rate["start"] and dispatch.start < rate["end"]) or # dispatch starts within rate
            (dispatch.end > rate["start"] and dispatch.end <= rate["end"]) # dispatch ends within rate
@@ -166,7 +164,7 @@ def adjust_intelligent_rates(rates,
       adjusted_rates.append(rate)
       continue
 
-    is_planned_dispatch = __get_dispatch(rate, planned_dispatches, INTELLIGENT_SOURCE_SMART_CHARGE) is not None
+    is_planned_dispatch = __get_dispatch(rate, planned_dispatches, INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS) is not None
     is_started_dispatch = __get_dispatch(rate, started_dispatches, None) is not None
 
     if ((mode == CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES and (is_planned_dispatch or is_started_dispatch)) or
@@ -187,7 +185,7 @@ def adjust_intelligent_rates(rates,
 def is_in_bump_charge(current_date: datetime, dispatches: list[IntelligentDispatchItem]) -> bool:
   for dispatch in dispatches:
     if (dispatch.start <= current_date and dispatch.end >= current_date):
-      return dispatch.source == INTELLIGENT_SOURCE_BUMP_CHARGE
+      return (dispatch.source.lower() in INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS if dispatch.source is not None else False)
   
   return False
 

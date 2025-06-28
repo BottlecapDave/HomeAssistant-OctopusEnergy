@@ -123,15 +123,11 @@ intelligent_dispatches_query = '''query {{
       currentState
     }}
   }}
-	plannedDispatches(accountNumber: "{account_id}") {{
-		start
-		end
-    delta
-    meta {{
-			source
-      location
-		}}
-	}}
+  flexPlannedDispatches(deviceId:"{device_id}") {{
+    start
+    end
+    type
+  }}
 	completedDispatches(accountNumber: "{account_id}") {{
 		start
 		end
@@ -1434,11 +1430,11 @@ class OctopusEnergyApiClient:
           planned_dispatches = list(map(lambda ev: IntelligentDispatchItem(
               as_utc(parse_datetime(ev["start"])),
               as_utc(parse_datetime(ev["end"])),
-              float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
-              ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
-              ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
-            ), response_body["data"]["plannedDispatches"]
-            if "plannedDispatches" in response_body["data"] and response_body["data"]["plannedDispatches"] is not None
+              None,
+              ev["type"] if "type" in ev else None,
+              None
+            ), response_body["data"]["flexPlannedDispatches"]
+            if "flexPlannedDispatches" in response_body["data"] and response_body["data"]["flexPlannedDispatches"] is not None
             else [])
           )
 
