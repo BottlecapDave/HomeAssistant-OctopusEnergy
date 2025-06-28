@@ -1702,7 +1702,7 @@
 <h3 id="entity">Entity<a class="headerlink" href="#entity" title="Permanent link">#</a></h3>
 <p>This is the entity whose consumption should be tracked and the cost calculated against. This entity will be assumed to be reporting <code>kwh</code>, unless stated otherwise.</p>
 <h3 id="tracked-entity-state-is-accumulative">Tracked entity state is accumulative<a class="headerlink" href="#tracked-entity-state-is-accumulative" title="Permanent link">#</a></h3>
-<p>This should be true if the tracked entity's state increases over time (true) or if it's the difference between updates (false).</p>
+<p>This should be true if the tracked entity's state increases over time (true) or if it's the raw value (false).</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>If you are tracking a "total_increasing" sensor, then based on <a href="https://developers.home-assistant.io/docs/core/entity/sensor#available-state-classes">HA documentation</a> any decrease in value will be treated as a reset and the new state will be recorded as is. </p>
