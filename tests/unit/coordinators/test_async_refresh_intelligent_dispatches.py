@@ -284,6 +284,64 @@ async def test_when_next_refresh_is_in_the_future_then_existing_dispatches_retur
     assert save_dispatches_dispatches == None
 
 @pytest.mark.asyncio
+async def test_when_existing_dispatches_returned_and_planned_dispatch_started_and_refreshed_recently_then_started_dispatches_updated():
+  current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], [])
+  mock_api_called = False
+  async def async_mock_get_intelligent_dispatches(*args, **kwargs):
+    nonlocal mock_api_called
+    mock_api_called = True
+    return expected_dispatches
+  
+  save_dispatches_called = False
+  save_dispatches_account_id = None
+  save_dispatches_dispatches = None
+  async def async_save_dispatches(*args, **kwargs):
+    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    save_dispatches_called = True
+    account_id, dispatches = args
+    save_dispatches_account_id = account_id
+    save_dispatches_dispatches = dispatches
+  
+  account_info = get_account_info()
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=2), 1, mock_intelligent_dispatches(), 1, last_retrieved)
+  existing_dispatches.dispatches.current_state = "SMART_CONTROL_IN_PROGRESS"
+  existing_dispatches.dispatches.planned = [
+    IntelligentDispatchItem(
+      current - timedelta(minutes=1),
+      current + timedelta(minutes=45),
+      1.1,
+      None,
+      "home"
+    )
+  ]
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_dispatches: IntelligentDispatchesCoordinatorResult = await async_refresh_intelligent_dispatches(
+      current,
+      client,
+      account_info,
+      intelligent_device,
+      existing_dispatches,
+      False,
+      False,
+      True,
+      async_save_dispatches
+    )
+
+    assert mock_api_called == False
+    assert retrieved_dispatches == existing_dispatches
+
+    assert len(retrieved_dispatches.dispatches.started) == 1
+    assert retrieved_dispatches.dispatches.started[0].start == current.replace(second=0, microsecond=0)
+    assert retrieved_dispatches.dispatches.started[0].end == current.replace(second=0, microsecond=0) + timedelta(minutes=30)
+
+    assert save_dispatches_called == False
+    assert save_dispatches_account_id == None
+    assert save_dispatches_dispatches == None
+
+@pytest.mark.asyncio
 @pytest.mark.parametrize("existing_dispatches",[
   (None),
   (IntelligentDispatchesCoordinatorResult(last_retrieved, 1, IntelligentDispatches(None, None, None), 1, last_retrieved)),

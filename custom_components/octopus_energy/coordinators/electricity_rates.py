@@ -124,7 +124,7 @@ async def async_refresh_electricity_rates_data(
                                                dispatches_result.dispatches.started,
                                                intelligent_rate_mode)
           
-          _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches_result.dispatches}")
+          _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches_result.dispatches.to_dict()}")
 
         # Sort our rates again _just in case_
         new_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold))
@@ -190,7 +190,7 @@ async def async_refresh_electricity_rates_data(
                                            dispatches_result.dispatches.started,
                                            intelligent_rate_mode)
       
-      _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches_result.dispatches}")
+      _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches_result.dispatches.to_dict()}")
 
       # Sort our rates again _just in case_
       new_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold))

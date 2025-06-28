@@ -1,3 +1,23 @@
+# [15.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v15.2.0...v15.3.0) (2025-06-28)
+
+
+### Bug Fixes
+
+* Fixed intelligent sensor resetting to off upon integration reload when it was on before reload (30 minutes dev time) ([784bc50](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/784bc504ee8e796e11b2aba65d3a0cb2003e6b35))
+
+
+### Features
+
+* Updated diagnostics to include state and attribute information for related sensors (15 minutes dev time) ([3aded1d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3aded1d40ce1743b7082603a87d68e02e6ea7c3f))
+* Updated started dispatch calculation to be more forgiving on how stale the data is. A planned dispatch will only transition to a started dispatch if data has been retrieved within the last 3 minutes (1 hour dev time) ([44d2db2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/44d2db281bffbf69ccc026cdbd60dbef49f26462))
+
+# [15.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v15.1.0...v15.2.0) (2025-06-11)
+
+
+### Features
+
+* Added support for HUAWEI_V2 and MYENERGI_V2 intelligent providers (15 minutes dev time) ([96ac524](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/96ac524df5f854be6277fff0fd221ea4771b380d))
+
 # [15.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v15.0.2...v15.1.0) (2025-05-31)
 
 

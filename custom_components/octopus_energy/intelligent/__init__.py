@@ -253,13 +253,11 @@ FULLY_SUPPORTED_INTELLIGENT_PROVIDERS = [
   "HUAWEI",
   "JEDLIX",
   "JEDLIX-V2",
-  "JEDLIX_V2",
   "MYENERGI",
   "OCPP_WALLBOX",
   "SENSI",
   "SMARTCAR",
   "TESLA",
-  "TESLA_V2",
   "SMART_PEAR",
   "HYPERVOLT",
   "INDRA"
@@ -267,9 +265,12 @@ FULLY_SUPPORTED_INTELLIGENT_PROVIDERS = [
 
 def get_intelligent_features(provider: str) -> IntelligentFeatures:
   normalised_provider = provider.upper() if provider is not None else None
-  if normalised_provider is not None and normalised_provider in FULLY_SUPPORTED_INTELLIGENT_PROVIDERS:
-    return IntelligentFeatures(False, True, True, True, True, True, True)
-  elif normalised_provider == "OHME":
+  if normalised_provider == "OHME":
     return IntelligentFeatures(False, False, False, False, False, False, False)
+  
+  if normalised_provider is not None:
+    for provider in FULLY_SUPPORTED_INTELLIGENT_PROVIDERS:
+      if normalised_provider == provider or re.search(f"{provider}_V[0-9]+", normalised_provider) is not None:
+        return IntelligentFeatures(False, True, True, True, True, True, True)
 
   return IntelligentFeatures(True, False, False, False, False, False, False)
