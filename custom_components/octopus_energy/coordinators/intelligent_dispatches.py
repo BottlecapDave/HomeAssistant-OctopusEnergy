@@ -109,7 +109,10 @@ def has_dispatches_changed(existing_dispatches: IntelligentDispatches, new_dispa
     )
   )
 
-def merge_started_dispatches(current: datetime, current_state: str, started_dispatches: list[SimpleIntelligentDispatchItem], planned_dispatches: list[IntelligentDispatchItem]):
+def merge_started_dispatches(current: datetime,
+                             current_state: str,
+                             started_dispatches: list[SimpleIntelligentDispatchItem],
+                             planned_dispatches: list[IntelligentDispatchItem]):
   new_started_dispatches = clean_previous_dispatches(current, started_dispatches)
 
   if current_state == "SMART_CONTROL_IN_PROGRESS":
@@ -137,7 +140,7 @@ def merge_started_dispatches(current: datetime, current_state: str, started_disp
 
   return new_started_dispatches
 
-async def async_refresh_intelligent_dispatches(
+async def async_retrieve_intelligent_dispatches(
   current: datetime,
   client: OctopusEnergyApiClient,
   account_info,
@@ -146,7 +149,6 @@ async def async_refresh_intelligent_dispatches(
   is_data_mocked: bool,
   is_manual_refresh: bool,
   planned_dispatches_supported: bool,
-  async_save_dispatches: Callable[[str, IntelligentDispatches], Awaitable[list]],
 ):
   requests_current_hour = existing_intelligent_dispatches_result.requests_current_hour if existing_intelligent_dispatches_result is not None else 0
   requests_last_reset = existing_intelligent_dispatches_result.requests_current_hour_last_reset if existing_intelligent_dispatches_result is not None else current
@@ -208,18 +210,8 @@ async def async_refresh_intelligent_dispatches(
         dispatches.planned.clear()
 
       if dispatches is not None:
-        dispatches.completed = clean_previous_dispatches(utcnow(), (existing_intelligent_dispatches_result.dispatches.completed if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and existing_intelligent_dispatches_result.dispatches.completed is not None else []) + dispatches.completed)
-        dispatches.started = merge_started_dispatches(current,
-                                                      dispatches.current_state,
-                                                      existing_intelligent_dispatches_result.dispatches.started 
-                                                      if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and  existing_intelligent_dispatches_result.dispatches.started is not None
-                                                      else [],
-                                                      dispatches.planned)
-
-        if (existing_intelligent_dispatches_result is None or
-            existing_intelligent_dispatches_result.dispatches is None or
-            has_dispatches_changed(existing_intelligent_dispatches_result.dispatches, dispatches)):
-          await async_save_dispatches(account_id, dispatches)
+        dispatches.completed = clean_previous_dispatches(current,
+                                                         (existing_intelligent_dispatches_result.dispatches.completed if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and existing_intelligent_dispatches_result.dispatches.completed is not None else []) + dispatches.completed)
 
         return IntelligentDispatchesCoordinatorResult(current, 1, dispatches, requests_current_hour + 1, requests_last_reset)
       
@@ -244,6 +236,48 @@ async def async_refresh_intelligent_dispatches(
       return result
   
   return existing_intelligent_dispatches_result
+
+async def async_refresh_intelligent_dispatches(
+  current: datetime,
+  client: OctopusEnergyApiClient,
+  account_info,
+  intelligent_device: IntelligentDevice,
+  existing_intelligent_dispatches_result: IntelligentDispatchesCoordinatorResult,
+  is_data_mocked: bool,
+  is_manual_refresh: bool,
+  planned_dispatches_supported: bool,
+  async_save_dispatches: Callable[[str, IntelligentDispatches], Awaitable[list]],
+):
+  result = await async_retrieve_intelligent_dispatches(
+    current,
+    client,
+    account_info,
+    intelligent_device,
+    existing_intelligent_dispatches_result,
+    is_data_mocked,
+    is_manual_refresh,
+    planned_dispatches_supported
+  )
+
+  if result is not None and result.dispatches is not None:
+    if result.last_retrieved < (current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)):
+      _LOGGER.debug('Skipping started dispatches processing as data has not been refreshed recently')
+      # If we haven't refreshed recently, then we can't accurately process started dispatches
+      return result
+    
+    result.dispatches.started = merge_started_dispatches(current,
+                                                         result.dispatches.current_state,
+                                                         existing_intelligent_dispatches_result.dispatches.started 
+                                                         if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and  existing_intelligent_dispatches_result.dispatches.started is not None
+                                                         else [],
+                                                         result.dispatches.planned)
+
+    if (existing_intelligent_dispatches_result is None or
+        existing_intelligent_dispatches_result.dispatches is None or
+        has_dispatches_changed(existing_intelligent_dispatches_result.dispatches, result.dispatches)):
+      await async_save_dispatches(account_info["id"], result.dispatches)
+
+  return result
 
 async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, mock_intelligent_data: bool, manual_dispatch_refreshes: bool, planned_dispatches_supported: bool):
   async def async_update_intelligent_dispatches_data(is_manual_refresh = False):

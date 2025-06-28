@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 import logging
 from typing import Callable
 
+from .utils.attributes import dict_to_typed_dict
 from homeassistant.components.diagnostics import async_redact_data
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util.dt import (now)
@@ -135,6 +136,7 @@ async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str,
         heat_pumps[heat_pump_id] = f"Failed to retrieve - {e}"
 
   return {
+    "timestamp_captured": now(),
     "account": account_info,
     "using_cached_account_data": existing_account_info is not None,
     "entities": get_entity_info(redacted_mappings),
@@ -142,6 +144,8 @@ async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str,
     "intelligent_settings": intelligent_settings.to_dict() if intelligent_settings is not None else None,
     "heat_pumps": heat_pumps,
   }
+
+ignored_attributes = ['mpan', 'mprn', 'serial_number', 'friendly_name', 'icon', 'unit_of_measurement', 'device_class', 'state_class', 'account_id']
 
 async def async_get_device_diagnostics(hass, entry, device):
     """Return diagnostics for a device."""
@@ -177,6 +181,7 @@ async def async_get_device_diagnostics(hass, entry, device):
           
           entity_info[unique_id] = {
             "state": state.state if state is not None else None,
+            "attributes": dict_to_typed_dict(state.attributes, ignored_attributes) if state is not None else None,
             "last_updated": state.last_updated if state is not None else None,
             "last_changed": state.last_changed if state is not None else None
           }
