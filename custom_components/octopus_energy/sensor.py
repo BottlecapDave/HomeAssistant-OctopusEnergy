@@ -1,5 +1,4 @@
 from datetime import timedelta
-from custom_components.octopus_energy.diagnostics_entities.heat_pump_data_last_retrieved import OctopusEnergyHeatPumpDataLastRetrieved
 import voluptuous as vol
 import logging
 
@@ -71,6 +70,13 @@ from .api_client.intelligent_device import IntelligentDevice
 from .intelligent.current_state import OctopusEnergyIntelligentCurrentState
 from .intelligent import get_intelligent_features
 
+from .coordinators.fan_club_discounts import FanClubDiscountCoordinatorResult
+from .diagnostics_entities.fan_club_discount_data_last_retrieved import OctopusEnergyFanClubDiscountDataLastRetrieved
+from .diagnostics_entities.heat_pump_data_last_retrieved import OctopusEnergyHeatPumpDataLastRetrieved
+from .fan_club.current_discount import OctopusEnergyFanClubCurrentDiscount
+from .fan_club.next_discount import OctopusEnergyFanClubNextDiscount
+from .fan_club.previous_discount import OctopusEnergyFanClubPreviousDiscount
+
 from .utils.debug_overrides import async_get_account_debug_override, async_get_meter_debug_override
 
 from .coordinators.current_consumption import async_create_current_consumption_coordinator
@@ -107,6 +113,8 @@ from .const import (
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_TARIFF_COMPARISON_MPAN_MPRN,
+  DATA_FAN_CLUB_DISCOUNTS,
+  DATA_FAN_CLUB_DISCOUNTS_COORDINATOR,
   DATA_FREE_ELECTRICITY_SESSIONS_COORDINATOR,
   DATA_ACCOUNT_COORDINATOR,
   DATA_GREENNESS_FORECAST_COORDINATOR,
@@ -558,6 +566,11 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
       coordinator = hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR.format(heat_pump_id)]
       entities.extend(setup_heat_pump_sensors(hass, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data, coordinator))
 
+  if DATA_FAN_CLUB_DISCOUNTS_COORDINATOR in hass.data[DOMAIN][account_id]:
+    coordinator = hass.data[DOMAIN][account_id][DATA_FAN_CLUB_DISCOUNTS_COORDINATOR]
+    fan_club_response: FanClubDiscountCoordinatorResult = hass.data[DOMAIN][account_id][DATA_FAN_CLUB_DISCOUNTS]
+    entities.extend(setup_fan_club_sensors(hass, account_id, fan_club_response, coordinator))
+
   # Migrate entity ids that might have changed
   # for item in entity_ids_to_migrate:
   #   entity_id = registry.async_get_entity_id("sensor", DOMAIN, item["old"])
@@ -657,6 +670,23 @@ def setup_heat_pump_sensors(hass: HomeAssistant, account_id: str, heat_pump_id: 
         heat_pump_id,
         heat_pump_response.octoHeatPumpControllerConfiguration.heatPump
       ))
+
+  return entities
+
+def setup_fan_club_sensors(hass: HomeAssistant, account_id: str, fan_club_response: FanClubDiscountCoordinatorResult, coordinator):
+  entities = []
+
+  if fan_club_response is None:
+    return entities
+  
+  if coordinator is not None:
+    entities.append(OctopusEnergyFanClubDiscountDataLastRetrieved(hass, coordinator, account_id))
+
+  if fan_club_response is not None and coordinator is not None:
+    for fan_club in fan_club_response.discounts:
+      entities.append(OctopusEnergyFanClubPreviousDiscount(hass, coordinator, account_id, fan_club.source))
+      entities.append(OctopusEnergyFanClubCurrentDiscount(hass, coordinator, account_id, fan_club.source))
+      entities.append(OctopusEnergyFanClubNextDiscount(hass, coordinator, account_id, fan_club.source))
 
   return entities
 
