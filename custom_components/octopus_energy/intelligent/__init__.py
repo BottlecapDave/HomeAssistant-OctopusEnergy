@@ -215,7 +215,15 @@ def dictionary_list_to_dispatches(dispatches: list):
 
   return items
 
-def dispatches_to_dictionary_list(dispatches: list[IntelligentDispatchItem]):
+def dispatches_to_dictionary_list(dispatches: list[IntelligentDispatchItem], ignore_none: bool):
+  items = []
+  if (dispatches is not None):
+    for dispatch in dispatches:
+      items.append(dispatch.to_dict(ignore_none))
+
+  return items
+
+def simple_dispatches_to_dictionary_list(dispatches: list[SimpleIntelligentDispatchItem]):
   items = []
   if (dispatches is not None):
     for dispatch in dispatches:

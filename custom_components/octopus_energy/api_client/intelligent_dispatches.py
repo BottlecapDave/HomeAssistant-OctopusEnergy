@@ -22,7 +22,7 @@ class IntelligentDispatchItem:
     self.source = source
     self.location = location
 
-  def to_dict(self, ignore_none: bool):
+  def to_dict(self, ignore_none: bool = True):
     data = {
       "start": self.start,
       "end": self.end,
