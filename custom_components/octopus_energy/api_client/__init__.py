@@ -301,20 +301,18 @@ octoplus_saving_session_query = '''query {{
 }}'''
 
 wheel_of_fortune_query = '''query {{
-  wheelOfFortuneSpins(accountNumber: "{account_id}") {{
-    electricity {{
-      remainingSpinsThisMonth
-    }}
-    gas {{
-      remainingSpinsThisMonth
-    }}
+  electricity: wheelOfFortuneSpinsAllowed(fuelType:ELECTRICITY, accountNumber: "{account_id}") {{
+    spinsAllowed
+  }}
+  gas: wheelOfFortuneSpinsAllowed(fuelType:GAS, accountNumber: "{account_id}") {{
+    spinsAllowed
   }}
 }}'''
 
 wheel_of_fortune_mutation = '''mutation {{
-  spinWheelOfFortune(input: {{ accountNumber: "{account_id}", supplyType: {supply_type}, termsAccepted: true }}) {{
-    spinResult {{
-      prizeAmount
+  spinWheelOfFortune(input: {{ accountNumber: "{account_id}", fuelType: {fuel_type} }}) {{
+    prize {{
+      value
     }}
   }}
 }}'''
@@ -643,6 +641,7 @@ class OctopusEnergyApiClient:
 
     self._api_key = api_key
     self._base_url = 'https://api.octopus.energy'
+    self._backend_base_url = 'https://api.backend.octopus.energy'
 
     self._graphql_token = None
     self._graphql_expiration = None
@@ -1752,20 +1751,21 @@ class OctopusEnergyApiClient:
     try:
       request_context = "wheel-of-fortune"
       client = self._create_client_session()
-      url = f'{self._base_url}/v1/graphql/'
+      url = f'{self._backend_base_url}/v1/graphql/'
       payload = { "query": wheel_of_fortune_query.format(account_id=account_id) }
-      headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
         _LOGGER.debug(f'async_get_wheel_of_fortune_spins: {response_body}')
 
         if (response_body is not None and "data" in response_body and
-            "wheelOfFortuneSpins" in response_body["data"]):
+            "electricity" in response_body["data"] and
+            "gas" in response_body["data"]):
           
-          spins = response_body["data"]["wheelOfFortuneSpins"]
+          spins = response_body["data"]
           return WheelOfFortuneSpinsResponse(
-            int(spins["electricity"]["remainingSpinsThisMonth"]) if "electricity" in spins and "remainingSpinsThisMonth" in spins["electricity"] else 0,
-            int(spins["gas"]["remainingSpinsThisMonth"]) if "gas" in spins and "remainingSpinsThisMonth" in spins["gas"] else 0
+            int(spins["electricity"]["spinsAllowed"]) if "electricity" in spins and "spinsAllowed" in spins["electricity"] else 0,
+            int(spins["gas"]["spinsAllowed"]) if "gas" in spins and "spinsAllowed" in spins["gas"] else 0
           )
         else:
           _LOGGER.error("Failed to retrieve wheel of fortune spins")
@@ -1783,9 +1783,9 @@ class OctopusEnergyApiClient:
     try:
       request_context = "spin-wheel-of-fortune"
       client = self._create_client_session()
-      url = f'{self._base_url}/v1/graphql/'
-      payload = { "query": wheel_of_fortune_mutation.format(account_id=account_id, supply_type="ELECTRICITY" if is_electricity == True else "GAS") }
-      headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = { "query": wheel_of_fortune_mutation.format(account_id=account_id, fuel_type="ELECTRICITY" if is_electricity == True else "GAS") }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
         _LOGGER.debug(f'async_spin_wheel_of_fortune: {response_body}')
@@ -1793,10 +1793,10 @@ class OctopusEnergyApiClient:
         if (response_body is not None and 
             "data" in response_body and
             "spinWheelOfFortune" in response_body["data"] and
-            "spinResult" in response_body["data"]["spinWheelOfFortune"] and
-            "prizeAmount" in response_body["data"]["spinWheelOfFortune"]["spinResult"]):
+            "prize" in response_body["data"]["spinWheelOfFortune"] and
+            "value" in response_body["data"]["spinWheelOfFortune"]["prize"]):
           
-          return int(response_body["data"]["spinWheelOfFortune"]["spinResult"]["prizeAmount"])
+          return int(response_body["data"]["spinWheelOfFortune"]["prize"]["value"])
         else:
           _LOGGER.error("Failed to spin wheel of fortune")
       

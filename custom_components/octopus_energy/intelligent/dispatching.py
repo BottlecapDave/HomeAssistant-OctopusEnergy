@@ -15,7 +15,8 @@ from homeassistant.components.binary_sensor import (
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from ..intelligent import (
-  dispatches_to_dictionary_list
+  dispatches_to_dictionary_list,
+  simple_dispatches_to_dictionary_list
 )
 
 from ..utils import get_off_peak_times
@@ -95,9 +96,9 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
     current_date = utcnow()
     
     self.__init_attributes__(
-      dispatches_to_dictionary_list(result.dispatches.planned) if result is not None else [],
-      dispatches_to_dictionary_list(result.dispatches.completed if result is not None and result.dispatches is not None else []) if result is not None else [],
-      dispatches_to_dictionary_list(result.dispatches.started if result is not None and result.dispatches is not None else []) if result is not None else [],
+      dispatches_to_dictionary_list(result.dispatches.planned, ignore_none=True) if result is not None else [],
+      dispatches_to_dictionary_list(result.dispatches.completed if result is not None and result.dispatches is not None else [], ignore_none=False) if result is not None else [],
+      simple_dispatches_to_dictionary_list(result.dispatches.started if result is not None and result.dispatches is not None else []) if result is not None else [],
     )
 
     off_peak_times = get_off_peak_times(current_date, rates, True)
