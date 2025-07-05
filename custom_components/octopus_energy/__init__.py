@@ -51,10 +51,13 @@ from .const import (
   CONFIG_KIND_TARGET_RATE,
   CONFIG_MAIN_HOME_PRO_ADDRESS,
   CONFIG_MAIN_HOME_PRO_API_KEY,
+  CONFIG_MAIN_HOME_PRO_SETTINGS,
   CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_SETTINGS,
   CONFIG_MAIN_OLD_API_KEY,
+  CONFIG_MAIN_PRICE_CAP_SETTINGS,
   CONFIG_VERSION,
   DATA_DISCOVERY_MANAGER,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
@@ -285,12 +288,12 @@ async def async_setup_dependencies(hass, config):
   account_id = config[CONFIG_ACCOUNT_ID]
 
   electricity_price_cap = None
-  if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config:
-    electricity_price_cap = config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
+  if (CONFIG_MAIN_PRICE_CAP_SETTINGS in config and CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config[CONFIG_MAIN_PRICE_CAP_SETTINGS]):
+    electricity_price_cap = config[CONFIG_MAIN_PRICE_CAP_SETTINGS][CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
 
   gas_price_cap = None
-  if CONFIG_MAIN_GAS_PRICE_CAP in config:
-    gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
+  if (CONFIG_MAIN_PRICE_CAP_SETTINGS in config and CONFIG_MAIN_GAS_PRICE_CAP in config[CONFIG_MAIN_PRICE_CAP_SETTINGS]):
+    gas_price_cap = config[CONFIG_MAIN_PRICE_CAP_SETTINGS][CONFIG_MAIN_GAS_PRICE_CAP]
 
   favour_direct_debit_rates = True
   if CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES in config:
@@ -304,9 +307,10 @@ async def async_setup_dependencies(hass, config):
   client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap, favour_direct_debit_rates=favour_direct_debit_rates)
   hass.data[DOMAIN][account_id][DATA_CLIENT] = client
 
-  if (CONFIG_MAIN_HOME_PRO_ADDRESS in config and
-      config[CONFIG_MAIN_HOME_PRO_ADDRESS] is not None):
-    home_pro_client = OctopusEnergyHomeProApiClient(config[CONFIG_MAIN_HOME_PRO_ADDRESS], config[CONFIG_MAIN_HOME_PRO_API_KEY] if CONFIG_MAIN_HOME_PRO_API_KEY in config else None)
+  if (CONFIG_MAIN_HOME_PRO_SETTINGS in config and
+      CONFIG_MAIN_HOME_PRO_ADDRESS in config[CONFIG_MAIN_HOME_PRO_SETTINGS] and
+      config[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] is not None):
+    home_pro_client = OctopusEnergyHomeProApiClient(config[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS], config[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_API_KEY] if CONFIG_MAIN_HOME_PRO_API_KEY in config[CONFIG_MAIN_HOME_PRO_SETTINGS] else None)
     hass.data[DOMAIN][account_id][DATA_HOME_PRO_CLIENT] = home_pro_client
 
   # Delete any issues that may have been previously raised
@@ -440,7 +444,9 @@ async def async_setup_dependencies(hass, config):
           now - timedelta(hours=1)
         )
 
-      if CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES not in config or config[CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == False:
+      if (CONFIG_MAIN_INTELLIGENT_SETTINGS not in config or
+          CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES not in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] or
+          config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == False):
         intelligent_manual_service_enabled = False
 
       await async_save_cached_intelligent_device(hass, account_id, intelligent_device)
@@ -496,13 +502,16 @@ async def async_setup_dependencies(hass, config):
         is_smart_meter = meter["is_smart_meter"]
         override = await async_get_meter_debug_override(hass, mpan, serial_number)
         tariff_override = override.tariff if override is not None else None
+        intelligent_rate_mode = (config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_RATE_MODE] 
+                                 if CONFIG_MAIN_INTELLIGENT_SETTINGS in config and CONFIG_MAIN_INTELLIGENT_RATE_MODE in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] 
+                                 else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES)
         await async_setup_electricity_rates_coordinator(hass,
                                                         account_id,
                                                         mpan,
                                                         serial_number,
                                                         is_smart_meter,
                                                         is_export_meter,
-                                                        config[CONFIG_MAIN_INTELLIGENT_RATE_MODE] if CONFIG_MAIN_INTELLIGENT_RATE_MODE in config else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+                                                        intelligent_rate_mode,
                                                         tariff_override)
 
   mock_heat_pump = account_debug_override.mock_heat_pump if account_debug_override is not None else False
@@ -533,7 +542,7 @@ async def async_setup_dependencies(hass, config):
     hass,
     account_id,
     account_debug_override.mock_intelligent_controls if account_debug_override is not None else False,
-    config[CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == True if CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES in config else False,
+    intelligent_manual_service_enabled,
     intelligent_features.planned_dispatches_supported if intelligent_features is not None else True
   )
 

@@ -102,10 +102,13 @@ from .const import (
   CONFIG_KIND_ACCOUNT,
   CONFIG_KIND_COST_TRACKER,
   CONFIG_KIND_TARIFF_COMPARISON,
+  CONFIG_MAIN_HOME_MINI_SETTINGS,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_SETTINGS,
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
+  CONFIG_MAIN_PRICE_CAP_SETTINGS,
   CONFIG_TARIFF_COMPARISON_MPAN_MPRN,
   DATA_FREE_ELECTRICITY_SESSIONS_COORDINATOR,
   DATA_ACCOUNT_COORDINATOR,
@@ -346,8 +349,8 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
 
   if len(account_info["electricity_meter_points"]) > 0:
     electricity_price_cap = None
-    if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config:
-      electricity_price_cap = config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
+    if (CONFIG_MAIN_PRICE_CAP_SETTINGS in config and CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config[CONFIG_MAIN_PRICE_CAP_SETTINGS]):
+      electricity_price_cap = config[CONFIG_MAIN_PRICE_CAP_SETTINGS][CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
 
     for point in account_info["electricity_meter_points"]:
       # We only care about points that have active agreements
@@ -370,6 +373,9 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
           entities.append(OctopusEnergyCurrentStandingChargeDataLastRetrieved(hass, electricity_standing_charges_coordinator, True, meter, point))
 
           debug_override = await async_get_meter_debug_override(hass, mpan, serial_number)
+          intelligent_rate_mode = (config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_RATE_MODE] 
+                                   if CONFIG_MAIN_INTELLIGENT_SETTINGS in config and CONFIG_MAIN_INTELLIGENT_RATE_MODE in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] 
+                                   else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES)
           previous_consumption_coordinator = await async_create_previous_consumption_and_rates_coordinator(
             hass,
             account_id,
@@ -378,7 +384,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
             serial_number,
             True,
             meter["is_smart_meter"],
-            config[CONFIG_MAIN_INTELLIGENT_RATE_MODE] if CONFIG_MAIN_INTELLIGENT_RATE_MODE in config else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+            intelligent_rate_mode,
             debug_override.tariff if debug_override is not None else None
           )
           entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumption(hass, client, previous_consumption_coordinator, account_id, meter, point))
@@ -404,10 +410,13 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
               entities.append(OctopusEnergyCurrentTotalElectricityConsumption(hass, home_pro_consumption_coordinator, meter, point))
               entities.append(OctopusEnergyCurrentConsumptionHomeProDataLastRetrieved(hass, home_pro_consumption_coordinator, True, meter, point))
              
-            if (CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True):
+            if (CONFIG_MAIN_HOME_MINI_SETTINGS in config and
+                CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config[CONFIG_MAIN_HOME_MINI_SETTINGS] and 
+                config[CONFIG_MAIN_HOME_MINI_SETTINGS][CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True):
+              
               live_consumption_refresh_in_minutes = CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES
-              if CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES in config:
-                live_consumption_refresh_in_minutes = config[CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES]
+              if CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES in config[CONFIG_MAIN_HOME_MINI_SETTINGS]:
+                live_consumption_refresh_in_minutes = config[CONFIG_MAIN_HOME_MINI_SETTINGS][CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES]
   
               if meter["device_id"] is not None and meter["device_id"] != "":
                 consumption_coordinator = await async_create_current_consumption_coordinator(hass, account_id, client, meter["device_id"], live_consumption_refresh_in_minutes)
@@ -454,8 +463,8 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
       calorific_value = config[CONFIG_MAIN_CALORIFIC_VALUE]
 
     gas_price_cap = None
-    if CONFIG_MAIN_GAS_PRICE_CAP in config:
-      gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
+    if (CONFIG_MAIN_PRICE_CAP_SETTINGS in config and CONFIG_MAIN_GAS_PRICE_CAP in config[CONFIG_MAIN_PRICE_CAP_SETTINGS]):
+      gas_price_cap = config[CONFIG_MAIN_PRICE_CAP_SETTINGS][CONFIG_MAIN_GAS_PRICE_CAP]
 
     for point in account_info["gas_meter_points"]:
       # We only care about points that have active agreements
@@ -478,6 +487,9 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
           entities.append(OctopusEnergyCurrentStandingChargeDataLastRetrieved(hass, gas_standing_charges_coordinator, False, meter, point))
 
           debug_override = await async_get_meter_debug_override(hass, mprn, serial_number)
+          intelligent_rate_mode = (config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_RATE_MODE] 
+                                   if CONFIG_MAIN_INTELLIGENT_SETTINGS in config and CONFIG_MAIN_INTELLIGENT_RATE_MODE in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] 
+                                   else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES)
           previous_consumption_coordinator = await async_create_previous_consumption_and_rates_coordinator(
             hass,
             account_id,
@@ -486,7 +498,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
             serial_number,
             False,
             None,
-            config[CONFIG_MAIN_INTELLIGENT_RATE_MODE] if CONFIG_MAIN_INTELLIGENT_RATE_MODE in config else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+            intelligent_rate_mode,
             debug_override.tariff if debug_override is not None and debug_override.tariff is not None else None
           )
           entities.append(OctopusEnergyPreviousAccumulativeGasConsumptionCubicMeters(hass, client, previous_consumption_coordinator, account_id, meter, point, calorific_value))
@@ -505,10 +517,13 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
             entities.append(OctopusEnergyCurrentTotalGasConsumptionCubicMeters(hass, home_pro_consumption_coordinator, meter, point, calorific_value))
             entities.append(OctopusEnergyCurrentConsumptionHomeProDataLastRetrieved(hass, home_pro_consumption_coordinator, False, meter, point))
 
-          if (CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config and config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True):
+          if (CONFIG_MAIN_HOME_MINI_SETTINGS in config and
+              CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config[CONFIG_MAIN_HOME_MINI_SETTINGS] and 
+              config[CONFIG_MAIN_HOME_MINI_SETTINGS][CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True):
+            
             live_consumption_refresh_in_minutes = CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES
-            if CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES in config:
-              live_consumption_refresh_in_minutes = config[CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES]
+            if CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES in config[CONFIG_MAIN_HOME_MINI_SETTINGS]:
+              live_consumption_refresh_in_minutes = config[CONFIG_MAIN_HOME_MINI_SETTINGS][CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES]
             
             if meter["device_id"] is not None and meter["device_id"] != "":
               consumption_coordinator = await async_create_current_consumption_coordinator(hass, account_id, client, meter["device_id"], live_consumption_refresh_in_minutes)

@@ -8,29 +8,59 @@
         "data": {
           "account_id": "Account ID (e.g. A-AAAA1111)",
           "api_key": "Api key",
-          "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
-          "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
-          "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
           "calorific_value": "Gas calorific value.",
-          "electricity_price_cap": "Optional electricity price cap in pence",
-          "gas_price_cap": "Optional gas price cap in pence",
-          "home_pro_address": "Home Pro address (e.g. http://192.168.0.1)",
-          "home_pro_api_key": "Home Pro API key",
           "favour_direct_debit_rates": "Favour direct debit rates where available",
-          "intelligent_manual_dispatches": "Manually refresh intelligent dispatches",
-          "intelligent_rate_mode": "Intelligent tariff rate mode",
           "auto_discover_cost_trackers": "Automatically discover sensors suitable for cost trackers"
         },
         "data_description": {
           "account_id": "You account ID can be found on your bill or at the top of https://octopus.energy/dashboard",
           "api_key": "You API key can be found at https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
-          "calorific_value": "This can be found on your gas statement and can change from time to time",
-          "electricity_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
-          "gas_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
-          "home_pro_address": "WARNING: This is experimental.",
-          "home_pro_api_key": "WARNING: This is experimental. This is only required if you have setup the custom API.",
-          "intelligent_manual_dispatches": "This will expose a service which can be called to refresh the dispatches on demand. See docs for more information.",
-          "intelligent_rate_mode": "Determines how rates should be adjusted when dispatches are found outside of normal off peak periods"
+          "calorific_value": "This can be found on your gas statement and can change from time to time"
+        },
+        "sections": {
+          "home_mini_settings": {
+            "name": "Home Mini settings",
+            "description": "Settings related to the Home Mini - https://octopus.energy/blog/octopus-home-mini/",
+            "data": {
+              "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
+              "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
+              "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes"
+            },
+            "data_description": {
+              "home_pro_api_key": "This is only required if you have setup the custom API."
+            }
+          },
+          "home_pro_settings": {
+            "name": "Home Pro settings",
+            "description": "WARNING: This is experimental.",
+            "data": {
+              "home_pro_address": "Home Pro address (e.g. http://192.168.0.1)",
+              "home_pro_api_key": "Home Pro API key"
+            },
+            "data_description": {
+              "home_pro_api_key": "This is only required if you have setup the custom API."
+            }
+          },
+          "price_cap_settings": {
+            "name": "Price cap settings",
+            "description": "This is related to manual price caps. This usually comes from the OE APIs and doesn't need to be set.",
+            "data": {
+              "electricity_price_cap": "Optional electricity price cap in pence",
+              "gas_price_cap": "Optional gas price cap in pence"
+            }
+          },
+          "intelligent_settings": {
+            "name": "Intelligent settings",
+            "description": "These are settings related to the intelligent tariff. If you're not on this tariff, none of this applies.",
+            "data": {
+              "intelligent_manual_dispatches": "Manually refresh intelligent dispatches",
+              "intelligent_rate_mode": "Intelligent tariff rate mode"
+            },
+            "data_description": {
+              "intelligent_manual_dispatches": "This will expose a service which can be called to refresh the dispatches on demand. See docs for more information.",
+              "intelligent_rate_mode": "Determines how rates should be adjusted when dispatches are found outside of normal off peak periods"
+            }
+          }
         }
       },
       "target_rate": {
@@ -173,28 +203,58 @@
         "description": "Update your basic account information. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account",
         "data": {
           "api_key": "Api key",
-          "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
-          "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
-          "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes",
-          "calorific_value": "Gas calorific value",
-          "electricity_price_cap": "Optional electricity price cap in pence",
-          "gas_price_cap": "Optional gas price cap in pence",
-          "home_pro_address": "Home Pro address (e.g. http://192.168.0.1)",
-          "home_pro_api_key": "Home Pro API key",
+          "calorific_value": "Gas calorific value.",
           "favour_direct_debit_rates": "Favour direct debit rates where available",
-          "intelligent_manual_dispatches": "Manually refresh intelligent dispatches",
-          "intelligent_rate_mode": "Intelligent tariff rate mode",
           "auto_discover_cost_trackers": "Automatically discover sensors suitable for cost trackers"
         },
         "data_description": {
           "api_key": "You API key can be found at https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
-          "calorific_value": "This can be found on your gas statement and can change from time to time",
-          "electricity_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
-          "gas_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
-          "home_pro_address": "WARNING: This is experimental",
-          "home_pro_api_key": "WARNING: This is experimental. This is only required if you have setup the custom API.",
-          "intelligent_manual_dispatches": "This will expose a service which can be called to refresh the dispatches on demand. See docs for more information.",
-          "intelligent_rate_mode": "Determines how rates should be adjusted when dispatches are found outside of normal off peak periods"
+          "calorific_value": "This can be found on your gas statement and can change from time to time"
+        },
+        "sections": {
+          "home_mini_settings": {
+            "name": "Home Mini settings",
+            "description": "Settings related to the Home Mini - https://octopus.energy/blog/octopus-home-mini/",
+            "data": {
+              "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
+              "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
+              "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes"
+            },
+            "data_description": {
+              "home_pro_api_key": "This is only required if you have setup the custom API."
+            }
+          },
+          "home_pro_settings": {
+            "name": "Home Pro settings",
+            "description": "WARNING: This is experimental.",
+            "data": {
+              "home_pro_address": "Home Pro address (e.g. http://192.168.0.1)",
+              "home_pro_api_key": "Home Pro API key"
+            },
+            "data_description": {
+              "home_pro_api_key": "This is only required if you have setup the custom API."
+            }
+          },
+          "price_cap_settings": {
+            "name": "Price cap settings",
+            "description": "This is related to manual price caps. This usually comes from the OE APIs and doesn't need to be set.",
+            "data": {
+              "electricity_price_cap": "Optional electricity price cap in pence",
+              "gas_price_cap": "Optional gas price cap in pence"
+            }
+          },
+          "intelligent_settings": {
+            "name": "Price cap settings",
+            "description": "This is related to manual price caps. This usually comes from the OE APIs and doesn't need to be set.",
+            "data": {
+              "intelligent_manual_dispatches": "Manually refresh intelligent dispatches",
+              "intelligent_rate_mode": "Intelligent tariff rate mode"
+            },
+            "data_description": {
+              "intelligent_manual_dispatches": "This will expose a service which can be called to refresh the dispatches on demand. See docs for more information.",
+              "intelligent_rate_mode": "Determines how rates should be adjusted when dispatches are found outside of normal off peak periods"
+            }
+          }
         }
       },
       "target_rate": {

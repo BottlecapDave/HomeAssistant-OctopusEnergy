@@ -9,8 +9,11 @@ from custom_components.octopus_energy.config.main import async_validate_main_con
 from custom_components.octopus_energy.const import (
   CONFIG_ACCOUNT_ID,
   CONFIG_MAIN_API_KEY,
+  CONFIG_MAIN_HOME_MINI_SETTINGS,
   CONFIG_MAIN_HOME_PRO_ADDRESS,
-  CONFIG_MAIN_HOME_PRO_API_KEY, 
+  CONFIG_MAIN_HOME_PRO_API_KEY,
+  CONFIG_MAIN_HOME_PRO_SETTINGS,
+  CONFIG_MAIN_PRICE_CAP_SETTINGS, 
   CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
@@ -58,12 +61,16 @@ async def test_when_data_is_valid_then_no_errors_returned():
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
     CONFIG_ACCOUNT_ID: "A-123",
-    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
-    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
-    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_HOME_MINI_SETTINGS: {
+      CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+      CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+      CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    },
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
-    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
-    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    CONFIG_MAIN_PRICE_CAP_SETTINGS: {
+      CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+      CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    }
   }
 
   account_info = get_account_info()
@@ -83,12 +90,16 @@ async def test_when_account_info_not_found_then_errors_returned():
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
     CONFIG_ACCOUNT_ID: "A-123",
-    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
-    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
-    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_HOME_MINI_SETTINGS: {
+      CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+      CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+      CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    },
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
-    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
-    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    CONFIG_MAIN_PRICE_CAP_SETTINGS: {
+      CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+      CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    }
   }
 
   async def async_mocked_get_account(*args, **kwargs):
@@ -110,12 +121,16 @@ async def test_when_account_info_raises_server_error_then_errors_returned():
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
     CONFIG_ACCOUNT_ID: "A-123",
-    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
-    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
-    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_HOME_MINI_SETTINGS: {
+      CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+      CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+      CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    },
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
-    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
-    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    CONFIG_MAIN_PRICE_CAP_SETTINGS: {
+      CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+      CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    }
   }
 
   async def async_mocked_get_account(*args, **kwargs):
@@ -137,12 +152,16 @@ async def test_when_account_info_raises_request_error_then_errors_returned():
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
     CONFIG_ACCOUNT_ID: "A-123",
-    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
-    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
-    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_HOME_MINI_SETTINGS: {
+      CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+      CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+      CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    },
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
-    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
-    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    CONFIG_MAIN_PRICE_CAP_SETTINGS: {
+      CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+      CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    }
   }
 
   async def async_mocked_get_account(*args, **kwargs):
@@ -164,12 +183,16 @@ async def test_when_live_electricity_less_than_one_and_supports_live_consumption
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
     CONFIG_ACCOUNT_ID: "A-123",
-    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: False,
-    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 0,
-    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_HOME_MINI_SETTINGS: {
+      CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: False,
+      CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 0,
+      CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    },
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
-    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
-    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    CONFIG_MAIN_PRICE_CAP_SETTINGS: {
+      CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+      CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    }
   }
 
   account_info = get_account_info()
@@ -189,12 +212,16 @@ async def test_when_live_gas_less_than_one_and_supports_live_consumption_is_fals
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
     CONFIG_ACCOUNT_ID: "A-123",
-    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: False,
-    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
-    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 0,
+    CONFIG_MAIN_HOME_MINI_SETTINGS: {
+      CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: False,
+      CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+      CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 0,
+    },
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
-    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
-    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    CONFIG_MAIN_PRICE_CAP_SETTINGS: {
+      CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+      CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    }
   }
 
   account_info = get_account_info()
@@ -214,12 +241,16 @@ async def test_when_live_electricity_less_than_one_and_supports_live_consumption
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
     CONFIG_ACCOUNT_ID: "A-123",
-    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
-    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 0,
-    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_HOME_MINI_SETTINGS: {
+      CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+      CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 0,
+      CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    },
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
-    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
-    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    CONFIG_MAIN_PRICE_CAP_SETTINGS: {
+      CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+      CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    }
   }
 
   account_info = get_account_info()
@@ -231,10 +262,11 @@ async def test_when_live_electricity_less_than_one_and_supports_live_consumption
     errors = await async_validate_main_config(data)
 
     # Assert
-    assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES in errors
-    assert errors[CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES] == "value_greater_than_zero"
+    assert CONFIG_MAIN_HOME_MINI_SETTINGS in errors
+    assert CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES in errors[CONFIG_MAIN_HOME_MINI_SETTINGS]
+    assert errors[CONFIG_MAIN_HOME_MINI_SETTINGS][CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES] == "value_greater_than_zero"
     
-    assert_errors_not_present(errors, config_keys, CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES)
+    assert_errors_not_present(errors[CONFIG_MAIN_HOME_MINI_SETTINGS], config_keys, CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES)
 
 @pytest.mark.asyncio
 async def test_when_live_gas_less_than_one_and_supports_live_consumption_is_true_then_errors_returned():
@@ -242,12 +274,16 @@ async def test_when_live_gas_less_than_one_and_supports_live_consumption_is_true
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
     CONFIG_ACCOUNT_ID: "A-123",
-    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
-    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
-    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 0,
+    CONFIG_MAIN_HOME_MINI_SETTINGS: {
+      CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+      CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+      CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 0,
+    },
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
-    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
-    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    CONFIG_MAIN_PRICE_CAP_SETTINGS: {
+      CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+      CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    }
   }
 
   account_info = get_account_info()
@@ -259,10 +295,11 @@ async def test_when_live_gas_less_than_one_and_supports_live_consumption_is_true
     errors = await async_validate_main_config(data)
 
     # Assert
-    assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES in errors
-    assert errors[CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES] == "value_greater_than_zero"
+    assert CONFIG_MAIN_HOME_MINI_SETTINGS in errors
+    assert CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES in errors[CONFIG_MAIN_HOME_MINI_SETTINGS]
+    assert errors[CONFIG_MAIN_HOME_MINI_SETTINGS][CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES] == "value_greater_than_zero"
     
-    assert_errors_not_present(errors, config_keys, CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES)
+    assert_errors_not_present(errors[CONFIG_MAIN_HOME_MINI_SETTINGS], config_keys, CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES)
 
 @pytest.mark.asyncio
 async def test_when_account_has_been_setup_already_than_one_then_errors_returned():
@@ -270,12 +307,16 @@ async def test_when_account_has_been_setup_already_than_one_then_errors_returned
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
     CONFIG_ACCOUNT_ID: "A-123",
-    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
-    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
-    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_HOME_MINI_SETTINGS: {
+      CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+      CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+      CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    },
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
-    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
-    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    CONFIG_MAIN_PRICE_CAP_SETTINGS: {
+      CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+      CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    }
   }
 
   account_info = get_account_info()
@@ -298,14 +339,20 @@ async def test_when_home_pro_address_is_not_set_and_home_pro_api_key_is_set_then
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
     CONFIG_ACCOUNT_ID: "A-123",
-    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
-    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
-    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_HOME_MINI_SETTINGS: {
+      CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+      CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+      CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    },
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
-    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
-    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
-    CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret",
-    CONFIG_MAIN_HOME_PRO_ADDRESS: None
+    CONFIG_MAIN_PRICE_CAP_SETTINGS: {
+      CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+      CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    },
+    CONFIG_MAIN_HOME_PRO_SETTINGS: {
+      CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret",
+      CONFIG_MAIN_HOME_PRO_ADDRESS: None
+    }
   }
 
   account_info = get_account_info()
@@ -317,10 +364,11 @@ async def test_when_home_pro_address_is_not_set_and_home_pro_api_key_is_set_then
     errors = await async_validate_main_config(data)
 
     # Assert
-    assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors
-    assert errors[CONFIG_MAIN_HOME_PRO_ADDRESS] == "all_home_pro_values_not_set"
+    assert CONFIG_MAIN_HOME_PRO_SETTINGS in errors
+    assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors[CONFIG_MAIN_HOME_PRO_SETTINGS]
+    assert errors[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] == "all_home_pro_values_not_set"
 
-    assert_errors_not_present(errors, config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
+    assert_errors_not_present(errors[CONFIG_MAIN_HOME_PRO_SETTINGS], config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
 
 @pytest.mark.asyncio
 async def test_when_cannot_connect_to_home_pro_then_error_returned():
@@ -328,14 +376,20 @@ async def test_when_cannot_connect_to_home_pro_then_error_returned():
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
     CONFIG_ACCOUNT_ID: "A-123",
-    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
-    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
-    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_HOME_MINI_SETTINGS: {
+      CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+      CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+      CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    },
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
-    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
-    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
-    CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000",
-    CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret"
+    CONFIG_MAIN_PRICE_CAP_SETTINGS: {
+      CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+      CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    },
+    CONFIG_MAIN_HOME_PRO_SETTINGS: {
+      CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret",
+      CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000"
+    }
   }
 
   account_info = get_account_info()
@@ -351,10 +405,11 @@ async def test_when_cannot_connect_to_home_pro_then_error_returned():
       errors = await async_validate_main_config(data)
 
       # Assert
-      assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors
-      assert errors[CONFIG_MAIN_HOME_PRO_ADDRESS] == "home_pro_not_responding"
+      assert CONFIG_MAIN_HOME_PRO_SETTINGS in errors
+      assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors[CONFIG_MAIN_HOME_PRO_SETTINGS]
+      assert errors[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] == "home_pro_not_responding"
 
-      assert_errors_not_present(errors, config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
+      assert_errors_not_present(errors[CONFIG_MAIN_HOME_PRO_SETTINGS], config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
 
 @pytest.mark.asyncio
 async def test_when_connect_to_home_pro_throws_authentication_exception_then_error_returned():
@@ -362,14 +417,20 @@ async def test_when_connect_to_home_pro_throws_authentication_exception_then_err
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
     CONFIG_ACCOUNT_ID: "A-123",
-    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
-    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
-    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_HOME_MINI_SETTINGS: {
+      CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+      CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+      CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    },
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
-    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
-    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
-    CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000",
-    CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret"
+    CONFIG_MAIN_PRICE_CAP_SETTINGS: {
+      CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+      CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    },
+    CONFIG_MAIN_HOME_PRO_SETTINGS: {
+      CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret",
+      CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000"
+    }
   }
 
   account_info = get_account_info()
@@ -385,10 +446,11 @@ async def test_when_connect_to_home_pro_throws_authentication_exception_then_err
       errors = await async_validate_main_config(data)
 
       # Assert
-      assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors
-      assert errors[CONFIG_MAIN_HOME_PRO_ADDRESS] == "home_pro_authentication_failed"
+      assert CONFIG_MAIN_HOME_PRO_SETTINGS in errors
+      assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors[CONFIG_MAIN_HOME_PRO_SETTINGS]
+      assert errors[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] == "home_pro_authentication_failed"
 
-      assert_errors_not_present(errors, config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
+      assert_errors_not_present(errors[CONFIG_MAIN_HOME_PRO_SETTINGS], config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
 
 @pytest.mark.asyncio
 async def test_when_connect_to_home_pro_throws_general_exception_then_error_returned():
@@ -396,14 +458,20 @@ async def test_when_connect_to_home_pro_throws_general_exception_then_error_retu
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
     CONFIG_ACCOUNT_ID: "A-123",
-    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
-    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
-    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_HOME_MINI_SETTINGS: {
+      CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+      CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+      CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    },
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
-    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
-    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
-    CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000",
-    CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret"
+    CONFIG_MAIN_PRICE_CAP_SETTINGS: {
+      CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+      CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    },
+    CONFIG_MAIN_HOME_PRO_SETTINGS: {
+      CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret",
+      CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000"
+    }
   }
 
   account_info = get_account_info()
@@ -419,10 +487,11 @@ async def test_when_connect_to_home_pro_throws_general_exception_then_error_retu
       errors = await async_validate_main_config(data)
 
       # Assert
-      assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors
-      assert errors[CONFIG_MAIN_HOME_PRO_ADDRESS] == "home_pro_connection_failed"
+      assert CONFIG_MAIN_HOME_PRO_SETTINGS in errors
+      assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors[CONFIG_MAIN_HOME_PRO_SETTINGS]
+      assert errors[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] == "home_pro_connection_failed"
 
-      assert_errors_not_present(errors, config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
+      assert_errors_not_present(errors[CONFIG_MAIN_HOME_PRO_SETTINGS], config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
 
 @pytest.mark.asyncio
 async def test_when_can_connect_to_home_pro_then_no_errors_returned():
@@ -430,14 +499,20 @@ async def test_when_can_connect_to_home_pro_then_no_errors_returned():
   data = {
     CONFIG_MAIN_API_KEY: "test-api-key",
     CONFIG_ACCOUNT_ID: "A-123",
-    CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
-    CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
-    CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    CONFIG_MAIN_HOME_MINI_SETTINGS: {
+      CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: True,
+      CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+      CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: 1,
+    },
     CONFIG_MAIN_CALORIFIC_VALUE: 40,
-    CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
-    CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
-    CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000",
-    CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret"
+    CONFIG_MAIN_PRICE_CAP_SETTINGS: {
+      CONFIG_MAIN_ELECTRICITY_PRICE_CAP: 38.5,
+      CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
+    },
+    CONFIG_MAIN_HOME_PRO_SETTINGS: {
+      CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret",
+      CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000"
+    }
   }
 
   account_info = get_account_info()
