@@ -244,8 +244,8 @@
             }
           },
           "intelligent_settings": {
-            "name": "Price cap settings",
-            "description": "This is related to manual price caps. This usually comes from the OE APIs and doesn't need to be set.",
+            "name": "Intelligent settings",
+            "description": "These are settings related to the intelligent tariff. If you're not on this tariff, none of this applies.",
             "data": {
               "intelligent_manual_dispatches": "Manually refresh intelligent dispatches",
               "intelligent_rate_mode": "Intelligent tariff rate mode"
