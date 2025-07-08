@@ -1,6 +1,7 @@
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers import selector
+from homeassistant.data_entry_flow import section
 
 DOMAIN = "octopus_energy"
 INTEGRATION_VERSION = "15.3.0"
@@ -19,7 +20,7 @@ REFRESH_RATE_IN_MINUTES_GREENNESS_FORECAST = 180
 REFRESH_RATE_IN_MINUTES_HOME_PRO_CONSUMPTION = 0.17
 REFRESH_RATE_IN_MINUTES_HEAT_PUMP = 1
 
-CONFIG_VERSION = 5
+CONFIG_VERSION = 6
 
 CONFIG_KIND = "kind"
 CONFIG_KIND_ACCOUNT = "account"
@@ -33,17 +34,21 @@ CONFIG_MAIN_OLD_ACCOUNT_ID = "Account Id"
 
 CONFIG_MAIN_API_KEY = "api_key"
 CONFIG_ACCOUNT_ID = "account_id"
+CONFIG_MAIN_CALORIFIC_VALUE = "calorific_value"
+CONFIG_MAIN_HOME_PRO_SETTINGS = "home_pro_settings"
+CONFIG_MAIN_HOME_PRO_ADDRESS = "home_pro_address"
+CONFIG_MAIN_HOME_PRO_API_KEY = "home_pro_api_key"
+CONFIG_MAIN_HOME_MINI_SETTINGS = "home_mini_settings"
 CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION = "supports_live_consumption"
 CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES = "live_electricity_consumption_refresh_in_minutes"
 CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES = "live_gas_consumption_refresh_in_minutes"
-CONFIG_MAIN_CALORIFIC_VALUE = "calorific_value"
+CONFIG_MAIN_PRICE_CAP_SETTINGS = "price_cap_settings"
 CONFIG_MAIN_ELECTRICITY_PRICE_CAP = "electricity_price_cap"
 CONFIG_MAIN_GAS_PRICE_CAP = "gas_price_cap"
-CONFIG_MAIN_HOME_PRO_ADDRESS = "home_pro_address"
-CONFIG_MAIN_HOME_PRO_API_KEY = "home_pro_api_key"
 CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES = "favour_direct_debit_rates"
-CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES = "intelligent_manual_dispatches"
 CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS = "auto_discover_cost_trackers"
+CONFIG_MAIN_INTELLIGENT_SETTINGS = "intelligent_settings"
+CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES = "intelligent_manual_dispatches"
 CONFIG_MAIN_INTELLIGENT_RATE_MODE = "intelligent_rate_mode"
 CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES = "pending_and_started_dispatches"
 CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY = "started_dispatches_only"
@@ -189,25 +194,53 @@ DATA_SCHEMA_ACCOUNT = vol.Schema({
   vol.Required(CONFIG_ACCOUNT_ID): str,
   vol.Required(CONFIG_MAIN_API_KEY): str,
   vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=DEFAULT_CALORIFIC_VALUE): cv.positive_float,
-  vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION): bool,
-  vol.Optional(CONFIG_MAIN_HOME_PRO_ADDRESS): str,
-  vol.Optional(CONFIG_MAIN_HOME_PRO_API_KEY): str,
-  vol.Required(CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES, default=CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
-  vol.Required(CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES, default=CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
-  vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP): cv.positive_float,
-  vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float,
   vol.Required(CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES): bool,
-  vol.Required(CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES): bool,
-  vol.Required(CONFIG_MAIN_INTELLIGENT_RATE_MODE): selector.SelectSelector(
-    selector.SelectSelectorConfig(
-        options=[
-          selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES, label="Planned and started dispatches will turn into off peak rates"),
-          selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, label="Only started dispatches will turn into off peak rates"),
-        ],
-        mode=selector.SelectSelectorMode.DROPDOWN,
-    )
-  ),
   vol.Required(CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS): bool,
+  vol.Required(CONFIG_MAIN_HOME_MINI_SETTINGS): section(
+    vol.Schema(
+        {
+            vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION): bool,
+            vol.Required(CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES, default=CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
+            vol.Required(CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES, default=CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
+        }
+    ),
+    {"collapsed": True},
+  ),
+  vol.Required(CONFIG_MAIN_HOME_PRO_SETTINGS): section(
+    vol.Schema(
+        {
+            vol.Optional(CONFIG_MAIN_HOME_PRO_ADDRESS): str,
+            vol.Optional(CONFIG_MAIN_HOME_PRO_API_KEY): str,
+        }
+    ),
+    {"collapsed": True},
+  ),
+  vol.Required(CONFIG_MAIN_PRICE_CAP_SETTINGS): section(
+    vol.Schema(
+        {
+            vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP): cv.positive_float,
+            vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float,
+        }
+    ),
+    {"collapsed": True},
+  ),
+  vol.Required(CONFIG_MAIN_INTELLIGENT_SETTINGS): section(
+    vol.Schema(
+        {
+            vol.Required(CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES): bool,
+            vol.Required(CONFIG_MAIN_INTELLIGENT_RATE_MODE): selector.SelectSelector(
+              selector.SelectSelectorConfig(
+                  options=[
+                    selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES, label="Planned and started dispatches will turn into off peak rates"),
+                    selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, label="Only started dispatches will turn into off peak rates"),
+                  ],
+                  mode=selector.SelectSelectorMode.DROPDOWN,
+              )
+            ),
+        }
+    ),
+    {"collapsed": True},
+  ),
 })
 
 EVENT_ELECTRICITY_PREVIOUS_DAY_RATES = "octopus_energy_electricity_previous_day_rates"
