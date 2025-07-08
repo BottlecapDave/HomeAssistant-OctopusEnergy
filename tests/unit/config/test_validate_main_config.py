@@ -365,10 +365,7 @@ async def test_when_home_pro_address_is_not_set_and_home_pro_api_key_is_set_then
 
     # Assert
     assert CONFIG_MAIN_HOME_PRO_SETTINGS in errors
-    assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors[CONFIG_MAIN_HOME_PRO_SETTINGS]
-    assert errors[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] == "all_home_pro_values_not_set"
-
-    assert_errors_not_present(errors[CONFIG_MAIN_HOME_PRO_SETTINGS], config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
+    assert errors[CONFIG_MAIN_HOME_PRO_SETTINGS] == "all_home_pro_values_not_set"
 
 @pytest.mark.asyncio
 async def test_when_cannot_connect_to_home_pro_then_error_returned():
@@ -406,10 +403,7 @@ async def test_when_cannot_connect_to_home_pro_then_error_returned():
 
       # Assert
       assert CONFIG_MAIN_HOME_PRO_SETTINGS in errors
-      assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors[CONFIG_MAIN_HOME_PRO_SETTINGS]
-      assert errors[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] == "home_pro_not_responding"
-
-      assert_errors_not_present(errors[CONFIG_MAIN_HOME_PRO_SETTINGS], config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
+      assert errors[CONFIG_MAIN_HOME_PRO_SETTINGS] == "home_pro_not_responding"
 
 @pytest.mark.asyncio
 async def test_when_connect_to_home_pro_throws_authentication_exception_then_error_returned():
@@ -447,10 +441,7 @@ async def test_when_connect_to_home_pro_throws_authentication_exception_then_err
 
       # Assert
       assert CONFIG_MAIN_HOME_PRO_SETTINGS in errors
-      assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors[CONFIG_MAIN_HOME_PRO_SETTINGS]
-      assert errors[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] == "home_pro_authentication_failed"
-
-      assert_errors_not_present(errors[CONFIG_MAIN_HOME_PRO_SETTINGS], config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
+      assert errors[CONFIG_MAIN_HOME_PRO_SETTINGS] == "home_pro_authentication_failed"
 
 @pytest.mark.asyncio
 async def test_when_connect_to_home_pro_throws_general_exception_then_error_returned():
@@ -488,10 +479,7 @@ async def test_when_connect_to_home_pro_throws_general_exception_then_error_retu
 
       # Assert
       assert CONFIG_MAIN_HOME_PRO_SETTINGS in errors
-      assert CONFIG_MAIN_HOME_PRO_ADDRESS in errors[CONFIG_MAIN_HOME_PRO_SETTINGS]
-      assert errors[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] == "home_pro_connection_failed"
-
-      assert_errors_not_present(errors[CONFIG_MAIN_HOME_PRO_SETTINGS], config_keys, CONFIG_MAIN_HOME_PRO_ADDRESS)
+      assert errors[CONFIG_MAIN_HOME_PRO_SETTINGS] == "home_pro_connection_failed"
 
 @pytest.mark.asyncio
 async def test_when_can_connect_to_home_pro_then_no_errors_returned():

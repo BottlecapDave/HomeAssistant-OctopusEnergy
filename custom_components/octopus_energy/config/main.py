@@ -173,12 +173,10 @@ async def async_validate_main_config(data, account_ids = []):
       del errors[CONFIG_MAIN_HOME_MINI_SETTINGS]
 
   if CONFIG_MAIN_HOME_PRO_SETTINGS in data:
-    errors[CONFIG_MAIN_HOME_PRO_SETTINGS] = {}
-
     if ((CONFIG_MAIN_HOME_PRO_API_KEY in data[CONFIG_MAIN_HOME_PRO_SETTINGS] and
         data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_API_KEY] is not None and
         (CONFIG_MAIN_HOME_PRO_ADDRESS not in data[CONFIG_MAIN_HOME_PRO_SETTINGS] or data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] is None))):
-      errors[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] = "all_home_pro_values_not_set"
+      errors[CONFIG_MAIN_HOME_PRO_SETTINGS] = "all_home_pro_values_not_set"
 
     if (CONFIG_MAIN_HOME_PRO_ADDRESS in data[CONFIG_MAIN_HOME_PRO_SETTINGS] and
         data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] is not None and
@@ -189,13 +187,10 @@ async def async_validate_main_config(data, account_ids = []):
       try:
         can_connect = await home_pro_client.async_ping()
         if can_connect == False:
-          errors[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] = "home_pro_not_responding"
+          errors[CONFIG_MAIN_HOME_PRO_SETTINGS] = "home_pro_not_responding"
       except AuthenticationException:
-        errors[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] = "home_pro_authentication_failed"
+        errors[CONFIG_MAIN_HOME_PRO_SETTINGS] = "home_pro_authentication_failed"
       except:
-        errors[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] = "home_pro_connection_failed"
-
-    if len(errors[CONFIG_MAIN_HOME_PRO_SETTINGS]) < 1:
-      del errors[CONFIG_MAIN_HOME_PRO_SETTINGS]
+        errors[CONFIG_MAIN_HOME_PRO_SETTINGS] = "home_pro_connection_failed"
 
   return errors

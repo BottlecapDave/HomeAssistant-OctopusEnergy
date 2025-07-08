@@ -22,7 +22,7 @@
             "name": "Home Mini settings",
             "description": "Settings related to the Home Mini - https://octopus.energy/blog/octopus-home-mini/",
             "data": {
-              "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
+              "supports_live_consumption": "I have a Home Mini",
               "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
               "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes"
             },
@@ -216,7 +216,7 @@
             "name": "Home Mini settings",
             "description": "Settings related to the Home Mini - https://octopus.energy/blog/octopus-home-mini/",
             "data": {
-              "supports_live_consumption": "I have a Home Mini - https://octopus.energy/blog/octopus-home-mini/",
+              "supports_live_consumption": "I have a Home Mini",
               "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
               "live_gas_consumption_refresh_in_minutes": "Home Mini gas refresh rate in minutes"
             },
