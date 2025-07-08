@@ -2,7 +2,9 @@
 
 The following events are raised by the integration. These events power various entities and can also be used within automations.
 
-## Electricity Current Day Rates
+## Rates
+
+### Electricity Current Day Rates
 
 `octopus_energy_electricity_current_day_rates`
 
@@ -18,7 +20,7 @@ This is fired when the current day rates are updated.
 | `max_rate` | `float` | The maximum/highest rate in the discovered rates collection |
 | `average_rate` | `float` | The average rate in the discovered rates collection |
 
-### Automation Example
+#### Automation Example
 
 ```yaml
 - trigger:
@@ -33,7 +35,7 @@ This is fired when the current day rates are updated.
         New rates available for {{ trigger.event.data.mpan }}. Starting value is {{ trigger.event.data.rates[0]["value_inc_vat"] }}
 ```
 
-## Electricity Previous Day Rates
+### Electricity Previous Day Rates
 
 `octopus_energy_electricity_previous_day_rates`
 
@@ -49,7 +51,7 @@ This is fired when the previous day rates are updated.
 | `max_rate` | `float` | The maximum/highest rate in the discovered rates collection |
 | `average_rate` | `float` | The average rate in the discovered rates collection |
 
-### Automation Example
+#### Automation Example
 
 ```yaml
 - trigger:
@@ -64,7 +66,7 @@ This is fired when the previous day rates are updated.
         New rates available for {{ trigger.event.data.mpan }}. Starting value is {{ trigger.event.data.rates[0]["value_inc_vat"] }}
 ```
 
-## Electricity Next Day Rates
+### Electricity Next Day Rates
 
 `octopus_energy_electricity_next_day_rates`
 
@@ -80,7 +82,7 @@ This is fired when the next day rates are updated.
 | `max_rate` | `float` | The maximum/highest rate in the discovered rates collection |
 | `average_rate` | `float` | The average rate in the discovered rates collection |
 
-### Automation Example
+#### Automation Example
 
 ```yaml
 - trigger:
@@ -95,7 +97,7 @@ This is fired when the next day rates are updated.
         New rates available for {{ trigger.event.data.mpan }}. Starting value is {{ trigger.event.data.rates[0]["value_inc_vat"] }}
 ```
 
-## Electricity Previous Consumption Rates
+### Electricity Previous Consumption Rates
 
 `octopus_energy_electricity_previous_consumption_rates`
 
@@ -111,7 +113,7 @@ This is fired when the [previous consumption's](./entities/electricity.md#previo
 | `max_rate` | `float` | The maximum/highest rate in the discovered rates collection |
 | `average_rate` | `float` | The average rate in the discovered rates collection |
 
-### Automation Example
+#### Automation Example
 
 ```yaml
 - trigger:
@@ -126,7 +128,7 @@ This is fired when the [previous consumption's](./entities/electricity.md#previo
         New rates available for {{ trigger.event.data.mpan }}. Starting value is {{ trigger.event.data.rates[0]["value_inc_vat"] }}
 ```
 
-## Gas Current Day Rates
+### Gas Current Day Rates
 
 `octopus_energy_gas_current_day_rates`
 
@@ -142,7 +144,7 @@ This is fired when the current day rates are updated.
 | `max_rate` | `float` | The maximum/highest rate in the discovered rates collection |
 | `average_rate` | `float` | The average rate in the discovered rates collection |
 
-### Automation Example
+#### Automation Example
 
 ```yaml
 - trigger:
@@ -157,7 +159,7 @@ This is fired when the current day rates are updated.
         New rates available for {{ trigger.event.data.mprn }}. Starting value is {{ trigger.event.data.rates[0]["value_inc_vat"] }}
 ```
 
-## Gas Previous Day Rates
+### Gas Previous Day Rates
 
 `octopus_energy_gas_previous_day_rates`
 
@@ -173,7 +175,7 @@ This is fired when the previous day rates are updated.
 | `max_rate` | `float` | The maximum/highest rate in the discovered rates collection |
 | `average_rate` | `float` | The average rate in the discovered rates collection |
 
-### Automation Example
+#### Automation Example
 
 ```yaml
 - trigger:
@@ -188,7 +190,7 @@ This is fired when the previous day rates are updated.
         New rates available for {{ trigger.event.data.mprn }}. Starting value is {{ trigger.event.data.rates[0]["value_inc_vat"] }}
 ```
 
-## Gas Next Day Rates
+### Gas Next Day Rates
 
 `octopus_energy_gas_next_day_rates`
 
@@ -204,7 +206,7 @@ This is fired when the next day rates are updated.
 | `max_rate` | `float` | The maximum/highest rate in the discovered rates collection |
 | `average_rate` | `float` | The average rate in the discovered rates collection |
 
-### Automation Example
+#### Automation Example
 
 ```yaml
 - trigger:
@@ -219,7 +221,7 @@ This is fired when the next day rates are updated.
         New rates available for {{ trigger.event.data.mprn }}. Starting value is {{ trigger.event.data.rates[0]["value_inc_vat"] }}
 ```
 
-## Gas Previous Consumption Rates
+### Gas Previous Consumption Rates
 
 `octopus_energy_gas_previous_consumption_rates`
 
@@ -235,7 +237,7 @@ This is fired when the [previous consumption's](./entities/gas.md#previous-accum
 | `max_rate` | `float` | The maximum/highest rate in the discovered rates collection |
 | `average_rate` | `float` | The average rate in the discovered rates collection |
 
-### Automation Example
+#### Automation Example
 
 ```yaml
 - trigger:
@@ -250,7 +252,9 @@ This is fired when the [previous consumption's](./entities/gas.md#previous-accum
         New rates available for {{ trigger.event.data.mprn }}. Starting value is {{ trigger.event.data.rates[0]["value_inc_vat"] }}
 ```
 
-## New Saving Session
+## Octoplus
+
+### New Saving Session
 
 `octopus_energy_new_octoplus_saving_session`
 
@@ -266,7 +270,7 @@ This event is raised when a new saving session is discovered.
 | `event_duration_in_minutes` | `integer` | The duration of the event in minutes |
 | `event_octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |
 
-### Automation Example
+#### Automation Example
 
 ```yaml
 - trigger:
@@ -281,7 +285,7 @@ This event is raised when a new saving session is discovered.
         New Octopus Energy saving session available. It starts at {{ trigger.event.data["event_start"].strftime('%H:%M') }} on {{ trigger.event.data["event_start"].day }}/{{ trigger.event.data["event_start"].month }} for {{ trigger.event.data["event_duration_in_minutes"] | int }} minutes.
 ```
 
-## All Saving Sessions
+### All Saving Sessions
 
 `octopus_energy_all_octoplus_saving_sessions`
 
@@ -298,7 +302,7 @@ Each available event item will include the following attributes
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `id` | `integer` | The id of the event |
-| `code` | `string` | The event code of the event. This will be required to join via the [join service](./services.md) |
+| `code` | `string` | The event code of the event. This will be required to join via the [join service](./services.md#octopus_energyjoin_octoplus_saving_session_event) |
 | `start` | `datetime` | The date/time the event starts |
 | `end` | `datetime` | The date/time the event starts |
 | `duration_in_minutes` | `integer` | The duration of the event in minutes |
@@ -315,7 +319,7 @@ Each joined event item will include the following attributes
 | `octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |
 | `rewarded_octopoints` | `integer` | The total number of octopoints that were awarded (if any or known) |
 
-### Automation Example
+#### Automation Example
 
 ```yaml
 - trigger:
@@ -330,7 +334,7 @@ Each joined event item will include the following attributes
         Saving session events updated. The latest joined event awarded {{ trigger.event.data.joined_events[0]["rewarded_octopoints"] }}
 ```
 
-## New Free Electricity Session
+### New Free Electricity Session
 
 `octopus_energy_new_octoplus_free_electricity_session`
 
@@ -344,7 +348,7 @@ This event is raised when a new free electricity session is discovered.
 | `event_end` | `datetime` | The date/time the event ends |
 | `event_duration_in_minutes` | `integer` | The duration of the event in minutes |
 
-### Automation Example
+#### Automation Example
 
 ```yaml
 - trigger:
@@ -359,7 +363,7 @@ This event is raised when a new free electricity session is discovered.
         New Octopus Energy free electricity session available. It starts at {{ trigger.event.data["event_start"].strftime('%H:%M') }} on {{ trigger.event.data["event_start"].day }}/{{ trigger.event.data["event_start"].month }} for {{ trigger.event.data["event_duration_in_minutes"] | int }} minutes.
 ```
 
-## All Free Electricity Sessions
+### All Free Electricity Sessions
 
 `octopus_energy_all_octoplus_free_electricity_sessions`
 
@@ -379,7 +383,7 @@ Each event item will include the following attributes
 | `end` | `datetime` | The date/time the event starts |
 | `duration_in_minutes` | `integer` | The duration of the event in minutes |
 
-### Automation Example
+#### Automation Example
 
 ```yaml
 - trigger:
@@ -394,7 +398,9 @@ Each event item will include the following attributes
         Free electricity session events updated. The latest event is at {{ trigger.event.data.events[-1]["start"] }}
 ```
 
-## Electricity Previous Consumption Tariff Comparison Rates
+## Tariff Comparisons
+
+### Electricity Previous Consumption Tariff Comparison Rates
 
 `octopus_energy_elec_previous_consumption_tariff_comparison_rates`
 
@@ -408,7 +414,7 @@ This is fired when the [tariff comparison](./setup/tariff_comparison.md) rates a
 | `mprn` | `string` | The mprn of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
 
-### Automation Example
+#### Automation Example
 
 ```yaml
 - trigger:
@@ -423,7 +429,7 @@ This is fired when the [tariff comparison](./setup/tariff_comparison.md) rates a
         New rates available for {{ trigger.event.data.mprn }}. Starting value is {{ trigger.event.data.rates[0]["value_inc_vat"] }}
 ```
 
-## Gas Previous Consumption Tariff Comparison Rates
+### Gas Previous Consumption Tariff Comparison Rates
 
 `octopus_energy_gas_previous_consumption_tariff_comparison_rates`
 
@@ -437,7 +443,7 @@ This is fired when the [tariff comparison](./setup/tariff_comparison.md) rates a
 | `mprn` | `string` | The mprn of the meter associated with these rates |
 | `serial_number` | `string` | The serial number of the meter associated with these rates |
 
-### Automation Example
+#### Automation Example
 
 ```yaml
 - trigger:

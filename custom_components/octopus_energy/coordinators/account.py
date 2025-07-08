@@ -66,12 +66,14 @@ async def async_refresh_account(
         if account_info is not None and len(account_info["electricity_meter_points"]) > 0:
           for point in account_info["electricity_meter_points"]:
             active_tariff = get_active_tariff(current, point["agreements"])
-            await async_check_valid_product(hass, account_id, client, active_tariff.product, True)
+            if active_tariff is not None:
+              await async_check_valid_product(hass, account_id, client, active_tariff.product, True)
 
         if account_info is not None and len(account_info["gas_meter_points"]) > 0:
           for point in account_info["gas_meter_points"]:
             active_tariff = get_active_tariff(current, point["agreements"])
-            await async_check_valid_product(hass, account_id, client, active_tariff.product, False)
+            if active_tariff is not None:
+              await async_check_valid_product(hass, account_id, client, active_tariff.product, False)
 
         return AccountCoordinatorResult(current, 1, account_info)
     except Exception as e:

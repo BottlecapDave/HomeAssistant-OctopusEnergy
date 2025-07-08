@@ -1,10 +1,16 @@
 from datetime import datetime, timedelta
+import logging
 
 from homeassistant.components.sensor import (
   SensorStateClass,
 )
 
 from homeassistant.helpers.entity import DeviceInfo
+
+from ..utils.conversions import pence_to_pounds_pence, round_pounds, value_inc_vat_to_pounds
+from ..utils.cost import consumption_cost_in_pence
+
+_LOGGER = logging.getLogger(__name__)
 
 def get_device_info_from_device_entry(device_entry):
   if device_entry is None:
@@ -152,4 +158,82 @@ def accumulate_cost(current: datetime, accumulative_data: list, new_cost: float,
 
   return AccumulativeCostTrackerResult(new_accumulative_data, total_consumption, total_cost)
 
-  
+def __get_to(item):
+    return (item["end"].timestamp(), item["end"].fold)
+
+def __sort_consumption(consumption_data):
+  sorted = consumption_data.copy()
+  sorted.sort(key=__get_to)
+  return sorted
+
+def calculate_consumption_and_cost(
+    consumption_data,
+    rate_data,
+    standing_charge,
+    last_reset,
+    minimum_consumption_records = 0,
+    target_rate = None
+  ):
+  if (consumption_data is not None and len(consumption_data) >= minimum_consumption_records and rate_data is not None and len(rate_data) > 0 and standing_charge is not None):
+
+    sorted_consumption_data = __sort_consumption(consumption_data)
+
+    # Only calculate our consumption if our data has changed
+    if (last_reset is None or last_reset < sorted_consumption_data[0]["start"]):
+
+      charges = []
+      total_cost = 0
+      total_consumption = 0
+
+      for consumption in sorted_consumption_data:
+        consumption_value = consumption["consumption"]
+        consumption_from = consumption["start"]
+        consumption_to = consumption["end"]
+
+        try:
+          rate = next(r for r in rate_data if r["start"] == consumption_from and r["end"] == consumption_to)
+        except StopIteration:
+          raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to}")
+
+        value = rate["value_inc_vat"]
+
+        if target_rate is not None and value != target_rate:
+          continue
+
+        total_consumption = total_consumption + consumption_value
+        cost = pence_to_pounds_pence(consumption_cost_in_pence(consumption_value, value))
+        cost_raw = (consumption_value * value) / 100
+        total_cost = total_cost + cost_raw
+
+        current_charge = {
+          "start": rate["start"],
+          "end": rate["end"],
+          "rate": value_inc_vat_to_pounds(value),
+          "consumption": consumption_value,
+          "cost": cost,
+          "cost_raw": cost_raw,
+        }
+
+        charges.append(current_charge)
+      
+      total_cost = round_pounds(total_cost)
+      total_cost_plus_standing_charge = total_cost + pence_to_pounds_pence(standing_charge)
+
+      last_reset = sorted_consumption_data[0]["start"] if len(sorted_consumption_data) > 0 else None
+      last_calculated_timestamp = sorted_consumption_data[-1]["end"] if len(sorted_consumption_data) > 0 else None
+
+      result = {
+        "standing_charge": pence_to_pounds_pence(standing_charge),
+        "total_cost_without_standing_charge": total_cost,
+        "total_cost": total_cost_plus_standing_charge,
+        "total_consumption": total_consumption,
+        "last_reset": last_reset,
+        "last_evaluated": last_calculated_timestamp,
+        "charges": charges,
+      }
+
+      return result
+    else:
+      _LOGGER.debug(f'Skipping consumption and cost calculation as last reset has not changed - last_reset: {last_reset}; consumption start: {sorted_consumption_data[0]["start"]}')
+  else:
+    _LOGGER.debug(f'Skipping consumption and cost calculation due to lack of data; consumption: {len(consumption_data) if consumption_data is not None else 0}; rates: {len(rate_data) if rate_data is not None else 0}; standing_charge: {standing_charge}')

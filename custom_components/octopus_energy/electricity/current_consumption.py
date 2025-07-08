@@ -41,6 +41,14 @@ class OctopusEnergyCurrentElectricityConsumption(CoordinatorEntity, OctopusEnerg
     self._last_evaluated = None
 
   @property
+  def entity_registry_enabled_default(self) -> bool:
+    """Return if the entity should be enabled when first added.
+
+    This only applies when fist added to the entity registry.
+    """
+    return False
+
+  @property
   def unique_id(self):
     """The id of the sensor."""
     return f"octopus_energy_electricity_{self._serial_number}_{self._mpan}_current_consumption"

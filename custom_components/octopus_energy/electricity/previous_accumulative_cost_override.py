@@ -50,6 +50,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
     self._next_refresh = None
     self._last_retrieved  = None
     self._request_attempts = 1
+    self._rates = None
+    self._standing_charge = None
     
     CoordinatorEntity.__init__(self, coordinator)
     OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
@@ -124,18 +126,28 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
       target_tariff_code = self._config[CONFIG_TARIFF_COMPARISON_TARIFF_CODE]
 
       try:
-        _LOGGER.debug(f"Retrieving rates and standing charge overrides for '{self._mpan}/{self._serial_number}' ({period_from} - {period_to})...")
-        [rate_data, standing_charge] = await asyncio.gather(
-          self._client.async_get_electricity_rates(target_product_code, target_tariff_code, self._is_smart_meter, period_from, period_to),
-          self._client.async_get_electricity_standing_charge(target_product_code, target_tariff_code, period_from, period_to)
-        )
+        if (self._rates is None or
+            self._standing_charge is None or
+            self._rates[0]["start"] != period_from or
+            self._rates[-1]["end"] != period_to or
+            self._standing_charge["start"] != period_from or
+            self._standing_charge["end"] != period_to):
 
-        _LOGGER.debug(f"Rates and standing charge overrides for '{self._mpan}/{self._serial_number}' ({period_from} - {period_to}) retrieved")
+          _LOGGER.debug(f"Retrieving rates and standing charge overrides for '{self._mpan}/{self._serial_number}' ({period_from} - {period_to})...")
+          [rate_data, standing_charge] = await asyncio.gather(
+            self._client.async_get_electricity_rates(target_product_code, target_tariff_code, self._is_smart_meter, period_from, period_to),
+            self._client.async_get_electricity_standing_charge(target_product_code, target_tariff_code, period_from, period_to)
+          )
+
+          self._rates = rate_data
+          self._standing_charge = standing_charge
+
+          _LOGGER.debug(f"Rates and standing charge overrides for '{self._mpan}/{self._serial_number}' ({period_from} - {period_to}) retrieved")
 
         consumption_and_cost = calculate_electricity_consumption_and_cost(
           consumption_data,
-          rate_data,
-          standing_charge["value_inc_vat"] if standing_charge is not None else None,
+          self._rates,
+          self._standing_charge["value_inc_vat"] if self._standing_charge is not None else None,
           None
         )
 
@@ -170,7 +182,7 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
                                       "serial_number": self._serial_number,
                                       "product_code": target_product_code,
                                       "tariff_code": target_tariff_code,
-                                      "rates": private_rates_to_public_rates(rate_data) 
+                                      "rates": private_rates_to_public_rates(self._rates) 
                                     }))
           
           self._request_attempts = 1

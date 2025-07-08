@@ -30,7 +30,6 @@ async def test_when_next_refresh_is_in_the_past_and_then_requested_data_returned
   is_export_meter = False
   intelligent_device = None
   dispatches_result = None
-  planned_dispatches_supported = False
   tariff_override = None
   
   current_utc_timestamp = datetime.strptime(f'2024-11-20T10:12:00Z', "%Y-%m-%dT%H:%M:%S%z")
@@ -78,7 +77,6 @@ async def test_when_next_refresh_is_in_the_past_and_then_requested_data_returned
     existing_rates_result,
     intelligent_device,
     dispatches_result,
-    planned_dispatches_supported,
     fire_event,
     tariff_override,
     unique_rates_changed

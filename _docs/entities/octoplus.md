@@ -41,6 +41,9 @@ Binary sensor to indicate if a saving session that the account has joined is act
 
 The state of this sensor states when the saving session events were last updated. The attributes of this sensor exposes the joined and available saving sessions.
 
+!!! note
+    This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor.
+
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `available_events` | `array` | The collection of saving session events that you haven't joined |
@@ -51,7 +54,7 @@ Each available event item will include the following attributes
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `id` | `integer` | The id of the event |
-| `code` | `string` | The event code of the event. This will be required to join via the [join service](../services.md) |
+| `code` | `string` | The event code of the event. This will be required to join via the [join service](../services.md#octopus_energyjoin_octoplus_saving_session_event) |
 | `start` | `datetime` | The date/time the event starts |
 | `end` | `datetime` | The date/time the event starts |
 | `duration_in_minutes` | `integer` | The duration of the event in minutes |
@@ -75,6 +78,9 @@ Each joined event item will include the following attributes
 This will indicate the baseline consumption that you need to be below for the current 30 minute period of the current saving session or the first 30 minute period of the next saving session. 
 
 You can use the [current period consumption](./electricity.md#current-interval-accumulative-consumption) sensor (if available) to see how on track you are.
+
+!!! note
+    This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor.
 
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
@@ -119,9 +125,8 @@ Each item within `baselines` consists of the following attributes
 
 Binary sensor to indicate if a free electricity session is active.
 
-!!! warning
-
-    This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi. However it is only applicable to your account if you have joined Octoplus and have signed up to [free electricity sessions](https://octopus.energy/free-electricity/). Once enrolled into Octoplus, reload the integration to gain access to this sensor.
+!!! note
+    This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to [free electricity sessions](https://octopus.energy/free-electricity/). This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi.
 
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
@@ -146,6 +151,9 @@ Binary sensor to indicate if a free electricity session is active.
 The state of this sensor states when the free electricity session events were last updated. The attributes of this sensor exposes the past, present and future free electricity sessions.
 
 !!! note
+    This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to [free electricity sessions](https://octopus.energy/free-electricity/). This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi.
+
+!!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 | Attribute | Type | Description |
@@ -168,6 +176,9 @@ Each item in the `events` attribute will include the following attributes
 This will indicate the baseline consumption that you need to be above for the current 30 minute period of the current free electricity session or the first 30 minute period of the next free electricity session. 
 
 You can use the [current period consumption](./electricity.md#current-interval-accumulative-consumption) sensor (if available) to see how on track you are.
+
+!!! note
+    This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to [free electricity sessions](https://octopus.energy/free-electricity/). This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi.
 
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
@@ -208,5 +219,5 @@ Each item within `baselines` consists of the following attributes
 
 ## Services
 
-There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services.md).
+There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services.md#octoplus).
 

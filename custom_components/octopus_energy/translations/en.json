@@ -3,6 +3,7 @@
   "config": {
     "step": {
       "account": {
+        "title": "Octopus Energy Account",
         "description": "Setup your basic account information. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account",
         "data": {
           "account_id": "Account ID (e.g. A-AAAA1111)",
@@ -15,7 +16,10 @@
           "gas_price_cap": "Optional gas price cap in pence",
           "home_pro_address": "Home Pro address (e.g. http://192.168.0.1)",
           "home_pro_api_key": "Home Pro API key",
-          "favour_direct_debit_rates": "Favour direct debit rates where available"
+          "favour_direct_debit_rates": "Favour direct debit rates where available",
+          "intelligent_manual_dispatches": "Manually refresh intelligent dispatches",
+          "intelligent_rate_mode": "Intelligent tariff rate mode",
+          "auto_discover_cost_trackers": "Automatically discover sensors suitable for cost trackers"
         },
         "data_description": {
           "account_id": "You account ID can be found on your bill or at the top of https://octopus.energy/dashboard",
@@ -24,10 +28,13 @@
           "electricity_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
           "gas_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
           "home_pro_address": "WARNING: This is experimental.",
-          "home_pro_api_key": "WARNING: This is experimental. This is only required if you have setup the custom API."
+          "home_pro_api_key": "WARNING: This is experimental. This is only required if you have setup the custom API.",
+          "intelligent_manual_dispatches": "This will expose a service which can be called to refresh the dispatches on demand. See docs for more information.",
+          "intelligent_rate_mode": "Determines how rates should be adjusted when dispatches are found outside of normal off peak periods"
         }
       },
       "target_rate": {
+        "title": "Octopus Energy Target Rate",
         "description": "Setup a target rate period. Continuous target will find the cheapest continuous period for your target hours. While intermittent will find the cheapest periods with potential gaps, which when combined will meet your target hours. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/target_rate",
         "data": {
           "name": "The name of your target",
@@ -54,18 +61,21 @@
         }
       },
       "target_rate_account": {
+        "title": "Octopus Energy Target Rate",
         "description": "Select the account your target rate sensor will be using for its calculations",
         "data": {
           "account_id": "Account"
         }
       },
       "rolling_target_rate_account": {
+        "title": "Octopus Energy Rolling Target Rate",
         "description": "Select the account your rolling target rate sensor will be using for its calculations",
         "data": {
           "account_id": "Account"
         }
       },
       "rolling_target_rate": {
+        "title": "Octopus Energy Rolling Target Rate",
         "description": "Setup a rolling target rate period. Continuous target will find the cheapest continuous period for your target hours. While intermittent will find the cheapest periods with potential gaps, which when combined will meet your target hours. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/rolling_target_rate",
         "data": {
           "name": "The name of your target",
@@ -85,6 +95,7 @@
         }
       },
       "cost_tracker": {
+        "title": "Octopus Energy Cost Tracker",
         "description": "Track the cost for a given energy based sensor. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/cost_tracker.",
         "data": {
           "name": "The name of your cost sensor",
@@ -100,12 +111,14 @@
         }
       },
       "cost_tracker_account": {
+        "title": "Octopus Energy Cost Tracker",
         "description": "Select the account your cost tracker will be using for its calculations",
         "data": {
           "account_id": "Account"
         }
       },
       "tariff_comparison": {
+        "title": "Octopus Energy Tariff Comparison",
         "description": "Compare your cost with another tariff to see if you're on the best tariff for your energy use. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/tariff_comparison.",
         "data": {
           "name": "The name of your tariff comparison",
@@ -115,6 +128,7 @@
         }
       },
       "tariff_comparison_account": {
+        "title": "Octopus Energy Tariff Comparison",
         "description": "Select the account your tariff comparison will be using for its calculations",
         "data": {
           "account_id": "Account"
@@ -167,7 +181,10 @@
           "gas_price_cap": "Optional gas price cap in pence",
           "home_pro_address": "Home Pro address (e.g. http://192.168.0.1)",
           "home_pro_api_key": "Home Pro API key",
-          "favour_direct_debit_rates": "Favour direct debit rates where available"
+          "favour_direct_debit_rates": "Favour direct debit rates where available",
+          "intelligent_manual_dispatches": "Manually refresh intelligent dispatches",
+          "intelligent_rate_mode": "Intelligent tariff rate mode",
+          "auto_discover_cost_trackers": "Automatically discover sensors suitable for cost trackers"
         },
         "data_description": {
           "api_key": "You API key can be found at https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
@@ -175,7 +192,9 @@
           "electricity_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
           "gas_price_cap": "This usually comes from the OE APIs and doesn't need to be set",
           "home_pro_address": "WARNING: This is experimental",
-          "home_pro_api_key": "WARNING: This is experimental. This is only required if you have setup the custom API."
+          "home_pro_api_key": "WARNING: This is experimental. This is only required if you have setup the custom API.",
+          "intelligent_manual_dispatches": "This will expose a service which can be called to refresh the dispatches on demand. See docs for more information.",
+          "intelligent_rate_mode": "Determines how rates should be adjusted when dispatches are found outside of normal off peak periods"
         }
       },
       "target_rate": {
@@ -330,9 +349,17 @@
       "title": "Unknown intelligent provider \"{provider}\"",
       "description": "You have an intelligent provider of \"{provider}\" which is not recognised and therefore a reduced feature set has been enabled. Click on \"Learn More\" with instructions on what to do next."
     },
-    "intelligent_target_time_deprecated": {
-      "title": "Intelligent target time sensor has been deprecated",
-      "description": "The target time sensor (defaults to time.octopus_energy_{account_id}_intelligent_target_time) has been deprecated in favour of a select based sensor (select.octopus_energy_{account_id}_intelligent_target_time) to make it easier to select a valid time. This old sensor will be removed in a future release."
+    "intelligent_manual_service": {
+      "title": "Manual intelligent dispatch refresh service available for {account_id}",
+      "description": "By default, dispatches are retrieved every {polling_time} minutes. If you know when your car has started charging via other means, you might want to activate manual polling mode which will expose a service for retrieving dispatches on-demand. This is the recommended way to get the information as soon as possible and reduce unnecessary calls to the Octopus Energy servers. If you can't do this, then just ignore this repair notice and continue with the automatic polling.\n\nIf you wish to enable this service, then click \"Learn More\" to find out more about the setting and associated service. Once enabled, this repair notice will be removed."
+    },
+    "no_active_tariff": {
+      "title": "No active tariff - {meter_type} ({mpan_mprn}/{serial_number})",
+      "description": "You do not have an active tariff associated with your {meter_type} meter ({mpan_mprn}/{serial_number}). Please click \"Learn More\" with instructions on how this can be resolved."
+    },
+    "target_rate_removal_proposal": {
+      "title": "Proposal: The removal of target rate sensors from the integration",
+      "description": "It looks like you're using target rate sensors. There is currently a proposal to remove this functionality due to it existing in a separate integration. Please click \"Learn More\" to see the full reasoning and provide your feedback. Click ignore to not see this proposal again."
     }
   }
 }

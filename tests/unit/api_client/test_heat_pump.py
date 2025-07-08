@@ -8,97 +8,85 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
         {
           "code": "ADC1",
           "connectivity": {
-            "online": True,
-            "retrievedAt": "2024-12-01T10:04:54.952000+00:00"
+            "online": "true",
+            "retrievedAt": "2025-05-09T17:28:51.553000+00:00"
           },
           "telemetry": {
-            "temperatureInCelsius": 57.4,
+            "temperatureInCelsius": 52.5,
             "humidityPercentage": None,
-            "retrievedAt": "2024-12-01T10:04:51.588000+00:00"
+            "retrievedAt": "2025-05-09T17:28:44.152000+00:00"
           }
         },
         {
           "code": "ADC2",
           "connectivity": {
-            "online": True,
-            "retrievedAt": "2024-12-01T10:04:54.952000+00:00"
+            "online": "true",
+            "retrievedAt": "2025-05-09T17:28:51.554000+00:00"
           },
           "telemetry": {
-            "temperatureInCelsius": -273.1,
+            "temperatureInCelsius": -90.3,
             "humidityPercentage": None,
-            "retrievedAt": "2024-12-01T10:04:51.588000+00:00"
+            "retrievedAt": "2025-05-09T17:28:44.152000+00:00"
           }
         },
         {
           "code": "ADC3",
           "connectivity": {
-            "online": True,
-            "retrievedAt": "2024-12-01T10:04:54.953000+00:00"
+            "online": "true",
+            "retrievedAt": "2025-05-09T17:28:51.555000+00:00"
           },
           "telemetry": {
-            "temperatureInCelsius": -273.1,
+            "temperatureInCelsius": None,
             "humidityPercentage": None,
-            "retrievedAt": "2024-12-01T10:04:51.588000+00:00"
+            "retrievedAt": None
           }
         },
         {
           "code": "ADC4",
           "connectivity": {
-            "online": True,
-            "retrievedAt": "2024-12-01T10:04:54.953000+00:00"
+            "online": "true",
+            "retrievedAt": "2025-05-09T17:28:51.556000+00:00"
           },
           "telemetry": {
-            "temperatureInCelsius": -273.1,
+            "temperatureInCelsius": -90.3,
             "humidityPercentage": None,
-            "retrievedAt": "2024-12-01T10:04:51.588000+00:00"
+            "retrievedAt": "2025-05-09T17:28:44.152000+00:00"
           }
         },
         {
           "code": "SENSOR01",
           "connectivity": {
-            "online": True,
-            "retrievedAt": "2024-12-01T10:04:54.953000+00:00"
+            "online": "true",
+            "retrievedAt": "2025-05-09T17:28:51.556000+00:00"
           },
           "telemetry": {
-            "temperatureInCelsius": 19.4,
-            "humidityPercentage": 57,
-            "retrievedAt": "2024-12-01T10:03:15.615000+00:00"
+            "temperatureInCelsius": 21.0,
+            "humidityPercentage": 36.0,
+            "retrievedAt": "2025-05-09T17:27:51.160000+00:00"
           }
         },
         {
           "code": "SENSOR02",
           "connectivity": {
-            "online": True,
-            "retrievedAt": "2024-12-01T10:04:54.955000+00:00"
+            "online": "true",
+            "retrievedAt": "2025-05-09T17:28:51.557000+00:00"
           },
           "telemetry": {
-            "temperatureInCelsius": 22.4,
-            "humidityPercentage": 54,
-            "retrievedAt": "2024-12-01T10:03:54.876000+00:00"
+            "temperatureInCelsius": 20.8,
+            "humidityPercentage": 37.0,
+            "retrievedAt": "2025-05-09T17:28:39.347000+00:00"
           }
         },
         {
           "code": "SENSOR03",
           "connectivity": {
-            "online": True,
-            "retrievedAt": "2024-12-01T10:04:54.956000+00:00"
+            "online": "true",
+            "retrievedAt": "2025-05-09T17:28:51.570000+00:00"
           },
           "telemetry": {
-            "temperatureInCelsius": 22.3,
-            "humidityPercentage": 60,
-            "retrievedAt": "2024-12-01T10:04:27.571000+00:00"
-          }
-        },
-        {
-          "code": "SENSOR04",
-          "connectivity": {
-            "online": True,
-            "retrievedAt": "2024-12-01T10:04:54.957000+00:00"
-          },
-          "telemetry": {
-            "temperatureInCelsius": 22.7,
-            "humidityPercentage": 46,
-            "retrievedAt": "2024-12-01T10:03:12.376000+00:00"
+            "temperatureInCelsius": 20.9,
+            "humidityPercentage": 38.0,
+            "retrievedAt": "2025-05-09T17:28:46.611000+00:00"
           }
         }
       ],
@@ -106,41 +94,41 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
         {
           "zone": "WATER",
           "telemetry": {
-            "setpointInCelsius": -300,
+            "setpointInCelsius": -300.0,
             "mode": "AUTO",
             "relaySwitchedOn": False,
             "heatDemand": False,
-            "retrievedAt": "2024-12-01T10:04:59.116000+00:00"
+            "retrievedAt": "2025-05-09T17:28:56.609000+00:00"
           }
         },
         {
           "zone": "ZONE_1",
           "telemetry": {
-            "setpointInCelsius": 22,
+            "setpointInCelsius": 18.0,
             "mode": "AUTO",
             "relaySwitchedOn": False,
             "heatDemand": False,
-            "retrievedAt": "2024-12-01T10:04:59.117000+00:00"
+            "retrievedAt": "2025-05-09T17:28:56.610000+00:00"
           }
         },
         {
           "zone": "ZONE_2",
           "telemetry": {
-            "setpointInCelsius": 7,
+            "setpointInCelsius": 7.0,
             "mode": "OFF",
             "relaySwitchedOn": False,
             "heatDemand": False,
-            "retrievedAt": "2024-12-01T10:04:59.118000+00:00"
+            "retrievedAt": "2025-05-09T17:28:56.611000+00:00"
           }
         },
         {
           "zone": "AUXILIARY",
           "telemetry": {
-            "setpointInCelsius": 7,
+            "setpointInCelsius": 7.0,
             "mode": "OFF",
             "relaySwitchedOn": False,
             "heatDemand": False,
-            "retrievedAt": "2024-12-01T10:04:59.118000+00:00"
+            "retrievedAt": "2025-05-09T17:28:56.612000+00:00"
           }
         }
       ]
@@ -151,13 +139,12 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
           "NORMAL_MODE"
         ],
         "heatPumpTimezone": "GMT0BST,M3.5.0/1,M10.5.0",
-        "connected": True
+        "connected": "true"
       },
       "heatPump": {
-        "serialNumber": None,
-        "model": "Cosy 6",
+        "serialNumber": "00000000000002510198",
+        "model": "Cosy 9",
         "hardwareVersion": "v5.1.0",
-        "faultCodes": [],
         "maxWaterSetpoint": 60,
         "minWaterSetpoint": 40,
         "heatingFlowTemperature": {
@@ -177,7 +164,7 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
           }
         },
         "weatherCompensation": {
-          "enabled": True,
+          "enabled": "true",
           "allowableRange": {
             "minimum": {
               "value": "30",
@@ -190,11 +177,11 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
           },
           "currentRange": {
             "minimum": {
-              "value": "45",
+              "value": "37",
               "unit": "DEGREES_CELSIUS"
             },
             "maximum": {
-              "value": "55",
+              "value": "57",
               "unit": "DEGREES_CELSIUS"
             }
           }
@@ -205,7 +192,7 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
           "configuration": {
             "code": "WATER",
             "zoneType": "WATER",
-            "enabled": True,
+            "enabled": "true",
             "displayName": "WATER",
             "primarySensor": "ADC1",
             "currentOperation": {
@@ -222,25 +209,33 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
                 "code": "ADC1",
                 "displayName": "ADC1",
                 "type": "NTC",
-                "enabled": True
+                "enabled": "true",
+                "firmwareVersion": None,
+                "boostEnabled": None
               },
               {
                 "code": "ADC2",
                 "displayName": "ADC2",
                 "type": "NTC",
-                "enabled": True
+                "enabled": "true",
+                "firmwareVersion": None,
+                "boostEnabled": None
               },
               {
                 "code": "ADC3",
                 "displayName": "ADC3",
                 "type": "NTC",
-                "enabled": True
+                "enabled": "true",
+                "firmwareVersion": None,
+                "boostEnabled": None
               },
               {
                 "code": "ADC4",
                 "displayName": "ADC4",
                 "type": "NTC",
-                "enabled": True
+                "enabled": "true",
+                "firmwareVersion": None,
+                "boostEnabled": None
               }
             ]
           }
@@ -249,12 +244,12 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
           "configuration": {
             "code": "ZONE_1",
             "zoneType": "HEAT",
-            "enabled": True,
+            "enabled": "true",
             "displayName": "ZONE1",
-            "primarySensor": "SENSOR03",
+            "primarySensor": "SENSOR01",
             "currentOperation": {
               "mode": "AUTO",
-              "setpointInCelsius": 22,
+              "setpointInCelsius": 18.0,
               "action": None,
               "end": "1970-01-01T00:00:00+00:00"
             },
@@ -264,35 +259,27 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
             "sensors": [
               {
                 "code": "SENSOR01",
-                "displayName": "Hallway",
+                "displayName": "Primary",
                 "type": "ZIGBEE",
-                "id": None,
+                "enabled": None,
                 "firmwareVersion": "0D",
-                "boostEnabled": True
+                "boostEnabled": "true"
               },
               {
                 "code": "SENSOR02",
-                "displayName": "bedoom",
+                "displayName": "Upstairs",
                 "type": "ZIGBEE",
-                "id": None,
+                "enabled": None,
                 "firmwareVersion": "0D",
-                "boostEnabled": True
+                "boostEnabled": "true"
               },
               {
                 "code": "SENSOR03",
-                "displayName": "Mom and Dad",
+                "displayName": "Nursery",
                 "type": "ZIGBEE",
-                "id": None,
+                "enabled": None,
                 "firmwareVersion": "0D",
-                "boostEnabled": True
-              },
-              {
-                "code": "SENSOR04",
-                "displayName": "Lounge ",
-                "type": "ZIGBEE",
-                "id": None,
-                "firmwareVersion": "0D",
-                "boostEnabled": True
+                "boostEnabled": "true"
               }
             ]
           }
@@ -306,64 +293,64 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
             "primarySensor": None,
             "currentOperation": {
               "mode": "OFF",
-              "setpointInCelsius": 7,
+              "setpointInCelsius": 7.0,
               "action": None,
               "end": "1970-01-01T00:00:00+00:00"
             },
             "callForHeat": False,
             "heatDemand": False,
-            "emergency": True,
+            "emergency": "true",
             "sensors": []
           }
         },
         {
           "configuration": {
             "code": "AUXILIARY",
-            "zoneType": "AUX",
+            "zoneType": "HEAT",
             "enabled": False,
             "displayName": "AUX",
             "primarySensor": None,
             "currentOperation": {
               "mode": "OFF",
-              "setpointInCelsius": 7,
+              "setpointInCelsius": 7.0,
               "action": None,
               "end": "1970-01-01T00:00:00+00:00"
             },
             "callForHeat": False,
             "heatDemand": False,
-            "emergency": False,
+            "emergency": "true",
             "sensors": []
           }
         }
       ]
     },
-    "octoHeatPumpLifetimePerformance": {
-      "seasonalCoefficientOfPerformance": "3.5",
-      "heatOutput": {
-        "unit": "KILOWATT_HOUR",
-        "value": "100.4"
-      },
-      "energyInput": {
-        "unit": "KILOWATT_HOUR",
-        "value": "100.2"
-      },
-      "readAt": "2024-12-31T09:10:00+00:00"
-    },
     "octoHeatPumpLivePerformance": {
-      "coefficientOfPerformance": "3.4",
-      "outdoorTemperature": {
-        "unit": "DEGREES_CELSIUS",
-        "value": "30.1"
-      },
+      "coefficientOfPerformance": "32.510",
       "heatOutput": {
-        "value": "10.5",
+        "value": "0.000",
         "unit": "KILOWATT"
       },
       "powerInput": {
-        "unit": "KILOWATT",
-        "value": "5.4"
+        "value": "0.002",
+        "unit": "KILOWATT"
       },
-      "readAt": "2024-12-31T09:10:00+00:00"
+      "outdoorTemperature": {
+        "value": "18.400",
+        "unit": "DEGREES_CELSIUS"
+      },
+      "readAt": "2025-05-09T18:28:51.630000+01:00"
+    },
+    "octoHeatPumpLifetimePerformance": {
+      "seasonalCoefficientOfPerformance": "2.985",
+      "heatOutput": {
+        "value": "765.599",
+        "unit": "KILOWATT_HOUR"
+      },
+      "energyInput": {
+        "value": "256.439",
+        "unit": "KILOWATT_HOUR"
+      },
+      "readAt": "2025-05-09T18:28:51.628000+01:00"
     }
   }
 
@@ -372,3 +359,12 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
 
   # Assert
   assert result is not None
+
+  assert float(result.octoHeatPumpLivePerformance.coefficientOfPerformance) == 32.510
+  assert float(result.octoHeatPumpLivePerformance.heatOutput.value) == 0.000
+  assert float(result.octoHeatPumpLivePerformance.powerInput.value) == 0.002
+  assert float(result.octoHeatPumpLivePerformance.outdoorTemperature.value) == 18.400
+
+  assert float(result.octoHeatPumpLifetimePerformance.seasonalCoefficientOfPerformance) == 2.985
+  assert float(result.octoHeatPumpLifetimePerformance.heatOutput.value) == 765.599
+  assert float(result.octoHeatPumpLifetimePerformance.energyInput.value) == 256.439

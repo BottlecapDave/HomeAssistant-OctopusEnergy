@@ -92,7 +92,7 @@ class OctopusEnergyHeatPumpSensorHumidity(CoordinatorEntity, BaseOctopusEnergyHe
       for sensor in sensors:
         if sensor.code == self._sensor.code and sensor.telemetry is not None:
           self._state = sensor.telemetry.humidityPercentage
-          self._attributes["retrieved_at"] = datetime.fromisoformat(sensor.telemetry.retrievedAt)
+          self._attributes["retrieved_at"] = datetime.fromisoformat(sensor.telemetry.retrievedAt) if sensor.telemetry.retrievedAt is not None else None
 
       self._last_updated = current
 

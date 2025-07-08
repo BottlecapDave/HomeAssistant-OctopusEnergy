@@ -1,5 +1,6 @@
 name: Main
 on:
+  workflow_dispatch:
   schedule:
     - cron:  '0 1 * * *'
   push:
@@ -20,6 +21,9 @@ on:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  HUSKY: 0
 
 jobs:
   validate:

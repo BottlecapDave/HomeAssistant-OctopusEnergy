@@ -70,6 +70,18 @@ This blueprint will fire a configured action when the consumption for the curren
 
     This blueprint requires sensors provided by Octopus Energy Home Mini
 
+## Intelligent
+
+## Manual Intelligent Dispatch Refreshes
+
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%octopus_energy_manual_intelligent_refresh.yaml) | [Source](./blueprints/octopus_energy_manual_intelligent_refresh.yaml)
+
+This blueprint will fire the [intelligent dispatches service](./services.md#octopus_energyrefresh_intelligent_dispatches) either when a sensor from another integration determines the car has been plugged in (e.g. the plug status from the [MyEnergi integration](https://github.com/CJNE/ha-myenergi)) or when the data is stale and overdue a refresh (in case the dispatch information has changed).
+
+!!! warning
+
+    This blueprint requires you to be on an intelligent tariff and a way to determine that your car is plugged in from another integration.
+
 ## Wheel of Fortune
 
 ### Automatically spin wheel of fortune (single)

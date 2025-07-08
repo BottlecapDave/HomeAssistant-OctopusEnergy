@@ -163,6 +163,8 @@ The total consumption reported by the meter for the previous available full day 
 
 If your meter reports in kwh, then this will be an accurate value reported by Octopus, otherwise it will be a calculated/estimated value.
 
+Due to limitation of HA entities, the data will be updated as a single record, which means the history of the sensor will not be broken down further than once a day. If you want the cost broken down into hourly chunks, you can use the statistic entities used for the [energy dashboard](../setup/energy_dashboard.md#previous-day-consumption).
+
 !!! info
 
     This retrieves the data reported directly by the meter which is used to calculate your bill. If you have an Octopus Home Mini (or similar), then data reported by this device will not be exposed in this sensor. This is to avoid confusion when comparing the data against your bill and to provide consistency between users with and without an Octopus Home Mini.
@@ -197,7 +199,9 @@ Each charge item has the following attributes
 
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_previous_accumulative_cost`
 
-The total cost for the previous available full day, including the standing charge.
+The total cost for the previous available full day, including the standing charge. If for example data is available up to `01:00` of `2024-09-02`, then this sensor will report the cost between `2024-09-01T00:00:00Z` and `2024-09-02T00:00:00Z`. 
+
+Due to limitation of HA entities, the data will be updated as a single record, which means the history of the sensor will not be broken down further than once a day. If you want the cost broken down into hourly chunks, you can use the statistic entities used for the [energy dashboard](../setup/energy_dashboard.md#previous-day-consumption).
 
 !!! info
 
@@ -266,9 +270,16 @@ Each rate item has the following attributes
 !!! warning
     This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one.
 
-The latest gas consumption sent to Octopus Energy. By default, this will update every minute. This has been built to see the accumulation within the energy dashboard. If you are wanting a sensor to see the current day's accumulation, then you will need to use something like [utility meter](https://www.home-assistant.io/integrations/utility_meter/). It has been noticed that daily consumption reported in Home Assistant can differ to when looking at past data within Octopus Energy. It looks like this is because Octopus Energy will favour "official" data from your smart meter over the data they collect.
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
-If current consumption data is unable to be retrieved, then the integration will attempt to retrieve missing data. This will be done up to 5 days behind to give a buffer before the API requires a higher interval and will not be changed.
+The delta of the accumulative gas consumption since the last update (e.g. if the previous accumulative consumption update reported 1kWh and the current accumulative consumption update reported 1.1kWh, then this sensor will report 0.1kWh). The time period the data for this sensor represents will depend on the frequency the underlying data is retrieved. If the data takes longer to refresh, then the time period of this sensor will be extended.
+
+This is a legacy sensor which was been built to see the accumulation within the energy dashboard. This _may_ be removed in the future.
+
+It has been noticed that daily consumption reported in Home Assistant can differ to when looking at past data within Octopus Energy. It looks like this is because Octopus Energy will favour "official" data from your smart meter over the data they collect.
+
+If current consumption data is unable to be retrieved, then the integration will attempt to retrieve missing data. This will be done for the current day only. This is due to it sharing the same data for the accumulation sensors and will not be changed. 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|

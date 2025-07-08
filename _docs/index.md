@@ -95,6 +95,10 @@ To support the wheel of fortune that is awarded every month to customers. [Full 
 
 To support Octopus Energy's [greener days](https://octopus.energy/smart/greener-days/). [Full list of greenness forecast entities](./entities/greenness_forecast.md).
 
+### Heat Pumps
+
+To support heat pumps connected to Octopus Energy, like the [Cosy 6](https://octopus.energy/cosy-heat-pump/). [Full list of heat pump entities](./entities/heat_pump.md).
+
 ## Target Rate Sensors
 
 These sensors calculate the lowest continuous or intermittent rates **within a 24 hour period** or on a rolling basis and turn on when these periods are active. If you are targeting an export meter, then the sensors will calculate the highest continuous or intermittent rates **within a 24 hour period** or on a rolling basis and turn on when these periods are active.
@@ -114,10 +118,6 @@ Please follow the [setup guide](./setup/cost_tracker.md).
 These sensors compare the cost of the previous consumption to another tariff to see if you're on the best tariff.
 
 Please follow the [setup guide](./setup/tariff_comparison.md).
-
-### Heat Pumps
-
-To support heat pumps connected to Octopus Energy, like the [Cosy 6](https://octopus.energy/cosy-heat-pump/). [Full list of heat pump entities](./entities/heat_pump.md).
 
 ## Events
 

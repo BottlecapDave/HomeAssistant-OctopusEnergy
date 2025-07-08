@@ -175,6 +175,8 @@ If you are wishing to use these sensors with the Energy Dashboard, then you can 
 
 The total consumption reported by the meter (not other devices e.g. Home Mini) for the previous available full day. If for example data is available up to `01:00` of `2024-09-02`, then this sensor will report the cost between `2024-09-01T00:00:00Z` and `2024-09-02T00:00:00Z`.
 
+Due to limitation of HA entities, the data will be updated as a single record, which means the history of the sensor will not be broken down further than once a day. If you want the cost broken down into hourly chunks, you can use the statistic entities used for the [energy dashboard](../setup/energy_dashboard.md#previous-day-consumption).
+
 !!! info
 
     This retrieves the data reported directly by the meter which is used to calculate your bill. If you have an Octopus Home Mini (or similar), then data reported by this device will not be exposed in this sensor. This is to avoid confusion when comparing the data against your bill and to provide consistency between users with and without an Octopus Home Mini.
@@ -225,6 +227,10 @@ The total consumption reported by the meter for the previous available full day 
 
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
 
+!!! warning
+
+    If you are on intelligent and are using a provider where [planned_dispatches](./intelligent.md#is-dispatching) are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.
+
 ##### Standard
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_standard`
@@ -259,7 +265,9 @@ The total consumption reported by the meter for the previous available full day 
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_cost`
 
-The total cost for the previous available full day, including the standing charge. If for example data is available up to `01:00` of `2024-09-02`, then this sensor will report the cost between `2024-09-01T00:00:00Z` and `2024-09-02T00:00:00Z`.
+The total cost for the previous available full day, including the standing charge. If for example data is available up to `01:00` of `2024-09-02`, then this sensor will report the cost between `2024-09-01T00:00:00Z` and `2024-09-02T00:00:00Z`. 
+
+Due to limitation of HA entities, the data will be updated as a single record, which means the history of the sensor will not be broken down further than once a day. If you want the cost broken down into hourly chunks, you can use the statistic entities used for the [energy dashboard](../setup/energy_dashboard.md#previous-day-consumption).
 
 !!! info
 
@@ -315,6 +323,10 @@ The total cost reported by the meter for the previous available full day during 
     If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
 
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+!!! warning
+
+    If you are on intelligent and are using a provider where [planned_dispatches](./intelligent.md#is-dispatching) are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.
 
 ##### Standard
 
@@ -386,7 +398,10 @@ If you export energy, then unless specified otherwise, in addition you'll gain t
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
 
-The delta of the accumulative electricity consumption since the last update (e.g. if the previous accumulative consumption update reported 1kWh and the current accumulative consumption update reported 1.1kWh, then this sensor will report 0.1kWh). 
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+The delta of the accumulative electricity consumption since the last update (e.g. if the previous accumulative consumption update reported 1kWh and the current accumulative consumption update reported 1.1kWh, then this sensor will report 0.1kWh). The time period the data for this sensor represents will depend on the frequency the underlying data is retrieved. If the data takes longer to refresh, then the time period of this sensor will be extended.
 
 This is a legacy sensor which was been built to see the accumulation within the energy dashboard. This _may_ be removed in the future.
 
@@ -514,6 +529,10 @@ The total cost reported by the meter for the current day during off peak hours (
 
 !!! warning
     This will only be available if you have specified you have a [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
+
+!!! warning
+
+    If you are on intelligent and are using a provider where [planned_dispatches](./intelligent.md#is-dispatching) are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available

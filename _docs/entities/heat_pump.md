@@ -16,6 +16,10 @@ This represents the humidity reported by a sensor (e.g. Cosy Pod) that is associ
 
 This represents the temperature reported by a sensor (e.g. Cosy Pod) that is associated with a heat pump.
 
+!!! warning
+
+    There are reports that some of these sensors can report negative values in certain installations. Unfortunately, there doesn't appear to be anything in the API that determines when these sensors are or are not applicable. In these situations, you'll need to manually disable or ignore them.
+
 ## Zone
 
 `climate.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{ZONE_CODE}}`
@@ -76,6 +80,10 @@ This represents the instantaneous efficiency of the heat pump.
 !!! note
     As this integration uses cloud polling this will inherently have a delay.
 
+!!! info
+
+    This sensor will report zero when the heat pump is not reporting input power, otherwise the reported COP can be inaccurate.
+
 ## Live Power Input 
 
 `sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_live_power_input`
@@ -102,3 +110,7 @@ This represents the current outdoor temperature as observed by the heat pump.
 
 !!! note
     As the integration uses cloud polling this will inherently have a delay.
+
+## Services
+
+There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services.md#heat-pump).

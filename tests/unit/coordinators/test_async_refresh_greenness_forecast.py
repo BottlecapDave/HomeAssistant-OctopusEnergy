@@ -65,7 +65,7 @@ async def test_when_results_retrieved_then_results_returned():
     # Assert
     assert result is not None
     assert result.last_evaluated == current_utc_timestamp
-    assert result.next_refresh == current_utc_timestamp + timedelta(minutes=REFRESH_RATE_IN_MINUTES_GREENNESS_FORECAST)
+    assert result.next_refresh == current_utc_timestamp.replace(second=0, microsecond=0) + timedelta(minutes=REFRESH_RATE_IN_MINUTES_GREENNESS_FORECAST)
     assert result.forecast == expected_result
 
     assert mock_api_called == True

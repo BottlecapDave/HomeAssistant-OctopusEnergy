@@ -44,9 +44,9 @@ def mock_heat_pump_status_and_configuration():
             "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           },
           "telemetry": {
-            "temperatureInCelsius": -273 + (random.randrange(1, 20) * 0.1),
+            "temperatureInCelsius": None,
             "humidityPercentage": None,
-            "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+            "retrievedAt": None
           }
         },
         {
@@ -165,7 +165,6 @@ def mock_heat_pump_status_and_configuration():
         "serialNumber": "ABC",
         "model": "Cosy 6",
         "hardwareVersion": "v5.1.0",
-        "faultCodes": [],
         "maxWaterSetpoint": 60,
         "minWaterSetpoint": 40,
         "heatingFlowTemperature": {

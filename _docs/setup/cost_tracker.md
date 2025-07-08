@@ -20,11 +20,11 @@ This is the meter whose tariff will determine the rate the entity consumption is
 
 ### Entity
 
-This is the entity whose consumption should be tracked and the cost calculated against. This entity should be reporting in `kwh`.
+This is the entity whose consumption should be tracked and the cost calculated against. This entity will be assumed to be reporting `kwh`, unless stated otherwise.
 
 ### Tracked entity state is accumulative
 
-This should be true if the tracked entity's state increases over time (true) or if it's the difference between updates (false).
+This should be true if the tracked entity's state increases over time (true) or if it's the raw value (false).
 
 !!! info
 
@@ -86,8 +86,9 @@ Each item within the `tracked_changes` and `untracked_changes` have the followin
 | `start` | `datetime` | The date/time when the consumption starts |
 | `end` | `datetime` | The date/time when the consumption ends |
 | `rate` | `float` | The rate the consumption is charged at. This is in pounds and pence (e.g. 1.01 = £1.01) |
-| `consumption` | `float` | The consumption value of the specified period |
+| `consumption` | `float` | The consumption value of the specified period. This will be in `kwh`. |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `cost_raw` | `float` | The raw cost of the consumption at the specified rate. This is in pounds and pence, but not rounded. This is to account for low cost devices |
 
 #### Variants
 
@@ -107,6 +108,10 @@ This is the total cost of the tracked entity for the current day during off peak
     If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
 
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+!!! warning
+
+    If you are on intelligent and are using a provider where [planned_dispatches](../entities/intelligent.md#is-dispatching) are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.
 
 ##### Standard
 
@@ -162,7 +167,7 @@ Each item within the `accumulated_data` has the following attributes
 |-----------|------|-------------|
 | `start` | `datetime` | The date/time when the consumption starts |
 | `end` | `datetime` | The date/time when the consumption ends |
-| `consumption` | `float` | The consumption value of the specified period |
+| `consumption` | `float` | The consumption value of the specified period. This will be in `kwh`. |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
 
 #### Variants
@@ -183,6 +188,10 @@ This is the total cost of the tracked entity for the current week during off pea
     If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
 
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+!!! warning
+
+    If you are on intelligent and are using a provider where [planned_dispatches](../entities/intelligent.md#is-dispatching) are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.
 
 ##### Standard
 
@@ -238,7 +247,7 @@ Each item within the `accumulated_data` has the following attributes
 |-----------|------|-------------|
 | `start` | `datetime` | The date/time when the consumption starts |
 | `end` | `datetime` | The date/time when the consumption ends |
-| `consumption` | `float` | The consumption value of the specified period |
+| `consumption` | `float` | The consumption value of the specified period. This will be in `kwh`. |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
 
 #### Variants
@@ -259,6 +268,10 @@ This is the total cost of the tracked entity for the current month during off pe
     If you switch to a tariff that no longer meets this criteria, the entity will no longer be updated. When you reload the integration, this entity will no longer be available.
 
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+!!! warning
+
+    If you are on intelligent and are using a provider where [planned_dispatches](../entities/intelligent.md#is-dispatching) are not supported, then charges outside of your normal off peak periods will be counted at peak. This is because Octopus Energy doesn't provide enough information to determine if a completed dispatch was a bump charge or a planned charge.
 
 ##### Standard
 
@@ -292,4 +305,4 @@ This is the total cost of the tracked entity for the current month during peak h
 
 ## Services
 
-There are services available associated with cost tracker sensors. Please review them in the [services doc](../services.md#octopus_energyupdate_cost_tracker).
+There are services available associated with cost tracker sensors. Please review them in the [services doc](../services.md#cost-trackers).

@@ -14,15 +14,28 @@ blueprint:
             - event
             integration: octopus_energy
           multiple: false
+    minimum_awarded_points:
+      name: Minimum awarded points
+      description: The minimum number of points that should be awarded by the event per kWh in order to join the event
+      default: 0
+      selector:
+        number:
+          mode: box
+          step: 1.0
 mode: single
 variables:
   saving_session_event_entity: !input saving_session_event_entity
+  minimum_awarded_points: !input minimum_awarded_points
 trigger:
 - platform: state
   entity_id: !input saving_session_event_entity
 condition:
 - condition: template
   value_template: "{{ state_attr(saving_session_event_entity, 'available_events') != None and state_attr(saving_session_event_entity, 'available_events') | length > 0 }}"
+- condition: template
+  value_template: >
+    {% set available_events = state_attr(saving_session_event_entity, 'available_events') %}
+    {{ available_events != None and available_events | length > 0 and available_events[0]['octopoints_per_kwh'] >= minimum_awarded_points }}
 action:
 - service: octopus_energy.join_octoplus_saving_session_event
   data:

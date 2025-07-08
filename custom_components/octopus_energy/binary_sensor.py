@@ -2,7 +2,7 @@ import logging
 
 import voluptuous as vol
 
-from homeassistant.helpers import config_validation as cv, entity_platform
+from homeassistant.helpers import config_validation as cv, entity_platform, issue_registry as ir
 from homeassistant.util.dt import (utcnow)
 
 from .electricity.off_peak import OctopusEnergyElectricityOffPeak
@@ -22,6 +22,7 @@ from .const import (
   CONFIG_KIND_ROLLING_TARGET_RATE,
   CONFIG_KIND_TARGET_RATE,
   CONFIG_ACCOUNT_ID,
+  CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
   DATA_FREE_ELECTRICITY_SESSIONS_COORDINATOR,
   DATA_GREENNESS_FORECAST_COORDINATOR,
   DATA_INTELLIGENT_DEVICE,
@@ -34,7 +35,8 @@ from .const import (
 
   DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
   DATA_SAVING_SESSIONS_COORDINATOR,
-  DATA_ACCOUNT
+  DATA_ACCOUNT,
+  REPAIR_TARGET_RATE_REMOVAL_PROPOSAL
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -46,6 +48,16 @@ async def async_setup_entry(hass, entry, async_add_entities):
     await async_setup_main_sensors(hass, entry, async_add_entities)
   elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE or entry.data[CONFIG_KIND] == CONFIG_KIND_ROLLING_TARGET_RATE:
     await async_setup_target_sensors(hass, entry, async_add_entities)
+
+    ir.async_create_issue(
+      hass,
+      DOMAIN,
+      REPAIR_TARGET_RATE_REMOVAL_PROPOSAL,
+      is_fixable=False,
+      severity=ir.IssueSeverity.WARNING,
+      learn_more_url="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions/1305",
+      translation_key="target_rate_removal_proposal",
+    )
 
     platform = entity_platform.async_get_current_platform()
 
@@ -139,10 +151,23 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
   intelligent_mpan = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] if DATA_INTELLIGENT_MPAN in hass.data[DOMAIN][account_id] else None
   intelligent_serial_number = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] if DATA_INTELLIGENT_SERIAL_NUMBER in hass.data[DOMAIN][account_id] else None
   if intelligent_device is not None and intelligent_mpan is not None and intelligent_serial_number is not None:
-    intelligent_features = get_intelligent_features(intelligent_device.provider)
+
+    if CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES in config and config[CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == True:
+      platform = entity_platform.async_get_current_platform()
+      platform.async_register_entity_service(
+        "refresh_intelligent_dispatches",
+        vol.All(
+          cv.make_entity_service_schema(
+            {},
+            extra=vol.ALLOW_EXTRA,
+          ),
+        ),
+        "async_refresh_dispatches"
+      )
+
     coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR]
     electricity_rate_coordinator = hass.data[DOMAIN][account_id][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(intelligent_mpan, intelligent_serial_number)]
-    entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, intelligent_device, account_id, intelligent_features.planned_dispatches_supported))
+    entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, intelligent_device, account_id))
 
   if len(entities) > 0:
     async_add_entities(entities)

@@ -13,7 +13,7 @@ from homeassistant.core import SupportsResponse
 
 from .api_client_home_pro import OctopusEnergyHomeProApiClient
 from .coordinators.account import AccountCoordinatorResult, async_setup_account_info_coordinator
-from .coordinators.intelligent_dispatches import async_setup_intelligent_dispatches_coordinator
+from .coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult, async_setup_intelligent_dispatches_coordinator
 from .coordinators.intelligent_settings import async_setup_intelligent_settings_coordinator
 from .coordinators.electricity_rates import async_setup_electricity_rates_coordinator
 from .coordinators.saving_sessions import async_setup_saving_sessions_coordinators
@@ -33,13 +33,16 @@ from .utils.error import api_exception_to_string
 from .storage.account import async_load_cached_account, async_save_cached_account
 from .storage.intelligent_device import async_load_cached_intelligent_device, async_save_cached_intelligent_device
 from .storage.rate_weightings import async_load_cached_rate_weightings
-
+from .storage.intelligent_dispatches import async_load_cached_intelligent_dispatches
+from .api_client.intelligent_dispatches import IntelligentDispatches
+from .discovery import DiscoveryManager
 
 from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configuration
 from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_heat_pump
 
 from .const import (
-  CONFIG_FAVOUR_DIRECT_DEBIT_RATES,
+  CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS,
+  CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES,
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
   CONFIG_KIND_ROLLING_TARGET_RATE,
@@ -48,12 +51,17 @@ from .const import (
   CONFIG_KIND_TARGET_RATE,
   CONFIG_MAIN_HOME_PRO_ADDRESS,
   CONFIG_MAIN_HOME_PRO_API_KEY,
+  CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_VERSION,
+  DATA_DISCOVERY_MANAGER,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
   DATA_CUSTOM_RATE_WEIGHTINGS_KEY,
   DATA_HOME_PRO_CLIENT,
   DATA_INTELLIGENT_DEVICE,
+  DATA_INTELLIGENT_DISPATCHES,
   DATA_INTELLIGENT_MPAN,
   DATA_INTELLIGENT_SERIAL_NUMBER,
   DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY,
@@ -67,6 +75,7 @@ from .const import (
   DATA_CLIENT,
   DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
   DATA_ACCOUNT,
+  REFRESH_RATE_IN_MINUTES_INTELLIGENT,
   REPAIR_ACCOUNT_NOT_FOUND,
   REPAIR_INVALID_API_KEY,
   REPAIR_UNIQUE_RATES_CHANGED_KEY,
@@ -161,7 +170,7 @@ async def async_setup_entry(hass, entry):
 
     # If the main account has been reloaded, then reload all other entries to make sure they're referencing
     # the correct references (e.g. rate coordinators)
-    child_entries = hass.config_entries.async_entries(DOMAIN)
+    child_entries = hass.config_entries.async_entries(DOMAIN, include_ignore=False)
     for child_entry in child_entries:
       child_entry_config = dict(child_entry.data)
 
@@ -170,6 +179,11 @@ async def async_setup_entry(hass, entry):
 
       if child_entry_config[CONFIG_KIND] != CONFIG_KIND_ACCOUNT and child_entry_config[CONFIG_ACCOUNT_ID] == account_id:
         await hass.config_entries.async_reload(child_entry.entry_id)
+
+    if CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS in config and config[CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS] == True:
+      discovery_manager = DiscoveryManager(hass, account_id)
+      await discovery_manager.async_setup()
+      hass.data[DOMAIN][account_id][DATA_DISCOVERY_MANAGER] = discovery_manager
   
   elif config[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
     if DOMAIN not in hass.data or account_id not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN][account_id]:
@@ -279,8 +293,8 @@ async def async_setup_dependencies(hass, config):
     gas_price_cap = config[CONFIG_MAIN_GAS_PRICE_CAP]
 
   favour_direct_debit_rates = True
-  if CONFIG_FAVOUR_DIRECT_DEBIT_RATES in config:
-    favour_direct_debit_rates = config[CONFIG_FAVOUR_DIRECT_DEBIT_RATES]
+  if CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES in config:
+    favour_direct_debit_rates = config[CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES]
 
   _LOGGER.info(f'electricity_price_cap: {electricity_price_cap}')
   _LOGGER.info(f'gas_price_cap: {gas_price_cap}')
@@ -389,6 +403,7 @@ async def async_setup_dependencies(hass, config):
           intelligent_serial_number = meter["serial_number"]
           break
 
+  intelligent_manual_service_enabled = True
   intelligent_device = None
   if has_intelligent_tariff or should_mock_intelligent_data:
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
@@ -415,6 +430,19 @@ async def async_setup_dependencies(hass, config):
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] = intelligent_mpan
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] = intelligent_serial_number
 
+      cached_dispatches = await async_load_cached_intelligent_dispatches(hass, account_id)
+      if cached_dispatches is not None:
+        hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] = IntelligentDispatchesCoordinatorResult(
+          now - timedelta(hours=1),
+          1,
+          cached_dispatches,
+          0,
+          now - timedelta(hours=1)
+        )
+
+      if CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES not in config or config[CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == False:
+        intelligent_manual_service_enabled = False
+
       await async_save_cached_intelligent_device(hass, account_id, intelligent_device)
 
   intelligent_features = get_intelligent_features(intelligent_device.provider)  if intelligent_device is not None else None
@@ -430,6 +458,33 @@ async def async_setup_dependencies(hass, config):
       translation_placeholders={ "account_id": account_id, "provider": intelligent_device.provider },
     )
 
+  intelligent_repair_key = f"intelligent_manual_service_{account_id}"
+  if intelligent_features is not None and intelligent_features.planned_dispatches_supported:
+    if intelligent_manual_service_enabled == False:
+      ir.async_create_issue(
+        hass,
+        DOMAIN,
+        intelligent_repair_key,
+        is_fixable=False,
+        severity=ir.IssueSeverity.WARNING,
+        learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account/#manually-refresh-intelligent-dispatches",
+        translation_key="intelligent_manual_service",
+        translation_placeholders={ "account_id": account_id, "polling_time": REFRESH_RATE_IN_MINUTES_INTELLIGENT },
+      )
+    else:
+      ir.async_delete_issue(hass, DOMAIN, intelligent_repair_key)
+      
+      # Need to set initial data otherwise our rates won't update properly until an initial result has been requested
+      if DATA_INTELLIGENT_DISPATCHES not in hass.data[DOMAIN][account_id] or hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] is None:
+        _LOGGER.info('Loading dummy dispatches result')
+        hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] = IntelligentDispatchesCoordinatorResult(
+          now - timedelta(hours=1),
+          1,
+          IntelligentDispatches(None, [], []),
+          0,
+          now - timedelta(hours=1)
+        )
+
   for point in account_info["electricity_meter_points"]:
     # We only care about points that have active agreements
     electricity_tariff = get_active_tariff(now, point["agreements"])
@@ -441,8 +496,14 @@ async def async_setup_dependencies(hass, config):
         is_smart_meter = meter["is_smart_meter"]
         override = await async_get_meter_debug_override(hass, mpan, serial_number)
         tariff_override = override.tariff if override is not None else None
-        planned_dispatches_supported = intelligent_features.planned_dispatches_supported if intelligent_features is not None else True
-        await async_setup_electricity_rates_coordinator(hass, account_id, mpan, serial_number, is_smart_meter, is_export_meter, planned_dispatches_supported, tariff_override)
+        await async_setup_electricity_rates_coordinator(hass,
+                                                        account_id,
+                                                        mpan,
+                                                        serial_number,
+                                                        is_smart_meter,
+                                                        is_export_meter,
+                                                        config[CONFIG_MAIN_INTELLIGENT_RATE_MODE] if CONFIG_MAIN_INTELLIGENT_RATE_MODE in config else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+                                                        tariff_override)
 
   mock_heat_pump = account_debug_override.mock_heat_pump if account_debug_override is not None else False
   if mock_heat_pump:
@@ -468,7 +529,13 @@ async def async_setup_dependencies(hass, config):
 
   await async_setup_account_info_coordinator(hass, account_id)
 
-  await async_setup_intelligent_dispatches_coordinator(hass, account_id, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False)
+  await async_setup_intelligent_dispatches_coordinator(
+    hass,
+    account_id,
+    account_debug_override.mock_intelligent_controls if account_debug_override is not None else False,
+    config[CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == True if CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES in config else False,
+    intelligent_features.planned_dispatches_supported if intelligent_features is not None else True
+  )
 
   await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id if intelligent_device is not None else None, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False)
   
@@ -487,7 +554,7 @@ async def options_update_listener(hass, entry):
 
     # If the main account has been reloaded, then reload all other entries to make sure they're referencing
     # the correct references (e.g. rate coordinators)
-    child_entries = hass.config_entries.async_entries(DOMAIN)
+    child_entries = hass.config_entries.async_entries(DOMAIN, include_ignore=False)
     for child_entry in child_entries:
       child_entry_config = dict(child_entry.data)
 
@@ -526,7 +593,7 @@ def setup(hass, config):
     """Handle the service call."""
 
     account_id = None
-    for entry in hass.config_entries.async_entries(DOMAIN):
+    for entry in hass.config_entries.async_entries(DOMAIN, include_ignore=False):
       if CONFIG_KIND in entry.data and entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
         account_id = entry.data[CONFIG_ACCOUNT_ID]
 

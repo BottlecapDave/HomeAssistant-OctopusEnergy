@@ -6,23 +6,22 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
+from homeassistant.exceptions import ServiceValidationError
 
-from homeassistant.util.dt import (now, utcnow)
-from homeassistant.helpers.update_coordinator import (
-  CoordinatorEntity
-)
+from homeassistant.util.dt import (utcnow)
 from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from ..intelligent import (
-  dispatches_to_dictionary_list
+  dispatches_to_dictionary_list,
+  simple_dispatches_to_dictionary_list
 )
 
 from ..utils import get_off_peak_times
 from .base import OctopusEnergyIntelligentSensor
-from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
+from ..coordinators.intelligent_dispatches import IntelligentDispatchDataUpdateCoordinator, IntelligentDispatchesCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
 from ..api_client.intelligent_device import IntelligentDevice
 from ..coordinators import MultiCoordinatorEntity
@@ -32,7 +31,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
   """Sensor for determining if an intelligent is dispatching."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, rates_coordinator, mpan: str, device: IntelligentDevice, account_id: str, planned_dispatches_supported: bool):
+  def __init__(self, hass: HomeAssistant, coordinator: IntelligentDispatchDataUpdateCoordinator, rates_coordinator, mpan: str, device: IntelligentDevice, account_id: str):
     """Init sensor."""
 
     MultiCoordinatorEntity.__init__(self, coordinator, [rates_coordinator])
@@ -42,8 +41,7 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
     self._mpan = mpan
     self._account_id = account_id
     self._state = None
-    self._planned_dispatches_supported = planned_dispatches_supported
-    self.__init_attributes__([], [], None)
+    self.__init_attributes__([], [], [])
 
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
 
@@ -71,10 +69,11 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
   def is_on(self):
     return self._state
   
-  def __init_attributes__(self, planned_dispatches, completed_dispatches, data_last_evaluated):
+  def __init_attributes__(self, planned_dispatches, completed_dispatches, started_dispatches):
     self._attributes = {
       "planned_dispatches": planned_dispatches,
       "completed_dispatches": completed_dispatches,
+      "started_dispatches": started_dispatches,
       "provider": self._device.provider,
       "vehicle_battery_size_in_kwh": self._device.vehicleBatterySizeInKwh,
       "charge_point_power_in_kw": self._device.chargePointPowerInKw,
@@ -90,13 +89,16 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
     result: IntelligentDispatchesCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
     rates = self._rates_coordinator.data.rates if self._rates_coordinator is not None and self._rates_coordinator.data is not None else None
 
+    # Skip if no rates are available otherwise our sensor can go off after a restart when it should be restored as one
+    if rates is None:
+      return
+
     current_date = utcnow()
-    planned_dispatches = result.dispatches.planned if result is not None and result.dispatches is not None and self._planned_dispatches_supported else []
     
     self.__init_attributes__(
-      dispatches_to_dictionary_list(planned_dispatches) if result is not None else [],
-      dispatches_to_dictionary_list(result.dispatches.completed if result is not None and result.dispatches is not None else []) if result is not None else [],
-      result.last_evaluated if result is not None else None
+      dispatches_to_dictionary_list(result.dispatches.planned, ignore_none=True) if result is not None else [],
+      dispatches_to_dictionary_list(result.dispatches.completed if result is not None and result.dispatches is not None else [], ignore_none=False) if result is not None else [],
+      simple_dispatches_to_dictionary_list(result.dispatches.started if result is not None and result.dispatches is not None else []) if result is not None else [],
     )
 
     off_peak_times = get_off_peak_times(current_date, rates, True)
@@ -112,9 +114,19 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
         if len(off_peak_times) > 0:
           self._attributes["next_start"] = off_peak_times[0].start
           self._attributes["next_end"] = off_peak_times[0].end
+        else:
+          self._attributes["next_start"] = None
+          self._attributes["next_end"] = None
       else:
+        self._attributes["current_start"] = None
+        self._attributes["current_end"] = None
         self._attributes["next_start"] = time.start
         self._attributes["next_end"] = time.end
+    else:
+      self._attributes["current_start"] = None
+      self._attributes["current_end"] = None
+      self._attributes["next_start"] = None
+      self._attributes["next_end"] = None
 
     self._state = is_dispatching
 
@@ -135,3 +147,10 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
       self._state = False
     
     _LOGGER.debug(f'Restored OctopusEnergyIntelligentDispatching state: {self._state}')
+
+  @callback
+  async def async_refresh_dispatches(self):
+    """Refresh dispatches"""
+    result: IntelligentDispatchesCoordinatorResult = await self.coordinator.refresh_dispatches()
+    if result is not None and result.last_error is not None:
+      raise ServiceValidationError(result.last_error)
