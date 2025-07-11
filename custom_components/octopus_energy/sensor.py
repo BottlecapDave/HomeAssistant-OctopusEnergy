@@ -1,5 +1,4 @@
 from datetime import timedelta
-from custom_components.octopus_energy.diagnostics_entities.heat_pump_data_last_retrieved import OctopusEnergyHeatPumpDataLastRetrieved
 import voluptuous as vol
 import logging
 
@@ -22,6 +21,8 @@ from .electricity.current_interval_accumulative_consumption_ import OctopusEnerg
 from .electricity.previous_accumulative_cost_override import OctopusEnergyPreviousAccumulativeElectricityCostOverride
 from .electricity.rates_previous_consumption_override import OctopusEnergyElectricityPreviousConsumptionOverrideRates
 from .electricity.current_total_consumption import OctopusEnergyCurrentTotalElectricityConsumption
+from .diagnostics_entities.heat_pump_data_last_retrieved import OctopusEnergyHeatPumpDataLastRetrieved
+from .electricity.current_total_export import OctopusEnergyCurrentTotalElectricityExport
 from .gas.current_rate import OctopusEnergyGasCurrentRate
 from .gas.next_rate import OctopusEnergyGasNextRate
 from .gas.previous_rate import OctopusEnergyGasPreviousRate
@@ -425,6 +426,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
                 entities.append(OctopusEnergyCurrentAccumulativeElectricityCost(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, meter, point))
                 entities.append(OctopusEnergyCurrentElectricityIntervalAccumulativeConsumption(hass, consumption_coordinator, saving_session_coordinator, meter, point))
                 entities.append(OctopusEnergyCurrentConsumptionDataLastRetrieved(hass, consumption_coordinator, True, meter, point))
+                entities.append(OctopusEnergyCurrentTotalElectricityExport(hass, consumption_coordinator, meter, point))
                 
                 if home_pro_client is None:
                   entities.append(OctopusEnergyCurrentElectricityDemand(hass, consumption_coordinator, meter, point))

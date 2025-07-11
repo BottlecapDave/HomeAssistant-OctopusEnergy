@@ -474,6 +474,27 @@ The total consumption reported by the meter for all time. This will try and upda
 | `is_export` | `boolean` | Determines if the meter exports energy rather than imports |
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
 
+### Current Total Export
+
+`sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_total_export`
+
+!!! warning
+    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini). Do not set unless you have one.
+
+!!! info
+    Not all meters provide this information. In these scenarios, this sensor will report zero.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them).
+
+The total export reported by the meter for all time. This will try and update every minute for Home Mini.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `mpan` | `string` | The mpan for the associated meter |
+| `serial_number` | `string` | The serial for the associated meter |
+| `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
+
 ### Current Accumulative Cost
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_accumulative_cost`
