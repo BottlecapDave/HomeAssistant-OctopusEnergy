@@ -103,6 +103,7 @@ class OctopusEnergyCurrentTotalElectricityExport(CoordinatorEntity, OctopusEnerg
         self._attributes = {
           "mpan": self._mpan,
           "serial_number": self._serial_number,
+          "is_export": self._is_export,
           "is_smart_meter": self._is_smart_meter,
         }
 
