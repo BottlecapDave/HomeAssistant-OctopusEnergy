@@ -85,7 +85,7 @@ from .const import (
   REPAIR_UNKNOWN_INTELLIGENT_PROVIDER
 )
 
-ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "number", "switch", "text", "time", "event", "select", "climate"]
+ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "number", "switch", "text", "time", "event", "select", "climate", "water_heater"]
 TARGET_RATE_PLATFORMS = ["binary_sensor"]
 COST_TRACKER_PLATFORMS = ["sensor"]
 TARIFF_COMPARISON_PLATFORMS = ["sensor"]
