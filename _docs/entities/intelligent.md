@@ -39,7 +39,15 @@ This sensor is used to determine if you're currently in a planned dispatch perio
 | `next_start` | `datetime` | The date/time when the next dispatching or off peak rate starts |
 | `next_end` | `datetime` | The date/time when the next dispatching or off peak rate ends |
 
-Each item in `planned_dispatch` or `completed_dispatches` have the following attributes
+Each item in `planned_dispatch` have the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `datetime` | The start date/time of the dispatch |
+| `end` | `datetime` | The end date/time of the dispatch |
+| `source` | `string` | Determines what has caused the dispatch to be generated. Will be `SMART`, `BOOST`, `TEST` or None. |
+
+Each item in `completed_dispatches` have the following attributes
 
 | Attribute | Type | Description |
 |-----------|------|-------------|

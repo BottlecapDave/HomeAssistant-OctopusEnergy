@@ -23,6 +23,7 @@ from .const import (
   CONFIG_KIND_TARGET_RATE,
   CONFIG_ACCOUNT_ID,
   CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_SETTINGS,
   DATA_FREE_ELECTRICITY_SESSIONS_COORDINATOR,
   DATA_GREENNESS_FORECAST_COORDINATOR,
   DATA_INTELLIGENT_DEVICE,
@@ -152,7 +153,9 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
   intelligent_serial_number = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] if DATA_INTELLIGENT_SERIAL_NUMBER in hass.data[DOMAIN][account_id] else None
   if intelligent_device is not None and intelligent_mpan is not None and intelligent_serial_number is not None:
 
-    if CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES in config and config[CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == True:
+    if (CONFIG_MAIN_INTELLIGENT_SETTINGS not in config or
+        CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES not in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] or
+        config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == True):
       platform = entity_platform.async_get_current_platform()
       platform.async_register_entity_service(
         "refresh_intelligent_dispatches",

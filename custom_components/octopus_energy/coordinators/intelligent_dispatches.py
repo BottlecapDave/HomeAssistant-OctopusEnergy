@@ -6,7 +6,6 @@ from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
 )
-from homeassistant.helpers import storage
 
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
@@ -18,7 +17,7 @@ from ..const import (
   DATA_ACCOUNT_COORDINATOR,
   DATA_INTELLIGENT_DISPATCHES,
   DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
-  INTELLIGENT_SOURCE_BUMP_CHARGE,
+  INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS,
   REFRESH_RATE_IN_MINUTES_INTELLIGENT,
 )
 
@@ -28,7 +27,7 @@ from . import BaseCoordinatorResult
 from ..api_client.intelligent_device import IntelligentDevice
 from ..storage.intelligent_dispatches import async_save_cached_intelligent_dispatches
 
-from ..intelligent import clean_previous_dispatches, dictionary_list_to_dispatches, dispatches_to_dictionary_list, has_intelligent_tariff, mock_intelligent_dispatches
+from ..intelligent import clean_previous_dispatches, has_intelligent_tariff, mock_intelligent_dispatches
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -119,7 +118,7 @@ def merge_started_dispatches(current: datetime,
     for planned_dispatch in planned_dispatches:
       if planned_dispatch.start <= current and planned_dispatch.end >= current:
         # Skip any bump charges
-        if (planned_dispatch.source == INTELLIGENT_SOURCE_BUMP_CHARGE):
+        if (planned_dispatch.source.lower() in INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS if planned_dispatch.source is not None else False):
           continue
 
         is_extended = False

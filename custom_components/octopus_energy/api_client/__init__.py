@@ -113,6 +113,7 @@ live_consumption_query = '''query {{
     consumption
 		consumptionDelta
     demand
+    export
 	}}
 }}'''
 
@@ -123,15 +124,11 @@ intelligent_dispatches_query = '''query {{
       currentState
     }}
   }}
-	plannedDispatches(accountNumber: "{account_id}") {{
-		start
-		end
-    delta
-    meta {{
-			source
-      location
-		}}
-	}}
+  flexPlannedDispatches(deviceId:"{device_id}") {{
+    start
+    end
+    type
+  }}
 	completedDispatches(accountNumber: "{account_id}") {{
 		start
 		end
@@ -305,20 +302,18 @@ octoplus_saving_session_query = '''query {{
 }}'''
 
 wheel_of_fortune_query = '''query {{
-  wheelOfFortuneSpins(accountNumber: "{account_id}") {{
-    electricity {{
-      remainingSpinsThisMonth
-    }}
-    gas {{
-      remainingSpinsThisMonth
-    }}
+  electricity: wheelOfFortuneSpinsAllowed(fuelType:ELECTRICITY, accountNumber: "{account_id}") {{
+    spinsAllowed
+  }}
+  gas: wheelOfFortuneSpinsAllowed(fuelType:GAS, accountNumber: "{account_id}") {{
+    spinsAllowed
   }}
 }}'''
 
 wheel_of_fortune_mutation = '''mutation {{
-  spinWheelOfFortune(input: {{ accountNumber: "{account_id}", supplyType: {supply_type}, termsAccepted: true }}) {{
-    spinResult {{
-      prizeAmount
+  spinWheelOfFortune(input: {{ accountNumber: "{account_id}", fuelType: {fuel_type} }}) {{
+    prize {{
+      value
     }}
   }}
 }}'''
@@ -647,6 +642,7 @@ class OctopusEnergyApiClient:
 
     self._api_key = api_key
     self._base_url = 'https://api.octopus.energy'
+    self._backend_base_url = 'https://api.backend.octopus.energy'
 
     self._graphql_token = None
     self._graphql_expiration = None
@@ -1138,6 +1134,7 @@ class OctopusEnergyApiClient:
         if (response_body is not None and "data" in response_body and "smartMeterTelemetry" in response_body["data"] and response_body["data"]["smartMeterTelemetry"] is not None and len(response_body["data"]["smartMeterTelemetry"]) > 0):
           return list(map(lambda mp: {
             "total_consumption": float(mp["consumption"]) / 1000 if "consumption" in mp and mp["consumption"] is not None else None,
+            "total_export": float(mp["export"]) / 1000 if "export" in mp and mp["export"] is not None else None,
             "consumption": float(mp["consumptionDelta"]) / 1000 if "consumptionDelta" in mp and mp["consumptionDelta"] is not None else 0,
             "demand": float(mp["demand"]) if "demand" in mp and mp["demand"] is not None else None,
             "start": parse_datetime(mp["readAt"]),
@@ -1434,11 +1431,11 @@ class OctopusEnergyApiClient:
           planned_dispatches = list(map(lambda ev: IntelligentDispatchItem(
               as_utc(parse_datetime(ev["start"])),
               as_utc(parse_datetime(ev["end"])),
-              float(ev["delta"]) if "delta" in ev and ev["delta"] is not None else None,
-              ev["meta"]["source"] if "meta" in ev and "source" in ev["meta"] else None,
-              ev["meta"]["location"] if "meta" in ev and "location" in ev["meta"] else None,
-            ), response_body["data"]["plannedDispatches"]
-            if "plannedDispatches" in response_body["data"] and response_body["data"]["plannedDispatches"] is not None
+              None,
+              ev["type"] if "type" in ev else None,
+              None
+            ), response_body["data"]["flexPlannedDispatches"]
+            if "flexPlannedDispatches" in response_body["data"] and response_body["data"]["flexPlannedDispatches"] is not None
             else [])
           )
 
@@ -1756,20 +1753,21 @@ class OctopusEnergyApiClient:
     try:
       request_context = "wheel-of-fortune"
       client = self._create_client_session()
-      url = f'{self._base_url}/v1/graphql/'
+      url = f'{self._backend_base_url}/v1/graphql/'
       payload = { "query": wheel_of_fortune_query.format(account_id=account_id) }
-      headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
         _LOGGER.debug(f'async_get_wheel_of_fortune_spins: {response_body}')
 
         if (response_body is not None and "data" in response_body and
-            "wheelOfFortuneSpins" in response_body["data"]):
+            "electricity" in response_body["data"] and
+            "gas" in response_body["data"]):
           
-          spins = response_body["data"]["wheelOfFortuneSpins"]
+          spins = response_body["data"]
           return WheelOfFortuneSpinsResponse(
-            int(spins["electricity"]["remainingSpinsThisMonth"]) if "electricity" in spins and "remainingSpinsThisMonth" in spins["electricity"] else 0,
-            int(spins["gas"]["remainingSpinsThisMonth"]) if "gas" in spins and "remainingSpinsThisMonth" in spins["gas"] else 0
+            int(spins["electricity"]["spinsAllowed"]) if "electricity" in spins and "spinsAllowed" in spins["electricity"] else 0,
+            int(spins["gas"]["spinsAllowed"]) if "gas" in spins and "spinsAllowed" in spins["gas"] else 0
           )
         else:
           _LOGGER.error("Failed to retrieve wheel of fortune spins")
@@ -1787,9 +1785,9 @@ class OctopusEnergyApiClient:
     try:
       request_context = "spin-wheel-of-fortune"
       client = self._create_client_session()
-      url = f'{self._base_url}/v1/graphql/'
-      payload = { "query": wheel_of_fortune_mutation.format(account_id=account_id, supply_type="ELECTRICITY" if is_electricity == True else "GAS") }
-      headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = { "query": wheel_of_fortune_mutation.format(account_id=account_id, fuel_type="ELECTRICITY" if is_electricity == True else "GAS") }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
         _LOGGER.debug(f'async_spin_wheel_of_fortune: {response_body}')
@@ -1797,10 +1795,10 @@ class OctopusEnergyApiClient:
         if (response_body is not None and 
             "data" in response_body and
             "spinWheelOfFortune" in response_body["data"] and
-            "spinResult" in response_body["data"]["spinWheelOfFortune"] and
-            "prizeAmount" in response_body["data"]["spinWheelOfFortune"]["spinResult"]):
+            "prize" in response_body["data"]["spinWheelOfFortune"] and
+            "value" in response_body["data"]["spinWheelOfFortune"]["prize"]):
           
-          return int(response_body["data"]["spinWheelOfFortune"]["spinResult"]["prizeAmount"])
+          return int(response_body["data"]["spinWheelOfFortune"]["prize"]["value"])
         else:
           _LOGGER.error("Failed to spin wheel of fortune")
       
