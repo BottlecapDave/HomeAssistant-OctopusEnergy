@@ -1,3 +1,24 @@
+# [16.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v15.3.0...v16.0.0) (2025-07-12)
+
+
+### Bug Fixes
+
+* Updated API for wheel of fortune which now supports claiming octopoints (25 minutes dev time) ([6463d8b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6463d8b16fdd2fe87bee146e4aeb938cfe9f0e23))
+
+
+### Features
+
+* Added sensor for providing total exports provided by Home Mini - This is not available for all meters (30 minutes dev time) ([488c3bf](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/488c3bfbebf2c36154e87c5563f2506539a76480))
+* Tidied up main configuration screen (2 hours dev time) ([1e3a98a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1e3a98afebe3043f8355e4c0aa63023abdf6d749))
+* Updated intelligent APIs for planned dispatches due to deprecations (45 minutes dev time) ([5f1dc1b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5f1dc1b5ad83f28031a8b01d636b6626d3c80b19))
+* Updated water zone for heat pumps to be represented as water heaters ([6e32a44](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6e32a44fd48cf9131126cdf9b57f517acad351f3))
+
+
+### BREAKING CHANGES
+
+* The response from the new APIs have removed some features. This means the response available in the attributes of the dispatching sensor have changed. Please check the docs if you are using these.
+* The water zone is no longer available as a climate sensor. You will need to update all references to point at the new water_heater sensor
+
 # [15.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v15.2.0...v15.3.0) (2025-06-28)
 
 

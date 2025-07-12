@@ -4,7 +4,7 @@ from homeassistant.helpers import selector
 from homeassistant.data_entry_flow import section
 
 DOMAIN = "octopus_energy"
-INTEGRATION_VERSION = "15.3.0"
+INTEGRATION_VERSION = "16.0.0"
 
 REFRESH_RATE_IN_MINUTES_ACCOUNT = 60
 REFRESH_RATE_IN_MINUTES_INTELLIGENT = 3
