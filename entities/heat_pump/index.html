@@ -698,6 +698,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#water-heater" class="md-nav__link">
+    <span class="md-ellipsis">
+      Water Heater
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#lifetime-seasonal-coefficient-of-performance" class="md-nav__link">
     <span class="md-ellipsis">
       Lifetime Seasonal Coefficient of Performance
@@ -1232,6 +1241,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#water-heater" class="md-nav__link">
+    <span class="md-ellipsis">
+      Water Heater
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#lifetime-seasonal-coefficient-of-performance" class="md-nav__link">
     <span class="md-ellipsis">
       Lifetime Seasonal Coefficient of Performance
@@ -1338,14 +1356,25 @@
 </div>
 <h2 id="zone">Zone<a class="headerlink" href="#zone" title="Permanent link">#</a></h2>
 <p><code>climate.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{ZONE_CODE}}</code></p>
-<p>This can be used to control the target temperature and mode for a given zone (e.g. water or zone 1) linked to your heat pump. It will also display the current temperature linked to the primary sensor for the zone.</p>
+<p>This can be used to control the target temperature and mode for a given zone (e.g. zone 1) linked to your heat pump. It will also display the current temperature linked to the primary sensor for the zone.</p>
 <p>The following operation modes are available</p>
 <ul>
 <li><code>Heat</code> - This represents as <code>on</code> in the app</li>
 <li><code>Off</code> - This represents as <code>off</code> in the app</li>
 <li><code>Auto</code> - This represents as <code>auto</code> in the app</li>
 </ul>
-<p>In addition, there is the preset of <code>boost</code>, which activates boost mode for the zone for 1 hour. If you require boost to be on for a different amount of time, then you can use the <a href="../../services/#octopus_energyboost_heat_pump_zone">available service</a>.</p>
+<p>In addition, there is the preset of <code>boost</code>. When <code>boost</code> is selected, this activates boost mode for the zone for 1 hour. If a target temperature is not set, then this will default to 50 degrees c. If you require boost to be on for a different amount of time or with a different target temperature, then you can use the <a href="../../services/#octopus_energyboost_heat_pump_zone">available service</a>.</p>
+<h2 id="water-heater">Water Heater<a class="headerlink" href="#water-heater" title="Permanent link">#</a></h2>
+<p><code>water_heater.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}</code></p>
+<p>This can be used to control the target temperature and mode for a given water heater linked to your heat pump. It will also display the current temperature linked to the primary sensor for the zone.</p>
+<p>The following operation modes are available</p>
+<ul>
+<li><code>on</code> - This represents as <code>on</code> in the app</li>
+<li><code>off</code> - This represents as <code>off</code> in the app</li>
+<li><code>heat_pump</code> - This represents as <code>auto</code> in the app</li>
+<li><code>high_demand</code> - This represents as <code>boost</code> in the app</li>
+</ul>
+<p>When <code>boost</code> is selected, this activates boost mode for the zone for 1 hour. If a target temperature is not set, then this will default to 50 degrees c. If you require boost to be on for a different amount of time or with a different target temperature, then you can use the <a href="../../services/#octopus_energyboost_heat_pump_zone">available service</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>If you boost and a target temperature is not defined, then a default value will be set. This will be 50 degrees C for <code>water</code> zones and 30 degrees C for all other zones.</p>

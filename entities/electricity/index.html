@@ -780,6 +780,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#current-total-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Total Export
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#current-accumulative-cost" class="md-nav__link">
     <span class="md-ellipsis">
       Current Accumulative Cost
@@ -1683,6 +1692,15 @@
   <a href="#current-total-consumption" class="md-nav__link">
     <span class="md-ellipsis">
       Current Total Consumption
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#current-total-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      Current Total Export
     </span>
   </a>
   
@@ -2696,6 +2714,52 @@
 <p>An export equivalent of this sensor does not exist because the data is not available</p>
 </div>
 <p>The total consumption reported by the meter for all time. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mpan</code></td>
+<td><code>string</code></td>
+<td>The mpan for the associated meter</td>
+</tr>
+<tr>
+<td><code>serial_number</code></td>
+<td><code>string</code></td>
+<td>The serial for the associated meter</td>
+</tr>
+<tr>
+<td><code>is_export</code></td>
+<td><code>boolean</code></td>
+<td>Determines if the meter exports energy rather than imports</td>
+</tr>
+<tr>
+<td><code>is_smart_meter</code></td>
+<td><code>boolean</code></td>
+<td>Determines if the meter is considered smart by Octopus Energy</td>
+</tr>
+</tbody>
+</table>
+<h3 id="current-total-export">Current Total Export<a class="headerlink" href="#current-total-export" title="Permanent link">#</a></h3>
+<p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_total_export</code></p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This will only be available if you have specified you have an <a href="../../setup/account/#home-mini">Octopus Home Mini</a>. Do not set unless you have one.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Not all meters provide this information. In these scenarios, this sensor will report zero or unknown.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>.</p>
+</div>
+<p>The total export reported by the meter for all time. This will try and update every minute for Home Mini.</p>
 <table>
 <thead>
 <tr>

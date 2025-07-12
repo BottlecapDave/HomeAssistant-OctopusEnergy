@@ -1350,7 +1350,34 @@
 </tr>
 </tbody>
 </table>
-<p>Each item in <code>planned_dispatch</code> or <code>completed_dispatches</code> have the following attributes</p>
+<p>Each item in <code>planned_dispatch</code> have the following attributes</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>start</code></td>
+<td><code>datetime</code></td>
+<td>The start date/time of the dispatch</td>
+</tr>
+<tr>
+<td><code>end</code></td>
+<td><code>datetime</code></td>
+<td>The end date/time of the dispatch</td>
+</tr>
+<tr>
+<td><code>source</code></td>
+<td><code>string</code></td>
+<td>Determines what has caused the dispatch to be generated. Will be <code>SMART</code>, <code>BOOST</code>, <code>TEST</code> or None.</td>
+</tr>
+</tbody>
+</table>
+<p>Each item in <code>completed_dispatches</code> have the following attributes</p>
 <table>
 <thead>
 <tr>
