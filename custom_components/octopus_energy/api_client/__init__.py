@@ -1414,11 +1414,10 @@ class OctopusEnergyApiClient:
       request_context = "intelligent-dispatches"
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
-      # Get account response
       payload = { "query": intelligent_dispatches_query.format(account_id=account_id, device_id=device_id) }
       headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as response:
-        response_body = await self.__async_read_response__(response, url)
+        response_body = await self.__async_read_response__(response, url, accepted_error_codes=['KT-CT-4340'])
         _LOGGER.debug(f'async_get_intelligent_dispatches: {response_body}')
 
         current_state = None
@@ -1848,7 +1847,7 @@ class OctopusEnergyApiClient:
       "end": as_utc(parse_datetime(item["interval_end"]))
     }
 
-  async def __async_read_response__(self, response, url, ignore_errors = False):
+  async def __async_read_response__(self, response, url, ignore_errors = False, accepted_error_codes = []):
     """Reads the response, logging any json errors"""
 
     request_context = response.request_info.headers[integration_context_header] if integration_context_header in response.request_info.headers else "Unknown"
@@ -1890,6 +1889,11 @@ class OctopusEnergyApiClient:
             "errorCode" in error["extensions"] and
             error["extensions"]["errorCode"] in ("KT-CT-1139", "KT-CT-1111", "KT-CT-1143")):
           raise AuthenticationException(msg, errors)
+
+        if ("extensions" in error and
+            "errorCode" in error["extensions"] and
+            error["extensions"]["errorCode"] in accepted_error_codes):
+          return None
 
       raise RequestException(msg, errors)
     

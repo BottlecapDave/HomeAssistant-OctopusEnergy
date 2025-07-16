@@ -203,12 +203,12 @@ async def async_retrieve_intelligent_dispatches(
         dispatches = mock_intelligent_dispatches()
         _LOGGER.debug(f'Intelligent dispatches mocked for account {account_id}')
 
-      if planned_dispatches_supported == False:
-        # If planned dispatches are not supported, then we should clear down the planned dispatches as they are not useful
-        _LOGGER.debug("Clearing planned dispatches due to not being supported for provider")
-        dispatches.planned.clear()
-
       if dispatches is not None:
+        if planned_dispatches_supported == False:
+          # If planned dispatches are not supported, then we should clear down the planned dispatches as they are not useful
+          _LOGGER.debug("Clearing planned dispatches due to not being supported for provider")
+          dispatches.planned.clear()
+
         dispatches.completed = clean_previous_dispatches(current,
                                                          (existing_intelligent_dispatches_result.dispatches.completed if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and existing_intelligent_dispatches_result.dispatches.completed is not None else []) + dispatches.completed)
 
