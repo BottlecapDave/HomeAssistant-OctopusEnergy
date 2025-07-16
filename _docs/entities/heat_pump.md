@@ -111,6 +111,15 @@ This represents the current outdoor temperature as observed by the heat pump.
 !!! note
     As the integration uses cloud polling this will inherently have a delay.
 
+## Fixed Target Flow Temperature
+
+`sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_fixed_target_flow_temperature`
+
+This represents the configured fixed target flow temperature for the heat pump, which is used in fixed mode only.
+
+!!! note
+    This is not the actual current flow temperature, but rather the configured target.
+
 ## Services
 
 There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services.md#heat-pump).

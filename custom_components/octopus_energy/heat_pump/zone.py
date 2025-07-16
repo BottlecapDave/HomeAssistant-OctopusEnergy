@@ -23,6 +23,7 @@ from homeassistant.components.climate import (
   HVACMode,
   PRESET_NONE,
   PRESET_BOOST,
+  ATTR_HVAC_MODE
 )
 
 from .base import (BaseOctopusEnergyHeatPumpSensor)
@@ -161,7 +162,7 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     try:
       self._attr_hvac_mode = HVACMode.HEAT
       self._attr_preset_mode = PRESET_NONE
-      await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, 'ON', self._attr_target_temperature)
+      await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, 'ON', None)
     except Exception as e:
       if self._is_mocked:
         _LOGGER.warning(f'Suppress async_turn_on error due to mocking mode: {e}')
@@ -206,7 +207,7 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
         )
       else:
         zone_mode = self.get_zone_mode()
-        await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, zone_mode, self._attr_target_temperature)
+        await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, zone_mode, None)
     except Exception as e:
       if self._is_mocked:
         _LOGGER.warning(f'Suppress async_set_preset_mode error due to mocking mode: {e}')
@@ -220,6 +221,12 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
 
     try:
       self._attr_target_temperature = kwargs[ATTR_TEMPERATURE]
+
+      hvac_mode = kwargs.get(ATTR_HVAC_MODE)
+      if hvac_mode is not None:
+        self._attr_hvac_mode = hvac_mode
+        self._attr_preset_mode = PRESET_NONE
+
       if self._attr_preset_mode == PRESET_BOOST:
         await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, self._end_timestamp, self._attr_target_temperature)
       else:
