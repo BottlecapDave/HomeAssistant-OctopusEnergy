@@ -1228,12 +1228,9 @@ async def test_when_rates_next_refresh_is_in_the_future_started_dispatches_retri
     [], 
     [],
     [
-      IntelligentDispatchItem(
+      SimpleIntelligentDispatchItem(
         expected_dispatch_start,
-        expected_dispatch_end,
-        1,
-        "smart-charge",
-        "home"
+        expected_dispatch_end
       )
     ],
   ), 1, dispatches_last_retrieved)

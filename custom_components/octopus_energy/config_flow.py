@@ -7,6 +7,7 @@ from homeassistant.config_entries import (ConfigFlow, OptionsFlow)
 from homeassistant.core import callback
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers import selector
+from homeassistant.data_entry_flow import section
 from homeassistant.components.sensor import (
   SensorDeviceClass,
 )
@@ -23,12 +24,16 @@ from .const import (
   CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS,
   CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES,
   CONFIG_KIND_ROLLING_TARGET_RATE,
+  CONFIG_MAIN_HOME_MINI_SETTINGS,
   CONFIG_MAIN_HOME_PRO_ADDRESS,
   CONFIG_MAIN_HOME_PRO_API_KEY,
+  CONFIG_MAIN_HOME_PRO_SETTINGS,
   CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_SETTINGS,
+  CONFIG_MAIN_PRICE_CAP_SETTINGS,
   CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD,
   CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE,
   CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST,
@@ -806,61 +811,82 @@ class OptionsFlowHandler(OptionsFlow):
     )
   
   async def __async_setup_main_schema__(self, config, errors):
-    supports_live_consumption = False
-    if CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config:
-      supports_live_consumption = config[CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION]
-
-    live_electricity_consumption_refresh_in_minutes = CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES
-    if CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES in config:
-      live_electricity_consumption_refresh_in_minutes = config[CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES]
-
-    live_gas_consumption_refresh_in_minutes = CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES
-    if CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES in config:
-      live_gas_consumption_refresh_in_minutes = config[CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES]
-    
-    calorific_value = DEFAULT_CALORIFIC_VALUE
-    if CONFIG_MAIN_CALORIFIC_VALUE in config:
-      calorific_value = config[CONFIG_MAIN_CALORIFIC_VALUE]
-    
     return self.async_show_form(
       step_id="user",
       data_schema=self.add_suggested_values_to_schema(
         vol.Schema({
           vol.Required(CONFIG_MAIN_API_KEY): str,
-          vol.Required(CONFIG_MAIN_CALORIFIC_VALUE): cv.positive_float,
-          vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION): bool,
-          vol.Optional(CONFIG_MAIN_HOME_PRO_ADDRESS): str,
-          vol.Optional(CONFIG_MAIN_HOME_PRO_API_KEY): str,
-          vol.Required(CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
-          vol.Required(CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
-          vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP): cv.positive_float,
-          vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float,
+          vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=DEFAULT_CALORIFIC_VALUE): cv.positive_float,
           vol.Required(CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES): bool,
-          vol.Required(CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES): bool,
-          vol.Required(CONFIG_MAIN_INTELLIGENT_RATE_MODE): selector.SelectSelector(
-          selector.SelectSelectorConfig(
-              options=[
-                selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES, label="Planned and started dispatches will turn into off peak rates"),
-                selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, label="Only started dispatches will turn into off peak rates"),
-              ],
-              mode=selector.SelectSelectorMode.DROPDOWN,
-          )
-        ),
           vol.Required(CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS): bool,
+          vol.Required(CONFIG_MAIN_HOME_MINI_SETTINGS): section(
+            vol.Schema(
+                {
+                    vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION): bool,
+                    vol.Required(CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES, default=CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
+                    vol.Required(CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES, default=CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
+                }
+            ),
+            {"collapsed": True},
+          ),
+          vol.Required(CONFIG_MAIN_HOME_PRO_SETTINGS): section(
+            vol.Schema(
+                {
+                    vol.Optional(CONFIG_MAIN_HOME_PRO_ADDRESS): str,
+                    vol.Optional(CONFIG_MAIN_HOME_PRO_API_KEY): str,
+                }
+            ),
+            {"collapsed": True},
+          ),
+          vol.Required(CONFIG_MAIN_PRICE_CAP_SETTINGS): section(
+            vol.Schema(
+                {
+                    vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP): cv.positive_float,
+                    vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float,
+                }
+            ),
+            {"collapsed": True},
+          ),
+          vol.Required(CONFIG_MAIN_INTELLIGENT_SETTINGS): section(
+            vol.Schema(
+                {
+                    vol.Required(CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES): bool,
+                    vol.Required(CONFIG_MAIN_INTELLIGENT_RATE_MODE): selector.SelectSelector(
+                      selector.SelectSelectorConfig(
+                          options=[
+                            selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES, label="Planned and started dispatches will turn into off peak rates"),
+                            selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, label="Only started dispatches will turn into off peak rates"),
+                          ],
+                          mode=selector.SelectSelectorMode.DROPDOWN,
+                      )
+                    ),
+                }
+            ),
+            {"collapsed": True},
+          )
         }),
         {
           CONFIG_MAIN_API_KEY: config[CONFIG_MAIN_API_KEY],
-          CONFIG_MAIN_CALORIFIC_VALUE: calorific_value,
-          CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: supports_live_consumption,
-          CONFIG_MAIN_HOME_PRO_ADDRESS: config[CONFIG_MAIN_HOME_PRO_ADDRESS] if CONFIG_MAIN_HOME_PRO_ADDRESS in config else None,
-          CONFIG_MAIN_HOME_PRO_API_KEY: config[CONFIG_MAIN_HOME_PRO_API_KEY] if CONFIG_MAIN_HOME_PRO_API_KEY in config else None,
-          CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: live_electricity_consumption_refresh_in_minutes,
-          CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: live_gas_consumption_refresh_in_minutes,
-          CONFIG_MAIN_ELECTRICITY_PRICE_CAP: config[CONFIG_MAIN_ELECTRICITY_PRICE_CAP] if CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config else None,
-          CONFIG_MAIN_GAS_PRICE_CAP: config[CONFIG_MAIN_GAS_PRICE_CAP] if CONFIG_MAIN_GAS_PRICE_CAP in config else None,
+          CONFIG_MAIN_CALORIFIC_VALUE: config[CONFIG_MAIN_CALORIFIC_VALUE] if CONFIG_MAIN_CALORIFIC_VALUE in config else DEFAULT_CALORIFIC_VALUE,
+          CONFIG_MAIN_HOME_MINI_SETTINGS: {
+            CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: config[CONFIG_MAIN_HOME_MINI_SETTINGS][CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] if CONFIG_MAIN_HOME_MINI_SETTINGS in config and CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config[CONFIG_MAIN_HOME_MINI_SETTINGS] else False,
+            CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: config[CONFIG_MAIN_HOME_MINI_SETTINGS][CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES] if CONFIG_MAIN_HOME_MINI_SETTINGS in config and CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES in config[CONFIG_MAIN_HOME_MINI_SETTINGS] else CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
+            CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: config[CONFIG_MAIN_HOME_MINI_SETTINGS][CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES] if CONFIG_MAIN_HOME_MINI_SETTINGS in config and CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES in config[CONFIG_MAIN_HOME_MINI_SETTINGS] else CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
+          },
+          CONFIG_MAIN_HOME_PRO_SETTINGS: {
+            CONFIG_MAIN_HOME_PRO_ADDRESS: config[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] if CONFIG_MAIN_HOME_PRO_SETTINGS in config and CONFIG_MAIN_HOME_PRO_ADDRESS in config[CONFIG_MAIN_HOME_PRO_SETTINGS] else None,
+            CONFIG_MAIN_HOME_PRO_API_KEY: config[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_API_KEY] if CONFIG_MAIN_HOME_PRO_SETTINGS in config and CONFIG_MAIN_HOME_PRO_API_KEY in config[CONFIG_MAIN_HOME_PRO_SETTINGS] else None,
+          },
+          CONFIG_MAIN_PRICE_CAP_SETTINGS: {
+            CONFIG_MAIN_ELECTRICITY_PRICE_CAP: config[CONFIG_MAIN_PRICE_CAP_SETTINGS][CONFIG_MAIN_ELECTRICITY_PRICE_CAP] if CONFIG_MAIN_PRICE_CAP_SETTINGS in config and CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config[CONFIG_MAIN_PRICE_CAP_SETTINGS] else None,
+            CONFIG_MAIN_GAS_PRICE_CAP: config[CONFIG_MAIN_PRICE_CAP_SETTINGS][CONFIG_MAIN_GAS_PRICE_CAP] if CONFIG_MAIN_PRICE_CAP_SETTINGS in config and CONFIG_MAIN_GAS_PRICE_CAP in config[CONFIG_MAIN_PRICE_CAP_SETTINGS] else None,
+          },
+          CONFIG_MAIN_INTELLIGENT_SETTINGS: {
+            CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES: config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] if CONFIG_MAIN_INTELLIGENT_SETTINGS in config and CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] else False,
+            CONFIG_MAIN_INTELLIGENT_RATE_MODE: config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_RATE_MODE] if CONFIG_MAIN_INTELLIGENT_SETTINGS in config and CONFIG_MAIN_INTELLIGENT_RATE_MODE in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+          
+          },
           CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES: config[CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES] if CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES in config else True,
-          CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES: config[CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] if CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES in config else False,
-          CONFIG_MAIN_INTELLIGENT_RATE_MODE: config[CONFIG_MAIN_INTELLIGENT_RATE_MODE] if CONFIG_MAIN_INTELLIGENT_RATE_MODE in config else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
           CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS: config[CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS] if CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS in config else False,
         }
       ),
