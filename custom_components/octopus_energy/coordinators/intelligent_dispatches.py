@@ -6,7 +6,6 @@ from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
 )
-from homeassistant.helpers import storage
 
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
@@ -18,7 +17,7 @@ from ..const import (
   DATA_ACCOUNT_COORDINATOR,
   DATA_INTELLIGENT_DISPATCHES,
   DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
-  INTELLIGENT_SOURCE_BUMP_CHARGE,
+  INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS,
   REFRESH_RATE_IN_MINUTES_INTELLIGENT,
 )
 
@@ -28,7 +27,7 @@ from . import BaseCoordinatorResult
 from ..api_client.intelligent_device import IntelligentDevice
 from ..storage.intelligent_dispatches import async_save_cached_intelligent_dispatches
 
-from ..intelligent import clean_previous_dispatches, dictionary_list_to_dispatches, dispatches_to_dictionary_list, has_intelligent_tariff, mock_intelligent_dispatches
+from ..intelligent import clean_previous_dispatches, has_intelligent_tariff, mock_intelligent_dispatches
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -119,7 +118,7 @@ def merge_started_dispatches(current: datetime,
     for planned_dispatch in planned_dispatches:
       if planned_dispatch.start <= current and planned_dispatch.end >= current:
         # Skip any bump charges
-        if (planned_dispatch.source == INTELLIGENT_SOURCE_BUMP_CHARGE):
+        if (planned_dispatch.source.lower() in INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS if planned_dispatch.source is not None else False):
           continue
 
         is_extended = False
@@ -192,7 +191,11 @@ async def async_retrieve_intelligent_dispatches(
       if has_intelligent_tariff(current, account_info) and intelligent_device is not None:
         try:
           dispatches = await client.async_get_intelligent_dispatches(account_id, intelligent_device.id)
-          _LOGGER.debug(f'Intelligent dispatches retrieved for account {account_id}')
+
+          if dispatches is not None:
+            _LOGGER.debug(f'Intelligent dispatches retrieved for account {account_id}')
+          else:
+            raised_exception = "Failed to retrieve intelligent dispatches found for account {account_id}"
         except Exception as e:
           if isinstance(e, ApiException) == False:
             raise
@@ -204,12 +207,12 @@ async def async_retrieve_intelligent_dispatches(
         dispatches = mock_intelligent_dispatches()
         _LOGGER.debug(f'Intelligent dispatches mocked for account {account_id}')
 
-      if planned_dispatches_supported == False:
-        # If planned dispatches are not supported, then we should clear down the planned dispatches as they are not useful
-        _LOGGER.debug("Clearing planned dispatches due to not being supported for provider")
-        dispatches.planned.clear()
-
       if dispatches is not None:
+        if planned_dispatches_supported == False:
+          # If planned dispatches are not supported, then we should clear down the planned dispatches as they are not useful
+          _LOGGER.debug("Clearing planned dispatches due to not being supported for provider")
+          dispatches.planned.clear()
+
         dispatches.completed = clean_previous_dispatches(current,
                                                          (existing_intelligent_dispatches_result.dispatches.completed if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and existing_intelligent_dispatches_result.dispatches.completed is not None else []) + dispatches.completed)
 
