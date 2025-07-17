@@ -90,10 +90,6 @@ This blueprint will fire the [intelligent dispatches service](./services.md#octo
 
 This blueprint will trigger when the number of spins for a given energy source goes above zero, and will spin until the sensor reaches zero.
 
-!!! warning
-
-    Due to an ongoing issue with the underlying API, this will not award octopoints if used. If you are on Octoplus, it is advised not to use this blueprint.
-
 ### Automatically spin wheel of fortune (Dual)
 
 [Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_spin_wheel_of_fortune_dual.yml) | [Source](./blueprints/octopus_energy_spin_wheel_of_fortune_dual.yml)
@@ -103,10 +99,6 @@ This blueprint will trigger when either gas or electricity energy source spins a
 !!! info
 
     Due to the nature of this blueprint, you can't manually run this automation as it relies on triggers being present
-
-!!! warning
-
-    Due to an ongoing issue with the underlying API, this will not award octopoints if used. If you are on Octoplus, it is advised not to use this blueprint.
 
 ## Cost Tracker
 
