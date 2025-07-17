@@ -191,7 +191,11 @@ async def async_retrieve_intelligent_dispatches(
       if has_intelligent_tariff(current, account_info) and intelligent_device is not None:
         try:
           dispatches = await client.async_get_intelligent_dispatches(account_id, intelligent_device.id)
-          _LOGGER.debug(f'Intelligent dispatches retrieved for account {account_id}')
+
+          if dispatches is not None:
+            _LOGGER.debug(f'Intelligent dispatches retrieved for account {account_id}')
+          else:
+            raised_exception = "Failed to retrieve intelligent dispatches found for account {account_id}"
         except Exception as e:
           if isinstance(e, ApiException) == False:
             raise
