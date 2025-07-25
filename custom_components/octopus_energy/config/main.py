@@ -179,10 +179,13 @@ async def async_validate_main_config(data, account_ids = []):
       errors[CONFIG_MAIN_HOME_PRO_SETTINGS] = "all_home_pro_values_not_set"
 
     if (CONFIG_MAIN_HOME_PRO_ADDRESS in data[CONFIG_MAIN_HOME_PRO_SETTINGS] and
-        data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] is not None and
-        CONFIG_MAIN_HOME_PRO_API_KEY in data[CONFIG_MAIN_HOME_PRO_SETTINGS] and
-        data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_API_KEY] is not None):
-      home_pro_client = OctopusEnergyHomeProApiClient(data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS], data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_API_KEY] if CONFIG_MAIN_HOME_PRO_API_KEY in data[CONFIG_MAIN_HOME_PRO_SETTINGS] else None)
+        data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] is not None):
+      home_pro_client = OctopusEnergyHomeProApiClient(
+        data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS],
+        data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_API_KEY] 
+        if CONFIG_MAIN_HOME_PRO_API_KEY in data[CONFIG_MAIN_HOME_PRO_SETTINGS]
+        else None
+      )
 
       try:
         can_connect = await home_pro_client.async_ping()

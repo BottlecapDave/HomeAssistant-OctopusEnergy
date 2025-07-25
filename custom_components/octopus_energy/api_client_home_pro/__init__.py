@@ -44,11 +44,15 @@ class OctopusEnergyHomeProApiClient:
       client = self._create_client_session()
       url = f'{self._base_url}:3000/get_meter_consumption'
       data = { "meter_type": "elec" }
-      async with client.post(url, json=data) as response:
-        response_body = await self.__async_read_response__(response, url)
-        if (response_body is not None and "Status" in response_body):
-          status: str = response_body["Status"]
-          return status.lower() == "success"
+      try:
+        async with client.post(url, json=data) as response:
+          response_body = await self.__async_read_response__(response, url)
+          if (response_body is not None and "Status" in response_body):
+            status: str = response_body["Status"]
+            return status.lower() == "success"
+      except Exception as e:
+        _LOGGER.warning(f'Failed to connect to {url}. {e}')
+        return False
       
       return False
     
