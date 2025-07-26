@@ -28,6 +28,14 @@ _LOGGER = logging.getLogger(__name__)
 api_token_query = '''mutation {{
 	obtainKrakenToken(input: {{ APIKey: "{api_key}" }}) {{
 		token
+    refreshToken
+	}}
+}}'''
+
+api_token_refresh_query = '''mutation {{
+	obtainKrakenToken(input: {{ refreshToken: "{refresh_token}" }}) {{
+		token
+    refreshToken
 	}}
 }}'''
 
@@ -635,6 +643,7 @@ class AuthenticationException(RequestException): ...
 class OctopusEnergyApiClient:
   _refresh_token_lock = RLock()
   _session_lock = RLock()
+  _refresh_token = None
 
   def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None, timeout_in_seconds = 20, favour_direct_debit_rates = True):
     if (api_key is None):
@@ -687,7 +696,7 @@ class OctopusEnergyApiClient:
       try:
         client = self._create_client_session()
         url = f'{self._base_url}/v1/graphql/'
-        payload = { "query": api_token_query.format(api_key=self._api_key) }
+        payload = { "query": api_token_query.format(api_key=self._api_key) if self._refresh_token is None else api_token_refresh_query.format(refresh_token=self._refresh_token) }
         headers = { integration_context_header: "refresh-token" }
         async with client.post(url, headers=headers, json=payload) as token_response:
           token_response_body = await self.__async_read_response__(token_response, url)
@@ -695,9 +704,11 @@ class OctopusEnergyApiClient:
               "data" in token_response_body and
               "obtainKrakenToken" in token_response_body["data"] and 
               token_response_body["data"]["obtainKrakenToken"] is not None and
-              "token" in token_response_body["data"]["obtainKrakenToken"]):
+              "token" in token_response_body["data"]["obtainKrakenToken"] and
+              "refreshToken" in token_response_body["data"]["obtainKrakenToken"]):
             
             self._graphql_token = token_response_body["data"]["obtainKrakenToken"]["token"]
+            self._refresh_token = token_response_body["data"]["obtainKrakenToken"]["refreshToken"]
             self._graphql_expiration = now() + timedelta(hours=1)
           else:
             _LOGGER.error("Failed to retrieve auth token")
@@ -1414,11 +1425,10 @@ class OctopusEnergyApiClient:
       request_context = "intelligent-dispatches"
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
-      # Get account response
       payload = { "query": intelligent_dispatches_query.format(account_id=account_id, device_id=device_id) }
       headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as response:
-        response_body = await self.__async_read_response__(response, url)
+        response_body = await self.__async_read_response__(response, url, accepted_error_codes=['KT-CT-4340'])
         _LOGGER.debug(f'async_get_intelligent_dispatches: {response_body}')
 
         current_state = None
@@ -1848,7 +1858,7 @@ class OctopusEnergyApiClient:
       "end": as_utc(parse_datetime(item["interval_end"]))
     }
 
-  async def __async_read_response__(self, response, url, ignore_errors = False):
+  async def __async_read_response__(self, response, url, ignore_errors = False, accepted_error_codes = []):
     """Reads the response, logging any json errors"""
 
     request_context = response.request_info.headers[integration_context_header] if integration_context_header in response.request_info.headers else "Unknown"
@@ -1890,6 +1900,11 @@ class OctopusEnergyApiClient:
             "errorCode" in error["extensions"] and
             error["extensions"]["errorCode"] in ("KT-CT-1139", "KT-CT-1111", "KT-CT-1143")):
           raise AuthenticationException(msg, errors)
+
+        if ("extensions" in error and
+            "errorCode" in error["extensions"] and
+            error["extensions"]["errorCode"] in accepted_error_codes):
+          return None
 
       raise RequestException(msg, errors)
     

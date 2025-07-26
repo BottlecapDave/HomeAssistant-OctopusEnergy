@@ -191,7 +191,11 @@ async def async_retrieve_intelligent_dispatches(
       if has_intelligent_tariff(current, account_info) and intelligent_device is not None:
         try:
           dispatches = await client.async_get_intelligent_dispatches(account_id, intelligent_device.id)
-          _LOGGER.debug(f'Intelligent dispatches retrieved for account {account_id}')
+
+          if dispatches is not None:
+            _LOGGER.debug(f'Intelligent dispatches retrieved for account {account_id}')
+          else:
+            raised_exception = "Failed to retrieve intelligent dispatches found for account {account_id}"
         except Exception as e:
           if isinstance(e, ApiException) == False:
             raise
@@ -203,12 +207,12 @@ async def async_retrieve_intelligent_dispatches(
         dispatches = mock_intelligent_dispatches()
         _LOGGER.debug(f'Intelligent dispatches mocked for account {account_id}')
 
-      if planned_dispatches_supported == False:
-        # If planned dispatches are not supported, then we should clear down the planned dispatches as they are not useful
-        _LOGGER.debug("Clearing planned dispatches due to not being supported for provider")
-        dispatches.planned.clear()
-
       if dispatches is not None:
+        if planned_dispatches_supported == False:
+          # If planned dispatches are not supported, then we should clear down the planned dispatches as they are not useful
+          _LOGGER.debug("Clearing planned dispatches due to not being supported for provider")
+          dispatches.planned.clear()
+
         dispatches.completed = clean_previous_dispatches(current,
                                                          (existing_intelligent_dispatches_result.dispatches.completed if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and existing_intelligent_dispatches_result.dispatches.completed is not None else []) + dispatches.completed)
 
@@ -267,7 +271,7 @@ async def async_refresh_intelligent_dispatches(
     result.dispatches.started = merge_started_dispatches(current,
                                                          result.dispatches.current_state,
                                                          existing_intelligent_dispatches_result.dispatches.started 
-                                                         if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and  existing_intelligent_dispatches_result.dispatches.started is not None
+                                                         if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and existing_intelligent_dispatches_result.dispatches.started is not None
                                                          else [],
                                                          result.dispatches.planned)
 
