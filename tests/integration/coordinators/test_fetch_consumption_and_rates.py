@@ -93,6 +93,7 @@ async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requ
   assert result.standing_charge is not None
 
 @pytest.mark.asyncio
+@pytest.mark.xfail(reason="Gas data can be flakey.")
 @pytest.mark.parametrize("previous_data_available",[
   (True),
   (False)

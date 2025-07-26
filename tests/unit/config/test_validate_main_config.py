@@ -384,7 +384,6 @@ async def test_when_cannot_connect_to_home_pro_then_error_returned():
       CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
     },
     CONFIG_MAIN_HOME_PRO_SETTINGS: {
-      CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret",
       CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000"
     }
   }
@@ -422,7 +421,6 @@ async def test_when_connect_to_home_pro_throws_authentication_exception_then_err
       CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
     },
     CONFIG_MAIN_HOME_PRO_SETTINGS: {
-      CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret",
       CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000"
     }
   }
@@ -460,7 +458,6 @@ async def test_when_connect_to_home_pro_throws_general_exception_then_error_retu
       CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
     },
     CONFIG_MAIN_HOME_PRO_SETTINGS: {
-      CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret",
       CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000"
     }
   }
@@ -498,7 +495,6 @@ async def test_when_can_connect_to_home_pro_then_no_errors_returned():
       CONFIG_MAIN_GAS_PRICE_CAP: 10.5,
     },
     CONFIG_MAIN_HOME_PRO_SETTINGS: {
-      CONFIG_MAIN_HOME_PRO_API_KEY: "supersecret",
       CONFIG_MAIN_HOME_PRO_ADDRESS: "http://localhost:8000"
     }
   }

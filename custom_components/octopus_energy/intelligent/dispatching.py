@@ -102,6 +102,7 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
     )
 
     off_peak_times = get_off_peak_times(current_date, rates, True)
+    off_peak_times_snapshot = off_peak_times.copy()
     is_dispatching = False
     
     if off_peak_times is not None and len(off_peak_times) > 0:
@@ -128,6 +129,9 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
       self._attributes["next_start"] = None
       self._attributes["next_end"] = None
 
+    if self._state != is_dispatching:
+      _LOGGER.debug(f"OctopusEnergyIntelligentDispatching state changed from {self._state} to {is_dispatching}; off peak times: {off_peak_times_snapshot}; rates: {rates}")
+    
     self._state = is_dispatching
 
     self._attributes = dict_to_typed_dict(self._attributes)

@@ -215,13 +215,18 @@ def get_latest_day(consumption_data: list | None):
   
   current_reduced_consumption_data = []
   latest_reduced_consumption_data = None
+  previous_local_start = None
   for consumption in consumption_data:
     local_start = as_local(consumption["start"])
-    if (local_start.hour == 0 and local_start.minute == 0):
+    if (previous_local_start is not None and
+        (previous_local_start.day != local_start.day or previous_local_start.month != local_start.month or previous_local_start.year != local_start.year)):
+      
       if len(current_reduced_consumption_data) == 48:
         latest_reduced_consumption_data = current_reduced_consumption_data
+
       current_reduced_consumption_data = []
 
+    previous_local_start = local_start
     current_reduced_consumption_data.append(consumption)
 
   if len(current_reduced_consumption_data) == 48:
