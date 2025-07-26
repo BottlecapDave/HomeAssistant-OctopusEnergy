@@ -28,6 +28,14 @@ _LOGGER = logging.getLogger(__name__)
 api_token_query = '''mutation {{
 	obtainKrakenToken(input: {{ APIKey: "{api_key}" }}) {{
 		token
+    refreshToken
+	}}
+}}'''
+
+api_token_refresh_query = '''mutation {{
+	obtainKrakenToken(input: {{ refreshToken: "{refresh_token}" }}) {{
+		token
+    refreshToken
 	}}
 }}'''
 
@@ -635,6 +643,7 @@ class AuthenticationException(RequestException): ...
 class OctopusEnergyApiClient:
   _refresh_token_lock = RLock()
   _session_lock = RLock()
+  _refresh_token = None
 
   def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None, timeout_in_seconds = 20, favour_direct_debit_rates = True):
     if (api_key is None):
@@ -687,7 +696,7 @@ class OctopusEnergyApiClient:
       try:
         client = self._create_client_session()
         url = f'{self._base_url}/v1/graphql/'
-        payload = { "query": api_token_query.format(api_key=self._api_key) }
+        payload = { "query": api_token_query.format(api_key=self._api_key) if self._refresh_token is None else api_token_refresh_query.format(refresh_token=self._refresh_token) }
         headers = { integration_context_header: "refresh-token" }
         async with client.post(url, headers=headers, json=payload) as token_response:
           token_response_body = await self.__async_read_response__(token_response, url)
@@ -695,9 +704,11 @@ class OctopusEnergyApiClient:
               "data" in token_response_body and
               "obtainKrakenToken" in token_response_body["data"] and 
               token_response_body["data"]["obtainKrakenToken"] is not None and
-              "token" in token_response_body["data"]["obtainKrakenToken"]):
+              "token" in token_response_body["data"]["obtainKrakenToken"] and
+              "refreshToken" in token_response_body["data"]["obtainKrakenToken"]):
             
             self._graphql_token = token_response_body["data"]["obtainKrakenToken"]["token"]
+            self._refresh_token = token_response_body["data"]["obtainKrakenToken"]["refreshToken"]
             self._graphql_expiration = now() + timedelta(hours=1)
           else:
             _LOGGER.error("Failed to retrieve auth token")
