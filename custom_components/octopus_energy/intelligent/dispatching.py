@@ -130,7 +130,7 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
       self._attributes["next_end"] = None
 
     if self._state != is_dispatching:
-      _LOGGER.debug(f"OctopusEnergyIntelligentDispatching state changed from {self._state} to {is_dispatching}; off peak times: {off_peak_times_snapshot}; rates: {rates}")
+      _LOGGER.debug(f"OctopusEnergyIntelligentDispatching state changed from {self._state} to {is_dispatching}; off peak times: {list(map(lambda x: x.to_dict(), off_peak_times_snapshot))}; rates: {rates}")
     
     self._state = is_dispatching
 

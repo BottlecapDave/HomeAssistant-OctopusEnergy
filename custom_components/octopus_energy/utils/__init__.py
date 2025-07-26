@@ -109,6 +109,12 @@ class OffPeakTime:
     self.start = start
     self.end = end
 
+  def to_dict(self):
+    return {
+      "start": self.start,
+      "end": self.end
+    }
+
 def get_off_peak_times(current: datetime, rates: list, include_intelligent_adjusted = False):
   off_peak_value = get_off_peak_cost(current, rates)
   times: list[OffPeakTime] = []
