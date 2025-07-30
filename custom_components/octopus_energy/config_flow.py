@@ -218,8 +218,11 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     config = dict()
     config.update(self._get_reconfigure_entry().data)
 
+    if user_input is not None:
+      config.update(user_input)
+
     account_ids = []
-    errors = await async_validate_main_config(user_input, account_ids) if user_input is not None else {}
+    errors = await async_validate_main_config(config, account_ids)
 
     if len(errors) < 1 and user_input is not None:
       return self.async_update_reload_and_abort(
@@ -231,7 +234,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       step_id="reconfigure_account",
       data_schema=self.add_suggested_values_to_schema(
         DATA_SCHEMA_ACCOUNT,
-        user_input if user_input is not None else {}
+        config
       ),
       errors=errors
     )
@@ -339,7 +342,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       config.update(user_input)
 
     now = utcnow()
-    errors = validate_target_rate_config(config, account_info.account, now) if config is not None else {}
+    errors = validate_target_rate_config(config, account_info.account, now)
 
     if len(errors) < 1 and user_input is not None:
       return self.async_update_reload_and_abort(
@@ -353,7 +356,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       step_id="reconfigure_target_rate",
       data_schema=self.add_suggested_values_to_schema(
         data_schema,
-        user_input if user_input is not None else {}
+        config
       ),
       errors=errors
     )
@@ -466,7 +469,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     if user_input is not None:
       config.update(user_input)
 
-    errors = validate_rolling_target_rate_config(config) if config is not None else {}
+    errors = validate_rolling_target_rate_config(config)
 
     if len(errors) < 1 and user_input is not None:
       return self.async_update_reload_and_abort(
@@ -480,7 +483,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       step_id="reconfigure_rolling_target_rate",
       data_schema=self.add_suggested_values_to_schema(
         data_schema,
-        user_input if user_input is not None else {}
+        config
       ),
       errors=errors
     )
@@ -573,7 +576,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       config.update(user_input)
 
     now = utcnow()
-    errors = validate_cost_tracker_config(user_input, account_info.account, now) if user_input is not None else {}
+    errors = validate_cost_tracker_config(config, account_info.account, now)
 
     if len(errors) < 1 and user_input is not None:
       return self.async_update_reload_and_abort(
@@ -587,7 +590,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       step_id="reconfigure_cost_tracker",
       data_schema=self.add_suggested_values_to_schema(
         data_schema,
-        user_input if user_input is not None else {}
+        config
       ),
       errors=errors
     )
@@ -666,7 +669,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
     now = utcnow()
     client = self.hass.data[DOMAIN][account_id][DATA_CLIENT]
-    errors = await async_validate_tariff_comparison_config(user_input, account_info.account, now, client) if user_input is not None else {}
+    errors = await async_validate_tariff_comparison_config(config, account_info.account, now, client)
 
     if len(errors) < 1 and user_input is not None:
       return self.async_update_reload_and_abort(
@@ -680,7 +683,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       step_id="reconfigure_tariff_comparison",
       data_schema=self.add_suggested_values_to_schema(
         data_schema,
-        user_input if user_input is not None else {}
+        config
       ),
       errors=errors
     )
