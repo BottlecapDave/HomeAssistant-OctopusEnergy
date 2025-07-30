@@ -1,39 +1,24 @@
-from decimal import Decimal
 import voluptuous as vol
 import logging
 
 from homeassistant.util.dt import (utcnow)
-from homeassistant.config_entries import (ConfigFlow, OptionsFlow)
-from homeassistant.core import callback
+from homeassistant.config_entries import (ConfigFlow)
 import homeassistant.helpers.config_validation as cv
 from homeassistant.helpers import selector
-from homeassistant.data_entry_flow import section
 from homeassistant.components.sensor import (
   SensorDeviceClass,
 )
 from homeassistant.helpers.typing import DiscoveryInfoType
 
 from .coordinators.account import AccountCoordinatorResult
-from .config.cost_tracker import merge_cost_tracker_config, validate_cost_tracker_config
-from .config.target_rates import merge_target_rate_config, validate_target_rate_config
-from .config.main import async_validate_main_config, merge_main_config
+from .config.cost_tracker import validate_cost_tracker_config
+from .config.target_rates import validate_target_rate_config
+from .config.main import async_validate_main_config
 from .const import (
   CONFIG_COST_TRACKER_DISCOVERY_ACCOUNT_ID,
   CONFIG_COST_TRACKER_DISCOVERY_NAME,
   CONFIG_COST_TRACKER_MANUAL_RESET,
-  CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS,
-  CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES,
   CONFIG_KIND_ROLLING_TARGET_RATE,
-  CONFIG_MAIN_HOME_MINI_SETTINGS,
-  CONFIG_MAIN_HOME_PRO_ADDRESS,
-  CONFIG_MAIN_HOME_PRO_API_KEY,
-  CONFIG_MAIN_HOME_PRO_SETTINGS,
-  CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
-  CONFIG_MAIN_INTELLIGENT_RATE_MODE,
-  CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY,
-  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
-  CONFIG_MAIN_INTELLIGENT_SETTINGS,
-  CONFIG_MAIN_PRICE_CAP_SETTINGS,
   CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD,
   CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE,
   CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST,
@@ -54,16 +39,12 @@ from .const import (
   CONFIG_COST_TRACKER_MPAN,
   CONFIG_COST_TRACKER_NAME,
   CONFIG_COST_TRACKER_WEEKDAY_RESET,
-  CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
-  CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
   CONFIG_KIND_TARIFF_COMPARISON,
   CONFIG_KIND_COST_TRACKER,
   CONFIG_KIND_TARGET_RATE,
   CONFIG_ACCOUNT_ID,
-  CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
-  CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_TARGET_MAX_RATE,
   CONFIG_TARGET_MIN_RATE,
   CONFIG_TARGET_TYPE_CONTINUOUS,
@@ -72,15 +53,9 @@ from .const import (
   CONFIG_VERSION,
   DATA_ACCOUNT,
   DATA_CLIENT,
-  DEFAULT_CALORIFIC_VALUE,
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
-  CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
-  CONFIG_MAIN_CALORIFIC_VALUE,
-  CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
-  CONFIG_MAIN_GAS_PRICE_CAP,
-  
   CONFIG_TARGET_NAME,
   CONFIG_TARGET_HOURS,
   CONFIG_TARGET_START_TIME,
@@ -94,8 +69,8 @@ from .const import (
 
   DATA_SCHEMA_ACCOUNT,
 )
-from .config.tariff_comparison import async_validate_tariff_comparison_config, merge_tariff_comparison_config
-from .config.rolling_target_rates import merge_rolling_target_rate_config, validate_rolling_target_rate_config
+from .config.tariff_comparison import async_validate_tariff_comparison_config
+from .config.rolling_target_rates import validate_rolling_target_rate_config
 
 from .utils import get_active_tariff
 
@@ -190,6 +165,32 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       return await self.async_step_cost_tracker(None)
     
     return self.async_abort(reason="unexpected_discovery")
+  
+  def __capture_account_id__(self, step_id: str):
+    account_ids = get_account_ids(self.hass)
+    account_id_options = []
+    for account_id in account_ids:
+      account_id_options.append(selector.SelectOptionDict(value=account_id, label=account_id.upper()))
+
+    return self.async_show_form(
+      step_id=step_id,
+      data_schema=vol.Schema({
+        vol.Required(CONFIG_ACCOUNT_ID): selector.SelectSelector(
+            selector.SelectSelectorConfig(
+                options=account_id_options,
+                mode=selector.SelectSelectorMode.DROPDOWN,
+            )
+        ),
+      })
+    )
+  
+  async def async_step_target_rate_account(self, user_input):
+    if user_input is None or CONFIG_ACCOUNT_ID not in user_input:
+      return self.__capture_account_id__("target_rate_account")
+    
+    self._account_id = user_input[CONFIG_ACCOUNT_ID]
+    
+    return await self.async_step_target_rate(None)
 
   async def async_step_account(self, user_input):
     """Setup the initial account based on the provided user input"""
@@ -212,22 +213,27 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       errors=errors
     )
   
-  def __capture_account_id__(self, step_id: str):
-    account_ids = get_account_ids(self.hass)
-    account_id_options = []
-    for account_id in account_ids:
-      account_id_options.append(selector.SelectOptionDict(value=account_id, label=account_id.upper()))
+  async def async_step_reconfigure_account(self, user_input):
+    """Setup the initial account based on the provided user input"""
+    config = dict()
+    config.update(self._get_reconfigure_entry().data)
+
+    account_ids = []
+    errors = await async_validate_main_config(user_input, account_ids) if user_input is not None else {}
+
+    if len(errors) < 1 and user_input is not None:
+      return self.async_update_reload_and_abort(
+        self._get_reconfigure_entry(),
+        data_updates=config,
+      )
 
     return self.async_show_form(
-      step_id=step_id,
-      data_schema=vol.Schema({
-        vol.Required(CONFIG_ACCOUNT_ID): selector.SelectSelector(
-            selector.SelectSelectorConfig(
-                options=account_id_options,
-                mode=selector.SelectSelectorMode.DROPDOWN,
-            )
-        ),
-      })
+      step_id="reconfigure_account",
+      data_schema=self.add_suggested_values_to_schema(
+        DATA_SCHEMA_ACCOUNT,
+        user_input if user_input is not None else {}
+      ),
+      errors=errors
     )
 
   async def __async_setup_target_rate_schema__(self, account_id: str):
@@ -287,6 +293,71 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Required(CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING, default=1): cv.positive_float,
     })
   
+  async def async_step_target_rate(self, user_input):
+    """Setup a target based on the provided user input"""
+    account_id = self._account_id
+
+    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+    if (account_info is None):
+      return self.async_abort(reason="account_not_found")
+
+    now = utcnow()
+    config = dict(user_input) if user_input is not None else None
+    errors = validate_target_rate_config(config, account_info.account, now) if config is not None else {}
+
+    if len(errors) < 1 and user_input is not None:
+      config[CONFIG_KIND] = CONFIG_KIND_TARGET_RATE
+      config[CONFIG_ACCOUNT_ID] = self._account_id
+      # Setup our targets sensor
+      return self.async_create_entry(
+        title=f"{config[CONFIG_TARGET_NAME]} (target)", 
+        data=config
+      )
+
+    # Reshow our form with raised logins
+    data_schema = await self.__async_setup_target_rate_schema__(self._account_id)
+    return self.async_show_form(
+      step_id="target_rate",
+      data_schema=self.add_suggested_values_to_schema(
+        data_schema,
+        user_input if user_input is not None else {}
+      ),
+      errors=errors
+    )
+  
+  async def async_step_reconfigure_target_rate(self, user_input):
+    """Setup a target based on the provided user input"""
+    config = dict()
+    config.update(self._get_reconfigure_entry().data)
+
+    account_id = config[CONFIG_ACCOUNT_ID]
+    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+    if (account_info is None):
+      return self.async_abort(reason="account_not_found")
+    
+    if user_input is not None:
+      config.update(user_input)
+
+    now = utcnow()
+    errors = validate_target_rate_config(config, account_info.account, now) if config is not None else {}
+
+    if len(errors) < 1 and user_input is not None:
+      return self.async_update_reload_and_abort(
+        self._get_reconfigure_entry(),
+        data_updates=config,
+      )
+
+    # Reshow our form with raised logins
+    data_schema = await self.__async_setup_target_rate_schema__(account_id)
+    return self.async_show_form(
+      step_id="reconfigure_target_rate",
+      data_schema=self.add_suggested_values_to_schema(
+        data_schema,
+        user_input if user_input is not None else {}
+      ),
+      errors=errors
+    )
+  
   async def __async_setup_rolling_target_rate_schema__(self, account_id: str):
     account_info: AccountCoordinatorResult | None = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT] if account_id is not None and account_id in self.hass.data[DOMAIN] else None
     if (account_info is None):
@@ -343,98 +414,6 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Required(CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING, default=1): cv.positive_float,
     })
   
-  async def __async_setup_cost_tracker_schema__(self, account_id: str):
-
-    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT] if account_id is not None and account_id in self.hass.data[DOMAIN] else None
-    if (account_info is None):
-      return self.async_abort(reason="account_not_found")
-
-    now = utcnow()
-    meters = get_electricity_meters(account_info.account, now)
-
-    return vol.Schema({
-      vol.Required(CONFIG_COST_TRACKER_NAME): str,
-      vol.Required(CONFIG_COST_TRACKER_MPAN): selector.SelectSelector(
-          selector.SelectSelectorConfig(
-              options=meters,
-              mode=selector.SelectSelectorMode.DROPDOWN,
-          )
-      ),
-      vol.Required(CONFIG_COST_TRACKER_TARGET_ENTITY_ID): selector.EntitySelector(
-          selector.EntitySelectorConfig(domain="sensor", device_class=[SensorDeviceClass.ENERGY]),
-      ),
-      vol.Optional(CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE, default=False): bool,
-      vol.Required(CONFIG_COST_TRACKER_MANUAL_RESET, default=False): bool,
-      vol.Required(CONFIG_COST_TRACKER_WEEKDAY_RESET, default="0"): selector.SelectSelector(
-          selector.SelectSelectorConfig(
-              options=get_weekday_options(),
-              mode=selector.SelectSelectorMode.DROPDOWN,
-          )
-      ),
-      vol.Required(CONFIG_COST_TRACKER_MONTH_DAY_RESET, default=1): cv.positive_int,
-    })
-  
-  async def __async_setup_tariff_comparison_schema__(self, account_id: str):
-
-    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT] if account_id is not None and account_id in self.hass.data[DOMAIN] else None
-    if (account_info is None):
-      return self.async_abort(reason="account_not_found")
-
-    now = utcnow()
-    meters = get_all_meters(account_info.account, now)
-
-    return vol.Schema({
-      vol.Required(CONFIG_TARIFF_COMPARISON_NAME): str,
-      vol.Required(CONFIG_TARIFF_COMPARISON_MPAN_MPRN): selector.SelectSelector(
-          selector.SelectSelectorConfig(
-              options=meters,
-              mode=selector.SelectSelectorMode.DROPDOWN,
-          )
-      ),
-      vol.Required(CONFIG_TARIFF_COMPARISON_PRODUCT_CODE): str,
-      vol.Required(CONFIG_TARIFF_COMPARISON_TARIFF_CODE): str,
-    })
-  
-  async def async_step_target_rate_account(self, user_input):
-    if user_input is None or CONFIG_ACCOUNT_ID not in user_input:
-      return self.__capture_account_id__("target_rate_account")
-    
-    self._account_id = user_input[CONFIG_ACCOUNT_ID]
-    
-    return await self.async_step_target_rate(None)
-
-  async def async_step_target_rate(self, user_input):
-    """Setup a target based on the provided user input"""
-    account_id = self._account_id
-
-    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
-    if (account_info is None):
-      return self.async_abort(reason="account_not_found")
-
-    now = utcnow()
-    config = dict(user_input) if user_input is not None else None
-    errors = validate_target_rate_config(config, account_info.account, now) if config is not None else {}
-
-    if len(errors) < 1 and user_input is not None:
-      config[CONFIG_KIND] = CONFIG_KIND_TARGET_RATE
-      config[CONFIG_ACCOUNT_ID] = self._account_id
-      # Setup our targets sensor
-      return self.async_create_entry(
-        title=f"{config[CONFIG_TARGET_NAME]} (target)", 
-        data=config
-      )
-
-    # Reshow our form with raised logins
-    data_schema = await self.__async_setup_target_rate_schema__(self._account_id)
-    return self.async_show_form(
-      step_id="target_rate",
-      data_schema=self.add_suggested_values_to_schema(
-        data_schema,
-        user_input if user_input is not None else {}
-      ),
-      errors=errors
-    )
-  
   async def async_step_rolling_target_rate_account(self, user_input):
     if user_input is None or CONFIG_ACCOUNT_ID not in user_input:
       return self.__capture_account_id__("rolling_target_rate_account")
@@ -474,6 +453,69 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       errors=errors
     )
   
+  async def async_step_reconfigure_rolling_target_rate(self, user_input):
+    """Setup a target based on the provided user input"""
+    config = dict()
+    config.update(self._get_reconfigure_entry().data)
+
+    account_id = config[CONFIG_ACCOUNT_ID]
+    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+    if (account_info is None):
+      return self.async_abort(reason="account_not_found")
+    
+    if user_input is not None:
+      config.update(user_input)
+
+    errors = validate_rolling_target_rate_config(config) if config is not None else {}
+
+    if len(errors) < 1 and user_input is not None:
+      return self.async_update_reload_and_abort(
+        self._get_reconfigure_entry(),
+        data_updates=config,
+      )
+
+    # Reshow our form with raised logins
+    data_schema = await self.__async_setup_rolling_target_rate_schema__(account_id)
+    return self.async_show_form(
+      step_id="reconfigure_rolling_target_rate",
+      data_schema=self.add_suggested_values_to_schema(
+        data_schema,
+        user_input if user_input is not None else {}
+      ),
+      errors=errors
+    )
+  
+  async def __async_setup_cost_tracker_schema__(self, account_id: str):
+
+    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT] if account_id is not None and account_id in self.hass.data[DOMAIN] else None
+    if (account_info is None):
+      return self.async_abort(reason="account_not_found")
+
+    now = utcnow()
+    meters = get_electricity_meters(account_info.account, now)
+
+    return vol.Schema({
+      vol.Required(CONFIG_COST_TRACKER_NAME): str,
+      vol.Required(CONFIG_COST_TRACKER_MPAN): selector.SelectSelector(
+          selector.SelectSelectorConfig(
+              options=meters,
+              mode=selector.SelectSelectorMode.DROPDOWN,
+          )
+      ),
+      vol.Required(CONFIG_COST_TRACKER_TARGET_ENTITY_ID): selector.EntitySelector(
+          selector.EntitySelectorConfig(domain="sensor", device_class=[SensorDeviceClass.ENERGY]),
+      ),
+      vol.Optional(CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE, default=False): bool,
+      vol.Required(CONFIG_COST_TRACKER_MANUAL_RESET, default=False): bool,
+      vol.Required(CONFIG_COST_TRACKER_WEEKDAY_RESET, default="0"): selector.SelectSelector(
+          selector.SelectSelectorConfig(
+              options=get_weekday_options(),
+              mode=selector.SelectSelectorMode.DROPDOWN,
+          )
+      ),
+      vol.Required(CONFIG_COST_TRACKER_MONTH_DAY_RESET, default=1): cv.positive_int,
+    })
+
   async def async_step_cost_tracker_account(self, user_input):
     if user_input is None or CONFIG_ACCOUNT_ID not in user_input:
       return self.__capture_account_id__("cost_tracker_account")
@@ -516,6 +558,60 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       ),
       errors=errors
     )
+  
+  async def async_step_reconfigure_cost_tracker(self, user_input):
+    """Setup a target based on the provided user input"""
+    config = dict()
+    config.update(self._get_reconfigure_entry().data)
+
+    account_id = config[CONFIG_ACCOUNT_ID]
+    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+    if (account_info is None):
+      return self.async_abort(reason="account_not_found")
+    
+    if user_input is not None:
+      config.update(user_input)
+
+    now = utcnow()
+    errors = validate_cost_tracker_config(user_input, account_info.account, now) if user_input is not None else {}
+
+    if len(errors) < 1 and user_input is not None:
+      return self.async_update_reload_and_abort(
+        self._get_reconfigure_entry(),
+        data_updates=config,
+      )
+
+    # Reshow our form with raised logins
+    data_schema = await self.__async_setup_cost_tracker_schema__(account_id)
+    return self.async_show_form(
+      step_id="reconfigure_cost_tracker",
+      data_schema=self.add_suggested_values_to_schema(
+        data_schema,
+        user_input if user_input is not None else {}
+      ),
+      errors=errors
+    )
+  
+  async def __async_setup_tariff_comparison_schema__(self, account_id: str):
+
+    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT] if account_id is not None and account_id in self.hass.data[DOMAIN] else None
+    if (account_info is None):
+      return self.async_abort(reason="account_not_found")
+
+    now = utcnow()
+    meters = get_all_meters(account_info.account, now)
+
+    return vol.Schema({
+      vol.Required(CONFIG_TARIFF_COMPARISON_NAME): str,
+      vol.Required(CONFIG_TARIFF_COMPARISON_MPAN_MPRN): selector.SelectSelector(
+          selector.SelectSelectorConfig(
+              options=meters,
+              mode=selector.SelectSelectorMode.DROPDOWN,
+          )
+      ),
+      vol.Required(CONFIG_TARIFF_COMPARISON_PRODUCT_CODE): str,
+      vol.Required(CONFIG_TARIFF_COMPARISON_TARIFF_CODE): str,
+    })
 
   async def async_step_tariff_comparison_account(self, user_input):
     if user_input is None or CONFIG_ACCOUNT_ID not in user_input:
@@ -548,6 +644,40 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     data_schema = await self.__async_setup_tariff_comparison_schema__(self._account_id)
     return self.async_show_form(
       step_id="tariff_comparison",
+      data_schema=self.add_suggested_values_to_schema(
+        data_schema,
+        user_input if user_input is not None else {}
+      ),
+      errors=errors
+    )
+  
+  async def async_step_reconfigure_tariff_comparison(self, user_input):
+    """Setup a target based on the provided user input"""
+    config = dict()
+    config.update(self._get_reconfigure_entry().data)
+
+    account_id = config[CONFIG_ACCOUNT_ID]
+    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+    if (account_info is None):
+      return self.async_abort(reason="account_not_found")
+    
+    if user_input is not None:
+      config.update(user_input)
+
+    now = utcnow()
+    client = self.hass.data[DOMAIN][account_id][DATA_CLIENT]
+    errors = await async_validate_tariff_comparison_config(user_input, account_info.account, now, client) if user_input is not None else {}
+
+    if len(errors) < 1 and user_input is not None:
+      return self.async_update_reload_and_abort(
+        self._get_reconfigure_entry(),
+        data_updates=config,
+      )
+
+    # Reshow our form with raised logins
+    data_schema = await self.__async_setup_tariff_comparison_schema__(account_id)
+    return self.async_show_form(
+      step_id="reconfigure_tariff_comparison",
       data_schema=self.add_suggested_values_to_schema(
         data_schema,
         user_input if user_input is not None else {}
@@ -602,478 +732,24 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       step_id="account",
       data_schema=DATA_SCHEMA_ACCOUNT
     )
-
-  @staticmethod
-  @callback
-  def async_get_options_flow(entry):
-    return OptionsFlowHandler(entry)
-
-class OptionsFlowHandler(OptionsFlow):
-  """Handles options flow for the component."""
-
-  def __init__(self, entry) -> None:
-    self._entry = entry
-
-  async def __async_setup_target_rate_schema__(self, config, errors):
-    account_id = config[CONFIG_ACCOUNT_ID] if CONFIG_ACCOUNT_ID in config else None
-
-    account_info: AccountCoordinatorResult | None = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT] if account_id is not None and account_id in self.hass.data[DOMAIN] else None
-    if account_info is None:
-      errors[CONFIG_TARGET_MPAN] = "account_not_found"
-
-    now = utcnow()
-    meters = get_electricity_meters(account_info.account, now)
-
-    if (CONFIG_TARGET_MPAN not in config):
-      config[CONFIG_TARGET_MPAN] = meters[0]
-
-    # True by default for backwards compatibility
-    is_rolling_target = True
-    if (CONFIG_TARGET_ROLLING_TARGET in config):
-      is_rolling_target = config[CONFIG_TARGET_ROLLING_TARGET]
-
-    find_last_rates = False
-    if (CONFIG_TARGET_LAST_RATES in config):
-      find_last_rates = config[CONFIG_TARGET_LAST_RATES]
-
-    invert_target_rates = False
-    if (CONFIG_TARGET_INVERT_TARGET_RATES in config):
-      invert_target_rates = config[CONFIG_TARGET_INVERT_TARGET_RATES]
-    
-    return self.async_show_form(
-      step_id="target_rate",
-      data_schema=self.add_suggested_values_to_schema(
-          vol.Schema({
-            vol.Required(CONFIG_TARGET_NAME): str,
-            vol.Required(CONFIG_TARGET_HOURS): str,
-            vol.Required(CONFIG_TARGET_HOURS_MODE, default=CONFIG_TARGET_HOURS_MODE_EXACT): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=[
-                      selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_EXACT, label="Exact"),
-                      selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_MINIMUM, label="Minimum"),
-                      selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_MAXIMUM, label="Maximum"),
-                    ],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
-                )
-            ),
-            vol.Required(CONFIG_TARGET_TYPE, default=CONFIG_TARGET_TYPE_CONTINUOUS): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=[
-                      selector.SelectOptionDict(value=CONFIG_TARGET_TYPE_CONTINUOUS, label="Continuous"),
-                      selector.SelectOptionDict(value=CONFIG_TARGET_TYPE_INTERMITTENT, label="Intermittent"),
-                    ],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
-                )
-            ),
-            vol.Required(CONFIG_TARGET_MPAN): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=meters,
-                    mode=selector.SelectSelectorMode.DROPDOWN,
-                )
-            ),
-            vol.Optional(CONFIG_TARGET_START_TIME): str,
-            vol.Optional(CONFIG_TARGET_END_TIME): str,
-            vol.Optional(CONFIG_TARGET_OFFSET): str,
-            vol.Required(CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE): selector.SelectSelector(
-              selector.SelectSelectorConfig(
-                  options=[
-                    selector.SelectOptionDict(value=CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST, label="All existing target rates are in the past"),
-                    selector.SelectOptionDict(value=CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST, label="Existing target rates haven't started or finished"),
-                  ],
-                  mode=selector.SelectSelectorMode.DROPDOWN,
-              )
-            ),
-            vol.Optional(CONFIG_TARGET_ROLLING_TARGET): bool,
-            vol.Optional(CONFIG_TARGET_LAST_RATES): bool,
-            vol.Optional(CONFIG_TARGET_INVERT_TARGET_RATES): bool,
-            vol.Optional(CONFIG_TARGET_MIN_RATE): str,
-            vol.Optional(CONFIG_TARGET_MAX_RATE): str,
-            vol.Optional(CONFIG_TARGET_WEIGHTING): str,
-            vol.Required(CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING): cv.positive_float,
-          }),
-          {
-            CONFIG_TARGET_NAME: config[CONFIG_TARGET_NAME],
-            CONFIG_TARGET_HOURS: f'{config[CONFIG_TARGET_HOURS]}',
-            CONFIG_TARGET_HOURS_MODE: config[CONFIG_TARGET_HOURS_MODE],
-            CONFIG_TARGET_TYPE: config[CONFIG_TARGET_TYPE],
-            CONFIG_TARGET_MPAN: config[CONFIG_TARGET_MPAN],
-            CONFIG_TARGET_START_TIME: config[CONFIG_TARGET_START_TIME] if CONFIG_TARGET_START_TIME in config else None,
-            CONFIG_TARGET_END_TIME: config[CONFIG_TARGET_END_TIME] if CONFIG_TARGET_END_TIME in config else None,
-            CONFIG_TARGET_OFFSET: config[CONFIG_TARGET_OFFSET] if CONFIG_TARGET_OFFSET in config else None,
-            CONFIG_TARGET_ROLLING_TARGET: is_rolling_target,
-            CONFIG_TARGET_LAST_RATES: find_last_rates,
-            CONFIG_TARGET_INVERT_TARGET_RATES: invert_target_rates,
-            CONFIG_TARGET_MIN_RATE: f'{config[CONFIG_TARGET_MIN_RATE]}' if CONFIG_TARGET_MIN_RATE in config and config[CONFIG_TARGET_MIN_RATE] is not None else None,
-            CONFIG_TARGET_MAX_RATE: f'{config[CONFIG_TARGET_MAX_RATE]}' if CONFIG_TARGET_MAX_RATE in config and config[CONFIG_TARGET_MAX_RATE] is not None else None,
-            CONFIG_TARGET_WEIGHTING: config[CONFIG_TARGET_WEIGHTING] if CONFIG_TARGET_WEIGHTING in config else None,
-            CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING: config[CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING] if CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING in config else 1,
-            CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE: config[CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE] if CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE in config else CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST,
-          }
-      ),
-      errors=errors
-    )
   
-  async def __async_setup_rolling_target_rate_schema__(self, config, errors):
-    account_id = config[CONFIG_ACCOUNT_ID] if CONFIG_ACCOUNT_ID in config else None
-
-    account_info: AccountCoordinatorResult | None = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT] if account_id is not None and account_id in self.hass.data[DOMAIN] else None
-    if account_info is None:
-      errors[CONFIG_TARGET_MPAN] = "account_not_found"
-
-    now = utcnow()
-    meters = get_electricity_meters(account_info.account, now)
-
-    if (CONFIG_TARGET_MPAN not in config):
-      config[CONFIG_TARGET_MPAN] = meters[0]
-
-    # True by default for backwards compatibility
-    is_rolling_target = True
-    if (CONFIG_TARGET_ROLLING_TARGET in config):
-      is_rolling_target = config[CONFIG_TARGET_ROLLING_TARGET]
-
-    find_last_rates = False
-    if (CONFIG_TARGET_LAST_RATES in config):
-      find_last_rates = config[CONFIG_TARGET_LAST_RATES]
-
-    invert_target_rates = False
-    if (CONFIG_TARGET_INVERT_TARGET_RATES in config):
-      invert_target_rates = config[CONFIG_TARGET_INVERT_TARGET_RATES]
-    
-    return self.async_show_form(
-      step_id="rolling_target_rate",
-      data_schema=self.add_suggested_values_to_schema(
-          vol.Schema({
-            vol.Required(CONFIG_TARGET_NAME): str,
-            vol.Required(CONFIG_TARGET_HOURS): str,
-            vol.Required(CONFIG_TARGET_HOURS_MODE, default=CONFIG_TARGET_HOURS_MODE_EXACT): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=[
-                      selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_EXACT, label="Exact"),
-                      selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_MINIMUM, label="Minimum"),
-                      selector.SelectOptionDict(value=CONFIG_TARGET_HOURS_MODE_MAXIMUM, label="Maximum"),
-                    ],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
-                )
-            ),
-            vol.Required(CONFIG_TARGET_TYPE, default=CONFIG_TARGET_TYPE_CONTINUOUS): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=[
-                      selector.SelectOptionDict(value=CONFIG_TARGET_TYPE_CONTINUOUS, label="Continuous"),
-                      selector.SelectOptionDict(value=CONFIG_TARGET_TYPE_INTERMITTENT, label="Intermittent"),
-                    ],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
-                )
-            ),
-            vol.Required(CONFIG_TARGET_MPAN): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=meters,
-                    mode=selector.SelectSelectorMode.DROPDOWN,
-                )
-            ),
-            vol.Required(CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD): str,
-            vol.Optional(CONFIG_TARGET_OFFSET): str,
-            vol.Required(CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE, default=CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=[
-                      selector.SelectOptionDict(value=CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST, label="All existing target rates are in the past"),
-                      selector.SelectOptionDict(value=CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST, label="Existing target rates haven't started or finished"),
-                      selector.SelectOptionDict(value=CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALWAYS, label="Always"),
-                    ],
-                    mode=selector.SelectSelectorMode.DROPDOWN,
-                )
-            ),
-            vol.Optional(CONFIG_TARGET_LAST_RATES): bool,
-            vol.Optional(CONFIG_TARGET_INVERT_TARGET_RATES): bool,
-            vol.Optional(CONFIG_TARGET_MIN_RATE): str,
-            vol.Optional(CONFIG_TARGET_MAX_RATE): str,
-            vol.Optional(CONFIG_TARGET_WEIGHTING): str,
-            vol.Required(CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING): cv.positive_float,
-          }),
-          {
-            CONFIG_TARGET_NAME: config[CONFIG_TARGET_NAME],
-            CONFIG_TARGET_HOURS: f'{config[CONFIG_TARGET_HOURS]}',
-            CONFIG_TARGET_HOURS_MODE: config[CONFIG_TARGET_HOURS_MODE],
-            CONFIG_TARGET_TYPE: config[CONFIG_TARGET_TYPE],
-            CONFIG_TARGET_MPAN: config[CONFIG_TARGET_MPAN],
-            CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD: f'{config[CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD]}',
-            CONFIG_TARGET_OFFSET: config[CONFIG_TARGET_OFFSET] if CONFIG_TARGET_OFFSET in config else None,
-            CONFIG_TARGET_ROLLING_TARGET: is_rolling_target,
-            CONFIG_TARGET_LAST_RATES: find_last_rates,
-            CONFIG_TARGET_INVERT_TARGET_RATES: invert_target_rates,
-            CONFIG_TARGET_MIN_RATE: f'{config[CONFIG_TARGET_MIN_RATE]}' if CONFIG_TARGET_MIN_RATE in config and config[CONFIG_TARGET_MIN_RATE] is not None else None,
-            CONFIG_TARGET_MAX_RATE: f'{config[CONFIG_TARGET_MAX_RATE]}' if CONFIG_TARGET_MAX_RATE in config and config[CONFIG_TARGET_MAX_RATE] is not None else None,
-            CONFIG_TARGET_WEIGHTING: config[CONFIG_TARGET_WEIGHTING] if CONFIG_TARGET_WEIGHTING in config else None,            
-            CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE: config[CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE] if CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE in config else CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_PAST,
-            CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING: config[CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING] if CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING in config else 1
-          }
-      ),
-      errors=errors
-    )
-  
-  async def __async_setup_main_schema__(self, config, errors):
-    return self.async_show_form(
-      step_id="user",
-      data_schema=self.add_suggested_values_to_schema(
-        vol.Schema({
-          vol.Required(CONFIG_MAIN_API_KEY): str,
-          vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=DEFAULT_CALORIFIC_VALUE): cv.positive_float,
-          vol.Required(CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES): bool,
-          vol.Required(CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS): bool,
-          vol.Required(CONFIG_MAIN_HOME_MINI_SETTINGS): section(
-            vol.Schema(
-                {
-                    vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION): bool,
-                    vol.Required(CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES, default=CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
-                    vol.Required(CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES, default=CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
-                }
-            ),
-            {"collapsed": True},
-          ),
-          vol.Required(CONFIG_MAIN_HOME_PRO_SETTINGS): section(
-            vol.Schema(
-                {
-                    vol.Optional(CONFIG_MAIN_HOME_PRO_ADDRESS): str,
-                    vol.Optional(CONFIG_MAIN_HOME_PRO_API_KEY): str,
-                }
-            ),
-            {"collapsed": True},
-          ),
-          vol.Required(CONFIG_MAIN_PRICE_CAP_SETTINGS): section(
-            vol.Schema(
-                {
-                    vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP): cv.positive_float,
-                    vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float,
-                }
-            ),
-            {"collapsed": True},
-          ),
-          vol.Required(CONFIG_MAIN_INTELLIGENT_SETTINGS): section(
-            vol.Schema(
-                {
-                    vol.Required(CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES): bool,
-                    vol.Required(CONFIG_MAIN_INTELLIGENT_RATE_MODE): selector.SelectSelector(
-                      selector.SelectSelectorConfig(
-                          options=[
-                            selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES, label="Planned and started dispatches will turn into off peak rates"),
-                            selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, label="Only started dispatches will turn into off peak rates"),
-                          ],
-                          mode=selector.SelectSelectorMode.DROPDOWN,
-                      )
-                    ),
-                }
-            ),
-            {"collapsed": True},
-          )
-        }),
-        {
-          CONFIG_MAIN_API_KEY: config[CONFIG_MAIN_API_KEY],
-          CONFIG_MAIN_CALORIFIC_VALUE: config[CONFIG_MAIN_CALORIFIC_VALUE] if CONFIG_MAIN_CALORIFIC_VALUE in config else DEFAULT_CALORIFIC_VALUE,
-          CONFIG_MAIN_HOME_MINI_SETTINGS: {
-            CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION: config[CONFIG_MAIN_HOME_MINI_SETTINGS][CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] if CONFIG_MAIN_HOME_MINI_SETTINGS in config and CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in config[CONFIG_MAIN_HOME_MINI_SETTINGS] else False,
-            CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES: config[CONFIG_MAIN_HOME_MINI_SETTINGS][CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES] if CONFIG_MAIN_HOME_MINI_SETTINGS in config and CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES in config[CONFIG_MAIN_HOME_MINI_SETTINGS] else CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
-            CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES: config[CONFIG_MAIN_HOME_MINI_SETTINGS][CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES] if CONFIG_MAIN_HOME_MINI_SETTINGS in config and CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES in config[CONFIG_MAIN_HOME_MINI_SETTINGS] else CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
-          },
-          CONFIG_MAIN_HOME_PRO_SETTINGS: {
-            CONFIG_MAIN_HOME_PRO_ADDRESS: config[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] if CONFIG_MAIN_HOME_PRO_SETTINGS in config and CONFIG_MAIN_HOME_PRO_ADDRESS in config[CONFIG_MAIN_HOME_PRO_SETTINGS] else None,
-            CONFIG_MAIN_HOME_PRO_API_KEY: config[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_API_KEY] if CONFIG_MAIN_HOME_PRO_SETTINGS in config and CONFIG_MAIN_HOME_PRO_API_KEY in config[CONFIG_MAIN_HOME_PRO_SETTINGS] else None,
-          },
-          CONFIG_MAIN_PRICE_CAP_SETTINGS: {
-            CONFIG_MAIN_ELECTRICITY_PRICE_CAP: config[CONFIG_MAIN_PRICE_CAP_SETTINGS][CONFIG_MAIN_ELECTRICITY_PRICE_CAP] if CONFIG_MAIN_PRICE_CAP_SETTINGS in config and CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config[CONFIG_MAIN_PRICE_CAP_SETTINGS] else None,
-            CONFIG_MAIN_GAS_PRICE_CAP: config[CONFIG_MAIN_PRICE_CAP_SETTINGS][CONFIG_MAIN_GAS_PRICE_CAP] if CONFIG_MAIN_PRICE_CAP_SETTINGS in config and CONFIG_MAIN_GAS_PRICE_CAP in config[CONFIG_MAIN_PRICE_CAP_SETTINGS] else None,
-          },
-          CONFIG_MAIN_INTELLIGENT_SETTINGS: {
-            CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES: config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] if CONFIG_MAIN_INTELLIGENT_SETTINGS in config and CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] else False,
-            CONFIG_MAIN_INTELLIGENT_RATE_MODE: config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_RATE_MODE] if CONFIG_MAIN_INTELLIGENT_SETTINGS in config and CONFIG_MAIN_INTELLIGENT_RATE_MODE in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
-          
-          },
-          CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES: config[CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES] if CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES in config else True,
-          CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS: config[CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS] if CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS in config else False,
-        }
-      ),
-      errors=errors
-    )
-  
-  async def __async_setup_cost_tracker_schema__(self, config, errors):
-    account_id = config[CONFIG_ACCOUNT_ID]
-
-    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
-    if account_info is None:
-      errors[CONFIG_TARGET_MPAN] = "account_not_found"
-
-    now = utcnow()
-    meters = get_electricity_meters(account_info.account, now)
-
-    return self.async_show_form(
-      step_id="cost_tracker",
-      data_schema=self.add_suggested_values_to_schema(
-        vol.Schema({
-          vol.Required(CONFIG_COST_TRACKER_NAME): str,
-          vol.Required(CONFIG_COST_TRACKER_MPAN): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=meters,
-                    mode=selector.SelectSelectorMode.DROPDOWN,
-                )
-            ),
-          vol.Required(CONFIG_COST_TRACKER_TARGET_ENTITY_ID): selector.EntitySelector(
-              selector.EntitySelectorConfig(domain="sensor", device_class=[SensorDeviceClass.ENERGY]),
-          ),
-          vol.Optional(CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE): bool,
-          vol.Required(CONFIG_COST_TRACKER_MANUAL_RESET): bool,
-          vol.Required(CONFIG_COST_TRACKER_WEEKDAY_RESET): selector.SelectSelector(
-              selector.SelectSelectorConfig(
-                  options=get_weekday_options(),
-                  mode=selector.SelectSelectorMode.DROPDOWN,
-              )
-          ),
-          vol.Required(CONFIG_COST_TRACKER_MONTH_DAY_RESET): cv.positive_int,
-        }),
-        {
-          CONFIG_COST_TRACKER_NAME: config[CONFIG_COST_TRACKER_NAME],
-          CONFIG_COST_TRACKER_MPAN: config[CONFIG_COST_TRACKER_MPAN],
-          CONFIG_COST_TRACKER_TARGET_ENTITY_ID: config[CONFIG_COST_TRACKER_TARGET_ENTITY_ID],
-          CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE: config[CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE],
-          CONFIG_COST_TRACKER_WEEKDAY_RESET: f"{config[CONFIG_COST_TRACKER_WEEKDAY_RESET]}" if CONFIG_COST_TRACKER_WEEKDAY_RESET in config else "0",
-          CONFIG_COST_TRACKER_MONTH_DAY_RESET: config[CONFIG_COST_TRACKER_MONTH_DAY_RESET] if CONFIG_COST_TRACKER_MONTH_DAY_RESET in config else 1,
-          CONFIG_COST_TRACKER_MANUAL_RESET: config[CONFIG_COST_TRACKER_MANUAL_RESET] if CONFIG_COST_TRACKER_MANUAL_RESET in config else False
-        }
-      ),
-      errors=errors
-    )
-  
-  async def __async_setup_tariff_comparison_schema__(self, config, errors):
-    account_id = config[CONFIG_ACCOUNT_ID]
-
-    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
-    if account_info is None:
-      errors[CONFIG_TARGET_MPAN] = "account_not_found"
-
-    now = utcnow()
-    meters = get_all_meters(account_info.account, now)
-
-    return self.async_show_form(
-      step_id="tariff_comparison",
-      data_schema=self.add_suggested_values_to_schema(
-        vol.Schema({
-          vol.Required(CONFIG_TARIFF_COMPARISON_NAME): str,
-          vol.Required(CONFIG_TARIFF_COMPARISON_MPAN_MPRN): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=meters,
-                    mode=selector.SelectSelectorMode.DROPDOWN,
-                )
-            ),
-          vol.Required(CONFIG_TARIFF_COMPARISON_PRODUCT_CODE): str,
-          vol.Required(CONFIG_TARIFF_COMPARISON_TARIFF_CODE): str,
-        }),
-        {
-          CONFIG_TARIFF_COMPARISON_NAME: config[CONFIG_TARIFF_COMPARISON_NAME],
-          CONFIG_TARIFF_COMPARISON_MPAN_MPRN: config[CONFIG_TARIFF_COMPARISON_MPAN_MPRN],
-          CONFIG_TARIFF_COMPARISON_PRODUCT_CODE: config[CONFIG_TARIFF_COMPARISON_PRODUCT_CODE],
-          CONFIG_TARIFF_COMPARISON_TARIFF_CODE: config[CONFIG_TARIFF_COMPARISON_TARIFF_CODE],
-        }
-      ),
-      errors=errors
-    )
-
-  async def async_step_init(self, user_input):
+  async def async_step_reconfigure(self, user_input):
     """Manage the options for the custom component."""
-    kind = self._entry.data[CONFIG_KIND]
+    kind = self._get_reconfigure_entry().data[CONFIG_KIND]
+
     if (kind == CONFIG_KIND_ACCOUNT):
-      config = merge_main_config(self._entry.data, self._entry.options, user_input)
-      return await self.__async_setup_main_schema__(config, {})
+      return await self.async_step_reconfigure_account(user_input)
 
     if (kind == CONFIG_KIND_TARGET_RATE):
-      config = merge_target_rate_config(self._entry.data, self._entry.options, user_input)
-      return await self.__async_setup_target_rate_schema__(config, {})
+      return await self.async_step_reconfigure_target_rate(user_input)
     
     if (kind == CONFIG_KIND_ROLLING_TARGET_RATE):
-      config = merge_rolling_target_rate_config(self._entry.data, self._entry.options, user_input)
-      return await self.__async_setup_rolling_target_rate_schema__(config, {})
+      return await self.async_step_reconfigure_rolling_target_rate(user_input)
 
     if (kind == CONFIG_KIND_COST_TRACKER):
-      config = merge_cost_tracker_config(self._entry.data, self._entry.options, user_input)
-      return await self.__async_setup_cost_tracker_schema__(config, {})
+      return await self.async_step_reconfigure_cost_tracker(user_input)
     
     if (kind == CONFIG_KIND_TARIFF_COMPARISON):
-      config = merge_tariff_comparison_config(self._entry.data, self._entry.options, user_input)
-      return await self.__async_setup_tariff_comparison_schema__(config, {})
+      return await self.async_step_reconfigure_tariff_comparison(user_input)
 
-    return self.async_abort(reason="not_supported")
-
-  async def async_step_user(self, user_input):
-    """Manage the options for the custom component."""
-
-    config = merge_main_config(self._entry.data, self._entry.options, user_input)
-
-    errors = await async_validate_main_config(config)
-    
-    if (len(errors) > 0):
-      return await self.__async_setup_main_schema__(config, errors)
-
-    return self.async_create_entry(title="", data=config)
-
-  async def async_step_target_rate(self, user_input):
-    """Manage the options for the custom component."""
-    config = merge_target_rate_config(self._entry.data, self._entry.options, user_input)
-    account_id = config[CONFIG_ACCOUNT_ID] if CONFIG_ACCOUNT_ID in config else None
-
-    account_info: AccountCoordinatorResult | None = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT] if account_id is not None and account_id in self.hass.data[DOMAIN] else None
-    if account_info is None:
-      errors[CONFIG_TARGET_MPAN] = "account_not_found"
-
-    now = utcnow()
-    errors = validate_target_rate_config(config, account_info.account, now)
-
-    if (len(errors) > 0):
-      return await self.__async_setup_target_rate_schema__(config, errors)
-
-    return self.async_create_entry(title="", data=config)
-  
-  async def async_step_rolling_target_rate(self, user_input):
-    """Manage the options for the custom component."""
-    config = merge_rolling_target_rate_config(self._entry.data, self._entry.options, user_input)
-    account_id = config[CONFIG_ACCOUNT_ID] if CONFIG_ACCOUNT_ID in config else None
-
-    account_info: AccountCoordinatorResult | None = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT] if account_id is not None and account_id in self.hass.data[DOMAIN] else None
-    if account_info is None:
-      errors[CONFIG_TARGET_MPAN] = "account_not_found"
-
-    errors = validate_rolling_target_rate_config(config)
-
-    if (len(errors) > 0):
-      return await self.__async_setup_rolling_target_rate_schema__(config, errors)
-
-    return self.async_create_entry(title="", data=config)
-  
-  async def async_step_cost_tracker(self, user_input):
-    """Manage the options for the custom component."""
-    config = merge_cost_tracker_config(self._entry.data, self._entry.options, user_input)
-    account_id = config[CONFIG_ACCOUNT_ID] if CONFIG_ACCOUNT_ID in config else None
-
-    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
-    if (account_info is None):
-      return self.async_abort(reason="account_not_found")
-
-    now = utcnow()
-    errors = validate_cost_tracker_config(config, account_info.account, now)
-
-    if (len(errors) > 0):
-      return await self.__async_setup_cost_tracker_schema__(config, errors)
-
-    return self.async_create_entry(title="", data=config)
-  
-  async def async_step_tariff_comparison(self, user_input):
-    """Manage the options for the custom component."""
-    config = merge_tariff_comparison_config(self._entry.data, self._entry.options, user_input)
-    account_id = config[CONFIG_ACCOUNT_ID] if CONFIG_ACCOUNT_ID in config else None
-
-    account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
-    if (account_info is None):
-      return self.async_abort(reason="account_not_found")
-
-    now = utcnow()
-    errors = await async_validate_tariff_comparison_config(config, account_info.account, now, self.hass.data[DOMAIN][account_id][DATA_CLIENT])
-
-    if (len(errors) > 0):
-      return await self.__async_setup_tariff_comparison_schema__(config, errors)
-
-    return self.async_create_entry(title="", data=config)
+    return self.async_abort(reason="reconfigure_not_supported")
