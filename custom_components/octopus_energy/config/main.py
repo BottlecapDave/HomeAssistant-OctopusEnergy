@@ -1,3 +1,4 @@
+import re
 from ..const import (
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
@@ -98,6 +99,14 @@ async def async_migrate_main_config(version: int, data: {}):
       if CONFIG_MAIN_INTELLIGENT_RATE_MODE in new_data:
         new_data[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_RATE_MODE] = new_data[CONFIG_MAIN_INTELLIGENT_RATE_MODE]
         del new_data[CONFIG_MAIN_INTELLIGENT_RATE_MODE]
+
+  if (version <= 7):
+    if (CONFIG_MAIN_HOME_PRO_SETTINGS in new_data and
+        CONFIG_MAIN_HOME_PRO_ADDRESS in new_data[CONFIG_MAIN_HOME_PRO_SETTINGS]):
+      
+      matches = re.search("^http:\/\/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$", new_data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS]) if new_data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] is not None else None
+      if matches is None:
+        del new_data[CONFIG_MAIN_HOME_PRO_SETTINGS]
 
   return new_data
 
