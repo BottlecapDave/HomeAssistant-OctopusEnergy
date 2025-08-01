@@ -273,6 +273,9 @@ Due to limitation of HA entities, the data will be updated as a single record, w
 
     This retrieves the data reported directly by the meter which is used to calculate your bill. If you have an Octopus Home Mini (or similar), then data reported by this device will not be exposed in this sensor. This is to avoid confusion when comparing the data against your bill and to provide consistency between users with and without an Octopus Home Mini.
 
+!!! info
+    If you are on an intelligent tariff, this will not include charges that are done outside of normal off peak hours in certain scenarios. See the [FAQ](../faq.md#im-on-an-intelligent-tariff-but-the-cost-sensors-are-out-is-this-normal) for more information around this.
+
 !!! warning
 
     This data won't necessarily be available at the stroke of midnight. This integration has no control of this and is at the mercy of when the data is available by Octopus Energy. 
@@ -505,6 +508,9 @@ The total export reported by the meter for all time. This will try and update ev
 
 !!! info
     An export equivalent of this sensor does not exist because the data is not available
+
+!!! info
+    If you are on an intelligent tariff, this will not include charges that are done outside of normal off peak hours in certain scenarios. See the [FAQ](../faq.md#im-on-an-intelligent-tariff-but-the-cost-sensors-are-out-is-this-normal) for more information around this.
 
 The total cost for the current day, including the standing charge.
 
