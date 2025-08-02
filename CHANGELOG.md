@@ -1,3 +1,10 @@
+## [16.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v16.0.1...v16.0.2) (2025-08-01)
+
+
+### Bug Fixes
+
+* Fixed invalid home pro address caused by config restructuring in v16 (1 hour dev time) ([9c0dcd3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9c0dcd36e80fc81cda011959899c42c6de87aa73))
+
 ## [16.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v16.0.0...v16.0.1) (2025-07-26)
 
 
