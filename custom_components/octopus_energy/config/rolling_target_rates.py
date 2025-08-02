@@ -21,36 +21,12 @@ from ..const import (
   REGEX_WEIGHTING
 )
 
-from . import get_electricity_meter_tariffs
-from ..utils.tariff_check import is_agile_tariff
 from ..target_rates import create_weighting
 
 async def async_migrate_rolling_target_config(version: int, data: {}, get_entries):
   new_data = {**data}
 
   return new_data
-
-def merge_rolling_target_rate_config(data: dict, options: dict, updated_config: dict = None):
-  config = dict(data)
-  if options is not None:
-    config.update(options)
-
-  if updated_config is not None:
-    config.update(updated_config)
-
-    if CONFIG_TARGET_OFFSET not in updated_config and CONFIG_TARGET_OFFSET in config:
-      config[CONFIG_TARGET_OFFSET] = None
-
-    if CONFIG_TARGET_MIN_RATE not in updated_config and CONFIG_TARGET_MIN_RATE in config:
-      config[CONFIG_TARGET_MIN_RATE] = None
-
-    if CONFIG_TARGET_MAX_RATE not in updated_config and CONFIG_TARGET_MAX_RATE in config:
-      config[CONFIG_TARGET_MAX_RATE] = None
-
-    if CONFIG_TARGET_WEIGHTING not in updated_config and CONFIG_TARGET_WEIGHTING in config:
-      config[CONFIG_TARGET_WEIGHTING] = None
-
-  return config
 
 def validate_rolling_target_rate_config(data):
   errors = {}

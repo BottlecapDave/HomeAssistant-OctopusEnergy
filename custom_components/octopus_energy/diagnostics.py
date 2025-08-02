@@ -151,9 +151,6 @@ async def async_get_device_diagnostics(hass, entry, device):
     """Return diagnostics for a device."""
 
     config = dict(entry.data)
-
-    if entry.options:
-      config.update(entry.options)
     
     account_id = config[CONFIG_ACCOUNT_ID]
     account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
@@ -194,9 +191,6 @@ async def async_get_config_entry_diagnostics(hass, entry):
     """Return diagnostics for a device."""
 
     config = dict(entry.data)
-
-    if entry.options:
-      config.update(entry.options)
     
     account_id = config[CONFIG_ACCOUNT_ID]
     account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]

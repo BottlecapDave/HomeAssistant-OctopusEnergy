@@ -204,7 +204,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       })
     )
   
-  async def __async_setup_account_schema__(self, include_account_id = True):
+  def __setup_account_schema__(self, include_account_id = True):
     schema = {
       vol.Required(CONFIG_ACCOUNT_ID): str,
       vol.Required(CONFIG_MAIN_API_KEY): str,
@@ -278,7 +278,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     return self.async_show_form(
       step_id="account",
       data_schema=self.add_suggested_values_to_schema(
-        self.__async_setup_account_schema__(),
+        self.__setup_account_schema__(),
         user_input if user_input is not None else {}
       ),
       errors=errors
@@ -304,7 +304,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     return self.async_show_form(
       step_id="reconfigure_account",
       data_schema=self.add_suggested_values_to_schema(
-        self.__async_setup_account_schema__(False),
+        self.__setup_account_schema__(False),
         config
       ),
       errors=errors
@@ -589,7 +589,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       ),
       vol.Optional(CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE, default=False): bool,
       vol.Required(CONFIG_COST_TRACKER_MANUAL_RESET, default=False): bool,
-      vol.Required(CONFIG_COST_TRACKER_WEEKDAY_RESET, default="0"): selector.SelectSelector(
+      vol.Required(CONFIG_COST_TRACKER_WEEKDAY_RESET): selector.SelectSelector(
           selector.SelectSelectorConfig(
               options=get_weekday_options(),
               mode=selector.SelectSelectorMode.DROPDOWN,
@@ -636,7 +636,10 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       step_id="cost_tracker",
       data_schema=self.add_suggested_values_to_schema(
         data_schema,
-        user_input if user_input is not None else {}
+        {
+          **(user_input if user_input is not None else {}),
+          CONFIG_COST_TRACKER_WEEKDAY_RESET: f"{user_input[CONFIG_COST_TRACKER_WEEKDAY_RESET]}" if user_input is not None and CONFIG_COST_TRACKER_WEEKDAY_RESET in user_input else "0",
+        }
       ),
       errors=errors
     )
@@ -669,7 +672,10 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       step_id="reconfigure_cost_tracker",
       data_schema=self.add_suggested_values_to_schema(
         data_schema,
-        config
+        {
+          **config,
+          CONFIG_COST_TRACKER_WEEKDAY_RESET: f"{config[CONFIG_COST_TRACKER_WEEKDAY_RESET]}" if config is not None and CONFIG_COST_TRACKER_WEEKDAY_RESET in config else "0",
+        }
       ),
       errors=errors
     )
@@ -812,7 +818,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
     return self.async_show_form(
       step_id="account",
-      data_schema=self.__async_setup_account_schema__(),
+      data_schema=self.__setup_account_schema__(),
     )
   
   async def async_step_reconfigure(self, user_input):

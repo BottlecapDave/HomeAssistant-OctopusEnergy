@@ -26,9 +26,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
   config = dict(entry.data)
 
-  if entry.options:
-    config.update(entry.options)
-
   if CONFIG_MAIN_API_KEY in config:
     await async_setup_intelligent_sensors(hass, config, async_add_entities)
 
