@@ -4,6 +4,7 @@ import logging
 from homeassistant.util.dt import (utcnow)
 from homeassistant.config_entries import (ConfigFlow)
 import homeassistant.helpers.config_validation as cv
+from homeassistant.data_entry_flow import section
 from homeassistant.helpers import selector
 from homeassistant.components.sensor import (
   SensorDeviceClass,
@@ -18,7 +19,27 @@ from .const import (
   CONFIG_COST_TRACKER_DISCOVERY_ACCOUNT_ID,
   CONFIG_COST_TRACKER_DISCOVERY_NAME,
   CONFIG_COST_TRACKER_MANUAL_RESET,
+  CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
+  CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_KIND_ROLLING_TARGET_RATE,
+  CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS,
+  CONFIG_MAIN_CALORIFIC_VALUE,
+  CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
+  CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES,
+  CONFIG_MAIN_GAS_PRICE_CAP,
+  CONFIG_MAIN_HOME_MINI_SETTINGS,
+  CONFIG_MAIN_HOME_PRO_ADDRESS,
+  CONFIG_MAIN_HOME_PRO_API_KEY,
+  CONFIG_MAIN_HOME_PRO_SETTINGS,
+  CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY,
+  CONFIG_MAIN_INTELLIGENT_SETTINGS,
+  CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
+  CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
+  CONFIG_MAIN_PRICE_CAP_SETTINGS,
+  CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
   CONFIG_ROLLING_TARGET_HOURS_LOOK_AHEAD,
   CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE,
   CONFIG_TARGET_TARGET_TIMES_EVALUATION_MODE_ALL_IN_FUTURE_OR_PAST,
@@ -53,6 +74,7 @@ from .const import (
   CONFIG_VERSION,
   DATA_ACCOUNT,
   DATA_CLIENT,
+  DEFAULT_CALORIFIC_VALUE,
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
@@ -66,8 +88,6 @@ from .const import (
   CONFIG_TARGET_ROLLING_TARGET,
   CONFIG_TARGET_LAST_RATES,
   CONFIG_TARGET_INVERT_TARGET_RATES,
-
-  DATA_SCHEMA_ACCOUNT,
 )
 from .config.tariff_comparison import async_validate_tariff_comparison_config
 from .config.rolling_target_rates import validate_rolling_target_rate_config
@@ -184,14 +204,65 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       })
     )
   
-  async def async_step_target_rate_account(self, user_input):
-    if user_input is None or CONFIG_ACCOUNT_ID not in user_input:
-      return self.__capture_account_id__("target_rate_account")
-    
-    self._account_id = user_input[CONFIG_ACCOUNT_ID]
-    
-    return await self.async_step_target_rate(None)
+  async def __async_setup_account_schema__(self, include_account_id = True):
+    schema = {
+      vol.Required(CONFIG_ACCOUNT_ID): str,
+      vol.Required(CONFIG_MAIN_API_KEY): str,
+      vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=DEFAULT_CALORIFIC_VALUE): cv.positive_float,
+      vol.Required(CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES): bool,
+      vol.Required(CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS): bool,
+      vol.Required(CONFIG_MAIN_HOME_MINI_SETTINGS): section(
+        vol.Schema(
+            {
+                vol.Required(CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION): bool,
+                vol.Required(CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES, default=CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
+                vol.Required(CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES, default=CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES): cv.positive_int,
+            }
+        ),
+        {"collapsed": True},
+      ),
+      vol.Required(CONFIG_MAIN_HOME_PRO_SETTINGS): section(
+        vol.Schema(
+            {
+                vol.Optional(CONFIG_MAIN_HOME_PRO_ADDRESS): str,
+                vol.Optional(CONFIG_MAIN_HOME_PRO_API_KEY): str,
+            }
+        ),
+        {"collapsed": True},
+      ),
+      vol.Required(CONFIG_MAIN_PRICE_CAP_SETTINGS): section(
+        vol.Schema(
+            {
+                vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP): cv.positive_float,
+                vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float,
+            }
+        ),
+        {"collapsed": True},
+      ),
+      vol.Required(CONFIG_MAIN_INTELLIGENT_SETTINGS): section(
+        vol.Schema(
+            {
+                vol.Required(CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES): bool,
+                vol.Required(CONFIG_MAIN_INTELLIGENT_RATE_MODE): selector.SelectSelector(
+                  selector.SelectSelectorConfig(
+                      options=[
+                        selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES, label="Planned and started dispatches will turn into off peak rates"),
+                        selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, label="Only started dispatches will turn into off peak rates"),
+                      ],
+                      mode=selector.SelectSelectorMode.DROPDOWN,
+                  )
+                ),
+            }
+        ),
+        {"collapsed": True},
+      ),
+    }
 
+    if (include_account_id == False):
+      del schema[CONFIG_ACCOUNT_ID]
+
+    return vol.Schema(schema)
+  
   async def async_step_account(self, user_input):
     """Setup the initial account based on the provided user input"""
     account_ids = get_account_ids(self.hass)
@@ -207,7 +278,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     return self.async_show_form(
       step_id="account",
       data_schema=self.add_suggested_values_to_schema(
-        DATA_SCHEMA_ACCOUNT,
+        self.__async_setup_account_schema__(),
         user_input if user_input is not None else {}
       ),
       errors=errors
@@ -233,7 +304,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     return self.async_show_form(
       step_id="reconfigure_account",
       data_schema=self.add_suggested_values_to_schema(
-        DATA_SCHEMA_ACCOUNT,
+        self.__async_setup_account_schema__(False),
         config
       ),
       errors=errors
@@ -295,6 +366,14 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Optional(CONFIG_TARGET_WEIGHTING): str,
       vol.Required(CONFIG_TARGET_FREE_ELECTRICITY_WEIGHTING, default=1): cv.positive_float,
     })
+  
+  async def async_step_target_rate_account(self, user_input):
+    if user_input is None or CONFIG_ACCOUNT_ID not in user_input:
+      return self.__capture_account_id__("target_rate_account")
+    
+    self._account_id = user_input[CONFIG_ACCOUNT_ID]
+    
+    return await self.async_step_target_rate(None)
   
   async def async_step_target_rate(self, user_input):
     """Setup a target based on the provided user input"""
@@ -733,7 +812,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
     return self.async_show_form(
       step_id="account",
-      data_schema=DATA_SCHEMA_ACCOUNT
+      data_schema=self.__async_setup_account_schema__(),
     )
   
   async def async_step_reconfigure(self, user_input):
