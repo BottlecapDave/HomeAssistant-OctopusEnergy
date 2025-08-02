@@ -174,10 +174,6 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
             data={
               **self._config_entry.data,
               CONFIG_COST_TRACKER_TARGET_ENTITY_ID: new_entity_id,
-            },
-            options = {
-              **self._config_entry.options,
-              CONFIG_COST_TRACKER_TARGET_ENTITY_ID: new_entity_id,
             }
         )
         _LOGGER.debug(f"Tracked entity for '{self.entity_id}' updated from '{self._config[CONFIG_COST_TRACKER_TARGET_ENTITY_ID]}' to '{new_entity_id}'. Reloading...")

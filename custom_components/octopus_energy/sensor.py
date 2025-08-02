@@ -164,9 +164,6 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
   config = dict(entry.data)
 
-  if entry.options:
-    config.update(entry.options)
-
   if config[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
     await async_setup_default_sensors(hass, config, async_add_entities)
 
@@ -749,9 +746,6 @@ async def async_setup_tariff_comparison_sensors(hass: HomeAssistant, entry, conf
   config_entries = hass.config_entries.async_entries(DOMAIN, include_ignore=False)
   for entry in config_entries:
     config_entry_data = dict(entry.data)
-
-    if entry.options:
-      config_entry_data.update(entry.options)
 
     if config_entry_data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT and config_entry_data[CONFIG_ACCOUNT_ID] == account_id and CONFIG_MAIN_CALORIFIC_VALUE in config_entry_data:
       calorific_value = config_entry_data[CONFIG_MAIN_CALORIFIC_VALUE]

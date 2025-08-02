@@ -15,16 +15,6 @@ async def async_migrate_cost_tracker_config(version: int, data: {}, get_entries)
 
   return new_data
 
-def merge_cost_tracker_config(data: dict, options: dict, updated_config: dict = None):
-  config = dict(data)
-  if options is not None:
-    config.update(options)
-
-  if updated_config is not None:
-    config.update(updated_config)
-
-  return config
-
 def validate_cost_tracker_config(data, account_info, now):
   errors = {}
 

@@ -79,9 +79,6 @@ class DiscoveryManager:
             for entry in config_entries:
                 config_entry_data = dict(entry.data)
 
-                if entry.options:
-                    config_entry_data.update(entry.options)
-
                 if config_entry_data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER and config_entry_data[CONFIG_COST_TRACKER_TARGET_ENTITY_ID] == item[1].entity_id:
                     config_exists = True
                     break

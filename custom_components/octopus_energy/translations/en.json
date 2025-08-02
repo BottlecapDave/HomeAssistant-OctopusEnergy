@@ -163,42 +163,9 @@
         "data": {
           "account_id": "Account"
         }
-      }
-    },
-    "error": {
-      "server_error": "Failed to connect to OE servers. Please try again later",
-      "account_not_found": "Invalid API key or account id specified",
-      "value_greater_than_zero": "Value must be greater or equal to 1",
-      "invalid_target_hours": "Target hours must be in half hour increments (e.g. 0.5 = 30 minutes; 1 = 60 minutes).",
-      "invalid_target_name": "Name must only include lower case alpha characters and underscore (e.g. my_target)",
-      "invalid_target_time": "Must be in the format HH:MM",
-      "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol",
-      "invalid_hours_time_frame": "The target hours do not fit in the elected target time frame",
-      "invalid_mpan": "Meter not found in account with an active tariff",
-      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information.",
-      "duplicate_account": "Account has already been configured",
-      "invalid_week_day": "Week reset day must be between 0 and 6 (inclusively)",
-      "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)",
-      "invalid_price": "Price must be in the form pounds and pence (e.g. 0.10)",
-      "invalid_weighting": "The weighting format is not supported. Please consult documentation for more information.",
-      "invalid_weighting_slots": "The number of weighting blocks does not equal the specified number of hours.",
-      "weighting_not_supported_for_type": "Weighting is only supported for continuous target rates",
-      "weighting_not_supported_for_hour_mode": "Weighting is not supported for this hour mode",
-      "invalid_product_or_tariff": "Product or tariff code does not exist",
-      "minimum_or_maximum_rate_not_specified": "Either minimum and/or maximum rate must be specified for minimum hours mode",
-      "all_home_pro_values_not_set": "Home Pro address must be set if API key is set",
-      "home_pro_connection_failed": "Cannot connect to Home Pro device. Please check the specified address is correct and that you've installed the custom API as per the instructions.",
-      "home_pro_authentication_failed": "Cannot authenticate with API on Home Pro device. Please check authentication token matches the value you configured.",
-      "home_pro_not_responding": "Connected to Home Pro device, but responding with unsuccessful status. This implies the Home Pro failed to connect to your meter."
-    },
-    "abort": {
-      "not_supported": "Configuration for target rates is not supported at the moment.",
-      "account_not_found": "Account information is not found"
-    }
-  },
-  "options": {
-    "step": {
-      "user": {
+      },
+
+      "reconfigure_account": {
         "title": "Update Account Info",
         "description": "Update your basic account information. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account",
         "data": {
@@ -257,7 +224,7 @@
           }
         }
       },
-      "target_rate": {
+      "reconfigure_target_rate": {
         "title": "Update Target Rate",
         "description": "Update the settings for your target rate sensor, which can be used to help you save energy and money. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/target_rate",
         "data": {
@@ -277,7 +244,7 @@
           "target_times_evaluation_mode": "When should target times be selected"
         }
       },
-      "rolling_target_rate": {
+      "reconfigure_rolling_target_rate": {
         "title": "Update Rolling Target Rate",
         "description": "Update the settings for your rolling target rate sensor, which can be used to help you save energy and money. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/rolling_target_rate",
         "data": {
@@ -301,7 +268,7 @@
           "maximum_rate": "This is in pounds and pence (e.g. 0.12)"
         }
       },
-      "cost_tracker": {
+      "reconfigure_cost_tracker": {
         "description": "Track the cost for a given energy based sensor",
         "data": {
           "name": "The name of your cost sensor",
@@ -316,7 +283,7 @@
           "manual_reset": "If enabled, you will need to manually reset this sensor via the available service. You will also not get week and month sensors. This may produce Home Assistant warnings if not reset for long periods of times."
         }
       },
-      "tariff_comparison": {
+      "reconfigure_tariff_comparison": {
         "description": "Compare your cost with another tariff to see if you're on the best tariff for your energy use. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/tariff_comparison.",
         "data": {
           "name": "The name of your tariff comparison",
@@ -331,11 +298,13 @@
       "account_not_found": "Invalid API key or account id specified",
       "value_greater_than_zero": "Value must be greater or equal to 1",
       "invalid_target_hours": "Target hours must be in half hour increments (e.g. 0.5 = 30 minutes; 1 = 60 minutes).",
+      "invalid_target_name": "Name must only include lower case alpha characters and underscore (e.g. my_target)",
       "invalid_target_time": "Must be in the format HH:MM",
       "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol",
       "invalid_hours_time_frame": "The target hours do not fit in the elected target time frame",
       "invalid_mpan": "Meter not found in account with an active tariff",
       "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information.",
+      "duplicate_account": "Account has already been configured",
       "invalid_week_day": "Week reset day must be between 0 and 6 (inclusively)",
       "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)",
       "invalid_price": "Price must be in the form pounds and pence (e.g. 0.10)",
@@ -352,6 +321,7 @@
     },
     "abort": {
       "not_supported": "Configuration for target rates is not supported at the moment.",
+      "reconfigure_not_supported": "Reconfiguration is not supported.",
       "account_not_found": "Account information is not found"
     }
   },

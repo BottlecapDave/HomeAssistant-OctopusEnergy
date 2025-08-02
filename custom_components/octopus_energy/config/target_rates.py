@@ -84,34 +84,6 @@ async def async_migrate_target_config(version: int, data: {}, get_entries):
 
   return new_data
 
-def merge_target_rate_config(data: dict, options: dict, updated_config: dict = None):
-  config = dict(data)
-  if options is not None:
-    config.update(options)
-
-  if updated_config is not None:
-    config.update(updated_config)
-
-    if CONFIG_TARGET_START_TIME not in updated_config and CONFIG_TARGET_START_TIME in config:
-      config[CONFIG_TARGET_START_TIME] = None
-
-    if CONFIG_TARGET_END_TIME not in updated_config and CONFIG_TARGET_END_TIME in config:
-      config[CONFIG_TARGET_END_TIME] = None
-
-    if CONFIG_TARGET_OFFSET not in updated_config and CONFIG_TARGET_OFFSET in config:
-      config[CONFIG_TARGET_OFFSET] = None
-
-    if CONFIG_TARGET_MIN_RATE not in updated_config and CONFIG_TARGET_MIN_RATE in config:
-      config[CONFIG_TARGET_MIN_RATE] = None
-
-    if CONFIG_TARGET_MAX_RATE not in updated_config and CONFIG_TARGET_MAX_RATE in config:
-      config[CONFIG_TARGET_MAX_RATE] = None
-
-    if CONFIG_TARGET_WEIGHTING not in updated_config and CONFIG_TARGET_WEIGHTING in config:
-      config[CONFIG_TARGET_WEIGHTING] = None
-
-  return config
-
 def is_time_frame_long_enough(hours, start_time, end_time):
   start_time = parse_datetime(f"2023-08-01T{start_time}:00Z")
   end_time = parse_datetime(f"2023-08-01T{end_time}:00Z")
