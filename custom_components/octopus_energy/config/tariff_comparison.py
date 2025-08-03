@@ -18,16 +18,6 @@ async def async_migrate_tariff_comparison_config(version: int, data: {}, get_ent
 
   return new_data
 
-def merge_tariff_comparison_config(data: dict, options: dict, updated_config: dict = None):
-  config = dict(data)
-  if options is not None:
-    config.update(options)
-
-  if updated_config is not None:
-    config.update(updated_config)
-
-  return config
-
 async def async_validate_tariff_comparison_config(data, account_info, now: datetime, client: OctopusEnergyApiClient):
   errors = {}
 
