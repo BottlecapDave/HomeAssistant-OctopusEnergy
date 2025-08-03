@@ -1,3 +1,20 @@
+## [16.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v16.0.1...v16.0.2) (2025-08-01)
+
+
+### Bug Fixes
+
+* Fixed invalid home pro address caused by config restructuring in v16 (1 hour dev time) ([9c0dcd3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9c0dcd36e80fc81cda011959899c42c6de87aa73))
+
+## [16.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v16.0.0...v16.0.1) (2025-07-26)
+
+
+### Bug Fixes
+
+* Fixed home pro configuration check (15 minutes dev time) ([bb69109](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/bb69109ebbebfe2358f59ed5512a1e23b8ae6ba0))
+* Fixed issue when updating config (15 minutes dev time) ([69565ee](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/69565ee8973f5e2a5244ac8d307c2af5f256fd72))
+* Updated intelligent dispatches retrieval to take account of expected error code (30 minutes dev time) ([8999432](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/89994322b279a05dde46bc1541ecd034f4d157c9))
+* Updated to use refresh token where possible for re-authentication (30 minutes dev time) ([c2d7b69](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c2d7b6971b097e2e1407901dc48f3a8a63e38379))
+
 # [16.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v15.3.0...v16.0.0) (2025-07-12)
 
 

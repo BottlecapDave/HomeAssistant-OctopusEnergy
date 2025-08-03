@@ -271,7 +271,7 @@ async def async_refresh_intelligent_dispatches(
     result.dispatches.started = merge_started_dispatches(current,
                                                          result.dispatches.current_state,
                                                          existing_intelligent_dispatches_result.dispatches.started 
-                                                         if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and  existing_intelligent_dispatches_result.dispatches.started is not None
+                                                         if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and existing_intelligent_dispatches_result.dispatches.started is not None
                                                          else [],
                                                          result.dispatches.planned)
 

@@ -1,3 +1,4 @@
+import re
 from ..const import (
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
@@ -99,6 +100,14 @@ async def async_migrate_main_config(version: int, data: {}):
         new_data[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_RATE_MODE] = new_data[CONFIG_MAIN_INTELLIGENT_RATE_MODE]
         del new_data[CONFIG_MAIN_INTELLIGENT_RATE_MODE]
 
+  if (version <= 7):
+    if (CONFIG_MAIN_HOME_PRO_SETTINGS in new_data and
+        CONFIG_MAIN_HOME_PRO_ADDRESS in new_data[CONFIG_MAIN_HOME_PRO_SETTINGS]):
+      
+      matches = re.search("^http:\/\/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$", new_data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS]) if new_data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] is not None else None
+      if matches is None:
+        del new_data[CONFIG_MAIN_HOME_PRO_SETTINGS]
+
   return new_data
 
 def merge_main_config(data: dict, options: dict, updated_config: dict = None):
@@ -110,25 +119,25 @@ def merge_main_config(data: dict, options: dict, updated_config: dict = None):
     config.update(updated_config)
 
     # This is the only way to set the unsetting of data
-    if (CONFIG_MAIN_PRICE_CAP_SETTINGS not in updated_config and
+    if (CONFIG_MAIN_PRICE_CAP_SETTINGS in updated_config and
         CONFIG_MAIN_ELECTRICITY_PRICE_CAP not in updated_config[CONFIG_MAIN_PRICE_CAP_SETTINGS] and
         CONFIG_MAIN_PRICE_CAP_SETTINGS in config and
         CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config[CONFIG_MAIN_PRICE_CAP_SETTINGS]):
       config[CONFIG_MAIN_PRICE_CAP_SETTINGS][CONFIG_MAIN_ELECTRICITY_PRICE_CAP] = None
 
-    if (CONFIG_MAIN_PRICE_CAP_SETTINGS not in updated_config and
+    if (CONFIG_MAIN_PRICE_CAP_SETTINGS in updated_config and
         CONFIG_MAIN_GAS_PRICE_CAP not in updated_config[CONFIG_MAIN_PRICE_CAP_SETTINGS] and
         CONFIG_MAIN_PRICE_CAP_SETTINGS in config and
         CONFIG_MAIN_GAS_PRICE_CAP in config[CONFIG_MAIN_PRICE_CAP_SETTINGS]):
       config[CONFIG_MAIN_PRICE_CAP_SETTINGS][CONFIG_MAIN_GAS_PRICE_CAP] = None
 
-    if (CONFIG_MAIN_HOME_PRO_SETTINGS not in updated_config and
+    if (CONFIG_MAIN_HOME_PRO_SETTINGS in updated_config and
         CONFIG_MAIN_HOME_PRO_ADDRESS not in updated_config[CONFIG_MAIN_HOME_PRO_SETTINGS] and
         CONFIG_MAIN_HOME_PRO_SETTINGS in config and
         CONFIG_MAIN_HOME_PRO_ADDRESS in config[CONFIG_MAIN_HOME_PRO_SETTINGS]):
       config[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] = None
 
-    if (CONFIG_MAIN_HOME_PRO_SETTINGS not in updated_config and
+    if (CONFIG_MAIN_HOME_PRO_SETTINGS in updated_config and
         CONFIG_MAIN_HOME_PRO_API_KEY not in updated_config[CONFIG_MAIN_HOME_PRO_SETTINGS] and
         CONFIG_MAIN_HOME_PRO_SETTINGS in config and
         CONFIG_MAIN_HOME_PRO_API_KEY in config[CONFIG_MAIN_HOME_PRO_SETTINGS]):
@@ -179,10 +188,13 @@ async def async_validate_main_config(data, account_ids = []):
       errors[CONFIG_MAIN_HOME_PRO_SETTINGS] = "all_home_pro_values_not_set"
 
     if (CONFIG_MAIN_HOME_PRO_ADDRESS in data[CONFIG_MAIN_HOME_PRO_SETTINGS] and
-        data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] is not None and
-        CONFIG_MAIN_HOME_PRO_API_KEY in data[CONFIG_MAIN_HOME_PRO_SETTINGS] and
-        data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_API_KEY] is not None):
-      home_pro_client = OctopusEnergyHomeProApiClient(data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS], data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_API_KEY] if CONFIG_MAIN_HOME_PRO_API_KEY in data[CONFIG_MAIN_HOME_PRO_SETTINGS] else None)
+        data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] is not None):
+      home_pro_client = OctopusEnergyHomeProApiClient(
+        data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS],
+        data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_API_KEY] 
+        if CONFIG_MAIN_HOME_PRO_API_KEY in data[CONFIG_MAIN_HOME_PRO_SETTINGS]
+        else None
+      )
 
       try:
         can_connect = await home_pro_client.async_ping()

@@ -183,6 +183,14 @@ Cost sensors are calculated by multiplying the consumption by the rate for each 
 
 Each half hour block has it's consumption rounded to the nearest 0.01kwh before multiplying by the rate, which is rounded to the nearest penny. The rounding method used is rounding half to even, where numbers ending in 5 are rounded up or down, towards the nearest even hundredth decimal place. As a result, 0.015 would be rounded up to 0.02, while 0.025 is rounded down to 0.02. This is based on [Octopus Energy API documentation](https://developer.octopus.energy/rest/guides/endpoints)
 
+## I'm on an intelligent tariff, but the cost sensors are out. Is this normal?
+
+Octopus Energy only provide basic rate information for all tariffs (e.g. off peak and peak rates and the standard times they apply). On intelligent tariffs, the planned dispatches outside of normal off peak hours that are still available when they start are then used to adjust rates to off peak rates manually (e.g. if you have a planned dispatch at 10:00 to 10:30, which is still present at 10:00, then the rate between 10:00 to 10:30 will be adjusted to the off peak rate from the peak rate). Completed dispatches cannot be used for this as OE do not provide information on the cause of the completed dispatch.
+
+Unfortunately, planned dispatches are not available for certain providers. In these scenarios, rate information cannot be manually adjusted and therefore cost sensors will be incorrect in these scenarios. See the [dispatching sensor](./entities/intelligent.md#is-dispatching) for information on which intelligent providers this applies to.
+
+If the cost sensors are out and you are not on an effected intelligent providers, then please raise an issue.
+
 ## I'm having issues with a sensor. Is there any way I can see the attributes for a certain point in time?
 
 The majority of attributes for entities are stored in the database for a short amount of time (default is around 10 days). Unfortunately, the only way of obtaining historic attributes is via the database. This can be done via the [SQLite Web Add-On](https://my.home-assistant.io/redirect/supervisor_addon/?addon=a0d7b954_sqlite-web), where the following SQL query can be executed. You'll need to change the target entity id from `binary_sensor.octopus_energy_xxx_intelligent_dispatching` to the one you want to target.
