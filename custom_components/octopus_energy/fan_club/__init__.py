@@ -43,6 +43,8 @@ def combine_discounts(status: FanClubStatusItem) -> list[Discount]:
 def get_fan_club_number(discountSource: str):
   return discountSource.split(":")[0].strip()
 
+mocked_discounts = [0.5, 0, 0.2, 0.2, 0.5, 0, 0.2, 0.5, 0, 0, 0.2, 0.5, 0.2, 0.2, 0, 0.5, 0, 0.5, 0.5, 0, 0.2, 0, 0.2, 0.5]
+
 def mock_fan_club_forecast() -> FanClubResponse:
   # This is based on data provided by https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions/538#discussioncomment-7613665
   now: datetime = utcnow()
@@ -54,7 +56,7 @@ def mock_fan_club_forecast() -> FanClubResponse:
     current = current - timedelta(minutes=30)
     historic.append({
       "startAt": current.isoformat(),
-      "discount": f"{random.choice([0,0.200,0.500])}"
+      "discount": f"{mocked_discounts[current.hour]}"
     })
 
   forecast = []
@@ -64,7 +66,7 @@ def mock_fan_club_forecast() -> FanClubResponse:
     current = current + timedelta(minutes=60)
     forecast.append({
       "validTime": current.isoformat(),
-      "projectedDiscount": f"{random.choice([0,0.200,0.500])}"
+      "projectedDiscount": f"{mocked_discounts[current.hour]}"
     })
 
   data = {
@@ -73,7 +75,7 @@ def mock_fan_club_forecast() -> FanClubResponse:
         "discountSource": "#1 Fan: Market Weighton - Carr Farm",
         "current": {
             "startAt": now,
-            "discount": f"{random.choice([0,0.200,0.500])}"
+            "discount": f"{mocked_discounts[now.hour]}"
         },
         "historic": historic,
         "forecast": {
