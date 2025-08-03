@@ -1,4 +1,6 @@
+from datetime import datetime
 import logging
+from typing import List
 
 from homeassistant.const import (
     STATE_UNAVAILABLE,
@@ -7,37 +9,34 @@ from homeassistant.const import (
 )
 from homeassistant.core import HomeAssistant, callback
 
+from homeassistant.util.dt import (now)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
 )
-from homeassistant.components.number import RestoreNumber, NumberDeviceClass, NumberMode
-from homeassistant.util.dt import (now)
+from homeassistant.components.sensor import (
+  RestoreSensor,
+  SensorDeviceClass,
+  SensorStateClass,
+)
 
 from .base import (BaseOctopusEnergyHeatPumpSensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..api_client.heat_pump import HeatPump
 from ..coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult
-from ..api_client import OctopusEnergyApiClient
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyHeatPumpFixedTargetFlowTemperature(CoordinatorEntity, RestoreNumber, BaseOctopusEnergyHeatPumpSensor):
-  """Sensor for reading and setting the fixed target flow temperature of a heat pump."""
+class OctopusEnergyHeatPumpSensorFixedTargetFlowTemperature(CoordinatorEntity, BaseOctopusEnergyHeatPumpSensor, RestoreSensor):
+  """Sensor for displaying the live heat output of a heat pump."""
 
-  def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, coordinator, heat_pump_id: str, heat_pump: HeatPump):
+  def __init__(self, hass: HomeAssistant, coordinator, heat_pump_id: str, heat_pump: HeatPump):
     """Init sensor."""
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
-    BaseOctopusEnergyHeatPumpSensor.__init__(self, hass, heat_pump_id, heat_pump, entity_domain="number")
+    BaseOctopusEnergyHeatPumpSensor.__init__(self, hass, heat_pump_id, heat_pump)
 
-  
     self._state = None
-    self._client = client
     self._last_updated = None
-    self._attr_native_min_value = 30
-    self._attr_native_max_value = 70
-    self._attr_native_step = 1
-    self._attr_mode = NumberMode.BOX
 
   @property
   def unique_id(self):
@@ -50,43 +49,33 @@ class OctopusEnergyHeatPumpFixedTargetFlowTemperature(CoordinatorEntity, Restore
     return f"Fixed Target Flow Temperature Heat Pump ({self._heat_pump_id})"
 
   @property
+  def state_class(self):
+    """The state class of sensor"""
+    return SensorStateClass.MEASUREMENT
+
+  @property
   def device_class(self):
     """The type of sensor"""
-    return NumberDeviceClass.TEMPERATURE
-  
+    return SensorDeviceClass.TEMPERATURE
+
+  @property
+  def icon(self):
+    """Icon of the sensor."""
+    return "mdi:thermometer"
+
   @property
   def native_unit_of_measurement(self):
-    """The unit of measurement of sensor"""
+    """Unit of measurement of the sensor."""
     return UnitOfTemperature.CELSIUS
 
   @property
   def extra_state_attributes(self):
     """Attributes of the sensor."""
     return self._attributes
-
-  @property
-  def native_value(self) -> float:
-    return self._state
   
-  async def async_set_native_value(self, value: float) -> None:
-    """Set new value."""
-    if value and value % self._attr_native_step == 0:
-      try:
-        await self._client.async_set_heat_pump_fixed_target_flow_temp(
-          self._heat_pump_id,
-          value
-        )
-      except Exception as e:
-        if self._is_mocked:
-          _LOGGER.warning(f'Suppress async_set_native_value error due to mocking mode: {e}')
-        else:
-          raise
-
-      self._state = value
-      self._last_updated = now()
-      self.async_write_ha_state()
-    else:
-      raise Exception(f"Value must be between {self._attr_native_min_value} and {self._attr_native_max_value} and be a multiple of {self._attr_native_step}")
+  @property
+  def native_value(self):
+    return self._state
   
   @callback
   def _handle_coordinator_update(self) -> None:
@@ -100,7 +89,7 @@ class OctopusEnergyHeatPumpFixedTargetFlowTemperature(CoordinatorEntity, Restore
         and result.data.octoHeatPumpControllerConfiguration.heatPump is not None
         and result.data.octoHeatPumpControllerConfiguration.heatPump.heatingFlowTemperature is not None
         and result.data.octoHeatPumpControllerConfiguration.heatPump.heatingFlowTemperature.currentTemperature is not None):
-      _LOGGER.debug(f"Updating OctopusEnergyHeatPumpNumberFixedTargetFlowTemperature for '{self._heat_pump_id}'")
+      _LOGGER.debug(f"Updating OctopusEnergyHeatPumpSensorFixedTargetFlowTemperature for '{self._heat_pump_id}'")
 
       self._state = float(result.data.octoHeatPumpControllerConfiguration.heatPump.heatingFlowTemperature.currentTemperature.value)
       self._last_updated = current
@@ -119,4 +108,4 @@ class OctopusEnergyHeatPumpFixedTargetFlowTemperature(CoordinatorEntity, Restore
       self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else last_sensor_state.native_value
       self._attributes = dict_to_typed_dict(state.attributes, [])
     
-      _LOGGER.debug(f'Restored OctopusEnergyHeatPumpNumberFixedTargetFlowTemperature state: {self._state}')
+      _LOGGER.debug(f'Restored OctopusEnergyHeatPumpSensorFixedTargetFlowTemperature state: {self._state}')
