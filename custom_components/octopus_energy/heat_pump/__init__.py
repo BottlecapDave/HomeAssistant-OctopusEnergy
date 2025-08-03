@@ -169,7 +169,7 @@ def mock_heat_pump_status_and_configuration():
         "minWaterSetpoint": 40,
         "heatingFlowTemperature": {
           "currentTemperature": {
-            "value": "56",
+            "value": 30 + random.randrange(1, 40),
             "unit": "DEGREES_CELSIUS"
           },
           "allowableRange": {
@@ -197,11 +197,11 @@ def mock_heat_pump_status_and_configuration():
           },
           "currentRange": {
             "minimum": {
-              "value": "45",
+              "value": 30 + random.randrange(1, 20),
               "unit": "DEGREES_CELSIUS"
             },
             "maximum": {
-              "value": "55",
+              "value": 50 + random.randrange(1, 20),
               "unit": "DEGREES_CELSIUS"
             }
           }
