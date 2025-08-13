@@ -138,6 +138,7 @@ intelligent_dispatches_query = '''query {{
     start
     end
     type
+    energyAddedKwh
   }}
 	completedDispatches(accountNumber: "{account_id}") {{
 		start
@@ -1467,7 +1468,7 @@ class OctopusEnergyApiClient:
           planned_dispatches = list(map(lambda ev: IntelligentDispatchItem(
               as_utc(parse_datetime(ev["start"])),
               as_utc(parse_datetime(ev["end"])),
-              None,
+              float(ev["energyAddedKwh"]) if "energyAddedKwh" in ev and ev["energyAddedKwh"] is not None else None,
               ev["type"] if "type" in ev else None,
               None
             ), response_body["data"]["flexPlannedDispatches"]
