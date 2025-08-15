@@ -114,9 +114,6 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
   _LOGGER.debug('Setting up main sensors')
   config = dict(entry.data)
 
-  if entry.options:
-    config.update(entry.options)
-
   account_id = config[CONFIG_ACCOUNT_ID]
   account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
   account_info = account_result.account if account_result is not None else None
@@ -177,9 +174,6 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
 
 async def async_setup_target_sensors(hass, entry, async_add_entities):
   config = dict(entry.data)
-
-  if entry.options:
-    config.update(entry.options)
   
   account_id = config[CONFIG_ACCOUNT_ID]
   account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]

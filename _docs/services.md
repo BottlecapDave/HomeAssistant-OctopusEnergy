@@ -258,6 +258,9 @@ Allows you to set the heat pump configuration for fixed and weather compensated 
 !!! warning
     Changing this configuration without a good understanding of heat loss and emitter output can cause cycling, defrosting, or incorrect heat delivery. 
 
+!!! note
+    Corresponding sensors will not update straight away upon calling.
+
 | Attribute                | Optional | Description                                                                                                           |
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
 | `target.entity_id`       | `no`     | Any climate entity belonging to the heat pump which the configuration should be applied to (e.g. `climate.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{ZONE_CODE}}`). |

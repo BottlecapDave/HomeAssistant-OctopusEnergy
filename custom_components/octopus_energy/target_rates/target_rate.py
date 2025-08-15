@@ -377,11 +377,8 @@ class OctopusEnergyTargetRate(MultiCoordinatorEntity, BinarySensorEntity, Restor
       updatable_keys = [CONFIG_TARGET_HOURS, CONFIG_TARGET_START_TIME, CONFIG_TARGET_END_TIME, CONFIG_TARGET_OFFSET, CONFIG_TARGET_MIN_RATE, CONFIG_TARGET_MAX_RATE, CONFIG_TARGET_WEIGHTING]
       new_config_data = { **self._config_entry.data }
       new_config_data.update(extract_config(config, updatable_keys))
-      new_config_options = { **self._config_entry.options }
-      new_config_options.update(extract_config(config, updatable_keys))
 
       self._hass.config_entries.async_update_entry(
         self._config_entry,
         data = new_config_data,
-        options = new_config_options
       )

@@ -29,6 +29,7 @@ api_token_query = '''mutation {{
 	obtainKrakenToken(input: {{ APIKey: "{api_key}" }}) {{
 		token
     refreshToken
+    refreshExpiresIn
 	}}
 }}'''
 
@@ -36,6 +37,7 @@ api_token_refresh_query = '''mutation {{
 	obtainKrakenToken(input: {{ refreshToken: "{refresh_token}" }}) {{
 		token
     refreshToken
+    refreshExpiresIn
 	}}
 }}'''
 
@@ -136,6 +138,7 @@ intelligent_dispatches_query = '''query {{
     start
     end
     type
+    energyAddedKwh
   }}
 	completedDispatches(accountNumber: "{account_id}") {{
 		start
@@ -643,7 +646,6 @@ class AuthenticationException(RequestException): ...
 class OctopusEnergyApiClient:
   _refresh_token_lock = RLock()
   _session_lock = RLock()
-  _refresh_token = None
 
   def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None, timeout_in_seconds = 20, favour_direct_debit_rates = True):
     if (api_key is None):
@@ -655,6 +657,8 @@ class OctopusEnergyApiClient:
 
     self._graphql_token = None
     self._graphql_expiration = None
+    self._graphql_refresh_token = None
+    self._graphql_refresh_expiration = None
 
     self._product_tracker_cache = dict()
 
@@ -684,7 +688,7 @@ class OctopusEnergyApiClient:
       return self._session
 
   async def async_refresh_token(self):
-    """Get the user's refresh token"""
+    """Refresh user token"""
     if (self._graphql_expiration is not None and (self._graphql_expiration - timedelta(minutes=5)) > now()):
       return
 
@@ -693,28 +697,51 @@ class OctopusEnergyApiClient:
       if (self._graphql_expiration is not None and (self._graphql_expiration - timedelta(minutes=5)) > now()):
         return
 
+      if (self._graphql_refresh_expiration is not None and self._graphql_refresh_expiration >= now()):
+        _LOGGER.debug("Refresh token expired - clearing")
+        self._graphql_refresh_token = None
+        self._graphql_expiration = None
+
       try:
-        client = self._create_client_session()
-        url = f'{self._base_url}/v1/graphql/'
-        payload = { "query": api_token_query.format(api_key=self._api_key) if self._refresh_token is None else api_token_refresh_query.format(refresh_token=self._refresh_token) }
-        headers = { integration_context_header: "refresh-token" }
-        async with client.post(url, headers=headers, json=payload) as token_response:
-          token_response_body = await self.__async_read_response__(token_response, url)
-          if (token_response_body is not None and 
-              "data" in token_response_body and
-              "obtainKrakenToken" in token_response_body["data"] and 
-              token_response_body["data"]["obtainKrakenToken"] is not None and
-              "token" in token_response_body["data"]["obtainKrakenToken"] and
-              "refreshToken" in token_response_body["data"]["obtainKrakenToken"]):
+        try:
+          await self.__async_fetch_token()
+        except AuthenticationException:
+          if (self._graphql_refresh_token is not None):
+            _LOGGER.debug("Failed to refresh auth token using refresh token, attempting to use original API key")
+            self._graphql_refresh_token = None
+            self._graphql_expiration = None
             
-            self._graphql_token = token_response_body["data"]["obtainKrakenToken"]["token"]
-            self._refresh_token = token_response_body["data"]["obtainKrakenToken"]["refreshToken"]
-            self._graphql_expiration = now() + timedelta(hours=1)
+            await self.__async_fetch_token()
           else:
-            _LOGGER.error("Failed to retrieve auth token")
+            raise
+
       except TimeoutError:
         _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
         raise TimeoutException()
+
+  async def __async_fetch_token(self):
+    client = self._create_client_session()
+    url = f'{self._base_url}/v1/graphql/'
+    payload = { "query": api_token_query.format(api_key=self._api_key) if self._graphql_refresh_token is None else api_token_refresh_query.format(refresh_token=self._graphql_refresh_token) }
+    headers = { integration_context_header: "refresh-token" }
+    async with client.post(url, headers=headers, json=payload) as token_response:
+      token_response_body = await self.__async_read_response__(token_response, url)
+      if (token_response_body is not None and 
+          "data" in token_response_body and
+          "obtainKrakenToken" in token_response_body["data"] and 
+          token_response_body["data"]["obtainKrakenToken"] is not None and
+          "token" in token_response_body["data"]["obtainKrakenToken"] and
+          "refreshToken" in token_response_body["data"]["obtainKrakenToken"] and
+          "refreshExpiresIn" in token_response_body["data"]["obtainKrakenToken"]):
+        
+        self._graphql_token = token_response_body["data"]["obtainKrakenToken"]["token"]
+        self._graphql_refresh_token = token_response_body["data"]["obtainKrakenToken"]["refreshToken"]
+        self._graphql_refresh_expiration = datetime.fromtimestamp(token_response_body["data"]["obtainKrakenToken"]["refreshExpiresIn"], tz=timezone.utc)
+        self._graphql_expiration = now() + timedelta(hours=1)
+      elif (self._graphql_expiration is None or self._graphql_expiration > now()):
+        raise AuthenticationException("Failed to retrieve auth token and current token is expired")
+      else:
+        _LOGGER.error("Failed to retrieve auth token")
       
   def map_electricity_meters(self, meter_point):
     meters = list(
@@ -1441,7 +1468,7 @@ class OctopusEnergyApiClient:
           planned_dispatches = list(map(lambda ev: IntelligentDispatchItem(
               as_utc(parse_datetime(ev["start"])),
               as_utc(parse_datetime(ev["end"])),
-              None,
+              float(ev["energyAddedKwh"]) if "energyAddedKwh" in ev and ev["energyAddedKwh"] is not None else None,
               ev["type"] if "type" in ev else None,
               None
             ), response_body["data"]["flexPlannedDispatches"]
@@ -1898,7 +1925,7 @@ class OctopusEnergyApiClient:
       for error in data_as_json["errors"]:
         if ("extensions" in error and
             "errorCode" in error["extensions"] and
-            error["extensions"]["errorCode"] in ("KT-CT-1139", "KT-CT-1111", "KT-CT-1143")):
+            error["extensions"]["errorCode"] in ("KT-CT-1139", "KT-CT-1111", "KT-CT-1143", "KT-CT-1134", "KT-CT-1135")):
           raise AuthenticationException(msg, errors)
 
         if ("extensions" in error and

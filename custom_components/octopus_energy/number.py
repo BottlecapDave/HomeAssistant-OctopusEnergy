@@ -1,5 +1,6 @@
 import logging
 
+
 from .utils.debug_overrides import async_get_account_debug_override
 
 from .intelligent import get_intelligent_features
@@ -24,15 +25,16 @@ async def async_setup_entry(hass, entry, async_add_entities):
 
   config = dict(entry.data)
 
-  if entry.options:
-    config.update(entry.options)
+  entities = []
 
   if CONFIG_MAIN_API_KEY in entry.data:
-    await async_setup_intelligent_sensors(hass, config, async_add_entities)
+    entities.extend(await async_setup_intelligent_sensors(hass, config))
+
+  async_add_entities(entities)
 
   return True
 
-async def async_setup_intelligent_sensors(hass, config, async_add_entities):
+async def async_setup_intelligent_sensors(hass, config):
   _LOGGER.debug('Setting up intelligent sensors')
 
   entities = []
@@ -50,4 +52,4 @@ async def async_setup_intelligent_sensors(hass, config, async_add_entities):
     if intelligent_features.charge_limit_supported == True:
       entities.append(OctopusEnergyIntelligentChargeTarget(hass, settings_coordinator, client, intelligent_device, account_id, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False))
 
-  async_add_entities(entities)
+  return entities

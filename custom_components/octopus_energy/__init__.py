@@ -107,27 +107,26 @@ async def async_migrate_entry(hass, config_entry):
   if (config_entry.version < CONFIG_VERSION):
     _LOGGER.debug("Migrating from version %s", config_entry.version)
 
-    new_data = None
-    new_options = None
+    new_data = dict(config_entry.data)
     title = config_entry.title
-    if CONFIG_MAIN_API_KEY in config_entry.data or CONFIG_MAIN_OLD_API_KEY in config_entry.data or (CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT):
-      new_data = await async_migrate_main_config(config_entry.version, config_entry.data)
-      new_options = await async_migrate_main_config(config_entry.version, config_entry.options)
+
+    # Move to reconfiguration from options
+    if (config_entry.version <= 8 and new_data is not None and config_entry.options is not None):
+      new_data.update(config_entry.options)
+
+    if CONFIG_MAIN_API_KEY in new_data or CONFIG_MAIN_OLD_API_KEY in new_data or (CONFIG_KIND in new_data and new_data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT):
+      new_data = await async_migrate_main_config(config_entry.version, new_data)
       title = new_data[CONFIG_ACCOUNT_ID]
-    elif CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
-      new_data = await async_migrate_target_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
-      new_options = await async_migrate_target_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
-    elif CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_ROLLING_TARGET_RATE:
-      new_data = await async_migrate_rolling_target_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
-      new_options = await async_migrate_rolling_target_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
-    elif CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
-      new_data = await async_migrate_cost_tracker_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
-      new_options = await async_migrate_cost_tracker_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
-    elif CONFIG_KIND in config_entry.data and config_entry.data[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:
-      new_data = await async_migrate_cost_tracker_config(config_entry.version, config_entry.data, hass.config_entries.async_entries)
-      new_options = await async_migrate_cost_tracker_config(config_entry.version, config_entry.options, hass.config_entries.async_entries)
+    elif CONFIG_KIND in new_data and new_data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
+      new_data = await async_migrate_target_config(config_entry.version, new_data, hass.config_entries.async_entries)
+    elif CONFIG_KIND in new_data and new_data[CONFIG_KIND] == CONFIG_KIND_ROLLING_TARGET_RATE:
+      new_data = await async_migrate_rolling_target_config(config_entry.version, new_data, hass.config_entries.async_entries)
+    elif CONFIG_KIND in new_data and new_data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
+      new_data = await async_migrate_cost_tracker_config(config_entry.version, new_data, hass.config_entries.async_entries)
+    elif CONFIG_KIND in new_data and new_data[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:
+      new_data = await async_migrate_cost_tracker_config(config_entry.version, new_data, hass.config_entries.async_entries)
     
-    hass.config_entries.async_update_entry(config_entry, title=title, data=new_data, options=new_options, version=CONFIG_VERSION)
+    hass.config_entries.async_update_entry(config_entry, title=title, data=new_data, options={}, version=CONFIG_VERSION)
 
     _LOGGER.debug("Migration to version %s successful", config_entry.version)
 
@@ -153,9 +152,6 @@ async def async_setup_entry(hass, entry):
 
   config = dict(entry.data)
 
-  if entry.options:
-    config.update(entry.options)
-
   account_id = config[CONFIG_ACCOUNT_ID]
   hass.data[DOMAIN].setdefault(account_id, {})
 
@@ -176,9 +172,6 @@ async def async_setup_entry(hass, entry):
     child_entries = hass.config_entries.async_entries(DOMAIN, include_ignore=False)
     for child_entry in child_entries:
       child_entry_config = dict(child_entry.data)
-
-      if child_entry.options:
-        child_entry_config.update(child_entry.options)
 
       if child_entry_config[CONFIG_KIND] != CONFIG_KIND_ACCOUNT and child_entry_config[CONFIG_ACCOUNT_ID] == account_id:
         await hass.config_entries.async_reload(child_entry.entry_id)
@@ -566,9 +559,6 @@ async def options_update_listener(hass, entry):
     child_entries = hass.config_entries.async_entries(DOMAIN, include_ignore=False)
     for child_entry in child_entries:
       child_entry_config = dict(child_entry.data)
-
-      if child_entry.options:
-        child_entry_config.update(child_entry.options)
 
       if child_entry_config[CONFIG_KIND] != CONFIG_KIND_ACCOUNT and child_entry_config[CONFIG_ACCOUNT_ID] == account_id:
         await hass.config_entries.async_reload(child_entry.entry_id)
