@@ -374,4 +374,4 @@ def mock_heat_pump_status_and_configuration():
     }
   }
 
-  return HeatPumpResponse.parse_obj(data)
+  return HeatPumpResponse.model_validate(data)
