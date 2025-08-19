@@ -1,0 +1,9 @@
+name: Setup python dependencies
+description: Sets up required python dependencies
+runs:
+  using: composite
+  steps:
+    - name: Install Python modules
+      run: |
+        pip install -r requirements.test.txt
+      shell: bash

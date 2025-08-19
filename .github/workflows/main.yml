@@ -41,6 +41,10 @@ jobs:
     if: ${{ github.event_name != 'schedule' || github.repository_owner == 'BottlecapDave' }}
     name: Unit Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -48,14 +52,34 @@ jobs:
           fetch-depth: 0
       - name: Setup
         uses: ./.github/actions/setup
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: {{ matrix.python-version }}
+      - name: Display Python version
+        run: python3 -c "import sys; print(sys.version)"
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+          key: ${{ runner.os }}-${{ matrix.python-version }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.python-version }}-pip-
+      - name: Setup Python requirements
+        uses: ./.github/actions/setup-python
       - name: Run unit tests
         run: |
-          python -m pytest tests/unit
+          python3 -m pytest tests/unit
   integration_tests:
     # Tests are geared towards my account, so ignore for others
     if: ${{ github.repository_owner == 'BottlecapDave' && github.repository_owner == github.actor }}
     name: Integration Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      matrix:
+        python-version: ["3.12", "3.13"]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -63,9 +87,25 @@ jobs:
           fetch-depth: 0
       - name: Setup
         uses: ./.github/actions/setup
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: {{ matrix.python-version }}
+      - name: Display Python version
+        run: python3 -c "import sys; print(sys.version)"
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+          key: ${{ runner.os }}-${{ matrix.python-version }}-pip-${{ hashFiles('**/requirements*.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-${{ matrix.python-version }}-pip-
+      - name: Setup Python requirements
+        uses: ./.github/actions/setup-python
       - name: Run integration tests
         run: |
-          python -m pytest tests/integration
+          python3 -m pytest tests/integration
         env:
           API_KEY: ${{ secrets.OCTOPUS_ENERGY_API_TOKEN }}
           GAS_MPRN: ${{ secrets.OCTOPUS_ENERGY_GAS_MPRN }}
@@ -76,7 +116,7 @@ jobs:
   release:
     name: Release
     if: ${{ github.repository_owner == 'BottlecapDave' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta') }}
-    needs: 
+    needs:
     - validate
     - unit_tests
     - integration_tests
