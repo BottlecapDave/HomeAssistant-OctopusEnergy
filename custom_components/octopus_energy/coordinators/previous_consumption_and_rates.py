@@ -232,7 +232,7 @@ def get_latest_day(consumption_data: list | None):
   if len(current_reduced_consumption_data) == 48:
     latest_reduced_consumption_data = current_reduced_consumption_data
 
-  _LOGGER.debug(f"Latest day: {latest_reduced_consumption_data[-1]["end"] if latest_reduced_consumption_data is not None and len(latest_reduced_consumption_data) > 0 else None}")
+  _LOGGER.debug(f"Latest day: {latest_reduced_consumption_data[-1]['end'] if latest_reduced_consumption_data is not None and len(latest_reduced_consumption_data) > 0 else None}")
   return latest_reduced_consumption_data
 
 async def async_fetch_consumption_and_rates(

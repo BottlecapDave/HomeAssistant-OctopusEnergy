@@ -12,10 +12,10 @@ async def async_load_cached_heat_pump(hass, account_id: str, euid: str) -> HeatP
     data = await store.async_load()
     if data is not None:
       _LOGGER.debug(f"Loaded cached heat pump data for {account_id}/{euid}")
-      return HeatPumpResponse.parse_obj(data)
+      return HeatPumpResponse.model_validate(data)
   except:
     return None
-  
+
 async def async_save_cached_heat_pump(hass, account_id: str, euid: str, heat_pump: HeatPumpResponse):
   if heat_pump is not None:
     store = storage.Store(hass, "2", f"octopus_energy.{account_id}_{euid}_heat_pump")
