@@ -355,7 +355,7 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
   }
 
   # Act
-  result = HeatPumpResponse.parse_obj(data)
+  result = HeatPumpResponse.model_validate(data)
 
   # Assert
   assert result is not None
