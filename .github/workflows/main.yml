@@ -53,7 +53,7 @@ jobs:
           python -m pytest tests/unit
   integration_tests:
     # Tests are geared towards my account, so ignore for others
-    if: ${{ github.repository_owner == 'BottlecapDave' }}
+    if: ${{ github.repository_owner == 'BottlecapDave' && github.repository_owner == github.actor }}
     name: Integration Tests
     runs-on: ubuntu-latest
     steps:
