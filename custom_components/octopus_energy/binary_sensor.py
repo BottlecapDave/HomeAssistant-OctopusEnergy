@@ -15,6 +15,7 @@ from .intelligent import get_intelligent_features
 from .api_client.intelligent_device import IntelligentDevice
 from .target_rates.rolling_target_rate import OctopusEnergyRollingTargetRate
 from .octoplus.free_electricity_sessions import OctopusEnergyFreeElectricitySessions
+from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
 
 from .const import (
   CONFIG_KIND,
@@ -145,7 +146,8 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
           
           entities.append(OctopusEnergyElectricityOffPeak(hass, electricity_rate_coordinator, meter, point))
 
-  intelligent_device: IntelligentDevice = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
+  intelligent_result: IntelligentDeviceCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
+  intelligent_device: IntelligentDevice = intelligent_result.device if intelligent_result is not None else None
   intelligent_mpan = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] if DATA_INTELLIGENT_MPAN in hass.data[DOMAIN][account_id] else None
   intelligent_serial_number = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] if DATA_INTELLIGENT_SERIAL_NUMBER in hass.data[DOMAIN][account_id] else None
   if intelligent_device is not None and intelligent_mpan is not None and intelligent_serial_number is not None:

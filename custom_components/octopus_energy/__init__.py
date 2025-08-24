@@ -9,7 +9,6 @@ from homeassistant.const import (
     EVENT_HOMEASSISTANT_STOP
 )
 from homeassistant.helpers import issue_registry as ir
-from homeassistant.core import SupportsResponse
 
 from .api_client_home_pro import OctopusEnergyHomeProApiClient
 from .coordinators.account import AccountCoordinatorResult, async_setup_account_info_coordinator
@@ -28,7 +27,7 @@ from .config.main import async_migrate_main_config
 from .config.target_rates import async_migrate_target_config
 from .config.cost_tracker import async_migrate_cost_tracker_config
 from .utils import get_active_tariff
-from .utils.debug_overrides import MeterDebugOverride, async_get_account_debug_override, async_get_meter_debug_override
+from .utils.debug_overrides import async_get_account_debug_override, async_get_meter_debug_override
 from .utils.error import api_exception_to_string
 from .storage.account import async_load_cached_account, async_save_cached_account
 from .storage.intelligent_device import async_load_cached_intelligent_device, async_save_cached_intelligent_device
@@ -36,6 +35,7 @@ from .storage.rate_weightings import async_load_cached_rate_weightings
 from .storage.intelligent_dispatches import async_load_cached_intelligent_dispatches
 from .api_client.intelligent_dispatches import IntelligentDispatches
 from .discovery import DiscoveryManager
+from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult, async_setup_intelligent_device_coordinator
 
 from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configuration
 from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_heat_pump
@@ -90,7 +90,7 @@ TARGET_RATE_PLATFORMS = ["binary_sensor"]
 COST_TRACKER_PLATFORMS = ["sensor"]
 TARIFF_COMPARISON_PLATFORMS = ["sensor"]
 
-from .api_client import ApiException, AuthenticationException, OctopusEnergyApiClient, RequestException
+from .api_client import ApiException, AuthenticationException, OctopusEnergyApiClient
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -423,7 +423,7 @@ async def async_setup_dependencies(hass, config):
           _LOGGER.warning(f"Using cached intelligent device information for {account_id} during startup. This data will be updated automatically when available.")
 
     if intelligent_device is not None:
-      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] = intelligent_device
+      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] = IntelligentDeviceCoordinatorResult(now(), 1, intelligent_device)
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] = intelligent_mpan
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] = intelligent_serial_number
 
@@ -541,6 +541,8 @@ async def async_setup_dependencies(hass, config):
 
   await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id if intelligent_device is not None else None, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False)
   
+  await async_setup_intelligent_device_coordinator(hass, account_id, intelligent_device, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False)
+
   await async_setup_saving_sessions_coordinators(hass, account_id)
 
   await async_setup_free_electricity_sessions_coordinators(hass, account_id)
