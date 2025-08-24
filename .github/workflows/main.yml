@@ -52,22 +52,10 @@ jobs:
           fetch-depth: 0
       - name: Setup
         uses: ./.github/actions/setup
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: {{ matrix.python-version }}
-      - name: Display Python version
-        run: python3 -c "import sys; print(sys.version)"
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-          key: ${{ runner.os }}-${{ matrix.python-version }}-pip-${{ hashFiles('**/requirements*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.python-version }}-pip-
-      - name: Setup Python requirements
+      - name: Setup Python environment
         uses: ./.github/actions/setup-python
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Run unit tests
         run: |
           python3 -m pytest tests/unit
@@ -87,22 +75,10 @@ jobs:
           fetch-depth: 0
       - name: Setup
         uses: ./.github/actions/setup
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
-        with:
-          python-version: {{ matrix.python-version }}
-      - name: Display Python version
-        run: python3 -c "import sys; print(sys.version)"
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-          key: ${{ runner.os }}-${{ matrix.python-version }}-pip-${{ hashFiles('**/requirements*.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-${{ matrix.python-version }}-pip-
-      - name: Setup Python requirements
+      - name: Setup Python environment
         uses: ./.github/actions/setup-python
+        with:
+          python-version: ${{ matrix.python-version }}
       - name: Run integration tests
         run: |
           python3 -m pytest tests/integration
