@@ -39,6 +39,7 @@ blueprint:
       description: "The expected state of the external sensor that determines if the car has been plugged in (e.g. 'on')."
       selector:
         text:
+          multiple: true
 
     actions:
       name: Actions
