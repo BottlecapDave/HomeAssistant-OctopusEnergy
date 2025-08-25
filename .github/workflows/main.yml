@@ -76,7 +76,7 @@ jobs:
   release:
     name: Release
     if: ${{ github.repository_owner == 'BottlecapDave' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/beta') }}
-    needs: 
+    needs:
     - validate
     - unit_tests
     - integration_tests
@@ -87,7 +87,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: asdf_install
-        uses: asdf-vm/actions/install@v3
+        uses: asdf-vm/actions/install@v4
       - name: Install dependencies
         run: npm ci
       - name: Release
