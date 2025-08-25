@@ -7,4 +7,4 @@ runs:
       run: sudo apt install libffi-dev libncurses5-dev zlib1g zlib1g-dev libssl-dev libreadline-dev libbz2-dev libsqlite3-dev
       shell: bash
     - name: asdf_install
-      uses: asdf-vm/actions/install@v3
+      uses: asdf-vm/actions/install@v4
