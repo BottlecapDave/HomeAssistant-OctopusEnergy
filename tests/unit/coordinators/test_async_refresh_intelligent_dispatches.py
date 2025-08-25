@@ -841,6 +841,8 @@ async def test_when_retrieved_planned_dispatch_started_and_in_boosting_mode_then
     assert len(retrieved_dispatches.dispatches.started) == 0
     assert mock_api_called == True
 
+    assert save_dispatches_called == True
+
 @pytest.mark.asyncio
 async def test_when_retrieved_planned_dispatch_started_and_not_in_boosting_mode_then_started_dispatches_added_to():
   expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [
@@ -896,6 +898,8 @@ async def test_when_retrieved_planned_dispatch_started_and_not_in_boosting_mode_
     assert retrieved_dispatches.dispatches.started[0].start == current.replace(second=0, microsecond=0)
     assert retrieved_dispatches.dispatches.started[0].end == current.replace(second=0, microsecond=0) + timedelta(minutes=30)
 
+    assert save_dispatches_called == True
+
 @pytest.mark.asyncio
 async def test_when_retrieved_planned_dispatch_started_and_existing_started_dispatch_exists_in_previous_period_then_existing_started_dispatch_extended():
   expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [
@@ -924,7 +928,9 @@ async def test_when_retrieved_planned_dispatch_started_and_existing_started_disp
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), 1, last_retrieved)
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(expected_dispatches.current_state), 1, last_retrieved)
+  existing_dispatches.dispatches.planned = expected_dispatches.planned.copy()
+  existing_dispatches.dispatches.completed = expected_dispatches.completed.copy()
   existing_dispatches.dispatches.started = [
     SimpleIntelligentDispatchItem(
       current.replace(second=0, microsecond=0) - timedelta(minutes=30),
@@ -957,8 +963,10 @@ async def test_when_retrieved_planned_dispatch_started_and_existing_started_disp
     assert retrieved_dispatches.dispatches.started[0].start == current.replace(second=0, microsecond=0) - timedelta(minutes=30)
     assert retrieved_dispatches.dispatches.started[0].end == current.replace(second=0, microsecond=0) + timedelta(minutes=30)
 
+    assert save_dispatches_called == True
+
 @pytest.mark.asyncio
-async def test_when_retrieved_planned_dispatch_started_and_existing_started_dispatch_exists_not_in_previous_period_then_existing_started_dispatch_extended():
+async def test_when_retrieved_planned_dispatch_started_and_existing_started_dispatch_exists_not_in_previous_period_then_existing_started_dispatch_not_extended():
   expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [
     IntelligentDispatchItem(
       current - timedelta(minutes=1),
@@ -1021,6 +1029,8 @@ async def test_when_retrieved_planned_dispatch_started_and_existing_started_disp
     assert retrieved_dispatches.dispatches.started[1].start == current.replace(second=0, microsecond=0)
     assert retrieved_dispatches.dispatches.started[1].end == current.replace(second=0, microsecond=0) + timedelta(minutes=30)
 
+    assert save_dispatches_called == True
+
 @pytest.mark.asyncio
 async def test_when_existing_started_dispatches_more_than_three_days_old_then_old_started_dispatches_removed():
   expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [
@@ -1081,3 +1091,5 @@ async def test_when_existing_started_dispatches_more_than_three_days_old_then_ol
     assert len(retrieved_dispatches.dispatches.started) == 1
     assert retrieved_dispatches.dispatches.started[0].start == current.replace(second=0, microsecond=0)
     assert retrieved_dispatches.dispatches.started[0].end == current.replace(second=0, microsecond=0) + timedelta(minutes=30)
+
+    assert save_dispatches_called == True

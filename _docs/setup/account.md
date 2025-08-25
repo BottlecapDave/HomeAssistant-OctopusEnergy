@@ -4,7 +4,7 @@ Setup is done entirely via the [integration UI](https://my.home-assistant.io/red
 
 ## Home Mini
 
-If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to check the box next to `I have a Home Mini`. This will gain the following entities which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/):
+If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/) (you can request one via this link), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to check the box next to `I have a Home Mini`. This will gain the following entities which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/):
 
 !!! info
 
@@ -73,7 +73,7 @@ In this scenario only started dispatches will be taken into account for adjustme
 
 ## Home Pro
 
-If you are lucky enough to own an [Octopus Home Pro](https://forum.octopus.energy/t/for-the-pro-user/8453/2352/), you can now receive this data locally from within Home Assistant. 
+If you are lucky enough to own an [Octopus Home Pro](https://forum.octopus.energy/t/for-the-pro-user/8453/2352/) (note that is is no longer possible to obtain one), you can now receive this data locally from within Home Assistant.
 
 !!! warning
 
