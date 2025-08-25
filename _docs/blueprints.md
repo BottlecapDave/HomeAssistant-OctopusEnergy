@@ -6,7 +6,7 @@
 
 ### Alert when rates change
 
-[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_rates_changed.yml) | [Source](./blueprints/octopus_energy_rates_changed.yml)
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_rates_changed.yaml) | [Source](./blueprints/octopus_energy_rates_changed.yaml)
 
 This blueprint will raise a persistent notification within HA when a rate updates.
 
@@ -24,7 +24,7 @@ This blueprint will fire a configured action when the consumption has 24 hours w
 
 ### Alert when consumption data is late
 
-[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%octopus_energy_late_consumption_data.yml) | [Source](./blueprints/octopus_energy_late_consumption_data.yml)
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%octopus_energy_late_consumption_data.yaml) | [Source](./blueprints/octopus_energy_late_consumption_data.yaml)
 
 This blueprint will fire a configured action when the latest available consumption data is x hours old, where x is configured via the blueprint.
 
@@ -32,22 +32,22 @@ This blueprint will fire a configured action when the latest available consumpti
 
 ### Automatically join saving sessions
 
-[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_join_saving_session.yml) | [Source](./blueprints/octopus_energy_octoplus_join_saving_session.yml)
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_join_saving_session.yaml) | [Source](./blueprints/octopus_energy_octoplus_join_saving_session.yaml)
 
 This blueprint will trigger when a new saving session has been discovered, join it, and send a notification alerting you to when it will start.
 
-If you wish to customise how the notification is delivered, you should install [this blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_join_saving_session_custom_action.yml) ([source](./blueprints/octopus_energy_octoplus_join_saving_session_custom_action.yml)) 
+If you wish to customise how the notification is delivered, you should install [this blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_join_saving_session_custom_action.yaml) ([source](./blueprints/octopus_energy_octoplus_join_saving_session_custom_action.yaml))
 
 ### Automatically redeem Octoplus points for account credit
 
-[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_redeem_points_for_account_credit.yml) | [Source](./blueprints/octopus_energy_octoplus_redeem_points_for_account_credit.yml)
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_redeem_points_for_account_credit.yaml) | [Source](./blueprints/octopus_energy_octoplus_redeem_points_for_account_credit.yaml)
 
 This blueprint will automatically redeem all redeemable points for account credit when the number of redeemable points exceeds a configurable threshold.
 
 !!! info
 
     This will only trigger when the redeemable points go from under the threshold to over. If it's already over the threshold, then the automation will not trigger. This is by [design of Home Assistant](https://www.home-assistant.io/docs/automation/trigger/#numeric-state-trigger).
-    
+
     You can manually run the automation if the redeemable points is over the threshold to get it in a state where automatic redemption will happen in the future.
 
 ### Alert when current consumption is approaching saving sessions baseline
@@ -86,13 +86,13 @@ This blueprint will fire the [intelligent dispatches service](./services.md#octo
 
 ### Automatically spin wheel of fortune (single)
 
-[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_spin_wheel_of_fortune_single.yml) | [Source](./blueprints/octopus_energy_spin_wheel_of_fortune_single.yml)
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_spin_wheel_of_fortune_single.yaml) | [Source](./blueprints/octopus_energy_spin_wheel_of_fortune_single.yaml)
 
 This blueprint will trigger when the number of spins for a given energy source goes above zero, and will spin until the sensor reaches zero.
 
 ### Automatically spin wheel of fortune (Dual)
 
-[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_spin_wheel_of_fortune_dual.yml) | [Source](./blueprints/octopus_energy_spin_wheel_of_fortune_dual.yml)
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_spin_wheel_of_fortune_dual.yaml) | [Source](./blueprints/octopus_energy_spin_wheel_of_fortune_dual.yaml)
 
 This blueprint will trigger when either gas or electricity energy source spins are available, and will spin until the sensor reaches zero. This works as above, but combines both sensors into a single automation.
 
@@ -104,12 +104,12 @@ This blueprint will trigger when either gas or electricity energy source spins a
 
 ### Automatically update tracking (negative)
 
-[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_cost_tracker_negative.yml) | [Source](./blueprints/octopus_energy_cost_tracker_negative.yml)
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_cost_tracker_negative.yaml) | [Source](./blueprints/octopus_energy_cost_tracker_negative.yaml)
 
 This blueprint will automatically update the tracking state for the specified [cost tracker](./setup/cost_tracker.md) sensors when the monitored sensor goes negative.
 
 ### Automatically update tracking (positive)
 
-[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_cost_tracker_positive.yml) | [Source](./blueprints/octopus_energy_cost_tracker_positive.yml)
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_cost_tracker_positive.yaml) | [Source](./blueprints/octopus_energy_cost_tracker_positive.yaml)
 
 This blueprint will automatically update the tracking state for the specified [cost tracker](./setup/cost_tracker.md) sensors when the monitored sensor goes positive (including zero).
