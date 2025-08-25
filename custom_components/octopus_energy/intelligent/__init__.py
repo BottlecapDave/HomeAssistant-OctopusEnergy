@@ -16,10 +16,9 @@ mock_intelligent_data_key = "MOCK_INTELLIGENT_DATA"
 
 _LOGGER = logging.getLogger(__name__)
 
-def mock_intelligent_dispatches() -> IntelligentDispatches:
+def mock_intelligent_dispatches(current_state = "SMART_CONTROL_CAPABLE") -> IntelligentDispatches:
   planned: list[IntelligentDispatchItem] = []
   completed: list[IntelligentDispatchItem] = []
-  current_state = "SMART_CONTROL_CAPABLE"
 
   dispatches = [
     IntelligentDispatchItem(

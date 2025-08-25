@@ -77,35 +77,27 @@ class IntelligentDispatchesCoordinatorResult(BaseCoordinatorResult):
     self.requests_current_hour = requests_current_hour
     self.requests_current_hour_last_reset = requests_current_hour_last_reset
 
+def has_dispatch_items_changed(existing_dispatches: list[SimpleIntelligentDispatchItem], new_dispatches: list[SimpleIntelligentDispatchItem]):
+  if len(existing_dispatches) != len(new_dispatches):
+    return True
+
+  if len(existing_dispatches) > 0:
+    for i in range(0, len(existing_dispatches)):
+      if (existing_dispatches[i].start != new_dispatches[i].start or
+          existing_dispatches[i].end != new_dispatches[i].end):
+        return True
+
+  return False
+
 def has_dispatches_changed(existing_dispatches: IntelligentDispatches, new_dispatches: IntelligentDispatches):
   return (
     existing_dispatches.current_state != new_dispatches.current_state or
     len(existing_dispatches.completed) != len(new_dispatches.completed) or
-    (
-      len(existing_dispatches.completed) > 0 and
-      (
-        existing_dispatches.completed[0].start != new_dispatches.completed[0].start or
-        existing_dispatches.completed[-1].start != new_dispatches.completed[-1].start
-      )
-    ) 
-    or
+    has_dispatch_items_changed(existing_dispatches.completed, new_dispatches.completed) or
     len(existing_dispatches.planned) != len(new_dispatches.planned) or
-    (
-      len(existing_dispatches.planned) > 0 and
-      (
-        existing_dispatches.planned[0].start != new_dispatches.planned[0].start or
-        existing_dispatches.planned[-1].start != new_dispatches.planned[-1].start
-      )
-    )
-    or
+    has_dispatch_items_changed(existing_dispatches.planned, new_dispatches.planned) or
     len(existing_dispatches.started) != len(new_dispatches.started) or
-    (
-      len(existing_dispatches.started) > 0 and
-      (
-        existing_dispatches.started[0].start != new_dispatches.started[0].start or
-        existing_dispatches.started[-1].start != new_dispatches.started[-1].start
-      )
-    )
+    has_dispatch_items_changed(existing_dispatches.started, new_dispatches.started)
   )
 
 def merge_started_dispatches(current: datetime,
@@ -113,6 +105,7 @@ def merge_started_dispatches(current: datetime,
                              started_dispatches: list[SimpleIntelligentDispatchItem],
                              planned_dispatches: list[IntelligentDispatchItem]):
   new_started_dispatches = clean_previous_dispatches(current, started_dispatches)
+  new_started_dispatches = list(map(lambda item: SimpleIntelligentDispatchItem(item.start, item.end), new_started_dispatches))
 
   if current_state == "SMART_CONTROL_IN_PROGRESS":
     for planned_dispatch in planned_dispatches:
