@@ -82,6 +82,7 @@ from .coordinators.electricity_standing_charges import async_setup_electricity_s
 from .coordinators.gas_standing_charges import async_setup_gas_standing_charges_coordinator
 from .coordinators.wheel_of_fortune import async_setup_wheel_of_fortune_spins_coordinator
 from .coordinators.current_consumption_home_pro import async_create_home_pro_current_consumption_coordinator
+from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
 
 from .api_client.heat_pump import HeatPumpResponse
 from .api_client.intelligent_device import IntelligentDevice
@@ -319,7 +320,8 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
     OctopusEnergyWheelOfFortuneDataLastRetrieved(hass, wheel_of_fortune_coordinator, account_id)
   ]
 
-  intelligent_device: IntelligentDevice = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
+  intelligent_result: IntelligentDeviceCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
+  intelligent_device: IntelligentDevice = intelligent_result.device if intelligent_result is not None else None
   if intelligent_device is not None:
     intelligent_dispatches_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR] if DATA_INTELLIGENT_DISPATCHES_COORDINATOR in hass.data[DOMAIN][account_id] else None
     if intelligent_dispatches_coordinator is not None:
