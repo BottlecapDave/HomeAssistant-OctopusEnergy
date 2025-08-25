@@ -8,7 +8,3 @@ runs:
       shell: bash
     - name: asdf_install
       uses: asdf-vm/actions/install@v3
-    - name: Install Python modules
-      run: |
-        pip install -r requirements.test.txt
-      shell: bash
