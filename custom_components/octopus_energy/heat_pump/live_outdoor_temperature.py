@@ -5,7 +5,7 @@ from typing import List
 from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
-    UnitOfEnergy
+    UnitOfTemperature
 )
 from homeassistant.core import HomeAssistant, callback
 
@@ -26,8 +26,8 @@ from ..coordinators.heat_pump_configuration_and_status import HeatPumpCoordinato
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyHeatPumpSensorLifetimeEnergyInput(CoordinatorEntity, BaseOctopusEnergyHeatPumpSensor, RestoreSensor):
-  """Sensor for displaying the lifetime energy input of a heat pump."""
+class OctopusEnergyHeatPumpLiveOutdoorTemperature(CoordinatorEntity, BaseOctopusEnergyHeatPumpSensor, RestoreSensor):
+  """Sensor for displaying the live heat output of a heat pump."""
 
   def __init__(self, hass: HomeAssistant, coordinator, heat_pump_id: str, heat_pump: HeatPump):
     """Init sensor."""
@@ -41,32 +41,32 @@ class OctopusEnergyHeatPumpSensorLifetimeEnergyInput(CoordinatorEntity, BaseOcto
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_heat_pump_{self._heat_pump_id}_lifetime_energy_input"
+    return f"octopus_energy_heat_pump_{self._heat_pump_id}_live_outdoor_temperature"
 
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Lifetime Energy Input Heat Pump ({self._heat_pump_id})"
+    return f"Live Outdoor Temperature Heat Pump ({self._heat_pump_id})"
 
   @property
   def state_class(self):
     """The state class of sensor"""
-    return SensorStateClass.TOTAL_INCREASING
+    return SensorStateClass.MEASUREMENT
 
   @property
   def device_class(self):
     """The type of sensor"""
-    return SensorDeviceClass.ENERGY
+    return SensorDeviceClass.TEMPERATURE
 
   @property
   def icon(self):
     """Icon of the sensor."""
-    return "mdi:flash"
+    return "mdi:thermometer"
 
   @property
   def native_unit_of_measurement(self):
     """Unit of measurement of the sensor."""
-    return UnitOfEnergy.KILO_WATT_HOUR
+    return UnitOfTemperature.CELSIUS
 
   @property
   def extra_state_attributes(self):
@@ -79,17 +79,18 @@ class OctopusEnergyHeatPumpSensorLifetimeEnergyInput(CoordinatorEntity, BaseOcto
   
   @callback
   def _handle_coordinator_update(self) -> None:
-    """Retrieve the lifetime energy input for the heat pump."""
+    """Retrieve the live heat output for the heat pump."""
     current = now()
     result: HeatPumpCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
-
+    
     if (result is not None 
         and result.data is not None 
-        and result.data.octoHeatPumpLifetimePerformance is not None):
-      _LOGGER.debug(f"Updating OctopusEnergyHeatPumpSensorLifetimeEnergyInput for '{self._heat_pump_id}'")
+        and result.data.octoHeatPumpLivePerformance is not None
+        and result.data.octoHeatPumpLivePerformance.outdoorTemperature is not None):
+      _LOGGER.debug(f"Updating OctopusEnergyHeatPumpLiveOutdoorTemperature for '{self._heat_pump_id}'")
 
-      self._state = float(result.data.octoHeatPumpLifetimePerformance.energyInput.value)
-      self._attributes["read_at"] = datetime.fromisoformat(result.data.octoHeatPumpLifetimePerformance.readAt)
+      self._state = float(result.data.octoHeatPumpLivePerformance.outdoorTemperature.value)
+      self._attributes["read_at"] = datetime.fromisoformat(result.data.octoHeatPumpLivePerformance.readAt)
       self._last_updated = current
 
     self._attributes = dict_to_typed_dict(self._attributes)
@@ -106,4 +107,4 @@ class OctopusEnergyHeatPumpSensorLifetimeEnergyInput(CoordinatorEntity, BaseOcto
       self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else last_sensor_state.native_value
       self._attributes = dict_to_typed_dict(state.attributes, [])
     
-      _LOGGER.debug(f'Restored OctopusEnergyHeatPumpSensorLifetimeEnergyInput state: {self._state}')
+      _LOGGER.debug(f'Restored OctopusEnergyHeatPumpLiveOutdoorTemperature state: {self._state}')

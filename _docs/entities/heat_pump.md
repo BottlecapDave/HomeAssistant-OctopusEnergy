@@ -120,6 +120,40 @@ This represents the configured fixed target flow temperature for the heat pump, 
 !!! note
     This is not the actual current flow temperature, but rather the configured target.
 
+!!! info
+
+    Use the [set_heat_pump_flow_temp_config](../services.md#octopus_energyset_heat_pump_flow_temp_config) service to configure this sensor. Upon updated, it may take a few minutes to update.
+
+## Weather Compensation Enabled
+
+`binary_sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_weather_compensation_enabled`
+
+This determines if weather compensation is enabled.
+
+!!! info
+
+    Use the [set_heat_pump_flow_temp_config](../services.md#octopus_energyset_heat_pump_flow_temp_config) service to configure this sensor. Upon updated, it may take a few minutes to update.
+
+## Weather Compensation Minimum Temperature
+
+`sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_weather_compensation_minimum_temperature`
+
+This determines the configured minimum temperature for weather compensation, if enabled.
+
+!!! info
+
+    Use the [set_heat_pump_flow_temp_config](../services.md#octopus_energyset_heat_pump_flow_temp_config) service to configure this sensor. Upon updated, it may take a few minutes to update.
+
+## Weather Compensation Maximum Temperature
+
+`sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_weather_compensation_maximum_temperature`
+
+This determines the configured maximum temperature for weather compensation, if enabled.
+
+!!! info
+
+    Use the [set_heat_pump_flow_temp_config](../services.md#octopus_energyset_heat_pump_flow_temp_config) service to configure this sensor. Upon updated, it may take a few minutes to update.
+
 ## Services
 
 There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services.md#heat-pump).
