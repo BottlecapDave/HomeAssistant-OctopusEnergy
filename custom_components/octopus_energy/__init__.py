@@ -423,7 +423,7 @@ async def async_setup_dependencies(hass, config):
           _LOGGER.warning(f"Using cached intelligent device information for {account_id} during startup. This data will be updated automatically when available.")
 
     if intelligent_device is not None:
-      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] = IntelligentDeviceCoordinatorResult(now(), 1, intelligent_device)
+      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] = IntelligentDeviceCoordinatorResult(now, 1, intelligent_device)
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] = intelligent_mpan
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] = intelligent_serial_number
 

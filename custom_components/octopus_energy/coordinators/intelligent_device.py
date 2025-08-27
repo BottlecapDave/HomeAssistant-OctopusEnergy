@@ -70,14 +70,14 @@ async def async_refresh_device(
           ir.async_create_issue(
             hass,
             DOMAIN,
-            REPAIR_INTELLIGENT_DEVICE_CHANGED.format(account_id),
+            REPAIR_INTELLIGENT_DEVICE_CHANGED.format(current_intelligent_device.id),
             is_fixable=False,
             severity=ir.IssueSeverity.WARNING,
             translation_key="intelligent_device_changed",
             translation_placeholders={ "account_id": account_id },
           )
         else:
-          ir.async_delete_issue(hass, DOMAIN, REPAIR_INTELLIGENT_DEVICE_CHANGED.format(account_id))
+          ir.async_delete_issue(hass, DOMAIN, REPAIR_INTELLIGENT_DEVICE_CHANGED.format(current_intelligent_device.id))
 
         return IntelligentDeviceCoordinatorResult(current, 1, device)
     except Exception as e:
