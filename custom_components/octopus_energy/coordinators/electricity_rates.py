@@ -35,7 +35,7 @@ from ..intelligent import adjust_intelligent_rates, is_intelligent_product
 from ..utils.rate_information import get_unique_rates, has_peak_rates
 from ..utils.tariff_cache import async_save_cached_tariff_total_unique_rates
 from ..api_client.intelligent_device import IntelligentDevice
-from ..api_client.intelligent_dispatches import IntelligentDispatches
+from ..coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -268,7 +268,8 @@ async def async_setup_electricity_rates_coordinator(hass,
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
     account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN][account_id] else None
     account_info = account_result.account if account_result is not None else None
-    intelligent_device: IntelligentDevice | None = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
+    intelligent_result: IntelligentDeviceCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
+    intelligent_device: IntelligentDevice = intelligent_result.device if intelligent_result is not None else None
     dispatches: IntelligentDispatchesCoordinatorResult | None = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None
     rates: ElectricityRatesCoordinatorResult | None = hass.data[DOMAIN][account_id][key] if key in hass.data[DOMAIN][account_id] else None
 

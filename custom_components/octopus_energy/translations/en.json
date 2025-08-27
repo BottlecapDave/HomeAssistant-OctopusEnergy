@@ -391,6 +391,14 @@
     "target_rate_removal_proposal": {
       "title": "Proposal: The removal of target rate sensors from the integration",
       "description": "It looks like you're using target rate sensors. There is currently a proposal to remove this functionality due to it existing in a separate integration. Please click \"Learn More\" to see the full reasoning and provide your feedback. Click ignore to not see this proposal again."
+    },
+    "intelligent_device_not_found": {
+      "title": "Intelligent device not found for {account_id}",
+      "description": "Your intelligent device cannot be found for your account. Please check your intelligent device is setup in your account via the Octopus Energy app."
+    },
+    "intelligent_device_changed": {
+      "title": "Intelligent device changed for {account_id}",
+      "description": "Your intelligent device has changed. You will need to reload the integration in order to continue updating settings and retrieving planned or completed dispatch information without issue. Once reloaded, you can delete your old intelligent device within Home Assistant. This cannot be done automatically because the internal ids have changed."
     }
   }
 }

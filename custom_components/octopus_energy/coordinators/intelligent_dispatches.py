@@ -10,6 +10,7 @@ from homeassistant.helpers.update_coordinator import (
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
   DATA_INTELLIGENT_DEVICE,
+  DATA_INTELLIGENT_DEVICE_COORDINATOR,
   DOMAIN,
 
   DATA_CLIENT,
@@ -28,6 +29,7 @@ from ..api_client.intelligent_device import IntelligentDevice
 from ..storage.intelligent_dispatches import async_save_cached_intelligent_dispatches
 
 from ..intelligent import clean_previous_dispatches, has_intelligent_tariff, mock_intelligent_dispatches
+from ..coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -276,12 +278,19 @@ async def async_refresh_intelligent_dispatches(
   return result
 
 async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, mock_intelligent_data: bool, manual_dispatch_refreshes: bool, planned_dispatches_supported: bool):
+  intelligent_result: IntelligentDeviceCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
+  intelligent_device: IntelligentDevice = intelligent_result.device if intelligent_result is not None else None
+  
   async def async_update_intelligent_dispatches_data(is_manual_refresh = False):
     """Fetch data from API endpoint."""
     # Request our account data to be refreshed
     account_coordinator = hass.data[DOMAIN][account_id][DATA_ACCOUNT_COORDINATOR]
     if account_coordinator is not None:
       await account_coordinator.async_request_refresh()
+
+    intelligent_device_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE_COORDINATOR]
+    if intelligent_device_coordinator is not None:
+      await intelligent_device_coordinator.async_request_refresh()
 
     current = utcnow()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
@@ -292,7 +301,7 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, 
       current,
       client,
       account_info,
-      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None,
+      intelligent_device,
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None,
       mock_intelligent_data,
       is_manual_refresh,
