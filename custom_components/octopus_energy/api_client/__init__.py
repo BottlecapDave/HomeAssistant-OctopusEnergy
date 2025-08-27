@@ -908,7 +908,7 @@ class OctopusEnergyApiClient:
       raise TimeoutException()
     
     return None
-  
+
   async def async_get_heat_pump_configuration_and_status(self, account_id: str, euid: str):
     """Get a heat pump configuration and status"""
     await self.async_refresh_token()
@@ -922,20 +922,20 @@ class OctopusEnergyApiClient:
       async with client.post(url, json=payload, headers=headers) as heat_pump_response:
         response = await self.__async_read_response__(heat_pump_response, url)
 
-        if (response is not None 
-            and "data" in response 
-            and "octoHeatPumpControllerConfiguration" in response["data"] 
+        if (response is not None
+            and "data" in response
+            and "octoHeatPumpControllerConfiguration" in response["data"]
             and "octoHeatPumpControllerStatus" in response["data"]
             and "octoHeatPumpLivePerformance" in response["data"]
             and "octoHeatPumpLifetimePerformance" in response["data"]):
-          return HeatPumpResponse.parse_obj(response["data"])
-        
+          return HeatPumpResponse.model_validate(response["data"])
+
       return None
-    
+
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
-    
+
   async def async_set_heat_pump_flow_temp_config(self, euid: str, weather_comp_enabled: bool, weather_comp_min_temperature: float, weather_comp_max_temperature: float, fixed_flow_temperature: float):
     """Sets the flow temperature for a given heat pump zone"""
     await self.async_refresh_token()

@@ -9,6 +9,7 @@ from homeassistant.helpers import storage
 
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
+  DATA_INTELLIGENT_DEVICE_COORDINATOR,
   DOMAIN,
 
   DATA_CLIENT,
@@ -94,6 +95,10 @@ async def async_setup_intelligent_settings_coordinator(hass, account_id: str, de
     account_coordinator = hass.data[DOMAIN][account_id][DATA_ACCOUNT_COORDINATOR]
     if account_coordinator is not None:
       await account_coordinator.async_request_refresh()
+
+    intelligent_device_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE_COORDINATOR]
+    if intelligent_device_coordinator is not None:
+      await intelligent_device_coordinator.async_request_refresh()
 
     current = utcnow()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]

@@ -1,0 +1,28 @@
+name: Setup python environment
+description: Sets up required python environment, and caches dependencies
+inputs:
+  python-version:
+    description: 'Python version to use'
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ inputs.python-version }}
+    - name: Display Python version
+      run: python3 -c "import sys; print(sys.version)"
+      shell: bash
+    - name: Cache pip
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.cache/pip
+        key: ${{ runner.os }}-${{ inputs.python-version }}-pip-${{ hashFiles('**/requirements*.txt') }}
+        restore-keys: |
+          ${{ runner.os }}-${{ inputs.python-version }}-pip-
+    - name: Install Python modules
+      run: |
+        pip install -r requirements.test.txt
+      shell: bash

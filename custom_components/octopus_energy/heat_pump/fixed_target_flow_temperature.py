@@ -5,7 +5,7 @@ from typing import List
 from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
-    UnitOfPower
+    UnitOfTemperature
 )
 from homeassistant.core import HomeAssistant, callback
 
@@ -26,8 +26,8 @@ from ..coordinators.heat_pump_configuration_and_status import HeatPumpCoordinato
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyHeatPumpSensorLiveCoP(CoordinatorEntity, BaseOctopusEnergyHeatPumpSensor, RestoreSensor):
-  """Sensor for displaying the live CoP of a heat pump."""
+class OctopusEnergyHeatPumpFixedTargetFlowTemperature(CoordinatorEntity, BaseOctopusEnergyHeatPumpSensor, RestoreSensor):
+  """Sensor for displaying the live heat output of a heat pump."""
 
   def __init__(self, hass: HomeAssistant, coordinator, heat_pump_id: str, heat_pump: HeatPump):
     """Init sensor."""
@@ -41,17 +41,32 @@ class OctopusEnergyHeatPumpSensorLiveCoP(CoordinatorEntity, BaseOctopusEnergyHea
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_heat_pump_{self._heat_pump_id}_live_cop"
+    return f"octopus_energy_heat_pump_{self._heat_pump_id}_fixed_target_flow_temperature"
 
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Live CoP Heat Pump ({self._heat_pump_id})"
+    return f"Fixed Target Flow Temperature Heat Pump ({self._heat_pump_id})"
 
   @property
   def state_class(self):
     """The state class of sensor"""
     return SensorStateClass.MEASUREMENT
+
+  @property
+  def device_class(self):
+    """The type of sensor"""
+    return SensorDeviceClass.TEMPERATURE
+
+  @property
+  def icon(self):
+    """Icon of the sensor."""
+    return "mdi:thermometer"
+
+  @property
+  def native_unit_of_measurement(self):
+    """Unit of measurement of the sensor."""
+    return UnitOfTemperature.CELSIUS
 
   @property
   def extra_state_attributes(self):
@@ -64,21 +79,19 @@ class OctopusEnergyHeatPumpSensorLiveCoP(CoordinatorEntity, BaseOctopusEnergyHea
   
   @callback
   def _handle_coordinator_update(self) -> None:
-    """Retrieve the live CoP for the heat pump."""
+    """Retrieve the configured fixed target flow temperature for the heat pump."""
     current = now()
     result: HeatPumpCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
-
+    
     if (result is not None 
         and result.data is not None 
-        and result.data.octoHeatPumpLivePerformance is not None):
-      _LOGGER.debug(f"Updating OctopusEnergyHeatPumpSensorLiveCoP for '{self._heat_pump_id}'")
+        and result.data.octoHeatPumpControllerConfiguration is not None
+        and result.data.octoHeatPumpControllerConfiguration.heatPump is not None
+        and result.data.octoHeatPumpControllerConfiguration.heatPump.heatingFlowTemperature is not None
+        and result.data.octoHeatPumpControllerConfiguration.heatPump.heatingFlowTemperature.currentTemperature is not None):
+      _LOGGER.debug(f"Updating OctopusEnergyHeatPumpFixedTargetFlowTemperature for '{self._heat_pump_id}'")
 
-      self._state = 0
-      # Only update the CoP if heat pump is actively running
-      if float(result.data.octoHeatPumpLivePerformance.powerInput.value) != 0:
-        self._state = float(result.data.octoHeatPumpLivePerformance.coefficientOfPerformance) if result.data.octoHeatPumpLivePerformance.coefficientOfPerformance is not None else None
-
-      self._attributes["read_at"] = datetime.fromisoformat(result.data.octoHeatPumpLivePerformance.readAt)
+      self._state = float(result.data.octoHeatPumpControllerConfiguration.heatPump.heatingFlowTemperature.currentTemperature.value)
       self._last_updated = current
 
     self._attributes = dict_to_typed_dict(self._attributes)
@@ -95,4 +108,4 @@ class OctopusEnergyHeatPumpSensorLiveCoP(CoordinatorEntity, BaseOctopusEnergyHea
       self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else last_sensor_state.native_value
       self._attributes = dict_to_typed_dict(state.attributes, [])
     
-      _LOGGER.debug(f'Restored OctopusEnergyHeatPumpSensorLiveCoP state: {self._state}')
+      _LOGGER.debug(f'Restored OctopusEnergyHeatPumpFixedTargetFlowTemperature state: {self._state}')

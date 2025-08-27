@@ -1,36 +1,37 @@
 import pytest
 from datetime import datetime
+from homeassistant.util.dt import (as_utc, parse_datetime)
 
 from custom_components.octopus_energy.greenness_forecast import get_current_and_next_forecast
 from custom_components.octopus_energy.api_client.greenness_forecast import GreennessForecast
 
 forecast: list[GreennessForecast] = [
-  GreennessForecast(datetime.strptime("2024-02-02T23:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-                    datetime.strptime("2024-02-03T06:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+  GreennessForecast(as_utc(parse_datetime("2025-03-30T23:00:00+00:00")),
+                    as_utc(parse_datetime("2025-03-31T05:00:00+00:00")),
                     77,
                     "HIGH",
                     False),
-  GreennessForecast(datetime.strptime("2024-02-03T23:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-                    datetime.strptime("2024-02-04T06:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
+  GreennessForecast(as_utc(parse_datetime("2025-03-31T22:00:00+00:00")),
+                    as_utc(parse_datetime("2025-04-01T05:00:00+00:00")),
                     77,
                     "HIGH",
                     True),
-  GreennessForecast(datetime.strptime("2024-02-04T23:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-                  datetime.strptime("2024-02-05T06:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-                  60,
-                  "HIGH",
-                  False),
-  GreennessForecast(datetime.strptime("2024-02-05T23:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-                  datetime.strptime("2024-02-06T06:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),
-                  77,
-                  "HIGH",
-                  True)
+  GreennessForecast(as_utc(parse_datetime("2025-04-01T22:00:00+00:00")),
+                    as_utc(parse_datetime("2025-04-02T05:00:00+00:00")),
+                    60,
+                    "HIGH",
+                    False),
+  GreennessForecast(as_utc(parse_datetime("2025-04-02T22:00:00+00:00")),
+                    as_utc(parse_datetime("2025-04-03T05:00:00+00:00")),
+                    77,
+                    "HIGH",
+                    True)
 ]
 
 @pytest.mark.asyncio
 async def test_when_forecast_none_then_none_returned():
   # Arrange
-  current = datetime.strptime("2024-02-02T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  current = datetime.strptime("2025-03-30T02:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
   restrict_highlighted = False
 
   # Act
@@ -42,7 +43,7 @@ async def test_when_forecast_none_then_none_returned():
 @pytest.mark.asyncio
 async def test_when_current_not_available_then_current_none():
   # Arrange
-  current = datetime.strptime("2024-02-02T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  current = datetime.strptime("2025-03-30T02:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
   restrict_highlighted = False
 
   # Act
@@ -58,7 +59,7 @@ async def test_when_current_not_available_then_current_none():
 @pytest.mark.asyncio
 async def test_when_next_not_available_then_next_none():
   # Arrange
-  current = datetime.strptime("2024-02-06T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  current = datetime.strptime("2025-04-03T02:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
   restrict_highlighted = False
 
   # Act
@@ -78,7 +79,7 @@ async def test_when_next_not_available_then_next_none():
 ])
 async def test_when_restrict_highlighted_then_nonhighlighed_ignored(current_highlighted: bool):
   # Arrange
-  current = datetime.strptime("2024-02-04T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z") if current_highlighted else datetime.strptime("2024-02-03T02:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  current = datetime.strptime("2025-04-01T02:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") if current_highlighted else datetime.strptime("2025-03-31T02:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z")
   restrict_highlighted = True
 
   # Act

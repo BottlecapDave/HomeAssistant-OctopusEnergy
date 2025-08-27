@@ -26,8 +26,8 @@ from ..coordinators.heat_pump_configuration_and_status import HeatPumpCoordinato
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyHeatPumpSensorLifetimeHeatOutput(CoordinatorEntity, BaseOctopusEnergyHeatPumpSensor, RestoreSensor):
-  """Sensor for displaying the lifetime heat output of a heat pump."""
+class OctopusEnergyHeatPumpLifetimeEnergyInput(CoordinatorEntity, BaseOctopusEnergyHeatPumpSensor, RestoreSensor):
+  """Sensor for displaying the lifetime energy input of a heat pump."""
 
   def __init__(self, hass: HomeAssistant, coordinator, heat_pump_id: str, heat_pump: HeatPump):
     """Init sensor."""
@@ -41,12 +41,12 @@ class OctopusEnergyHeatPumpSensorLifetimeHeatOutput(CoordinatorEntity, BaseOctop
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_heat_pump_{self._heat_pump_id}_lifetime_heat_output"
+    return f"octopus_energy_heat_pump_{self._heat_pump_id}_lifetime_energy_input"
 
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Lifetime Heat Output Heat Pump ({self._heat_pump_id})"
+    return f"Lifetime Energy Input Heat Pump ({self._heat_pump_id})"
 
   @property
   def state_class(self):
@@ -79,16 +79,16 @@ class OctopusEnergyHeatPumpSensorLifetimeHeatOutput(CoordinatorEntity, BaseOctop
   
   @callback
   def _handle_coordinator_update(self) -> None:
-    """Retrieve the lifeime heat output for the heat pump."""
+    """Retrieve the lifetime energy input for the heat pump."""
     current = now()
     result: HeatPumpCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
 
     if (result is not None 
         and result.data is not None 
         and result.data.octoHeatPumpLifetimePerformance is not None):
-      _LOGGER.debug(f"Updating OctopusEnergyHeatPumpSensorLifetimeHeatOutput for '{self._heat_pump_id}'")
+      _LOGGER.debug(f"Updating OctopusEnergyHeatPumpLifetimeEnergyInput for '{self._heat_pump_id}'")
 
-      self._state = float(result.data.octoHeatPumpLifetimePerformance.heatOutput.value)
+      self._state = float(result.data.octoHeatPumpLifetimePerformance.energyInput.value)
       self._attributes["read_at"] = datetime.fromisoformat(result.data.octoHeatPumpLifetimePerformance.readAt)
       self._last_updated = current
 
@@ -106,4 +106,4 @@ class OctopusEnergyHeatPumpSensorLifetimeHeatOutput(CoordinatorEntity, BaseOctop
       self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else last_sensor_state.native_value
       self._attributes = dict_to_typed_dict(state.attributes, [])
     
-      _LOGGER.debug(f'Restored OctopusEnergyHeatPumpSensorLifetimeHeatOutput state: {self._state}')
+      _LOGGER.debug(f'Restored OctopusEnergyHeatPumpLifetimeEnergyInput state: {self._state}')

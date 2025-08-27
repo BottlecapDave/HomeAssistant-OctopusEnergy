@@ -5,7 +5,7 @@ from typing import List
 from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
-    UnitOfTemperature
+    UnitOfPower
 )
 from homeassistant.core import HomeAssistant, callback
 
@@ -26,7 +26,7 @@ from ..coordinators.heat_pump_configuration_and_status import HeatPumpCoordinato
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyHeatPumpSensorFixedTargetFlowTemperature(CoordinatorEntity, BaseOctopusEnergyHeatPumpSensor, RestoreSensor):
+class OctopusEnergyHeatPumpLiveHeatOutput(CoordinatorEntity, BaseOctopusEnergyHeatPumpSensor, RestoreSensor):
   """Sensor for displaying the live heat output of a heat pump."""
 
   def __init__(self, hass: HomeAssistant, coordinator, heat_pump_id: str, heat_pump: HeatPump):
@@ -41,12 +41,12 @@ class OctopusEnergyHeatPumpSensorFixedTargetFlowTemperature(CoordinatorEntity, B
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_heat_pump_{self._heat_pump_id}_fixed_target_flow_temperature"
+    return f"octopus_energy_heat_pump_{self._heat_pump_id}_live_heat_output"
 
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Fixed Target Flow Temperature Heat Pump ({self._heat_pump_id})"
+    return f"Live Heat Output Heat Pump ({self._heat_pump_id})"
 
   @property
   def state_class(self):
@@ -56,17 +56,17 @@ class OctopusEnergyHeatPumpSensorFixedTargetFlowTemperature(CoordinatorEntity, B
   @property
   def device_class(self):
     """The type of sensor"""
-    return SensorDeviceClass.TEMPERATURE
+    return SensorDeviceClass.POWER
 
   @property
   def icon(self):
     """Icon of the sensor."""
-    return "mdi:thermometer"
+    return "mdi:flash"
 
   @property
   def native_unit_of_measurement(self):
     """Unit of measurement of the sensor."""
-    return UnitOfTemperature.CELSIUS
+    return UnitOfPower.KILO_WATT
 
   @property
   def extra_state_attributes(self):
@@ -79,19 +79,18 @@ class OctopusEnergyHeatPumpSensorFixedTargetFlowTemperature(CoordinatorEntity, B
   
   @callback
   def _handle_coordinator_update(self) -> None:
-    """Retrieve the configured fixed target flow temperature for the heat pump."""
+    """Retrieve the live heat output for the heat pump."""
     current = now()
     result: HeatPumpCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     
     if (result is not None 
         and result.data is not None 
-        and result.data.octoHeatPumpControllerConfiguration is not None
-        and result.data.octoHeatPumpControllerConfiguration.heatPump is not None
-        and result.data.octoHeatPumpControllerConfiguration.heatPump.heatingFlowTemperature is not None
-        and result.data.octoHeatPumpControllerConfiguration.heatPump.heatingFlowTemperature.currentTemperature is not None):
-      _LOGGER.debug(f"Updating OctopusEnergyHeatPumpSensorFixedTargetFlowTemperature for '{self._heat_pump_id}'")
+        and result.data.octoHeatPumpLivePerformance is not None
+        and result.data.octoHeatPumpLivePerformance.heatOutput is not None):
+      _LOGGER.debug(f"Updating OctopusEnergyHeatPumpLiveHeatOutput for '{self._heat_pump_id}'")
 
-      self._state = float(result.data.octoHeatPumpControllerConfiguration.heatPump.heatingFlowTemperature.currentTemperature.value)
+      self._state = float(result.data.octoHeatPumpLivePerformance.heatOutput.value)
+      self._attributes["read_at"] = datetime.fromisoformat(result.data.octoHeatPumpLivePerformance.readAt)
       self._last_updated = current
 
     self._attributes = dict_to_typed_dict(self._attributes)
@@ -108,4 +107,4 @@ class OctopusEnergyHeatPumpSensorFixedTargetFlowTemperature(CoordinatorEntity, B
       self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else last_sensor_state.native_value
       self._attributes = dict_to_typed_dict(state.attributes, [])
     
-      _LOGGER.debug(f'Restored OctopusEnergyHeatPumpSensorFixedTargetFlowTemperature state: {self._state}')
+      _LOGGER.debug(f'Restored OctopusEnergyHeatPumpLiveHeatOutput state: {self._state}')

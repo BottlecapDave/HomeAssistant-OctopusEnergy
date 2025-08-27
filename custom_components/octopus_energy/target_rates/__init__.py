@@ -295,7 +295,7 @@ def get_target_rate_info(current_date: datetime, applicable_rates, offset: str =
         minutes = diff.total_seconds() / 60
         periods = minutes / 30
         if periods < 1:
-          _LOGGER.error(f"Less than 1 period discovered. Defaulting to 1 period. Rate start: {rate["start"]}; Applicable rates: {applicable_rates}")
+          _LOGGER.error(f"Less than 1 period discovered. Defaulting to 1 period. Rate start: {rate['start']}; Applicable rates: {applicable_rates}")
           periods = 1
 
         applicable_rate_blocks.append({
