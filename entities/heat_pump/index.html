@@ -779,6 +779,33 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#weather-compensation-enabled" class="md-nav__link">
+    <span class="md-ellipsis">
+      Weather Compensation Enabled
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#weather-compensation-minimum-temperature" class="md-nav__link">
+    <span class="md-ellipsis">
+      Weather Compensation Minimum Temperature
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#weather-compensation-maximum-temperature" class="md-nav__link">
+    <span class="md-ellipsis">
+      Weather Compensation Maximum Temperature
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#services" class="md-nav__link">
     <span class="md-ellipsis">
       Services
@@ -1331,6 +1358,33 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#weather-compensation-enabled" class="md-nav__link">
+    <span class="md-ellipsis">
+      Weather Compensation Enabled
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#weather-compensation-minimum-temperature" class="md-nav__link">
+    <span class="md-ellipsis">
+      Weather Compensation Minimum Temperature
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#weather-compensation-maximum-temperature" class="md-nav__link">
+    <span class="md-ellipsis">
+      Weather Compensation Maximum Temperature
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#services" class="md-nav__link">
     <span class="md-ellipsis">
       Services
@@ -1444,6 +1498,31 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This is not the actual current flow temperature, but rather the configured target.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Use the <a href="../../services/#octopus_energyset_heat_pump_flow_temp_config">set_heat_pump_flow_temp_config</a> service to configure this sensor. Upon updated, it may take a few minutes to update.</p>
+</div>
+<h2 id="weather-compensation-enabled">Weather Compensation Enabled<a class="headerlink" href="#weather-compensation-enabled" title="Permanent link">#</a></h2>
+<p><code>binary_sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_weather_compensation_enabled</code></p>
+<p>This determines if weather compensation is enabled.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Use the <a href="../../services/#octopus_energyset_heat_pump_flow_temp_config">set_heat_pump_flow_temp_config</a> service to configure this sensor. Upon updated, it may take a few minutes to update.</p>
+</div>
+<h2 id="weather-compensation-minimum-temperature">Weather Compensation Minimum Temperature<a class="headerlink" href="#weather-compensation-minimum-temperature" title="Permanent link">#</a></h2>
+<p><code>sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_weather_compensation_minimum_temperature</code></p>
+<p>This determines the configured minimum temperature for weather compensation, if enabled.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Use the <a href="../../services/#octopus_energyset_heat_pump_flow_temp_config">set_heat_pump_flow_temp_config</a> service to configure this sensor. Upon updated, it may take a few minutes to update.</p>
+</div>
+<h2 id="weather-compensation-maximum-temperature">Weather Compensation Maximum Temperature<a class="headerlink" href="#weather-compensation-maximum-temperature" title="Permanent link">#</a></h2>
+<p><code>sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_weather_compensation_maximum_temperature</code></p>
+<p>This determines the configured maximum temperature for weather compensation, if enabled.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Use the <a href="../../services/#octopus_energyset_heat_pump_flow_temp_config">set_heat_pump_flow_temp_config</a> service to configure this sensor. Upon updated, it may take a few minutes to update.</p>
 </div>
 <h2 id="services">Services<a class="headerlink" href="#services" title="Permanent link">#</a></h2>
 <p>There are some services available relating to these entities that you might find useful. They can be found in the <a href="../../services/#heat-pump">services docs</a>.</p>
