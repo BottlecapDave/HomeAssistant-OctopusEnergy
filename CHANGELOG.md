@@ -1,3 +1,19 @@
+# [16.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v16.1.0...v16.2.0) (2025-08-27)
+
+
+### Bug Fixes
+
+* Fix warning around double quotes inside an f-string (Thanks [@reedy](https://github.com/reedy)) ([a10cb8c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a10cb8c72ccc42ebb059df83c367dde08099b1e7))
+* Fixed deprecation warning around parse_obj (Thanks [@reedy](https://github.com/reedy)) ([4028082](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4028082bbf3b11fc9ac08409de315c96a1c3bae3))
+* Fixed issue where started dispatches were not persisting correctly between reloads of the integration (2 hours dev time) ([8b9c13d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8b9c13dd31b6c6037038f1346f7cdb96f71d82d0))
+* Fixes invalid escape sequence (Thanks [@reedy](https://github.com/reedy)) ([40a2fa9](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/40a2fa99aedc59a6c6557df191b970aa3f022dd4))
+
+
+### Features
+
+* Added heat pump senors for configured weather compensation (1 hour dev time) ([12711b8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/12711b81bdb3ecf1a7a7b75692fe2f14be787dd6))
+* Added repair notice when intelligent device is unregistered or changes (1 hour dev time) ([bd81fb2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/bd81fb252dd0fe221351fd89fb90996159212348))
+
 # [16.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v16.0.2...v16.1.0) (2025-08-15)
 
 
