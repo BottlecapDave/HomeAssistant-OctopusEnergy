@@ -27,7 +27,7 @@ env:
 
 jobs:
   validate:
-    if: ${{ github.event_name != 'schedule' || github.repository_owner == 'BottlecapDave' }}
+    if: ${{ github.repository_owner == 'BottlecapDave' }}
     name: Validate
     runs-on: "ubuntu-latest"
     steps:
