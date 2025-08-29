@@ -155,7 +155,10 @@ def adjust_intelligent_rates(rates,
                              planned_dispatches: list[IntelligentDispatchItem],
                              started_dispatches: list[SimpleIntelligentDispatchItem],
                              mode: str):
-  off_peak_rate = min(rates, key = lambda x: x["value_inc_vat"])
+  if len(rates) < 1:
+    return rates
+
+  off_peak_rate =  min(rates, key = lambda x: x["value_inc_vat"])
   adjusted_rates = []
 
   for rate in rates:
