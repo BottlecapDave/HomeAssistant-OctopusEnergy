@@ -6,7 +6,7 @@ Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-
 
 | Area | Refresh rate (in minutes) | Justification |
 |-|-|-|
-| Account | 60 | This is mainly used to get the active meters and associated tariffs, which shouldn't change often so no need to poll often. |
+| Account | 360 (6 hours) | This is mainly used to get the active meters and associated tariffs, which shouldn't change often so no need to poll often. |
 | Intelligent tariff based sensors | 3 | Trying to balance refreshing settings and new dispatch information without overloading the API |
 | Intelligent device information | 360 (6 hours) | Shouldn't change often, but want to be alerted when it does as sensors will stop working |
 | Rate information | 15 | This is what drives most people's automations, but doesn't change that frequently. We can afford a bit of lag for API stability. This will stop updating once we have the data for the requested time period. |
