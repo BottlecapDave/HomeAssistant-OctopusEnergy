@@ -249,3 +249,10 @@ If you've been asked for meter information, don't worry we won't ask for anythin
 3. Click on one of the meters
 4. Click on "Download diagnostics"
 5. Take the contents of the downloads json file and paste into the bug report. Remember to surround the contents with ``` both at the start and end.
+
+Alternatively
+
+1. Navigate to the [Octopus Energy integration](https://my.home-assistant.io/redirect/integration/?domain=octopus_energy)
+2. Click the three dots next to your account configuration
+3. Click on "Download diagnostics"
+4. Take the contents of the downloads json file and paste into the bug report. Remember to surround the contents with ``` both at the start and end.
