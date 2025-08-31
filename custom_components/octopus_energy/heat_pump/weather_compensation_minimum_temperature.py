@@ -5,7 +5,7 @@ from typing import List
 from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
-    UnitOfPower
+    UnitOfTemperature
 )
 from homeassistant.core import HomeAssistant, callback
 
@@ -26,8 +26,8 @@ from ..coordinators.heat_pump_configuration_and_status import HeatPumpCoordinato
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyHeatPumpSensorLivePowerInput(CoordinatorEntity, BaseOctopusEnergyHeatPumpSensor, RestoreSensor):
-  """Sensor for displaying the live power input of a heat pump."""
+class OctopusEnergyHeatPumpWeatherCompensationMinimumTemperature(CoordinatorEntity, BaseOctopusEnergyHeatPumpSensor, RestoreSensor):
+  """Sensor for displaying the minimum temperature for weather compensation of a heat pump."""
 
   def __init__(self, hass: HomeAssistant, coordinator, heat_pump_id: str, heat_pump: HeatPump):
     """Init sensor."""
@@ -41,12 +41,12 @@ class OctopusEnergyHeatPumpSensorLivePowerInput(CoordinatorEntity, BaseOctopusEn
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_heat_pump_{self._heat_pump_id}_live_power_input"
+    return f"octopus_energy_heat_pump_{self._heat_pump_id}_weather_compensation_minimum_temperature"
 
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Live Power Input Heat Pump ({self._heat_pump_id})"
+    return f"Weather Compensation Minimum Temperature Heat Pump ({self._heat_pump_id})"
 
   @property
   def state_class(self):
@@ -56,17 +56,17 @@ class OctopusEnergyHeatPumpSensorLivePowerInput(CoordinatorEntity, BaseOctopusEn
   @property
   def device_class(self):
     """The type of sensor"""
-    return SensorDeviceClass.POWER
+    return SensorDeviceClass.TEMPERATURE
 
   @property
   def icon(self):
     """Icon of the sensor."""
-    return "mdi:flash"
+    return "mdi:thermometer"
 
   @property
   def native_unit_of_measurement(self):
     """Unit of measurement of the sensor."""
-    return UnitOfPower.KILO_WATT
+    return UnitOfTemperature.CELSIUS
 
   @property
   def extra_state_attributes(self):
@@ -79,18 +79,19 @@ class OctopusEnergyHeatPumpSensorLivePowerInput(CoordinatorEntity, BaseOctopusEn
   
   @callback
   def _handle_coordinator_update(self) -> None:
-    """Retrieve the live power draw for the heat pump."""
     current = now()
     result: HeatPumpCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
-
+    
     if (result is not None 
         and result.data is not None 
-        and result.data.octoHeatPumpLivePerformance is not None
-        and result.data.octoHeatPumpLivePerformance.powerInput is not None):
-      _LOGGER.debug(f"Updating OctopusEnergyHeatPumpSensorLivePowerInput for '{self._heat_pump_id}'")
+        and result.data.octoHeatPumpControllerConfiguration is not None
+        and result.data.octoHeatPumpControllerConfiguration.heatPump is not None
+        and result.data.octoHeatPumpControllerConfiguration.heatPump.weatherCompensation is not None
+        and result.data.octoHeatPumpControllerConfiguration.heatPump.weatherCompensation.currentRange is not None
+        and result.data.octoHeatPumpControllerConfiguration.heatPump.weatherCompensation.currentRange.minimum is not None):
+      _LOGGER.debug(f"Updating OctopusEnergyHeatPumpWeatherCompensationMinimumTemperature for '{self._heat_pump_id}'")
 
-      self._state = float(result.data.octoHeatPumpLivePerformance.powerInput.value)
-      self._attributes["read_at"] = datetime.fromisoformat(result.data.octoHeatPumpLivePerformance.readAt)
+      self._state = float(result.data.octoHeatPumpControllerConfiguration.heatPump.weatherCompensation.currentRange.minimum.value)
       self._last_updated = current
 
     self._attributes = dict_to_typed_dict(self._attributes)
@@ -107,4 +108,4 @@ class OctopusEnergyHeatPumpSensorLivePowerInput(CoordinatorEntity, BaseOctopusEn
       self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else last_sensor_state.native_value
       self._attributes = dict_to_typed_dict(state.attributes, [])
     
-      _LOGGER.debug(f'Restored OctopusEnergyHeatPumpSensorLivePowerInput state: {self._state}')
+      _LOGGER.debug(f'Restored OctopusEnergyHeatPumpWeatherCompensationMinimumTemperature state: {self._state}')

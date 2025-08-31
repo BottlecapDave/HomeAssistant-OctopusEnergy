@@ -10,6 +10,7 @@ from homeassistant.helpers.update_coordinator import (
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
   DATA_INTELLIGENT_DEVICE,
+  DATA_INTELLIGENT_DEVICE_COORDINATOR,
   DOMAIN,
 
   DATA_CLIENT,
@@ -28,6 +29,7 @@ from ..api_client.intelligent_device import IntelligentDevice
 from ..storage.intelligent_dispatches import async_save_cached_intelligent_dispatches
 
 from ..intelligent import clean_previous_dispatches, has_intelligent_tariff, mock_intelligent_dispatches
+from ..coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -77,35 +79,27 @@ class IntelligentDispatchesCoordinatorResult(BaseCoordinatorResult):
     self.requests_current_hour = requests_current_hour
     self.requests_current_hour_last_reset = requests_current_hour_last_reset
 
+def has_dispatch_items_changed(existing_dispatches: list[SimpleIntelligentDispatchItem], new_dispatches: list[SimpleIntelligentDispatchItem]):
+  if len(existing_dispatches) != len(new_dispatches):
+    return True
+
+  if len(existing_dispatches) > 0:
+    for i in range(0, len(existing_dispatches)):
+      if (existing_dispatches[i].start != new_dispatches[i].start or
+          existing_dispatches[i].end != new_dispatches[i].end):
+        return True
+
+  return False
+
 def has_dispatches_changed(existing_dispatches: IntelligentDispatches, new_dispatches: IntelligentDispatches):
   return (
     existing_dispatches.current_state != new_dispatches.current_state or
     len(existing_dispatches.completed) != len(new_dispatches.completed) or
-    (
-      len(existing_dispatches.completed) > 0 and
-      (
-        existing_dispatches.completed[0].start != new_dispatches.completed[0].start or
-        existing_dispatches.completed[-1].start != new_dispatches.completed[-1].start
-      )
-    ) 
-    or
+    has_dispatch_items_changed(existing_dispatches.completed, new_dispatches.completed) or
     len(existing_dispatches.planned) != len(new_dispatches.planned) or
-    (
-      len(existing_dispatches.planned) > 0 and
-      (
-        existing_dispatches.planned[0].start != new_dispatches.planned[0].start or
-        existing_dispatches.planned[-1].start != new_dispatches.planned[-1].start
-      )
-    )
-    or
+    has_dispatch_items_changed(existing_dispatches.planned, new_dispatches.planned) or
     len(existing_dispatches.started) != len(new_dispatches.started) or
-    (
-      len(existing_dispatches.started) > 0 and
-      (
-        existing_dispatches.started[0].start != new_dispatches.started[0].start or
-        existing_dispatches.started[-1].start != new_dispatches.started[-1].start
-      )
-    )
+    has_dispatch_items_changed(existing_dispatches.started, new_dispatches.started)
   )
 
 def merge_started_dispatches(current: datetime,
@@ -113,6 +107,7 @@ def merge_started_dispatches(current: datetime,
                              started_dispatches: list[SimpleIntelligentDispatchItem],
                              planned_dispatches: list[IntelligentDispatchItem]):
   new_started_dispatches = clean_previous_dispatches(current, started_dispatches)
+  new_started_dispatches = list(map(lambda item: SimpleIntelligentDispatchItem(item.start, item.end), new_started_dispatches))
 
   if current_state == "SMART_CONTROL_IN_PROGRESS":
     for planned_dispatch in planned_dispatches:
@@ -283,12 +278,19 @@ async def async_refresh_intelligent_dispatches(
   return result
 
 async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, mock_intelligent_data: bool, manual_dispatch_refreshes: bool, planned_dispatches_supported: bool):
+  intelligent_result: IntelligentDeviceCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
+  intelligent_device: IntelligentDevice = intelligent_result.device if intelligent_result is not None else None
+  
   async def async_update_intelligent_dispatches_data(is_manual_refresh = False):
     """Fetch data from API endpoint."""
     # Request our account data to be refreshed
     account_coordinator = hass.data[DOMAIN][account_id][DATA_ACCOUNT_COORDINATOR]
     if account_coordinator is not None:
       await account_coordinator.async_request_refresh()
+
+    intelligent_device_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE_COORDINATOR]
+    if intelligent_device_coordinator is not None:
+      await intelligent_device_coordinator.async_request_refresh()
 
     current = utcnow()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
@@ -299,7 +301,7 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, 
       current,
       client,
       account_info,
-      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None,
+      intelligent_device,
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None,
       mock_intelligent_data,
       is_manual_refresh,

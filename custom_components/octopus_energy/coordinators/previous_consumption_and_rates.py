@@ -3,7 +3,7 @@ import logging
 from typing import Awaitable, Callable, Any
 import asyncio
 
-from homeassistant.util.dt import (utcnow, now, as_utc, as_local)
+from homeassistant.util.dt import (utcnow, as_local)
 from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
 )
@@ -34,6 +34,7 @@ from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinat
 from . import BaseCoordinatorResult, get_electricity_meter_tariff, get_gas_meter_tariff
 from ..utils.rate_information import get_min_max_average_rates
 from ..octoplus import get_octoplus_session_weekday_dates, get_octoplus_session_weekend_dates, OctoplusSessionConsumptionDate
+from ..coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -232,7 +233,7 @@ def get_latest_day(consumption_data: list | None):
   if len(current_reduced_consumption_data) == 48:
     latest_reduced_consumption_data = current_reduced_consumption_data
 
-  _LOGGER.debug(f"Latest day: {latest_reduced_consumption_data[-1]["end"] if latest_reduced_consumption_data is not None and len(latest_reduced_consumption_data) > 0 else None}")
+  _LOGGER.debug(f"Latest day: {latest_reduced_consumption_data[-1]['end'] if latest_reduced_consumption_data is not None and len(latest_reduced_consumption_data) > 0 else None}")
   return latest_reduced_consumption_data
 
 async def async_fetch_consumption_and_rates(
@@ -441,7 +442,8 @@ async def async_create_previous_consumption_and_rates_coordinator(
     """Fetch data from API endpoint."""
     account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN][account_id] else None
     account_info = account_result.account if account_result is not None else None
-    intelligent_device: IntelligentDevice | None = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
+    intelligent_result: IntelligentDeviceCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
+    intelligent_device: IntelligentDevice = intelligent_result.device if intelligent_result is not None else None
     dispatches: IntelligentDispatchesCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None
     previous_data = hass.data[DOMAIN][account_id][previous_consumption_data_key] if previous_consumption_data_key in hass.data[DOMAIN][account_id] else None
     current = utcnow()

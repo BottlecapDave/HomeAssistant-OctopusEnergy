@@ -1,7 +1,10 @@
 from datetime import datetime
+
+import pytz
 import pytest
 
 from custom_components.octopus_energy.utils.attributes import dict_to_typed_dict
+from homeassistant.util.dt import (as_utc, parse_datetime, set_default_time_zone)
 
 @pytest.mark.asyncio
 async def test_when_none_is_provided_then_none_is_returned():
@@ -129,6 +132,29 @@ async def test_when_utc_datetime_is_present_then_converted_to_datetime():
   assert "foo" in result
   assert result["foo"] == datetime.strptime(input["foo"], "%Y-%m-%dT%H:%M:%S%z")
   assert isinstance(result["foo"], datetime)
+
+@pytest.mark.asyncio
+async def test_when_utc_datetime_is_present_during_bst_then_converted_to_correct_datetime():
+  # Arrange
+  set_default_time_zone(pytz.timezone('Europe/London'))
+
+  input = {
+    "foo": as_utc(parse_datetime("2025-03-30T22:00:00+00:00"))
+  }
+
+  # Act
+  result = dict_to_typed_dict(input)
+
+  # Assert
+  assert result is not None
+  assert "foo" in result
+  assert isinstance(result["foo"], datetime)
+  assert result["foo"].year == 2025
+  assert result["foo"].month == 3
+  assert result["foo"].day == 30
+  assert result["foo"].hour == 23
+  assert result["foo"].minute == 0
+  assert result["foo"].second == 0
 
 @pytest.mark.asyncio
 async def test_when_datetime_with_timezone_is_present_then_converted_to_datetime():

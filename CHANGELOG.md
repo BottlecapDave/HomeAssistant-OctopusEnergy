@@ -1,3 +1,34 @@
+# [16.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v16.1.0...v16.2.0) (2025-08-27)
+
+
+### Bug Fixes
+
+* Fix warning around double quotes inside an f-string (Thanks [@reedy](https://github.com/reedy)) ([a10cb8c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a10cb8c72ccc42ebb059df83c367dde08099b1e7))
+* Fixed deprecation warning around parse_obj (Thanks [@reedy](https://github.com/reedy)) ([4028082](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4028082bbf3b11fc9ac08409de315c96a1c3bae3))
+* Fixed issue where started dispatches were not persisting correctly between reloads of the integration (2 hours dev time) ([8b9c13d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8b9c13dd31b6c6037038f1346f7cdb96f71d82d0))
+* Fixes invalid escape sequence (Thanks [@reedy](https://github.com/reedy)) ([40a2fa9](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/40a2fa99aedc59a6c6557df191b970aa3f022dd4))
+
+
+### Features
+
+* Added heat pump senors for configured weather compensation (1 hour dev time) ([12711b8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/12711b81bdb3ecf1a7a7b75692fe2f14be787dd6))
+* Added repair notice when intelligent device is unregistered or changes (1 hour dev time) ([bd81fb2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/bd81fb252dd0fe221351fd89fb90996159212348))
+
+# [16.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v16.0.2...v16.1.0) (2025-08-15)
+
+
+### Bug Fixes
+
+* Fixed issue with refresh token becoming invalid after 7 days (1 hour dev time) ([a195ea7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a195ea729c24e09a50fc3fd1a77f46a546817056))
+* Fixed warning around regex syntax (5 minutes dev time) ([1cdfea2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1cdfea2a329e36767190eed00eeb1b0de1b625d9))
+* Updated planned dispatches to have charge in kwh if available (15 minutes dev time) ([34dc977](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/34dc977badc7847e729b927a4cf7e5ebe9126dc8))
+
+
+### Features
+
+* Added heat pump fixed flow temperature sensor (Thanks [@lwis](https://github.com/lwis)) ([85dd008](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/85dd0087f0f2a5e89379f0e6811487a2986c79e6))
+* Moved update of configuration to "reconfigure" option to reduce bugs and follow HA practices (2 hours dev time) ([501d57c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/501d57cc77f066d617d2d5385043234758eb8bb0))
+
 ## [16.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v16.0.1...v16.0.2) (2025-08-01)
 
 

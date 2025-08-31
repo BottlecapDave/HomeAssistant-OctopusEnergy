@@ -52,7 +52,7 @@ Please follow the [setup guide](./setup/account.md) to setup your initial accoun
 
 ### Home Mini
 
-If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to check the box next to `I have a Home Mini`. This will gain [electricity entities](./entities/electricity.md#home-minipro-entities) and [gas entities](./entities/gas.md#home-minipro-entities) which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/).
+If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/) (you can request one via this link), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to check the box next to `I have a Home Mini`. This will gain [electricity entities](./entities/electricity.md#home-minipro-entities) and [gas entities](./entities/gas.md#home-minipro-entities) which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/).
 
 !!! info
 
@@ -64,7 +64,7 @@ If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blo
 
 ### Home Pro
 
-If you are lucky enough to own an Octopus Home Pro, you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to configure your [Home Pro](./setup/account.md#home-pro). This will gain [electricity entities](./entities/electricity.md#home-minipro-entities) and [gas entities](./entities/gas.md#home-minipro-entities) which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/).
+If you are lucky enough to own an [Octopus Home Pro](https://forum.octopus.energy/t/for-the-pro-user/8453/2352/) (note that is is no longer possible to obtain one), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to configure your [Home Pro](./setup/account.md#home-pro). This will gain [electricity entities](./entities/electricity.md#home-minipro-entities) and [gas entities](./entities/gas.md#home-minipro-entities) which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/).
 
 !!! info
 

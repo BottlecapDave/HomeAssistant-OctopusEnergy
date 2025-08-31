@@ -104,7 +104,7 @@ async def async_migrate_main_config(version: int, data: {}):
     if (CONFIG_MAIN_HOME_PRO_SETTINGS in new_data and
         CONFIG_MAIN_HOME_PRO_ADDRESS in new_data[CONFIG_MAIN_HOME_PRO_SETTINGS]):
       
-      matches = re.search("^http:\/\/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$", new_data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS]) if new_data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] is not None else None
+      matches = re.search(r"^http://[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$", new_data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS]) if new_data[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] is not None else None
       if matches is None:
         del new_data[CONFIG_MAIN_HOME_PRO_SETTINGS]
 

@@ -111,7 +111,7 @@ def get_current_fan_club_discount_information(discounts: list[Discount], now: da
       elif current_discount is not None and len(applicable_discounts) > 0 and applicable_discounts[0].discount != discount.discount:
         is_adding_applicable_rates = False
       
-      if now >= discount.start and now <= discount.end:
+      if now >= discount.start and now < discount.end:
         current_discount = discount
 
       if discount.start >= min_target and discount.end <= max_target:
@@ -145,7 +145,7 @@ def get_previous_fan_club_discount_information(discounts: list[Discount], now: d
 
   if discounts is not None:
     for period in reversed(discounts):
-      if now >= period.start and now <= period.end:
+      if now >= period.start and now < period.end:
         current_discount = period
         continue
 
@@ -174,7 +174,7 @@ def get_next_fan_club_discount_information(discounts: list[Discount], now: datet
 
   if discounts is not None:
     for period in discounts:
-      if now >= period.start and now <= period.end:
+      if now >= period.start and now < period.end:
         current_discount = period
         continue
 

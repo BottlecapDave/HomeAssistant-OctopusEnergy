@@ -38,6 +38,7 @@ from .storage.rate_weightings import async_load_cached_rate_weightings
 from .storage.intelligent_dispatches import async_load_cached_intelligent_dispatches
 from .api_client.intelligent_dispatches import IntelligentDispatches
 from .discovery import DiscoveryManager
+from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult, async_setup_intelligent_device_coordinator
 
 from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configuration
 from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_heat_pump
@@ -426,7 +427,7 @@ async def async_setup_dependencies(hass, config):
           _LOGGER.warning(f"Using cached intelligent device information for {account_id} during startup. This data will be updated automatically when available.")
 
     if intelligent_device is not None:
-      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] = intelligent_device
+      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] = IntelligentDeviceCoordinatorResult(now, 1, intelligent_device)
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] = intelligent_mpan
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] = intelligent_serial_number
 
@@ -544,6 +545,8 @@ async def async_setup_dependencies(hass, config):
 
   await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id if intelligent_device is not None else None, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False)
   
+  await async_setup_intelligent_device_coordinator(hass, account_id, intelligent_device, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False)
+
   await async_setup_saving_sessions_coordinators(hass, account_id)
 
   await async_setup_free_electricity_sessions_coordinators(hass, account_id)

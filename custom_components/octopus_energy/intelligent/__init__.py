@@ -16,10 +16,9 @@ mock_intelligent_data_key = "MOCK_INTELLIGENT_DATA"
 
 _LOGGER = logging.getLogger(__name__)
 
-def mock_intelligent_dispatches() -> IntelligentDispatches:
+def mock_intelligent_dispatches(current_state = "SMART_CONTROL_CAPABLE") -> IntelligentDispatches:
   planned: list[IntelligentDispatchItem] = []
   completed: list[IntelligentDispatchItem] = []
-  current_state = "SMART_CONTROL_CAPABLE"
 
   dispatches = [
     IntelligentDispatchItem(
@@ -156,7 +155,10 @@ def adjust_intelligent_rates(rates,
                              planned_dispatches: list[IntelligentDispatchItem],
                              started_dispatches: list[SimpleIntelligentDispatchItem],
                              mode: str):
-  off_peak_rate = min(rates, key = lambda x: x["value_inc_vat"])
+  if len(rates) < 1:
+    return rates
+
+  off_peak_rate =  min(rates, key = lambda x: x["value_inc_vat"])
   adjusted_rates = []
 
   for rate in rates:

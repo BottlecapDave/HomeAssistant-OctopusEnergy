@@ -169,7 +169,7 @@ def mock_heat_pump_status_and_configuration():
         "minWaterSetpoint": 40,
         "heatingFlowTemperature": {
           "currentTemperature": {
-            "value": 30 + random.randrange(1, 40),
+            "value": f"{30 + random.randrange(1, 40)}",
             "unit": "DEGREES_CELSIUS"
           },
           "allowableRange": {
@@ -197,11 +197,11 @@ def mock_heat_pump_status_and_configuration():
           },
           "currentRange": {
             "minimum": {
-              "value": 30 + random.randrange(1, 20),
+              "value": f"{30 + random.randrange(1, 20)}",
               "unit": "DEGREES_CELSIUS"
             },
             "maximum": {
-              "value": 50 + random.randrange(1, 20),
+              "value": f"{50 + random.randrange(1, 20)}",
               "unit": "DEGREES_CELSIUS"
             }
           }
@@ -374,4 +374,4 @@ def mock_heat_pump_status_and_configuration():
     }
   }
 
-  return HeatPumpResponse.parse_obj(data)
+  return HeatPumpResponse.model_validate(data)
