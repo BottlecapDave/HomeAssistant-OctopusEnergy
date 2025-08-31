@@ -1,7 +1,5 @@
 # Repairs - Meter removed
 
-TODO
-
 The integration regularly updates the account information. As part of this update, it checks if meters have changed since the last update. A meter can be deemed as "removed" for one of two reasons.
 
 1. The meter is no longer part of your account
