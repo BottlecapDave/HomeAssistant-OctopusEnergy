@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-from custom_components.octopus_energy.const import REFRESH_RATE_IN_MINUTES_ACCOUNT
 import pytest
 import mock
 
@@ -7,7 +6,7 @@ from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, 
 from custom_components.octopus_energy.coordinators.account import AccountCoordinatorResult, async_refresh_account
 
 current = datetime.strptime("2025-08-30T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
-expected_next_refresh = datetime.strptime("2025-08-30T11:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+expected_next_refresh = datetime.strptime("2025-08-30T16:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
 account_id = "A-123-456-789"
 
 electricity_mpan = "1234567890"

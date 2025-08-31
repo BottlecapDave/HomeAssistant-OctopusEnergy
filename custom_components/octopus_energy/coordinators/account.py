@@ -11,7 +11,6 @@ from homeassistant.helpers import issue_registry as ir
 
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
-  DATA_KNOWN_TARIFF,
   DOMAIN,
 
   DATA_CLIENT,
