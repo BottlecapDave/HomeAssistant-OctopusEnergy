@@ -229,7 +229,6 @@ async def async_setup_account_info_coordinator(hass, account_id: str):
       raise Exception("Failed to find account information")
 
     hass.data[DOMAIN][account_id][DATA_ACCOUNT] = await async_refresh_account(
-      hass,
       current,
       client,
       account_id,
