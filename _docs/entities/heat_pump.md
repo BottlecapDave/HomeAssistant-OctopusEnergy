@@ -42,7 +42,7 @@ This can be used to control the target temperature and mode for a given water he
 
 The following operation modes/states are available
 
-* `electric` - This represents as `on` in the app
+* `on` - This represents as `on` in the app
 * `off` - This represents as `off` in the app
 * `heat_pump` - This represents as `auto` in the app
 * `high_demand` - This represents as `boost` in the app
