@@ -95,10 +95,11 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
 
     current_date = utcnow()
     
+    started_dispatches = result.dispatches.started if result is not None and result.dispatches is not None else []
     self.__init_attributes__(
       dispatches_to_dictionary_list(result.dispatches.planned, ignore_none=True) if result is not None else [],
       dispatches_to_dictionary_list(result.dispatches.completed if result is not None and result.dispatches is not None else [], ignore_none=False) if result is not None else [],
-      simple_dispatches_to_dictionary_list(result.dispatches.started if result is not None and result.dispatches is not None else []) if result is not None else [],
+      simple_dispatches_to_dictionary_list(started_dispatches) if result is not None else [],
     )
 
     off_peak_times = get_off_peak_times(current_date, rates, True)
@@ -130,7 +131,7 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
       self._attributes["next_end"] = None
 
     if self._state != is_dispatching:
-      _LOGGER.debug(f"OctopusEnergyIntelligentDispatching state changed from {self._state} to {is_dispatching}; off peak times: {list(map(lambda x: x.to_dict(), off_peak_times_snapshot))}; rates: {rates}")
+      _LOGGER.debug(f"OctopusEnergyIntelligentDispatching state changed from {self._state} to {is_dispatching}; off peak times: {list(map(lambda x: x.to_dict(), off_peak_times_snapshot))}; rates: {rates}; started_dispatches: {started_dispatches}")
     
     self._state = is_dispatching
 
