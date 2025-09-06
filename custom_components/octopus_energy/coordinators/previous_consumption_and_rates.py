@@ -296,7 +296,7 @@ async def async_fetch_consumption_and_rates(
             )
 
           if intelligent_dispatches is not None:
-            _LOGGER.debug(f"Adjusting rate data based on intelligent tariff; dispatches: {intelligent_dispatches}")
+            _LOGGER.debug(f"Adjusting rate data based on intelligent tariff; dispatches: {intelligent_dispatches.to_dict()}")
             rate_data = adjust_intelligent_rates(rate_data,
                                                   intelligent_dispatches.planned,
                                                   intelligent_dispatches.started,

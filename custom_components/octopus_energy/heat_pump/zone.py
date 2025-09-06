@@ -263,13 +263,19 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     if boost_temperature is None:
       boost_temperature = DEFAULT_BOOST_TEMPERATURE_WATER if self._zone.configuration.zoneType == "WATER" else DEFAULT_BOOST_TEMPERATURE_HEAT
 
-    await self._client.async_boost_heat_pump_zone(
-      self._account_id,
-      self._heat_pump_id,
-      self._zone.configuration.code,
-      self._end_timestamp,
-      boost_temperature
-    )
+    try:
+      await self._client.async_boost_heat_pump_zone(
+        self._account_id,
+        self._heat_pump_id,
+        self._zone.configuration.code,
+        self._end_timestamp,
+        boost_temperature
+      )
+    except Exception as e:
+      if self._is_mocked:
+        _LOGGER.warning(f'Suppress async_boost_heat_pump_zone error due to mocking mode: {e}')
+      else:
+        raise
 
     self.async_write_ha_state()
 

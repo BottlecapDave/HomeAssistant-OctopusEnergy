@@ -205,8 +205,8 @@ class OctopusEnergyHeatPumpWaterHeater(CoordinatorEntity, BaseOctopusEnergyHeatP
     self.async_write_ha_state()
 
   @callback
-  async def async_boost_heat_pump_zone(self, hours: int, minutes: int, target_temperature: float | None = None):
-    """Boost the heat pump zone"""
+  async def async_boost_water_heater(self, hours: int, minutes: int, target_temperature: float | None = None):
+    """Boost the water heater"""
 
     if target_temperature is not None:
       if target_temperature < self._attr_min_temp or target_temperature > self._attr_max_temp:
@@ -222,7 +222,24 @@ class OctopusEnergyHeatPumpWaterHeater(CoordinatorEntity, BaseOctopusEnergyHeatP
     self._end_timestamp = utcnow()
     self._end_timestamp += timedelta(hours=hours, minutes=minutes)
     self._attr_current_operation = OE_TO_HA_STATE["BOOST"]
-    await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, self._end_timestamp, target_temperature if target_temperature is not None else self._attr_target_temperature)
+
+    boost_temperature = target_temperature if target_temperature is not None else self._attr_target_temperature
+    if boost_temperature is None:
+      boost_temperature = DEFAULT_BOOST_TEMPERATURE_WATER
+
+    try:
+      await self._client.async_boost_heat_pump_zone(
+        self._account_id,
+        self._heat_pump_id,
+        self._zone.configuration.code,
+        self._end_timestamp,
+        boost_temperature
+      )
+    except Exception as e:
+      if self._is_mocked:
+        _LOGGER.warning(f'Suppress async_boost_water_heater error due to mocking mode: {e}')
+      else:
+        raise
 
     self.async_write_ha_state()
 

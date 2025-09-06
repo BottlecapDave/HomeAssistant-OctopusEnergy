@@ -3,6 +3,7 @@
 The following entities are available if you have a heat pump registered against your account. The following heat pumps are known to be compatible
 
 * Cosy 6
+* Cosy 9
 
 ## Humidity Sensor
 
@@ -26,7 +27,7 @@ This represents the temperature reported by a sensor (e.g. Cosy Pod) that is ass
 
 This can be used to control the target temperature and mode for a given zone (e.g. zone 1) linked to your heat pump. It will also display the current temperature linked to the primary sensor for the zone.
 
-The following operation modes are available
+The following operation modes/states are available
 
 * `Heat` - This represents as `on` in the app
 * `Off` - This represents as `off` in the app
@@ -40,14 +41,14 @@ In addition, there is the preset of `boost`. When `boost` is selected, this acti
 
 This can be used to control the target temperature and mode for a given water heater linked to your heat pump. It will also display the current temperature linked to the primary sensor for the zone.
 
-The following operation modes are available
+The following operation modes/states are available
 
 * `on` - This represents as `on` in the app
 * `off` - This represents as `off` in the app
 * `heat_pump` - This represents as `auto` in the app
 * `high_demand` - This represents as `boost` in the app
 
-When `boost` is selected, this activates boost mode for the zone for 1 hour. If a target temperature is not set, then this will default to 50 degrees c. If you require boost to be on for a different amount of time or with a different target temperature, then you can use the [available service](../services.md#octopus_energyboost_heat_pump_zone).
+When `boost` is selected, this activates boost mode for the zone for 1 hour. If a target temperature is not set, then this will default to 50 degrees c. If you require boost to be on for a different amount of time or with a different target temperature, then you can use the [available service](../services.md#octopus_energyboost_water_heater).
 
 !!! note
 

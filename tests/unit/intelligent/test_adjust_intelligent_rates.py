@@ -39,6 +39,20 @@ def create_rates():
   ]
 
 @pytest.mark.asyncio
+async def test_when_rates_empty_then_empty_rates_returned():
+  # Arrange
+  rates = []
+  planned_dispatches = []
+  started_dispatches = []
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+
+  # Act
+  adjusted_rates = adjust_intelligent_rates(rates, planned_dispatches, started_dispatches, mode)
+
+  # Assert
+  assert rates == adjusted_rates
+
+@pytest.mark.asyncio
 async def test_when_no_planned_or_completed_dispatches_then_rates_not_adjusted():
   # Arrange
   rates = create_rates()

@@ -249,7 +249,22 @@ Allows you to boost a given heat pump zone for a set amount of time.
 
 !!! note
 
-    If you boost and a target temperature is both not provided and not defined on the sensor itself, then a default value will be set. This will be 50 degrees C for `water` zones and 30 degrees C for all other zones.
+    If you boost and a target temperature is both not provided and not defined on the sensor itself, then a default value will be set. This will be 30 degrees C.
+
+### octopus_energy.boost_water_heater
+
+Allows you to boost a given heat pump water heater for a set amount of time.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the heat pump water heater boost mode should be applied to (e.g. `water_heater.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}`). |
+| `data.hours`              | `no`     | The number of hours to turn boost mode on for. This can be between 0 and 12. |
+| `data.minutes`       | `no`     | The number of minutes to turn boost mode on for. This can be 0, 15, or 45. |
+| `data.target_temperature`       | `yes`     | The optional target temperature to boost to. If not supplied, then the current target temperature will be used. |
+
+!!! note
+
+    If you boost and a target temperature is both not provided and not defined on the sensor itself, then a default value will be set. This will be 50 degrees C.
 
 ### octopus_energy.set_heat_pump_flow_temp_config
 

@@ -301,6 +301,43 @@ boost_heat_pump_zone:
           step: 0.5
           mode: box
 
+boost_water_heater:
+  name: Boost water heater
+  description: Boost a given heat pump water heater for a given time period
+  target:
+    entity:
+      integration: octopus_energy
+      domain: water_heater
+  fields:
+    hours:
+      name: Hours
+      description: The number of hours to boost for
+      required: true
+      selector:
+        number:
+          step: 1
+          min: 0
+          max: 12
+          mode: box
+    minutes:
+      name: Minutes
+      description: The number of minutes to boost for
+      required: true
+      selector:
+        number:
+          step: 15
+          min: 0
+          max: 45
+          mode: box
+    target_temperature:
+      name: Target Temperature
+      description: The optional target temperature to boost to. If not supplied, then the current target temperature will be used
+      required: false
+      selector:
+        number:
+          step: 0.5
+          mode: box
+
 set_heat_pump_flow_temp_config:
   name: Set heat pump flow temperature configuration
   description: Sets the full flow temperature configuration for fixed and weather compensated flow temperatures, with the option to select which is active. Changing this configuration without a good understanding of heat loss and emitter output can cause cycling, defrosting, or incorrect heat delivery.
