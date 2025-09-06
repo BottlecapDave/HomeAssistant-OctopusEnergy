@@ -3,6 +3,7 @@
 The following entities are available if you have a heat pump registered against your account. The following heat pumps are known to be compatible
 
 * Cosy 6
+* Cosy 9
 
 ## Humidity Sensor
 
