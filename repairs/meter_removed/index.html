@@ -9,10 +9,10 @@
       
       
       
-        <link rel="prev" href="../account_not_found/">
+        <link rel="prev" href="../no_active_tariff/">
       
       
-        <link rel="next" href="../octopus_mini_not_valid/">
+        <link rel="next" href="../../community/">
       
       
       <link rel="icon" href="../../assets/images/favicon.png">
@@ -20,7 +20,7 @@
     
     
       
-        <title>Repairs - Invalid Target Rate - Home Assistant Octopus Energy</title>
+        <title>Repairs - Meter removed - Home Assistant Octopus Energy</title>
       
     
     
@@ -72,7 +72,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#repairs-invalid-target-rate" class="md-skip">
+        <a href="#repairs-meter-removed" class="md-skip">
           Skip to content
         </a>
       
@@ -108,7 +108,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Repairs - Invalid Target Rate
+              Repairs - Meter removed
             
           </span>
         </div>
@@ -830,19 +830,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../invalid_target_rate/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -851,7 +842,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -966,10 +956,30 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../meter_removed/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Repairs - Meter removed
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -978,6 +988,35 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-removed-meter" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting removed meter
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1090,6 +1129,23 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#troubleshooting-removed-meter" class="md-nav__link">
+    <span class="md-ellipsis">
+      Troubleshooting removed meter
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -1106,19 +1162,108 @@
   
 
 
-<h1 id="repairs-invalid-target-rate">Repairs - Invalid Target Rate<a class="headerlink" href="#repairs-invalid-target-rate" title="Permanent link">#</a></h1>
-<p>If you receive this error, it means that one or more of your target rate sensors have gone into an invalid state. This can happen for a number of reasons</p>
+<h1 id="repairs-meter-removed">Repairs - Meter removed<a class="headerlink" href="#repairs-meter-removed" title="Permanent link">#</a></h1>
+<p>The integration regularly updates the account information. As part of this update, it checks if meters have changed since the last update. A meter can be deemed as "removed" for one of two reasons.</p>
 <ol>
-<li>More validation has been added, which your target rate sensor(s) are in violation of or</li>
-<li>You have switched tariffs and so your target rate sensor(s) are looking in a timeframe that is not possible.</li>
+<li>The meter is no longer part of your account</li>
+<li>The meter no longer has an active tariff associated with it</li>
 </ol>
-<p>To solve this</p>
-<ol>
-<li>Go to <a href="https://my.home-assistant.io/redirect/integration/?domain=octopus_energy">your integration</a></li>
-<li>Click configure against the target rate sensor that is in violation</li>
-<li>Update the config and save your changes</li>
-</ol>
-<p>If you are still having issues, feel free to raise a discussion.</p>
+<p>If this is expected (e.g. you've had your meter replaced), then you can ignore this notification. If this is not expected, then continue.</p>
+<h2 id="troubleshooting-removed-meter">Troubleshooting removed meter<a class="headerlink" href="#troubleshooting-removed-meter" title="Permanent link">#</a></h2>
+<p>The best way to determine why this has occurred is to <a href="../../faq/#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this">download the diagnostics</a> for your meter. Once downloaded, it will look something like the following</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="w">  </span><span class="nt">&quot;data&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;timestamp_captured&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-08-31T06:48:05.188073+01:00&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;account&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;**REDACTED**&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;octoplus_enrolled&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;heat_pump_ids&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[],</span>
+<span class="w">      </span><span class="nt">&quot;electricity_meter_points&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;mpan&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;meters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;active_from&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;__type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;class &#39;datetime.date&#39;&gt;&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;isoformat&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2000-01-01&quot;</span>
+<span class="w">              </span><span class="p">},</span>
+<span class="w">              </span><span class="nt">&quot;active_to&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;serial_number&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;is_export&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">false</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;is_smart_meter&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;device_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;**REDACTED**&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;manufacturer&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xxx&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xxx&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;firmware&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xxx&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;latest_consumption&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-08-30T00:00:00+00:00&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;device&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;total_consumption&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">31221.6</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;consumption&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.1</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;demand&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">251.0</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-08-31T05:30:00+00:00&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;end&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-08-31T06:00:00+00:00&quot;</span>
+<span class="w">              </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">],</span>
+<span class="w">          </span><span class="nt">&quot;agreements&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2000-01-01T23:00:00+00:00&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;end&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2001-01-01T23:00:00+00:00&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;tariff_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;E-1R-SUPER-GREEN-24M-21-07-30-L&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;product_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SUPER-GREEN-24M-21-07-30&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="err">...</span>
+<span class="w">          </span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;gas_meter_points&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;mprn&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span>
+<span class="w">          </span><span class="nt">&quot;meters&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;active_from&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;__type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;class &#39;datetime.date&#39;&gt;&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;isoformat&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2021-08-16&quot;</span>
+<span class="w">              </span><span class="p">},</span>
+<span class="w">              </span><span class="nt">&quot;active_to&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;serial_number&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;consumption_units&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;m\u00b3&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;is_smart_meter&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;device_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;**REDACTED**&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;manufacturer&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xxx&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;model&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xxx&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;firmware&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xxx&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;latest_consumption&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-08-30T00:00:00+00:00&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;device&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">                </span><span class="nt">&quot;total_consumption&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">150664.71746</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;consumption&quot;</span><span class="p">:</span><span class="w"> </span><span class="mf">0.0</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;demand&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-08-31T05:30:00+00:00&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="nt">&quot;end&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2025-08-31T06:00:00+00:00&quot;</span>
+<span class="w">              </span><span class="p">}</span>
+<span class="w">            </span><span class="p">}</span>
+<span class="w">          </span><span class="p">],</span>
+<span class="w">          </span><span class="nt">&quot;agreements&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">            </span><span class="p">{</span>
+<span class="w">              </span><span class="nt">&quot;start&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2000-01-01T23:00:00+00:00&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;end&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2001-01-01T23:00:00+00:00&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;tariff_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;G-1R-SUPER-GREEN-24M-21-07-30-L&quot;</span><span class="p">,</span>
+<span class="w">              </span><span class="nt">&quot;product_code&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SUPER-GREEN-24M-21-07-30&quot;</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="err">...</span>
+<span class="w">          </span><span class="p">]</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;using_cached_account_data&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">    </span><span class="err">...</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="err">...</span>
+<span class="p">}</span>
+</code></pre></div>
+<p>The meter MPAN/MPRN and Serial numbers are automatically changed to numbers for PII purposes, so you will need to find you meter either by it's active date or the manufacturer/model.</p>
+<p>If the meter is no longer present or there is no active agreement, then you'll need to contact Octopus Energy to get this fixed. Otherwise, please raise an <a href="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues">issue</a> with the diagnostic data and any associated errors in your logs to try and fix the problem.</p>
 
 
 

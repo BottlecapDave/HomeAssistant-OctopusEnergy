@@ -1046,6 +1046,15 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#octopus_energyboost_water_heater" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.boost_water_heater
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#octopus_energyset_heat_pump_flow_temp_config" class="md-nav__link">
     <span class="md-ellipsis">
       octopus_energy.set_heat_pump_flow_temp_config
@@ -1356,6 +1365,27 @@
   
   <span class="md-ellipsis">
     Repairs - No active tariff
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repairs/meter_removed/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - Meter removed
   </span>
   
 
@@ -1738,6 +1768,15 @@
   <a href="#octopus_energyboost_heat_pump_zone" class="md-nav__link">
     <span class="md-ellipsis">
       octopus_energy.boost_heat_pump_zone
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#octopus_energyboost_water_heater" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.boost_water_heater
     </span>
   </a>
   
@@ -2292,7 +2331,44 @@
 </table>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If you boost and a target temperature is both not provided and not defined on the sensor itself, then a default value will be set. This will be 50 degrees C for <code>water</code> zones and 30 degrees C for all other zones.</p>
+<p>If you boost and a target temperature is both not provided and not defined on the sensor itself, then a default value will be set. This will be 30 degrees C.</p>
+</div>
+<h3 id="octopus_energyboost_water_heater">octopus_energy.boost_water_heater<a class="headerlink" href="#octopus_energyboost_water_heater" title="Permanent link">#</a></h3>
+<p>Allows you to boost a given heat pump water heater for a set amount of time.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Optional</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>target.entity_id</code></td>
+<td><code>no</code></td>
+<td>The name of the heat pump water heater boost mode should be applied to (e.g. <code>water_heater.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}</code>).</td>
+</tr>
+<tr>
+<td><code>data.hours</code></td>
+<td><code>no</code></td>
+<td>The number of hours to turn boost mode on for. This can be between 0 and 12.</td>
+</tr>
+<tr>
+<td><code>data.minutes</code></td>
+<td><code>no</code></td>
+<td>The number of minutes to turn boost mode on for. This can be 0, 15, or 45.</td>
+</tr>
+<tr>
+<td><code>data.target_temperature</code></td>
+<td><code>yes</code></td>
+<td>The optional target temperature to boost to. If not supplied, then the current target temperature will be used.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If you boost and a target temperature is both not provided and not defined on the sensor itself, then a default value will be set. This will be 50 degrees C.</p>
 </div>
 <h3 id="octopus_energyset_heat_pump_flow_temp_config">octopus_energy.set_heat_pump_flow_temp_config<a class="headerlink" href="#octopus_energyset_heat_pump_flow_temp_config" title="Permanent link">#</a></h3>
 <p>Allows you to set the heat pump configuration for fixed and weather compensated flow temperatures, with the option to select which is active.</p>

@@ -950,6 +950,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repairs/meter_removed/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - Meter removed
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1567,7 +1588,7 @@
 <tbody>
 <tr>
 <td>Account</td>
-<td>60</td>
+<td>360 (6 hours)</td>
 <td>This is mainly used to get the active meters and associated tariffs, which shouldn't change often so no need to poll often.</td>
 </tr>
 <tr>
@@ -1810,6 +1831,13 @@ order by last_updated_ts desc
 <li>Navigate to <a href="https://my.home-assistant.io/redirect/devices/">your devices</a></li>
 <li>Search for "Octopus Energy"</li>
 <li>Click on one of the meters</li>
+<li>Click on "Download diagnostics"</li>
+<li>Take the contents of the downloads json file and paste into the bug report. Remember to surround the contents with ``` both at the start and end.</li>
+</ol>
+<p>Alternatively</p>
+<ol>
+<li>Navigate to the <a href="https://my.home-assistant.io/redirect/integration/?domain=octopus_energy">Octopus Energy integration</a></li>
+<li>Click the three dots next to your account configuration</li>
 <li>Click on "Download diagnostics"</li>
 <li>Take the contents of the downloads json file and paste into the bug report. Remember to surround the contents with ``` both at the start and end.</li>
 </ol>
