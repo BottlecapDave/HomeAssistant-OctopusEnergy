@@ -1,3 +1,20 @@
+# [16.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v16.2.0...v16.3.0) (2025-09-07)
+
+
+### Bug Fixes
+
+* Fixed error raised when no rates are discovered (5 minutes dev time) ([0ca2cd1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0ca2cd19de5a8b38560e1842baceecc68e26cee3))
+
+
+### Features
+
+* Added config entry information to diagnostics (15 minutes dev time) ([036d092](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/036d0926265854f882361f588a3db69f36276dcd))
+* Added intelligent control support for intelligent drive tariffs (15 minutes dev time) ([0ef5844](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0ef58447f28d19029971343d55d9d543716a6309))
+* Added intelligent features support for OCPP (5 minutes dev time) ([7d79292](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7d79292bdcbef7f2d143da3884d790ea5ec138ff))
+* Added new service for boosting heat pump water heaters (1 hour dev time) ([afc1999](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/afc1999e270ea74d8bacd24618af8eda5d4d3f51))
+* Added repair notices for new meters being added or existing meters being removed (2.5 hours dev time) ([8701494](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8701494b3d5a053e7f1dbc1dafb3609cd17d3650))
+* Decreased account refreshes to every 6 hours due to infrequent changes (5 minutes dev time) ([83f426c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/83f426cb60c62678e39422d58386548064ac27be))
+
 # [16.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v16.1.0...v16.2.0) (2025-08-27)
 
 
