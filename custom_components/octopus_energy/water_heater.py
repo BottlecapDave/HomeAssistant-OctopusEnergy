@@ -9,7 +9,6 @@ import homeassistant.helpers.config_validation as cv
 
 from .api_client.heat_pump import HeatPumpResponse
 from .heat_pump import get_mock_heat_pump_id
-from .heat_pump.zone import OctopusEnergyHeatPumpZone
 from .utils.debug_overrides import async_get_account_debug_override
 
 from .const import (
@@ -81,5 +80,22 @@ def setup_heat_pump_sensors(hass: HomeAssistant, client: OctopusEnergyApiClient,
           zone,
           mock_heat_pump
         ))
+
+  if len(entities) > 0:
+    platform = entity_platform.async_get_current_platform()
+    platform.async_register_entity_service(
+      "boost_water_heater",
+      vol.All(
+        cv.make_entity_service_schema(
+          {
+            vol.Required("hours"): cv.positive_int,
+            vol.Required("minutes"): cv.positive_int,
+            vol.Optional("target_temperature"): cv.positive_float,
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
+      ),
+      "async_boost_water_heater"
+    )
 
   return entities

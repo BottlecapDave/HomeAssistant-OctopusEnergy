@@ -33,6 +33,7 @@ nav:
     - ./repairs/cost_override_obsolete.md
     - ./repairs/unknown_intelligent_provider.md
     - ./repairs/no_active_tariff.md
+    - ./repairs/meter_removed.md
   - Community: community.md
   - blueprints.md
   - faq.md

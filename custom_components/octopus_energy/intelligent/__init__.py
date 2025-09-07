@@ -125,6 +125,7 @@ def is_intelligent_product(product_code: str):
     "INTELLI-BB-VAR" in product_code.upper() or
     "INTELLI-VAR" in product_code.upper() or
     "INTELLI-FIX" in product_code.upper() or
+    product_code.upper().startswith("IOG") or
     re.search("INTELLI-[0-9]", product_code.upper()) is not None
   )
 
@@ -155,7 +156,10 @@ def adjust_intelligent_rates(rates,
                              planned_dispatches: list[IntelligentDispatchItem],
                              started_dispatches: list[SimpleIntelligentDispatchItem],
                              mode: str):
-  off_peak_rate = min(rates, key = lambda x: x["value_inc_vat"])
+  if len(rates) < 1:
+    return rates
+
+  off_peak_rate =  min(rates, key = lambda x: x["value_inc_vat"])
   adjusted_rates = []
 
   for rate in rates:
@@ -265,7 +269,8 @@ FULLY_SUPPORTED_INTELLIGENT_PROVIDERS = [
   "TESLA",
   "SMART_PEAR",
   "HYPERVOLT",
-  "INDRA"
+  "INDRA",
+  "OCPP"
 ]
 
 def get_intelligent_features(provider: str) -> IntelligentFeatures:

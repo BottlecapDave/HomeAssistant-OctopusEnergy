@@ -11,6 +11,9 @@ from homeassistant.util.dt import (now)
 
 from .const import (
   CONFIG_ACCOUNT_ID,
+  CONFIG_COST_TRACKER_MPAN,
+  CONFIG_COST_TRACKER_TARGET_ENTITY_ID,
+  CONFIG_MAIN_API_KEY,
   DATA_ACCOUNT,
   DOMAIN,
 
@@ -185,7 +188,12 @@ async def async_get_device_diagnostics(hass, entry, device):
 
       return entity_info
 
-    return await async_get_diagnostics(client, account_id, account_info, account_debug_override, get_entity_info)
+    diagnostics = await async_get_diagnostics(client, account_id, account_info, account_debug_override, get_entity_info)
+    
+    return {
+      **diagnostics,
+      "config_entry": async_redact_data(config, { CONFIG_ACCOUNT_ID, CONFIG_MAIN_API_KEY, CONFIG_COST_TRACKER_MPAN, CONFIG_COST_TRACKER_TARGET_ENTITY_ID }),
+    }
 
 async def async_get_config_entry_diagnostics(hass, entry):
     """Return diagnostics for a device."""
@@ -223,4 +231,9 @@ async def async_get_config_entry_diagnostics(hass, entry):
 
       return entity_info
 
-    return await async_get_diagnostics(client, account_id, account_info, account_debug_override, get_entity_info)
+    diagnostics = await async_get_diagnostics(client, account_id, account_info, account_debug_override, get_entity_info)
+    
+    return {
+      **diagnostics,
+      "config_entry": async_redact_data(config, { CONFIG_ACCOUNT_ID, CONFIG_MAIN_API_KEY, CONFIG_COST_TRACKER_MPAN, CONFIG_COST_TRACKER_TARGET_ENTITY_ID }),
+    }
