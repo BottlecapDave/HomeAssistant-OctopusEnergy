@@ -214,20 +214,21 @@ intelligent_settings_query = '''query {{
 	}}
 }}'''
 
-intelligent_settings_mutation = '''mutation vehicleChargingPreferences {{
-  setVehicleChargePreferences(
-    input: {{
-      accountNumber: "{account_id}"
-      weekdayTargetSoc: {weekday_target_percentage}
-      weekendTargetSoc: {weekend_target_percentage}
-      weekdayTargetTime: "{weekday_target_time}"
-      weekendTargetTime: "{weekend_target_time}"
-    }}
-  ) {{
-     krakenflexDevice {{
-			 krakenflexDeviceId
-		}}
+intelligent_settings_mutation = '''mutation {{
+  setDevicePreferences(input: {{
+    deviceId: "{device_id}"
+    mode: CHARGE
+    unit: PERCENTAGE
+    schedules: [{schedules}]
+  }}) {{
+    id
   }}
+}}'''
+
+intelligent_settings_mutation_schedule = '''{{
+  dayOfWeek: {day_of_week}
+  time: "{target_time}"
+  max: {target_percentage}
 }}'''
 
 intelligent_turn_on_bump_charge_mutation = '''mutation {{
@@ -1574,12 +1575,12 @@ class OctopusEnergyApiClient:
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": intelligent_settings_mutation.format(
-        account_id=account_id,
-        weekday_target_percentage=target_percentage,
-        weekend_target_percentage=target_percentage,
-        weekday_target_time=settings.ready_time_weekday.strftime("%H:%M"),
-        weekend_target_time=settings.ready_time_weekend.strftime("%H:%M")
-      ) }
+          device_id=device_id,
+          schedules=self.__intelligent_settings_schedules__(target_percentage, settings.ready_time_weekday if settings is not None else time(hour=7, minute=0))
+        )
+      }
+
+      _LOGGER.debug(f'Payload for intelligent settings mutation: {payload}')
 
       headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as response:
@@ -1605,12 +1606,10 @@ class OctopusEnergyApiClient:
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": intelligent_settings_mutation.format(
-        account_id=account_id,
-        weekday_target_percentage=settings.charge_limit_weekday,
-        weekend_target_percentage=settings.charge_limit_weekend,
-        weekday_target_time=target_time.strftime("%H:%M"),
-        weekend_target_time=target_time.strftime("%H:%M")
-      ) }
+          device_id=device_id,
+          schedules=self.__intelligent_settings_schedules__(settings.charge_limit_weekday if settings is not None else 100, target_time)
+        )
+      }
 
       headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as response:
@@ -1619,6 +1618,13 @@ class OctopusEnergyApiClient:
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
+
+  def __intelligent_settings_schedules__(self, target_percentage: int, target_time: time) -> str:
+    daysOfWeek = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]
+    return ", ".join(list(map(lambda day: intelligent_settings_mutation_schedule
+                    .format(day_of_week=day,
+                            target_percentage=target_percentage,
+                            target_time=target_time.strftime("%H:%M")), daysOfWeek)))
 
   async def async_turn_on_intelligent_bump_charge(
       self, device_id: str,
