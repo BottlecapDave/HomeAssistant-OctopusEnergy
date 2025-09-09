@@ -1,3 +1,11 @@
+## [16.3.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v16.3.0...v16.3.1) (2025-09-09)
+
+
+### Bug Fixes
+
+* Fixed setting intelligent target percentage and time to use new API (1 hour dev time) ([d233177](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d2331772738003ab8ad7614f336c60946368f6df))
+* Fixed turning on/off intelligent smart charge (15 minutes dev time) ([86ed63b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/86ed63ba50388149e8ea18147a47870e68de11db))
+
 # [16.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v16.2.0...v16.3.0) (2025-09-07)
 
 
