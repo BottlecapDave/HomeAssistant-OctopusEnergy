@@ -30,7 +30,7 @@ from ..const import (
 from ..api_client import ApiException, OctopusEnergyApiClient
 from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 from ..utils import Tariff, private_rates_to_public_rates
-from . import BaseCoordinatorResult, combine_rates, get_electricity_meter_tariff, raise_rate_events
+from . import BaseCoordinatorResult, clear_rates_empty, combine_rates, get_electricity_meter_tariff, raise_rate_events, raise_rates_empty
 from ..intelligent import adjust_intelligent_rates, is_intelligent_product
 from ..utils.rate_information import get_unique_rates, has_peak_rates
 from ..utils.tariff_cache import async_save_cached_tariff_total_unique_rates
@@ -67,7 +67,9 @@ async def async_refresh_electricity_rates_data(
     unique_rates_changed: Callable[[Tariff, int], Awaitable[None]] = None,
     raise_no_active_rate: Callable[[], Awaitable[None]] = None,
     remove_no_active_rate: Callable[[], Awaitable[None]] = None,
-    intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+    intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+    raise_rates_empty: Callable[[Tariff], None] = None,
+    clear_rates_empty: Callable[[Tariff], None] = None
   ) -> ElectricityRatesCoordinatorResult: 
   if (account_info is not None):
     period_from = as_utc((current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
@@ -115,6 +117,11 @@ async def async_refresh_electricity_rates_data(
       
       if new_rates is not None:
         _LOGGER.debug(f'Electricity rates retrieved for {target_mpan}/{target_serial_number} ({tariff.code});')
+
+        if len(new_rates) == 0 and raise_rates_empty is not None:
+          raise_rates_empty(tariff)
+        elif clear_rates_empty is not None:
+          clear_rates_empty(tariff)
         
         original_rates = new_rates.copy()
         original_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold))
@@ -294,7 +301,9 @@ async def async_setup_electricity_rates_coordinator(hass,
       lambda tariff, total_unique_rates: async_update_unique_rates(hass, account_id, tariff, total_unique_rates),
       lambda: async_raise_no_active_tariff(hass, account_id, target_mpan, target_serial_number),
       lambda: async_remove_no_active_tariff(hass, target_mpan, target_serial_number),
-      intelligent_rate_mode
+      intelligent_rate_mode,
+      lambda tariff: raise_rates_empty(hass, account_id, tariff, target_mpan, target_serial_number, True),
+      lambda tariff: clear_rates_empty(hass, account_id, tariff)
     )
 
     return hass.data[DOMAIN][account_id][key]

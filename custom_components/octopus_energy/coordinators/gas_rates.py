@@ -22,8 +22,8 @@ from ..const import (
 )
 
 from ..api_client import ApiException, OctopusEnergyApiClient
-from ..utils import private_rates_to_public_rates
-from . import BaseCoordinatorResult, combine_rates, get_gas_meter_tariff, raise_rate_events
+from ..utils import Tariff, private_rates_to_public_rates
+from . import BaseCoordinatorResult, clear_rates_empty, combine_rates, get_gas_meter_tariff, raise_rate_events, raise_rates_empty
 from ..utils.repairs import safe_repair_key
 
 _LOGGER = logging.getLogger(__name__)
@@ -44,7 +44,9 @@ async def async_refresh_gas_rates_data(
     existing_rates_result: GasRatesCoordinatorResult,
     fire_event: Callable[[str, "dict[str, Any]"], None],
     raise_no_active_rate: Callable[[], None] = None,
-    remove_no_active_rate: Callable[[], None] = None
+    remove_no_active_rate: Callable[[], None] = None,
+    raise_rates_empty: Callable[[Tariff], None] = None,
+    clear_rates_empty: Callable[[Tariff], None] = None
   ) -> GasRatesCoordinatorResult: 
   if (account_info is not None):
     period_from = as_utc((current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
@@ -94,6 +96,11 @@ async def async_refresh_gas_rates_data(
         
       if new_rates is not None:
         _LOGGER.debug(f'Gas rates retrieved for {target_mprn}/{target_serial_number} ({tariff.code});')
+
+        if new_rates is not None and len(new_rates) == 0 and raise_rates_empty is not None:
+          raise_rates_empty(tariff)
+        elif clear_rates_empty is not None:
+          clear_rates_empty(tariff)
 
         raise_rate_events(current,
                           private_rates_to_public_rates(new_rates),
@@ -168,7 +175,9 @@ async def async_setup_gas_rates_coordinator(hass, account_id: str, client: Octop
       rates,
       hass.bus.async_fire,
       lambda: async_raise_no_active_tariff(hass, account_id, target_mprn, target_serial_number),
-      lambda: async_remove_no_active_tariff(hass, target_mprn, target_serial_number)
+      lambda: async_remove_no_active_tariff(hass, target_mprn, target_serial_number),
+      lambda tariff: raise_rates_empty(hass, account_id, tariff, target_mprn, target_serial_number, False),
+      lambda tariff: clear_rates_empty(hass, account_id, tariff)
     )
 
     return hass.data[DOMAIN][account_id][key]

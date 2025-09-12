@@ -407,6 +407,10 @@
     "meter_added": {
       "title": "{meter_type} meter added for {account_id} ({mprn_mpan}/{serial_number})",
       "description": "A new meter has been found for your account which has an active tariff. Please reload the integration to start using this meter and associated entities."
+    },
+    "tariff_rates_empty": {
+      "title": "{meter_type} {tariff_code} rates are empty for {account_id} ({mprn_mpan}/{serial_number})",
+      "description": "One of your meters ({mprn_mpan}/{serial_number}) is associated with tariff \"{tariff_code}\" for product \"{product_code}\", but no longer seems to be returning new rates. Please click \"Learn More\" with details on how to rectify this."
     }
   }
 }
