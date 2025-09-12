@@ -165,7 +165,7 @@ async def test_when_gas_meter_is_missing_then_event_raised():
   assert times_raise_product_not_found_called == 0
   assert times_raise_meter_removed_called == 1
   assert times_raise_meter_added_called == 0
-  assert times_clear_issue_called == 2
+  assert times_clear_issue_called == 2 + 5 # 2 expected, 5 legacy
   
 @pytest.mark.asyncio
 async def test_when_electricity_meter_is_missing_then_event_raised():
@@ -249,7 +249,7 @@ async def test_when_electricity_meter_is_missing_then_event_raised():
   assert times_raise_product_not_found_called == 0
   assert times_raise_meter_removed_called == 1
   assert times_raise_meter_added_called == 0
-  assert times_clear_issue_called == 2
+  assert times_clear_issue_called == 2 + 5 # 2 expected, 5 legacy
 
 @pytest.mark.asyncio
 async def test_when_electricity_meter_is_added_then_event_raised():
@@ -333,7 +333,7 @@ async def test_when_electricity_meter_is_added_then_event_raised():
   assert times_raise_product_not_found_called == 0
   assert times_raise_meter_removed_called == 0
   assert times_raise_meter_added_called == 1
-  assert times_clear_issue_called == 2
+  assert times_clear_issue_called == 2 + 5 # 2 expected, 5 legacy
 
 @pytest.mark.asyncio
 async def test_when_gas_meter_is_added_then_event_raised():
@@ -417,7 +417,7 @@ async def test_when_gas_meter_is_added_then_event_raised():
   assert times_raise_product_not_found_called == 0
   assert times_raise_meter_removed_called == 0
   assert times_raise_meter_added_called == 1
-  assert times_clear_issue_called == 2
+  assert times_clear_issue_called == 2 + 5 # 2 expected, 5 legacy
   
 @pytest.mark.asyncio
 async def test_when_account_info_is_none_then_account_not_found_raised():
@@ -833,4 +833,4 @@ async def test_when_product_not_found_then_event_raised():
   assert times_raise_product_not_found_called == 2 # One for electricity, one for gas
   assert times_raise_meter_removed_called == 0
   assert times_raise_meter_added_called == 0
-  assert times_clear_issue_called == 2
+  assert times_clear_issue_called == 2 + 6 # 2 expected, 6 legacy

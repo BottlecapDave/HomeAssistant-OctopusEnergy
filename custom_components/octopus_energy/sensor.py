@@ -97,6 +97,7 @@ from .octoplus.points import OctopusEnergyOctoplusPoints
 from .octoplus.saving_session_baseline import OctopusEnergySavingSessionBaseline
 
 from .utils import (Tariff, get_active_tariff)
+from .utils.repairs import safe_repair_key
 from .const import (
   CONFIG_COST_TRACKER_MPAN,
   CONFIG_ACCOUNT_ID,
@@ -362,6 +363,9 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
         for meter in point["meters"]:
           mpan = point["mpan"]
           serial_number = meter["serial_number"]
+
+          # Delete legacy issues
+          ir.async_delete_issue(hass, DOMAIN, f"octopus_mini_not_valid_electricity_{mpan}_{serial_number}")
           
           _LOGGER.info(f'Adding electricity meter; mpan: {mpan}; serial number: {serial_number}')
 
@@ -421,6 +425,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
               if CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES in config[CONFIG_MAIN_HOME_MINI_SETTINGS]:
                 live_consumption_refresh_in_minutes = config[CONFIG_MAIN_HOME_MINI_SETTINGS][CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES]
   
+              mini_not_available_key = safe_repair_key("octopus_mini_not_valid_electricity_{}_{}", mpan, serial_number)
               if meter["device_id"] is not None and meter["device_id"] != "":
                 consumption_coordinator = await async_create_current_consumption_coordinator(hass, account_id, client, meter["device_id"], live_consumption_refresh_in_minutes)
                 entities.append(OctopusEnergyCurrentElectricityConsumption(hass, consumption_coordinator, meter, point))
@@ -441,12 +446,12 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
                     entities.append(OctopusEnergyCurrentAccumulativeElectricityConsumption(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, meter, point, peak_type))
                     entities.append(OctopusEnergyCurrentAccumulativeElectricityCost(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, meter, point, peak_type))
 
-                ir.async_delete_issue(hass, DOMAIN, f"octopus_mini_not_valid_electricity_{mpan}_{serial_number}")
+                ir.async_delete_issue(hass, DOMAIN, mini_not_available_key)
               else:
                 ir.async_create_issue(
                   hass,
                   DOMAIN,
-                  f"octopus_mini_not_valid_electricity_{mpan}_{serial_number}",
+                  mini_not_available_key,
                   is_fixable=False,
                   severity=ir.IssueSeverity.ERROR,
                   learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/repairs/octopus_mini_not_valid",
@@ -477,6 +482,9 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
         for meter in point["meters"]:
           mprn = point["mprn"]
           serial_number = meter["serial_number"]
+
+          # Delete legacy issues
+          ir.async_delete_issue(hass, DOMAIN, "octopus_mini_not_valid_gas_{}_{}".format(mprn, serial_number))
           
           _LOGGER.info(f'Adding gas meter; mprn: {mprn}; serial number: {serial_number}')
 
@@ -529,6 +537,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
             if CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES in config[CONFIG_MAIN_HOME_MINI_SETTINGS]:
               live_consumption_refresh_in_minutes = config[CONFIG_MAIN_HOME_MINI_SETTINGS][CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES]
             
+            mini_not_available_key = safe_repair_key("octopus_mini_not_valid_gas_{}_{}", mprn, serial_number)
             if meter["device_id"] is not None and meter["device_id"] != "":
               consumption_coordinator = await async_create_current_consumption_coordinator(hass, account_id, client, meter["device_id"], live_consumption_refresh_in_minutes)
               entities.append(OctopusEnergyCurrentGasConsumption(hass, consumption_coordinator, meter, point))
@@ -546,12 +555,12 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
                 "new": f"octopus_energy_gas_{serial_number}_{mprn}_current_accumulative_consumption_kwh"
               })
 
-              ir.async_delete_issue(hass, DOMAIN, f"octopus_mini_not_valid_gas_{mprn}_{serial_number}")
+              ir.async_delete_issue(hass, DOMAIN, mini_not_available_key)
             else:
               ir.async_create_issue(
                 hass,
                 DOMAIN,
-                f"octopus_mini_not_valid_gas_{mprn}_{serial_number}",
+                mini_not_available_key,
                 is_fixable=False,
                 severity=ir.IssueSeverity.ERROR,
                 learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/repairs/octopus_mini_not_valid",

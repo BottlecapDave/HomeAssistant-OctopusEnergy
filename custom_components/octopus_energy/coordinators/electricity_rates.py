@@ -36,6 +36,7 @@ from ..utils.rate_information import get_unique_rates, has_peak_rates
 from ..utils.tariff_cache import async_save_cached_tariff_total_unique_rates
 from ..api_client.intelligent_device import IntelligentDevice
 from ..coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
+from ..utils.repairs import safe_repair_key
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -219,7 +220,7 @@ async def async_update_unique_rates(hass, account_id: str, tariff: Tariff, total
   ir.async_create_issue(
     hass,
     DOMAIN,
-    REPAIR_UNIQUE_RATES_CHANGED_KEY.format(account_id),
+    safe_repair_key(REPAIR_UNIQUE_RATES_CHANGED_KEY, account_id),
     is_fixable=False,
     severity=ir.IssueSeverity.WARNING,
     translation_key="electricity_unique_rates_updated",
@@ -230,7 +231,7 @@ async def async_raise_no_active_tariff(hass, account_id: str, mpan: str, serial_
   ir.async_create_issue(
     hass,
     DOMAIN,
-    REPAIR_NO_ACTIVE_TARIFF.format(mpan, serial_number),
+    safe_repair_key(REPAIR_NO_ACTIVE_TARIFF, mpan, serial_number),
     is_fixable=False,
     severity=ir.IssueSeverity.ERROR,
     learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/repairs/no_active_tariff",
@@ -242,7 +243,7 @@ async def async_remove_no_active_tariff(hass, mprn: str, serial_number: str):
   ir.async_delete_issue(
     hass,
     DOMAIN,
-    REPAIR_NO_ACTIVE_TARIFF.format(mprn, serial_number)
+    safe_repair_key(REPAIR_NO_ACTIVE_TARIFF, mprn, serial_number)
   )
 
 async def async_setup_electricity_rates_coordinator(hass,
@@ -263,6 +264,10 @@ async def async_setup_electricity_rates_coordinator(hass,
     account_coordinator = hass.data[DOMAIN][account_id][DATA_ACCOUNT_COORDINATOR]
     if account_coordinator is not None:
       await account_coordinator.async_request_refresh()
+
+    # Delete legacy issues
+    ir.async_delete_issue(hass, DOMAIN, REPAIR_UNIQUE_RATES_CHANGED_KEY.format(account_id))
+    ir.async_delete_issue(hass, DOMAIN, REPAIR_NO_ACTIVE_TARIFF.format(target_mpan, target_serial_number))
 
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]

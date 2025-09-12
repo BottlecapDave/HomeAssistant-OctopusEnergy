@@ -20,6 +20,7 @@ from .api_client.heat_pump import HeatPumpResponse
 from .heat_pump import get_mock_heat_pump_id
 from .heat_pump.weather_compensation_enabled import OctopusEnergyHeatPumpWeatherCompensationEnabled
 from .utils.debug_overrides import async_get_account_debug_override
+from .utils.repairs import safe_repair_key
 
 from .const import (
   CONFIG_KIND,
