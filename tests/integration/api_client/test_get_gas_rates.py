@@ -12,6 +12,7 @@ from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
     ("SUPER-GREEN-24M-21-07-30", "G-1R-SUPER-GREEN-24M-21-07-30-A", 2, datetime.strptime("2021-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2021-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
     ("SILVER-FLEX-22-11-25", "G-1R-SILVER-FLEX-22-11-25-C", None, datetime.strptime("2023-06-01T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2023-06-02T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
     ("SILVER-FLEX-22-11-25", "G-1R-SILVER-FLEX-22-11-25-C", 2, datetime.strptime("2023-06-01T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2023-06-02T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
+    ("OE-FIX-12M-24-12-14", "G-1R-OE-FIX-12M-24-12-14-A", None, datetime.strptime("2025-09-06T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2025-09-07T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
 ])
 async def test_when_get_gas_rates_is_called_for_existent_tariff_then_rates_are_returned(product_code, tariff_code, price_cap, period_from, period_to):
     # Arrange

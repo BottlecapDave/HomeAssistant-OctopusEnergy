@@ -22,7 +22,8 @@ from homeassistant.components.water_heater import (
     WaterHeaterEntity,
     WaterHeaterEntityFeature,
     STATE_HEAT_PUMP,
-    STATE_HIGH_DEMAND
+    STATE_HIGH_DEMAND,
+    STATE_ELECTRIC
 )
 
 from .base import (BaseOctopusEnergyHeatPumpSensor)
@@ -37,14 +38,14 @@ _LOGGER = logging.getLogger(__name__)
 OE_TO_HA_STATE = {
     "AUTO": STATE_HEAT_PUMP,
     "BOOST": STATE_HIGH_DEMAND,
-    "ON": STATE_ON,
+    "ON": STATE_ELECTRIC,
     "OFF": STATE_OFF,
 }
 
 HA_TO_OE_STATE = {
     STATE_HEAT_PUMP: "AUTO",
     STATE_HIGH_DEMAND: "BOOST",
-    STATE_ON: "ON",
+    STATE_ELECTRIC: "ON",
     STATE_OFF: "OFF",
 }
 
@@ -57,7 +58,7 @@ class OctopusEnergyHeatPumpWaterHeater(CoordinatorEntity, BaseOctopusEnergyHeatP
     | WaterHeaterEntityFeature.OPERATION_MODE
   )
 
-  _attr_operation_list = [STATE_ON, STATE_OFF, STATE_HEAT_PUMP, STATE_HIGH_DEMAND]
+  _attr_operation_list = [STATE_ELECTRIC, STATE_OFF, STATE_HEAT_PUMP, STATE_HIGH_DEMAND]
   _attr_current_operation = None
   _attr_temperature_unit = UnitOfTemperature.CELSIUS
   _attr_precision = PRECISION_HALVES

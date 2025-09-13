@@ -43,10 +43,14 @@ This can be used to control the target temperature and mode for a given water he
 
 The following operation modes/states are available
 
-* `on` - This represents as `on` in the app
+* `electric` - This represents as `on` in the app
 * `off` - This represents as `off` in the app
 * `heat_pump` - This represents as `auto` in the app
 * `high_demand` - This represents as `boost` in the app
+
+!!! note
+
+    While these states look odd, unfortunately Home Assistant doesn't allow these [operation modes to differ](https://developers.home-assistant.io/docs/core/entity/water-heater/) from those defined by Home Assistant.
 
 When `boost` is selected, this activates boost mode for the zone for 1 hour. If a target temperature is not set, then this will default to 50 degrees c. If you require boost to be on for a different amount of time or with a different target temperature, then you can use the [available service](../services.md#octopus_energyboost_water_heater).
 

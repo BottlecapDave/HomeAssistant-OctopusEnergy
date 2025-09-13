@@ -1,0 +1,68 @@
+name: Last Comment Label Manager
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  label:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+
+    steps:
+      - name: Check if commenter has write access
+        id: check
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const commentAuthor = context.payload.comment.user.login;
+
+            // Check permission level
+            const { data: perm } = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              username: commentAuthor,
+            });
+
+            const isMaintainer = ["admin", "write"].includes(perm.permission);
+            core.setOutput("is-maintainer", isMaintainer);
+
+      - name: Remove label if maintainer
+        if: steps.check.outputs.is-maintainer == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labelName = "awaiting-maintainer-response";
+            const issue = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            };
+
+            try {
+              await github.rest.issues.removeLabel({
+                ...issue,
+                name: labelName
+              });
+            } catch (e) {
+              if (e.status !== 404) throw e;
+            }
+
+      - name: Add label if not maintainer
+        if: steps.check.outputs.is-maintainer != 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labelName = "awaiting-maintainer-response";
+            const issue = {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number
+            };
+
+            await github.rest.issues.addLabels({
+              ...issue,
+              labels: [labelName]
+            });

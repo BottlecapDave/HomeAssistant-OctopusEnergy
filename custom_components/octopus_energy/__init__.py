@@ -39,6 +39,7 @@ from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult,
 
 from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configuration
 from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_heat_pump
+from .utils.repairs import safe_repair_key
 
 from .const import (
   CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS,
@@ -280,6 +281,12 @@ async def async_setup_dependencies(hass, config):
   """Setup the coordinator and api client which will be shared by various entities"""
   account_id = config[CONFIG_ACCOUNT_ID]
 
+  # Delete legacy issues
+  ir.async_delete_issue(hass, DOMAIN, f"intelligent_manual_service_{account_id}")
+  ir.async_delete_issue(hass, DOMAIN, REPAIR_UNIQUE_RATES_CHANGED_KEY.format(account_id))
+  ir.async_delete_issue(hass, DOMAIN, REPAIR_ACCOUNT_NOT_FOUND.format(account_id))
+  ir.async_delete_issue(hass, DOMAIN, REPAIR_INVALID_API_KEY.format(account_id))
+
   electricity_price_cap = None
   if (CONFIG_MAIN_PRICE_CAP_SETTINGS in config and CONFIG_MAIN_ELECTRICITY_PRICE_CAP in config[CONFIG_MAIN_PRICE_CAP_SETTINGS]):
     electricity_price_cap = config[CONFIG_MAIN_PRICE_CAP_SETTINGS][CONFIG_MAIN_ELECTRICITY_PRICE_CAP]
@@ -305,13 +312,13 @@ async def async_setup_dependencies(hass, config):
       config[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS] is not None):
     home_pro_client = OctopusEnergyHomeProApiClient(config[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_ADDRESS], config[CONFIG_MAIN_HOME_PRO_SETTINGS][CONFIG_MAIN_HOME_PRO_API_KEY] if CONFIG_MAIN_HOME_PRO_API_KEY in config[CONFIG_MAIN_HOME_PRO_SETTINGS] else None)
     hass.data[DOMAIN][account_id][DATA_HOME_PRO_CLIENT] = home_pro_client
-
+  
   # Delete any issues that may have been previously raised
-  ir.async_delete_issue(hass, DOMAIN, REPAIR_UNIQUE_RATES_CHANGED_KEY.format(account_id))
-  ir.async_delete_issue(hass, DOMAIN, REPAIR_ACCOUNT_NOT_FOUND.format(account_id))
+  ir.async_delete_issue(hass, DOMAIN, safe_repair_key(REPAIR_UNIQUE_RATES_CHANGED_KEY, account_id))
+  ir.async_delete_issue(hass, DOMAIN, safe_repair_key(REPAIR_ACCOUNT_NOT_FOUND, account_id))
 
   try:
-    ir.async_delete_issue(hass, DOMAIN, REPAIR_INVALID_API_KEY.format(account_id))
+    ir.async_delete_issue(hass, DOMAIN, safe_repair_key(REPAIR_INVALID_API_KEY, account_id))
     account_info = await client.async_get_account(config[CONFIG_ACCOUNT_ID])
     if (account_info is None):
       raise ConfigEntryNotReady(f"Failed to retrieve account information")
@@ -324,7 +331,7 @@ async def async_setup_dependencies(hass, config):
       ir.async_create_issue(
         hass,
         DOMAIN,
-        REPAIR_INVALID_API_KEY.format(account_id),
+        safe_repair_key(REPAIR_INVALID_API_KEY, account_id),
         is_fixable=False,
         severity=ir.IssueSeverity.ERROR,
         translation_key="invalid_api_key",
@@ -445,21 +452,24 @@ async def async_setup_dependencies(hass, config):
       await async_save_cached_intelligent_device(hass, account_id, intelligent_device)
 
   intelligent_features = get_intelligent_features(intelligent_device.provider)  if intelligent_device is not None else None
-  if intelligent_features is not None and intelligent_features.is_default_features == True:
-    ir.async_create_issue(
-      hass,
-      DOMAIN,
-      REPAIR_UNKNOWN_INTELLIGENT_PROVIDER.format(intelligent_device.provider),
-      is_fixable=False,
-      severity=ir.IssueSeverity.WARNING,
-      learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/repairs/unknown_intelligent_provider",
-      translation_key="unknown_intelligent_provider",
-      translation_placeholders={ "account_id": account_id, "provider": intelligent_device.provider },
-    )
+  if intelligent_features is not None:
+    # Delete legacy issue
+    ir.async_delete_issue(hass, DOMAIN, REPAIR_UNKNOWN_INTELLIGENT_PROVIDER.format(intelligent_device.provider))
+    if intelligent_features.is_default_features == True:
+      ir.async_create_issue(
+        hass,
+        DOMAIN,
+        REPAIR_UNKNOWN_INTELLIGENT_PROVIDER.format(intelligent_device.provider),
+        is_fixable=False,
+        severity=ir.IssueSeverity.WARNING,
+        learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/repairs/unknown_intelligent_provider",
+        translation_key="unknown_intelligent_provider",
+        translation_placeholders={ "account_id": account_id, "provider": intelligent_device.provider },
+      )
 
-  intelligent_repair_key = f"intelligent_manual_service_{account_id}"
-  if intelligent_features is not None and intelligent_features.planned_dispatches_supported:
-    if intelligent_manual_service_enabled == False:
+  intelligent_repair_key = safe_repair_key("intelligent_manual_service_{}", account_id)
+  if intelligent_features is not None:
+    if intelligent_features.planned_dispatches_supported and intelligent_manual_service_enabled == False:
       ir.async_create_issue(
         hass,
         DOMAIN,
