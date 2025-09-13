@@ -1,5 +1,6 @@
 import logging
 import json
+from typing import Any
 import aiohttp
 from asyncio import TimeoutError
 from datetime import (datetime, timedelta, time, timezone)
@@ -637,6 +638,58 @@ class RequestException(ApiException):
     self.errors = errors
 
 class AuthenticationException(RequestException): ...
+
+class IntelligentBoostChargeException(RequestException):
+  refusal_reason: str | None
+
+  def __init__(self, message: str, errors: list[str], refusal_reason: str | None):
+    super().__init__(message, errors)
+    self.refusal_reason = refusal_reason
+
+def process_boost_charge_refusal(reason: str):
+  if reason == "BC_DEVICE_NOT_YET_LIVE":
+    return "Device is not yet live"
+  if reason == "BC_DEVICE_RETIRED":
+    return "Device is retired"
+  if reason == "BC_DEVICE_SUSPENDED":
+    return "Device is suspended"
+  if reason == "BC_DEVICE_DISCONNECTED":
+    return "Device is disconnected"
+  if reason == "BC_DEVICE_NOT_AT_HOME":
+    return "Device is not at home"
+  if reason == "BC_BOOST_CHARGE_IN_PROGRESS":
+    return "Boost charge already in progress"
+  if reason == "BC_DEVICE_FULLY_CHARGED":
+    return "Device is already fully charged"
+  
+  return None
+
+def process_graphql_response(data: Any, url: str, request_context: str, ignore_errors: bool, accepted_error_codes: list[str]):
+  if ("graphql" in url and "errors" in data and ignore_errors == False):
+    msg = f'Errors in request ({url}) ({request_context}): {data["errors"]}'
+    errors = list(map(lambda error: error["message"].strip(".,!"), data["errors"]))
+    errors_as_string = ', '.join(errors)
+    _LOGGER.warning(msg)
+
+    for error in data["errors"]:
+      if ("extensions" in error and
+          "errorCode" in error["extensions"] and
+          error["extensions"]["errorCode"] in ("KT-CT-1139", "KT-CT-1111", "KT-CT-1143", "KT-CT-1134", "KT-CT-1135")):
+        raise AuthenticationException(f"Authentication failed - {errors_as_string}. See logs for more details.", errors)
+
+      if ("extensions" in error and
+          "errorCode" in error["extensions"] and
+          error["extensions"]["errorCode"] in accepted_error_codes):
+        return None
+
+      if ("extensions" in error and
+          "boostChargeRefusalReasons" in error["extensions"]):
+        refusal_reason = process_boost_charge_refusal(error["extensions"]["boostChargeRefusalReasons"])
+        raise IntelligentBoostChargeException(f"Boost failed - {refusal_reason} - {errors_as_string}. See logs for more details.", errors, refusal_reason)
+
+    raise RequestException(f"Failed - {errors_as_string}. See logs for more details.", errors)
+  
+  return data
 
 class OctopusEnergyApiClient:
   _refresh_token_lock = RLock()
@@ -1917,22 +1970,4 @@ class OctopusEnergyApiClient:
     except:
       raise Exception(f'Failed to extract response json: {url}; {text}')
     
-    if ("graphql" in url and "errors" in data_as_json and ignore_errors == False):
-      msg = f'Errors in request ({url}) ({request_context}): {data_as_json["errors"]}'
-      errors = list(map(lambda error: error["message"], data_as_json["errors"]))
-      _LOGGER.warning(msg)
-
-      for error in data_as_json["errors"]:
-        if ("extensions" in error and
-            "errorCode" in error["extensions"] and
-            error["extensions"]["errorCode"] in ("KT-CT-1139", "KT-CT-1111", "KT-CT-1143", "KT-CT-1134", "KT-CT-1135")):
-          raise AuthenticationException(msg, errors)
-
-        if ("extensions" in error and
-            "errorCode" in error["extensions"] and
-            error["extensions"]["errorCode"] in accepted_error_codes):
-          return None
-
-      raise RequestException(msg, errors)
-    
-    return data_as_json
+    return process_graphql_response(data_as_json, url, request_context, ignore_errors, accepted_error_codes)
