@@ -328,7 +328,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   if intelligent_device is not None:
     intelligent_dispatches_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR] if DATA_INTELLIGENT_DISPATCHES_COORDINATOR in hass.data[DOMAIN][account_id] else None
     if intelligent_dispatches_coordinator is not None:
-      entities.append(OctopusEnergyIntelligentDispatchesDataLastRetrieved(hass, intelligent_dispatches_coordinator, account_id))
+      entities.append(OctopusEnergyIntelligentDispatchesDataLastRetrieved(hass, intelligent_dispatches_coordinator, account_id, intelligent_device.id))
 
       intelligent_features = get_intelligent_features(intelligent_device.provider)
       if intelligent_features.current_state_supported:
@@ -336,7 +336,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
                       
     intelligent_settings_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS_COORDINATOR] if DATA_INTELLIGENT_SETTINGS_COORDINATOR in hass.data[DOMAIN][account_id] else None
     if intelligent_settings_coordinator is not None:
-      entities.append(OctopusEnergyIntelligentSettingsDataLastRetrieved(hass, intelligent_settings_coordinator, account_id))
+      entities.append(OctopusEnergyIntelligentSettingsDataLastRetrieved(hass, intelligent_settings_coordinator, account_id, intelligent_device.id))
 
   registry = er.async_get(hass)
   entity_ids_to_migrate = []
