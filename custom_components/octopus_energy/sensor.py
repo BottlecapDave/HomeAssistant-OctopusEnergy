@@ -122,7 +122,7 @@ from .const import (
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
   DATA_HOME_PRO_CLIENT,
-  DATA_INTELLIGENT_DEVICE,
+  DATA_INTELLIGENT_DEVICES,
   DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
   DATA_INTELLIGENT_SETTINGS_COORDINATOR,
   DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY,
@@ -323,9 +323,10 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
     OctopusEnergyWheelOfFortuneDataLastRetrieved(hass, wheel_of_fortune_coordinator, account_id)
   ]
 
-  intelligent_result: IntelligentDeviceCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
-  intelligent_device: IntelligentDevice = intelligent_result.device if intelligent_result is not None else None
-  if intelligent_device is not None:
+  intelligent_result: IntelligentDeviceCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICES] if DATA_INTELLIGENT_DEVICES in hass.data[DOMAIN][account_id] else None
+  intelligent_devices: list[IntelligentDevice] = intelligent_result.devices if intelligent_result is not None else []
+
+  for intelligent_device in intelligent_devices:
     intelligent_dispatches_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR] if DATA_INTELLIGENT_DISPATCHES_COORDINATOR in hass.data[DOMAIN][account_id] else None
     if intelligent_dispatches_coordinator is not None:
       entities.append(OctopusEnergyIntelligentDispatchesDataLastRetrieved(hass, intelligent_dispatches_coordinator, account_id, intelligent_device.id))
@@ -334,7 +335,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
       if intelligent_features.current_state_supported:
         entities.append(OctopusEnergyIntelligentCurrentState(hass, intelligent_dispatches_coordinator, intelligent_device, account_id))
                       
-    intelligent_settings_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS_COORDINATOR] if DATA_INTELLIGENT_SETTINGS_COORDINATOR in hass.data[DOMAIN][account_id] else None
+    intelligent_settings_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS_COORDINATOR.format(intelligent_device.id)] if DATA_INTELLIGENT_SETTINGS_COORDINATOR.format(intelligent_device.id) in hass.data[DOMAIN][account_id] else None
     if intelligent_settings_coordinator is not None:
       entities.append(OctopusEnergyIntelligentSettingsDataLastRetrieved(hass, intelligent_settings_coordinator, account_id, intelligent_device.id))
 

@@ -10,7 +10,6 @@ from homeassistant.helpers import issue_registry as ir
 
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
-  DATA_INTELLIGENT_DEVICE,
   DATA_INTELLIGENT_DEVICES,
   DOMAIN,
 
@@ -128,7 +127,7 @@ async def async_setup_intelligent_device_coordinator(hass, account_id: str, inte
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
-    hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] = await async_refresh_device(
+    hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICES] = await async_refresh_device(
       hass,
       current,
       client,

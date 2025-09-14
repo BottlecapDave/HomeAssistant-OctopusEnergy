@@ -19,9 +19,9 @@ class IntelligentDevice:
     self.device_type = device_type
     self.is_charger = is_charger
 
-  def to_dict(self, omit_id = True):
+  def to_dict(self):
     return {
-      "id": self.id if omit_id == False else "**Redacted**",
+      "id": self.id,
       "provider": self.provider,
       "make": self.make,
       "model": self.model,

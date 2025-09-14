@@ -1,5 +1,6 @@
 import logging
 
+from custom_components.octopus_energy.intelligent import get_intelligent_features
 import voluptuous as vol
 
 from homeassistant.core import HomeAssistant
@@ -34,10 +35,8 @@ from .const import (
   DATA_GREENNESS_FORECAST_COORDINATOR,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
-  DATA_INTELLIGENT_DEVICE,
+  DATA_INTELLIGENT_DEVICES,
   DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
-  DATA_INTELLIGENT_MPAN,
-  DATA_INTELLIGENT_SERIAL_NUMBER,
   DOMAIN,
 
   CONFIG_TARGET_MPAN,
@@ -153,30 +152,7 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
           
           entities.append(OctopusEnergyElectricityOffPeak(hass, electricity_rate_coordinator, meter, point))
 
-  intelligent_result: IntelligentDeviceCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
-  intelligent_device: IntelligentDevice = intelligent_result.device if intelligent_result is not None else None
-  intelligent_mpan = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_MPAN] if DATA_INTELLIGENT_MPAN in hass.data[DOMAIN][account_id] else None
-  intelligent_serial_number = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SERIAL_NUMBER] if DATA_INTELLIGENT_SERIAL_NUMBER in hass.data[DOMAIN][account_id] else None
-  if intelligent_device is not None and intelligent_mpan is not None and intelligent_serial_number is not None:
-
-    if (CONFIG_MAIN_INTELLIGENT_SETTINGS not in config or
-        CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES not in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] or
-        config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == True):
-      platform = entity_platform.async_get_current_platform()
-      platform.async_register_entity_service(
-        "refresh_intelligent_dispatches",
-        vol.All(
-          cv.make_entity_service_schema(
-            {},
-            extra=vol.ALLOW_EXTRA,
-          ),
-        ),
-        "async_refresh_dispatches"
-      )
-
-    coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR]
-    electricity_rate_coordinator = hass.data[DOMAIN][account_id][DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(intelligent_mpan, intelligent_serial_number)]
-    entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, intelligent_device, account_id))
+  entities.extend(get_intelligent_entities(hass, account_id, config))
 
   account_debug_override = await async_get_account_debug_override(hass, account_id)
   mock_heat_pump = account_debug_override.mock_heat_pump if account_debug_override is not None else False
@@ -208,6 +184,35 @@ def setup_heat_pump_sensors(hass: HomeAssistant, account_id: str, heat_pump_id: 
         heat_pump_id,
         heat_pump_response.octoHeatPumpControllerConfiguration.heatPump
       ))
+
+  return entities
+
+def get_intelligent_entities(hass, account_id: str, config: dict):
+  entities = []
+
+  intelligent_result: IntelligentDeviceCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICES] if DATA_INTELLIGENT_DEVICES in hass.data[DOMAIN][account_id] else None
+  intelligent_devices: list[IntelligentDevice] = intelligent_result.devices if intelligent_result is not None else []
+
+  for intelligent_device in intelligent_devices:
+
+    if intelligent_device.device_type == "ELECTRIC_VEHICLE":
+      if (CONFIG_MAIN_INTELLIGENT_SETTINGS not in config or
+          CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES not in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] or
+          config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == True):
+        platform = entity_platform.async_get_current_platform()
+        platform.async_register_entity_service(
+          "refresh_intelligent_dispatches",
+          vol.All(
+            cv.make_entity_service_schema(
+              {},
+              extra=vol.ALLOW_EXTRA,
+            ),
+          ),
+          "async_refresh_dispatches"
+        )
+
+      coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR]
+      entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, electricity_rate_coordinator, intelligent_mpan, intelligent_device, account_id))
 
   return entities
 

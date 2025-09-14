@@ -19,7 +19,7 @@ from .coordinators.saving_sessions import async_setup_saving_sessions_coordinato
 from .coordinators.free_electricity_sessions import async_setup_free_electricity_sessions_coordinators
 from .coordinators.greenness_forecast import async_setup_greenness_forecast_coordinator
 from .statistics import get_statistic_ids_to_remove
-from .intelligent import get_intelligent_features, is_intelligent_product, mock_intelligent_device
+from .intelligent import get_intelligent_features, mock_intelligent_device
 from .config.rolling_target_rates import async_migrate_rolling_target_config
 from .coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult, async_setup_heat_pump_coordinator
 
@@ -64,11 +64,8 @@ from .const import (
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
   DATA_CUSTOM_RATE_WEIGHTINGS_KEY,
   DATA_HOME_PRO_CLIENT,
-  DATA_INTELLIGENT_DEVICE,
   DATA_INTELLIGENT_DEVICES,
   DATA_INTELLIGENT_DISPATCHES,
-  DATA_INTELLIGENT_MPAN,
-  DATA_INTELLIGENT_SERIAL_NUMBER,
   DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY,
   DOMAIN,
 
@@ -397,7 +394,7 @@ async def async_setup_dependencies(hass, config):
         for meter in point["meters"]:
           break
 
-  await async_get_intelligent_devices(hass, config, now, account_id, should_mock_intelligent_data)
+  await async_register_intelligent_devices(hass, config, now, account_id, should_mock_intelligent_data)
 
   for point in account_info["electricity_meter_points"]:
     # We only care about points that have active agreements
@@ -518,7 +515,7 @@ def setup(hass, config):
   # Return boolean to indicate that initialization was successful.
   return True
 
-async def async_get_intelligent_devices(hass, config: dict, now: datetime, account_id: str, should_mock_intelligent_data: bool):
+async def async_register_intelligent_devices(hass, config: dict, now: datetime, account_id: str, should_mock_intelligent_data: bool):
   intelligent_manual_service_enabled = True
   intelligent_devices = []
   if should_mock_intelligent_data:
@@ -527,7 +524,8 @@ async def async_get_intelligent_devices(hass, config: dict, now: datetime, accou
     if should_mock_intelligent_data:
       # Load from cache to make sure everything works as intended
       intelligent_devices = await async_load_cached_intelligent_devices(hass, account_id)
-      intelligent_devices = [mock_intelligent_device()]
+      if len(intelligent_devices) < 1:
+        intelligent_devices = [mock_intelligent_device()]
     else:
       try:
         intelligent_devices = await client.async_get_intelligent_devices(account_id)
