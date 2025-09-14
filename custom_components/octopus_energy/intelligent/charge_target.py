@@ -46,12 +46,12 @@ class OctopusEnergyIntelligentChargeTarget(CoordinatorEntity, RestoreNumber, Oct
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_{self._account_id}_intelligent_charge_target"
+    return f"octopus_energy_{self._device.id}_intelligent_charge_target"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Intelligent Charge Target ({self._account_id})"
+    return f"Intelligent Charge Target ({self._device.id})"
 
   @property
   def icon(self):

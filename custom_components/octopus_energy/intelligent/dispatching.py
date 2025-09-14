@@ -48,12 +48,12 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_{self._account_id}_intelligent_dispatching"
+    return f"octopus_energy_{self._device.id}_intelligent_dispatching"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Intelligent Dispatching ({self._account_id})"
+    return f"Intelligent Dispatching ({self._device.id})"
 
   @property
   def icon(self):
