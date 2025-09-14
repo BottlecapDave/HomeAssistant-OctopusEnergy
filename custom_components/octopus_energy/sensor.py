@@ -327,7 +327,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   intelligent_devices: list[IntelligentDevice] = intelligent_result.devices if intelligent_result is not None else []
 
   for intelligent_device in intelligent_devices:
-    intelligent_dispatches_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR] if DATA_INTELLIGENT_DISPATCHES_COORDINATOR in hass.data[DOMAIN][account_id] else None
+    intelligent_dispatches_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR.format(intelligent_device.id)] if DATA_INTELLIGENT_DISPATCHES_COORDINATOR.format(intelligent_device.id) in hass.data[DOMAIN][account_id] else None
     if intelligent_dispatches_coordinator is not None:
       entities.append(OctopusEnergyIntelligentDispatchesDataLastRetrieved(hass, intelligent_dispatches_coordinator, account_id, intelligent_device.id))
 

@@ -48,7 +48,7 @@ async def async_setup_intelligent_sensors(hass, config, async_add_entities):
   for intelligent_device in intelligent_devices:
     intelligent_features = get_intelligent_features(intelligent_device.provider)
     settings_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS_COORDINATOR.format(intelligent_device.id)]
-    dispatches_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR]
+    dispatches_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR.format(intelligent_device.id)]
 
     if intelligent_features.bump_charge_supported:
       entities.append(OctopusEnergyIntelligentSmartCharge(hass, settings_coordinator, client, intelligent_device, account_id, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False))
