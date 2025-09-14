@@ -22,7 +22,7 @@ def test_when_get_applicable_dispatches_called_with_no_planned_dispatches_it_ret
 
 def test_when_get_applicable_dispatches_called_with_no_started_dispatches_and_mode_is_started_only_it_returns_empty_list():
   # Arrange
-  now = datetime.now()
+  now = datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
   planned_dispatches = [
     IntelligentDispatchItem(
       start=now,
@@ -43,7 +43,7 @@ def test_when_get_applicable_dispatches_called_with_no_started_dispatches_and_mo
 
 def test_when_get_applicable_dispatches_called_with_started_dispatches_it_returns_them():
   # Arrange
-  now = datetime.now()
+  now = datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
   planned_dispatches = None
   started_dispatches = [
     SimpleIntelligentDispatchItem(
@@ -58,12 +58,12 @@ def test_when_get_applicable_dispatches_called_with_started_dispatches_it_return
 
   # Assert
   assert len(result) == 1
-  assert result[0].start == now
-  assert result[0].end == now + timedelta(hours=1)
+  assert result[0].start == started_dispatches[0].start
+  assert result[0].end == started_dispatches[0].end
 
-def test_when_get_applicable_dispatches_called_with_pending_and_started_mode_and_non_smart_charge_dispatch_it_includes_planned_dispatch():
+def test_when_get_applicable_dispatches_called_with_planned_and_started_mode_and_non_smart_charge_dispatch_it_includes_planned_dispatch():
   # Arrange
-  now = datetime.now()
+  now = datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
   planned_dispatches = [
     IntelligentDispatchItem(
       start=now,
@@ -81,12 +81,12 @@ def test_when_get_applicable_dispatches_called_with_pending_and_started_mode_and
 
   # Assert
   assert len(result) == 1
-  assert result[0].start == now
-  assert result[0].end == now + timedelta(hours=1)
+  assert result[0].start == planned_dispatches[0].start
+  assert result[0].end == planned_dispatches[0].end
 
-def test_when_get_applicable_dispatches_called_with_pending_and_started_mode_and_smart_charge_dispatch_it_excludes_planned_dispatch():
+def test_when_get_applicable_dispatches_called_with_planned_and_started_only_mode_and_smart_charge_dispatch_it_excludes_planned_dispatch():
   # Arrange
-  now = datetime.now()
+  now = datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
   planned_dispatches = [
     IntelligentDispatchItem(
       start=now,
@@ -107,7 +107,7 @@ def test_when_get_applicable_dispatches_called_with_pending_and_started_mode_and
 
 def test_when_get_applicable_dispatches_called_with_overlapping_dispatches_it_merges_them():
   # Arrange
-  now = datetime.now()
+  now = datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
   started_dispatches = [
     SimpleIntelligentDispatchItem(
       start=now,
@@ -126,12 +126,12 @@ def test_when_get_applicable_dispatches_called_with_overlapping_dispatches_it_me
 
   # Assert
   assert len(result) == 1
-  assert result[0].start == now
-  assert result[0].end == now + timedelta(hours=3)
+  assert result[0].start == started_dispatches[0].start
+  assert result[0].end == started_dispatches[1].end
 
 def test_when_get_applicable_dispatches_called_with_adjacent_dispatches_it_merges_them():
   # Arrange
-  now = datetime.now()
+  now = datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
   started_dispatches = [
     SimpleIntelligentDispatchItem(
       start=now,
@@ -150,12 +150,12 @@ def test_when_get_applicable_dispatches_called_with_adjacent_dispatches_it_merge
 
   # Assert
   assert len(result) == 1
-  assert result[0].start == now
-  assert result[0].end == now + timedelta(hours=2)
+  assert result[0].start == started_dispatches[0].start
+  assert result[0].end == started_dispatches[1].end
 
 def test_when_get_applicable_dispatches_called_with_multiple_dispatches_it_sorts_them_by_start_time():
   # Arrange
-  now = datetime.now()
+  now = datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
   started_dispatches = [
     SimpleIntelligentDispatchItem(
       start=now + timedelta(hours=3),
@@ -174,14 +174,14 @@ def test_when_get_applicable_dispatches_called_with_multiple_dispatches_it_sorts
 
   # Assert
   assert len(result) == 2
-  assert result[0].start == now
-  assert result[0].end == now + timedelta(hours=1)
-  assert result[1].start == now + timedelta(hours=3)
-  assert result[1].end == now + timedelta(hours=4)
+  assert result[0].start == started_dispatches[1].start
+  assert result[0].end == started_dispatches[1].end
+  assert result[1].start == started_dispatches[0].start
+  assert result[1].end == started_dispatches[0].end
 
 def test_when_get_applicable_dispatches_called_with_both_planned_and_started_it_combines_them_correctly():
   # Arrange
-  now = datetime.now()
+  now = datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
   planned_dispatches = [
     IntelligentDispatchItem(
       start=now,
@@ -193,7 +193,7 @@ def test_when_get_applicable_dispatches_called_with_both_planned_and_started_it_
   ]
   started_dispatches = [
     SimpleIntelligentDispatchItem(
-      start=now + timedelta(hours=2),
+      start=planned_dispatches[0].end,
       end=now + timedelta(hours=3)
     )
   ]
@@ -203,15 +203,13 @@ def test_when_get_applicable_dispatches_called_with_both_planned_and_started_it_
   result = get_applicable_dispatches(planned_dispatches, started_dispatches, mode)
 
   # Assert
-  assert len(result) == 2
-  assert result[0].start == now
-  assert result[0].end == now + timedelta(hours=1)
-  assert result[1].start == now + timedelta(hours=2)
-  assert result[1].end == now + timedelta(hours=3)
+  assert len(result) == 1
+  assert result[0].start == planned_dispatches[0].start
+  assert result[0].end == started_dispatches[0].end
 
-def test_when_get_applicable_dispatches_called_with_source_none_it_excludes_from_planned():
+def test_when_get_applicable_dispatches_called_with_source_none_it_is_included():
   # Arrange
-  now = datetime.now()
+  now = datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
   planned_dispatches = [
     IntelligentDispatchItem(
       start=now,
@@ -228,5 +226,8 @@ def test_when_get_applicable_dispatches_called_with_source_none_it_excludes_from
   result = get_applicable_dispatches(planned_dispatches, started_dispatches, mode)
 
   # Assert
-  # Source as none counts as smart charge and should be excluded
-  assert result == []
+  # Source as none counts as smart charge and should not be excluded
+  assert result is not None
+  assert len(result) == 1
+  assert result[0].start == now
+  assert result[0].end == planned_dispatches[0].end

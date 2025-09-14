@@ -85,10 +85,13 @@ async def async_refresh_electricity_rates_data(
     # We'll calculate the wrong value if we don't have our intelligent dispatches
     if is_intelligent_product(tariff.product):
       missing_dispatches = False
-      for item in dispatches_results.values():
-        if item is None or item.dispatches is None:
-          missing_dispatches = True
-          break
+      if dispatches_results is None:
+        missing_dispatches = True
+      else:
+        for item in dispatches_results.values():
+          if item is None or item.dispatches is None:
+            missing_dispatches = True
+            break
 
       if missing_dispatches:
         _LOGGER.debug("Dispatches not available for intelligent tariff. Using existing rate information")

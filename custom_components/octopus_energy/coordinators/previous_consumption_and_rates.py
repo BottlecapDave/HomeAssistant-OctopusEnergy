@@ -245,7 +245,7 @@ async def async_fetch_consumption_and_rates(
   is_electricity: bool,
   is_smart_meter: bool,
   fire_event: Callable[[str, "dict[str, Any]"], None],
-  dispatches_results: dict[str, IntelligentDispatchesCoordinatorResult],
+  dispatches_results: dict[str, IntelligentDispatchesCoordinatorResult] = None,
   tariff_override: Tariff = None,
   intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
 
@@ -278,10 +278,13 @@ async def async_fetch_consumption_and_rates(
           # We'll calculate the wrong value if we don't have our intelligent dispatches
           if is_intelligent_product(tariff.product):
             missing_dispatches = False
-            for item in dispatches_results.values():
-              if item is None or item.dispatches is None:
-                missing_dispatches = True
-                break
+            if dispatches_results is None:
+              missing_dispatches = True
+            else:
+              for item in dispatches_results.values():
+                if item is None or item.dispatches is None:
+                  missing_dispatches = True
+                  break
 
             if missing_dispatches:
               _LOGGER.debug("Dispatches not available for intelligent tariff. Using existing rate information")
@@ -300,14 +303,15 @@ async def async_fetch_consumption_and_rates(
               client.async_get_electricity_standing_charge(tariff.product, tariff.code, period_from, period_to)
             )
 
-          for key, item in dispatches_results.items():
-            if item is not None and item.dispatches is not None:
-              rate_data = adjust_intelligent_rates(rate_data,
-                                                   item.dispatches.planned,
-                                                   item.dispatches.started,
-                                                   intelligent_rate_mode)
-          
-              _LOGGER.debug(f"Rates adjusted: {rate_data}; device id: {key} dispatches: {item.dispatches.to_dict()}")
+          if dispatches_results is not None:
+            for key, item in dispatches_results.items():
+              if item is not None and item.dispatches is not None:
+                rate_data = adjust_intelligent_rates(rate_data,
+                                                    item.dispatches.planned,
+                                                    item.dispatches.started,
+                                                    intelligent_rate_mode)
+            
+                _LOGGER.debug(f"Rates adjusted: {rate_data}; device id: {key} dispatches: {item.dispatches.to_dict()}")
       else:
         consumption_data = await client.async_get_gas_consumption(identifier, serial_number, page_size=52)
         consumption_data = get_latest_day(consumption_data)

@@ -157,47 +157,45 @@ def get_applicable_dispatches(planned_dispatches: list[IntelligentDispatchItem],
                               mode: str):
   dispatches: list[SimpleIntelligentDispatchItem] = []
   if planned_dispatches is not None:
-    for dispatch in planned_dispatches:
+    for planned_dispatch in planned_dispatches:
       # Source as none counts as smart charge - https://forum.octopus.energy/t/pending-and-completed-octopus-intelligent-dispatches/8510/102
       if (mode != CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES or 
-          (dispatch.source is not None and (dispatch.source.lower() in [INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS]) == False)):
+          (planned_dispatch.source is not None and (planned_dispatch.source.lower() in [INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS]) == False)):
         continue
 
       dispatch_exists = False
       for existing_dispatch in dispatches:
-        if (existing_dispatch.start < dispatch.start and existing_dispatch.end > dispatch.end):
+        # If the planned dispatch starts within the existing dispatch, extend the end
+        if (planned_dispatch.start >= existing_dispatch.start and planned_dispatch.start <= existing_dispatch.end):
+          _LOGGER.debug(f"Merging end planned dispatch {started_dispatch.start} - {started_dispatch.end} with existing dispatch {existing_dispatch.start} - {existing_dispatch.end}")
+          existing_dispatch.end = max(existing_dispatch.end, planned_dispatch.end)
           dispatch_exists = True
-          break
-        elif (existing_dispatch.end == dispatch.start):
-          existing_dispatch.end = dispatch.end
+        # If the planned dispatch ends within the existing dispatch, extend the start
+        if (planned_dispatch.end <= existing_dispatch.end and planned_dispatch.end >= existing_dispatch.start):
+          _LOGGER.debug(f"Merging start planned dispatch {started_dispatch.start} - {started_dispatch.end} with existing dispatch {existing_dispatch.start} - {existing_dispatch.end}")
+          existing_dispatch.start = min(existing_dispatch.start, planned_dispatch.start)
           dispatch_exists = True
-          break
-        elif (existing_dispatch.start == dispatch.end):
-          existing_dispatch.start = dispatch.start
-          dispatch_exists = True
-          break
 
       if dispatch_exists == False:
-        dispatches.append(SimpleIntelligentDispatchItem(dispatch.start, dispatch.end))
+        dispatches.append(SimpleIntelligentDispatchItem(planned_dispatch.start, planned_dispatch.end))
 
   if started_dispatches is not None:
-    for dispatch in started_dispatches:
+    for started_dispatch in started_dispatches:
       dispatch_exists = False
       for existing_dispatch in dispatches:
-        if (existing_dispatch.start < dispatch.start and existing_dispatch.end > dispatch.end):
+        # If the planned dispatch starts within the existing dispatch, extend the end
+        if (started_dispatch.start >= existing_dispatch.start and started_dispatch.start <= existing_dispatch.end):
+          _LOGGER.debug(f"Merging end started dispatch {started_dispatch.start} - {started_dispatch.end} with existing dispatch {existing_dispatch.start} - {existing_dispatch.end}")
+          existing_dispatch.end = max(existing_dispatch.end, started_dispatch.end)
           dispatch_exists = True
-          break
-        elif (existing_dispatch.end == dispatch.start):
-          existing_dispatch.end = dispatch.end
+        # If the planned dispatch ends within the existing dispatch, extend the start
+        if (started_dispatch.end <= existing_dispatch.end and started_dispatch.end >= existing_dispatch.start):
+          _LOGGER.debug(f"Merging start started dispatch {started_dispatch.start} - {started_dispatch.end} with existing dispatch {existing_dispatch.start} - {existing_dispatch.end}")
+          existing_dispatch.start = min(existing_dispatch.start, started_dispatch.start)
           dispatch_exists = True
-          break
-        elif (existing_dispatch.start == dispatch.end):
-          existing_dispatch.start = dispatch.start
-          dispatch_exists = True
-          break
 
       if dispatch_exists == False:
-        dispatches.append(SimpleIntelligentDispatchItem(dispatch.start, dispatch.end))
+        dispatches.append(SimpleIntelligentDispatchItem(started_dispatch.start, started_dispatch.end))
 
   dispatches.sort(key = lambda x: x.start)
   return dispatches
