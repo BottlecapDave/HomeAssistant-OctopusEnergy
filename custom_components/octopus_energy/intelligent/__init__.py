@@ -152,6 +152,56 @@ def __get_dispatch(rate, dispatches: list[IntelligentDispatchItem], expected_sou
     
   return None
 
+def get_applicable_dispatches(planned_dispatches: list[IntelligentDispatchItem],
+                              started_dispatches: list[SimpleIntelligentDispatchItem],
+                              mode: str):
+  dispatches: list[SimpleIntelligentDispatchItem] = []
+  if planned_dispatches is not None:
+    for dispatch in planned_dispatches:
+      # Source as none counts as smart charge - https://forum.octopus.energy/t/pending-and-completed-octopus-intelligent-dispatches/8510/102
+      if (mode != CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES or 
+          (dispatch.source is not None and (dispatch.source.lower() in [INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS]) == False)):
+        continue
+
+      dispatch_exists = False
+      for existing_dispatch in dispatches:
+        if (existing_dispatch.start < dispatch.start and existing_dispatch.end > dispatch.end):
+          dispatch_exists = True
+          break
+        elif (existing_dispatch.end == dispatch.start):
+          existing_dispatch.end = dispatch.end
+          dispatch_exists = True
+          break
+        elif (existing_dispatch.start == dispatch.end):
+          existing_dispatch.start = dispatch.start
+          dispatch_exists = True
+          break
+
+      if dispatch_exists == False:
+        dispatches.append(SimpleIntelligentDispatchItem(dispatch.start, dispatch.end))
+
+  if started_dispatches is not None:
+    for dispatch in started_dispatches:
+      dispatch_exists = False
+      for existing_dispatch in dispatches:
+        if (existing_dispatch.start < dispatch.start and existing_dispatch.end > dispatch.end):
+          dispatch_exists = True
+          break
+        elif (existing_dispatch.end == dispatch.start):
+          existing_dispatch.end = dispatch.end
+          dispatch_exists = True
+          break
+        elif (existing_dispatch.start == dispatch.end):
+          existing_dispatch.start = dispatch.start
+          dispatch_exists = True
+          break
+
+      if dispatch_exists == False:
+        dispatches.append(SimpleIntelligentDispatchItem(dispatch.start, dispatch.end))
+
+  dispatches.sort(key = lambda x: x.start)
+  return dispatches
+
 def adjust_intelligent_rates(rates,
                              planned_dispatches: list[IntelligentDispatchItem],
                              started_dispatches: list[SimpleIntelligentDispatchItem],

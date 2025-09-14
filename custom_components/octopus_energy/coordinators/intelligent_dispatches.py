@@ -9,7 +9,6 @@ from homeassistant.helpers.update_coordinator import (
 
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
-  DATA_INTELLIGENT_DEVICE,
   DATA_INTELLIGENT_DEVICE_COORDINATOR,
   DATA_INTELLIGENT_DEVICES,
   DOMAIN,

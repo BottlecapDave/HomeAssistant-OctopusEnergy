@@ -31,16 +31,20 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEntity, OctopusEnergyIntelligentSensor, RestoreEntity):
   """Sensor for determining if an intelligent is dispatching."""
 
-  def __init__(self, hass: HomeAssistant, coordinator: IntelligentDispatchDataUpdateCoordinator, rates_coordinator, mpan: str, device: IntelligentDevice, account_id: str):
+  def __init__(self,
+               hass: HomeAssistant,
+               coordinator: IntelligentDispatchDataUpdateCoordinator,
+               device: IntelligentDevice,
+               account_id: str,
+               intelligent_rate_mode: str):
     """Init sensor."""
 
-    MultiCoordinatorEntity.__init__(self, coordinator, [rates_coordinator])
+    MultiCoordinatorEntity.__init__(self, coordinator, [])
     OctopusEnergyIntelligentSensor.__init__(self, device)
   
-    self._rates_coordinator = rates_coordinator
-    self._mpan = mpan
     self._account_id = account_id
     self._state = None
+    self._intelligent_rate_mode = intelligent_rate_mode
     self.__init_attributes__([], [], [])
 
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
@@ -87,11 +91,6 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
   def _handle_coordinator_update(self) -> None:
     """Determine if OE is currently dispatching energy."""
     result: IntelligentDispatchesCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
-    rates = self._rates_coordinator.data.rates if self._rates_coordinator is not None and self._rates_coordinator.data is not None else None
-
-    # Skip if no rates are available otherwise our sensor can go off after a restart when it should be restored as one
-    if rates is None:
-      return
 
     current_date = utcnow()
     
