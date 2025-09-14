@@ -37,11 +37,12 @@ MAXIMUM_RATES_PER_HOUR = 20
 
 class IntelligentDispatchDataUpdateCoordinator(DataUpdateCoordinator):
   
-  def __init__(self, hass, name: str, account_id: str, manual_dispatch_refreshes: bool, refresh_dispatches) -> None:
+  def __init__(self, hass, name: str, account_id: str, device_id: str, manual_dispatch_refreshes: bool, refresh_dispatches) -> None:
     """Initialize coordinator."""
     self.__refresh_dispatches = refresh_dispatches
     self.__manual_dispatch_refreshes = manual_dispatch_refreshes
     self.__account_id = account_id
+    self.__device_id = device_id
     super().__init__(
         hass,
         _LOGGER,
@@ -56,8 +57,8 @@ class IntelligentDispatchDataUpdateCoordinator(DataUpdateCoordinator):
       return await self.__refresh_dispatches()
     
     return (
-      self.hass.data[DOMAIN][self.__account_id][DATA_INTELLIGENT_DISPATCHES] 
-      if DOMAIN in self.hass.data and self.__account_id in self.hass.data[DOMAIN] and DATA_INTELLIGENT_DISPATCHES in self.hass.data[DOMAIN][self.__account_id]
+      self.hass.data[DOMAIN][self.__account_id][DATA_INTELLIGENT_DISPATCHES][self.__device_id]
+      if DOMAIN in self.hass.data and self.__account_id in self.hass.data[DOMAIN] and DATA_INTELLIGENT_DISPATCHES in self.hass.data[DOMAIN][self.__account_id] and self.__device_id in self.hass.data[DOMAIN][self.__account_id][DATA_INTELLIGENT_DISPATCHES]
       else None
     )
 
@@ -244,7 +245,7 @@ async def async_refresh_intelligent_dispatches(
   is_data_mocked: bool,
   is_manual_refresh: bool,
   planned_dispatches_supported: bool,
-  async_save_dispatches: Callable[[str, IntelligentDispatches], Awaitable[list]],
+  async_save_dispatches: Callable[[IntelligentDispatches], Awaitable[list]],
 ):
   result = await async_retrieve_intelligent_dispatches(
     current,
@@ -273,7 +274,7 @@ async def async_refresh_intelligent_dispatches(
     if (existing_intelligent_dispatches_result is None or
         existing_intelligent_dispatches_result.dispatches is None or
         has_dispatches_changed(existing_intelligent_dispatches_result.dispatches, result.dispatches)):
-      await async_save_dispatches(account_info["id"], result.dispatches)
+      await async_save_dispatches(result.dispatches)
 
   return result
 
@@ -297,24 +298,25 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, 
     account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
     account_info = account_result.account if account_result is not None else None
       
-    hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] = await async_refresh_intelligent_dispatches(
+    hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][device_id] = await async_refresh_intelligent_dispatches(
       current,
       client,
       account_info,
       intelligent_device,
-      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None,
+      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][device_id] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] and device_id in hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] else None,
       mock_intelligent_data,
       is_manual_refresh,
       planned_dispatches_supported,
-      lambda account_id, dispatches: async_save_cached_intelligent_dispatches(hass, account_id, dispatches)
+      lambda dispatches: async_save_cached_intelligent_dispatches(hass, device_id, dispatches)
     )
     
-    return hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES]
+    return hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][device_id]
 
   hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR.format(device_id)] = IntelligentDispatchDataUpdateCoordinator(
     hass,
-    name=f"intelligent_dispatches-{account_id}",
+    name=f"intelligent_dispatches_{device_id}",
     account_id=account_id,
+    device_id=device_id,
     refresh_dispatches=async_update_intelligent_dispatches_data,
     manual_dispatch_refreshes=manual_dispatch_refreshes
   )

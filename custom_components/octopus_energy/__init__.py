@@ -537,27 +537,29 @@ async def async_register_intelligent_devices(hass, config: dict, now: datetime, 
         if (intelligent_device is not None):
           _LOGGER.warning(f"Using cached intelligent device information for {account_id} during startup. This data will be updated automatically when available.")
 
-    if intelligent_devices is not None:
-      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICES] = IntelligentDeviceCoordinatorResult(now, 1, intelligent_devices)
+  hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICES] = IntelligentDeviceCoordinatorResult(now, 1, intelligent_devices)
+  hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] = dict()
 
-      cached_dispatches = await async_load_cached_intelligent_dispatches(hass, account_id)
-      if cached_dispatches is not None:
-        hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] = IntelligentDispatchesCoordinatorResult(
-          now - timedelta(hours=1),
-          1,
-          cached_dispatches,
-          0,
-          now - timedelta(hours=1)
-        )
+  if (CONFIG_MAIN_INTELLIGENT_SETTINGS not in config or
+      CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES not in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] or
+      config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == False):
+    intelligent_manual_service_enabled = False
 
-      if (CONFIG_MAIN_INTELLIGENT_SETTINGS not in config or
-          CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES not in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] or
-          config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == False):
-        intelligent_manual_service_enabled = False
-
-      await async_save_cached_intelligent_devices(hass, account_id, intelligent_devices)
+  await async_save_cached_intelligent_devices(hass, account_id, intelligent_devices)
 
   for intelligent_device in intelligent_devices:
+
+    cached_dispatches = await async_load_cached_intelligent_dispatches(hass, account_id, intelligent_device.id)
+    if cached_dispatches is not None:
+      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][intelligent_device.id] = IntelligentDispatchesCoordinatorResult(
+        now - timedelta(hours=1),
+        1,
+        cached_dispatches,
+        0,
+        now - timedelta(hours=1)
+      )
+    else:
+      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][intelligent_device.id] = None
 
     intelligent_features = get_intelligent_features(intelligent_device.provider)  if intelligent_device is not None else None
     if intelligent_features is not None:
@@ -589,11 +591,10 @@ async def async_register_intelligent_devices(hass, config: dict, now: datetime, 
         )
       else:
         ir.async_delete_issue(hass, DOMAIN, intelligent_repair_key)
-        
+
         # Need to set initial data otherwise our rates won't update properly until an initial result has been requested
-        if DATA_INTELLIGENT_DISPATCHES not in hass.data[DOMAIN][account_id] or hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] is None:
-          _LOGGER.info('Loading dummy dispatches result')
-          hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] = IntelligentDispatchesCoordinatorResult(
+        if hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][intelligent_device.id] is None:
+          hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][intelligent_device.id] = IntelligentDispatchesCoordinatorResult(
             now - timedelta(hours=1),
             1,
             IntelligentDispatches(None, [], []),
@@ -604,11 +605,12 @@ async def async_register_intelligent_devices(hass, config: dict, now: datetime, 
     await async_setup_intelligent_dispatches_coordinator(
       hass,
       account_id,
+      intelligent_device.id,
       should_mock_intelligent_data,
       intelligent_manual_service_enabled,
       intelligent_features.planned_dispatches_supported if intelligent_features is not None else True
     )
 
-    await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id if intelligent_device is not None else None, should_mock_intelligent_data)
+    await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id, should_mock_intelligent_data)
     
     await async_setup_intelligent_device_coordinator(hass, account_id, intelligent_device, should_mock_intelligent_data)
