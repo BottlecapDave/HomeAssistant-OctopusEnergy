@@ -135,7 +135,7 @@ async def async_refresh_electricity_rates_data(
         original_rates = new_rates.copy()
         original_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold))
         
-        if is_export_meter == False:
+        if is_export_meter == False and dispatches_results is not None:
           for key, item in dispatches_results.items():
             if item is not None and item.dispatches is not None:
               new_rates = adjust_intelligent_rates(new_rates,

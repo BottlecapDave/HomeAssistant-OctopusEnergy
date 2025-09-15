@@ -12,8 +12,9 @@ async def test_when_get_intelligent_device_is_called_for_account_with_no_devices
     account_id = context.account_id
 
     # Act
-    result = await client.async_get_intelligent_device(account_id)
+    result = await client.async_get_intelligent_devices(account_id)
 
     # Assert
-    assert result is None
+    assert result is not None
+    assert len(result) == 0
   
