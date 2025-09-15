@@ -55,7 +55,7 @@ from .const import (
   CONFIG_MAIN_HOME_PRO_SETTINGS,
   CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE,
-  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
   CONFIG_MAIN_INTELLIGENT_SETTINGS,
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_MAIN_PRICE_CAP_SETTINGS,
@@ -409,7 +409,7 @@ async def async_setup_dependencies(hass, config):
         tariff_override = override.tariff if override is not None else None
         intelligent_rate_mode = (config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_RATE_MODE] 
                                  if CONFIG_MAIN_INTELLIGENT_SETTINGS in config and CONFIG_MAIN_INTELLIGENT_RATE_MODE in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] 
-                                 else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES)
+                                 else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES)
         await async_setup_electricity_rates_coordinator(hass,
                                                         account_id,
                                                         mpan,

@@ -110,7 +110,7 @@ from .const import (
   CONFIG_KIND_TARIFF_COMPARISON,
   CONFIG_MAIN_HOME_MINI_SETTINGS,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE,
-  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
   CONFIG_MAIN_INTELLIGENT_SETTINGS,
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
@@ -383,7 +383,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
           debug_override = await async_get_meter_debug_override(hass, mpan, serial_number)
           intelligent_rate_mode = (config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_RATE_MODE] 
                                    if CONFIG_MAIN_INTELLIGENT_SETTINGS in config and CONFIG_MAIN_INTELLIGENT_RATE_MODE in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] 
-                                   else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES)
+                                   else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES)
           previous_consumption_coordinator = await async_create_previous_consumption_and_rates_coordinator(
             hass,
             account_id,
@@ -502,7 +502,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
           debug_override = await async_get_meter_debug_override(hass, mprn, serial_number)
           intelligent_rate_mode = (config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_RATE_MODE] 
                                    if CONFIG_MAIN_INTELLIGENT_SETTINGS in config and CONFIG_MAIN_INTELLIGENT_RATE_MODE in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] 
-                                   else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES)
+                                   else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES)
           previous_consumption_coordinator = await async_create_previous_consumption_and_rates_coordinator(
             hass,
             account_id,

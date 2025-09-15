@@ -11,7 +11,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.helpers import storage
 
 from ..const import (
-  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
   COORDINATOR_REFRESH_IN_SECONDS,
   DATA_ACCOUNT,
   DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY,
@@ -247,7 +247,7 @@ async def async_fetch_consumption_and_rates(
   fire_event: Callable[[str, "dict[str, Any]"], None],
   dispatches_results: dict[str, IntelligentDispatchesCoordinatorResult] = None,
   tariff_override: Tariff = None,
-  intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+  intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
 
 ):
   """Fetch the previous consumption and rates"""

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 from custom_components.octopus_energy.const import (
     CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY,
-    CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+    CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
     INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS
 )
 from custom_components.octopus_energy.intelligent import get_applicable_dispatches
@@ -28,7 +28,7 @@ def test_when_get_applicable_dispatches_called_with_no_started_dispatches_and_mo
       start=now,
       end=now + timedelta(hours=1),
       charge_in_kwh=1.0,
-      source="source",
+      source=INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS[0],
       location="location"
     )
   ]
@@ -61,7 +61,7 @@ def test_when_get_applicable_dispatches_called_with_started_dispatches_it_return
   assert result[0].start == started_dispatches[0].start
   assert result[0].end == started_dispatches[0].end
 
-def test_when_get_applicable_dispatches_called_with_planned_and_started_mode_and_non_smart_charge_dispatch_it_includes_planned_dispatch():
+def test_when_get_applicable_dispatches_called_with_planned_and_started_mode_and_non_smart_charge_dispatch_it_excludes_planned_dispatch():
   # Arrange
   now = datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
   planned_dispatches = [
@@ -74,17 +74,15 @@ def test_when_get_applicable_dispatches_called_with_planned_and_started_mode_and
     )
   ]
   started_dispatches = []
-  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
 
   # Act
   result = get_applicable_dispatches(planned_dispatches, started_dispatches, mode)
 
   # Assert
-  assert len(result) == 1
-  assert result[0].start == planned_dispatches[0].start
-  assert result[0].end == planned_dispatches[0].end
+  assert len(result) == 0
 
-def test_when_get_applicable_dispatches_called_with_planned_and_started_only_mode_and_smart_charge_dispatch_it_excludes_planned_dispatch():
+def test_when_get_applicable_dispatches_called_with_planned_and_started_only_mode_and_smart_charge_dispatch_it_includes_planned_dispatch():
   # Arrange
   now = datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
   planned_dispatches = [
@@ -97,13 +95,15 @@ def test_when_get_applicable_dispatches_called_with_planned_and_started_only_mod
     )
   ]
   started_dispatches = []
-  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
 
   # Act
   result = get_applicable_dispatches(planned_dispatches, started_dispatches, mode)
 
   # Assert
-  assert result == []
+  assert len(result) == 1
+  assert result[0].start == planned_dispatches[0].start
+  assert result[0].end == planned_dispatches[0].end
 
 def test_when_get_applicable_dispatches_called_with_overlapping_dispatches_it_merges_them():
   # Arrange
@@ -187,7 +187,7 @@ def test_when_get_applicable_dispatches_called_with_both_planned_and_started_it_
       start=now,
       end=now + timedelta(hours=1),
       charge_in_kwh=1.0,
-      source="not-smart-charge",
+      source=INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS[0],
       location="location"
     )
   ]
@@ -197,7 +197,7 @@ def test_when_get_applicable_dispatches_called_with_both_planned_and_started_it_
       end=now + timedelta(hours=3)
     )
   ]
-  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
 
   # Act
   result = get_applicable_dispatches(planned_dispatches, started_dispatches, mode)
@@ -220,7 +220,7 @@ def test_when_get_applicable_dispatches_called_with_source_none_it_is_included()
     )
   ]
   started_dispatches = []
-  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
 
   # Act
   result = get_applicable_dispatches(planned_dispatches, started_dispatches, mode)

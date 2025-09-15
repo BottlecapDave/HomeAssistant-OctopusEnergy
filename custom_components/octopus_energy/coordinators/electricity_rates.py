@@ -9,7 +9,7 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.helpers import issue_registry as ir
 
 from ..const import (
-  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
   COORDINATOR_REFRESH_IN_SECONDS,
   DATA_ACCOUNT_COORDINATOR,
   DATA_INTELLIGENT_DEVICES,
@@ -66,7 +66,7 @@ async def async_refresh_electricity_rates_data(
     unique_rates_changed: Callable[[Tariff, int], Awaitable[None]] = None,
     raise_no_active_rate: Callable[[], Awaitable[None]] = None,
     remove_no_active_rate: Callable[[], Awaitable[None]] = None,
-    intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+    intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
     raise_rates_empty: Callable[[Tariff], None] = None,
     clear_rates_empty: Callable[[Tariff], None] = None
   ) -> ElectricityRatesCoordinatorResult: 

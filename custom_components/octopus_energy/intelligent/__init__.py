@@ -6,7 +6,7 @@ from homeassistant.util.dt import (utcnow, parse_datetime)
 
 from ..utils import get_active_tariff
 
-from ..const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES, INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS, INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS, REFRESH_RATE_IN_MINUTES_INTELLIGENT
+from ..const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES, INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS, INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS, REFRESH_RATE_IN_MINUTES_INTELLIGENT
 
 from ..api_client.intelligent_settings import IntelligentSettings
 from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches, SimpleIntelligentDispatchItem
@@ -159,12 +159,13 @@ def get_applicable_dispatches(planned_dispatches: list[IntelligentDispatchItem],
   if planned_dispatches is not None:
     for planned_dispatch in planned_dispatches:
       # Source as none counts as smart charge - https://forum.octopus.energy/t/pending-and-completed-octopus-intelligent-dispatches/8510/102
-      if (mode != CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES or 
-          (planned_dispatch.source is not None and (planned_dispatch.source.lower() in [INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS]) == False)):
+      if (mode != CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES or 
+          (planned_dispatch.source is not None and (planned_dispatch.source.lower() in INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS) == False)):
         continue
 
       dispatch_exists = False
       for existing_dispatch in dispatches:
+        _LOGGER.debug(f"existing dispatch {existing_dispatch.start} - {existing_dispatch.end}")
         # If the planned dispatch starts within the existing dispatch, extend the end
         if (planned_dispatch.start >= existing_dispatch.start and planned_dispatch.start <= existing_dispatch.end):
           _LOGGER.debug(f"Merging end planned dispatch {started_dispatch.start} - {started_dispatch.end} with existing dispatch {existing_dispatch.start} - {existing_dispatch.end}")
@@ -177,12 +178,14 @@ def get_applicable_dispatches(planned_dispatches: list[IntelligentDispatchItem],
           dispatch_exists = True
 
       if dispatch_exists == False:
+        _LOGGER.debug(f"planned dispatch new {planned_dispatch.start} - {planned_dispatch.end}")
         dispatches.append(SimpleIntelligentDispatchItem(planned_dispatch.start, planned_dispatch.end))
 
   if started_dispatches is not None:
     for started_dispatch in started_dispatches:
       dispatch_exists = False
       for existing_dispatch in dispatches:
+        _LOGGER.debug(f"existing dispatch {existing_dispatch.start} - {existing_dispatch.end}")
         # If the planned dispatch starts within the existing dispatch, extend the end
         if (started_dispatch.start >= existing_dispatch.start and started_dispatch.start <= existing_dispatch.end):
           _LOGGER.debug(f"Merging end started dispatch {started_dispatch.start} - {started_dispatch.end} with existing dispatch {existing_dispatch.start} - {existing_dispatch.end}")
@@ -195,6 +198,7 @@ def get_applicable_dispatches(planned_dispatches: list[IntelligentDispatchItem],
           dispatch_exists = True
 
       if dispatch_exists == False:
+        _LOGGER.debug(f"started dispatch new {started_dispatch.start} - {started_dispatch.end}")
         dispatches.append(SimpleIntelligentDispatchItem(started_dispatch.start, started_dispatch.end))
 
   dispatches.sort(key = lambda x: x.start)
@@ -218,7 +222,7 @@ def adjust_intelligent_rates(rates,
     is_planned_dispatch = __get_dispatch(rate, planned_dispatches, INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS) is not None
     is_started_dispatch = __get_dispatch(rate, started_dispatches, None) is not None
 
-    if ((mode == CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES and (is_planned_dispatch or is_started_dispatch)) or
+    if ((mode == CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES and (is_planned_dispatch or is_started_dispatch)) or
         (mode == CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY and is_started_dispatch)):
       adjusted_rates.append({
         "start": rate["start"],
