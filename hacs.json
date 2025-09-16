@@ -1,6 +1,6 @@
 {
   "name": "Octopus Energy",
   "render_readme": true,
-  "homeassistant": "2024.5.0",
+  "homeassistant": "2025.1.0",
   "hide_default_branch": true
 }

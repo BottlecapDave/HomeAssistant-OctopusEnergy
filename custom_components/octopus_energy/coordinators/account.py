@@ -24,6 +24,7 @@ from ..const import (
 from ..api_client import ApiException, AuthenticationException, OctopusEnergyApiClient
 from . import BaseCoordinatorResult
 from ..utils import get_active_tariff
+from ..utils.repairs import safe_repair_key
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -50,7 +51,7 @@ def raise_account_not_found(hass, account_id: str):
   ir.async_create_issue(
     hass,
     DOMAIN,
-    REPAIR_ACCOUNT_NOT_FOUND.format(account_id),
+    safe_repair_key(REPAIR_ACCOUNT_NOT_FOUND, account_id),
     is_fixable=False,
     severity=ir.IssueSeverity.ERROR,
     learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/repairs/account_not_found",
@@ -65,7 +66,7 @@ def raise_invalid_api_key(hass, account_id: str):
   ir.async_create_issue(
     hass,
     DOMAIN,
-    REPAIR_INVALID_API_KEY.format(account_id),
+    safe_repair_key(REPAIR_INVALID_API_KEY, account_id),
     is_fixable=False,
     severity=ir.IssueSeverity.ERROR,
     translation_key="invalid_api_key",
@@ -76,7 +77,7 @@ def raise_meter_added(hass, account_id: str, mprn_mpan: str, serial_number: str,
   ir.async_create_issue(
     hass,
     DOMAIN,
-    f"meter_added_{account_id}_{mprn_mpan}_{serial_number}_{is_electricity}",
+    safe_repair_key("meter_added_{}_{}_{}_{}", account_id, mprn_mpan, serial_number, is_electricity),
     REPAIR_INVALID_API_KEY.format(account_id),
     is_fixable=False,
     severity=ir.IssueSeverity.WARNING,
@@ -88,7 +89,7 @@ def raise_meter_removed(hass, account_id: str, mprn_mpan: str, serial_number: st
   ir.async_create_issue(
     hass,
     DOMAIN,
-    f"meter_removed_{account_id}_{mprn_mpan}_{serial_number}_{is_electricity}",
+    safe_repair_key("meter_removed_{}_{}_{}_{}", account_id, mprn_mpan, serial_number, is_electricity),
     REPAIR_INVALID_API_KEY.format(account_id),
     is_fixable=False,
     severity=ir.IssueSeverity.WARNING,
@@ -136,19 +137,27 @@ def get_active_gas_meters(current: datetime, account_info: dict) -> dict[tuple[s
   
   return unique_meters
 
-def check_for_removed_and_added_meters(previous_meters: dict[tuple[str, str], str],
+def check_for_removed_and_added_meters(account_id: str,
+                                       previous_meters: dict[tuple[str, str], str],
                                        current_meters: dict[tuple[str, str], str],
                                        is_electricity: bool,
                                        raise_meter_removed: Callable[[str, str, bool], None],
-                                       raise_meter_added: Callable[[str, str, bool], None]):
+                                       raise_meter_added: Callable[[str, str, bool], None],
+                                       clear_issue: Callable[[str], None]):
   removed_meters = []
   added_meters = []
 
   for previous_key in previous_meters.keys():
+    # Delete legacy issues
+    clear_issue("meter_removed_{}_{}_{}_{}".format(account_id, previous_key[0], previous_key[1], is_electricity))
+
     if previous_key not in current_meters:
       raise_meter_removed(previous_key[0], previous_key[1], is_electricity)
 
   for current_key in current_meters.keys():
+    # Delete legacy issues
+    clear_issue("meter_added_{}_{}_{}_{}".format(account_id, current_key[0], current_key[1], is_electricity))
+
     if current_key not in previous_meters:
       raise_meter_added(current_key[0], current_key[1], is_electricity)
 
@@ -176,16 +185,20 @@ async def async_refresh_account(
       else:
         _LOGGER.debug('Account information retrieved')
 
+        # Delete legacy issues
         clear_issue(REPAIR_ACCOUNT_NOT_FOUND.format(account_id))
         clear_issue(REPAIR_INVALID_API_KEY.format(account_id))
+
+        clear_issue(safe_repair_key(REPAIR_ACCOUNT_NOT_FOUND, account_id))
+        clear_issue(safe_repair_key(REPAIR_INVALID_API_KEY, account_id))
 
         previous_unique_electricity_meters = get_active_electricity_meters(current, previous_request.account) if previous_request.account is not None else {}
         previous_unique_gas_meters = get_active_gas_meters(current, previous_request.account) if previous_request.account is not None else {}
         current_unique_electricity_meters = get_active_electricity_meters(current, account_info)
         current_unique_gas_meters = get_active_gas_meters(current, account_info)
 
-        check_for_removed_and_added_meters(previous_unique_electricity_meters, current_unique_electricity_meters, True, raise_meter_removed, raise_meter_added)
-        check_for_removed_and_added_meters(previous_unique_gas_meters, current_unique_gas_meters, False, raise_meter_removed, raise_meter_added)
+        check_for_removed_and_added_meters(account_id, previous_unique_electricity_meters, current_unique_electricity_meters, True, raise_meter_removed, raise_meter_added, clear_issue)
+        check_for_removed_and_added_meters(account_id, previous_unique_gas_meters, current_unique_gas_meters, False, raise_meter_removed, raise_meter_added, clear_issue)
 
         for meter_key in current_unique_electricity_meters.keys():
           product = current_unique_electricity_meters[meter_key].product

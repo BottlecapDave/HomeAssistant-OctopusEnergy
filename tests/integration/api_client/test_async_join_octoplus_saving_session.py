@@ -19,4 +19,4 @@ async def test_when_join_octoplus_saving_session_is_called_with_invalid_event_th
     assert result is not None
     assert result.is_successful == False
     assert len(result.errors) == 1
-    assert result.errors[0] == "Saving Sessions event not found."
+    assert result.errors[0] == "Saving Sessions event not found"

@@ -24,6 +24,7 @@ from ..api_client import ApiException, OctopusEnergyApiClient
 from . import BaseCoordinatorResult
 from ..api_client.intelligent_device import IntelligentDevice
 from ..intelligent import mock_intelligent_device
+from ..utils.repairs import safe_repair_key
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -55,7 +56,7 @@ async def async_refresh_device(
         ir.async_create_issue(
           hass,
           DOMAIN,
-          REPAIR_INTELLIGENT_DEVICE_NOT_FOUND.format(account_id),
+          safe_repair_key(REPAIR_INTELLIGENT_DEVICE_NOT_FOUND, account_id),
           is_fixable=False,
           severity=ir.IssueSeverity.ERROR,
           translation_key="intelligent_device_not_found",
@@ -64,19 +65,21 @@ async def async_refresh_device(
       else:
         _LOGGER.debug('IntelligentDevice information retrieved')
 
+        ir.async_delete_issue(hass, DOMAIN, safe_repair_key(REPAIR_INTELLIGENT_DEVICE_NOT_FOUND, account_id))
         ir.async_delete_issue(hass, DOMAIN, REPAIR_INTELLIGENT_DEVICE_NOT_FOUND.format(account_id))
 
         if device.id != current_intelligent_device.id:
           ir.async_create_issue(
             hass,
             DOMAIN,
-            REPAIR_INTELLIGENT_DEVICE_CHANGED.format(current_intelligent_device.id),
+            safe_repair_key(REPAIR_INTELLIGENT_DEVICE_CHANGED, current_intelligent_device.id),
             is_fixable=False,
             severity=ir.IssueSeverity.WARNING,
             translation_key="intelligent_device_changed",
             translation_placeholders={ "account_id": account_id },
           )
         else:
+          ir.async_delete_issue(hass, DOMAIN, safe_repair_key(REPAIR_INTELLIGENT_DEVICE_CHANGED, current_intelligent_device.id))
           ir.async_delete_issue(hass, DOMAIN, REPAIR_INTELLIGENT_DEVICE_CHANGED.format(current_intelligent_device.id))
 
         return IntelligentDeviceCoordinatorResult(current, 1, device)
