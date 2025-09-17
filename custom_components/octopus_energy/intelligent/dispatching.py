@@ -16,6 +16,8 @@ from homeassistant.helpers.restore_state import RestoreEntity
 
 from ..intelligent import (
   dispatches_to_dictionary_list,
+  get_applicable_dispatch_periods,
+  get_current_and_next_dispatching_periods,
   simple_dispatches_to_dictionary_list
 )
 
@@ -101,36 +103,30 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
       simple_dispatches_to_dictionary_list(started_dispatches) if result is not None else [],
     )
 
-    off_peak_times = get_off_peak_times(current_date, rates, True)
-    off_peak_times_snapshot = off_peak_times.copy()
-    is_dispatching = False
-    
-    if off_peak_times is not None and len(off_peak_times) > 0:
-      time = off_peak_times.pop(0)
-      if time.start <= current_date:
-        self._attributes["current_start"] = time.start
-        self._attributes["current_end"] = time.end
-        is_dispatching = True
+    applicable_dispatches = get_applicable_dispatch_periods(result.dispatches.planned if result is not None and result.dispatches is not None else [],
+                                                            result.dispatches.started if result is not None and result.dispatches is not None else [],
+                                                            self._intelligent_rate_mode)
 
-        if len(off_peak_times) > 0:
-          self._attributes["next_start"] = off_peak_times[0].start
-          self._attributes["next_end"] = off_peak_times[0].end
-        else:
-          self._attributes["next_start"] = None
-          self._attributes["next_end"] = None
-      else:
-        self._attributes["current_start"] = None
-        self._attributes["current_end"] = None
-        self._attributes["next_start"] = time.start
-        self._attributes["next_end"] = time.end
+    (current_dispatch, next_dispatch) = get_current_and_next_dispatching_periods(current_date, applicable_dispatches)
+
+    is_dispatching = False
+    if current_dispatch is not None:
+      self._attributes["current_start"] = current_dispatch.start
+      self._attributes["current_end"] = current_dispatch.end
+      is_dispatching = True
     else:
       self._attributes["current_start"] = None
       self._attributes["current_end"] = None
+
+    if next_dispatch is not None:
+      self._attributes["next_start"] = next_dispatch.start
+      self._attributes["next_end"] = next_dispatch.end
+    else:
       self._attributes["next_start"] = None
       self._attributes["next_end"] = None
 
     if self._state != is_dispatching:
-      _LOGGER.debug(f"OctopusEnergyIntelligentDispatching state changed from {self._state} to {is_dispatching}; off peak times: {list(map(lambda x: x.to_dict(), off_peak_times_snapshot))}; rates: {rates}; started_dispatches: {started_dispatches}")
+      _LOGGER.debug(f"OctopusEnergyIntelligentDispatching state changed from {self._state} to {is_dispatching}; dispatches: {result.dispatches.to_dict() if result.dispatches is not None else None}; started_dispatches: {started_dispatches}")
     
     self._state = is_dispatching
 

@@ -274,6 +274,21 @@ def simple_dispatches_to_dictionary_list(dispatches: list[SimpleIntelligentDispa
 
   return items
 
+def get_current_and_next_dispatching_periods(current: datetime, applicable_dispatches: list[SimpleIntelligentDispatchItem]):
+  current_dispatch = None
+  next_dispatch = None
+
+  if applicable_dispatches is not None:
+    for applicable_dispatch in applicable_dispatches:
+      if current >= applicable_dispatch.start:
+        if current <= applicable_dispatch.end:
+          current_dispatch = applicable_dispatch
+      else:
+        next_dispatch = applicable_dispatch
+        break
+  
+  return (current_dispatch, next_dispatch)
+
 class IntelligentFeatures:
   def __init__(self,
                is_default_features: bool,
