@@ -2,8 +2,6 @@ from datetime import datetime, timedelta
 import logging
 from typing import Callable, Any
 
-from custom_components.octopus_energy.const import DOMAIN, REPAIR_TARIFF_RATES_EMPTY
-from custom_components.octopus_energy.utils.repairs import safe_repair_key
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
 )
@@ -17,7 +15,8 @@ from ..utils import (
 )
 from ..utils.rate_information import get_min_max_average_rates
 from ..utils.requests import calculate_next_refresh
-
+from ..const import DOMAIN, REPAIR_TARIFF_RATES_EMPTY
+from ..utils.repairs import safe_repair_key
 
 _LOGGER = logging.getLogger(__name__)
 

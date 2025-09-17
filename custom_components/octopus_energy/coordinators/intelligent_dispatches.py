@@ -198,6 +198,8 @@ async def async_retrieve_intelligent_dispatches(
           
           raised_exception=e
           _LOGGER.debug(f'Failed to retrieve intelligent dispatches for account {account_id}')
+      else:
+        _LOGGER.debug('Skipping due to not on intelligent tariff')
 
       if is_data_mocked:
         dispatches = mock_intelligent_dispatches()
@@ -233,6 +235,8 @@ async def async_retrieve_intelligent_dispatches(
         _LOGGER.warning(f"Failed to retrieve new dispatches. See diagnostics sensor for more information.")
 
       return result
+  else:
+    _LOGGER.debug('Account info is missing')
   
   return existing_intelligent_dispatches_result
 

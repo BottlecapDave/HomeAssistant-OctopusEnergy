@@ -8,7 +8,7 @@ from threading import RLock
 
 from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime, parse_date)
 
-from ..const import INTEGRATION_VERSION
+from ..const import INTEGRATION_VERSION, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS
 
 from ..utils import (
   is_day_night_tariff,
@@ -1822,8 +1822,7 @@ class OctopusEnergyApiClient:
               model,
               vehicleBatterySizeInKwh,
               chargePointPowerInKw,
-              device["deviceType"],
-              is_charger
+              INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS if is_charger else device["deviceType"]
             ))
 
           return result

@@ -1,6 +1,5 @@
 import logging
 
-from custom_components.octopus_energy.intelligent import get_intelligent_features
 import voluptuous as vol
 
 from homeassistant.core import HomeAssistant
@@ -21,7 +20,6 @@ from .api_client.heat_pump import HeatPumpResponse
 from .heat_pump import get_mock_heat_pump_id
 from .heat_pump.weather_compensation_enabled import OctopusEnergyHeatPumpWeatherCompensationEnabled
 from .utils.debug_overrides import async_get_account_debug_override
-from .utils.repairs import safe_repair_key
 
 from .const import (
   CONFIG_KIND,
@@ -46,6 +44,8 @@ from .const import (
   DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
   DATA_SAVING_SESSIONS_COORDINATOR,
   DATA_ACCOUNT,
+  INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS,
+  INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLES,
   REPAIR_TARGET_RATE_REMOVAL_PROPOSAL
 )
 
@@ -200,7 +200,7 @@ def get_intelligent_entities(hass, account_id: str, config: dict):
 
   for intelligent_device in intelligent_devices:
 
-    if intelligent_device.device_type == "ELECTRIC_VEHICLE":
+    if intelligent_device.device_type == INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLES or intelligent_device.device_type == INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS:
       if (CONFIG_MAIN_INTELLIGENT_SETTINGS not in config or
           CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES not in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] or
           config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == True):

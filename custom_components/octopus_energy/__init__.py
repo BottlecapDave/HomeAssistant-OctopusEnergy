@@ -524,7 +524,7 @@ async def async_register_intelligent_devices(hass, config: dict, now: datetime, 
     if should_mock_intelligent_data:
       # Load from cache to make sure everything works as intended
       intelligent_devices = await async_load_cached_intelligent_devices(hass, account_id)
-      if len(intelligent_devices) < 1:
+      if intelligent_devices is None or len(intelligent_devices) < 1:
         intelligent_devices = [mock_intelligent_device()]
     else:
       try:

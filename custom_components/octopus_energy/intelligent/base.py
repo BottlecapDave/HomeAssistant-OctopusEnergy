@@ -17,7 +17,7 @@ class OctopusEnergyIntelligentSensor:
       identifiers={
         (DOMAIN, self._device.id if self._device.id is not None else "charger-1")
       },
-      name="Charger" if self._device.is_charger else "Vehicle",
+      name=f"{self._device.make} {self._device.model} ({self._device.device_type})",
       connections=set(),
       manufacturer=self._device.make,
       model=self._device.model

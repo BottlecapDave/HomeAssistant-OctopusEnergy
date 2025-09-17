@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import pytest
 import mock
 
-from custom_components.octopus_energy.const import REFRESH_RATE_IN_MINUTES_INTELLIGENT
+from custom_components.octopus_energy.const import INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLES, REFRESH_RATE_IN_MINUTES_INTELLIGENT
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
 from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches, SimpleIntelligentDispatchItem
 from custom_components.octopus_energy.api_client.intelligent_device import IntelligentDevice
@@ -17,7 +17,7 @@ tariff_code = "E-1R-INTELLI-VAR-22-10-14-C"
 mpan = "1234567890"
 serial_number = "abcdefgh"
 
-intelligent_device = IntelligentDevice("1", "2", "3", "4", 1, 2, "ELECTRIC_VEHICLE", True)
+intelligent_device = IntelligentDevice("1", "2", "3", "4", 1, 2, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLES, True)
 
 def get_account_info(is_active_agreement = True, active_product_code = product_code, active_tariff_code = tariff_code):
   return {
