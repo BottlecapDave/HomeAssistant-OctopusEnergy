@@ -9,10 +9,10 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.helpers import issue_registry as ir
 
 from ..const import (
-  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
   COORDINATOR_REFRESH_IN_SECONDS,
   DATA_ACCOUNT_COORDINATOR,
-  DATA_INTELLIGENT_DEVICE,
+  DATA_INTELLIGENT_DEVICES,
   DOMAIN,
   DATA_CLIENT,
   DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
@@ -60,14 +60,13 @@ async def async_refresh_electricity_rates_data(
     is_smart_meter: bool,
     is_export_meter: bool,
     existing_rates_result: ElectricityRatesCoordinatorResult | None,
-    intelligent_device: IntelligentDevice | None,
-    dispatches_result: IntelligentDispatchesCoordinatorResult | None,
+    dispatches_results: dict[str, IntelligentDispatchesCoordinatorResult],
     fire_event: Callable[[str, "dict[str, Any]"], None],
     tariff_override = None,
     unique_rates_changed: Callable[[Tariff, int], Awaitable[None]] = None,
     raise_no_active_rate: Callable[[], Awaitable[None]] = None,
     remove_no_active_rate: Callable[[], Awaitable[None]] = None,
-    intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+    intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
     raise_rates_empty: Callable[[Tariff], None] = None,
     clear_rates_empty: Callable[[Tariff], None] = None
   ) -> ElectricityRatesCoordinatorResult: 
@@ -84,9 +83,19 @@ async def async_refresh_electricity_rates_data(
       await remove_no_active_rate()
     
     # We'll calculate the wrong value if we don't have our intelligent dispatches
-    if is_intelligent_product(tariff.product) and intelligent_device is not None and (dispatches_result is None or dispatches_result.dispatches is None):
-      _LOGGER.debug("Dispatches not available for intelligent tariff. Using existing rate information")
-      return existing_rates_result
+    if is_intelligent_product(tariff.product):
+      missing_dispatches = False
+      if dispatches_results is None:
+        missing_dispatches = True
+      else:
+        for item in dispatches_results.values():
+          if item is None or item.dispatches is None:
+            missing_dispatches = True
+            break
+
+      if missing_dispatches:
+        _LOGGER.debug("Dispatches not available for intelligent tariff. Using existing rate information")
+        return existing_rates_result
 
     new_rates = None
     raised_exception = None
@@ -126,13 +135,15 @@ async def async_refresh_electricity_rates_data(
         original_rates = new_rates.copy()
         original_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold))
         
-        if dispatches_result is not None and dispatches_result.dispatches is not None and is_export_meter == False:
-          new_rates = adjust_intelligent_rates(new_rates,
-                                               dispatches_result.dispatches.planned,
-                                               dispatches_result.dispatches.started,
-                                               intelligent_rate_mode)
+        if is_export_meter == False and dispatches_results is not None:
+          for key, item in dispatches_results.items():
+            if item is not None and item.dispatches is not None:
+              new_rates = adjust_intelligent_rates(new_rates,
+                                                   item.dispatches.planned,
+                                                   item.dispatches.started,
+                                                   intelligent_rate_mode)
           
-          _LOGGER.debug(f"Rates adjusted: {new_rates}; dispatches: {dispatches_result.dispatches.to_dict()}")
+              _LOGGER.debug(f"Rates adjusted: {new_rates}; device id: {key} dispatches: {item.dispatches.to_dict()}")
 
         # Sort our rates again _just in case_
         new_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold))
@@ -190,36 +201,40 @@ async def async_refresh_electricity_rates_data(
     # these can wait as they only power previous consumption costs which can be recalculated with a delay
     elif (is_export_meter == False and 
           existing_rates_result is not None and 
-          dispatches_result is not None and
-          dispatches_result.dispatches is not None and
-          dispatches_result.last_evaluated > existing_rates_result.rates_last_adjusted):
-      new_rates = adjust_intelligent_rates(existing_rates_result.original_rates,
-                                           dispatches_result.dispatches.planned,
-                                           dispatches_result.dispatches.started,
-                                           intelligent_rate_mode)
+          dispatches_results is not None):
       
-      _LOGGER.debug(f"Dispatches refreshed - Rates adjusted: {new_rates}; dispatches: {dispatches_result.dispatches.to_dict()}")
+      rates_adjusted = False
+      for key, item in dispatches_results.items():
+        if item is not None and item.dispatches is not None and item.last_evaluated > existing_rates_result.rates_last_adjusted:
+          new_rates = adjust_intelligent_rates(existing_rates_result.original_rates,
+                                              item.dispatches.planned,
+                                              item.dispatches.started,
+                                              intelligent_rate_mode)
+          rates_adjusted = True
+          _LOGGER.debug(f"Rates adjusted: {new_rates}; device id: {key} dispatches: {item.dispatches.to_dict()}")
+    
+      if rates_adjusted:
+        # Sort our rates again _just in case_
+        new_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold))
+        
+        raise_rate_events(current,
+                          private_rates_to_public_rates(new_rates),
+                          { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": tariff.code, "intelligent_dispatches_updated": True },
+                          fire_event,
+                          EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
+                          EVENT_ELECTRICITY_CURRENT_DAY_RATES,
+                          EVENT_ELECTRICITY_NEXT_DAY_RATES)
+        
+        return ElectricityRatesCoordinatorResult(
+          existing_rates_result.last_evaluated,
+          existing_rates_result.request_attempts,
+          new_rates,
+          existing_rates_result.original_rates,
+          current,
+          existing_rates_result.last_retrieved,
+          last_error=existing_rates_result.last_error
+        )
 
-      # Sort our rates again _just in case_
-      new_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold))
-      
-      raise_rate_events(current,
-                        private_rates_to_public_rates(new_rates),
-                        { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": tariff.code, "intelligent_dispatches_updated": True },
-                        fire_event,
-                        EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
-                        EVENT_ELECTRICITY_CURRENT_DAY_RATES,
-                        EVENT_ELECTRICITY_NEXT_DAY_RATES)
-      
-      return ElectricityRatesCoordinatorResult(
-        existing_rates_result.last_evaluated,
-        existing_rates_result.request_attempts,
-        new_rates,
-        existing_rates_result.original_rates,
-        current,
-        existing_rates_result.last_retrieved,
-        last_error=existing_rates_result.last_error
-      )
   return existing_rates_result
 
 async def async_update_unique_rates(hass, account_id: str, tariff: Tariff, total_unique_rates: int):
@@ -280,9 +295,8 @@ async def async_setup_electricity_rates_coordinator(hass,
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
     account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN][account_id] else None
     account_info = account_result.account if account_result is not None else None
-    intelligent_result: IntelligentDeviceCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
-    intelligent_device: IntelligentDevice = intelligent_result.device if intelligent_result is not None else None
-    dispatches: IntelligentDispatchesCoordinatorResult | None = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None
+
+    dispatches: dict[str, IntelligentDispatchesCoordinatorResult] = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES]
     rates: ElectricityRatesCoordinatorResult | None = hass.data[DOMAIN][account_id][key] if key in hass.data[DOMAIN][account_id] else None
 
     hass.data[DOMAIN][account_id][key] = await async_refresh_electricity_rates_data(
@@ -294,7 +308,6 @@ async def async_setup_electricity_rates_coordinator(hass,
       is_smart_meter,
       is_export_meter,
       rates,
-      intelligent_device,
       dispatches,
       hass.bus.async_fire,
       tariff_override,

@@ -6,7 +6,7 @@ from homeassistant.util.dt import (utcnow, parse_datetime)
 
 from ..utils import get_active_tariff
 
-from ..const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES, INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS, INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS, REFRESH_RATE_IN_MINUTES_INTELLIGENT
+from ..const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS, INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS, INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS, REFRESH_RATE_IN_MINUTES_INTELLIGENT
 
 from ..api_client.intelligent_settings import IntelligentSettings
 from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches, SimpleIntelligentDispatchItem
@@ -110,13 +110,13 @@ def mock_intelligent_settings():
 
 def mock_intelligent_device():
   return IntelligentDevice(
-    "1",
+    "1F-2B-3C-4D-5E-6F",
     "MYENERGI",
     "Myenergi",
     "Zappi smart EV",
     None,
     6.5,
-    True
+    INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS
   )
 
 def is_intelligent_product(product_code: str):
@@ -138,19 +138,50 @@ def has_intelligent_tariff(current: datetime, account_info):
 
   return False
 
-def __get_dispatch(rate, dispatches: list[IntelligentDispatchItem], expected_sources: list[str]):
-  if dispatches is not None:
-    for dispatch in dispatches:
+def get_applicable_dispatch_periods(planned_dispatches: list[IntelligentDispatchItem],
+                                    started_dispatches: list[SimpleIntelligentDispatchItem],
+                                    mode: str):
+  dispatches: list[SimpleIntelligentDispatchItem] = []
+  if planned_dispatches is not None and mode == CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES:
+    for planned_dispatch in planned_dispatches:
       # Source as none counts as smart charge - https://forum.octopus.energy/t/pending-and-completed-octopus-intelligent-dispatches/8510/102
-      if ((expected_sources is None or dispatch.source is None or (dispatch.source.lower() in expected_sources if dispatch.source is not None else False)) and 
-          ((dispatch.start <= rate["start"] and dispatch.end >= rate["end"]) or # Rate is within dispatch
-           (dispatch.start >= rate["start"] and dispatch.start < rate["end"]) or # dispatch starts within rate
-           (dispatch.end > rate["start"] and dispatch.end <= rate["end"]) # dispatch ends within rate
-          )
-        ):
-        return dispatch
-    
-  return None
+      if (planned_dispatch.source is not None and (planned_dispatch.source.lower() in INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS) == False):
+        continue
+
+      dispatch_exists = False
+
+      for existing_dispatch in dispatches:
+        # If the planned dispatch starts within the existing dispatch, extend the end
+        if (planned_dispatch.start >= existing_dispatch.start and planned_dispatch.start <= existing_dispatch.end):
+          existing_dispatch.end = max(existing_dispatch.end, planned_dispatch.end)
+          dispatch_exists = True
+        # If the planned dispatch ends within the existing dispatch, extend the start
+        if (planned_dispatch.end <= existing_dispatch.end and planned_dispatch.end >= existing_dispatch.start):
+          existing_dispatch.start = min(existing_dispatch.start, planned_dispatch.start)
+          dispatch_exists = True
+
+      if dispatch_exists == False:
+        dispatches.append(SimpleIntelligentDispatchItem(planned_dispatch.start, planned_dispatch.end))
+
+  if started_dispatches is not None:
+    for started_dispatch in started_dispatches:
+      dispatch_exists = False
+
+      for existing_dispatch in dispatches:
+        # If the started dispatch starts within the existing dispatch, extend the end
+        if (started_dispatch.start >= existing_dispatch.start and started_dispatch.start <= existing_dispatch.end):
+          existing_dispatch.end = max(existing_dispatch.end, started_dispatch.end)
+          dispatch_exists = True
+        # If the started dispatch ends within the existing dispatch, extend the start
+        if (started_dispatch.end <= existing_dispatch.end and started_dispatch.end >= existing_dispatch.start):
+          existing_dispatch.start = min(existing_dispatch.start, started_dispatch.start)
+          dispatch_exists = True
+
+      if dispatch_exists == False:
+        dispatches.append(SimpleIntelligentDispatchItem(started_dispatch.start, started_dispatch.end))
+
+  dispatches.sort(key = lambda x: x.start)
+  return dispatches
 
 def adjust_intelligent_rates(rates,
                              planned_dispatches: list[IntelligentDispatchItem],
@@ -162,16 +193,23 @@ def adjust_intelligent_rates(rates,
   off_peak_rate =  min(rates, key = lambda x: x["value_inc_vat"])
   adjusted_rates = []
 
+  applicable_dispatches = get_applicable_dispatch_periods(planned_dispatches, started_dispatches, mode)
+
   for rate in rates:
     if rate["value_inc_vat"] == off_peak_rate["value_inc_vat"]:
       adjusted_rates.append(rate)
       continue
 
-    is_planned_dispatch = __get_dispatch(rate, planned_dispatches, INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS) is not None
-    is_started_dispatch = __get_dispatch(rate, started_dispatches, None) is not None
+    applicable_dispatch: SimpleIntelligentDispatchItem | None = next(
+      (dispatch for dispatch in applicable_dispatches 
+      if (dispatch.start <= rate["start"] and dispatch.end >= rate["end"]) or # Rate is within dispatch
+          (dispatch.start >= rate["start"] and dispatch.start < rate["end"]) or # dispatch starts within rate
+          (dispatch.end > rate["start"] and dispatch.end <= rate["end"]) # dispatch ends within rate
+      ),
+      None
+    )
 
-    if ((mode == CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES and (is_planned_dispatch or is_started_dispatch)) or
-        (mode == CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY and is_started_dispatch)):
+    if (applicable_dispatch is not None):
       adjusted_rates.append({
         "start": rate["start"],
         "end": rate["end"],
@@ -233,6 +271,21 @@ def simple_dispatches_to_dictionary_list(dispatches: list[SimpleIntelligentDispa
       items.append(dispatch.to_dict())
 
   return items
+
+def get_current_and_next_dispatching_periods(current: datetime, applicable_dispatches: list[SimpleIntelligentDispatchItem]):
+  current_dispatch = None
+  next_dispatch = None
+
+  if applicable_dispatches is not None:
+    for applicable_dispatch in applicable_dispatches:
+      if current >= applicable_dispatch.start:
+        if current < applicable_dispatch.end:
+          current_dispatch = applicable_dispatch
+      else:
+        next_dispatch = applicable_dispatch
+        break
+  
+  return (current_dispatch, next_dispatch)
 
 class IntelligentFeatures:
   def __init__(self,

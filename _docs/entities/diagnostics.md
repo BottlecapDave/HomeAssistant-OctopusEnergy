@@ -64,7 +64,7 @@ This sensor states when greenness forecast data was last retrieved.
 
 ## Intelligent Dispatches Data Last Retrieved
 
-`sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatches_data_last_retrieved`
+`sensor.octopus_energy_{{DEVICE_ID}}_intelligent_dispatches_data_last_retrieved`
 
 This sensor states when intelligent dispatches data was last retrieved.
 
@@ -79,7 +79,7 @@ This sensor states when intelligent dispatches data was last retrieved.
 
 ## Intelligent Settings Data Last Retrieved
 
-`sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_settings_data_last_retrieved`
+`sensor.octopus_energy_{{DEVICE_ID}}_intelligent_settings_data_last_retrieved`
 
 This sensor states when intelligent settings data was last retrieved.
 

@@ -8,7 +8,7 @@ If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-
 
 ### Is Dispatching
 
-`binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching`
+`binary_sensor.octopus_energy_{{DEVICE_ID}}_intelligent_dispatching`
 
 This sensor is used to determine if you're currently in a planned dispatch period (i.e. "smart-charge" determined by Octopus Energy) or are within the standard off peak period. This sensor **will not** come on during a bump charge.
 
@@ -70,7 +70,7 @@ Each item in `started_dispatch` have the following attributes
 
 ### Current State
 
-`sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_state`
+`sensor.octopus_energy_{{DEVICE_ID}}_intelligent_state`
 
 This sensor displays the current state of your intelligent provider as told by the OE API. The value of this sensor can be one of the following
 
@@ -91,7 +91,7 @@ This sensor displays the current state of your intelligent provider as told by t
 
 ### Bump Charge
 
-`switch.octopus_energy_{{ACCOUNT_ID}}_intelligent_bump_charge`
+`switch.octopus_energy_{{DEVICE_ID}}_intelligent_bump_charge`
 
 This sensor is used to turn on/off bump ("on-demand") charging.
 
@@ -107,7 +107,7 @@ This sensor is used to turn on/off bump ("on-demand") charging.
 
 ### Smart Charge
 
-`switch.octopus_energy_{{ACCOUNT_ID}}_intelligent_smart_charge`
+`switch.octopus_energy_{{DEVICE_ID}}_intelligent_smart_charge`
 
 This sensor is used to turn on/off intelligent smart charging.
 
@@ -123,7 +123,7 @@ This sensor is used to turn on/off intelligent smart charging.
 
 ### Charge Target
 
-`number.octopus_energy_{{ACCOUNT_ID}}_intelligent_charge_target`
+`number.octopus_energy_{{DEVICE_ID}}_intelligent_charge_target`
 
 This sensor is used to see and set the charge target for your future intelligent charges.
 
@@ -139,7 +139,7 @@ This sensor is used to see and set the charge target for your future intelligent
 
 ### Target Time (Select)
 
-`select.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time`
+`select.octopus_energy_{{DEVICE_ID}}_intelligent_target_time`
 
 This sensor is used to see and set the target time for your future intelligent charges. This is limited to 30 minute increments between 4 and 11 to match the Octopus Energy app. This is useful if you use the app or have non-technical people interacting with the integration.
 
@@ -159,7 +159,7 @@ This sensor is used to see and set the target time for your future intelligent c
 
 ### Target Time (Time)
 
-`time.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time`
+`time.octopus_energy_{{DEVICE_ID}}_intelligent_target_time`
 
 This sensor is used to see and set the target time for your future intelligent charges. This gives you finer control over the times (still within valid time periods), but may have unintended consequences with other apps (e.g. the Octopus Energy app) that use the data.
 

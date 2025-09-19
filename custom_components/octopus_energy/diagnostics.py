@@ -115,10 +115,15 @@ async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str,
       account_info["gas_meter_points"][point_index]["mprn"] = redacted_mapping_count
       redacted_mapping_count += 1
 
-  intelligent_device = await client.async_get_intelligent_device(account_id)
-  intelligent_settings = None
-  if intelligent_device is not None:
+  intelligent_devices_dict = []
+  intelligent_devices = await client.async_get_intelligent_devices(account_id)
+  for idx, intelligent_device in enumerate(intelligent_devices):
+    intelligent_device_dict = intelligent_device.to_dict()
     intelligent_settings = await client.async_get_intelligent_settings(account_id, intelligent_device.id)
+    intelligent_device_dict["id"] = "**REDACTED**"
+    intelligent_device_dict["settings"] = intelligent_settings.to_dict() if intelligent_settings is not None else None
+
+    intelligent_devices_dict.append(intelligent_device_dict)
   
   _LOGGER.info(f'Returning diagnostic details; {len(account_info["electricity_meter_points"])} electricity meter point(s), {len(account_info["gas_meter_points"])} gas meter point(s)')
 
@@ -143,8 +148,7 @@ async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str,
     "account": account_info,
     "using_cached_account_data": existing_account_info is not None,
     "entities": get_entity_info(redacted_mappings),
-    "intelligent_device": intelligent_device.to_dict() if intelligent_device is not None else None,
-    "intelligent_settings": intelligent_settings.to_dict() if intelligent_settings is not None else None,
+    "intelligent_devices": intelligent_devices,
     "heat_pumps": heat_pumps,
   }
 

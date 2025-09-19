@@ -11,10 +11,9 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.helpers import storage
 
 from ..const import (
-  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
   COORDINATOR_REFRESH_IN_SECONDS,
   DATA_ACCOUNT,
-  DATA_INTELLIGENT_DEVICE,
   DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY,
   DOMAIN,
   DATA_INTELLIGENT_DISPATCHES,
@@ -246,10 +245,9 @@ async def async_fetch_consumption_and_rates(
   is_electricity: bool,
   is_smart_meter: bool,
   fire_event: Callable[[str, "dict[str, Any]"], None],
-  intelligent_device: IntelligentDevice | None = None,
-  intelligent_dispatches: IntelligentDispatches | None = None,
+  dispatches_results: dict[str, IntelligentDispatchesCoordinatorResult] = None,
   tariff_override: Tariff = None,
-  intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+  intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
 
 ):
   """Fetch the previous consumption and rates"""
@@ -278,9 +276,19 @@ async def async_fetch_consumption_and_rates(
             return previous_data
 
           # We'll calculate the wrong value if we don't have our intelligent dispatches
-          if is_intelligent_product(tariff.product) and intelligent_device is not None and intelligent_dispatches is None:
-            _LOGGER.debug("Dispatches not available for intelligent tariff. Using existing rate information")
-            return previous_data
+          if is_intelligent_product(tariff.product):
+            missing_dispatches = False
+            if dispatches_results is None:
+              missing_dispatches = True
+            else:
+              for item in dispatches_results.values():
+                if item is None or item.dispatches is None:
+                  missing_dispatches = True
+                  break
+
+            if missing_dispatches:
+              _LOGGER.debug("Dispatches not available for intelligent tariff. Using existing rate information")
+              return previous_data
           
           if (previous_data is not None and 
               previous_data.rates is not None and 
@@ -295,12 +303,15 @@ async def async_fetch_consumption_and_rates(
               client.async_get_electricity_standing_charge(tariff.product, tariff.code, period_from, period_to)
             )
 
-          if intelligent_dispatches is not None:
-            _LOGGER.debug(f"Adjusting rate data based on intelligent tariff; dispatches: {intelligent_dispatches.to_dict()}")
-            rate_data = adjust_intelligent_rates(rate_data,
-                                                  intelligent_dispatches.planned,
-                                                  intelligent_dispatches.started,
-                                                  intelligent_rate_mode)
+          if dispatches_results is not None:
+            for key, item in dispatches_results.items():
+              if item is not None and item.dispatches is not None:
+                rate_data = adjust_intelligent_rates(rate_data,
+                                                    item.dispatches.planned,
+                                                    item.dispatches.started,
+                                                    intelligent_rate_mode)
+            
+                _LOGGER.debug(f"Rates adjusted: {rate_data}; device id: {key} dispatches: {item.dispatches.to_dict()}")
       else:
         consumption_data = await client.async_get_gas_consumption(identifier, serial_number, page_size=52)
         consumption_data = get_latest_day(consumption_data)
@@ -442,9 +453,7 @@ async def async_create_previous_consumption_and_rates_coordinator(
     """Fetch data from API endpoint."""
     account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT] if DATA_ACCOUNT in hass.data[DOMAIN][account_id] else None
     account_info = account_result.account if account_result is not None else None
-    intelligent_result: IntelligentDeviceCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
-    intelligent_device: IntelligentDevice = intelligent_result.device if intelligent_result is not None else None
-    dispatches: IntelligentDispatchesCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None
+    dispatches: dict[str, IntelligentDispatchesCoordinatorResult] = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None
     previous_data = hass.data[DOMAIN][account_id][previous_consumption_data_key] if previous_consumption_data_key in hass.data[DOMAIN][account_id] else None
     current = utcnow()
 
@@ -458,8 +467,7 @@ async def async_create_previous_consumption_and_rates_coordinator(
       is_electricity,
       is_smart_meter,
       hass.bus.async_fire,
-      intelligent_device,
-      dispatches.dispatches if dispatches is not None else None,
+      dispatches,
       tariff_override,
       intelligent_rate_mode
     )

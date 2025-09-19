@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from custom_components.octopus_energy.coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 import pytest
 import mock
 
@@ -878,16 +879,6 @@ async def test_when_started_intelligent_dispatches_available_then_adjusted_reque
       datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
-    intelligent_device = IntelligentDevice(
-      "1",
-      "TESLA",
-      "Tesla",
-      "Model Y",
-      75.0,
-      6.5,
-      False 
-    )
-
     intelligent_dispatches = IntelligentDispatches(
       "SMART_CONTROL_IN_PROGRESS",
       [],
@@ -911,8 +902,7 @@ async def test_when_started_intelligent_dispatches_available_then_adjusted_reque
       is_electricity,
       is_smart_meter,
       fire_event,
-      intelligent_device,
-      intelligent_dispatches
+      { "1": IntelligentDispatchesCoordinatorResult(current_utc_timestamp, 1, intelligent_dispatches, 0, current_utc_timestamp) }
     )
 
     # Assert
@@ -1010,15 +1000,6 @@ async def test_when_intelligent_tariff_and_intelligent_device_and_no_dispatches_
       datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
-    intelligent_device = IntelligentDevice(
-      "1",
-      "TESLA",
-      "Tesla",
-      "Model Y",
-      75.0,
-      6.5,
-      False
-    )
     intelligent_dispatches = None
 
     # Act
@@ -1032,7 +1013,6 @@ async def test_when_intelligent_tariff_and_intelligent_device_and_no_dispatches_
       is_electricity,
       is_smart_meter,
       fire_event,
-      intelligent_device,
       intelligent_dispatches
     )
 
@@ -1041,7 +1021,7 @@ async def test_when_intelligent_tariff_and_intelligent_device_and_no_dispatches_
     assert len(actual_fired_events) == 0
 
 @pytest.mark.asyncio
-async def test_when_intelligent_tariff_and_intelligent_device_is_none_and_no_dispatches_available_then_rates_returned():
+async def test_when_intelligent_tariff_and_no_dispatches_available_then_rates_returned():
   # Arrange
   period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
   period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
@@ -1097,8 +1077,7 @@ async def test_when_intelligent_tariff_and_intelligent_device_is_none_and_no_dis
       datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
-    intelligent_device = None
-    intelligent_dispatches = None
+    intelligent_dispatches = { "1": IntelligentDispatchesCoordinatorResult(current_utc_timestamp, 1, IntelligentDispatches(None, [], [], []), 0, current_utc_timestamp) }
 
     # Act
     result = await async_fetch_consumption_and_rates(
@@ -1111,7 +1090,6 @@ async def test_when_intelligent_tariff_and_intelligent_device_is_none_and_no_dis
       is_electricity,
       is_smart_meter,
       fire_event,
-      intelligent_device,
       intelligent_dispatches
     )
 

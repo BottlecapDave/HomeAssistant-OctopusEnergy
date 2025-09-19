@@ -40,12 +40,12 @@ class OctopusEnergyIntelligentCurrentState(CoordinatorEntity, OctopusEnergyIntel
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_{self._account_id}_intelligent_state"
+    return f"octopus_energy_{self._device.id}_intelligent_state"
     
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Intelligent State ({self._account_id})"
+    return f"Intelligent State ({self._device.id})"
 
   @property
   def icon(self):
