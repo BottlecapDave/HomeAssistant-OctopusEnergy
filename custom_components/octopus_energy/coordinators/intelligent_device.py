@@ -37,7 +37,7 @@ class IntelligentDeviceCoordinatorResult(BaseCoordinatorResult):
     super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_INTELLIGENT_DEVICE, None, last_error)
     self.devices = devices
 
-async def async_refresh_device(
+async def async_refresh_devices(
   hass,
   current: datetime,
   client: OctopusEnergyApiClient,
@@ -120,14 +120,14 @@ async def async_refresh_device(
 
   return previous_request
 
-async def async_setup_intelligent_device_coordinator(hass, account_id: str, intelligent_devices: list[IntelligentDevice], mock_intelligent_data: bool):
-  async def async_update_intelligent_device_data():
+async def async_setup_intelligent_devices_coordinator(hass, account_id: str, intelligent_devices: list[IntelligentDevice], mock_intelligent_data: bool):
+  async def async_update_intelligent_devices_data():
     """Fetch data from API endpoint."""
     # Only get data every half hour or if we don't have any data
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
-    hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICES] = await async_refresh_device(
+    hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICES] = await async_refresh_devices(
       hass,
       current,
       client,
@@ -143,7 +143,7 @@ async def async_setup_intelligent_device_coordinator(hass, account_id: str, inte
     hass,
     _LOGGER,
     name=f"update_intelligent_devices_{account_id}",
-    update_method=async_update_intelligent_device_data,
+    update_method=async_update_intelligent_devices_data,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes
     update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),

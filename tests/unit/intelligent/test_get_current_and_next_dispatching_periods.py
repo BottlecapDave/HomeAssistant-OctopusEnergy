@@ -151,7 +151,7 @@ def test_when_get_current_and_next_dispatching_periods_called_with_current_time_
   assert current_dispatch.end == applicable_dispatches[0].end
   assert next_dispatch is None
 
-def test_when_get_current_and_next_dispatching_periods_called_with_current_time_exactly_at_end_then_current_is_set():
+def test_when_get_current_and_next_dispatching_periods_called_with_current_time_exactly_at_end_then_current_is_not_set():
   # Arrange
   end_time = now
   applicable_dispatches = [
@@ -165,7 +165,5 @@ def test_when_get_current_and_next_dispatching_periods_called_with_current_time_
   (current_dispatch, next_dispatch) = get_current_and_next_dispatching_periods(end_time, applicable_dispatches)
 
   # Assert
-  assert current_dispatch is not None
-  assert current_dispatch.start == applicable_dispatches[0].start
-  assert current_dispatch.end == applicable_dispatches[0].end
+  assert current_dispatch is None
   assert next_dispatch is None

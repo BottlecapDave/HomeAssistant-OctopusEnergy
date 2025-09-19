@@ -263,8 +263,8 @@ async def async_refresh_intelligent_dispatches(
   )
 
   if result is not None and result.dispatches is not None:
-    if result.last_retrieved < (current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)):
-      _LOGGER.debug('Skipping started dispatches processing as data has not been refreshed recently')
+    if result.last_retrieved < current:
+      _LOGGER.debug(f'Skipping started dispatches processing as data has not been refreshed recently - last_retrieved: {result.last_retrieved}; current: {current}')
       # If we haven't refreshed recently, then we can't accurately process started dispatches
       return result
     

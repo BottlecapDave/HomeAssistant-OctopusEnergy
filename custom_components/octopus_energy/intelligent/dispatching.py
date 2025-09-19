@@ -21,7 +21,6 @@ from ..intelligent import (
   simple_dispatches_to_dictionary_list
 )
 
-from ..utils import get_off_peak_times
 from .base import OctopusEnergyIntelligentSensor
 from ..coordinators.intelligent_dispatches import IntelligentDispatchDataUpdateCoordinator, IntelligentDispatchesCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
@@ -126,7 +125,7 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
       self._attributes["next_end"] = None
 
     if self._state != is_dispatching:
-      _LOGGER.debug(f"OctopusEnergyIntelligentDispatching state changed from {self._state} to {is_dispatching}; dispatches: {result.dispatches.to_dict() if result.dispatches is not None else None}; started_dispatches: {started_dispatches}")
+      _LOGGER.debug(f"OctopusEnergyIntelligentDispatching state changed from {self._state} to {is_dispatching}; dispatches: {result.dispatches.to_dict() if result.dispatches is not None else None}; started_dispatches: {list(map(lambda x: x.to_dict(), started_dispatches)) if started_dispatches is not None else []}")
     
     self._state = is_dispatching
 

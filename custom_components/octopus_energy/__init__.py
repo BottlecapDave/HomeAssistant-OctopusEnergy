@@ -35,7 +35,7 @@ from .storage.rate_weightings import async_load_cached_rate_weightings
 from .storage.intelligent_dispatches import async_load_cached_intelligent_dispatches
 from .api_client.intelligent_dispatches import IntelligentDispatches
 from .discovery import DiscoveryManager
-from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult, async_setup_intelligent_device_coordinator
+from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult, async_setup_intelligent_devices_coordinator
 
 from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configuration
 from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_heat_pump
@@ -613,4 +613,4 @@ async def async_register_intelligent_devices(hass, config: dict, now: datetime, 
 
     await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id, should_mock_intelligent_data)
     
-    await async_setup_intelligent_device_coordinator(hass, account_id, intelligent_device, should_mock_intelligent_data)
+    await async_setup_intelligent_devices_coordinator(hass, account_id, intelligent_devices, should_mock_intelligent_data)

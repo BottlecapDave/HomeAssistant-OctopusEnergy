@@ -58,8 +58,8 @@ def test_when_get_applicable_dispatch_periods_called_with_started_dispatches_it_
 
   # Assert
   assert len(result) == 1
-  assert result[0].start == datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[0].end == datetime.strptime("2025-09-14T12:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].start == datetime.strptime("2025-09-14T10:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].end == datetime.strptime("2025-09-14T11:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
 
 def test_when_get_applicable_dispatch_periods_called_with_planned_and_started_mode_and_non_smart_charge_dispatch_it_excludes_planned_dispatch():
   # Arrange
@@ -100,8 +100,8 @@ def test_when_get_applicable_dispatch_periods_called_with_planned_and_started_on
 
   # Assert
   assert len(result) == 1
-  assert result[0].start == datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[0].end == datetime.strptime("2025-09-14T12:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].start == datetime.strptime("2025-09-14T10:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].end == datetime.strptime("2025-09-14T11:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
 
 def test_when_get_applicable_dispatch_periods_called_with_overlapping_dispatches_it_merges_them():
   # Arrange
@@ -123,8 +123,8 @@ def test_when_get_applicable_dispatch_periods_called_with_overlapping_dispatches
 
   # Assert
   assert len(result) == 1
-  assert result[0].start == datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[0].end == datetime.strptime("2025-09-14T14:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].start == datetime.strptime("2025-09-14T10:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].end == datetime.strptime("2025-09-14T13:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
 
 def test_when_get_applicable_dispatch_periods_called_with_adjacent_dispatches_it_merges_them():
   # Arrange
@@ -146,8 +146,8 @@ def test_when_get_applicable_dispatch_periods_called_with_adjacent_dispatches_it
 
   # Assert
   assert len(result) == 1
-  assert result[0].start == datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[0].end == datetime.strptime("2025-09-14T13:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].start == datetime.strptime("2025-09-14T10:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].end == datetime.strptime("2025-09-14T12:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
 
 def test_when_get_applicable_dispatch_periods_called_with_multiple_dispatches_it_sorts_them_by_start_time():
   # Arrange
@@ -169,10 +169,10 @@ def test_when_get_applicable_dispatch_periods_called_with_multiple_dispatches_it
 
   # Assert
   assert len(result) == 2
-  assert result[0].start == datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[0].end == datetime.strptime("2025-09-14T12:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[1].start == datetime.strptime("2025-09-14T13:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[1].end == datetime.strptime("2025-09-14T15:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].start == datetime.strptime("2025-09-14T10:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].end == datetime.strptime("2025-09-14T11:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[1].start == datetime.strptime("2025-09-14T13:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[1].end == datetime.strptime("2025-09-14T14:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
 
 def test_when_get_applicable_dispatch_periods_called_with_both_planned_and_started_it_combines_them_correctly():
   # Arrange
@@ -198,8 +198,8 @@ def test_when_get_applicable_dispatch_periods_called_with_both_planned_and_start
 
   # Assert
   assert len(result) == 1
-  assert result[0].start == datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[0].end == datetime.strptime("2025-09-14T14:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].start == datetime.strptime("2025-09-14T10:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].end == datetime.strptime("2025-09-14T13:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
 
 def test_when_get_applicable_dispatch_periods_called_with_source_none_it_is_included():
   # Arrange
@@ -222,50 +222,5 @@ def test_when_get_applicable_dispatch_periods_called_with_source_none_it_is_incl
   # Source as none counts as smart charge and should not be excluded
   assert result is not None
   assert len(result) == 1
-  assert result[0].start == datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[0].end == datetime.strptime("2025-09-14T12:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-
-def test_when_get_applicable_dispatch_periods_called_with_planned_dispatch_end_at_minute_zero_then_end_not_pushed_into_next_thirty_minute_period():
-  # Arrange
-  planned_dispatches = [
-    IntelligentDispatchItem(
-      start=datetime.strptime("2025-09-14T10:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
-      end=datetime.strptime("2025-09-14T11:00:01+01:00", "%Y-%m-%dT%H:%M:%S%z"),
-      charge_in_kwh=1.0,
-      source=None,
-      location="location"
-    )
-  ]
-  started_dispatches = []
-  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
-
-  # Act
-  result = get_applicable_dispatch_periods(planned_dispatches, started_dispatches, mode)
-
-  # Assert
-  # Source as none counts as smart charge and should not be excluded
-  assert result is not None
-  assert len(result) == 1
-  assert result[0].start == datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[0].end == datetime.strptime("2025-09-14T11:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-
-def test_when_get_applicable_dispatch_periods_called_with_started_dispatch_end_at_minute_zero_then_end_not_pushed_into_next_thirty_minute_period():
-  # Arrange
-  planned_dispatches = []
-  started_dispatches = [
-    SimpleIntelligentDispatchItem(
-      start=datetime.strptime("2025-09-14T10:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
-      end=datetime.strptime("2025-09-14T11:00:01+01:00", "%Y-%m-%dT%H:%M:%S%z"),
-    )
-  ]
-  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
-
-  # Act
-  result = get_applicable_dispatch_periods(planned_dispatches, started_dispatches, mode)
-
-  # Assert
-  # Source as none counts as smart charge and should not be excluded
-  assert result is not None
-  assert len(result) == 1
-  assert result[0].start == datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  assert result[0].end == datetime.strptime("2025-09-14T11:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].start == datetime.strptime("2025-09-14T10:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].end == datetime.strptime("2025-09-14T11:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z")

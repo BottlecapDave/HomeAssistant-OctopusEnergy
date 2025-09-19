@@ -148,41 +148,37 @@ def get_applicable_dispatch_periods(planned_dispatches: list[IntelligentDispatch
       if (planned_dispatch.source is not None and (planned_dispatch.source.lower() in INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS) == False):
         continue
 
-      planned_dispatch_start = planned_dispatch.start.replace(minute=0 if planned_dispatch.start.minute < 30 else 30, second=0, microsecond=0)
-      planned_dispatch_end = planned_dispatch.end.replace(minute=0 if planned_dispatch.end.minute < 30 else 30, second=0, microsecond=0) + timedelta(minutes=30 if planned_dispatch.end.minute > 0 else 0)
       dispatch_exists = False
 
       for existing_dispatch in dispatches:
         # If the planned dispatch starts within the existing dispatch, extend the end
-        if (planned_dispatch_start >= existing_dispatch.start and planned_dispatch_start <= existing_dispatch.end):
-          existing_dispatch.end = max(existing_dispatch.end, planned_dispatch_end)
+        if (planned_dispatch.start >= existing_dispatch.start and planned_dispatch.start <= existing_dispatch.end):
+          existing_dispatch.end = max(existing_dispatch.end, planned_dispatch.end)
           dispatch_exists = True
         # If the planned dispatch ends within the existing dispatch, extend the start
-        if (planned_dispatch_end <= existing_dispatch.end and planned_dispatch_end >= existing_dispatch.start):
-          existing_dispatch.start = min(existing_dispatch.start, planned_dispatch_start)
+        if (planned_dispatch.end <= existing_dispatch.end and planned_dispatch.end >= existing_dispatch.start):
+          existing_dispatch.start = min(existing_dispatch.start, planned_dispatch.start)
           dispatch_exists = True
 
       if dispatch_exists == False:
-        dispatches.append(SimpleIntelligentDispatchItem(planned_dispatch_start, planned_dispatch_end))
+        dispatches.append(SimpleIntelligentDispatchItem(planned_dispatch.start, planned_dispatch.end))
 
   if started_dispatches is not None:
     for started_dispatch in started_dispatches:
-      started_dispatch_start = started_dispatch.start.replace(minute=0 if started_dispatch.start.minute < 30 else 30, second=0, microsecond=0)
-      started_dispatch_end = started_dispatch.end.replace(minute=0 if started_dispatch.end.minute < 30 else 30, second=0, microsecond=0) + timedelta(minutes=30 if started_dispatch.end.minute > 0 else 0)
       dispatch_exists = False
 
       for existing_dispatch in dispatches:
-        # If the planned dispatch starts within the existing dispatch, extend the end
-        if (started_dispatch_start >= existing_dispatch.start and started_dispatch_start <= existing_dispatch.end):
-          existing_dispatch.end = max(existing_dispatch.end, started_dispatch_end)
+        # If the started dispatch starts within the existing dispatch, extend the end
+        if (started_dispatch.start >= existing_dispatch.start and started_dispatch.start <= existing_dispatch.end):
+          existing_dispatch.end = max(existing_dispatch.end, started_dispatch.end)
           dispatch_exists = True
-        # If the planned dispatch ends within the existing dispatch, extend the start
-        if (started_dispatch_end <= existing_dispatch.end and started_dispatch_end >= existing_dispatch.start):
-          existing_dispatch.start = min(existing_dispatch.start, started_dispatch_start)
+        # If the started dispatch ends within the existing dispatch, extend the start
+        if (started_dispatch.end <= existing_dispatch.end and started_dispatch.end >= existing_dispatch.start):
+          existing_dispatch.start = min(existing_dispatch.start, started_dispatch.start)
           dispatch_exists = True
 
       if dispatch_exists == False:
-        dispatches.append(SimpleIntelligentDispatchItem(started_dispatch_start, started_dispatch_end))
+        dispatches.append(SimpleIntelligentDispatchItem(started_dispatch.start, started_dispatch.end))
 
   dispatches.sort(key = lambda x: x.start)
   return dispatches
@@ -206,7 +202,9 @@ def adjust_intelligent_rates(rates,
 
     applicable_dispatch: SimpleIntelligentDispatchItem | None = next(
       (dispatch for dispatch in applicable_dispatches 
-      if (dispatch.start <= rate["start"] and dispatch.end >= rate["end"])
+      if (dispatch.start <= rate["start"] and dispatch.end >= rate["end"]) or # Rate is within dispatch
+          (dispatch.start >= rate["start"] and dispatch.start < rate["end"]) or # dispatch starts within rate
+          (dispatch.end > rate["start"] and dispatch.end <= rate["end"]) # dispatch ends within rate
       ),
       None
     )
@@ -281,7 +279,7 @@ def get_current_and_next_dispatching_periods(current: datetime, applicable_dispa
   if applicable_dispatches is not None:
     for applicable_dispatch in applicable_dispatches:
       if current >= applicable_dispatch.start:
-        if current <= applicable_dispatch.end:
+        if current < applicable_dispatch.end:
           current_dispatch = applicable_dispatch
       else:
         next_dispatch = applicable_dispatch
