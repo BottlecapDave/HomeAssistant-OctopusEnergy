@@ -10,7 +10,13 @@ If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-
 
 `binary_sensor.octopus_energy_{{DEVICE_ID}}_intelligent_dispatching`
 
-This sensor is used to determine if you're currently in a planned dispatch period (i.e. "smart-charge" determined by Octopus Energy) or are within the standard off peak period. This sensor **will not** come on during a bump charge.
+This sensor is used to determine if you're within a dispatching period (i.e. "smart-charge" determined by Octopus Energy). This sensor **will not** come on during a bump charge.
+
+Depending on your [account configuration](../setup/account.md#intelligent-rates-mode), what is determined as an active dispatching period will change. If you have configured to accept [planned or started dispatches](../setup/account.md#planned-and-started-dispatches-will-turn-into-off-peak-rates), then the sensor will turn on when you're are within an active planned or started dispatch period. If you have configured to accept [only started dispatches](../setup/account.md#only-started-dispatches-will-turn-into-off-peak-rates), then the sensor will turn on when you're are within an active started dispatch period, but not planned dispatch.
+
+!!! info
+
+    If you are after a sensor that will turn on during both the standard off peak rates and ad hoc charges, you're best to use the [off peak sensor](./electricity.md#off-peak).
 
 !!! warning
 
@@ -18,19 +24,19 @@ This sensor is used to determine if you're currently in a planned dispatch perio
     
     If you are wanting to know when you are within a guaranteed off peak period, you should use the [off peak](./electricity.md#off-peak) sensor.
 
-!!! info
+!!! warning
 
     This sensor is only partially supported for the following intelligent providers
 
     * OHME
 
-    If you are supplied by one of the above providers, `planned_dispatches` will always return an empty collection and this entity will only turn on when within the standard off peak period. 
+    If you are supplied by one of the above providers, this sensor will never turn on. 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `planned_dispatches` | `array` | An array of the dispatches that are currently planned by Octopus Energy. |
 | `completed_dispatches` | `array` | An array of the dispatches that have been completed by Octopus Energy. This will only store up to the last 3 days worth of completed dispatches. This includes dispatches that were scheduled by OE and boost dispatches issued by the user. OE do not provide details on what triggered the completed dispatches. |
-| `started_dispatches` | `array` | An array of the dispatches that have been planned by Octopus Energy and upon API refresh are still planned when the current 30 minute period has started, is not in a boosting state and the data has been refreshed within the last 3 minutes. A planned dispatch will be added one 30 minute period at a time. This will only store up to the last 3 days worth of started dispatches. This is used to determine current and historic off peak rates. For example if you have a planned dispatch of `2025-04-01T10:00:00`-`2025-04-01T11:00:00`, at `2025-04-01T10:01:00` if the planned dispatch is still available the period of `2025-04-01T10:00:00`-`2025-04-01T10:30:00` will be added. |
+| `started_dispatches` | `array` | An array of the dispatches that have been planned by Octopus Energy and started. See the [FAQ](../faq.md#what-are-started-dispatches-and-how-are-they-calculated) for how this is calculated and why it exists. |
 | `provider` | `string` | The provider of the intelligent features |
 | `vehicle_battery_size_in_kwh` | `float` | The size of the target vehicle battery in kWh. |
 | `charge_point_power_in_kw` | `float` | The power of the charge point battery in kW. |

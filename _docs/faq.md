@@ -35,6 +35,23 @@ Once a successful request is made, the refreshes will revert back to the redefin
 !!! note
     The retrieving of data does not effect the rate the entities states/attributes are evaluated.
 
+## What are started dispatches and how are they calculated?
+
+Started dispatches are a concept derived by the integration.
+
+Octopus Energy provide rate information for intelligent tariffs. Unfortunately, this rate information is only the standard rate information (e.g. standard peak and off peak rates). This means that periods that are charged at off peak rates outside of the normal off peak period has to be adjusted to the off peak rate manually. Luckily, Octopus Energy provides information on planned and completed dispatches. However, there are a few issues with this data
+
+1. Planned dispatches can be removed at the last minute. This can cause issues as they can be removed just before they start but counted as "active" if the data isn't refreshed before they start. If you have setup [the integration](./setup/account.md#intelligent-rates-mode) to accept [planned or started dispatches](../setup/account.md#planned-and-started-dispatches-will-turn-into-off-peak-rates), then this can result in sensors turning on and then turning off once the data is refreshed and the planned dispatch is removed
+2. The completed dispatches do not specify a source of the dispatch. This means that boost charges (ones that do not result in off peak rates) will be mixed in with smart charges (ones that do result in off peak rates). This means that it can't be used to retroactively change rates to off peak for things like previous consumption cost sensors.
+
+Therefore, there is the concept of started dispatches. Once data is refreshed, any planned dispatches that are active become a started dispatch, thirty minute increments at a time. This is because the whole thirty minute period for a smart charge dispatch is charged at off peak, even if only a minute charge has occurred. It is done thirty minute increments at a time because Octopus Energy might stop a dispatch early. This will only occur if the [intelligent state](./entities/intelligent\.md#current-state) is in `SMART_CONTROL_IN_PROGRESS`. For example if you have a planned dispatch of `2025-04-01T10:00:00`-`2025-04-01T11:00:00`, at `2025-04-01T10:01:00` if the planned dispatch is still available the period of `2025-04-01T10:00:00`-`2025-04-01T10:30:00` will be added.
+
+!!! warning
+    
+    This does not apply to the following providers, as they don't provide planned dispatch information.
+
+    * OHME
+
 ## The integration provides features I don't need, can I turn the feature off?
 
 There is no config option to turn features on/off. This is because the required data is not cut and dry per feature as some data is shared among "features" (e.g. rate data is required to determine if consumption data is peak or off peak).

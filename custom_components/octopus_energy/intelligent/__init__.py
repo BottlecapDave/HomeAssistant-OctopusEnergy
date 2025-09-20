@@ -16,6 +16,16 @@ mock_intelligent_data_key = "MOCK_INTELLIGENT_DATA"
 
 _LOGGER = logging.getLogger(__name__)
 
+# Expected successful dispatches (UTC)
+# 07:00 - 08:00 Smart Charge
+# 10:10 - 10:30 Smart Charge (Late dispatch)
+# 18:00 - 18:20 Smart Charge (Late dispatch)
+# 19:00 - 20:00 Smart Charge
+
+# Not expected to dispatch
+# 11:00 - 11:20 Smart Charge (Removed before dispatch)
+# 12:00 - 13:00 Bump Charge
+
 def mock_intelligent_dispatches(current_state = "SMART_CONTROL_CAPABLE") -> IntelligentDispatches:
   planned: list[IntelligentDispatchItem] = []
   completed: list[IntelligentDispatchItem] = []
@@ -69,6 +79,7 @@ def mock_intelligent_dispatches(current_state = "SMART_CONTROL_CAPABLE") -> Inte
       )
     )
 
+  # Simulate a dispatch coming in late
   if (utcnow() >= utcnow().replace(hour=18, minute=0, second=0, microsecond=0) - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)):
     dispatches.append(
       IntelligentDispatchItem(

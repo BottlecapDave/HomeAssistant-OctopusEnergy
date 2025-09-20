@@ -57,7 +57,9 @@ If you are on an intelligent tariff then it's possible for you to get cheaper ra
 
 ### Planned and started dispatches will turn into off peak rates
 
-This is the default behaviour. In this scenario, all planned dispatches will be assumed to be converted into successful off peak charges by the car and therefore all rates during these periods will be converted into the off peak rate. This will be indicated by the `is_intelligent_adjusted` property. This is useful when planning other devices to turn on in the future during these cheap periods (e.g. by using a [target rate sensor](./target_rate.md)). 
+This is the default behaviour. In this scenario, all planned dispatches will be assumed to be converted into successful off peak charges by the car and therefore all rates during these periods will be converted into the off peak rate. This will be indicated by the `is_intelligent_adjusted` property against the rate. This is useful when planning other devices to turn on in the future during these cheap periods (e.g. by using a [target rate sensor](./target_rate.md)).
+
+Please see the [FAQ](../faq.md#what-are-started-dispatches-and-how-are-they-calculated) for information on what started dispatches are.
 
 !!! warning
 
@@ -66,6 +68,8 @@ This is the default behaviour. In this scenario, all planned dispatches will be 
 ### Only started dispatches will turn into off peak rates
 
 In this scenario only started dispatches will be taken into account for adjustments meaning all rates during only started dispatch periods will be converted into the off peak rate. This will be indicated by the `is_intelligent_adjusted` property. This means no future planning can be made to take advantage of these cheap periods by rates alone.
+
+Please see the [FAQ](../faq.md#what-are-started-dispatches-and-how-are-they-calculated) for information on what started dispatches are.
 
 !!! warning
 
