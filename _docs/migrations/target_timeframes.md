@@ -26,7 +26,7 @@ Select the blueprint you want to use and click 'Install blueprint'.  You will ge
 
 Next you need to create an automation using the blueprint you just imported.  The automation will track when the rate entities within the Octopus Energy integration are updated and will then transform the rate data into the shape required by Target Timeframes and use the available service to add the rate data with the data source we just created. Each `value` in Target Timeframes will represent our rate in pounds/pence.
 
-Click the name of the blueprint you just imported.  You'll be prompted to configure the blueprint with the names of your Octopus Integration sensors.  Each of the configuration items are fairly self explanatory, you use the dropdowns to select the appropriate Home Assistant sensor or event name:
+Click the name of the blueprint you just imported.  You'll be prompted to configure the blueprint with the names of your Octopus Integration sensors. Use the dropdowns to select the appropriate Home Assistant sensor or event name:
 
 ![Blueprint configuration](../assets/target_timeframes_blueprint.png)
 
@@ -48,7 +48,7 @@ All options within the sensors should feel familiar, as they represent what's av
 
 * `Invert targeted rates` in the Octopus Energy integration is represented by `Find highest values` in Target Timeframes. If `Invert targeted rates` is checked, for sensors using data sources targeting import meters, `Find highest values` should be checked. If `Invert targeted rates` is checked, for sensors using data sources targeting export meters, `Find highest values` should be checked.
 
-* Note that the 'cost' attributes of the Octopus Integration target rate binary sensors are renamed as 'value' attributes in the Target Timeframes integration target rate binary sensors.  So 'overall min cost' is now 'overall min value', 'next average cost' is now 'next average value', etc.  If you display any of these attributes on a dashboard or use them in your own automation you will need to adjust accordingly.
+* Note that the `cost` attributes of the Octopus Integration target rate binary sensors are renamed as `value` attributes in the Target Timeframes integration target rate binary sensors.  So `overall min cost` is now `overall min value`, `next average cost` is now `next average value`, etc.  If you display any of these attributes on a dashboard or use them in your own automation you will need to adjust accordingly.
 
 !!! warning
 
