@@ -16,7 +16,7 @@ Depending on your [account configuration](../setup/account.md#intelligent-rates-
 
 !!! info
 
-    If you are after a sensor that will turn on during both the standard off peak rates and ad hoc charges, you're best to use the [off peak sensor](./electricity.md#off-peak).
+    This sensor will only turn on during dispatches for a single intelligent device. If you're after a sensor that turns on during the standard off peak rates as well or cover multiple intelligent devices then you're best to use the [off peak sensor](./electricity.md#off-peak).
 
 !!! warning
 
