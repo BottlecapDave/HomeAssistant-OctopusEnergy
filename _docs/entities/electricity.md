@@ -147,12 +147,11 @@ Each rate item has the following attributes
 
 This is `on` when you're within your tariff's off peak period, and `off` at all other times. This will only be work if you're on a tariff with an off peak period.
 
-!!! note
-    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
-
 !!! warning
 
-    For intelligent tariffs, this sensor will only turn on during the standard off peak period. If you are wanting to know when extended off peak rates are available, you'll want to use the [is dispatching](./intelligent.md#is-dispatching) sensor.
+    For intelligent tariffs, this sensor will turn on when you're within active ad hoc dispatching periods as well.
+
+    Depending on your [account configuration](../setup/account.md#intelligent-rates-mode), what is determined as an active dispatching period will change. If you have configured to accept [planned or started dispatches](../setup/account.md#planned-and-started-dispatches-will-turn-into-off-peak-rates), then the sensor will turn on when you're are within an active planned or started dispatch period. If you have configured to accept [only started dispatches](../setup/account.md#only-started-dispatches-will-turn-into-off-peak-rates), then the sensor will turn on when you're are within an active started dispatch period, but not planned dispatch.
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
