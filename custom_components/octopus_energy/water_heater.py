@@ -1,6 +1,5 @@
 import logging
 
-from custom_components.octopus_energy.heat_pump.water_heater import OctopusEnergyHeatPumpWaterHeater
 import voluptuous as vol
 
 from homeassistant.core import HomeAssistant
@@ -10,6 +9,7 @@ import homeassistant.helpers.config_validation as cv
 from .api_client.heat_pump import HeatPumpResponse
 from .heat_pump import get_mock_heat_pump_id
 from .utils.debug_overrides import async_get_account_debug_override
+from .heat_pump.water_heater import OctopusEnergyHeatPumpWaterHeater
 
 from .const import (
   CONFIG_ACCOUNT_ID,

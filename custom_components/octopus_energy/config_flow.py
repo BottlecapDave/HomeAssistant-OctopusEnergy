@@ -33,7 +33,7 @@ from .const import (
   CONFIG_MAIN_HOME_PRO_SETTINGS,
   CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE,
-  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY,
   CONFIG_MAIN_INTELLIGENT_SETTINGS,
   CONFIG_MAIN_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
@@ -246,7 +246,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
                 vol.Required(CONFIG_MAIN_INTELLIGENT_RATE_MODE): selector.SelectSelector(
                   selector.SelectSelectorConfig(
                       options=[
-                        selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES, label="Planned and started dispatches will turn into off peak rates"),
+                        selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES, label="Planned and started dispatches will turn into off peak rates"),
                         selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, label="Only started dispatches will turn into off peak rates"),
                       ],
                       mode=selector.SelectSelectorMode.DROPDOWN,

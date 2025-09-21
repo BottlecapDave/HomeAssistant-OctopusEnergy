@@ -8,9 +8,15 @@ If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-
 
 ### Is Dispatching
 
-`binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching`
+`binary_sensor.octopus_energy_{{DEVICE_ID}}_intelligent_dispatching`
 
-This sensor is used to determine if you're currently in a planned dispatch period (i.e. "smart-charge" determined by Octopus Energy) or are within the standard off peak period. This sensor **will not** come on during a bump charge.
+This sensor is used to determine if you're within a dispatching period (i.e. "smart-charge" determined by Octopus Energy) for a **single** intelligent device. This sensor **will not** come on during a bump charge.
+
+Depending on your [account configuration](../setup/account.md#intelligent-rates-mode), what is determined as an active dispatching period will change. If you have configured to accept [planned or started dispatches](../setup/account.md#planned-and-started-dispatches-will-turn-into-off-peak-rates), then the sensor will turn on when you're are within an active planned or started dispatch period. If you have configured to accept [only started dispatches](../setup/account.md#only-started-dispatches-will-turn-into-off-peak-rates), then the sensor will turn on when you're are within an active started dispatch period, but not planned dispatch.
+
+!!! info
+
+    This sensor will only turn on during dispatches for a single intelligent device. If you're after a sensor that turns on during the standard off peak rates as well or cover multiple intelligent devices then you're best to use the [off peak sensor](./electricity.md#off-peak).
 
 !!! warning
 
@@ -18,19 +24,19 @@ This sensor is used to determine if you're currently in a planned dispatch perio
     
     If you are wanting to know when you are within a guaranteed off peak period, you should use the [off peak](./electricity.md#off-peak) sensor.
 
-!!! info
+!!! warning
 
     This sensor is only partially supported for the following intelligent providers
 
     * OHME
 
-    If you are supplied by one of the above providers, `planned_dispatches` will always return an empty collection and this entity will only turn on when within the standard off peak period. 
+    If you are supplied by one of the above providers, this sensor will never turn on. 
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `planned_dispatches` | `array` | An array of the dispatches that are currently planned by Octopus Energy. |
 | `completed_dispatches` | `array` | An array of the dispatches that have been completed by Octopus Energy. This will only store up to the last 3 days worth of completed dispatches. This includes dispatches that were scheduled by OE and boost dispatches issued by the user. OE do not provide details on what triggered the completed dispatches. |
-| `started_dispatches` | `array` | An array of the dispatches that have been planned by Octopus Energy and upon API refresh are still planned when the current 30 minute period has started, is not in a boosting state and the data has been refreshed within the last 3 minutes. A planned dispatch will be added one 30 minute period at a time. This will only store up to the last 3 days worth of started dispatches. This is used to determine current and historic off peak rates. For example if you have a planned dispatch of `2025-04-01T10:00:00`-`2025-04-01T11:00:00`, at `2025-04-01T10:01:00` if the planned dispatch is still available the period of `2025-04-01T10:00:00`-`2025-04-01T10:30:00` will be added. |
+| `started_dispatches` | `array` | An array of the dispatches that have been planned by Octopus Energy and started. See the [FAQ](../faq.md#what-are-started-dispatches-and-how-are-they-calculated) for how this is calculated and why it exists. |
 | `provider` | `string` | The provider of the intelligent features |
 | `vehicle_battery_size_in_kwh` | `float` | The size of the target vehicle battery in kWh. |
 | `charge_point_power_in_kw` | `float` | The power of the charge point battery in kW. |
@@ -70,9 +76,9 @@ Each item in `started_dispatch` have the following attributes
 
 ### Current State
 
-`sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_state`
+`sensor.octopus_energy_{{DEVICE_ID}}_intelligent_state`
 
-This sensor displays the current state of your intelligent provider as told by the OE API. The value of this sensor can be one of the following
+This sensor displays the current state of your intelligent provider as told by the OE API for a **single** intelligent device. The value of this sensor can be one of the following
 
 * `AUTHENTICATION_PENDING` - ready to start authentication and authorization, or auth is in progress.
 * `AUTHENTICATION_FAILED` - failed to connect and ready to restart authentication and authorization.
@@ -91,9 +97,9 @@ This sensor displays the current state of your intelligent provider as told by t
 
 ### Bump Charge
 
-`switch.octopus_energy_{{ACCOUNT_ID}}_intelligent_bump_charge`
+`switch.octopus_energy_{{DEVICE_ID}}_intelligent_bump_charge`
 
-This sensor is used to turn on/off bump ("on-demand") charging.
+This sensor is used to turn on/off bump ("on-demand") charging for a **single** intelligent device.
 
 !!! info
 
@@ -107,9 +113,9 @@ This sensor is used to turn on/off bump ("on-demand") charging.
 
 ### Smart Charge
 
-`switch.octopus_energy_{{ACCOUNT_ID}}_intelligent_smart_charge`
+`switch.octopus_energy_{{DEVICE_ID}}_intelligent_smart_charge`
 
-This sensor is used to turn on/off intelligent smart charging.
+This sensor is used to turn on/off intelligent smart charging for a **single** intelligent device.
 
 !!! info
 
@@ -123,9 +129,9 @@ This sensor is used to turn on/off intelligent smart charging.
 
 ### Charge Target
 
-`number.octopus_energy_{{ACCOUNT_ID}}_intelligent_charge_target`
+`number.octopus_energy_{{DEVICE_ID}}_intelligent_charge_target`
 
-This sensor is used to see and set the charge target for your future intelligent charges.
+This sensor is used to see and set the charge target for your future intelligent charges for a **single** intelligent device.
 
 !!! info
 
@@ -139,9 +145,11 @@ This sensor is used to see and set the charge target for your future intelligent
 
 ### Target Time (Select)
 
-`select.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time`
+`select.octopus_energy_{{DEVICE_ID}}_intelligent_target_time`
 
-This sensor is used to see and set the target time for your future intelligent charges. This is limited to 30 minute increments between 4 and 11 to match the Octopus Energy app. This is useful if you use the app or have non-technical people interacting with the integration.
+This sensor is used to see and set the target time for your future intelligent charges for a **single** intelligent device. 
+
+This is limited to 30 minute increments between 4 and 11 to match the Octopus Energy app. This is useful if you use the app or have non-technical people interacting with the integration.
 
 !!! info
 
@@ -159,9 +167,11 @@ This sensor is used to see and set the target time for your future intelligent c
 
 ### Target Time (Time)
 
-`time.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time`
+`time.octopus_energy_{{DEVICE_ID}}_intelligent_target_time`
 
-This sensor is used to see and set the target time for your future intelligent charges. This gives you finer control over the times (still within valid time periods), but may have unintended consequences with other apps (e.g. the Octopus Energy app) that use the data.
+This sensor is used to see and set the target time for your future intelligent charges for a **single** intelligent device. 
+
+This gives you finer control over the times (still within valid time periods), but may have unintended consequences with other apps (e.g. the Octopus Energy app) that use the data.
 
 !!! info
 
@@ -180,9 +190,9 @@ This sensor is used to see and set the target time for your future intelligent c
 
 If you're moving to this integration from [megakid/ha_octopus_intelligent](https://github.com/megakid/ha_octopus_intelligent), below is a quick guide on what entities you should use
 
-* `binary_sensor.octopus_intelligent_slot` - Use the [is dispatching sensor](#is-dispatching)
+* `binary_sensor.octopus_intelligent_slot` - Use the [off peak sensor](./electricity.md#off-peak)
 * `binary_sensor.octopus_intelligent_planned_dispatch_slot` - There is no alternative for this.
-* `binary_sensor.octopus_intelligent_slot_next_1_hour`, `binary_sensor.octopus_intelligent_slot_next_2_hours` and `binary_sensor.octopus_intelligent_slot_next_3_hours` - These sensors felt like they would always fall short of peoples requirements as everyone has different time periods they wish to know about. The [is dispatching sensor](#is-dispatching) exposes the current and next start/end times which could be used in a template sensor to determine how long the rate is cheap for when on. Or the [target rate](../setup/target_rate.md) or [rolling target rate](../setup/rolling_target_rate.md) might help for what you need.
+* `binary_sensor.octopus_intelligent_slot_next_1_hour`, `binary_sensor.octopus_intelligent_slot_next_2_hours` and `binary_sensor.octopus_intelligent_slot_next_3_hours` - These sensors felt like they would always fall short of peoples requirements as everyone has different time periods they wish to know about. The [off peak sensor](./electricity.md#off-peak) exposes the current and next start/end times which could be used in a template sensor to determine how long the rate is cheap for when on. Or the [target rate](../setup/target_rate.md) or [rolling target rate](../setup/rolling_target_rate.md) might help for what you need.
 * `sensor.octopus_intelligent_next_offpeak_start` - The default off peak start date/time can be found as an attribute on the [off peak sensor](./electricity.md#off-peak). This can be extracted using a [template sensor](https://www.home-assistant.io/integrations/template/).
 * `sensor.octopus_intelligent_offpeak_end` - The default off peak end date/time can be found as an attribute on the [off peak sensor](./electricity.md#off-peak). This can be extracted using a [template sensor](https://www.home-assistant.io/integrations/template/).
 * `switch.octopus_intelligent_bump_charge` - Use the [bump charge sensor](#bump-charge)

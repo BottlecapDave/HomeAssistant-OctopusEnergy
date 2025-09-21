@@ -37,6 +37,9 @@ nav:
     - ./repairs/tariff_rates_empty.md
   - Community: community.md
   - blueprints.md
+  - Architecture Decision Records:
+    - ./architecture_decision_records/0001_target_rates_removal.md
+    - ./architecture_decision_records/0002_intelligent_is_dispatching_behaviour_changes.md
   - faq.md
   - sponsorship.md
 

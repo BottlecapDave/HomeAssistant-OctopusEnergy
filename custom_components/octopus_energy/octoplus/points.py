@@ -125,4 +125,7 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
       _LOGGER.warning(f"Failed to retrieve octopoints")
       self._request_attempts = self._request_attempts + 1
 
+      if self._last_evaluated is None:
+        self._last_evaluated = now
+
     self._next_refresh = calculate_next_refresh(self._last_evaluated, self._request_attempts, REFRESH_RATE_IN_MINUTES_OCTOPLUS_POINTS)

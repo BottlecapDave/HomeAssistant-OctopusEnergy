@@ -9,8 +9,8 @@ from homeassistant.helpers.update_coordinator import (
 
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
-  DATA_INTELLIGENT_DEVICE,
   DATA_INTELLIGENT_DEVICE_COORDINATOR,
+  DATA_INTELLIGENT_DEVICES,
   DOMAIN,
 
   DATA_CLIENT,
@@ -37,11 +37,12 @@ MAXIMUM_RATES_PER_HOUR = 20
 
 class IntelligentDispatchDataUpdateCoordinator(DataUpdateCoordinator):
   
-  def __init__(self, hass, name: str, account_id: str, manual_dispatch_refreshes: bool, refresh_dispatches) -> None:
+  def __init__(self, hass, name: str, account_id: str, device_id: str, manual_dispatch_refreshes: bool, refresh_dispatches) -> None:
     """Initialize coordinator."""
     self.__refresh_dispatches = refresh_dispatches
     self.__manual_dispatch_refreshes = manual_dispatch_refreshes
     self.__account_id = account_id
+    self.__device_id = device_id
     super().__init__(
         hass,
         _LOGGER,
@@ -56,8 +57,8 @@ class IntelligentDispatchDataUpdateCoordinator(DataUpdateCoordinator):
       return await self.__refresh_dispatches()
     
     return (
-      self.hass.data[DOMAIN][self.__account_id][DATA_INTELLIGENT_DISPATCHES] 
-      if DOMAIN in self.hass.data and self.__account_id in self.hass.data[DOMAIN] and DATA_INTELLIGENT_DISPATCHES in self.hass.data[DOMAIN][self.__account_id]
+      self.hass.data[DOMAIN][self.__account_id][DATA_INTELLIGENT_DISPATCHES][self.__device_id]
+      if DOMAIN in self.hass.data and self.__account_id in self.hass.data[DOMAIN] and DATA_INTELLIGENT_DISPATCHES in self.hass.data[DOMAIN][self.__account_id] and self.__device_id in self.hass.data[DOMAIN][self.__account_id][DATA_INTELLIGENT_DISPATCHES]
       else None
     )
 
@@ -138,7 +139,7 @@ async def async_retrieve_intelligent_dispatches(
   current: datetime,
   client: OctopusEnergyApiClient,
   account_info,
-  intelligent_device: IntelligentDevice,
+  intelligent_device: IntelligentDevice | None,
   existing_intelligent_dispatches_result: IntelligentDispatchesCoordinatorResult,
   is_data_mocked: bool,
   is_manual_refresh: bool,
@@ -197,6 +198,8 @@ async def async_retrieve_intelligent_dispatches(
           
           raised_exception=e
           _LOGGER.debug(f'Failed to retrieve intelligent dispatches for account {account_id}')
+      else:
+        _LOGGER.debug('Skipping due to not on intelligent tariff')
 
       if is_data_mocked:
         dispatches = mock_intelligent_dispatches()
@@ -232,6 +235,8 @@ async def async_retrieve_intelligent_dispatches(
         _LOGGER.warning(f"Failed to retrieve new dispatches. See diagnostics sensor for more information.")
 
       return result
+  else:
+    _LOGGER.debug('Account info is missing')
   
   return existing_intelligent_dispatches_result
 
@@ -239,12 +244,12 @@ async def async_refresh_intelligent_dispatches(
   current: datetime,
   client: OctopusEnergyApiClient,
   account_info,
-  intelligent_device: IntelligentDevice,
+  intelligent_device: IntelligentDevice | None,
   existing_intelligent_dispatches_result: IntelligentDispatchesCoordinatorResult,
   is_data_mocked: bool,
   is_manual_refresh: bool,
   planned_dispatches_supported: bool,
-  async_save_dispatches: Callable[[str, IntelligentDispatches], Awaitable[list]],
+  async_save_dispatches: Callable[[IntelligentDispatches], Awaitable[list]],
 ):
   result = await async_retrieve_intelligent_dispatches(
     current,
@@ -258,8 +263,8 @@ async def async_refresh_intelligent_dispatches(
   )
 
   if result is not None and result.dispatches is not None:
-    if result.last_retrieved < (current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)):
-      _LOGGER.debug('Skipping started dispatches processing as data has not been refreshed recently')
+    if result.last_retrieved < current:
+      _LOGGER.debug(f'Skipping started dispatches processing as data has not been refreshed recently - last_retrieved: {result.last_retrieved}; current: {current}')
       # If we haven't refreshed recently, then we can't accurately process started dispatches
       return result
     
@@ -273,14 +278,11 @@ async def async_refresh_intelligent_dispatches(
     if (existing_intelligent_dispatches_result is None or
         existing_intelligent_dispatches_result.dispatches is None or
         has_dispatches_changed(existing_intelligent_dispatches_result.dispatches, result.dispatches)):
-      await async_save_dispatches(account_info["id"], result.dispatches)
+      await async_save_dispatches(result.dispatches)
 
   return result
 
-async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, mock_intelligent_data: bool, manual_dispatch_refreshes: bool, planned_dispatches_supported: bool):
-  intelligent_result: IntelligentDeviceCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
-  intelligent_device: IntelligentDevice = intelligent_result.device if intelligent_result is not None else None
-  
+async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, device_id: str, mock_intelligent_data: bool, manual_dispatch_refreshes: bool, planned_dispatches_supported: bool):
   async def async_update_intelligent_dispatches_data(is_manual_refresh = False):
     """Fetch data from API endpoint."""
     # Request our account data to be refreshed
@@ -292,29 +294,33 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, 
     if intelligent_device_coordinator is not None:
       await intelligent_device_coordinator.async_request_refresh()
 
+    intelligent_result: IntelligentDeviceCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICES] if DATA_INTELLIGENT_DEVICES in hass.data[DOMAIN][account_id] else None
+    intelligent_device: IntelligentDevice | None = next((device for device in intelligent_result.devices if device.id == device_id), None) if intelligent_result is not None else None
+
     current = utcnow()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
     account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
     account_info = account_result.account if account_result is not None else None
       
-    hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] = await async_refresh_intelligent_dispatches(
+    hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][device_id] = await async_refresh_intelligent_dispatches(
       current,
       client,
       account_info,
       intelligent_device,
-      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] else None,
+      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][device_id] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] and device_id in hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] else None,
       mock_intelligent_data,
       is_manual_refresh,
       planned_dispatches_supported,
-      lambda account_id, dispatches: async_save_cached_intelligent_dispatches(hass, account_id, dispatches)
+      lambda dispatches: async_save_cached_intelligent_dispatches(hass, device_id, dispatches)
     )
     
-    return hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES]
+    return hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][device_id]
 
-  hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR] = IntelligentDispatchDataUpdateCoordinator(
+  hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR.format(device_id)] = IntelligentDispatchDataUpdateCoordinator(
     hass,
-    name=f"intelligent_dispatches-{account_id}",
+    name=f"intelligent_dispatches_{device_id}",
     account_id=account_id,
+    device_id=device_id,
     refresh_dispatches=async_update_intelligent_dispatches_data,
     manual_dispatch_refreshes=manual_dispatch_refreshes
   )

@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import pytest
 import mock
 
-from custom_components.octopus_energy.const import REFRESH_RATE_IN_MINUTES_INTELLIGENT
+from custom_components.octopus_energy.const import INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS, REFRESH_RATE_IN_MINUTES_INTELLIGENT
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
 from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches, SimpleIntelligentDispatchItem
 from custom_components.octopus_energy.api_client.intelligent_device import IntelligentDevice
@@ -17,7 +17,7 @@ tariff_code = "E-1R-INTELLI-VAR-22-10-14-C"
 mpan = "1234567890"
 serial_number = "abcdefgh"
 
-intelligent_device = IntelligentDevice("1", "2", "3", "4", 1, 2, True)
+intelligent_device = IntelligentDevice("1", "2", "3", "4", 1, 2, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS)
 
 def get_account_info(is_active_agreement = True, active_product_code = product_code, active_tariff_code = tariff_code):
   return {
@@ -58,13 +58,11 @@ async def test_when_account_info_is_none_then_existing_dispatches_returned():
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = None
@@ -88,7 +86,6 @@ async def test_when_account_info_is_none_then_existing_dispatches_returned():
     assert mock_api_called == False
 
     assert save_dispatches_called == False
-    assert save_dispatches_account_id == None
     assert save_dispatches_dispatches == None
 
 @pytest.mark.asyncio
@@ -101,13 +98,11 @@ async def test_when_intelligent_device_is_none_then_none_returned():
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info(True, active_product_code="GO-18-06-12")
@@ -132,7 +127,6 @@ async def test_when_intelligent_device_is_none_then_none_returned():
     assert retrieved_dispatches.dispatches is None
 
     assert save_dispatches_called == False
-    assert save_dispatches_account_id == None
     assert save_dispatches_dispatches == None
 
 @pytest.mark.asyncio
@@ -145,13 +139,11 @@ async def test_when_not_on_intelligent_tariff_then_none_returned():
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info(True, active_product_code="GO-18-06-12")
@@ -176,7 +168,6 @@ async def test_when_not_on_intelligent_tariff_then_none_returned():
     assert retrieved_dispatches.dispatches is None
 
     assert save_dispatches_called == False
-    assert save_dispatches_account_id == None
     assert save_dispatches_dispatches == None
 
 @pytest.mark.asyncio
@@ -188,13 +179,11 @@ async def test_when_mock_is_true_then_none_returned():
     return None
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
@@ -236,7 +225,6 @@ async def test_when_mock_is_true_then_none_returned():
       assert retrieved_dispatches.dispatches.planned[index].start == mocked_data.planned[index].start
 
     assert save_dispatches_called == True
-    assert save_dispatches_account_id == account_info["id"]
     assert save_dispatches_dispatches == retrieved_dispatches.dispatches
 
 @pytest.mark.asyncio
@@ -250,13 +238,11 @@ async def test_when_next_refresh_is_in_the_future_then_existing_dispatches_retur
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
@@ -280,11 +266,10 @@ async def test_when_next_refresh_is_in_the_future_then_existing_dispatches_retur
     assert retrieved_dispatches == existing_dispatches
 
     assert save_dispatches_called == False
-    assert save_dispatches_account_id == None
     assert save_dispatches_dispatches == None
 
 @pytest.mark.asyncio
-async def test_when_existing_dispatches_returned_and_planned_dispatch_started_and_refreshed_recently_then_started_dispatches_updated():
+async def test_when_existing_dispatches_returned_and_planned_dispatch_started_and_refreshed_recently_then_started_dispatches_not_updated():
   current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
   expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], [])
   mock_api_called = False
@@ -294,13 +279,11 @@ async def test_when_existing_dispatches_returned_and_planned_dispatch_started_an
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
@@ -333,12 +316,9 @@ async def test_when_existing_dispatches_returned_and_planned_dispatch_started_an
     assert mock_api_called == False
     assert retrieved_dispatches == existing_dispatches
 
-    assert len(retrieved_dispatches.dispatches.started) == 1
-    assert retrieved_dispatches.dispatches.started[0].start == current.replace(second=0, microsecond=0)
-    assert retrieved_dispatches.dispatches.started[0].end == current.replace(second=0, microsecond=0) + timedelta(minutes=30)
+    assert len(retrieved_dispatches.dispatches.started) == 0
 
     assert save_dispatches_called == False
-    assert save_dispatches_account_id == None
     assert save_dispatches_dispatches == None
 
 @pytest.mark.asyncio
@@ -356,13 +336,11 @@ async def test_when_existing_dispatches_is_none_then_dispatches_retrieved(existi
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
@@ -388,7 +366,6 @@ async def test_when_existing_dispatches_is_none_then_dispatches_retrieved(existi
     assert mock_api_called == True
 
     assert save_dispatches_called == True
-    assert save_dispatches_account_id == account_info["id"]
     assert save_dispatches_dispatches == retrieved_dispatches.dispatches
     
 @pytest.mark.asyncio
@@ -401,13 +378,11 @@ async def test_when_existing_dispatches_is_old_then_dispatches_retrieved():
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
@@ -435,7 +410,6 @@ async def test_when_existing_dispatches_is_old_then_dispatches_retrieved():
     assert mock_api_called == True
 
     assert save_dispatches_called == True
-    assert save_dispatches_account_id == account_info["id"]
     assert save_dispatches_dispatches == retrieved_dispatches.dispatches
 
 @pytest.mark.asyncio
@@ -447,13 +421,11 @@ async def test_when_settings_not_retrieved_then_existing_dispatches_returned():
     return None
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
@@ -482,7 +454,6 @@ async def test_when_settings_not_retrieved_then_existing_dispatches_returned():
     assert mock_api_called == True
 
     assert save_dispatches_called == False
-    assert save_dispatches_account_id == None
     assert save_dispatches_dispatches == None
 
 @pytest.mark.asyncio
@@ -495,13 +466,11 @@ async def test_when_exception_raised_then_existing_dispatches_returned_and_excep
     raise raised_exception
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
@@ -531,7 +500,6 @@ async def test_when_exception_raised_then_existing_dispatches_returned_and_excep
     assert mock_api_called == True
 
     assert save_dispatches_called == False
-    assert save_dispatches_account_id == None
     assert save_dispatches_dispatches == None
 
 @pytest.mark.asyncio
@@ -544,13 +512,11 @@ async def test_when_requests_reached_for_hour_and_due_to_be_reset_then_dispatche
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
@@ -578,7 +544,6 @@ async def test_when_requests_reached_for_hour_and_due_to_be_reset_then_dispatche
     assert mock_api_called == True
 
     assert save_dispatches_called == True
-    assert save_dispatches_account_id == account_info["id"]
     assert save_dispatches_dispatches == retrieved_dispatches.dispatches
 
 @pytest.mark.asyncio
@@ -591,13 +556,11 @@ async def test_when_requests_reached_for_hour_and_not_due_to_be_reset_then_exist
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
@@ -628,7 +591,6 @@ async def test_when_requests_reached_for_hour_and_not_due_to_be_reset_then_exist
     assert mock_api_called == False
 
     assert save_dispatches_called == False
-    assert save_dispatches_account_id == None
     assert save_dispatches_dispatches == None
 
 @pytest.mark.asyncio
@@ -641,13 +603,11 @@ async def test_when_manual_refresh_is_called_within_one_minute_then_existing_dis
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
@@ -678,7 +638,6 @@ async def test_when_manual_refresh_is_called_within_one_minute_then_existing_dis
     assert mock_api_called == False
 
     assert save_dispatches_called == False
-    assert save_dispatches_account_id == None
     assert save_dispatches_dispatches == None
 
 @pytest.mark.asyncio
@@ -691,13 +650,11 @@ async def test_when_manual_refresh_is_called_after_one_minute_then_dispatches_re
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
@@ -725,7 +682,6 @@ async def test_when_manual_refresh_is_called_after_one_minute_then_dispatches_re
     assert retrieved_dispatches.dispatches == expected_retrieved_dispatches.dispatches
 
     assert save_dispatches_called == True
-    assert save_dispatches_account_id == account_info["id"]
     assert save_dispatches_dispatches == retrieved_dispatches.dispatches
 
 @pytest.mark.asyncio
@@ -747,13 +703,11 @@ async def test_when_no_dispatches_are_retrieved_and_none_exist_then_dispatches_r
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
@@ -786,7 +740,6 @@ async def test_when_no_dispatches_are_retrieved_and_none_exist_then_dispatches_r
     assert retrieved_dispatches.dispatches == expected_retrieved_dispatches.dispatches
 
     assert save_dispatches_called == False
-    assert save_dispatches_account_id == None
     assert save_dispatches_dispatches == None
 
 @pytest.mark.asyncio
@@ -807,13 +760,11 @@ async def test_when_retrieved_planned_dispatch_started_and_in_boosting_mode_then
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
@@ -861,13 +812,11 @@ async def test_when_retrieved_planned_dispatch_started_and_not_in_boosting_mode_
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
@@ -918,13 +867,11 @@ async def test_when_retrieved_planned_dispatch_started_and_existing_started_disp
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
@@ -983,13 +930,11 @@ async def test_when_retrieved_planned_dispatch_started_and_existing_started_disp
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()
@@ -1049,13 +994,11 @@ async def test_when_existing_started_dispatches_more_than_three_days_old_then_ol
     return expected_dispatches
   
   save_dispatches_called = False
-  save_dispatches_account_id = None
   save_dispatches_dispatches = None
   async def async_save_dispatches(*args, **kwargs):
-    nonlocal save_dispatches_called, save_dispatches_account_id, save_dispatches_dispatches
+    nonlocal save_dispatches_called, save_dispatches_dispatches
     save_dispatches_called = True
-    account_id, dispatches = args
-    save_dispatches_account_id = account_id
+    dispatches, = args
     save_dispatches_dispatches = dispatches
   
   account_info = get_account_info()

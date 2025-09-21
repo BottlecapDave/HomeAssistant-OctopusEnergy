@@ -4,7 +4,7 @@ from homeassistant.util.dt import (as_utc, parse_datetime)
 from custom_components.octopus_energy.intelligent import adjust_intelligent_rates
 from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatchItem, SimpleIntelligentDispatchItem
 from tests.integration import create_rate_data
-from custom_components.octopus_energy.const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+from custom_components.octopus_energy.const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
 
 def create_rates():
   return [
@@ -44,7 +44,7 @@ async def test_when_rates_empty_then_empty_rates_returned():
   rates = []
   planned_dispatches = []
   started_dispatches = []
-  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
 
   # Act
   adjusted_rates = adjust_intelligent_rates(rates, planned_dispatches, started_dispatches, mode)
@@ -58,7 +58,7 @@ async def test_when_no_planned_or_completed_dispatches_then_rates_not_adjusted()
   rates = create_rates()
   planned_dispatches = []
   started_dispatches = []
-  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
 
   # Act
   adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, started_dispatches, mode)
@@ -85,7 +85,7 @@ async def test_when_planned_smart_charge_dispatch_present_in_rate_then_rates_adj
       "home"
   )]
   started_dispatches: list[SimpleIntelligentDispatchItem] = []
-  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
 
   # Act
   adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, started_dispatches, mode)
@@ -117,7 +117,7 @@ async def test_when_planned_smart_charge_dispatch_spans_multiple_rates_then_rate
       "home"
   )]
   started_dispatches: list[SimpleIntelligentDispatchItem] = []
-  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
 
   # Act
   adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, started_dispatches, mode)
@@ -161,7 +161,7 @@ async def test_when_planned_smart_charge_dispatch_spans_two_parts_then_rates_adj
     )
   ]
   started_dispatches: list[SimpleIntelligentDispatchItem] = []
-  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
 
   # Act
   adjusted_rates = adjust_intelligent_rates(rates.copy(), planned_dispatches, started_dispatches, mode)
@@ -228,7 +228,7 @@ async def test_when_planned_non_smart_charge_dispatch_present_in_rate_then_rates
       "home"
   )]
   started_dispatches: list[SimpleIntelligentDispatchItem] = []
-  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
 
   # Act
   adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, started_dispatches, mode)
@@ -252,7 +252,7 @@ async def test_when_complete_smart_charge_dispatch_present_in_rate_then_rates_ad
       intelligent_end
   )]
   planned_dispatches: list[IntelligentDispatchItem] = []
-  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
 
   # Act
   adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, started_dispatches, mode)
@@ -281,7 +281,7 @@ async def test_when_complete_non_smart_charge_dispatch_present_in_rate_then_rate
       as_utc(parse_datetime("2022-10-10T06:00:00Z"))
   )]
   planned_dispatches: list[IntelligentDispatchItem] = []
-  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PENDING_AND_STARTED_DISPATCHES
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
 
   # Act
   adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, started_dispatches, mode)
