@@ -1,3 +1,10 @@
+# [17.0.0-beta.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.0.0-beta.1...v17.0.0-beta.2) (2025-09-21)
+
+
+### Bug Fixes
+
+* Fixed diagnostics and intelligent devices not loading ([86f024b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/86f024bd95db64bb23ab85c983ba830d7dfe89f5))
+
 # [17.0.0-beta.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v16.3.1...v17.0.0-beta.1) (2025-09-21)
 
 
