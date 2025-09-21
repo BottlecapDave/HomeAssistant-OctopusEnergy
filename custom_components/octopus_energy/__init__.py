@@ -518,24 +518,23 @@ def setup(hass, config):
 async def async_register_intelligent_devices(hass, config: dict, now: datetime, account_id: str, should_mock_intelligent_data: bool):
   intelligent_manual_service_enabled = True
   intelligent_devices = []
+  client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
+
   if should_mock_intelligent_data:
-    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
+    # Load from cache to make sure everything works as intended
+    intelligent_devices = await async_load_cached_intelligent_devices(hass, account_id)
+    if intelligent_devices is None or len(intelligent_devices) < 1:
+      intelligent_devices = [mock_intelligent_device()]
+  else:
+    try:
+      intelligent_devices = await client.async_get_intelligent_devices(account_id)
+    except Exception as e:
+      if isinstance(e, ApiException) == False:
+        raise
 
-    if should_mock_intelligent_data:
-      # Load from cache to make sure everything works as intended
       intelligent_devices = await async_load_cached_intelligent_devices(hass, account_id)
-      if intelligent_devices is None or len(intelligent_devices) < 1:
-        intelligent_devices = [mock_intelligent_device()]
-    else:
-      try:
-        intelligent_devices = await client.async_get_intelligent_devices(account_id)
-      except Exception as e:
-        if isinstance(e, ApiException) == False:
-          raise
-
-        intelligent_devices = await async_load_cached_intelligent_devices(hass, account_id)
-        if (intelligent_device is not None):
-          _LOGGER.warning(f"Using cached intelligent device information for {account_id} during startup. This data will be updated automatically when available.")
+      if (intelligent_device is not None):
+        _LOGGER.warning(f"Using cached intelligent device information for {account_id} during startup. This data will be updated automatically when available.")
 
   hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICES] = IntelligentDeviceCoordinatorResult(now, 1, intelligent_devices)
   hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] = dict()

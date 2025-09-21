@@ -148,7 +148,7 @@ async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str,
     "account": account_info,
     "using_cached_account_data": existing_account_info is not None,
     "entities": get_entity_info(redacted_mappings),
-    "intelligent_devices": intelligent_devices,
+    "intelligent_devices": list(map(lambda x: x.to_dict(), intelligent_devices)),
     "heat_pumps": heat_pumps,
   }
 
