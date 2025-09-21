@@ -44,6 +44,7 @@ Depending on your [account configuration](../setup/account.md#intelligent-rates-
 | `current_end` | `datetime` | The date/time when the dispatching or off peak rate ends |
 | `next_start` | `datetime` | The date/time when the next dispatching or off peak rate starts |
 | `next_end` | `datetime` | The date/time when the next dispatching or off peak rate ends |
+| `manually_refresh_dispatches` | `boolean` | Determines if manual dispatching has been enabled in the [integration config](../setup/account.md#manually-refresh-intelligent-dispatches) |
 
 Each item in `planned_dispatch` have the following attributes
 

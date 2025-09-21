@@ -197,13 +197,14 @@ def get_intelligent_entities(hass, account_id: str, config: dict):
   intelligent_rate_mode = (config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_RATE_MODE] 
                            if CONFIG_MAIN_INTELLIGENT_SETTINGS in config and CONFIG_MAIN_INTELLIGENT_RATE_MODE in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] 
                            else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES)
+  manually_refresh_dispatches = (config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == True
+                           if CONFIG_MAIN_INTELLIGENT_SETTINGS in config and CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] 
+                           else False)
 
   for intelligent_device in intelligent_devices:
 
     if intelligent_device.device_type == INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLES or intelligent_device.device_type == INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS:
-      if (CONFIG_MAIN_INTELLIGENT_SETTINGS not in config or
-          CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES not in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] or
-          config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES] == True):
+      if (manually_refresh_dispatches):
         platform = entity_platform.async_get_current_platform()
         platform.async_register_entity_service(
           "refresh_intelligent_dispatches",
@@ -217,7 +218,7 @@ def get_intelligent_entities(hass, account_id: str, config: dict):
         )
 
       coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR.format(intelligent_device.id)]
-      entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, intelligent_device, account_id, intelligent_rate_mode))
+      entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, intelligent_device, account_id, intelligent_rate_mode, manually_refresh_dispatches))
 
   return entities
 

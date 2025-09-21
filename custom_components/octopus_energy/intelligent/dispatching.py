@@ -37,7 +37,8 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
                coordinator: IntelligentDispatchDataUpdateCoordinator,
                device: IntelligentDevice,
                account_id: str,
-               intelligent_rate_mode: str):
+               intelligent_rate_mode: str,
+               manually_refresh_dispatches: bool):
     """Init sensor."""
 
     MultiCoordinatorEntity.__init__(self, coordinator, [])
@@ -46,6 +47,7 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
     self._account_id = account_id
     self._state = None
     self._intelligent_rate_mode = intelligent_rate_mode
+    self._manually_refresh_dispatches = manually_refresh_dispatches
     self.__init_attributes__([], [], [])
 
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
@@ -86,6 +88,7 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
       "current_end": None,
       "next_start": None,
       "next_end": None,
+      "manually_refresh_dispatches": self._manually_refresh_dispatches
     }
   
   @callback
