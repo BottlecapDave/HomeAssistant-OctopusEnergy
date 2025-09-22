@@ -19,7 +19,7 @@ from .coordinators.saving_sessions import async_setup_saving_sessions_coordinato
 from .coordinators.free_electricity_sessions import async_setup_free_electricity_sessions_coordinators
 from .coordinators.greenness_forecast import async_setup_greenness_forecast_coordinator
 from .statistics import get_statistic_ids_to_remove
-from .intelligent import get_intelligent_features, mock_intelligent_device
+from .intelligent import get_intelligent_features, mock_intelligent_devices
 from .config.rolling_target_rates import async_migrate_rolling_target_config
 from .coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult, async_setup_heat_pump_coordinator
 
@@ -524,7 +524,7 @@ async def async_register_intelligent_devices(hass, config: dict, now: datetime, 
     # Load from cache to make sure everything works as intended
     intelligent_devices = await async_load_cached_intelligent_devices(hass, account_id)
     if intelligent_devices is None or len(intelligent_devices) < 1:
-      intelligent_devices = [mock_intelligent_device()]
+      intelligent_devices = mock_intelligent_devices()
   else:
     try:
       intelligent_devices = await client.async_get_intelligent_devices(account_id)

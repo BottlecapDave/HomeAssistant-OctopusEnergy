@@ -25,7 +25,7 @@ from ..const import (
 from ..api_client import ApiException, OctopusEnergyApiClient
 from . import BaseCoordinatorResult
 from ..api_client.intelligent_device import IntelligentDevice
-from ..intelligent import mock_intelligent_device
+from ..intelligent import mock_intelligent_devices
 from ..utils.repairs import safe_repair_key
 
 _LOGGER = logging.getLogger(__name__)
@@ -53,7 +53,7 @@ async def async_refresh_devices(
 
     try:
       if mock_intelligent_data:
-        devices = [mock_intelligent_device()]
+        devices = mock_intelligent_devices()
       else:
         devices = await client.async_get_intelligent_devices(account_id)
 
