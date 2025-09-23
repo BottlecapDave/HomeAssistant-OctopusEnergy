@@ -47,6 +47,11 @@ class OctopusEnergySavingSessionsCalendar(CoordinatorEntity, CalendarEntity, Res
   def name(self):
     """Name of the sensor."""
     return f"Octoplus Saving Sessions ({self._account_id})"
+
+  @property
+  def event(self) -> CalendarEvent | None:
+    """Return the next upcoming event."""
+    return self._event
   
   @callback
   def _handle_coordinator_update(self) -> None:
@@ -61,7 +66,7 @@ class OctopusEnergySavingSessionsCalendar(CoordinatorEntity, CalendarEntity, Res
     current_date = utcnow()
     current_event = current_octoplus_sessions_event(current_date, self._events)
     if (current_event is not None):
-      self._attr_event = CalendarEvent(
+      self._event = CalendarEvent(
         summary="Octopus Energy Saving Session",
         start=current_event.start,
         end=current_event.end,
@@ -69,7 +74,7 @@ class OctopusEnergySavingSessionsCalendar(CoordinatorEntity, CalendarEntity, Res
     else:
       next_event = get_next_octoplus_sessions_event(current_date, self._events)
       if (next_event is not None):
-        self._attr_event = CalendarEvent(
+        self._event = CalendarEvent(
           summary="Octopus Energy Saving Session",
           start=next_event.start,
           end=next_event.end,

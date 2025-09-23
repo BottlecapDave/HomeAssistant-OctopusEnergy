@@ -62,6 +62,11 @@ class OctopusEnergyFreeElectricitySessionsCalendar(CoordinatorEntity, CalendarEn
     """
     return False
   
+  @property
+  def event(self) -> CalendarEvent | None:
+    """Return the next upcoming event."""
+    return self._event
+  
   @callback
   def _handle_coordinator_update(self) -> None:
     """Determine if the user is in a free electricity session."""
@@ -75,7 +80,7 @@ class OctopusEnergyFreeElectricitySessionsCalendar(CoordinatorEntity, CalendarEn
     current_date = utcnow()
     current_event = current_octoplus_sessions_event(current_date, self._events)
     if (current_event is not None):
-      self._attr_event = CalendarEvent(
+      self._event = CalendarEvent(
         summary="Octopus Energy Free Electricity",
         start=current_event.start,
         end=current_event.end,
@@ -83,7 +88,7 @@ class OctopusEnergyFreeElectricitySessionsCalendar(CoordinatorEntity, CalendarEn
     else:
       next_event = get_next_octoplus_sessions_event(current_date, self._events)
       if (next_event is not None):
-        self._attr_event = CalendarEvent(
+        self._event = CalendarEvent(
           summary="Octopus Energy Free Electricity",
           start=next_event.start,
           end=next_event.end,
