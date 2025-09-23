@@ -35,13 +35,12 @@ def mock_intelligent_dispatches(current_state = "SMART_CONTROL_CAPABLE", device_
 
   dispatches = [
     IntelligentDispatchItem(
-      utcnow().replace(hour=19, minute=0, second=0, microsecond=0),
-      utcnow().replace(hour=20, minute=0, second=0, microsecond=0),
-      1,
-      INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS[0],
+      utcnow().replace(hour=7, minute=0, second=0, microsecond=0),
+      utcnow().replace(hour=8, minute=0, second=0, microsecond=0),
+      4.6,
+      None,
       "home"
     ),
-
     IntelligentDispatchItem(
       utcnow().replace(hour=12, minute=0, second=0, microsecond=0),
       utcnow().replace(hour=13, minute=0, second=0, microsecond=0),
@@ -53,10 +52,10 @@ def mock_intelligent_dispatches(current_state = "SMART_CONTROL_CAPABLE", device_
 
   if device_id == mock_intelligent_device_id_one:
     dispatches.append(IntelligentDispatchItem(
-      utcnow().replace(hour=7, minute=0, second=0, microsecond=0),
-      utcnow().replace(hour=8, minute=0, second=0, microsecond=0),
-      4.6,
-      None,
+      utcnow().replace(hour=19, minute=0, second=0, microsecond=0),
+      utcnow().replace(hour=20, minute=0, second=0, microsecond=0),
+      1,
+      INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS[0],
       "home"
     ))
 
