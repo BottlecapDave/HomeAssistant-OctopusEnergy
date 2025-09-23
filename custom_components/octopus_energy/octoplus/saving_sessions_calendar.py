@@ -67,6 +67,7 @@ class OctopusEnergySavingSessionsCalendar(CoordinatorEntity, CalendarEntity, Res
     current_event = current_octoplus_sessions_event(current_date, self._events)
     if (current_event is not None):
       self._event = CalendarEvent(
+        uid=current_event.code,
         summary="Octopus Energy Saving Session",
         start=current_event.start,
         end=current_event.end,
@@ -75,6 +76,7 @@ class OctopusEnergySavingSessionsCalendar(CoordinatorEntity, CalendarEntity, Res
       next_event = get_next_octoplus_sessions_event(current_date, self._events)
       if (next_event is not None):
         self._event = CalendarEvent(
+          uid=next_event.code,
           summary="Octopus Energy Saving Session",
           start=next_event.start,
           end=next_event.end,
@@ -91,6 +93,7 @@ class OctopusEnergySavingSessionsCalendar(CoordinatorEntity, CalendarEntity, Res
       for event in self._events:
         if event.start < end_date and event.end > start_date:
           events.append(CalendarEvent(
+            uid=event.code,
             summary="Octopus Energy Saving Session",
             start=event.start,
             end=event.end,

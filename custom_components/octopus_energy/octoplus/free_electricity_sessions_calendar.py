@@ -81,6 +81,7 @@ class OctopusEnergyFreeElectricitySessionsCalendar(CoordinatorEntity, CalendarEn
     current_event = current_octoplus_sessions_event(current_date, self._events)
     if (current_event is not None):
       self._event = CalendarEvent(
+        uid=current_event.code,
         summary="Octopus Energy Free Electricity",
         start=current_event.start,
         end=current_event.end,
@@ -89,6 +90,7 @@ class OctopusEnergyFreeElectricitySessionsCalendar(CoordinatorEntity, CalendarEn
       next_event = get_next_octoplus_sessions_event(current_date, self._events)
       if (next_event is not None):
         self._event = CalendarEvent(
+          uid=next_event.code,
           summary="Octopus Energy Free Electricity",
           start=next_event.start,
           end=next_event.end,
@@ -105,6 +107,7 @@ class OctopusEnergyFreeElectricitySessionsCalendar(CoordinatorEntity, CalendarEn
       for event in self._events:
         if event.start < end_date and event.end > start_date:
           events.append(CalendarEvent(
+            uid=event.code,
             summary="Octopus Energy Free Electricity",
             start=event.start,
             end=event.end,
