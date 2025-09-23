@@ -363,3 +363,11 @@ def get_intelligent_features(provider: str) -> IntelligentFeatures:
         return IntelligentFeatures(False, True, True, True, True, True, True)
 
   return IntelligentFeatures(True, False, False, False, False, False, False)
+
+def device_type_to_friendly_string(device_type: str) -> str:
+  if device_type == INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS:
+    return "Electric Vehicle Charger"
+  elif device_type == INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLES:
+    return "Electric Vehicle"
+  else:
+    return device_type
