@@ -88,8 +88,8 @@ async def async_refresh_electricity_rates_data(
       if dispatches_results is None:
         missing_dispatches = True
       else:
-        for item in dispatches_results.values():
-          if item is None or item.dispatches is None:
+        for dispatch_result in dispatches_results.values():
+          if dispatch_result is None or dispatch_result.dispatches is None:
             missing_dispatches = True
             break
 
@@ -136,14 +136,14 @@ async def async_refresh_electricity_rates_data(
         original_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold))
         
         if is_export_meter == False and dispatches_results is not None:
-          for key, item in dispatches_results.items():
-            if item is not None and item.dispatches is not None:
+          for key, dispatch_result in dispatches_results.items():
+            if dispatch_result is not None and dispatch_result.dispatches is not None:
               new_rates = adjust_intelligent_rates(new_rates,
-                                                   item.dispatches.planned,
-                                                   item.dispatches.started,
+                                                   dispatch_result.dispatches.planned,
+                                                   dispatch_result.dispatches.started,
                                                    intelligent_rate_mode)
           
-              _LOGGER.debug(f"Rates adjusted: {new_rates}; device id: {key} dispatches: {item.dispatches.to_dict()}")
+              _LOGGER.debug(f"Rates adjusted: {new_rates}; device id: {key} dispatches: {dispatch_result.dispatches.to_dict()}")
 
         # Sort our rates again _just in case_
         new_rates.sort(key=lambda rate: (rate["start"].timestamp(), rate["start"].fold))
@@ -204,14 +204,17 @@ async def async_refresh_electricity_rates_data(
           dispatches_results is not None):
       
       rates_adjusted = False
-      for key, item in dispatches_results.items():
-        if item is not None and item.dispatches is not None and item.last_evaluated > existing_rates_result.rates_last_adjusted:
-          new_rates = adjust_intelligent_rates(existing_rates_result.original_rates,
-                                              item.dispatches.planned,
-                                              item.dispatches.started,
-                                              intelligent_rate_mode)
-          rates_adjusted = True
-          _LOGGER.debug(f"Rates adjusted: {new_rates}; device id: {key} dispatches: {item.dispatches.to_dict()}")
+      dispatch_result_items = dispatches_results.items()
+      rates_adjusted = next((dispatch_result for _, dispatch_result in dispatch_result_items if dispatch_result.last_evaluated > existing_rates_result.rates_last_adjusted), None) is not None
+      if rates_adjusted:
+        new_rates = existing_rates_result.original_rates.copy()
+        for key, dispatch_result in dispatches_results.items():
+          if dispatch_result is not None and dispatch_result.dispatches is not None:
+            new_rates = adjust_intelligent_rates(new_rates,
+                                                dispatch_result.dispatches.planned,
+                                                dispatch_result.dispatches.started,
+                                                intelligent_rate_mode)
+            _LOGGER.debug(f"Rates adjusted: {new_rates}; device id: {key} dispatches: {dispatch_result.dispatches.to_dict()}")
     
       if rates_adjusted:
         # Sort our rates again _just in case_

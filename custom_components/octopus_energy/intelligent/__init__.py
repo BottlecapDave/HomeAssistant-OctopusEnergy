@@ -6,7 +6,7 @@ from homeassistant.util.dt import (utcnow, parse_datetime)
 
 from ..utils import get_active_tariff
 
-from ..const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS, INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS, INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS, REFRESH_RATE_IN_MINUTES_INTELLIGENT
+from ..const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLES, INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS, INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS, REFRESH_RATE_IN_MINUTES_INTELLIGENT
 
 from ..api_client.intelligent_settings import IntelligentSettings
 from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches, SimpleIntelligentDispatchItem
@@ -15,6 +15,9 @@ from ..api_client.intelligent_device import IntelligentDevice
 mock_intelligent_data_key = "MOCK_INTELLIGENT_DATA"
 
 _LOGGER = logging.getLogger(__name__)
+
+mock_intelligent_device_id_one = "1F-2B-3C-4D-5E-6F"
+mock_intelligent_device_id_two = "6F-5B-4C-3D-2E-1F"
 
 # Expected successful dispatches (UTC)
 # 07:00 - 08:00 Smart Charge
@@ -26,18 +29,11 @@ _LOGGER = logging.getLogger(__name__)
 # 11:00 - 11:20 Smart Charge (Removed before dispatch)
 # 12:00 - 13:00 Bump Charge
 
-def mock_intelligent_dispatches(current_state = "SMART_CONTROL_CAPABLE") -> IntelligentDispatches:
+def mock_intelligent_dispatches(current_state = "SMART_CONTROL_CAPABLE", device_id = mock_intelligent_device_id_one) -> IntelligentDispatches:
   planned: list[IntelligentDispatchItem] = []
   completed: list[IntelligentDispatchItem] = []
 
   dispatches = [
-    IntelligentDispatchItem(
-      utcnow().replace(hour=19, minute=0, second=0, microsecond=0),
-      utcnow().replace(hour=20, minute=0, second=0, microsecond=0),
-      1,
-      INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS[0],
-      "home"
-    ),
     IntelligentDispatchItem(
       utcnow().replace(hour=7, minute=0, second=0, microsecond=0),
       utcnow().replace(hour=8, minute=0, second=0, microsecond=0),
@@ -45,7 +41,6 @@ def mock_intelligent_dispatches(current_state = "SMART_CONTROL_CAPABLE") -> Inte
       None,
       "home"
     ),
-
     IntelligentDispatchItem(
       utcnow().replace(hour=12, minute=0, second=0, microsecond=0),
       utcnow().replace(hour=13, minute=0, second=0, microsecond=0),
@@ -54,6 +49,15 @@ def mock_intelligent_dispatches(current_state = "SMART_CONTROL_CAPABLE") -> Inte
       "home"
     )
   ]
+
+  if device_id == mock_intelligent_device_id_one:
+    dispatches.append(IntelligentDispatchItem(
+      utcnow().replace(hour=19, minute=0, second=0, microsecond=0),
+      utcnow().replace(hour=20, minute=0, second=0, microsecond=0),
+      1,
+      INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS[0],
+      "home"
+    ))
 
   # Simulate a pending dispatch being removed just before it begins
   if (utcnow() <= utcnow().replace(hour=11, minute=0, second=0, microsecond=0) - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)):
@@ -119,16 +123,27 @@ def mock_intelligent_settings():
     time(9,10),
   )
 
-def mock_intelligent_device():
-  return IntelligentDevice(
-    "1F-2B-3C-4D-5E-6F",
-    "MYENERGI",
-    "Myenergi",
-    "Zappi smart EV",
-    None,
-    6.5,
-    INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS
-  )
+def mock_intelligent_devices():
+  return [
+    IntelligentDevice(
+      mock_intelligent_device_id_one,
+      "MYENERGI",
+      "Myenergi",
+      "Zappi smart EV",
+      None,
+      6.5,
+      INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS
+    ),
+    IntelligentDevice(
+      mock_intelligent_device_id_two,
+      "TESLA",
+      "TESLA",
+      "Model Y",
+      26.4,
+      None,
+      INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLES
+    )
+  ]
 
 def is_intelligent_product(product_code: str):
   # Need to ignore Octopus Intelligent Go tariffs
@@ -348,3 +363,11 @@ def get_intelligent_features(provider: str) -> IntelligentFeatures:
         return IntelligentFeatures(False, True, True, True, True, True, True)
 
   return IntelligentFeatures(True, False, False, False, False, False, False)
+
+def device_type_to_friendly_string(device_type: str) -> str:
+  if device_type == INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS:
+    return "Electric Vehicle Charger"
+  elif device_type == INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLES:
+    return "Electric Vehicle"
+  else:
+    return device_type

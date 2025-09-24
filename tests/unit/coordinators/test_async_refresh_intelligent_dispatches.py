@@ -6,7 +6,7 @@ from custom_components.octopus_energy.const import INTELLIGENT_DEVICE_KIND_ELECT
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
 from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches, SimpleIntelligentDispatchItem
 from custom_components.octopus_energy.api_client.intelligent_device import IntelligentDevice
-from custom_components.octopus_energy.intelligent import mock_intelligent_dispatches
+from custom_components.octopus_energy.intelligent import mock_intelligent_devices, mock_intelligent_dispatches
 from custom_components.octopus_energy.coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult, async_refresh_intelligent_dispatches
 
 current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
@@ -17,7 +17,7 @@ tariff_code = "E-1R-INTELLI-VAR-22-10-14-C"
 mpan = "1234567890"
 serial_number = "abcdefgh"
 
-intelligent_device = IntelligentDevice("1", "2", "3", "4", 1, 2, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS)
+intelligent_device = mock_intelligent_devices()[0]
 
 def get_account_info(is_active_agreement = True, active_product_code = product_code, active_tariff_code = tariff_code):
   return {

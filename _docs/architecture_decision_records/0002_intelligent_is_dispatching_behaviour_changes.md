@@ -19,6 +19,7 @@ The [Off peak entity](../entities/electricity.md#off-peak) will have its behavio
 
 ### Positive
 - Expected behavior based on entity names, which will be easier for new users to understand
+- Automations built around running off peak will continue to work as expected when moving from/to intelligent tariffs when using the off peak sensor with the new behaviour
 
 ### Negative
 - Downstream integrations that rely on existing behavior will need to change

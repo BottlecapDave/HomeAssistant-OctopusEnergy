@@ -202,7 +202,7 @@ async def async_retrieve_intelligent_dispatches(
         _LOGGER.debug('Skipping due to not on intelligent tariff')
 
       if is_data_mocked:
-        dispatches = mock_intelligent_dispatches()
+        dispatches = mock_intelligent_dispatches(device_id=intelligent_device.id)
         _LOGGER.debug(f'Intelligent dispatches mocked for account {account_id}')
 
       if dispatches is not None:
