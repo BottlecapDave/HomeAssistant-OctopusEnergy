@@ -1,3 +1,12 @@
+# [17.0.0-beta.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.0.0-beta.2...v17.0.0-beta.3) (2025-09-24)
+
+
+### Bug Fixes
+
+* Fixed intelligent device type (5 minutes dev time) ([b06bdc0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b06bdc0fb9ba3add276ce5d76a1ea529e3685d1d))
+* Fixed issue where off peak rates flipped when multiple dispatch sources exist where one source is active and one isn't (1 hour dev time) ([72c2965](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/72c29651bf421a5934f02c988aadc0e865e1f91d))
+* Incorrect number of arguments to async_create_issue ([0ad38cf](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0ad38cfba6a2d89a552085432302136b7689fd6d)), closes [#1479](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1479)
+
 # [17.0.0-beta.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.0.0-beta.1...v17.0.0-beta.2) (2025-09-21)
 
 
