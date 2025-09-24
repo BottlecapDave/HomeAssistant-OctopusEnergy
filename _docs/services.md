@@ -302,7 +302,7 @@ Refreshes intelligent dispatches for a given account.
 
 | Attribute                | Optional | Description                                                                                                           |
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
-| `target.entity_id`       | `no`     | The [dispatching](./entities/intelligent.md#is-dispatching) entity that you want to refresh the content for (e.g. `binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching`). |
+| `target.entity_id`       | `no`     | The [dispatching](./entities/intelligent.md#is-dispatching) entity that you want to refresh the content for (e.g. `binary_sensor.octopus_energy_{{DEVICE_ID}}_intelligent_dispatching`). |
 
 #### Automation Example
 
