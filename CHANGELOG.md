@@ -1,3 +1,15 @@
+# [17.0.0-beta.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.0.0-beta.3...v17.0.0-beta.4) (2025-09-28)
+
+
+### Bug Fixes
+
+* Fixed issue where intelligent maximum hourly calls check was being checked when data wasn't due to be refreshed ([fd74794](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fd74794d508548f071d1ceb1f16065cbdb020103))
+
+
+### Features
+
+* Updated dispatches diagnostics sensor to include maximum_requests_per_hour (15 minutes dev time) ([a48d7ce](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a48d7cea2f64e73ceb737e58515b81f60e82b1d4))
+
 # [17.0.0-beta.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.0.0-beta.2...v17.0.0-beta.3) (2025-09-24)
 
 
