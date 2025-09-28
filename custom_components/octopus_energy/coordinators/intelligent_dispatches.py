@@ -152,36 +152,39 @@ async def async_retrieve_intelligent_dispatches(
     requests_current_hour = 0
     requests_last_reset = current
 
-  if requests_current_hour >= MAXIMUM_RATES_PER_HOUR:
-    _LOGGER.debug('Maximum requests reached for current hour')
-    return IntelligentDispatchesCoordinatorResult(
-      existing_intelligent_dispatches_result.last_evaluated,
-      existing_intelligent_dispatches_result.request_attempts,
-      existing_intelligent_dispatches_result.dispatches,
-      existing_intelligent_dispatches_result.requests_current_hour,
-      existing_intelligent_dispatches_result.requests_current_hour_last_reset,
-      last_error=f"Maximum requests of {MAXIMUM_RATES_PER_HOUR}/hour reached. Will reset after {requests_last_reset + timedelta(hours=1)}"
-    )
-  
-  # We don't want manual refreshing to occur too many times
-  if (is_manual_refresh and
-      existing_intelligent_dispatches_result is not None and
-      (existing_intelligent_dispatches_result.last_retrieved + timedelta(minutes=1)) > current):
-    _LOGGER.debug('Maximum requests reached for current hour')
-    return IntelligentDispatchesCoordinatorResult(
-      existing_intelligent_dispatches_result.last_evaluated,
-      existing_intelligent_dispatches_result.request_attempts,
-      existing_intelligent_dispatches_result.dispatches,
-      existing_intelligent_dispatches_result.requests_current_hour,
-      existing_intelligent_dispatches_result.requests_current_hour_last_reset,
-      last_error=f"Manual refreshing of dispatches cannot be be called again until {existing_intelligent_dispatches_result.last_retrieved + timedelta(minutes=1)}"
-    )
-
   if (account_info is not None):
     account_id = account_info["id"]
     if (existing_intelligent_dispatches_result is None or 
         current >= existing_intelligent_dispatches_result.next_refresh or
         is_manual_refresh):
+      
+      if requests_current_hour >= MAXIMUM_RATES_PER_HOUR:
+        error = f"Maximum requests of {MAXIMUM_RATES_PER_HOUR}/hour reached. Will reset after {requests_last_reset + timedelta(hours=1)}"
+        _LOGGER.debug(error)
+        return IntelligentDispatchesCoordinatorResult(
+          existing_intelligent_dispatches_result.last_evaluated,
+          existing_intelligent_dispatches_result.request_attempts,
+          existing_intelligent_dispatches_result.dispatches,
+          existing_intelligent_dispatches_result.requests_current_hour,
+          existing_intelligent_dispatches_result.requests_current_hour_last_reset,
+          last_error=error
+        )
+      
+      # We don't want manual refreshing to occur too many times
+      if (is_manual_refresh and
+          existing_intelligent_dispatches_result is not None and
+          (existing_intelligent_dispatches_result.last_retrieved + timedelta(minutes=1)) > current):
+        error = f"Manual refreshing of dispatches cannot be be called again until {existing_intelligent_dispatches_result.last_retrieved + timedelta(minutes=1)}"
+        _LOGGER.debug(error)
+        return IntelligentDispatchesCoordinatorResult(
+          existing_intelligent_dispatches_result.last_evaluated,
+          existing_intelligent_dispatches_result.request_attempts,
+          existing_intelligent_dispatches_result.dispatches,
+          existing_intelligent_dispatches_result.requests_current_hour,
+          existing_intelligent_dispatches_result.requests_current_hour_last_reset,
+          last_error=error
+        )
+
       dispatches = None
       raised_exception = None
       if has_intelligent_tariff(current, account_info) and intelligent_device is not None:
