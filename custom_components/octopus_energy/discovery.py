@@ -64,9 +64,9 @@ class DiscoveryManager:
         entities = entity_registry.entities.items()
         config_entries = self._hass.config_entries.async_entries(DOMAIN, include_ignore=False)
         for item in entities:
-            unique_id: str = item[1].unique_id
+            unique_id: str = str(item[1].unique_id)
 
-            if unique_id is not None and "octopus_energy" in str(unique_id):
+            if "octopus_energy" in unique_id:
                 continue
 
             if item[1].disabled_by is not None:
