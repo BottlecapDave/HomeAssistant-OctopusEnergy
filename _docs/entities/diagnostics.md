@@ -76,6 +76,9 @@ This sensor states when intelligent dispatches data was last retrieved.
 | `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
 | `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
 | `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
+| `requests_current_hour` | `integer` | The number of requests that have been made during the current hour. The start of the hour starts when the first request is made. |
+| `maximum_requests_per_hour` | `integer` | The maximum number of requests that can be made during an hour. The start of the hour starts when the first request is made. |
+| `request_limits_last_reset` | `datetime` | The datetime when the request limits were last reset. This will reset when a request is made and is within the designated limits. |
 
 ## Intelligent Settings Data Last Retrieved
 
