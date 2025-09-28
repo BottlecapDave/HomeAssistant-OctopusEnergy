@@ -55,8 +55,7 @@ variables:
   millisecond_jitter: >
     {{ range(1, 1000) | random }}
 
-mode: queued
-max: 4
+mode: single
 triggers:
   - trigger: state
     id: car_plugged_in
@@ -81,6 +80,16 @@ conditions:
 actions:
   # Wait 30 seconds to give OE a chance to update the dispatches
   - delay: 00:00:30
+  # Wait until we are under the request limit
+  - wait_template: >-
+      {% set requests_current_hour = state_attr(intelligent_dispatches_data_last_retrieved_sensor, 'requests_current_hour') %}
+      {% set maximum_requests_per_hour = state_attr(intelligent_dispatches_data_last_retrieved_sensor, 'maximum_requests_per_hour') %}
+      {% set request_limits_last_reset = state_attr(intelligent_dispatches_data_last_retrieved_sensor, 'request_limits_last_reset') %}
+      {{ requests_current_hour == None or
+        (requests_current_hour | int < maximum_requests_per_hour | int) or
+        request_limits_last_reset + timedelta(hours=1) < now()
+      }}
+    continue_on_timeout: true
   # Add a bit of jitter so the API isn't hit at once
   - delay:
       milliseconds: >
