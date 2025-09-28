@@ -5,7 +5,7 @@ from homeassistant.helpers.update_coordinator import (
 )
 
 from ..utils.error import exception_to_string
-from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
+from ..coordinators.intelligent_dispatches import MAXIMUM_DISPATCH_REQUESTS_PER_HOUR, IntelligentDispatchesCoordinatorResult
 from .base import OctopusEnergyBaseDataLastRetrieved
 
 class OctopusEnergyIntelligentDispatchesDataLastRetrieved(OctopusEnergyBaseDataLastRetrieved):
@@ -37,6 +37,7 @@ class OctopusEnergyIntelligentDispatchesDataLastRetrieved(OctopusEnergyBaseDataL
       "next_refresh": result.next_refresh if result is not None else None,
       "last_error": exception_to_string(result.last_error) if result is not None else None,
       "requests_current_hour": result.requests_current_hour if result is not None else None,
+      "maximum_requests_per_hour": MAXIMUM_DISPATCH_REQUESTS_PER_HOUR,
       "request_limits_last_reset": result.requests_current_hour_last_reset if result is not None else None
     }
 

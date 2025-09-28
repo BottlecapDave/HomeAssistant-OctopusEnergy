@@ -33,7 +33,7 @@ from ..coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
-MAXIMUM_RATES_PER_HOUR = 20
+MAXIMUM_DISPATCH_REQUESTS_PER_HOUR = 20
 
 class IntelligentDispatchDataUpdateCoordinator(DataUpdateCoordinator):
   
@@ -145,21 +145,21 @@ async def async_retrieve_intelligent_dispatches(
   is_manual_refresh: bool,
   planned_dispatches_supported: bool,
 ):
-  requests_current_hour = existing_intelligent_dispatches_result.requests_current_hour if existing_intelligent_dispatches_result is not None else 0
-  requests_last_reset = existing_intelligent_dispatches_result.requests_current_hour_last_reset if existing_intelligent_dispatches_result is not None else current
-
-  if current - requests_last_reset >= timedelta(hours=1):
-    requests_current_hour = 0
-    requests_last_reset = current
-
   if (account_info is not None):
     account_id = account_info["id"]
     if (existing_intelligent_dispatches_result is None or 
         current >= existing_intelligent_dispatches_result.next_refresh or
         is_manual_refresh):
+
+      requests_current_hour = existing_intelligent_dispatches_result.requests_current_hour if existing_intelligent_dispatches_result is not None else 0
+      requests_last_reset = existing_intelligent_dispatches_result.requests_current_hour_last_reset if existing_intelligent_dispatches_result is not None else current
+
+      if current - requests_last_reset >= timedelta(hours=1):
+        requests_current_hour = 0
+        requests_last_reset = current
       
-      if requests_current_hour >= MAXIMUM_RATES_PER_HOUR:
-        error = f"Maximum requests of {MAXIMUM_RATES_PER_HOUR}/hour reached. Will reset after {requests_last_reset + timedelta(hours=1)}"
+      if requests_current_hour >= MAXIMUM_DISPATCH_REQUESTS_PER_HOUR:
+        error = f"Maximum requests of {MAXIMUM_DISPATCH_REQUESTS_PER_HOUR}/hour reached. Will reset after {requests_last_reset + timedelta(hours=1)}"
         _LOGGER.debug(error)
         return IntelligentDispatchesCoordinatorResult(
           existing_intelligent_dispatches_result.last_evaluated,
