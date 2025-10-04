@@ -23,10 +23,11 @@ from . import (
 
 from ..utils.attributes import dict_to_typed_dict
 from ..coordinators.free_electricity_sessions import FreeElectricitySessionsCoordinatorResult
+from .base import OctopusEnergyOctoplusSensor
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyFreeElectricitySessions(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
+class OctopusEnergyFreeElectricitySessions(OctopusEnergyOctoplusSensor, CoordinatorEntity, BinarySensorEntity, RestoreEntity):
   """Sensor for determining if a free electricity session is active."""
   
   _unrecorded_attributes = frozenset({"data_last_retrieved"})
@@ -35,6 +36,7 @@ class OctopusEnergyFreeElectricitySessions(CoordinatorEntity, BinarySensorEntity
     """Init sensor."""
 
     CoordinatorEntity.__init__(self, coordinator)
+    OctopusEnergyOctoplusSensor.__init__(self, account_id)
   
     self._account_id = account_id
     self._state = None

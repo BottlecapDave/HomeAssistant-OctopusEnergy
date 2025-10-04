@@ -1,11 +1,13 @@
 from .base import OctopusEnergyBaseDataLastRetrieved
+from ..octoplus.base import OctopusEnergyOctoplusSensor
 
-class OctopusEnergyFreeElectricitySessionsDataLastRetrieved(OctopusEnergyBaseDataLastRetrieved):
+class OctopusEnergyFreeElectricitySessionsDataLastRetrieved(OctopusEnergyOctoplusSensor, OctopusEnergyBaseDataLastRetrieved):
   """Sensor for displaying the last time the free electricity data was last retrieved."""
 
-  def __init__(self, hass, coordinator, account_id):
+  def __init__(self, hass, coordinator, account_id: str):
     """Init sensor."""
     self._account_id = account_id
+    OctopusEnergyOctoplusSensor.__init__(self, account_id)
     OctopusEnergyBaseDataLastRetrieved.__init__(self, hass, coordinator)
 
   @property
