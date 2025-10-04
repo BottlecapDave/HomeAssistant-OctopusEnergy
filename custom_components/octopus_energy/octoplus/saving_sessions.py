@@ -60,7 +60,7 @@ class OctopusEnergySavingSessions(OctopusEnergyOctoplusSensor, CoordinatorEntity
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octoplus Saving Session ({self._account_id})"
+    return f"Octoplus Saving Sessions ({self._account_id})"
 
   @property
   def icon(self):

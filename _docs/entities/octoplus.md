@@ -18,6 +18,10 @@ Determines the current Octoplus points balance. This sensor will only be availab
 
 ## Saving Sessions
 
+!!! warning 
+
+    This sensor has been deprecated in favour of [Saving Session Calendar](#saving-sessions-calendar) and will be removed around **May 2026**
+
 `binary_sensor.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_sessions`
 
 Binary sensor to indicate if a saving session that the account has joined is active.
@@ -34,6 +38,20 @@ Binary sensor to indicate if a saving session that the account has joined is act
 !!! info
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#saving-sessions-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+
+## Saving Sessions Calendar
+
+`calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_sessions`
+
+Calendar sensor to record saving sessions. Will be `on` when a saving session that the account has joined is active. Standard calendar attributes will indicate the current/next saving session.
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#saving-sessions-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+
+!!! note
+
+    The events are supplied by OE API and does not store past events indefinitely. Past events could be removed without notice.
 
 ## Saving Session Events
 
@@ -121,6 +139,10 @@ Each item within `baselines` consists of the following attributes
 
 ## Free Electricity Sessions
 
+!!! warning 
+
+    This sensor has been deprecated in favour of [Free Electricity Sessions Calendar](#free-electricity-sessions-calendar) and will be removed around **May 2026**
+
 `binary_sensor.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session`
 
 Binary sensor to indicate if a free electricity session is active.
@@ -139,6 +161,22 @@ Binary sensor to indicate if a free electricity session is active.
 | `next_event_start` | `datetime` | The datetime the next free electricity session will start |
 | `next_event_end` | `datetime` | The datetime the next free electricity session will end |
 | `next_event_duration_in_minutes` | `float` | The duration in minutes of the next free electricity session |
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#free-electricity-sessions-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+
+## Free Electricity Sessions Calendar
+
+`calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session`
+
+Calendar sensor to record free electricity sessions. Will be `on` when a free electricity session is active. Standard calendar attributes will indicate the current/next saving session.
+
+!!! note
+    This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to [free electricity sessions](https://octopus.energy/free-electricity/). This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
 
 !!! info
 

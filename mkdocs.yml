@@ -37,6 +37,8 @@ nav:
     - ./repairs/tariff_rates_empty.md
   - Community: community.md
   - blueprints.md
+  - Architecture Decision Records:
+    - ./architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events.md
   - faq.md
   - sponsorship.md
 
