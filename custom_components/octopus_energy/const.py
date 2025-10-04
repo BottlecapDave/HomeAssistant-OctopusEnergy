@@ -214,6 +214,8 @@ REPAIR_TARGET_RATE_REMOVAL_PROPOSAL = "target_rate_removal_proposal"
 REPAIR_INTELLIGENT_DEVICE_NOT_FOUND = "intelligent_device_not_found_{}"
 REPAIR_INTELLIGENT_DEVICE_CHANGED = "intelligent_device_changed_{}"
 REPAIR_TARIFF_RATES_EMPTY = "tariff_rates_empty_{}_{}"
+REPAIR_SAVING_SESSION_BINARY_SENSOR_DEPRECATED = "saving_session_binary_sensor_deprecated"
+REPAIR_FREE_ELECTRICITY_SESSION_BINARY_SENSOR_DEPRECATED = "saving_session_binary_sensor_deprecated"
 
 # During BST, two records are returned before the rest of the data is available
 MINIMUM_CONSUMPTION_DATA_LENGTH = 3
