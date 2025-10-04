@@ -64,7 +64,7 @@ class DiscoveryManager:
         entities = entity_registry.entities.items()
         config_entries = self._hass.config_entries.async_entries(DOMAIN, include_ignore=False)
         for item in entities:
-            unique_id: str = item[1].unique_id
+            unique_id: str = str(item[1].unique_id)
 
             if "octopus_energy" in unique_id:
                 continue
