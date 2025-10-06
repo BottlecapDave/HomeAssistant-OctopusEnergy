@@ -61,6 +61,8 @@ from .diagnostics_entities.free_electricity_sessions_data_last_retrieved import 
 from .diagnostics_entities.electricity_current_consumption_data_last_retrieved import OctopusEnergyElectricityCurrentConsumptionDataLastRetrieved
 from .diagnostics_entities.gas_current_consumption_home_pro_data_last_retrieved import OctopusEnergyGasCurrentConsumptionHomeProDataLastRetrieved
 from .diagnostics_entities.gas_previous_consumption_and_rates_data_last_retrieved import OctopusEnergyGasPreviousConsumptionAndRatesDataLastRetrieved
+from .diagnostics_entities.gas_rates_data_last_retrieved import OctopusEnergyGasCurrentRatesDataLastRetrieved
+from .diagnostics_entities.gas_standing_charge_data_last_retrieved import OctopusEnergyGasCurrentStandingChargeDataLastRetrieved
 from .heat_pump import get_mock_heat_pump_id
 from .heat_pump.sensor_temperature import OctopusEnergyHeatPumpSensorTemperature
 from .heat_pump.sensor_humidity import OctopusEnergyHeatPumpSensorHumidity
@@ -499,8 +501,8 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
           entities.append(OctopusEnergyGasPreviousRate(hass, gas_rate_coordinator, meter, point))
           entities.append(OctopusEnergyGasNextRate(hass, gas_rate_coordinator, meter, point))
           entities.append(OctopusEnergyGasCurrentStandingCharge(hass, gas_standing_charges_coordinator, meter, point))
-          entities.append(OctopusEnergyElectricityCurrentRatesDataLastRetrieved(hass, gas_rate_coordinator, meter, point))
-          entities.append(OctopusEnergyElectricityCurrentStandingChargeDataLastRetrieved(hass, gas_standing_charges_coordinator, False, meter, point))
+          entities.append(OctopusEnergyGasCurrentRatesDataLastRetrieved(hass, gas_rate_coordinator, meter, point))
+          entities.append(OctopusEnergyGasCurrentStandingChargeDataLastRetrieved(hass, gas_standing_charges_coordinator, meter, point))
 
           debug_override = await async_get_meter_debug_override(hass, mprn, serial_number)
           intelligent_rate_mode = (config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_RATE_MODE] 
