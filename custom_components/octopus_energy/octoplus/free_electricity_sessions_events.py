@@ -19,6 +19,8 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyOctoplusFreeElectricitySessionEvents(OctopusEnergyOctoplusSensor, EventEntity, RestoreEntity):
   """Sensor for displaying the upcoming free electricity sessions."""
 
+  _attr_translation_key = "free_electricity_sessions"
+
   def __init__(self, hass: HomeAssistant, account_id: str):
     """Init sensor."""
 

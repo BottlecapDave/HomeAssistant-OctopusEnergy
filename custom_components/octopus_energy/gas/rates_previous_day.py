@@ -17,6 +17,8 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyGasPreviousDayRates(OctopusEnergyGasSensor, EventEntity, RestoreEntity):
   """Sensor for displaying the previous day's rates."""
 
+  _attr_translation_key = "gas_previous_day_rates"
+
   def __init__(self, hass: HomeAssistant, meter, point):
     """Init sensor."""
     # Pass coordinator to base class

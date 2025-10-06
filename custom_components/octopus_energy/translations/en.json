@@ -424,5 +424,117 @@
       "title": "Free electricity session binary sensor deprecated",
       "description": "The free electricity session binary sensor has been deprecated in favour of using calendar entities. This will allow for better integration with automations and the calendar view. Please click \"Learn More\" for more information on this change."
     }
+  },
+  "entity": {
+    "event": {
+      "electricity_current_day_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_electricity_current_day_rates": "Electricity current day rates"
+            }
+          }
+        }
+      },
+      "electricity_next_day_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_electricity_next_day_rates": "Electricity next day rates"
+            }
+          }
+        }
+      },
+      "electricity_previous_consumption_override_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_elec_previous_consumption_tariff_comparison_rates": "Electricity previous consumption tariff comparison rates"
+            }
+          }
+        }
+      },
+      "electricity_previous_consumption_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_electricity_previous_consumption_rates": "Electricity previous consumption rates"
+            }
+          }
+        }
+      },
+      "electricity_previous_day_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_electricity_previous_day_rates": "Electricity previous day rates"
+            }
+          }
+        }
+      },
+      "gas_current_day_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_gas_current_day_rates": "Gas current day rates"
+            }
+          }
+        }
+      },
+      "gas_next_day_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_gas_next_day_rates": "Gas next day rates"
+            }
+          }
+        }
+      },
+      "gas_previous_consumption_override_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_gas_previous_consumption_tariff_comparison_rates": "Gas previous consumption tariff comparison rates"
+            }
+          }
+        }
+      },
+      "gas_previous_consumption_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_gas_previous_consumption_rates": "Gas previous consumption rates"
+            }
+          }
+        }
+      },
+      "gas_previous_day_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_gas_previous_day_rates": "Gas previous day rates"
+            }
+          }
+        }
+      },
+      "free_electricity_sessions": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_all_octoplus_free_electricity_sessions": "All Free electricity sessions"
+            }
+          }
+        }
+      },
+      "saving_sessions": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_all_octoplus_saving_sessions": "All Saving sessions"
+            }
+          }
+        }
+      }
+    }
   }
 }

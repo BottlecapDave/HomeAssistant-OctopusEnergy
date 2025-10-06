@@ -20,6 +20,8 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyOctoplusSavingSessionEvents(OctopusEnergyOctoplusSensor, EventEntity, RestoreEntity):
   """Sensor for displaying the upcoming saving sessions."""
 
+  _attr_translation_key = "saving_sessions"
+
   def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, account_id: str):
     """Init sensor."""
     OctopusEnergyOctoplusSensor.__init__(self, account_id)

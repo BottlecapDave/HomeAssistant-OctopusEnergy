@@ -17,6 +17,8 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyGasPreviousConsumptionOverrideRates(OctopusEnergyGasSensor, EventEntity, RestoreEntity):
   """Sensor for displaying the previous consumption override's rates."""
 
+  _attr_translation_key = "gas_previous_consumption_override_rates"
+
   def __init__(self, hass: HomeAssistant, meter, point, config):
     """Init sensor."""
 
