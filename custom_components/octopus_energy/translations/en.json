@@ -396,9 +396,13 @@
       "title": "Intelligent device not found for {account_id}",
       "description": "Your intelligent device cannot be found for your account. Please check your intelligent device is setup in your account via the Octopus Energy app."
     },
-    "intelligent_device_changed": {
-      "title": "Intelligent device changed for {account_id}",
-      "description": "Your intelligent device has changed. You will need to reload the integration in order to continue updating settings and retrieving planned or completed dispatch information without issue. Once reloaded, you can delete your old intelligent device within Home Assistant. This cannot be done automatically because the internal ids have changed."
+    "intelligent_device_added": {
+      "title": "Intelligent device discovered for {account_id}",
+      "description": "Your intelligent device has been discovered. You will need to reload the integration in order to see the new device. This cannot be done automatically."
+    },
+    "intelligent_device_removed": {
+      "title": "Intelligent device removed for {account_id}",
+      "description": "An intelligent device has been removed from your account. All sensors associated with the device will stop working. Once reloaded, you can delete your old intelligent device within Home Assistant. This cannot be done automatically."
     },
     "meter_removed": {
       "title": "{meter_type} meter removed for {account_id} ({mprn_mpan}/{serial_number})",

@@ -7,7 +7,7 @@ class IntelligentDevice:
     model: str,
     vehicleBatterySizeInKwh: float | None,
     chargePointPowerInKw: float | None,
-    is_charger: bool
+    device_type: str
   ):
     self.id = id
     self.provider = provider
@@ -15,15 +15,15 @@ class IntelligentDevice:
     self.model = model
     self.vehicleBatterySizeInKwh = vehicleBatterySizeInKwh
     self.chargePointPowerInKw = chargePointPowerInKw
-    self.is_charger = is_charger
+    self.device_type = device_type
 
-  def to_dict(self, omit_id = True):
+  def to_dict(self):
     return {
-      "id": self.id if omit_id == False else "**Redacted**",
+      "id": self.id,
       "provider": self.provider,
       "make": self.make,
       "model": self.model,
       "vehicleBatterySizeInKwh": self.vehicleBatterySizeInKwh,
       "chargePointPowerInKw": self.chargePointPowerInKw,
-      "is_charger": self.is_charger,
+      "device_type": self.device_type
     }

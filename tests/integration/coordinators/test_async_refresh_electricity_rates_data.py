@@ -28,7 +28,6 @@ async def test_when_next_refresh_is_in_the_past_and_then_requested_data_returned
   target_serial_number = context.electricity_serial_number
   is_smart_meter = True
   is_export_meter = False
-  intelligent_device = None
   dispatches_result = None
   tariff_override = None
   
@@ -75,7 +74,6 @@ async def test_when_next_refresh_is_in_the_past_and_then_requested_data_returned
     is_smart_meter,
     is_export_meter,
     existing_rates_result,
-    intelligent_device,
     dispatches_result,
     fire_event,
     tariff_override,

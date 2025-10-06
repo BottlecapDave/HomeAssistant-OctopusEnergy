@@ -96,8 +96,7 @@ async def test_when_async_get_diagnostics_called_then_account_info_is_returned()
     assert data["entities"]["foo"]["last_updated"] == now
     assert data["entities"]["foo"]["last_changed"] == now
 
-    assert "intelligent_device" in data
-    assert "intelligent_settings" in data
+    assert "intelligent_devices" in data
 
     assert "heat_pumps" in data
 
@@ -172,7 +171,6 @@ async def test_when_async_get_diagnostics_called_and_account_exists_then_account
     assert data["entities"]["foo"]["last_updated"] == now
     assert data["entities"]["foo"]["last_changed"] == now
 
-    assert "intelligent_device" in data
-    assert "intelligent_settings" in data
+    assert "intelligent_devices" in data
 
     assert "heat_pumps" in data

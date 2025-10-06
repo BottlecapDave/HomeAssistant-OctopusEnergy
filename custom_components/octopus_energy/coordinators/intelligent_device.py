@@ -10,79 +10,98 @@ from homeassistant.helpers import issue_registry as ir
 
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
-  DATA_INTELLIGENT_DEVICE,
+  DATA_INTELLIGENT_DEVICES,
   DOMAIN,
 
   DATA_CLIENT,
   DATA_INTELLIGENT_DEVICE_COORDINATOR,
   REFRESH_RATE_IN_MINUTES_INTELLIGENT_DEVICE,
+  REPAIR_INTELLIGENT_DEVICE_ADDED,
   REPAIR_INTELLIGENT_DEVICE_CHANGED,
   REPAIR_INTELLIGENT_DEVICE_NOT_FOUND,
+  REPAIR_INTELLIGENT_DEVICE_REMOVED,
 )
 
 from ..api_client import ApiException, OctopusEnergyApiClient
 from . import BaseCoordinatorResult
 from ..api_client.intelligent_device import IntelligentDevice
-from ..intelligent import mock_intelligent_device
+from ..intelligent import mock_intelligent_devices
 from ..utils.repairs import safe_repair_key
 
 _LOGGER = logging.getLogger(__name__)
 
 class IntelligentDeviceCoordinatorResult(BaseCoordinatorResult):
-  device: IntelligentDevice
+  devices: list[IntelligentDevice]
 
-  def __init__(self, last_evaluated: datetime, request_attempts: int, device: IntelligentDevice, last_error: Exception | None = None):
+  def __init__(self, last_evaluated: datetime, request_attempts: int, devices: list[IntelligentDevice], last_error: Exception | None = None):
     super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_INTELLIGENT_DEVICE, None, last_error)
-    self.device = device
+    self.devices = devices
 
-async def async_refresh_device(
+async def async_refresh_devices(
   hass,
   current: datetime,
   client: OctopusEnergyApiClient,
   account_id: str,
-  current_intelligent_device: IntelligentDevice,
+  current_intelligent_devices: list[IntelligentDevice],
   mock_intelligent_data: bool,
   previous_request: IntelligentDeviceCoordinatorResult
 ):
   if (current >= previous_request.next_refresh):
-    device = None
+
+    # Delete legacy issues
+    ir.async_delete_issue(hass, DOMAIN, REPAIR_INTELLIGENT_DEVICE_NOT_FOUND.format(account_id))
+
     try:
       if mock_intelligent_data:
-        device = mock_intelligent_device()
+        devices = mock_intelligent_devices()
       else:
-        device = await client.async_get_intelligent_device(account_id)
+        devices = await client.async_get_intelligent_devices(account_id)
 
-      if device is None:
-        ir.async_create_issue(
-          hass,
-          DOMAIN,
-          safe_repair_key(REPAIR_INTELLIGENT_DEVICE_NOT_FOUND, account_id),
-          is_fixable=False,
-          severity=ir.IssueSeverity.ERROR,
-          translation_key="intelligent_device_not_found",
-          translation_placeholders={ "account_id": account_id },
-        )
-      else:
-        _LOGGER.debug('IntelligentDevice information retrieved')
+      # Check if new devices have been added
+      for device in devices:
+        device_present = False
+        for current_device in current_intelligent_devices:
+          if device.id == current_device.id:
+            device_present = True
+            break
 
-        ir.async_delete_issue(hass, DOMAIN, safe_repair_key(REPAIR_INTELLIGENT_DEVICE_NOT_FOUND, account_id))
-        ir.async_delete_issue(hass, DOMAIN, REPAIR_INTELLIGENT_DEVICE_NOT_FOUND.format(account_id))
-
-        if device.id != current_intelligent_device.id:
+        if device_present == False:
           ir.async_create_issue(
             hass,
             DOMAIN,
-            safe_repair_key(REPAIR_INTELLIGENT_DEVICE_CHANGED, current_intelligent_device.id),
+            safe_repair_key(REPAIR_INTELLIGENT_DEVICE_ADDED, device.id),
             is_fixable=False,
             severity=ir.IssueSeverity.WARNING,
-            translation_key="intelligent_device_changed",
+            translation_key="intelligent_device_added",
             translation_placeholders={ "account_id": account_id },
           )
         else:
-          ir.async_delete_issue(hass, DOMAIN, safe_repair_key(REPAIR_INTELLIGENT_DEVICE_CHANGED, current_intelligent_device.id))
-          ir.async_delete_issue(hass, DOMAIN, REPAIR_INTELLIGENT_DEVICE_CHANGED.format(current_intelligent_device.id))
+          ir.async_delete_issue(hass, DOMAIN, safe_repair_key(REPAIR_INTELLIGENT_DEVICE_ADDED, device.id))
 
-        return IntelligentDeviceCoordinatorResult(current, 1, device)
+      # Check if devices have been removed
+      for current_device in current_intelligent_devices:
+        # Delete legacy issues
+        ir.async_delete_issue(hass, DOMAIN, REPAIR_INTELLIGENT_DEVICE_CHANGED.format(device.id))
+        device_present = False
+        for device in devices:
+          if device.id == current_device.id:
+            device_present = True
+            break
+
+        if device_present == False:
+          ir.async_create_issue(
+            hass,
+            DOMAIN,
+            safe_repair_key(REPAIR_INTELLIGENT_DEVICE_REMOVED, device.id),
+            is_fixable=False,
+            severity=ir.IssueSeverity.WARNING,
+            translation_key="intelligent_device_removed",
+            translation_placeholders={ "account_id": account_id },
+          )
+        else:
+          ir.async_delete_issue(hass, DOMAIN, safe_repair_key(REPAIR_INTELLIGENT_DEVICE_REMOVED, device.id))
+
+      return IntelligentDeviceCoordinatorResult(current, 1, devices)
     except Exception as e:
       if isinstance(e, ApiException) == False:
         raise
@@ -90,7 +109,7 @@ async def async_refresh_device(
       result = IntelligentDeviceCoordinatorResult(
         previous_request.last_evaluated,
         previous_request.request_attempts + 1,
-        previous_request.device,
+        previous_request.devices,
         last_error=e
       )
       
@@ -101,30 +120,30 @@ async def async_refresh_device(
 
   return previous_request
 
-async def async_setup_intelligent_device_coordinator(hass, account_id: str, intelligent_device: IntelligentDevice, mock_intelligent_data: bool):
-  async def async_update_intelligent_device_data():
+async def async_setup_intelligent_devices_coordinator(hass, account_id: str, intelligent_devices: list[IntelligentDevice], mock_intelligent_data: bool):
+  async def async_update_intelligent_devices_data():
     """Fetch data from API endpoint."""
     # Only get data every half hour or if we don't have any data
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
-    hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] = await async_refresh_device(
+    hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICES] = await async_refresh_devices(
       hass,
       current,
       client,
       account_id,
-      intelligent_device,
+      intelligent_devices,
       mock_intelligent_data,
-      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE]
+      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICES]
     )
     
-    return hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE]
+    return hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICES]
 
   hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE_COORDINATOR] = DataUpdateCoordinator(
     hass,
     _LOGGER,
-    name=f"update_account-{account_id}",
-    update_method=async_update_intelligent_device_data,
+    name=f"update_intelligent_devices_{account_id}",
+    update_method=async_update_intelligent_devices_data,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes
     update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),

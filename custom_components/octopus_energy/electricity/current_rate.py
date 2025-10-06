@@ -1,6 +1,5 @@
 import logging
 
-from custom_components.octopus_energy.storage.rate_weightings import async_save_cached_rate_weightings
 from homeassistant.exceptions import ServiceValidationError
 
 from homeassistant.const import (
@@ -24,6 +23,7 @@ from ..utils.attributes import dict_to_typed_dict
 from ..coordinators.electricity_rates import ElectricityRatesCoordinatorResult
 from ..utils.weightings import merge_weightings, validate_rate_weightings
 from ..const import DATA_CUSTOM_RATE_WEIGHTINGS_KEY, DOMAIN
+from ..storage.rate_weightings import async_save_cached_rate_weightings
 
 from ..utils.rate_information import (get_current_rate_information)
 

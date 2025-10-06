@@ -73,7 +73,7 @@ class OctopusEnergyElectricityOffPeak(CoordinatorEntity, OctopusEnergyElectricit
     """Determine if current rate is off peak."""
     current = now()
     rates = self.coordinator.data.rates if self.coordinator is not None and self.coordinator.data is not None else None
-    if (rates is not None and (self._last_updated is None or self._last_updated < (current - timedelta(minutes=30)) or (current.minute % 30) == 0)):
+    if (rates is not None):
       _LOGGER.debug(f"Updating OctopusEnergyElectricityOffPeak for '{self._mpan}/{self._serial_number}'")
 
       self._state = False
@@ -84,7 +84,7 @@ class OctopusEnergyElectricityOffPeak(CoordinatorEntity, OctopusEnergyElectricit
         "next_end": None,
       }
       
-      times = get_off_peak_times(current, rates)
+      times = get_off_peak_times(current, rates, True)
       if times is not None and len(times) > 0:
         time = times.pop(0)
         if time.start <= current:

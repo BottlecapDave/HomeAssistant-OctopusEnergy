@@ -8,7 +8,7 @@ from threading import RLock
 
 from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime, parse_date)
 
-from ..const import INTEGRATION_VERSION
+from ..const import INTEGRATION_VERSION, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS
 
 from ..utils import (
   is_day_night_tariff,
@@ -1761,7 +1761,7 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
   
-  async def async_get_intelligent_device(self, account_id: str) -> IntelligentDevice:
+  async def async_get_intelligent_devices(self, account_id: str) -> list[IntelligentDevice]:
     """Get the user's intelligent device"""
     await self.async_refresh_token()
 
@@ -1783,14 +1783,14 @@ class OctopusEnergyApiClient:
             if (device["deviceType"] != "ELECTRIC_VEHICLES" or device["status"]["current"] != "LIVE"):
               continue
 
-            is_charger = device["__typename"] == "SmartFlexChargePoint"
-
             make = device["make"]
             model = device["model"]
             vehicleBatterySizeInKwh = None
             chargePointPowerInKw = None
+            device_type = device["__typename"]
+            is_charger = device["__typename"] == "SmartFlexChargePoint"
 
-            if is_charger:
+            if device_type == "SmartFlexChargePoint":
               if "chargePointVariants" in response_body["data"] and response_body["data"]["chargePointVariants"] is not None:
                 for charger in response_body["data"]["chargePointVariants"]:
                   if charger["make"] == make:
@@ -1801,7 +1801,7 @@ class OctopusEnergyApiClient:
                           break
 
                     break
-            else:
+            elif device_type == "SmartFlexVehicle":
               if "electricVehicles" in response_body["data"] and response_body["data"]["electricVehicles"] is not None:
                 for charger in response_body["data"]["electricVehicles"]:
                   if charger["make"] == make:
@@ -1812,6 +1812,8 @@ class OctopusEnergyApiClient:
                           break
 
                     break
+            else:
+              continue
 
             result.append(IntelligentDevice(
               device["id"],
@@ -1820,17 +1822,14 @@ class OctopusEnergyApiClient:
               model,
               vehicleBatterySizeInKwh,
               chargePointPowerInKw,
-              is_charger
+              INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS if is_charger else device["deviceType"]
             ))
 
-          if len(result) > 1:
-            _LOGGER.warning("Multiple intelligent devices discovered. Picking first one")
-
-          return result[0] if len(result) > 0 else None
+          return result
         else:
           _LOGGER.error("Failed to retrieve intelligent device")
       
-      return None
+      return []
 
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
