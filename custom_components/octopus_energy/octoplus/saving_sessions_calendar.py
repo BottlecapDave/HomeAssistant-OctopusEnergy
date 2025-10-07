@@ -19,10 +19,11 @@ from . import (
   get_next_octoplus_sessions_event
 )
 from ..coordinators.saving_sessions import SavingSessionsCoordinatorResult
+from ..octoplus.base import OctopusEnergyOctoplusSensor
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergySavingSessionsCalendar(CoordinatorEntity, CalendarEntity, RestoreEntity):
+class OctopusEnergySavingSessionsCalendar(OctopusEnergyOctoplusSensor, CoordinatorEntity, CalendarEntity, RestoreEntity):
   """Sensor for determining if a saving session is active."""
   
   _unrecorded_attributes = frozenset({"data_last_retrieved"})
@@ -31,6 +32,7 @@ class OctopusEnergySavingSessionsCalendar(CoordinatorEntity, CalendarEntity, Res
     """Init sensor."""
 
     CoordinatorEntity.__init__(self, coordinator)
+    OctopusEnergyOctoplusSensor.__init__(self, account_id)
   
     self._account_id = account_id
     self._event = None

@@ -1,10 +1,6 @@
 from datetime import datetime
 import logging
 
-from homeassistant.const import (
-    STATE_UNAVAILABLE,
-    STATE_UNKNOWN,
-)
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.util.dt import (utcnow)
@@ -23,12 +19,12 @@ from . import (
   get_next_octoplus_sessions_event
 )
 
-from ..utils.attributes import dict_to_typed_dict
 from ..coordinators.free_electricity_sessions import FreeElectricitySessionsCoordinatorResult
+from ..octoplus.base import OctopusEnergyOctoplusSensor
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyFreeElectricitySessionsCalendar(CoordinatorEntity, CalendarEntity, RestoreEntity):
+class OctopusEnergyFreeElectricitySessionsCalendar(OctopusEnergyOctoplusSensor, CoordinatorEntity, CalendarEntity, RestoreEntity):
   """Sensor for determining if a free electricity session is active."""
   
   _unrecorded_attributes = frozenset({"data_last_retrieved"})
@@ -37,6 +33,7 @@ class OctopusEnergyFreeElectricitySessionsCalendar(CoordinatorEntity, CalendarEn
     """Init sensor."""
 
     CoordinatorEntity.__init__(self, coordinator)
+    OctopusEnergyOctoplusSensor.__init__(self, account_id)
   
     self._account_id = account_id
     self._event = None
