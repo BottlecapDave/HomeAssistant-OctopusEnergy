@@ -1,3 +1,21 @@
+# [17.0.0-beta.5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.0.0-beta.4...v17.0.0-beta.5) (2025-10-07)
+
+
+### Bug Fixes
+
+* Added missing translations for event entities (30 minutes dev time) ([7af2561](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7af25619e57c8e81316168c381c4ad03e65a4410))
+* Updated cost trackers to handle entities with non-string unique_ids (Thanks [@dpwood](https://github.com/dpwood)) ([5c32d16](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5c32d16ca0084dc76da363bba7d8e16340454787))
+
+
+### Features
+
+* Added calendars for representing free electricity and saving sessions. Existing binary sensors have been deprecated. See repair notice for more information (2 hours 15 mins dev time) ([5a1441a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5a1441a24c88b1d07bbf80c3ac00cb6d23f9b8d2))
+* Added free electricity and saving session sensors to octoplus service device for easier discovery (30 minutes dev time) ([ef0f3c1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ef0f3c14fc9f562e352a1c5fc5e8a38cc60328a9))
+* Attached intelligent diagnostic sensors to intelligent device (15 minutes dev time) ([b0ca7d1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b0ca7d11c6f76a69921fb5f6b0ad542d6ccf634e))
+* Updated electricity and gas rate sensors to be measurements classes to match rate sensors in other native integrations and provide min/max/average stats (30 minutes dev time) ([4a7305e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4a7305e7924ba483357d95ba6e75d3cd053ee7f9))
+* Updated electricity/gas/heat pump/octoplus diagnostic entities so they're attached to the correct devices (1 hour dev time) ([af0c285](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/af0c285675aebd10085f3d65b4f6c4897d9b4f34))
+* Updated electricity/gas/heat pump/octoplus diagnostic entities so they're attached to the correct devices (1 hour dev time) ([#1497](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1497)) ([2ce05ed](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2ce05ed738c0ad3c6c71776fd7c1b73058e7de29))
+
 # [17.0.0-beta.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.0.0-beta.3...v17.0.0-beta.4) (2025-09-28)
 
 
