@@ -418,11 +418,11 @@
     },
     "saving_session_binary_sensor_deprecated": {
       "title": "Saving session binary sensor deprecated",
-      "description": "The saving session binary sensor has been deprecated in favour of using calendar entities. This will allow for better integration with automations and the calendar view. Please click \"Learn More\" for more information on this change."
+      "description": "The saving session binary sensor (`binary_sensor.octopus_energy_ACCOUNT_ID_octoplus_saving_sessions`) has been deprecated in favour of using calendar entities. This will allow for better integration with automations and the calendar view. The deprecated sensor will be removed in May 2026. Please click \"Learn More\" for more information on this change."
     },
     "free_electricity_session_binary_sensor_deprecated": {
       "title": "Free electricity session binary sensor deprecated",
-      "description": "The free electricity session binary sensor has been deprecated in favour of using calendar entities. This will allow for better integration with automations and the calendar view. Please click \"Learn More\" for more information on this change."
+      "description": "The free electricity session binary sensor (`binary_sensor.octopus_energy_ACCOUNT_ID_octoplus_free_electricity_session`) has been deprecated in favour of using calendar entities. This will allow for better integration with automations and the calendar view. The deprecated sensor will be removed in May 2026. Please click \"Learn More\" for more information on this change."
     }
   },
   "entity": {

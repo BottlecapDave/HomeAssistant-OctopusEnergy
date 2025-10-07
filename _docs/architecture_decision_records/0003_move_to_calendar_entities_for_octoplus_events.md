@@ -16,9 +16,9 @@ This request has been made on a few occasions, below are some samples
 
 ## Decision
 
-With more people coming on board to Home Assistant who don't necessarily come from a technological background, the automation UI becoming the preferred way of creating automations and the calendar entity getting more love, it has been decided to convert the saving session and free electricity sessions into calendar entities.
+With more people coming on board to Home Assistant who don't necessarily come from a technological background, the automation UI becoming the preferred way of creating automations and the calendar entity getting more attention, it has been decided to convert the saving session and free electricity sessions into calendar entities.
 
-The old sensors will continue to be available until **May 2026** when they will be removed, to ease with the transition.
+The old sensors, `binary_sensor.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_sessions` and `binary_sensor.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session`, will continue to be available until **May 2026** when they will be removed, to ease with the transition.
 
 ## Consequences 
 
