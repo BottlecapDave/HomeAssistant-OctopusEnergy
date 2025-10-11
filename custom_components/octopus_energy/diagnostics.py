@@ -36,13 +36,7 @@ async def async_get_device_consumption_data(client: OctopusEnergyApiClient, devi
       period_to)
   
     if consumption_data is not None and len(consumption_data) > 0:
-      return {
-        "total_consumption": consumption_data[-1]["total_consumption"],
-        "consumption": consumption_data[-1]["consumption"],
-        "demand": consumption_data[-1]["demand"],
-        "start": consumption_data[-1]["start"],
-        "end": consumption_data[-1]["end"],
-      }
+      return consumption_data[-1]
     
     return "Not available"
   
@@ -77,7 +71,7 @@ async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str,
 
         device_id  = account_info["electricity_meter_points"][point_index]["meters"][meter_index]["device_id"]
         if device_id is not None and device_id != "":
-          account_info["electricity_meter_points"][point_index]["meters"][meter_index]["device"] = await async_get_device_consumption_data(client, device_id)
+          account_info["electricity_meter_points"][point_index]["meters"][meter_index]["latest_device_consumption"] = await async_get_device_consumption_data(client, device_id)
         
         redacted_mappings[f"{account_info["electricity_meter_points"][point_index]["meters"][meter_index]["serial_number"]}"] = redacted_mapping_count
         account_info["electricity_meter_points"][point_index]["meters"][meter_index]["serial_number"] = redacted_mapping_count
@@ -103,7 +97,7 @@ async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str,
 
         device_id  = account_info["gas_meter_points"][point_index]["meters"][meter_index]["device_id"]
         if device_id is not None and device_id != "":
-          account_info["gas_meter_points"][point_index]["meters"][meter_index]["device"] = await async_get_device_consumption_data(client, device_id)
+          account_info["gas_meter_points"][point_index]["meters"][meter_index]["latest_device_consumption"] = await async_get_device_consumption_data(client, device_id)
 
         redacted_mappings[f"{account_info["gas_meter_points"][point_index]["meters"][meter_index]["serial_number"]}"] = redacted_mapping_count
         account_info["gas_meter_points"][point_index]["meters"][meter_index]["serial_number"] = redacted_mapping_count
