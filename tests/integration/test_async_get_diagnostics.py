@@ -16,16 +16,16 @@ def assert_meter(meter, expected_serial_number: int):
   assert meter["device_id"] == "**REDACTED**"
   assert isinstance(meter["latest_consumption"], datetime)
 
-  if meter["device"] !=  "Not available":
-    if meter["device"]["total_consumption"] is not None:
-        assert isinstance(meter["device"]["total_consumption"], float)
+  if meter["latest_device_consumption"] != "Not available":
+    if meter["latest_device_consumption"]["total_consumption"] is not None:
+        assert isinstance(meter["latest_device_consumption"]["total_consumption"], float)
 
-    if meter["device"]["consumption"] is not None:
-        assert isinstance(meter["device"]["consumption"], float)
+    if meter["latest_device_consumption"]["consumption"] is not None:
+        assert isinstance(meter["latest_device_consumption"]["consumption"], float)
     
-    assert "demand" in meter["device"]
-    assert isinstance(meter["device"]["start"], datetime)
-    assert isinstance(meter["device"]["end"], datetime)
+    assert "demand" in meter["latest_device_consumption"]
+    assert isinstance(meter["latest_device_consumption"]["start"], datetime)
+    assert isinstance(meter["latest_device_consumption"]["end"], datetime)
 
 @pytest.mark.asyncio
 async def test_when_async_get_diagnostics_called_then_account_info_is_returned():
@@ -96,8 +96,7 @@ async def test_when_async_get_diagnostics_called_then_account_info_is_returned()
     assert data["entities"]["foo"]["last_updated"] == now
     assert data["entities"]["foo"]["last_changed"] == now
 
-    assert "intelligent_device" in data
-    assert "intelligent_settings" in data
+    assert "intelligent_devices" in data
 
     assert "heat_pumps" in data
 
@@ -172,7 +171,6 @@ async def test_when_async_get_diagnostics_called_and_account_exists_then_account
     assert data["entities"]["foo"]["last_updated"] == now
     assert data["entities"]["foo"]["last_changed"] == now
 
-    assert "intelligent_device" in data
-    assert "intelligent_settings" in data
+    assert "intelligent_devices" in data
 
     assert "heat_pumps" in data

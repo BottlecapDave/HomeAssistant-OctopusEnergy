@@ -13,14 +13,18 @@ from ..const import DATA_SAVING_SESSIONS_FORCE_UPDATE, DOMAIN, EVENT_ALL_SAVING_
 
 from ..api_client import OctopusEnergyApiClient
 from ..utils.attributes import dict_to_typed_dict
+from .base import OctopusEnergyOctoplusSensor
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyOctoplusSavingSessionEvents(EventEntity, RestoreEntity):
+class OctopusEnergyOctoplusSavingSessionEvents(OctopusEnergyOctoplusSensor, EventEntity, RestoreEntity):
   """Sensor for displaying the upcoming saving sessions."""
+
+  _attr_translation_key = "saving_sessions"
 
   def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, account_id: str):
     """Init sensor."""
+    OctopusEnergyOctoplusSensor.__init__(self, account_id)
 
     self._client = client
     self._account_id = account_id

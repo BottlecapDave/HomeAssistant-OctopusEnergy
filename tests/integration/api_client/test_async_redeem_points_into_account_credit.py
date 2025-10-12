@@ -19,4 +19,4 @@ async def test_when_redeem_octoplus_points_into_account_credit_is_called_with_in
     assert result is not None
     assert result.is_successful == False
     assert len(result.errors) == 1
-    assert result.errors[0] == "Negative or zero points set."
+    assert result.errors[0] == "Negative or zero points set"

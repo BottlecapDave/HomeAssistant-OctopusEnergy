@@ -11,7 +11,7 @@ from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
 from .const import (
   CONFIG_ACCOUNT_ID,
   DATA_CLIENT,
-  DATA_INTELLIGENT_DEVICE,
+  DATA_INTELLIGENT_DEVICES,
   DOMAIN,
 
   CONFIG_MAIN_API_KEY,
@@ -42,13 +42,13 @@ async def async_setup_intelligent_sensors(hass, config, async_add_entities):
   account_debug_override = await async_get_account_debug_override(hass, account_id)
 
   client = hass.data[DOMAIN][account_id][DATA_CLIENT]
-  intelligent_result: IntelligentDeviceCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICE] if DATA_INTELLIGENT_DEVICE in hass.data[DOMAIN][account_id] else None
-  intelligent_device: IntelligentDevice = intelligent_result.device if intelligent_result is not None else None
-  if intelligent_device is not None:
+  intelligent_result: IntelligentDeviceCoordinatorResult = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICES] if DATA_INTELLIGENT_DEVICES in hass.data[DOMAIN][account_id] else None
+  intelligent_devices: list[IntelligentDevice] = intelligent_result.devices if intelligent_result is not None else []
+
+  for intelligent_device in intelligent_devices:
     intelligent_features = get_intelligent_features(intelligent_device.provider)
-    settings_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS_COORDINATOR]
-    dispatches_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR]
-    client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
+    settings_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_SETTINGS_COORDINATOR.format(intelligent_device.id)]
+    dispatches_coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR.format(intelligent_device.id)]
 
     if intelligent_features.bump_charge_supported:
       entities.append(OctopusEnergyIntelligentSmartCharge(hass, settings_coordinator, client, intelligent_device, account_id, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False))

@@ -23,10 +23,11 @@ from . import (
 
 from ..coordinators.saving_sessions import SavingSessionsCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
+from .base import OctopusEnergyOctoplusSensor
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
+class OctopusEnergySavingSessions(OctopusEnergyOctoplusSensor, CoordinatorEntity, BinarySensorEntity, RestoreEntity):
   """Sensor for determining if a saving session is active."""
   
   _unrecorded_attributes = frozenset({"data_last_retrieved"})
@@ -35,6 +36,7 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
     """Init sensor."""
 
     CoordinatorEntity.__init__(self, coordinator)
+    OctopusEnergyOctoplusSensor.__init__(self, account_id)
   
     self._account_id = account_id
     self._state = None
@@ -58,7 +60,7 @@ class OctopusEnergySavingSessions(CoordinatorEntity, BinarySensorEntity, Restore
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Octoplus Saving Session ({self._account_id})"
+    return f"Octoplus Saving Sessions ({self._account_id})"
 
   @property
   def icon(self):

@@ -18,18 +18,20 @@ from homeassistant.components.sensor import (
 
 from ..const import DOMAIN, REFRESH_RATE_IN_MINUTES_OCTOPLUS_POINTS
 from ..utils.requests import calculate_next_refresh
-from ..api_client import ApiException, OctopusEnergyApiClient, RequestException
+from ..api_client import ApiException, OctopusEnergyApiClient
 from ..utils.attributes import dict_to_typed_dict
+from .base import OctopusEnergyOctoplusSensor
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyOctoplusPoints(RestoreSensor):
+class OctopusEnergyOctoplusPoints(OctopusEnergyOctoplusSensor, RestoreSensor):
   """Sensor for determining octoplus points"""
   
   _unrecorded_attributes = frozenset({"data_last_retrieved"})
 
   def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, account_id: str):
     """Init sensor."""
+    OctopusEnergyOctoplusSensor.__init__(self, account_id)
   
     self._client = client
     self._account_id = account_id
@@ -124,5 +126,8 @@ class OctopusEnergyOctoplusPoints(RestoreSensor):
         raise
       _LOGGER.warning(f"Failed to retrieve octopoints")
       self._request_attempts = self._request_attempts + 1
+
+      if self._last_evaluated is None:
+        self._last_evaluated = now
 
     self._next_refresh = calculate_next_refresh(self._last_evaluated, self._request_attempts, REFRESH_RATE_IN_MINUTES_OCTOPLUS_POINTS)

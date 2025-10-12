@@ -12,14 +12,19 @@ from homeassistant.helpers.entity import generate_entity_id
 from ..const import EVENT_ALL_FREE_ELECTRICITY_SESSIONS
 
 from ..utils.attributes import dict_to_typed_dict
+from .base import OctopusEnergyOctoplusSensor
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyOctoplusFreeElectricitySessionEvents(EventEntity, RestoreEntity):
+class OctopusEnergyOctoplusFreeElectricitySessionEvents(OctopusEnergyOctoplusSensor, EventEntity, RestoreEntity):
   """Sensor for displaying the upcoming free electricity sessions."""
+
+  _attr_translation_key = "free_electricity_sessions"
 
   def __init__(self, hass: HomeAssistant, account_id: str):
     """Init sensor."""
+
+    OctopusEnergyOctoplusSensor.__init__(self, account_id)
 
     self._account_id = account_id
     self._hass = hass

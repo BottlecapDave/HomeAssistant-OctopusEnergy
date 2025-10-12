@@ -396,9 +396,13 @@
       "title": "Intelligent device not found for {account_id}",
       "description": "Your intelligent device cannot be found for your account. Please check your intelligent device is setup in your account via the Octopus Energy app."
     },
-    "intelligent_device_changed": {
-      "title": "Intelligent device changed for {account_id}",
-      "description": "Your intelligent device has changed. You will need to reload the integration in order to continue updating settings and retrieving planned or completed dispatch information without issue. Once reloaded, you can delete your old intelligent device within Home Assistant. This cannot be done automatically because the internal ids have changed."
+    "intelligent_device_added": {
+      "title": "Intelligent device discovered for {account_id}",
+      "description": "Your intelligent device has been discovered. You will need to reload the integration in order to see the new device. This cannot be done automatically."
+    },
+    "intelligent_device_removed": {
+      "title": "Intelligent device removed for {account_id}",
+      "description": "An intelligent device has been removed from your account. All sensors associated with the device will stop working. Once reloaded, you can delete your old intelligent device within Home Assistant. This cannot be done automatically."
     },
     "meter_removed": {
       "title": "{meter_type} meter removed for {account_id} ({mprn_mpan}/{serial_number})",
@@ -407,6 +411,130 @@
     "meter_added": {
       "title": "{meter_type} meter added for {account_id} ({mprn_mpan}/{serial_number})",
       "description": "A new meter has been found for your account which has an active tariff. Please reload the integration to start using this meter and associated entities."
+    },
+    "tariff_rates_empty": {
+      "title": "{meter_type} {tariff_code} rates are empty for {account_id} ({mprn_mpan}/{serial_number})",
+      "description": "One of your meters ({mprn_mpan}/{serial_number}) is associated with tariff \"{tariff_code}\" for product \"{product_code}\", but no longer seems to be returning new rates. Please click \"Learn More\" with details on how to rectify this."
+    },
+    "saving_session_binary_sensor_deprecated": {
+      "title": "Saving session binary sensor deprecated",
+      "description": "The saving session binary sensor (`binary_sensor.octopus_energy_ACCOUNT_ID_octoplus_saving_sessions`) has been deprecated in favour of using calendar entities. This will allow for better integration with automations and the calendar view. The deprecated sensor will be removed in May 2026. Please click \"Learn More\" for more information on this change."
+    },
+    "free_electricity_session_binary_sensor_deprecated": {
+      "title": "Free electricity session binary sensor deprecated",
+      "description": "The free electricity session binary sensor (`binary_sensor.octopus_energy_ACCOUNT_ID_octoplus_free_electricity_session`) has been deprecated in favour of using calendar entities. This will allow for better integration with automations and the calendar view. The deprecated sensor will be removed in May 2026. Please click \"Learn More\" for more information on this change."
+    }
+  },
+  "entity": {
+    "event": {
+      "electricity_current_day_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_electricity_current_day_rates": "Electricity current day rates"
+            }
+          }
+        }
+      },
+      "electricity_next_day_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_electricity_next_day_rates": "Electricity next day rates"
+            }
+          }
+        }
+      },
+      "electricity_previous_consumption_override_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_elec_previous_consumption_tariff_comparison_rates": "Electricity previous consumption tariff comparison rates"
+            }
+          }
+        }
+      },
+      "electricity_previous_consumption_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_electricity_previous_consumption_rates": "Electricity previous consumption rates"
+            }
+          }
+        }
+      },
+      "electricity_previous_day_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_electricity_previous_day_rates": "Electricity previous day rates"
+            }
+          }
+        }
+      },
+      "gas_current_day_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_gas_current_day_rates": "Gas current day rates"
+            }
+          }
+        }
+      },
+      "gas_next_day_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_gas_next_day_rates": "Gas next day rates"
+            }
+          }
+        }
+      },
+      "gas_previous_consumption_override_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_gas_previous_consumption_tariff_comparison_rates": "Gas previous consumption tariff comparison rates"
+            }
+          }
+        }
+      },
+      "gas_previous_consumption_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_gas_previous_consumption_rates": "Gas previous consumption rates"
+            }
+          }
+        }
+      },
+      "gas_previous_day_rates": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_gas_previous_day_rates": "Gas previous day rates"
+            }
+          }
+        }
+      },
+      "free_electricity_sessions": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_all_octoplus_free_electricity_sessions": "All Free electricity sessions"
+            }
+          }
+        }
+      },
+      "saving_sessions": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_all_octoplus_saving_sessions": "All Saving sessions"
+            }
+          }
+        }
+      }
     }
   }
 }
