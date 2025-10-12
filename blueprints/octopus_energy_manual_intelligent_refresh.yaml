@@ -7,7 +7,7 @@ blueprint:
   input:
     intelligent_dispatches_data_last_retrieved_sensor:
       name: Intelligent dispatches data last retrieved
-      description: "The sensor that determines when intelligent dispatches data was last retrieved (e.g. sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatches_data_last_retrieved). More information can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/diagnostics/#intelligent-dispatches-data-last-retrieved"
+      description: "The sensor that determines when intelligent dispatches data was last retrieved (e.g. sensor.octopus_energy_{{DEVICE_ID}}_intelligent_dispatches_data_last_retrieved). More information can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/diagnostics/#intelligent-dispatches-data-last-retrieved"
       selector:
         entity:
           filter:
@@ -16,7 +16,7 @@ blueprint:
 
     intelligent_dispatches_sensor:
       name: Intelligent dispatches
-      description: "The sensor that determines if intelligent dispatches is active (e.g. binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching)"
+      description: "The sensor that determines if intelligent dispatches is active (e.g. binary_sensor.octopus_energy_{{DEVICE_ID}}_intelligent_dispatching)"
       selector:
         entity:
           filter:
@@ -55,31 +55,59 @@ variables:
   millisecond_jitter: >
     {{ range(1, 1000) | random }}
 
-mode: queued
-max: 4
+mode: single
 triggers:
   - trigger: state
     id: car_plugged_in
     entity_id: !input car_plugged_in_sensor
     to: !input car_plugged_in_sensor_state
+  - trigger: state
+    id: car_unplugged
+    entity_id: !input car_plugged_in_sensor
+    from: !input car_plugged_in_sensor_state
+    not_to: !input car_plugged_in_sensor_state
   - trigger: time_pattern
+    id: periodic_check
     minutes: "/1"
 conditions:
-  - condition: state
-    entity_id: !input car_plugged_in_sensor
-    state: !input car_plugged_in_sensor_state
-  # Make sure that our dispatches are either due to be updated or our automation was triggered due to the vehicle being plugged in
   - condition: or
     conditions:
+    - condition: and
+      conditions:
+      - condition: state
+        entity_id: !input car_plugged_in_sensor
+        state: !input car_plugged_in_sensor_state
+      # Make sure that our dispatches are either due to be updated or our automation was triggered due to the vehicle being plugged in
+      - condition: or
+        conditions:
+        - condition: template
+          value_template: >
+            {{ trigger.id == "car_plugged_in" }}
+        - condition: template
+          value_template: >
+            {% set next_refresh = state_attr(intelligent_dispatches_data_last_retrieved_sensor, 'next_refresh') %}
+            {{ next_refresh == None or next_refresh | as_datetime | as_local < now() }}
     - condition: template
       value_template: >
-        {{ trigger.id == "car_plugged_in" }}
-    - condition: template
-      value_template: >
-        {{ state_attr(intelligent_dispatches_data_last_retrieved_sensor, 'next_refresh') | as_datetime | as_local < now() }}
+        {{ trigger.id == "car_unplugged" }}
 actions:
-  # Wait 30 seconds to give OE a chance to update the dispatches
-  - delay: 00:00:30
+  # Wait 30 seconds to give OE a chance to update the dispatches if caused by car state change
+  - if:
+    - condition: template
+      value_template: >
+        {{ trigger.id != "periodic_check" }}
+    then:
+    - delay: 00:00:30
+  # Wait until we are under the request limit
+  - wait_template: >-
+      {% set requests_current_hour = state_attr(intelligent_dispatches_data_last_retrieved_sensor, 'requests_current_hour') %}
+      {% set maximum_requests_per_hour = state_attr(intelligent_dispatches_data_last_retrieved_sensor, 'maximum_requests_per_hour') %}
+      {% set request_limits_last_reset = state_attr(intelligent_dispatches_data_last_retrieved_sensor, 'request_limits_last_reset') %}
+      {{ requests_current_hour == None or
+        (requests_current_hour | int < maximum_requests_per_hour | int) or
+        request_limits_last_reset + timedelta(hours=1) < now()
+      }}
+    continue_on_timeout: true
   # Add a bit of jitter so the API isn't hit at once
   - delay:
       milliseconds: >

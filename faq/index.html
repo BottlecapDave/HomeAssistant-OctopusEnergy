@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../blueprints/">
+        <link rel="prev" href="../architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events/">
       
       
         <link rel="next" href="../sponsorship/">
@@ -971,6 +971,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repairs/tariff_rates_empty/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - Tariff Rates Empty
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1014,6 +1035,111 @@
   
 
       </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Architecture Decision Records
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture Decision Records
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture_decision_records/0001_target_rates_removal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0001 - Deprecation and removal of Target Rate Sensors in Octopus Energy Integration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture_decision_records/0002_intelligent_is_dispatching_behaviour_changes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0002 - Intelligent Is Dispatching behavior changes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0003 - Move to calendar entities for Octoplus events
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1074,6 +1200,15 @@
   <a href="#how-often-is-data-refreshed" class="md-nav__link">
     <span class="md-ellipsis">
       How often is data refreshed?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-are-started-dispatches-and-how-are-they-calculated" class="md-nav__link">
+    <span class="md-ellipsis">
+      What are started dispatches and how are they calculated?
     </span>
   </a>
   
@@ -1344,6 +1479,15 @@
   <a href="#how-often-is-data-refreshed" class="md-nav__link">
     <span class="md-ellipsis">
       How often is data refreshed?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-are-started-dispatches-and-how-are-they-calculated" class="md-nav__link">
+    <span class="md-ellipsis">
+      What are started dispatches and how are they calculated?
     </span>
   </a>
   
@@ -1688,6 +1832,21 @@
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>The retrieving of data does not effect the rate the entities states/attributes are evaluated.</p>
+</div>
+<h2 id="what-are-started-dispatches-and-how-are-they-calculated">What are started dispatches and how are they calculated?<a class="headerlink" href="#what-are-started-dispatches-and-how-are-they-calculated" title="Permanent link">#</a></h2>
+<p>Started dispatches are a concept derived by the integration.</p>
+<p>Octopus Energy provide rate information for intelligent tariffs. Unfortunately, this rate information is only the standard rate information (e.g. standard peak and off peak rates). This means that periods that are charged at off peak rates outside of the normal off peak period has to be adjusted to the off peak rate manually. Luckily, Octopus Energy provides information on planned and completed dispatches. However, there are a few issues with this data</p>
+<ol>
+<li>Planned dispatches can be removed at the last minute. This can cause issues as they can be removed just before they start but counted as "active" if the data isn't refreshed before they start. If you have setup <a href="../setup/account/#intelligent-rates-mode">the integration</a> to accept <a href="../setup/account/#planned-and-started-dispatches-will-turn-into-off-peak-rates">planned or started dispatches</a>, then this can result in sensors turning on and then turning off once the data is refreshed and the planned dispatch is removed</li>
+<li>The completed dispatches do not specify a source of the dispatch. This means that boost charges (ones that do not result in off peak rates) will be mixed in with smart charges (ones that do result in off peak rates). This means that it can't be used to retroactively change rates to off peak for things like previous consumption cost sensors.</li>
+</ol>
+<p>Therefore, there is the concept of started dispatches. Once data is refreshed, any planned dispatches that are active become a started dispatch, thirty minute increments at a time. This is because the whole thirty minute period for a smart charge dispatch is charged at off peak, even if only a minute charge has occurred. It is done thirty minute increments at a time because Octopus Energy might stop a dispatch early. This will only occur if the <a href="../entities/intelligent/#current-state">intelligent state</a> is in <code>SMART_CONTROL_IN_PROGRESS</code>. For example if you have a planned dispatch of <code>2025-04-01T10:00:00</code>-<code>2025-04-01T11:00:00</code>, at <code>2025-04-01T10:01:00</code> if the planned dispatch is still available the period of <code>2025-04-01T10:00:00</code>-<code>2025-04-01T10:30:00</code> will be added.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This does not apply to the following providers, as they don't provide planned dispatch information.</p>
+<ul>
+<li>OHME</li>
+</ul>
 </div>
 <h2 id="the-integration-provides-features-i-dont-need-can-i-turn-the-feature-off">The integration provides features I don't need, can I turn the feature off?<a class="headerlink" href="#the-integration-provides-features-i-dont-need-can-i-turn-the-feature-off" title="Permanent link">#</a></h2>
 <p>There is no config option to turn features on/off. This is because the required data is not cut and dry per feature as some data is shared among "features" (e.g. rate data is required to determine if consumption data is peak or off peak).</p>

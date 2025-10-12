@@ -584,6 +584,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#saving-sessions-calendar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Saving Sessions Calendar
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#saving-session-events" class="md-nav__link">
     <span class="md-ellipsis">
       Saving Session Events
@@ -605,6 +614,15 @@
   <a href="#free-electricity-sessions" class="md-nav__link">
     <span class="md-ellipsis">
       Free Electricity Sessions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#free-electricity-sessions-calendar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Free Electricity Sessions Calendar
     </span>
   </a>
   
@@ -1085,6 +1103,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../repairs/tariff_rates_empty/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - Tariff Rates Empty
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1128,6 +1167,111 @@
   
 
       </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Architecture Decision Records
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture Decision Records
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0001_target_rates_removal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0001 - Deprecation and removal of Target Rate Sensors in Octopus Energy Integration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0002_intelligent_is_dispatching_behaviour_changes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0002 - Intelligent Is Dispatching behavior changes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0003 - Move to calendar entities for Octoplus events
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1217,6 +1361,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#saving-sessions-calendar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Saving Sessions Calendar
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#saving-session-events" class="md-nav__link">
     <span class="md-ellipsis">
       Saving Session Events
@@ -1238,6 +1391,15 @@
   <a href="#free-electricity-sessions" class="md-nav__link">
     <span class="md-ellipsis">
       Free Electricity Sessions
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#free-electricity-sessions-calendar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Free Electricity Sessions Calendar
     </span>
   </a>
   
@@ -1319,6 +1481,10 @@
 </tbody>
 </table>
 <h2 id="saving-sessions">Saving Sessions<a class="headerlink" href="#saving-sessions" title="Permanent link">#</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This sensor has been deprecated in favour of <a href="#saving-sessions-calendar">Saving Session Calendar</a> and will be removed around <strong>May 2026</strong></p>
+</div>
 <p><code>binary_sensor.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_sessions</code></p>
 <p>Binary sensor to indicate if a saving session that the account has joined is active.</p>
 <table>
@@ -1365,6 +1531,17 @@
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>You can use the <a href="../diagnostics/#saving-sessions-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
+<h2 id="saving-sessions-calendar">Saving Sessions Calendar<a class="headerlink" href="#saving-sessions-calendar" title="Permanent link">#</a></h2>
+<p><code>calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_sessions</code></p>
+<p>Calendar sensor to record saving sessions. Will be <code>on</code> when a saving session that the account has joined is active. Standard calendar attributes will indicate the current/next saving session.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#saving-sessions-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The events are supplied by OE API and does not store past events indefinitely. Past events could be removed without notice.</p>
 </div>
 <h2 id="saving-session-events">Saving Session Events<a class="headerlink" href="#saving-session-events" title="Permanent link">#</a></h2>
 <p><code>event.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_session_events</code></p>
@@ -1599,6 +1776,10 @@
 <p>You can use the <a href="../diagnostics/#saving-sessions-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
 </div>
 <h2 id="free-electricity-sessions">Free Electricity Sessions<a class="headerlink" href="#free-electricity-sessions" title="Permanent link">#</a></h2>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This sensor has been deprecated in favour of <a href="#free-electricity-sessions-calendar">Free Electricity Sessions Calendar</a> and will be removed around <strong>May 2026</strong></p>
+</div>
 <p><code>binary_sensor.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session</code></p>
 <p>Binary sensor to indicate if a free electricity session is active.</p>
 <div class="admonition note">
@@ -1650,6 +1831,21 @@
 </tr>
 </tbody>
 </table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#free-electricity-sessions-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
+<h2 id="free-electricity-sessions-calendar">Free Electricity Sessions Calendar<a class="headerlink" href="#free-electricity-sessions-calendar" title="Permanent link">#</a></h2>
+<p><code>calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session</code></p>
+<p>Calendar sensor to record free electricity sessions. Will be <code>on</code> when a free electricity session is active. Standard calendar attributes will indicate the current/next saving session.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to <a href="https://octopus.energy/free-electricity/">free electricity sessions</a>. This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
+</div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>You can use the <a href="../diagnostics/#free-electricity-sessions-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>

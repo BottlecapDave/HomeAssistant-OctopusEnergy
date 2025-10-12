@@ -12,7 +12,7 @@
         <link rel="prev" href="../community/">
       
       
-        <link rel="next" href="../faq/">
+        <link rel="next" href="../architecture_decision_records/0001_target_rates_removal/">
       
       
       <link rel="icon" href="../assets/images/favicon.png">
@@ -971,6 +971,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../repairs/tariff_rates_empty/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - Tariff Rates Empty
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1256,6 +1277,111 @@
   
   
   
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Architecture Decision Records
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture Decision Records
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture_decision_records/0001_target_rates_removal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0001 - Deprecation and removal of Target Rate Sensors in Octopus Energy Integration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture_decision_records/0002_intelligent_is_dispatching_behaviour_changes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0002 - Intelligent Is Dispatching behavior changes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0003 - Move to calendar entities for Octoplus events
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="../faq/" class="md-nav__link">
         
@@ -1530,26 +1656,26 @@
 <p><a href="https://www.home-assistant.io/docs/automation/using_blueprints/">Blueprints</a> are an excellent way to get you up and running with the integration quickly. They can also be used as a guide for setting up new automations which you can tailor to your needs. </p>
 <h2 id="rates">Rates<a class="headerlink" href="#rates" title="Permanent link">#</a></h2>
 <h3 id="alert-when-rates-change">Alert when rates change<a class="headerlink" href="#alert-when-rates-change" title="Permanent link">#</a></h3>
-<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_rates_changed.yml">Install blueprint</a> | <a href="octopus_energy_rates_changed.yml">Source</a></p>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_rates_changed.yaml">Install blueprint</a> | <a href="octopus_energy_rates_changed.yaml">Source</a></p>
 <p>This blueprint will raise a persistent notification within HA when a rate updates.</p>
 <h2 id="consumption">Consumption<a class="headerlink" href="#consumption" title="Permanent link">#</a></h2>
 <h3 id="alert-when-gas-anomaly-detected">Alert when gas anomaly detected<a class="headerlink" href="#alert-when-gas-anomaly-detected" title="Permanent link">#</a></h3>
-<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_gas_anomaly.yaml">Install blueprint</a> | <a href="octopus_energy_gas_anomaly.yaml">Source</a></p>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_gas_anomaly.yaml">Install blueprint</a> | <a href="octopus_energy_gas_anomaly.yaml">Source</a></p>
 <p>This blueprint will fire a configured action when the consumption has 24 hours worth of records and all thirty minute periods exceed the configured threshold. This can be used to alert you to <em>potential</em> gas leaks.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>Like everything else with this integration, this is provided <em>as is</em> and should be used as a guide and early warning sign. It will only trigger if all data is available. If triggered, you should use your own judgment to determine if the warning is legitimate.</p>
 </div>
 <h3 id="alert-when-consumption-data-is-late">Alert when consumption data is late<a class="headerlink" href="#alert-when-consumption-data-is-late" title="Permanent link">#</a></h3>
-<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%octopus_energy_late_consumption_data.yml">Install blueprint</a> | <a href="octopus_energy_late_consumption_data.yml">Source</a></p>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%octopus_energy_late_consumption_data.yaml">Install blueprint</a> | <a href="octopus_energy_late_consumption_data.yaml">Source</a></p>
 <p>This blueprint will fire a configured action when the latest available consumption data is x hours old, where x is configured via the blueprint.</p>
 <h2 id="octoplus">Octoplus<a class="headerlink" href="#octoplus" title="Permanent link">#</a></h2>
 <h3 id="automatically-join-saving-sessions">Automatically join saving sessions<a class="headerlink" href="#automatically-join-saving-sessions" title="Permanent link">#</a></h3>
-<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_join_saving_session.yml">Install blueprint</a> | <a href="octopus_energy_octoplus_join_saving_session.yml">Source</a></p>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_join_saving_session.yaml">Install blueprint</a> | <a href="octopus_energy_octoplus_join_saving_session.yaml">Source</a></p>
 <p>This blueprint will trigger when a new saving session has been discovered, join it, and send a notification alerting you to when it will start.</p>
-<p>If you wish to customise how the notification is delivered, you should install <a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_join_saving_session_custom_action.yml">this blueprint</a> (<a href="octopus_energy_octoplus_join_saving_session_custom_action.yml">source</a>) </p>
+<p>If you wish to customise how the notification is delivered, you should install <a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_join_saving_session_custom_action.yaml">this blueprint</a> (<a href="octopus_energy_octoplus_join_saving_session_custom_action.yaml">source</a>)</p>
 <h3 id="automatically-redeem-octoplus-points-for-account-credit">Automatically redeem Octoplus points for account credit<a class="headerlink" href="#automatically-redeem-octoplus-points-for-account-credit" title="Permanent link">#</a></h3>
-<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_redeem_points_for_account_credit.yml">Install blueprint</a> | <a href="octopus_energy_octoplus_redeem_points_for_account_credit.yml">Source</a></p>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_redeem_points_for_account_credit.yaml">Install blueprint</a> | <a href="octopus_energy_octoplus_redeem_points_for_account_credit.yaml">Source</a></p>
 <p>This blueprint will automatically redeem all redeemable points for account credit when the number of redeemable points exceeds a configurable threshold.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -1557,14 +1683,14 @@
 <p>You can manually run the automation if the redeemable points is over the threshold to get it in a state where automatic redemption will happen in the future.</p>
 </div>
 <h3 id="alert-when-current-consumption-is-approaching-saving-sessions-baseline">Alert when current consumption is approaching saving sessions baseline<a class="headerlink" href="#alert-when-current-consumption-is-approaching-saving-sessions-baseline" title="Permanent link">#</a></h3>
-<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%octopus_energy_baseline_alert.yaml">Install blueprint</a> | <a href="octopus_energy_baseline_alert.yaml">Source</a></p>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%octopus_energy_baseline_alert.yaml">Install blueprint</a> | <a href="octopus_energy_baseline_alert.yaml">Source</a></p>
 <p>This blueprint will fire a configured action when the consumption for the current interval (i.e. the current 30 minute period) reaches a configured percentage of the saving session baseline.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This blueprint requires sensors provided by Octopus Energy Home Mini</p>
 </div>
 <h3 id="alert-when-current-consumption-has-reached-free-electricity-sessions-baseline">Alert when current consumption has reached free electricity sessions baseline<a class="headerlink" href="#alert-when-current-consumption-has-reached-free-electricity-sessions-baseline" title="Permanent link">#</a></h3>
-<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%octopus_energy_free_electricity_baseline_reached.yaml">Install blueprint</a> | <a href="octopus_energy_free_electricity_baseline_reached.yaml">Source</a></p>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%octopus_energy_free_electricity_baseline_reached.yaml">Install blueprint</a> | <a href="octopus_energy_free_electricity_baseline_reached.yaml">Source</a></p>
 <p>This blueprint will fire a configured action when the consumption for the current interval (i.e. the current 30 minute period) reaches the current free electricity session baseline.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -1572,7 +1698,7 @@
 </div>
 <h2 id="intelligent">Intelligent<a class="headerlink" href="#intelligent" title="Permanent link">#</a></h2>
 <h2 id="manual-intelligent-dispatch-refreshes">Manual Intelligent Dispatch Refreshes<a class="headerlink" href="#manual-intelligent-dispatch-refreshes" title="Permanent link">#</a></h2>
-<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%octopus_energy_manual_intelligent_refresh.yaml">Install blueprint</a> | <a href="octopus_energy_manual_intelligent_refresh.yaml">Source</a></p>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%octopus_energy_manual_intelligent_refresh.yaml">Install blueprint</a> | <a href="octopus_energy_manual_intelligent_refresh.yaml">Source</a></p>
 <p>This blueprint will fire the <a href="../services/#octopus_energyrefresh_intelligent_dispatches">intelligent dispatches service</a> either when a sensor from another integration determines the car has been plugged in (e.g. the plug status from the <a href="https://github.com/CJNE/ha-myenergi">MyEnergi integration</a>) or when the data is stale and overdue a refresh (in case the dispatch information has changed).</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -1580,10 +1706,10 @@
 </div>
 <h2 id="wheel-of-fortune">Wheel of Fortune<a class="headerlink" href="#wheel-of-fortune" title="Permanent link">#</a></h2>
 <h3 id="automatically-spin-wheel-of-fortune-single">Automatically spin wheel of fortune (single)<a class="headerlink" href="#automatically-spin-wheel-of-fortune-single" title="Permanent link">#</a></h3>
-<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_spin_wheel_of_fortune_single.yml">Install blueprint</a> | <a href="octopus_energy_spin_wheel_of_fortune_single.yml">Source</a></p>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_spin_wheel_of_fortune_single.yaml">Install blueprint</a> | <a href="octopus_energy_spin_wheel_of_fortune_single.yaml">Source</a></p>
 <p>This blueprint will trigger when the number of spins for a given energy source goes above zero, and will spin until the sensor reaches zero.</p>
 <h3 id="automatically-spin-wheel-of-fortune-dual">Automatically spin wheel of fortune (Dual)<a class="headerlink" href="#automatically-spin-wheel-of-fortune-dual" title="Permanent link">#</a></h3>
-<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_spin_wheel_of_fortune_dual.yml">Install blueprint</a> | <a href="octopus_energy_spin_wheel_of_fortune_dual.yml">Source</a></p>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_spin_wheel_of_fortune_dual.yaml">Install blueprint</a> | <a href="octopus_energy_spin_wheel_of_fortune_dual.yaml">Source</a></p>
 <p>This blueprint will trigger when either gas or electricity energy source spins are available, and will spin until the sensor reaches zero. This works as above, but combines both sensors into a single automation.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
@@ -1591,10 +1717,10 @@
 </div>
 <h2 id="cost-tracker">Cost Tracker<a class="headerlink" href="#cost-tracker" title="Permanent link">#</a></h2>
 <h3 id="automatically-update-tracking-negative">Automatically update tracking (negative)<a class="headerlink" href="#automatically-update-tracking-negative" title="Permanent link">#</a></h3>
-<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_cost_tracker_negative.yml">Install blueprint</a> | <a href="octopus_energy_cost_tracker_negative.yml">Source</a></p>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_cost_tracker_negative.yaml">Install blueprint</a> | <a href="octopus_energy_cost_tracker_negative.yaml">Source</a></p>
 <p>This blueprint will automatically update the tracking state for the specified <a href="../setup/cost_tracker/">cost tracker</a> sensors when the monitored sensor goes negative.</p>
 <h3 id="automatically-update-tracking-positive">Automatically update tracking (positive)<a class="headerlink" href="#automatically-update-tracking-positive" title="Permanent link">#</a></h3>
-<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fdevelop%2F_docs%2Fblueprints%2Foctopus_energy_cost_tracker_positive.yml">Install blueprint</a> | <a href="octopus_energy_cost_tracker_positive.yml">Source</a></p>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_cost_tracker_positive.yaml">Install blueprint</a> | <a href="octopus_energy_cost_tracker_positive.yaml">Source</a></p>
 <p>This blueprint will automatically update the tracking state for the specified <a href="../setup/cost_tracker/">cost tracker</a> sensors when the monitored sensor goes positive (including zero).</p>
 
 
@@ -1613,11 +1739,11 @@
   <span class="md-source-file__fact">
     <span class="md-icon" title="Contributors">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
       
     </span>
     <nav>
-      BottlecapDave
+      BottlecapDave, Sam Reed
     </nav>
   </span>
 

@@ -1058,6 +1058,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../repairs/tariff_rates_empty/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - Tariff Rates Empty
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1101,6 +1122,111 @@
   
 
       </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Architecture Decision Records
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture Decision Records
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0001_target_rates_removal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0001 - Deprecation and removal of Target Rate Sensors in Octopus Energy Integration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0002_intelligent_is_dispatching_behaviour_changes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0002 - Intelligent Is Dispatching behavior changes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0003 - Move to calendar entities for Octoplus events
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1240,26 +1366,39 @@
 <h2 id="installing-the-integration">Installing the integration<a class="headerlink" href="#installing-the-integration" title="Permanent link">#</a></h2>
 <p>The first thing you need to do is install the new integration. Full instructions can be found on <a href="https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/#how-to-install">the website</a>.</p>
 <h2 id="setting-up-data-sources">Setting up data sources<a class="headerlink" href="#setting-up-data-sources" title="Permanent link">#</a></h2>
-<p>Once installed, you'll need to setup a data source that represents data coming from this integration. This can be done by <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=target_timeframes">following the link</a> or searching for the integration in your integrations view. You'll need a data source for each of your meters (e.g. one for import and one for export)</p>
+<p>Once installed, you'll need to configure the integration by setting up a data source that represents data coming from this integration. This can be done by <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=target_timeframes">following the link</a> or navigating to your integrations view, clicking 'Add integration' and searching for 'Target Timeframes'. You'll need a data source for each of your meters you want to create target rate sensors for (e.g. one for import and one for export).</p>
 <p>The recommended name is <code>Octopus Energy Import</code> and the recommended source id is <code>octopus_energy_import</code>, but you can pick whatever you want as long as it's unique within the integration.</p>
 <p><img alt="Data Source window" src="../../assets/target_timeframes_data_source.png" /></p>
 <h2 id="configuring-octopus-energy-data">Configuring Octopus Energy data<a class="headerlink" href="#configuring-octopus-energy-data" title="Permanent link">#</a></h2>
-<p>Next, we'll need to get data from the Octopus Energy integration into the Target Timeframes integration. The recommended approach is an automation based on the <a href="https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/blueprints/#octopus-energy">available blueprint</a>. This will track when the rate entities within the Octopus Energy integration update. Upon updating, it will then transform the rate data into the shape required by Target Timeframes and use the available service to add the rate data with the data source we just created. Each <code>value</code> in Target Timeframes will represent our rate in pounds/pence.</p>
+<p>Next, we'll need to get data from the Octopus Energy integration into the Target Timeframes integration. The recommended approach is an automation based on one of the <a href="https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/blueprints/#octopus-energy">available blueprints</a>. </p>
+<p>There are different blueprints available depending upon whether you want your target rate sensors to take account of just carbon intensity, just Octopus rates, or both. For target rate sensors that use Octopus rates there are different blueprints depending upon whether you want to take account of Octopus free electricity sessions or not.</p>
+<p>Select the blueprint you want to use and click 'Install blueprint'.  You will get a prompt to open a page in Home Assistant, click 'Open link', you'll get a second prompt to confirm you want to import the blueprint, click 'Preview blueprint' then 'Import blueprint' and the blueprint will be installed in your Home Assistant.</p>
+<p>Next you need to create an automation using the blueprint you just imported.  The automation will track when the rate entities within the Octopus Energy integration are updated and will then transform the rate data into the shape required by Target Timeframes and use the available service to add the rate data with the data source we just created. Each <code>value</code> in Target Timeframes will represent our rate in pounds/pence.</p>
+<p>Click the name of the blueprint you just imported.  You'll be prompted to configure the blueprint with the names of your Octopus Integration sensors. Use the dropdowns to select the appropriate Home Assistant sensor or event name:</p>
+<p><img alt="Blueprint configuration" src="../../assets/target_timeframes_blueprint.png" /></p>
+<p>Make sure you select the right Octopus Integration events for your target timeframe data source sensor, e.g. 'previous day rates' for an import sensor, not 'previous day rates export'.</p>
+<p>Once you have completed the blueprint configuration click Save and this will create the automation for you, fully populated with the sensor and event names you configured.  You have the option to rename the automation, add a description, category, etc if you want to.</p>
+<p>Having setup the automation you'll need to then wait for one of the Octopus integration events to update (when the automation will then automatically run), or manually run the automation to populate the data source.</p>
 <h2 id="setting-up-target-rate-sensors">Setting up Target Rate sensors<a class="headerlink" href="#setting-up-target-rate-sensors" title="Permanent link">#</a></h2>
-<p>Now we have our data source representing Octopus Energy and data coming from this integration into Target Timeframes, it's time to now port across our target rate and rolling target rate sensors. Each type of sensor are added as a sub entry to our data source. You can see below what the menu looks like.</p>
+<p>Now we have our data source representing Octopus Energy and data coming from this integration into Target Timeframes, it's time to now port across our target rate and rolling target rate sensors. Each type of sensor are added as a sub entry to our data source. Either click the appropriate Add button, or the three dots and choose the add option.</p>
 <p><img alt="Integration sub menu" src="../../assets/target_timeframes_sub_menu.png" /></p>
 <p>For porting a <a href="../../setup/target_rate/">target rate sensor</a>, you would select <a href="https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/setup/target_timeframe/">target timeframe</a> and for porting a <a href="../../setup/rolling_target_rate/">rolling target rate sensor</a>, you would select <a href="https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/setup/rolling_target_timeframe/">rolling target timeframe</a>.</p>
 <p>All options within the sensors should feel familiar, as they represent what's available within this integration. Below are some noticeable differences</p>
 <ul>
-<li><code>Invert targeted rates</code> in the Octopus Energy integration is represented by <code>Find highest values</code>. If <code>Invert targeted rates</code> is checked, for sensors using data sources targeting import meters, <code>Find highest values</code> should be checked. If <code>Invert targeted rates</code> is checked, for sensors using data sources targeting export meters, <code>Find highest values</code> should be checked.</li>
+<li>
+<p><code>Invert targeted rates</code> in the Octopus Energy integration is represented by <code>Find highest values</code> in Target Timeframes. If <code>Invert targeted rates</code> is checked, for sensors using data sources targeting import meters, <code>Find highest values</code> should be checked. If <code>Invert targeted rates</code> is checked, for sensors using data sources targeting export meters, <code>Find highest values</code> should be checked.</p>
+</li>
+<li>
+<p>Note that the <code>cost</code> attributes of the Octopus Integration target rate binary sensors are renamed as <code>value</code> attributes in the Target Timeframes integration target rate binary sensors.  So <code>overall min cost</code> is now <code>overall min value</code>, <code>next average cost</code> is now <code>next average value</code>, etc.  If you display any of these attributes on a dashboard or use them in your own automation you will need to adjust accordingly.</p>
+</li>
 </ul>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>There is currently a bug in HA where you'll need to reload the data source when a target rate sensor is added/updated in order to see the new target rate sensor.</p>
+</div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>If you are wanting to minimise updates of automations, once the target timeframe sensor has been created and you delete the old sensor from the Octopus Energy integration, you can rename the entity id to have the name of the old sensor. For example, if you have a target sensor with the entity id of <code>sensor.target_timeframe_octopus_energy_import_dishwasher</code>, your could rename it to <code>sensor.octopus_energy_target_dishwasher</code>.</p>
-</div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>There is currently a bug in HA where you'll need to reload the data source when a target rate sensor is added/updated in order to see the target rate sensor.</p>
 </div>
 <h2 id="available-services">Available services<a class="headerlink" href="#available-services" title="Permanent link">#</a></h2>
 <p>The following list of related services and their counterparts.</p>
@@ -1302,11 +1441,11 @@
   <span class="md-source-file__fact">
     <span class="md-icon" title="Contributors">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
       
     </span>
     <nav>
-      BottlecapDave
+      BottlecapDave, Geoffrey Coan
     </nav>
   </span>
 

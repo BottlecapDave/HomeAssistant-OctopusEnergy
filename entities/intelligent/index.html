@@ -1085,6 +1085,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../repairs/tariff_rates_empty/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - Tariff Rates Empty
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1128,6 +1149,111 @@
   
 
       </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Architecture Decision Records
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture Decision Records
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0001_target_rates_removal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0001 - Deprecation and removal of Target Rate Sensors in Octopus Energy Integration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0002_intelligent_is_dispatching_behaviour_changes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0002 - Intelligent Is Dispatching behavior changes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0003 - Move to calendar entities for Octoplus events
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1295,20 +1421,25 @@
 <p>If you switch to the intelligent tariff after you have installed the integration, you will need to reload the integration or restart your Home Assistant instance. You will also need to do this if you re-onboard.</p>
 </div>
 <h3 id="is-dispatching">Is Dispatching<a class="headerlink" href="#is-dispatching" title="Permanent link">#</a></h3>
-<p><code>binary_sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatching</code></p>
-<p>This sensor is used to determine if you're currently in a planned dispatch period (i.e. "smart-charge" determined by Octopus Energy) or are within the standard off peak period. This sensor <strong>will not</strong> come on during a bump charge.</p>
+<p><code>binary_sensor.octopus_energy_{{DEVICE_ID}}_intelligent_dispatching</code></p>
+<p>This sensor is used to determine if you're within a dispatching period (i.e. "smart-charge" determined by Octopus Energy) for a <strong>single</strong> intelligent device. This sensor <strong>will not</strong> come on during a bump charge.</p>
+<p>Depending on your <a href="../../setup/account/#intelligent-rates-mode">account configuration</a>, what is determined as an active dispatching period will change. If you have configured to accept <a href="../../setup/account/#planned-and-started-dispatches-will-turn-into-off-peak-rates">planned or started dispatches</a>, then the sensor will turn on when you're are within an active planned or started dispatch period. If you have configured to accept <a href="../../setup/account/#only-started-dispatches-will-turn-into-off-peak-rates">only started dispatches</a>, then the sensor will turn on when you're are within an active started dispatch period, but not planned dispatch.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>This sensor will only turn on during dispatches for a single intelligent device. If you're after a sensor that turns on during the standard off peak rates as well or cover multiple intelligent devices then you're best to use the <a href="../electricity/#off-peak">off peak sensor</a>.</p>
+</div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>If you are using this to drive other automations for cheap rates (e.g. to fill batteries), you should perform additional checks to make sure your vehicle is actually charging. If it isn't, this sensor could be incorrectly on if during a dispatch outside of the standard off peak period and you will therefore not receive the off peak rate.</p>
 <p>If you are wanting to know when you are within a guaranteed off peak period, you should use the <a href="../electricity/#off-peak">off peak</a> sensor.</p>
 </div>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>This sensor is only partially supported for the following intelligent providers</p>
 <ul>
 <li>OHME</li>
 </ul>
-<p>If you are supplied by one of the above providers, <code>planned_dispatches</code> will always return an empty collection and this entity will only turn on when within the standard off peak period. </p>
+<p>If you are supplied by one of the above providers, this sensor will never turn on. </p>
 </div>
 <table>
 <thead>
@@ -1332,7 +1463,7 @@
 <tr>
 <td><code>started_dispatches</code></td>
 <td><code>array</code></td>
-<td>An array of the dispatches that have been planned by Octopus Energy and upon API refresh are still planned when the current 30 minute period has started, is not in a boosting state and the data has been refreshed within the last 3 minutes. A planned dispatch will be added one 30 minute period at a time. This will only store up to the last 3 days worth of started dispatches. This is used to determine current and historic off peak rates. For example if you have a planned dispatch of <code>2025-04-01T10:00:00</code>-<code>2025-04-01T11:00:00</code>, at <code>2025-04-01T10:01:00</code> if the planned dispatch is still available the period of <code>2025-04-01T10:00:00</code>-<code>2025-04-01T10:30:00</code> will be added.</td>
+<td>An array of the dispatches that have been planned by Octopus Energy and started. See the <a href="../../faq/#what-are-started-dispatches-and-how-are-they-calculated">FAQ</a> for how this is calculated and why it exists.</td>
 </tr>
 <tr>
 <td><code>provider</code></td>
@@ -1368,6 +1499,11 @@
 <td><code>next_end</code></td>
 <td><code>datetime</code></td>
 <td>The date/time when the next dispatching or off peak rate ends</td>
+</tr>
+<tr>
+<td><code>manually_refresh_dispatches</code></td>
+<td><code>boolean</code></td>
+<td>Determines if manual dispatching has been enabled in the <a href="../../setup/account/#manually-refresh-intelligent-dispatches">integration config</a></td>
 </tr>
 </tbody>
 </table>
@@ -1462,8 +1598,8 @@
 <p>You can use the <a href="../diagnostics/#intelligent-dispatches-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
 </div>
 <h3 id="current-state">Current State<a class="headerlink" href="#current-state" title="Permanent link">#</a></h3>
-<p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_state</code></p>
-<p>This sensor displays the current state of your intelligent provider as told by the OE API. The value of this sensor can be one of the following</p>
+<p><code>sensor.octopus_energy_{{DEVICE_ID}}_intelligent_state</code></p>
+<p>This sensor displays the current state of your intelligent provider as told by the OE API for a <strong>single</strong> intelligent device. The value of this sensor can be one of the following</p>
 <ul>
 <li><code>AUTHENTICATION_PENDING</code> - ready to start authentication and authorization, or auth is in progress.</li>
 <li><code>AUTHENTICATION_FAILED</code> - failed to connect and ready to restart authentication and authorization.</li>
@@ -1481,8 +1617,8 @@
 <li><code>RETIRED</code> - / de-authed (re-auth not possible, re-register device to onboard again).</li>
 </ul>
 <h3 id="bump-charge">Bump Charge<a class="headerlink" href="#bump-charge" title="Permanent link">#</a></h3>
-<p><code>switch.octopus_energy_{{ACCOUNT_ID}}_intelligent_bump_charge</code></p>
-<p>This sensor is used to turn on/off bump ("on-demand") charging.</p>
+<p><code>switch.octopus_energy_{{DEVICE_ID}}_intelligent_bump_charge</code></p>
+<p>This sensor is used to turn on/off bump ("on-demand") charging for a <strong>single</strong> intelligent device.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>This entity is not available for the following intelligent providers</p>
@@ -1495,8 +1631,8 @@
 <p>You can use the <a href="../diagnostics/#intelligent-settings-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
 </div>
 <h3 id="smart-charge">Smart Charge<a class="headerlink" href="#smart-charge" title="Permanent link">#</a></h3>
-<p><code>switch.octopus_energy_{{ACCOUNT_ID}}_intelligent_smart_charge</code></p>
-<p>This sensor is used to turn on/off intelligent smart charging.</p>
+<p><code>switch.octopus_energy_{{DEVICE_ID}}_intelligent_smart_charge</code></p>
+<p>This sensor is used to turn on/off intelligent smart charging for a <strong>single</strong> intelligent device.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>This entity is not available for the following intelligent providers</p>
@@ -1509,8 +1645,8 @@
 <p>You can use the <a href="../diagnostics/#intelligent-settings-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
 </div>
 <h3 id="charge-target">Charge Target<a class="headerlink" href="#charge-target" title="Permanent link">#</a></h3>
-<p><code>number.octopus_energy_{{ACCOUNT_ID}}_intelligent_charge_target</code></p>
-<p>This sensor is used to see and set the charge target for your future intelligent charges.</p>
+<p><code>number.octopus_energy_{{DEVICE_ID}}_intelligent_charge_target</code></p>
+<p>This sensor is used to see and set the charge target for your future intelligent charges for a <strong>single</strong> intelligent device.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>This entity is not available for the following intelligent providers</p>
@@ -1523,8 +1659,9 @@
 <p>You can use the <a href="../diagnostics/#intelligent-settings-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
 </div>
 <h3 id="target-time-select">Target Time (Select)<a class="headerlink" href="#target-time-select" title="Permanent link">#</a></h3>
-<p><code>select.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time</code></p>
-<p>This sensor is used to see and set the target time for your future intelligent charges. This is limited to 30 minute increments between 4 and 11 to match the Octopus Energy app. This is useful if you use the app or have non-technical people interacting with the integration.</p>
+<p><code>select.octopus_energy_{{DEVICE_ID}}_intelligent_target_time</code></p>
+<p>This sensor is used to see and set the target time for your future intelligent charges for a <strong>single</strong> intelligent device. </p>
+<p>This is limited to 30 minute increments between 4 and 11 to match the Octopus Energy app. This is useful if you use the app or have non-technical people interacting with the integration.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>This entity is not available for the following intelligent providers</p>
@@ -1553,8 +1690,9 @@
 </tbody>
 </table>
 <h3 id="target-time-time">Target Time (Time)<a class="headerlink" href="#target-time-time" title="Permanent link">#</a></h3>
-<p><code>time.octopus_energy_{{ACCOUNT_ID}}_intelligent_target_time</code></p>
-<p>This sensor is used to see and set the target time for your future intelligent charges. This gives you finer control over the times (still within valid time periods), but may have unintended consequences with other apps (e.g. the Octopus Energy app) that use the data.</p>
+<p><code>time.octopus_energy_{{DEVICE_ID}}_intelligent_target_time</code></p>
+<p>This sensor is used to see and set the target time for your future intelligent charges for a <strong>single</strong> intelligent device. </p>
+<p>This gives you finer control over the times (still within valid time periods), but may have unintended consequences with other apps (e.g. the Octopus Energy app) that use the data.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>This entity is not available for the following intelligent providers</p>
@@ -1573,9 +1711,9 @@
 <h2 id="migrating-from-megakidha_octopus_intelligent">Migrating from megakid/ha_octopus_intelligent?<a class="headerlink" href="#migrating-from-megakidha_octopus_intelligent" title="Permanent link">#</a></h2>
 <p>If you're moving to this integration from <a href="https://github.com/megakid/ha_octopus_intelligent">megakid/ha_octopus_intelligent</a>, below is a quick guide on what entities you should use</p>
 <ul>
-<li><code>binary_sensor.octopus_intelligent_slot</code> - Use the <a href="#is-dispatching">is dispatching sensor</a></li>
+<li><code>binary_sensor.octopus_intelligent_slot</code> - Use the <a href="../electricity/#off-peak">off peak sensor</a></li>
 <li><code>binary_sensor.octopus_intelligent_planned_dispatch_slot</code> - There is no alternative for this.</li>
-<li><code>binary_sensor.octopus_intelligent_slot_next_1_hour</code>, <code>binary_sensor.octopus_intelligent_slot_next_2_hours</code> and <code>binary_sensor.octopus_intelligent_slot_next_3_hours</code> - These sensors felt like they would always fall short of peoples requirements as everyone has different time periods they wish to know about. The <a href="#is-dispatching">is dispatching sensor</a> exposes the current and next start/end times which could be used in a template sensor to determine how long the rate is cheap for when on. Or the <a href="../../setup/target_rate/">target rate</a> or <a href="../../setup/rolling_target_rate/">rolling target rate</a> might help for what you need.</li>
+<li><code>binary_sensor.octopus_intelligent_slot_next_1_hour</code>, <code>binary_sensor.octopus_intelligent_slot_next_2_hours</code> and <code>binary_sensor.octopus_intelligent_slot_next_3_hours</code> - These sensors felt like they would always fall short of peoples requirements as everyone has different time periods they wish to know about. The <a href="../electricity/#off-peak">off peak sensor</a> exposes the current and next start/end times which could be used in a template sensor to determine how long the rate is cheap for when on. Or the <a href="../../setup/target_rate/">target rate</a> or <a href="../../setup/rolling_target_rate/">rolling target rate</a> might help for what you need.</li>
 <li><code>sensor.octopus_intelligent_next_offpeak_start</code> - The default off peak start date/time can be found as an attribute on the <a href="../electricity/#off-peak">off peak sensor</a>. This can be extracted using a <a href="https://www.home-assistant.io/integrations/template/">template sensor</a>.</li>
 <li><code>sensor.octopus_intelligent_offpeak_end</code> - The default off peak end date/time can be found as an attribute on the <a href="../electricity/#off-peak">off peak sensor</a>. This can be extracted using a <a href="https://www.home-assistant.io/integrations/template/">template sensor</a>.</li>
 <li><code>switch.octopus_intelligent_bump_charge</code> - Use the <a href="#bump-charge">bump charge sensor</a></li>

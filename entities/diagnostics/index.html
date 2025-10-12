@@ -1130,6 +1130,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../repairs/tariff_rates_empty/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - Tariff Rates Empty
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1173,6 +1194,111 @@
   
 
       </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Architecture Decision Records
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture Decision Records
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0001_target_rates_removal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0001 - Deprecation and removal of Target Rate Sensors in Octopus Energy Integration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0002_intelligent_is_dispatching_behaviour_changes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0002 - Intelligent Is Dispatching behavior changes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0003 - Move to calendar entities for Octoplus events
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1513,7 +1639,7 @@
 </tbody>
 </table>
 <h2 id="intelligent-dispatches-data-last-retrieved">Intelligent Dispatches Data Last Retrieved<a class="headerlink" href="#intelligent-dispatches-data-last-retrieved" title="Permanent link">#</a></h2>
-<p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_dispatches_data_last_retrieved</code></p>
+<p><code>sensor.octopus_energy_{{DEVICE_ID}}_intelligent_dispatches_data_last_retrieved</code></p>
 <p>This sensor states when intelligent dispatches data was last retrieved.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -1543,10 +1669,25 @@
 <td><code>string</code></td>
 <td>The error that was raised to cause the last retrieval attempt to fail</td>
 </tr>
+<tr>
+<td><code>requests_current_hour</code></td>
+<td><code>integer</code></td>
+<td>The number of requests that have been made during the current hour. The start of the hour starts when the first request is made.</td>
+</tr>
+<tr>
+<td><code>maximum_requests_per_hour</code></td>
+<td><code>integer</code></td>
+<td>The maximum number of requests that can be made during an hour. The start of the hour starts when the first request is made.</td>
+</tr>
+<tr>
+<td><code>request_limits_last_reset</code></td>
+<td><code>datetime</code></td>
+<td>The datetime when the request limits were last reset. This will reset when a request is made and is within the designated limits.</td>
+</tr>
 </tbody>
 </table>
 <h2 id="intelligent-settings-data-last-retrieved">Intelligent Settings Data Last Retrieved<a class="headerlink" href="#intelligent-settings-data-last-retrieved" title="Permanent link">#</a></h2>
-<p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_intelligent_settings_data_last_retrieved</code></p>
+<p><code>sensor.octopus_energy_{{DEVICE_ID}}_intelligent_settings_data_last_retrieved</code></p>
 <p>This sensor states when intelligent settings data was last retrieved.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>

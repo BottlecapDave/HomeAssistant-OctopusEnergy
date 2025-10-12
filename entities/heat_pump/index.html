@@ -1157,6 +1157,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../repairs/tariff_rates_empty/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - Tariff Rates Empty
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1200,6 +1221,111 @@
   
 
       </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Architecture Decision Records
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture Decision Records
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0001_target_rates_removal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0001 - Deprecation and removal of Target Rate Sensors in Octopus Energy Integration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0002_intelligent_is_dispatching_behaviour_changes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0002 - Intelligent Is Dispatching behavior changes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0003 - Move to calendar entities for Octoplus events
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1463,11 +1589,15 @@
 <p>This can be used to control the target temperature and mode for a given water heater linked to your heat pump. It will also display the current temperature linked to the primary sensor for the zone.</p>
 <p>The following operation modes/states are available</p>
 <ul>
-<li><code>on</code> - This represents as <code>on</code> in the app</li>
+<li><code>electric</code> - This represents as <code>on</code> in the app</li>
 <li><code>off</code> - This represents as <code>off</code> in the app</li>
 <li><code>heat_pump</code> - This represents as <code>auto</code> in the app</li>
 <li><code>high_demand</code> - This represents as <code>boost</code> in the app</li>
 </ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>While these states look odd, unfortunately Home Assistant doesn't allow these <a href="https://developers.home-assistant.io/docs/core/entity/water-heater/">operation modes to differ</a> from those defined by Home Assistant.</p>
+</div>
 <p>When <code>boost</code> is selected, this activates boost mode for the zone for 1 hour. If a target temperature is not set, then this will default to 50 degrees c. If you require boost to be on for a different amount of time or with a different target temperature, then you can use the <a href="../../services/#octopus_energyboost_water_heater">available service</a>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>

@@ -1148,6 +1148,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../repairs/tariff_rates_empty/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Repairs - Tariff Rates Empty
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1191,6 +1212,111 @@
   
 
       </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_10" >
+        
+          
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+            
+  
+  <span class="md-ellipsis">
+    Architecture Decision Records
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+            Architecture Decision Records
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0001_target_rates_removal/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0001 - Deprecation and removal of Target Rate Sensors in Octopus Energy Integration
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0002_intelligent_is_dispatching_behaviour_changes/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0002 - Intelligent Is Dispatching behavior changes
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0003 - Move to calendar entities for Octoplus events
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
     </li>
   
 
@@ -1453,13 +1579,15 @@
 <h2 id="intelligent-rates-mode">Intelligent rates mode<a class="headerlink" href="#intelligent-rates-mode" title="Permanent link">#</a></h2>
 <p>If you are on an intelligent tariff then it's possible for you to get cheaper rates outside of your normal off peak periods if Octopus Energy schedules the charges and your car accepts the charges. The rate information provides by Octopus Energy doesn't take these periods into account, so the integration has to use the planned/completed dispatch information to adjust the rates appropriately. Due to the quality of the available data, this <em>can</em> be off sometimes. This feature allows how the rate information is adjusted in these scenarios.</p>
 <h3 id="planned-and-started-dispatches-will-turn-into-off-peak-rates">Planned and started dispatches will turn into off peak rates<a class="headerlink" href="#planned-and-started-dispatches-will-turn-into-off-peak-rates" title="Permanent link">#</a></h3>
-<p>This is the default behaviour. In this scenario, all planned dispatches will be assumed to be converted into successful off peak charges by the car and therefore all rates during these periods will be converted into the off peak rate. This will be indicated by the <code>is_intelligent_adjusted</code> property. This is useful when planning other devices to turn on in the future during these cheap periods (e.g. by using a <a href="../target_rate/">target rate sensor</a>). </p>
+<p>This is the default behaviour. In this scenario, all planned dispatches will be assumed to be converted into successful off peak charges by the car and therefore all rates during these periods will be converted into the off peak rate. This will be indicated by the <code>is_intelligent_adjusted</code> property against the rate. This is useful when planning other devices to turn on in the future during these cheap periods (e.g. by using a <a href="../target_rate/">target rate sensor</a>).</p>
+<p>Please see the <a href="../../faq/#what-are-started-dispatches-and-how-are-they-calculated">FAQ</a> for information on what started dispatches are.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>One side effect of this is around cost sensors, where if a planned dispatch does not turn into a started dispatch, the cost sensor can increase in value when the planned dispatch is removed.</p>
 </div>
 <h3 id="only-started-dispatches-will-turn-into-off-peak-rates">Only started dispatches will turn into off peak rates<a class="headerlink" href="#only-started-dispatches-will-turn-into-off-peak-rates" title="Permanent link">#</a></h3>
 <p>In this scenario only started dispatches will be taken into account for adjustments meaning all rates during only started dispatch periods will be converted into the off peak rate. This will be indicated by the <code>is_intelligent_adjusted</code> property. This means no future planning can be made to take advantage of these cheap periods by rates alone.</p>
+<p>Please see the <a href="../../faq/#what-are-started-dispatches-and-how-are-they-calculated">FAQ</a> for information on what started dispatches are.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>One side effect of this is around cost sensors, where when a started dispatch arrives the cost sensor will decrease in value.</p>
