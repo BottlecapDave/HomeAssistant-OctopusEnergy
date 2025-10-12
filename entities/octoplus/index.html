@@ -590,6 +590,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Saving Sessions Calendar">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -625,6 +640,21 @@
       Free Electricity Sessions Calendar
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Free Electricity Sessions Calendar">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1367,6 +1397,21 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Saving Sessions Calendar">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1402,6 +1447,21 @@
       Free Electricity Sessions Calendar
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Free Electricity Sessions Calendar">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1543,6 +1603,22 @@
 <p class="admonition-title">Note</p>
 <p>The events are supplied by OE API and does not store past events indefinitely. Past events could be removed without notice.</p>
 </div>
+<h3 id="automation-example">Automation Example<a class="headerlink" href="#automation-example" title="Permanent link">#</a></h3>
+<p>Below is an example of raising a persistent notification 5 minutes before a saving session starts.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">triggers</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">trigger</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">calendar</span>
+<span class="w">  </span><span class="nt">entity_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_sessions</span>
+<span class="w">  </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">start</span>
+<span class="w">  </span><span class="nt">offset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-00:05:00</span>
+<span class="nt">actions</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">persistent_notification.create</span>
+<span class="w">  </span><span class="nt">data</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Saving Session Starting</span>
+<span class="w">    </span><span class="nt">message</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
+<span class="w">      </span><span class="no">{% set minutes = ((state_attr(trigger.entity_id, &#39;end_time&#39;) | as_datetime - state_attr(trigger.entity_id, &#39;start_time&#39;) | as_datetime).seconds / 60) | round(0) | string %}</span>
+<span class="w">      </span><span class="no">{% set start_time = (state_attr(trigger.entity_id, &#39;start_time&#39;) | as_datetime).strftime(&#39;%H:%M&#39;) %}</span>
+<span class="w">      </span><span class="no">Saving session starts at {{ start_time }} for {{ minutes }} minutes.</span>
+</code></pre></div>
 <h2 id="saving-session-events">Saving Session Events<a class="headerlink" href="#saving-session-events" title="Permanent link">#</a></h2>
 <p><code>event.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_session_events</code></p>
 <p>The state of this sensor states when the saving session events were last updated. The attributes of this sensor exposes the joined and available saving sessions.</p>
@@ -1850,6 +1926,22 @@
 <p class="admonition-title">Info</p>
 <p>You can use the <a href="../diagnostics/#free-electricity-sessions-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
 </div>
+<h3 id="automation-example_1">Automation Example<a class="headerlink" href="#automation-example_1" title="Permanent link">#</a></h3>
+<p>Below is an example of raising a persistent notification 5 minutes before a free electricity session starts.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">triggers</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">trigger</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">calendar</span>
+<span class="w">  </span><span class="nt">entity_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session</span>
+<span class="w">  </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">start</span>
+<span class="w">  </span><span class="nt">offset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-00:05:00</span>
+<span class="nt">actions</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">persistent_notification.create</span>
+<span class="w">  </span><span class="nt">data</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Free Electricity Session Starting</span>
+<span class="w">    </span><span class="nt">message</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
+<span class="w">      </span><span class="no">{% set minutes = ((state_attr(trigger.entity_id, &#39;end_time&#39;) | as_datetime - state_attr(trigger.entity_id, &#39;start_time&#39;) | as_datetime).seconds / 60) | round(0) | string %}</span>
+<span class="w">      </span><span class="no">{% set start_time = (state_attr(trigger.entity_id, &#39;start_time&#39;) | as_datetime).strftime(&#39;%H:%M&#39;) %}</span>
+<span class="w">      </span><span class="no">Free electricity session starts at {{ start_time }} for {{ minutes }} minutes.</span>
+</code></pre></div>
 <h2 id="free-electricity-session-events">Free Electricity Session Events<a class="headerlink" href="#free-electricity-session-events" title="Permanent link">#</a></h2>
 <p><code>event.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session_events</code></p>
 <p>The state of this sensor states when the free electricity session events were last updated. The attributes of this sensor exposes the past, present and future free electricity sessions.</p>
