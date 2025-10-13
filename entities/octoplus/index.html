@@ -1594,14 +1594,15 @@
 </div>
 <h2 id="saving-sessions-calendar">Saving Sessions Calendar<a class="headerlink" href="#saving-sessions-calendar" title="Permanent link">#</a></h2>
 <p><code>calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_sessions</code></p>
-<p>Calendar sensor to record saving sessions. Will be <code>on</code> when a saving session that the account has joined is active. Standard calendar attributes will indicate the current/next saving session.</p>
+<p>Read only <a href="https://www.home-assistant.io/integrations/calendar">calendar</a> sensor to record saving sessions. Will be <code>on</code> when a saving session that the account has joined is active. Calendar events will be automatically added/removed by the integration when joined events are discovered. </p>
+<p>Standard calendar attributes will indicate the current/next saving session.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The sensor does not store past events indefinitely. Past events could be removed without notice.</p>
+</div>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>You can use the <a href="../diagnostics/#saving-sessions-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
-</div>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The events are supplied by OE API and does not store past events indefinitely. Past events could be removed without notice.</p>
 </div>
 <h3 id="automation-example">Automation Example<a class="headerlink" href="#automation-example" title="Permanent link">#</a></h3>
 <p>Below is an example of raising a persistent notification 5 minutes before a saving session starts.</p>
@@ -1913,7 +1914,12 @@
 </div>
 <h2 id="free-electricity-sessions-calendar">Free Electricity Sessions Calendar<a class="headerlink" href="#free-electricity-sessions-calendar" title="Permanent link">#</a></h2>
 <p><code>calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session</code></p>
-<p>Calendar sensor to record free electricity sessions. Will be <code>on</code> when a free electricity session is active. Standard calendar attributes will indicate the current/next saving session.</p>
+<p>Read only <a href="https://www.home-assistant.io/integrations/calendar">calendar</a> sensor to record free electricity sessions. Will be <code>on</code> when a free electricity session is active. Calendar events will be automatically added/removed by the integration when events are discovered.</p>
+<p>Standard calendar attributes will indicate the current/next saving session.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The sensor does not store past events indefinitely. Past events could be removed without notice.</p>
+</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to <a href="https://octopus.energy/free-electricity/">free electricity sessions</a>. This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi.</p>
