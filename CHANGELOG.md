@@ -1,3 +1,10 @@
+## [17.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.0.0...v17.0.1) (2025-10-15)
+
+
+### Bug Fixes
+
+* Reverted change to electricity and gas rate sensors to be measurements classes to match rate sensors in other native integrations and provide min/max/average stats. This is forcing some users to delete historic data for long term statistics to work. I'll try and bring back this feature in the future in some capacity. ([60672f4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/60672f4ee1d92ea866ee711a74563eba56ab1680))
+
 # [17.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v16.3.1...v17.0.0) (2025-10-12)
 
 
