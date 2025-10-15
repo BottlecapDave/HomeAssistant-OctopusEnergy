@@ -15,11 +15,10 @@
 * Fixed issue where intelligent maximum hourly calls check was being checked when data wasn't due to be refreshed ([fd74794](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fd74794d508548f071d1ceb1f16065cbdb020103))
 * Fixed issue where off peak rates flipped when multiple dispatch sources exist where one source is active and one isn't (1 hour dev time) ([72c2965](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/72c29651bf421a5934f02c988aadc0e865e1f91d))
 * Fixed repair issues to obfuscate PII information from the key (1.5 hours dev time) ([13d2f42](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/13d2f42e8903030931aca4a0fd1e8c634c8a5c82))
-* Incorrect number of arguments to async_create_issue ([0ad38cf](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0ad38cfba6a2d89a552085432302136b7689fd6d)), closes [#1479](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1479)
+* Incorrect number of arguments to async_create_issue ([0ad38cf](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0ad38cfba6a2d89a552085432302136b7689fd6d)), closes [#1479](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1479) (Thanks @TCWORLD)
 * Updated cost trackers to handle entities with non-string unique_ids (Thanks [@dpwood](https://github.com/dpwood)) ([5c32d16](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5c32d16ca0084dc76da363bba7d8e16340454787))
 * Updated heat pump water heater to use valid state to represent 'on' (30 minutes dev time) ([ae0b73d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ae0b73d839d348b96657f63e1ae10e01c591b577))
-* Updated minimum hacs version to 2025.1 ([fa77457](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fa774577007ee17df21ac488a6679b9f46bbe3b3))
-* Updated minimum hacs version to 2025.1 ([#1465](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1465)) ([39b9032](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/39b90320eedb1edf164919ae6bf6820cfe1e4c73))
+* Updated minimum hacs version to 2025.1 (Thanks @johncuthbertuk) ([fa77457](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fa774577007ee17df21ac488a6679b9f46bbe3b3))
 
 
 ### Features
@@ -32,7 +31,6 @@
 * Attached intelligent diagnostic sensors to intelligent device (15 minutes dev time) ([b0ca7d1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b0ca7d11c6f76a69921fb5f6b0ad542d6ccf634e))
 * Updated dispatches diagnostics sensor to include maximum_requests_per_hour (15 minutes dev time) ([a48d7ce](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/a48d7cea2f64e73ceb737e58515b81f60e82b1d4))
 * Updated electricity and gas rate sensors to be measurements classes to match rate sensors in other native integrations and provide min/max/average stats (30 minutes dev time) ([4a7305e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4a7305e7924ba483357d95ba6e75d3cd053ee7f9))
-* Updated electricity/gas/heat pump/octoplus diagnostic entities so they're attached to the correct devices (1 hour dev time) ([af0c285](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/af0c285675aebd10085f3d65b4f6c4897d9b4f34))
 * Updated electricity/gas/heat pump/octoplus diagnostic entities so they're attached to the correct devices (1 hour dev time) ([#1497](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1497)) ([2ce05ed](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2ce05ed738c0ad3c6c71776fd7c1b73058e7de29))
 * Updated off peak sensor to come on when intelligent devices are dispatching (30 minutes dev time) ([18e3eca](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/18e3eca01e21c9d63d0b30b78d01c70807bde5dd))
 * Updated raised errors for heat pump and intelligent controls to be more user friendly (2 hours dev time) ([e60ce63](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e60ce637641dc1d570602aa3121d79b79b69092a))
@@ -46,9 +44,8 @@ peak not turning on when in an ad-hoc off peak period). See
 https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/architecture_decision_records/0002_intelligent_is_dispatching_behaviour_changes
 for full details.
 * Intelligent device related entity ids have been changed from including the account id to including the device id. This is to support multiple EVs as well as other future intelligent devices OE might want to add in the future (e.g. Snug)
-
-is_dispatching entity will now only show when the car is within a scheduled dispatching period. It will no longer turn on when within the standard off peak period. This is because the naming and behaviour was confusing with the name (on when it's not dispatching) and behavior in conjunction with the off peak sensor (off peak not turning on when in an ad-hoc off peak period). See https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/architecture_decision_records/0002_intelligent_is_dispatching_behaviour_changes for full details.
-* If you are using blueprints provided by this integration, you will need to re-import them and potentially update automations in order to continue receiving updates.
+* is_dispatching entity will now only show when the car is within a scheduled dispatching period. It will no longer turn on when within the standard off peak period. This is because the naming and behaviour was confusing with the name (on when it's not dispatching) and behavior in conjunction with the off peak sensor (off peak not turning on when in an ad-hoc off peak period). See https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/architecture_decision_records/0002_intelligent_is_dispatching_behaviour_changes for full details.
+* If you are using blueprints provided by this integration, you will need to re-import them and potentially update automations in order to continue receiving updates. Please note the extensions for blueprints have changed from `.yml` to `.yaml`
 * If you have automations that look at the heat pump water heater, then you'll need to update any reference to the state of 'on' to 'electric'
 * Due to repair issue key structure changing, you may receive repair notices that you have previously ignored. You will need to ignore them again to hide them.
 

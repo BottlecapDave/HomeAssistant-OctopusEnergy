@@ -43,15 +43,37 @@ Binary sensor to indicate if a saving session that the account has joined is act
 
 `calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_sessions`
 
-Calendar sensor to record saving sessions. Will be `on` when a saving session that the account has joined is active. Standard calendar attributes will indicate the current/next saving session.
+Read only [calendar](https://www.home-assistant.io/integrations/calendar) sensor to record saving sessions. Will be `on` when a saving session that the account has joined is active. Calendar events will be automatically added/removed by the integration when joined events are discovered. 
+
+Standard calendar attributes will indicate the current/next saving session.
+
+!!! warning
+
+    The sensor does not store past events indefinitely. Past events could be removed without notice.
 
 !!! info
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#saving-sessions-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
-!!! note
+### Automation Example
 
-    The events are supplied by OE API and does not store past events indefinitely. Past events could be removed without notice.
+Below is an example of raising a persistent notification 5 minutes before a saving session starts.
+
+```yaml
+triggers:
+- trigger: calendar
+  entity_id: calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_sessions
+  event: start
+  offset: -00:05:00
+actions:
+- action: persistent_notification.create
+  data:
+    title: Saving Session Starting
+    message: >
+      {% set minutes = ((state_attr(trigger.entity_id, 'end_time') | as_datetime - state_attr(trigger.entity_id, 'start_time') | as_datetime).seconds / 60) | round(0) | string %}
+      {% set start_time = (state_attr(trigger.entity_id, 'start_time') | as_datetime).strftime('%H:%M') %}
+      Saving session starts at {{ start_time }} for {{ minutes }} minutes.
+```
 
 ## Saving Session Events
 
@@ -170,7 +192,13 @@ Binary sensor to indicate if a free electricity session is active.
 
 `calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session`
 
-Calendar sensor to record free electricity sessions. Will be `on` when a free electricity session is active. Standard calendar attributes will indicate the current/next saving session.
+Read only [calendar](https://www.home-assistant.io/integrations/calendar) sensor to record free electricity sessions. Will be `on` when a free electricity session is active. Calendar events will be automatically added/removed by the integration when events are discovered.
+
+Standard calendar attributes will indicate the current/next saving session.
+
+!!! warning
+
+    The sensor does not store past events indefinitely. Past events could be removed without notice.
 
 !!! note
     This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to [free electricity sessions](https://octopus.energy/free-electricity/). This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi.
@@ -181,6 +209,26 @@ Calendar sensor to record free electricity sessions. Will be `on` when a free el
 !!! info
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#free-electricity-sessions-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+
+### Automation Example
+
+Below is an example of raising a persistent notification 5 minutes before a free electricity session starts.
+
+```yaml
+triggers:
+- trigger: calendar
+  entity_id: calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session
+  event: start
+  offset: -00:05:00
+actions:
+- action: persistent_notification.create
+  data:
+    title: Free Electricity Session Starting
+    message: >
+      {% set minutes = ((state_attr(trigger.entity_id, 'end_time') | as_datetime - state_attr(trigger.entity_id, 'start_time') | as_datetime).seconds / 60) | round(0) | string %}
+      {% set start_time = (state_attr(trigger.entity_id, 'start_time') | as_datetime).strftime('%H:%M') %}
+      Free electricity session starts at {{ start_time }} for {{ minutes }} minutes.
+```
 
 ## Free Electricity Session Events
 
