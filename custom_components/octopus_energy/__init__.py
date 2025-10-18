@@ -533,7 +533,7 @@ async def async_register_intelligent_devices(hass, config: dict, now: datetime, 
         raise
 
       intelligent_devices = await async_load_cached_intelligent_devices(hass, account_id)
-      if (intelligent_device is not None):
+      if (intelligent_devices is not None):
         _LOGGER.warning(f"Using cached intelligent device information for {account_id} during startup. This data will be updated automatically when available.")
 
   hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DEVICES] = IntelligentDeviceCoordinatorResult(now, 1, intelligent_devices)
