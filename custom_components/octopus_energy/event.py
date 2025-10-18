@@ -15,10 +15,14 @@ from .gas.rates_previous_day import OctopusEnergyGasPreviousDayRates
 from .gas.rates_previous_consumption import OctopusEnergyGasPreviousConsumptionRates
 from .octoplus.saving_sessions_events import OctopusEnergyOctoplusSavingSessionEvents
 from .octoplus.free_electricity_sessions_events import OctopusEnergyOctoplusFreeElectricitySessionEvents
+from .coordinators.fan_club_discounts import FanClubDiscountCoordinatorResult
+from .fan_club.discounts import OctopusEnergyFanClubDiscounts
 
 from .const import (
   CONFIG_ACCOUNT_ID,
   DATA_CLIENT,
+  DATA_FAN_CLUB_DISCOUNTS,
+  DATA_FAN_CLUB_DISCOUNTS_COORDINATOR,
   DOMAIN,
 
   CONFIG_MAIN_API_KEY,
@@ -87,6 +91,12 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
           entities.append(OctopusEnergyGasCurrentDayRates(hass, meter, point))
           entities.append(OctopusEnergyGasNextDayRates(hass, meter, point))
           entities.append(OctopusEnergyGasPreviousConsumptionRates(hass, meter, point))
+
+  if DATA_FAN_CLUB_DISCOUNTS_COORDINATOR in hass.data[DOMAIN][account_id]:
+    fan_club_response: FanClubDiscountCoordinatorResult = hass.data[DOMAIN][account_id][DATA_FAN_CLUB_DISCOUNTS]
+    if fan_club_response is not None:
+      for fan_club in fan_club_response.discounts:
+        entities.append(OctopusEnergyFanClubDiscounts(hass, account_id, fan_club.source))
 
   if len(entities) > 0:
     async_add_entities(entities)
