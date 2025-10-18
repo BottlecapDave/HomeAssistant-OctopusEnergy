@@ -153,6 +153,10 @@ This is `on` when you're within your tariff's off peak period, and `off` at all 
 
     Depending on your [account configuration](../setup/account.md#intelligent-rates-mode), what is determined as an active dispatching period will change. If you have configured to accept [planned or started dispatches](../setup/account.md#planned-and-started-dispatches-will-turn-into-off-peak-rates), then the sensor will turn on when you're are within an active planned or started dispatch period. If you have configured to accept [only started dispatches](../setup/account.md#only-started-dispatches-will-turn-into-off-peak-rates), then the sensor will turn on when you're are within an active started dispatch period, but not planned dispatch.
 
+    This above does not apply and will not come on outside of the standard off peak hours for the following intelligent providers
+
+    * OHME
+
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `current_start` | `datetime` | The date/time when the off peak rate started |

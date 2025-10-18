@@ -6,7 +6,7 @@ If you are on the [intelligent tariff](https://octopus.energy/smart/intelligent-
 
     If you switch to the intelligent tariff after you have installed the integration, you will need to reload the integration or restart your Home Assistant instance. You will also need to do this if you re-onboard.
 
-### Is Dispatching
+## Is Dispatching
 
 `binary_sensor.octopus_energy_{{DEVICE_ID}}_intelligent_dispatching`
 
@@ -75,7 +75,7 @@ Each item in `started_dispatch` have the following attributes
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-dispatches-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
-### Current State
+## Current State
 
 `sensor.octopus_energy_{{DEVICE_ID}}_intelligent_state`
 
@@ -96,7 +96,7 @@ This sensor displays the current state of your intelligent provider as told by t
 * `LOST_CONNECTION` - lost connection to the device, ready to re-auth (if not temporary / automatic fix).
 * `RETIRED` - / de-authed (re-auth not possible, re-register device to onboard again).
 
-### Bump Charge
+## Bump Charge
 
 `switch.octopus_energy_{{DEVICE_ID}}_intelligent_bump_charge`
 
@@ -112,7 +112,7 @@ This sensor is used to turn on/off bump ("on-demand") charging for a **single** 
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-settings-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
-### Smart Charge
+## Smart Charge
 
 `switch.octopus_energy_{{DEVICE_ID}}_intelligent_smart_charge`
 
@@ -128,7 +128,7 @@ This sensor is used to turn on/off intelligent smart charging for a **single** i
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-settings-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
-### Charge Target
+## Charge Target
 
 `number.octopus_energy_{{DEVICE_ID}}_intelligent_charge_target`
 
@@ -144,7 +144,7 @@ This sensor is used to see and set the charge target for your future intelligent
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-settings-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
-### Target Time (Select)
+## Target Time (Select)
 
 `select.octopus_energy_{{DEVICE_ID}}_intelligent_target_time`
 
@@ -166,7 +166,7 @@ This is limited to 30 minute increments between 4 and 11 to match the Octopus En
 |-----------|------|-------------|
 | `raw_value` | `time` | The raw target time. This is useful if the time is set to a value outside of the range available in the select options (e.g. from another integration) |
 
-### Target Time (Time)
+## Target Time (Time)
 
 `time.octopus_energy_{{DEVICE_ID}}_intelligent_target_time`
 
@@ -192,7 +192,7 @@ This gives you finer control over the times (still within valid time periods), b
 If you're moving to this integration from [megakid/ha_octopus_intelligent](https://github.com/megakid/ha_octopus_intelligent), below is a quick guide on what entities you should use
 
 * `binary_sensor.octopus_intelligent_slot` - Use the [off peak sensor](./electricity.md#off-peak)
-* `binary_sensor.octopus_intelligent_planned_dispatch_slot` - There is no alternative for this.
+* `binary_sensor.octopus_intelligent_planned_dispatch_slot` - Use the [is dispatching sensor](#is-dispatching)
 * `binary_sensor.octopus_intelligent_slot_next_1_hour`, `binary_sensor.octopus_intelligent_slot_next_2_hours` and `binary_sensor.octopus_intelligent_slot_next_3_hours` - These sensors felt like they would always fall short of peoples requirements as everyone has different time periods they wish to know about. The [off peak sensor](./electricity.md#off-peak) exposes the current and next start/end times which could be used in a template sensor to determine how long the rate is cheap for when on. Or the [target rate](../setup/target_rate.md) or [rolling target rate](../setup/rolling_target_rate.md) might help for what you need.
 * `sensor.octopus_intelligent_next_offpeak_start` - The default off peak start date/time can be found as an attribute on the [off peak sensor](./electricity.md#off-peak). This can be extracted using a [template sensor](https://www.home-assistant.io/integrations/template/).
 * `sensor.octopus_intelligent_offpeak_end` - The default off peak end date/time can be found as an attribute on the [off peak sensor](./electricity.md#off-peak). This can be extracted using a [template sensor](https://www.home-assistant.io/integrations/template/).
