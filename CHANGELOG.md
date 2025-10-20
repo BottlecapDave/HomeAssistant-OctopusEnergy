@@ -1,3 +1,10 @@
+## [17.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.0.1...v17.0.2) (2025-10-18)
+
+
+### Bug Fixes
+
+* Fixed issue loading cached intelligent devices if they can't be retrieved live (5 minutes dev time) ([ecca499](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ecca499fe1088f481e055f59174cedef5ad96be2))
+
 ## [17.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.0.0...v17.0.1) (2025-10-15)
 
 
