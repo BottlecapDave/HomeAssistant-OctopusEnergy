@@ -33,6 +33,7 @@ from .storage.account import async_load_cached_account, async_save_cached_accoun
 from .storage.intelligent_device import async_load_cached_intelligent_devices, async_save_cached_intelligent_devices
 from .storage.rate_weightings import async_load_cached_rate_weightings
 from .storage.intelligent_dispatches import async_load_cached_intelligent_dispatches
+from .storage.intelligent_dispatches_history import IntelligentDispatchesHistory, async_load_cached_intelligent_dispatches_history
 from .api_client.intelligent_dispatches import IntelligentDispatches
 from .discovery import DiscoveryManager
 from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult, async_setup_intelligent_devices_coordinator
@@ -547,13 +548,15 @@ async def async_register_intelligent_devices(hass, config: dict, now: datetime, 
   await async_save_cached_intelligent_devices(hass, account_id, intelligent_devices)
 
   for intelligent_device in intelligent_devices:
-
     cached_dispatches = await async_load_cached_intelligent_dispatches(hass, account_id, intelligent_device.id)
+    intelligent_dispatches_history = await async_load_cached_intelligent_dispatches_history(hass, intelligent_device.id)
+    
     if cached_dispatches is not None:
       hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][intelligent_device.id] = IntelligentDispatchesCoordinatorResult(
         now - timedelta(hours=1),
         1,
         cached_dispatches,
+        intelligent_dispatches_history,
         0,
         now - timedelta(hours=1)
       )
@@ -597,6 +600,7 @@ async def async_register_intelligent_devices(hass, config: dict, now: datetime, 
             now - timedelta(hours=1),
             1,
             IntelligentDispatches(None, [], []),
+            IntelligentDispatchesHistory([]),
             0,
             now - timedelta(hours=1)
           )
@@ -607,7 +611,8 @@ async def async_register_intelligent_devices(hass, config: dict, now: datetime, 
       intelligent_device.id,
       should_mock_intelligent_data,
       intelligent_manual_service_enabled,
-      intelligent_features.planned_dispatches_supported if intelligent_features is not None else True
+      intelligent_features.planned_dispatches_supported if intelligent_features is not None else True,
+      intelligent_dispatches_history
     )
 
     await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id, should_mock_intelligent_data)

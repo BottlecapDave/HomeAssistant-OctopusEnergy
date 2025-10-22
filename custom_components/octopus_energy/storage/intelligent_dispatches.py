@@ -11,7 +11,7 @@ async def async_load_cached_intelligent_dispatches(hass, account_id: str, device
   try:
     data = await store.async_load()
     if data is not None:
-      _LOGGER.debug(f"Loaded cached intelligent dispatches data for {account_id}")
+      _LOGGER.debug(f"Loaded cached intelligent dispatches data for device {device_id}")
       return IntelligentDispatches.from_dict(data)
   except:
     store = storage.Store(hass, "1", f"octopus_energy.{account_id}_intelligent_dispatches")
@@ -19,7 +19,7 @@ async def async_load_cached_intelligent_dispatches(hass, account_id: str, device
     try:
       data = await store.async_load()
       if data is not None:
-        _LOGGER.debug(f"Loaded cached intelligent dispatches data for {account_id}")
+        _LOGGER.debug(f"Loaded cached intelligent dispatches data for account {account_id}")
         return IntelligentDispatches.from_dict(data)
     except:
       return None

@@ -28,8 +28,9 @@ from . import BaseCoordinatorResult
 from ..api_client.intelligent_device import IntelligentDevice
 from ..storage.intelligent_dispatches import async_save_cached_intelligent_dispatches
 
-from ..intelligent import clean_previous_dispatches, has_intelligent_tariff, mock_intelligent_dispatches
+from ..intelligent import clean_intelligent_dispatch_history, clean_previous_dispatches, has_intelligent_tariff, mock_intelligent_dispatches
 from ..coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
+from ..storage.intelligent_dispatches_history import IntelligentDispatchesHistory, async_save_cached_intelligent_dispatches_history
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -71,12 +72,14 @@ class IntelligentDispatchDataUpdateCoordinator(DataUpdateCoordinator):
 
 class IntelligentDispatchesCoordinatorResult(BaseCoordinatorResult):
   dispatches: IntelligentDispatches
+  history: IntelligentDispatchesHistory
   requests_current_hour: int
   requests_current_hour_last_reset: datetime
 
-  def __init__(self, last_evaluated: datetime, request_attempts: int, dispatches: IntelligentDispatches, requests_current_hour: int, requests_current_hour_last_reset: datetime, last_error: Exception | None = None):
+  def __init__(self, last_evaluated: datetime, request_attempts: int, dispatches: IntelligentDispatches, history: IntelligentDispatchesHistory, requests_current_hour: int, requests_current_hour_last_reset: datetime, last_error: Exception | None = None):
     super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_INTELLIGENT, None, last_error)
     self.dispatches = dispatches
+    self.history = history
     self.requests_current_hour = requests_current_hour
     self.requests_current_hour_last_reset = requests_current_hour_last_reset
 
@@ -165,6 +168,7 @@ async def async_retrieve_intelligent_dispatches(
           existing_intelligent_dispatches_result.last_evaluated,
           existing_intelligent_dispatches_result.request_attempts,
           existing_intelligent_dispatches_result.dispatches,
+          existing_intelligent_dispatches_result.history,
           existing_intelligent_dispatches_result.requests_current_hour,
           existing_intelligent_dispatches_result.requests_current_hour_last_reset,
           last_error=error
@@ -180,6 +184,7 @@ async def async_retrieve_intelligent_dispatches(
           existing_intelligent_dispatches_result.last_evaluated,
           existing_intelligent_dispatches_result.request_attempts,
           existing_intelligent_dispatches_result.dispatches,
+          existing_intelligent_dispatches_result.history,
           existing_intelligent_dispatches_result.requests_current_hour,
           existing_intelligent_dispatches_result.requests_current_hour_last_reset,
           last_error=error
@@ -216,8 +221,12 @@ async def async_retrieve_intelligent_dispatches(
 
         dispatches.completed = clean_previous_dispatches(current,
                                                          (existing_intelligent_dispatches_result.dispatches.completed if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and existing_intelligent_dispatches_result.dispatches.completed is not None else []) + dispatches.completed)
+        
+        new_history = clean_intelligent_dispatch_history(current,
+                                                         dispatches,
+                                                         existing_intelligent_dispatches_result.history.history if existing_intelligent_dispatches_result is not None else [])
 
-        return IntelligentDispatchesCoordinatorResult(current, 1, dispatches, requests_current_hour + 1, requests_last_reset)
+        return IntelligentDispatchesCoordinatorResult(current, 1, dispatches, IntelligentDispatchesHistory(new_history), requests_current_hour + 1, requests_last_reset)
       
       result = None
       if (existing_intelligent_dispatches_result is not None):
@@ -225,6 +234,7 @@ async def async_retrieve_intelligent_dispatches(
           existing_intelligent_dispatches_result.last_evaluated,
           existing_intelligent_dispatches_result.request_attempts + 1,
           existing_intelligent_dispatches_result.dispatches,
+          existing_intelligent_dispatches_result.history,
           existing_intelligent_dispatches_result.requests_current_hour + 1,
           existing_intelligent_dispatches_result.requests_current_hour_last_reset,
           last_error=raised_exception
@@ -234,7 +244,15 @@ async def async_retrieve_intelligent_dispatches(
           _LOGGER.warning(f"Failed to retrieve new dispatches - using cached dispatches. See diagnostics sensor for more information.")
       else:
         # We want to force into our fallback mode
-        result = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT), 2, None, requests_current_hour, requests_last_reset, last_error=raised_exception)
+        result = IntelligentDispatchesCoordinatorResult(
+          current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT),
+          2,
+          None,
+          IntelligentDispatchesHistory([]),
+          requests_current_hour,
+          requests_last_reset,
+          last_error=raised_exception
+        )
         _LOGGER.warning(f"Failed to retrieve new dispatches. See diagnostics sensor for more information.")
 
       return result
@@ -253,6 +271,7 @@ async def async_refresh_intelligent_dispatches(
   is_manual_refresh: bool,
   planned_dispatches_supported: bool,
   async_save_dispatches: Callable[[IntelligentDispatches], Awaitable[list]],
+  async_save_dispatches_history: Callable[[IntelligentDispatchesHistory], Awaitable[list]],
 ):
   result = await async_retrieve_intelligent_dispatches(
     current,
@@ -282,10 +301,17 @@ async def async_refresh_intelligent_dispatches(
         existing_intelligent_dispatches_result.dispatches is None or
         has_dispatches_changed(existing_intelligent_dispatches_result.dispatches, result.dispatches)):
       await async_save_dispatches(result.dispatches)
+      await async_save_dispatches_history(result.history)
 
   return result
 
-async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, device_id: str, mock_intelligent_data: bool, manual_dispatch_refreshes: bool, planned_dispatches_supported: bool):
+async def async_setup_intelligent_dispatches_coordinator(
+    hass,
+    account_id: str,
+    device_id: str,
+    mock_intelligent_data: bool,
+    manual_dispatch_refreshes: bool,
+    planned_dispatches_supported: bool):
   async def async_update_intelligent_dispatches_data(is_manual_refresh = False):
     """Fetch data from API endpoint."""
     # Request our account data to be refreshed
@@ -314,7 +340,8 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, 
       mock_intelligent_data,
       is_manual_refresh,
       planned_dispatches_supported,
-      lambda dispatches: async_save_cached_intelligent_dispatches(hass, device_id, dispatches)
+      lambda dispatches: async_save_cached_intelligent_dispatches(hass, device_id, dispatches),
+      lambda history: async_save_cached_intelligent_dispatches_history(hass, device_id, history)
     )
     
     return hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][device_id]

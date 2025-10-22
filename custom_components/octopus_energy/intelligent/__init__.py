@@ -8,6 +8,7 @@ from ..utils import get_active_tariff
 
 from ..const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLES, INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS, INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS, REFRESH_RATE_IN_MINUTES_INTELLIGENT
 
+from ..storage.intelligent_dispatches_history import IntelligentDispatchesHistory, IntelligentDispatchesHistoryItem
 from ..api_client.intelligent_settings import IntelligentSettings
 from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches, SimpleIntelligentDispatchItem
 from ..api_client.intelligent_device import IntelligentDevice
@@ -265,6 +266,39 @@ def clean_previous_dispatches(time: datetime, dispatches: list[IntelligentDispat
       new_dispatches[(dispatch.start, dispatch.end)] = dispatch
 
   return list(new_dispatches.values())
+
+def clean_intelligent_dispatch_history(time: datetime,
+                                       dispatches: IntelligentDispatches,
+                                       history: list[IntelligentDispatchesHistoryItem]) -> list[IntelligentDispatchItem]:
+  history.sort(key = lambda x: x.timestamp)
+
+  _LOGGER.debug(f"history: {[item.to_dict() for item in history]}")
+
+  new_history: list[IntelligentDispatchesHistoryItem] = []
+  previous_history_item: IntelligentDispatchesHistoryItem | None = None
+  min_time = time - timedelta(days=2)
+  
+  for history_item in history:
+
+    if history_item.timestamp >= min_time:
+      # Ensure we have one record before the minimum stored time so we know what we had at the start
+      if (len(new_history) == 0 and previous_history_item is not None):
+        new_history.append(previous_history_item)
+
+      new_history.append(history_item)
+
+    previous_history_item = history_item
+
+  # Ensure we have one record before the minimum stored time so we know what we had at the start
+  if (len(new_history) == 0 and previous_history_item is not None):
+    new_history.append(previous_history_item)
+
+  new_history.append(IntelligentDispatchesHistoryItem(
+    time,
+    dispatches)
+  )
+
+  return new_history
 
 def dictionary_list_to_dispatches(dispatches: list):
   items = []
