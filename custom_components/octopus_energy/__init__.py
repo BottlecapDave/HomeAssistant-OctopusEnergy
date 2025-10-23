@@ -611,8 +611,7 @@ async def async_register_intelligent_devices(hass, config: dict, now: datetime, 
       intelligent_device.id,
       should_mock_intelligent_data,
       intelligent_manual_service_enabled,
-      intelligent_features.planned_dispatches_supported if intelligent_features is not None else True,
-      intelligent_dispatches_history
+      intelligent_features.planned_dispatches_supported if intelligent_features is not None else True
     )
 
     await async_setup_intelligent_settings_coordinator(hass, account_id, intelligent_device.id, should_mock_intelligent_data)

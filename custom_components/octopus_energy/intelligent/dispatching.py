@@ -156,3 +156,12 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
     result: IntelligentDispatchesCoordinatorResult = await self.coordinator.refresh_dispatches()
     if result is not None and result.last_error is not None:
       raise ServiceValidationError(result.last_error)
+    
+  @callback
+  async def async_get_intelligent_dispatch_history(self):
+    """Refresh dispatches"""
+    result: IntelligentDispatchesCoordinatorResult = await self.coordinator.refresh_dispatches()
+    if result is not None:
+      return result.history.to_dict()
+    
+    return []

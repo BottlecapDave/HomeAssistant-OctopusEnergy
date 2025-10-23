@@ -390,3 +390,11 @@ refresh_intelligent_dispatches:
     entity:
       integration: octopus_energy
       domain: binary_sensor
+
+get_intelligent_dispatch_history:
+  name: Get intelligent dispatch history
+  description: Retrieve the history for up to the last 48 hours of intelligent dispatches that have been captured locally. For more information please see https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/services/#octopus_energyget_intelligent_dispatch_history.
+  target:
+    entity:
+      integration: octopus_energy
+      domain: binary_sensor

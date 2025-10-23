@@ -238,6 +238,17 @@ def get_intelligent_entities(hass, account_id: str, config: dict):
           "async_refresh_dispatches"
         )
 
+        platform.async_register_entity_service(
+          "get_intelligent_dispatch_history",
+          vol.All(
+            cv.make_entity_service_schema(
+              {},
+              extra=vol.ALLOW_EXTRA,
+            ),
+          ),
+          "async_get_intelligent_dispatch_history"
+        )
+
       coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR.format(intelligent_device.id)]
       entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, intelligent_device, account_id, intelligent_rate_mode, manually_refresh_dispatches))
 
