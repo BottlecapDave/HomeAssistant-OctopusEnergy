@@ -56,6 +56,26 @@ config_keys = [
 ]
 
 @pytest.mark.asyncio
+async def test_when_data_is_valid_and_minimal_then_no_errors_returned():
+  # Arrange
+  data = {
+    CONFIG_MAIN_API_KEY: "test-api-key",
+    CONFIG_ACCOUNT_ID: "A-123",
+    CONFIG_MAIN_CALORIFIC_VALUE: 40
+  }
+
+  account_info = get_account_info()
+  async def async_mocked_get_account(*args, **kwargs):
+    return account_info
+
+  # Act
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_account=async_mocked_get_account):
+    errors = await async_validate_main_config(data)
+
+    # Assert
+    assert_errors_not_present(errors, config_keys)
+
+@pytest.mark.asyncio
 async def test_when_data_is_valid_then_no_errors_returned():
   # Arrange
   data = {
@@ -513,3 +533,29 @@ async def test_when_can_connect_to_home_pro_then_no_errors_returned():
 
       # Assert
       assert_errors_not_present(errors, config_keys)
+
+@pytest.mark.asyncio
+async def test_when_objects_are_empty_then_no_errors_returned():
+  # Arrange
+  data = {
+    CONFIG_MAIN_API_KEY: "test-api-key",
+    CONFIG_ACCOUNT_ID: "A-123",
+    CONFIG_MAIN_HOME_MINI_SETTINGS: {},
+    CONFIG_MAIN_CALORIFIC_VALUE: 40,
+    CONFIG_MAIN_PRICE_CAP_SETTINGS: {},
+    CONFIG_MAIN_HOME_PRO_SETTINGS: {}
+  }
+
+  account_info = get_account_info()
+  async def async_mocked_get_account(*args, **kwargs):
+    return account_info
+  
+  async def async_mocked_ping_home_pro(*args, **kwargs):
+    return True
+
+  # Act
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_account=async_mocked_get_account):
+    errors = await async_validate_main_config(data)
+
+    # Assert
+    assert_errors_not_present(errors, config_keys)
