@@ -1,3 +1,10 @@
+## [17.0.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.0.2...v17.0.3) (2025-10-23)
+
+
+### Bug Fixes
+
+* Fixed issue with saving config home mini settings are not enabled (15 minutes dev time) ([76f7dd6](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/76f7dd6f490391f145f820582bf5c5923fdc9c82))
+
 ## [17.0.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.0.1...v17.0.2) (2025-10-18)
 
 
