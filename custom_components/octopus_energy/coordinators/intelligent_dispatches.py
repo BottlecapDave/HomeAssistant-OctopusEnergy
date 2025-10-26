@@ -330,13 +330,17 @@ async def async_setup_intelligent_dispatches_coordinator(
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
     account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
     account_info = account_result.account if account_result is not None else None
+    existing_intelligent_dispatches_result = (hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][device_id]
+                                              if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] and
+                                              device_id in hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] 
+                                              else None)
       
     hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][device_id] = await async_refresh_intelligent_dispatches(
       current,
       client,
       account_info,
       intelligent_device,
-      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][device_id] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] and device_id in hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] else None,
+      existing_intelligent_dispatches_result,
       mock_intelligent_data,
       is_manual_refresh,
       planned_dispatches_supported,

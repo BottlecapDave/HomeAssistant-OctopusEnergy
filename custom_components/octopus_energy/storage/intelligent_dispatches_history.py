@@ -36,7 +36,7 @@ class IntelligentDispatchesHistory:
   def from_dict(data: dict):
     history = []
     for item in data["history"]:
-      history.append(IntelligentDispatches.from_dict(item))
+      history.append(IntelligentDispatchesHistoryItem.from_dict(item))
     
     return IntelligentDispatchesHistory(history)
   

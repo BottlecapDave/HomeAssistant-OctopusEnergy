@@ -2,9 +2,10 @@ import logging
 
 import voluptuous as vol
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, SupportsResponse
 from homeassistant.helpers import config_validation as cv, entity_platform, issue_registry as ir
 from homeassistant.util.dt import (utcnow)
+import homeassistant.helpers.config_validation as cv
 
 from .electricity.off_peak import OctopusEnergyElectricityOffPeak
 from .octoplus.saving_sessions import OctopusEnergySavingSessions
@@ -225,8 +226,9 @@ def get_intelligent_entities(hass, account_id: str, config: dict):
   for intelligent_device in intelligent_devices:
 
     if intelligent_device.device_type == INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLES or intelligent_device.device_type == INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS:
+      
+      platform = entity_platform.async_get_current_platform()
       if (manually_refresh_dispatches):
-        platform = entity_platform.async_get_current_platform()
         platform.async_register_entity_service(
           "refresh_intelligent_dispatches",
           vol.All(
@@ -238,16 +240,19 @@ def get_intelligent_entities(hass, account_id: str, config: dict):
           "async_refresh_dispatches"
         )
 
-        platform.async_register_entity_service(
-          "get_intelligent_dispatch_history",
-          vol.All(
-            cv.make_entity_service_schema(
-              {},
-              extra=vol.ALLOW_EXTRA,
-            ),
-          ),
-          "async_get_intelligent_dispatch_history"
-        )
+      platform.async_register_entity_service(
+        "get_point_in_time_intelligent_dispatch_history",
+        vol.All(
+          cv.make_entity_service_schema(
+          {
+            vol.Required("point_in_time"): cv.datetime
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
+        ),
+        "async_get_point_in_time_intelligent_dispatch_history",
+        supports_response=SupportsResponse.ONLY
+      )
 
       coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR.format(intelligent_device.id)]
       entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, intelligent_device, account_id, intelligent_rate_mode, manually_refresh_dispatches))

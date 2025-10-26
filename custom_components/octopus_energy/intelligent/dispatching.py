@@ -1,5 +1,7 @@
+from datetime import datetime
 import logging
 
+from custom_components.octopus_energy.const import DOMAIN
 from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
@@ -8,7 +10,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
 from homeassistant.exceptions import ServiceValidationError
 
-from homeassistant.util.dt import (utcnow)
+from homeassistant.util.dt import (utcnow, as_local)
 from homeassistant.components.binary_sensor import (
     BinarySensorEntity,
 )
@@ -17,6 +19,7 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from ..intelligent import (
   dispatches_to_dictionary_list,
   get_applicable_dispatch_periods,
+  get_applicable_intelligent_dispatch_history,
   get_current_and_next_dispatching_periods,
   simple_dispatches_to_dictionary_list
 )
@@ -158,10 +161,31 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
       raise ServiceValidationError(result.last_error)
     
   @callback
-  async def async_get_intelligent_dispatch_history(self):
+  async def async_get_point_in_time_intelligent_dispatch_history(self, point_in_time: datetime):
     """Refresh dispatches"""
+    local_point_in_time = as_local(point_in_time)
     result: IntelligentDispatchesCoordinatorResult = await self.coordinator.refresh_dispatches()
-    if result is not None:
-      return result.history.to_dict()
+    applicable_dispatches = get_applicable_intelligent_dispatch_history(result.history if result is not None else None, local_point_in_time)
+    if applicable_dispatches is not None:
+      return applicable_dispatches.to_dict()
     
-    return []
+    earliest_timestamp = (as_local(result.history.history[0].timestamp).isoformat()
+                          if result is not None and
+                          result.history is not None and
+                          result.history.history is not None and
+                          len(result.history.history) > 0 
+                          else None)
+    
+    if earliest_timestamp is not None:
+      raise ServiceValidationError(
+        translation_domain=DOMAIN,
+        translation_key="point_in_time_intelligent_dispatch_history_data_out_of_bounds",
+        translation_placeholders={ 
+          "earliest_timestamp": earliest_timestamp,
+        },
+      )
+    
+    raise ServiceValidationError(
+        translation_domain=DOMAIN,
+        translation_key="point_in_time_intelligent_dispatch_history_data_unavailable",
+      )

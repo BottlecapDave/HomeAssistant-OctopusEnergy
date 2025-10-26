@@ -405,3 +405,16 @@ def device_type_to_friendly_string(device_type: str) -> str:
     return "Electric Vehicle"
   else:
     return device_type
+
+def get_applicable_intelligent_dispatch_history(history: IntelligentDispatchesHistory, time: datetime) -> IntelligentDispatchesHistoryItem  | None:
+  if history is None or history.history is None or len(history.history) == 0:
+    return None
+
+  applicable_history_item: IntelligentDispatchesHistoryItem | None = None
+  for history_item in history.history:
+    if history_item.timestamp <= time:
+      applicable_history_item = history_item
+    else:
+      break
+
+  return applicable_history_item
