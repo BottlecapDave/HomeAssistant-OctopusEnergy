@@ -53,6 +53,8 @@ async def async_load_cached_intelligent_dispatches_history(hass, device_id: str)
     if data is not None:
       _LOGGER.debug(f"Loaded cached intelligent dispatches history data for {device_id}")
       return IntelligentDispatchesHistory.from_dict(data)
+    
+    return IntelligentDispatchesHistory([])
   except:
     return IntelligentDispatchesHistory([])
   

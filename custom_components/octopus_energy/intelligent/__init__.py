@@ -272,8 +272,6 @@ def clean_intelligent_dispatch_history(time: datetime,
                                        history: list[IntelligentDispatchesHistoryItem]) -> list[IntelligentDispatchItem]:
   history.sort(key = lambda x: x.timestamp)
 
-  _LOGGER.debug(f"history: {[item.to_dict() for item in history]}")
-
   new_history: list[IntelligentDispatchesHistoryItem] = []
   previous_history_item: IntelligentDispatchesHistoryItem | None = None
   min_time = time - timedelta(days=2)
@@ -293,10 +291,11 @@ def clean_intelligent_dispatch_history(time: datetime,
   if (len(new_history) == 0 and previous_history_item is not None):
     new_history.append(previous_history_item)
 
-  new_history.append(IntelligentDispatchesHistoryItem(
-    time,
-    dispatches)
-  )
+  if len(new_history) < 1 or has_dispatches_changed(new_history[-1].dispatches, dispatches):
+    new_history.append(IntelligentDispatchesHistoryItem(
+      time,
+      dispatches)
+    )
 
   return new_history
 
@@ -405,6 +404,26 @@ def device_type_to_friendly_string(device_type: str) -> str:
     return "Electric Vehicle"
   else:
     return device_type
+  
+def has_dispatch_items_changed(existing_dispatches: list[SimpleIntelligentDispatchItem], new_dispatches: list[SimpleIntelligentDispatchItem]):
+  if len(existing_dispatches) != len(new_dispatches):
+    return True
+
+  if len(existing_dispatches) > 0:
+    for i in range(0, len(existing_dispatches)):
+      if (existing_dispatches[i].start != new_dispatches[i].start or
+          existing_dispatches[i].end != new_dispatches[i].end):
+        return True
+
+  return False
+  
+def has_dispatches_changed(existing_dispatches: IntelligentDispatches, new_dispatches: IntelligentDispatches):
+  return (
+    existing_dispatches.current_state != new_dispatches.current_state or
+    has_dispatch_items_changed(existing_dispatches.completed, new_dispatches.completed) or
+    has_dispatch_items_changed(existing_dispatches.planned, new_dispatches.planned) or
+    has_dispatch_items_changed(existing_dispatches.started, new_dispatches.started)
+  )
 
 def get_applicable_intelligent_dispatch_history(history: IntelligentDispatchesHistory, time: datetime) -> IntelligentDispatchesHistoryItem  | None:
   if history is None or history.history is None or len(history.history) == 0:

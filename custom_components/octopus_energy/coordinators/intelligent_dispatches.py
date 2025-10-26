@@ -28,7 +28,7 @@ from . import BaseCoordinatorResult
 from ..api_client.intelligent_device import IntelligentDevice
 from ..storage.intelligent_dispatches import async_save_cached_intelligent_dispatches
 
-from ..intelligent import clean_intelligent_dispatch_history, clean_previous_dispatches, has_intelligent_tariff, mock_intelligent_dispatches
+from ..intelligent import clean_intelligent_dispatch_history, clean_previous_dispatches, has_dispatches_changed, has_intelligent_tariff, mock_intelligent_dispatches
 from ..coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
 from ..storage.intelligent_dispatches_history import IntelligentDispatchesHistory, async_save_cached_intelligent_dispatches_history
 
@@ -82,29 +82,6 @@ class IntelligentDispatchesCoordinatorResult(BaseCoordinatorResult):
     self.history = history
     self.requests_current_hour = requests_current_hour
     self.requests_current_hour_last_reset = requests_current_hour_last_reset
-
-def has_dispatch_items_changed(existing_dispatches: list[SimpleIntelligentDispatchItem], new_dispatches: list[SimpleIntelligentDispatchItem]):
-  if len(existing_dispatches) != len(new_dispatches):
-    return True
-
-  if len(existing_dispatches) > 0:
-    for i in range(0, len(existing_dispatches)):
-      if (existing_dispatches[i].start != new_dispatches[i].start or
-          existing_dispatches[i].end != new_dispatches[i].end):
-        return True
-
-  return False
-
-def has_dispatches_changed(existing_dispatches: IntelligentDispatches, new_dispatches: IntelligentDispatches):
-  return (
-    existing_dispatches.current_state != new_dispatches.current_state or
-    len(existing_dispatches.completed) != len(new_dispatches.completed) or
-    has_dispatch_items_changed(existing_dispatches.completed, new_dispatches.completed) or
-    len(existing_dispatches.planned) != len(new_dispatches.planned) or
-    has_dispatch_items_changed(existing_dispatches.planned, new_dispatches.planned) or
-    len(existing_dispatches.started) != len(new_dispatches.started) or
-    has_dispatch_items_changed(existing_dispatches.started, new_dispatches.started)
-  )
 
 def merge_started_dispatches(current: datetime,
                              current_state: str,
