@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from custom_components.octopus_energy.coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
+from custom_components.octopus_energy.storage.intelligent_dispatches_history import IntelligentDispatchesHistory
 import pytest
 import mock
 
@@ -902,7 +903,7 @@ async def test_when_started_intelligent_dispatches_available_then_adjusted_reque
       is_electricity,
       is_smart_meter,
       fire_event,
-      { "1": IntelligentDispatchesCoordinatorResult(current_utc_timestamp, 1, intelligent_dispatches, 0, current_utc_timestamp) }
+      { "1": IntelligentDispatchesCoordinatorResult(current_utc_timestamp, 1, intelligent_dispatches, IntelligentDispatchesHistory([]), 0, current_utc_timestamp) }
     )
 
     # Assert
@@ -1077,7 +1078,7 @@ async def test_when_intelligent_tariff_and_no_dispatches_available_then_rates_re
       datetime.strptime("2022-02-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     )
 
-    intelligent_dispatches = { "1": IntelligentDispatchesCoordinatorResult(current_utc_timestamp, 1, IntelligentDispatches(None, [], [], []), 0, current_utc_timestamp) }
+    intelligent_dispatches = { "1": IntelligentDispatchesCoordinatorResult(current_utc_timestamp, 1, IntelligentDispatches(None, [], [], []), IntelligentDispatchesHistory([]), 0, current_utc_timestamp) }
 
     # Act
     result = await async_fetch_consumption_and_rates(
