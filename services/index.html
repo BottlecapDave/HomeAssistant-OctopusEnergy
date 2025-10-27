@@ -1102,6 +1102,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#octopus_energyget_point_in_time_intelligent_dispatch_history" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.get_point_in_time_intelligent_dispatch_history
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1956,6 +1965,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#octopus_energyget_point_in_time_intelligent_dispatch_history" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.get_point_in_time_intelligent_dispatch_history
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2572,6 +2590,37 @@
 </table>
 <h4 id="automation-example_6">Automation Example<a class="headerlink" href="#automation-example_6" title="Permanent link">#</a></h4>
 <p>For an automation example, please refer to the available <a href="../blueprints/#manual-intelligent-dispatch-refreshes">blueprint</a>.</p>
+<h3 id="octopus_energyget_point_in_time_intelligent_dispatch_history">octopus_energy.get_point_in_time_intelligent_dispatch_history<a class="headerlink" href="#octopus_energyget_point_in_time_intelligent_dispatch_history" title="Permanent link">#</a></h3>
+<p>Retrieve the intelligent dispatch history which was active for a given point in time based on up to the last 48 hours of intelligent dispatches that have been captured locally. This can be used to determine why <a href="../entities/intelligent/#is-dispatching">is dispatching</a> or <a href="../entities/electricity/#off-peak">off peak</a> might have turned on during a certain time period.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>The OE API doesn't provide historic intelligent dispatch information, so this information is stored locally as it changes. Therefore depending on how often your dispatch information refreshes, it can take a while for data to become available.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The data that powers this service is available at <code>config/.storage/octopus_energy.intelligent_dispatches_history_{{DEVICE_ID}}</code></p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Optional</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>target.entity_id</code></td>
+<td><code>no</code></td>
+<td>The <a href="../entities/intelligent/#is-dispatching">dispatching</a> entity that you want to refresh the content for (e.g. <code>binary_sensor.octopus_energy_{{DEVICE_ID}}_intelligent_dispatching</code>).</td>
+</tr>
+<tr>
+<td><code>data.point_in_time</code></td>
+<td><code>no</code></td>
+<td>The point in time to get the historic dispatch information that was active at the time.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="miscellaneous">Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permanent link">#</a></h2>
 <h3 id="octopus_energypurge_invalid_external_statistic_ids">octopus_energy.purge_invalid_external_statistic_ids<a class="headerlink" href="#octopus_energypurge_invalid_external_statistic_ids" title="Permanent link">#</a></h3>
 <p>For removing all external statistics that are associated with meters that don't have an active tariff. This is useful if you've been using the integration and obtained new smart meters.</p>

@@ -655,6 +655,30 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#greener-nights-calendar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Greener Nights Calendar
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Greener Nights Calendar">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1306,6 +1330,30 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#greener-nights-calendar" class="md-nav__link">
+    <span class="md-ellipsis">
+      Greener Nights Calendar
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Greener Nights Calendar">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1325,7 +1373,7 @@
 
 
 <h1 id="greenness-forecast">Greenness Forecast<a class="headerlink" href="#greenness-forecast" title="Permanent link">#</a></h1>
-<p>To support the <a href="https://octopus.energy/smart/greener-days/">greenness forecast</a> supported by Octopus Energy, the following entities are provided.</p>
+<p>To support the <a href="https://octopus.energy/smart/greener-nights/">greener nights</a> supported by Octopus Energy, the following entities are provided.</p>
 <h2 id="current-index">Current Index<a class="headerlink" href="#current-index" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_greenness_forecast_current_index</code></p>
 <p>The greenness index for the current period.</p>
@@ -1550,6 +1598,55 @@
 <p class="admonition-title">Info</p>
 <p>You can use the <a href="../diagnostics/#greenness-forecast-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
 </div>
+<h2 id="greener-nights-calendar">Greener Nights Calendar<a class="headerlink" href="#greener-nights-calendar" title="Permanent link">#</a></h2>
+<p><code>calendar.octopus_energy_{{ACCOUNT_ID}}_greener_nights</code></p>
+<p>Read only <a href="https://www.home-assistant.io/integrations/calendar">calendar</a> sensor to record nights that are highlighted as "greener nights". Will be <code>on</code> when a greener night is active. Calendar events will be automatically added/removed by the integration when greener nights are discovered. </p>
+<p>Standard calendar attributes will indicate the current/next highlighted greener night.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The sensor does not store past events indefinitely. Past events could be removed without notice.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#greenness-forecast-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>greenness_index</code></td>
+<td><code>int</code></td>
+<td>The index for the current/next forecast</td>
+</tr>
+<tr>
+<td><code>greenness_score</code></td>
+<td><code>string</code></td>
+<td>The score associated by Octopus Energy for the current/next forecast</td>
+</tr>
+</tbody>
+</table>
+<h3 id="automation-example">Automation Example<a class="headerlink" href="#automation-example" title="Permanent link">#</a></h3>
+<p>Below is an example of raising a persistent notification 5 minutes before a saving session starts.</p>
+<div class="highlight"><pre><span></span><code><span class="nt">triggers</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">trigger</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">calendar</span>
+<span class="w">  </span><span class="nt">entity_id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">calendar.octopus_energy_{{ACCOUNT_ID}}_greener_nights</span>
+<span class="w">  </span><span class="nt">event</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">start</span>
+<span class="w">  </span><span class="nt">offset</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-00:05:00</span>
+<span class="nt">actions</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">persistent_notification.create</span>
+<span class="w">  </span><span class="nt">data</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Greener Night Starting</span>
+<span class="w">    </span><span class="nt">message</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
+<span class="w">      </span><span class="no">{% set minutes = ((state_attr(trigger.entity_id, &#39;end_time&#39;) | as_datetime - state_attr(trigger.entity_id, &#39;start_time&#39;) | as_datetime).seconds / 60) | round(0) | string %}</span>
+<span class="w">      </span><span class="no">{% set start_time = (state_attr(trigger.entity_id, &#39;start_time&#39;) | as_datetime).strftime(&#39;%H:%M&#39;) %}</span>
+<span class="w">      </span><span class="no">Greener night starts at {{ start_time }} for {{ minutes }} minutes.</span>
+</code></pre></div>
 
 
 

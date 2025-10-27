@@ -1424,10 +1424,6 @@
 <p><code>binary_sensor.octopus_energy_{{DEVICE_ID}}_intelligent_dispatching</code></p>
 <p>This sensor is used to determine if you're within a dispatching period (i.e. "smart-charge" determined by Octopus Energy) for a <strong>single</strong> intelligent device. This sensor <strong>will not</strong> come on during a bump charge.</p>
 <p>Depending on your <a href="../../setup/account/#intelligent-rates-mode">account configuration</a>, what is determined as an active dispatching period will change. If you have configured to accept <a href="../../setup/account/#planned-and-started-dispatches-will-turn-into-off-peak-rates">planned or started dispatches</a>, then the sensor will turn on when you're are within an active planned or started dispatch period. If you have configured to accept <a href="../../setup/account/#only-started-dispatches-will-turn-into-off-peak-rates">only started dispatches</a>, then the sensor will turn on when you're are within an active started dispatch period, but not planned dispatch.</p>
-<div class="admonition info">
-<p class="admonition-title">Info</p>
-<p>This sensor will only turn on during dispatches for a single intelligent device. If you're after a sensor that turns on during the standard off peak rates as well or cover multiple intelligent devices then you're best to use the <a href="../electricity/#off-peak">off peak sensor</a>.</p>
-</div>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>If you are using this to drive other automations for cheap rates (e.g. to fill batteries), you should perform additional checks to make sure your vehicle is actually charging. If it isn't, this sensor could be incorrectly on if during a dispatch outside of the standard off peak period and you will therefore not receive the off peak rate.</p>
@@ -1440,6 +1436,14 @@
 <li>OHME</li>
 </ul>
 <p>If you are supplied by one of the above providers, this sensor will never turn on. </p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>This sensor will only turn on during dispatches for a single intelligent device. If you're after a sensor that turns on during the standard off peak rates as well or cover multiple intelligent devices then you're best to use the <a href="../electricity/#off-peak">off peak sensor</a>.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Sensor came on when you did/didn't expected it to? You can see what the state of your dispatches were at the time by using the <a href="../../services/#octopus_energyget_point_in_time_intelligent_dispatch_history">get_point_in_time_intelligent_dispatch_history service</a></p>
 </div>
 <table>
 <thead>

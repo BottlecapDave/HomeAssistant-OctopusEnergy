@@ -1667,7 +1667,7 @@
 <p>Like everything else with this integration, this is provided <em>as is</em> and should be used as a guide and early warning sign. It will only trigger if all data is available. If triggered, you should use your own judgment to determine if the warning is legitimate.</p>
 </div>
 <h3 id="alert-when-consumption-data-is-late">Alert when consumption data is late<a class="headerlink" href="#alert-when-consumption-data-is-late" title="Permanent link">#</a></h3>
-<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%octopus_energy_late_consumption_data.yaml">Install blueprint</a> | <a href="octopus_energy_late_consumption_data.yaml">Source</a></p>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_late_consumption_data.yaml">Install blueprint</a> | <a href="octopus_energy_late_consumption_data.yaml">Source</a></p>
 <p>This blueprint will fire a configured action when the latest available consumption data is x hours old, where x is configured via the blueprint.</p>
 <h2 id="octoplus">Octoplus<a class="headerlink" href="#octoplus" title="Permanent link">#</a></h2>
 <h3 id="automatically-join-saving-sessions">Automatically join saving sessions<a class="headerlink" href="#automatically-join-saving-sessions" title="Permanent link">#</a></h3>
@@ -1683,14 +1683,14 @@
 <p>You can manually run the automation if the redeemable points is over the threshold to get it in a state where automatic redemption will happen in the future.</p>
 </div>
 <h3 id="alert-when-current-consumption-is-approaching-saving-sessions-baseline">Alert when current consumption is approaching saving sessions baseline<a class="headerlink" href="#alert-when-current-consumption-is-approaching-saving-sessions-baseline" title="Permanent link">#</a></h3>
-<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%octopus_energy_baseline_alert.yaml">Install blueprint</a> | <a href="octopus_energy_baseline_alert.yaml">Source</a></p>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_baseline_alert.yaml">Install blueprint</a> | <a href="octopus_energy_baseline_alert.yaml">Source</a></p>
 <p>This blueprint will fire a configured action when the consumption for the current interval (i.e. the current 30 minute period) reaches a configured percentage of the saving session baseline.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>This blueprint requires sensors provided by Octopus Energy Home Mini</p>
 </div>
 <h3 id="alert-when-current-consumption-has-reached-free-electricity-sessions-baseline">Alert when current consumption has reached free electricity sessions baseline<a class="headerlink" href="#alert-when-current-consumption-has-reached-free-electricity-sessions-baseline" title="Permanent link">#</a></h3>
-<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%octopus_energy_free_electricity_baseline_reached.yaml">Install blueprint</a> | <a href="octopus_energy_free_electricity_baseline_reached.yaml">Source</a></p>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_free_electricity_baseline_reached.yaml">Install blueprint</a> | <a href="octopus_energy_free_electricity_baseline_reached.yaml">Source</a></p>
 <p>This blueprint will fire a configured action when the consumption for the current interval (i.e. the current 30 minute period) reaches the current free electricity session baseline.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
@@ -1698,7 +1698,7 @@
 </div>
 <h2 id="intelligent">Intelligent<a class="headerlink" href="#intelligent" title="Permanent link">#</a></h2>
 <h2 id="manual-intelligent-dispatch-refreshes">Manual Intelligent Dispatch Refreshes<a class="headerlink" href="#manual-intelligent-dispatch-refreshes" title="Permanent link">#</a></h2>
-<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%octopus_energy_manual_intelligent_refresh.yaml">Install blueprint</a> | <a href="octopus_energy_manual_intelligent_refresh.yaml">Source</a></p>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_manual_intelligent_refresh.yaml">Install blueprint</a> | <a href="octopus_energy_manual_intelligent_refresh.yaml">Source</a></p>
 <p>This blueprint will fire the <a href="../services/#octopus_energyrefresh_intelligent_dispatches">intelligent dispatches service</a> either when a sensor from another integration determines the car has been plugged in (e.g. the plug status from the <a href="https://github.com/CJNE/ha-myenergi">MyEnergi integration</a>) or when the data is stale and overdue a refresh (in case the dispatch information has changed).</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
