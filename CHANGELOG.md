@@ -1,3 +1,17 @@
+# [17.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.0.3...v17.1.0) (2025-10-27)
+
+
+### Bug Fixes
+
+* Fixed issue where free electricity/saving session calendar next event was not resetting properly (5 minutes dev time) ([38e9e34](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/38e9e34787a3fb3e1925324b8be6a240804f4c3c))
+
+
+### Features
+
+* Added calendar entity for highlighted greener nights (1 hour dev time) ([24c25a5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/24c25a506767f91e51ac4bc82b204451250956f6))
+* Added service/action for retrieveing intelligent dispatches applicable at a given point in time via local data. This is useful to determine why off peak or dispatch sensors might have turned on (4.5 hours dev time) ([b803abb](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b803abbfcab197804f4e4591457dc4f160c34b4b))
+* Updated greenness forecast to use newer greener nights API (1 hour dev time) ([bafdb0d](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/bafdb0d266daebf862b45e8811b3ce5f8631e59b))
+
 ## [17.0.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.0.2...v17.0.3) (2025-10-23)
 
 
