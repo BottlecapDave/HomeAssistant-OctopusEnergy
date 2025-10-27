@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+from custom_components.octopus_energy.storage.intelligent_dispatches_history import IntelligentDispatchesHistory, IntelligentDispatchesHistoryItem
 import pytest
 import mock
 
@@ -64,9 +65,17 @@ async def test_when_account_info_is_none_then_existing_dispatches_returned():
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = None
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved, 1, mock_intelligent_dispatches(), 1, last_retrieved)
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved, 1, mock_intelligent_dispatches(), IntelligentDispatchesHistory([]), 1, last_retrieved)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -79,7 +88,8 @@ async def test_when_account_info_is_none_then_existing_dispatches_returned():
       False,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert retrieved_dispatches == existing_dispatches
@@ -87,6 +97,9 @@ async def test_when_account_info_is_none_then_existing_dispatches_returned():
 
     assert save_dispatches_called == False
     assert save_dispatches_dispatches == None
+
+    assert save_dispatches_history_called == False
+    assert save_dispatches_history_history == None
 
 @pytest.mark.asyncio
 async def test_when_intelligent_device_is_none_then_none_returned():
@@ -104,6 +117,14 @@ async def test_when_intelligent_device_is_none_then_none_returned():
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info(True, active_product_code="GO-18-06-12")
   existing_dispatches = None
@@ -119,7 +140,8 @@ async def test_when_intelligent_device_is_none_then_none_returned():
       False,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert mock_api_called == False
@@ -128,6 +150,9 @@ async def test_when_intelligent_device_is_none_then_none_returned():
 
     assert save_dispatches_called == False
     assert save_dispatches_dispatches == None
+
+    assert save_dispatches_history_called == False
+    assert save_dispatches_history_history == None
 
 @pytest.mark.asyncio
 async def test_when_not_on_intelligent_tariff_then_none_returned():
@@ -145,6 +170,14 @@ async def test_when_not_on_intelligent_tariff_then_none_returned():
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info(True, active_product_code="GO-18-06-12")
   existing_dispatches = None
@@ -160,7 +193,8 @@ async def test_when_not_on_intelligent_tariff_then_none_returned():
       False,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert mock_api_called == False
@@ -169,6 +203,9 @@ async def test_when_not_on_intelligent_tariff_then_none_returned():
 
     assert save_dispatches_called == False
     assert save_dispatches_dispatches == None
+
+    assert save_dispatches_history_called == False
+    assert save_dispatches_history_history == None
 
 @pytest.mark.asyncio
 async def test_when_mock_is_true_then_none_returned():
@@ -185,6 +222,14 @@ async def test_when_mock_is_true_then_none_returned():
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
   existing_dispatches = None
@@ -200,7 +245,8 @@ async def test_when_mock_is_true_then_none_returned():
       True,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     mocked_data = mock_intelligent_dispatches()
@@ -227,6 +273,12 @@ async def test_when_mock_is_true_then_none_returned():
     assert save_dispatches_called == True
     assert save_dispatches_dispatches == retrieved_dispatches.dispatches
 
+    assert save_dispatches_history_called == True
+    assert save_dispatches_history_history is not None
+    assert len(save_dispatches_history_history.history) == 1
+    assert save_dispatches_history_history.history[0].timestamp == current
+    assert save_dispatches_history_history.history[0].dispatches == retrieved_dispatches.dispatches
+
 @pytest.mark.asyncio
 async def test_when_next_refresh_is_in_the_future_then_existing_dispatches_returned():
   current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
@@ -244,9 +296,17 @@ async def test_when_next_refresh_is_in_the_future_then_existing_dispatches_retur
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, mock_intelligent_dispatches(), 1, last_retrieved)
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, mock_intelligent_dispatches(), IntelligentDispatchesHistory([]), 1, last_retrieved)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -259,7 +319,8 @@ async def test_when_next_refresh_is_in_the_future_then_existing_dispatches_retur
       False,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert mock_api_called == False
@@ -267,6 +328,9 @@ async def test_when_next_refresh_is_in_the_future_then_existing_dispatches_retur
 
     assert save_dispatches_called == False
     assert save_dispatches_dispatches == None
+
+    assert save_dispatches_history_called == False
+    assert save_dispatches_history_history == None
 
 @pytest.mark.asyncio
 async def test_when_existing_dispatches_returned_and_planned_dispatch_started_and_refreshed_recently_then_started_dispatches_not_updated():
@@ -285,9 +349,17 @@ async def test_when_existing_dispatches_returned_and_planned_dispatch_started_an
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=2), 1, mock_intelligent_dispatches(), 1, last_retrieved)
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=2), 1, mock_intelligent_dispatches(), IntelligentDispatchesHistory([]), 1, last_retrieved)
   existing_dispatches.dispatches.current_state = "SMART_CONTROL_IN_PROGRESS"
   existing_dispatches.dispatches.planned = [
     IntelligentDispatchItem(
@@ -310,7 +382,8 @@ async def test_when_existing_dispatches_returned_and_planned_dispatch_started_an
       False,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert mock_api_called == False
@@ -321,11 +394,14 @@ async def test_when_existing_dispatches_returned_and_planned_dispatch_started_an
     assert save_dispatches_called == False
     assert save_dispatches_dispatches == None
 
+    assert save_dispatches_history_called == False
+    assert save_dispatches_history_history == None
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("existing_dispatches",[
   (None),
-  (IntelligentDispatchesCoordinatorResult(last_retrieved, 1, IntelligentDispatches(None, None, None), 1, last_retrieved)),
-  (IntelligentDispatchesCoordinatorResult(last_retrieved, 1, None, 1, last_retrieved)),
+  (IntelligentDispatchesCoordinatorResult(last_retrieved, 1, IntelligentDispatches(None, None, None), IntelligentDispatchesHistory([]), 1, last_retrieved)),
+  (IntelligentDispatchesCoordinatorResult(last_retrieved, 1, None, IntelligentDispatchesHistory([]), 1, last_retrieved)),
 ])
 async def test_when_existing_dispatches_is_none_then_dispatches_retrieved(existing_dispatches):
   expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], [])
@@ -342,9 +418,17 @@ async def test_when_existing_dispatches_is_none_then_dispatches_retrieved(existi
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
-  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, 1, last_retrieved)
+  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, IntelligentDispatchesHistory([]), 1, last_retrieved)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -357,7 +441,8 @@ async def test_when_existing_dispatches_is_none_then_dispatches_retrieved(existi
       False,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert retrieved_dispatches is not None
@@ -367,6 +452,12 @@ async def test_when_existing_dispatches_is_none_then_dispatches_retrieved(existi
 
     assert save_dispatches_called == True
     assert save_dispatches_dispatches == retrieved_dispatches.dispatches
+
+    assert save_dispatches_history_called == True
+    assert save_dispatches_history_history is not None
+    assert len(save_dispatches_history_history.history) == 1
+    assert save_dispatches_history_history.history[0].timestamp == current
+    assert save_dispatches_history_history.history[0].dispatches == retrieved_dispatches.dispatches
     
 @pytest.mark.asyncio
 async def test_when_existing_dispatches_is_old_then_dispatches_retrieved():
@@ -384,10 +475,21 @@ async def test_when_existing_dispatches_is_old_then_dispatches_retrieved():
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), 1, last_retrieved)
-  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, 1, last_retrieved)
+  expected_history: list[IntelligentDispatchesHistoryItem] = [
+    IntelligentDispatchesHistoryItem(current - timedelta(hours=1), IntelligentDispatches("SMART_CONTROL_OFF", [], []))
+  ]
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), IntelligentDispatchesHistory(expected_history), 1, last_retrieved)
+  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, IntelligentDispatchesHistory([]), 1, last_retrieved)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -400,7 +502,8 @@ async def test_when_existing_dispatches_is_old_then_dispatches_retrieved():
       False,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert retrieved_dispatches is not None
@@ -411,6 +514,83 @@ async def test_when_existing_dispatches_is_old_then_dispatches_retrieved():
 
     assert save_dispatches_called == True
     assert save_dispatches_dispatches == retrieved_dispatches.dispatches
+
+    assert save_dispatches_history_called == True
+    assert save_dispatches_history_history is not None
+    assert len(save_dispatches_history_history.history) == 2
+
+    assert save_dispatches_history_history.history[0].timestamp == expected_history[0].timestamp
+    assert save_dispatches_history_history.history[0].dispatches == expected_history[0].dispatches
+
+    assert save_dispatches_history_history.history[1].timestamp == current
+    assert save_dispatches_history_history.history[1].dispatches == retrieved_dispatches.dispatches
+
+@pytest.mark.asyncio
+async def test_when_existing_dispatches_history_is_old_then_not_included_in_new_history():
+  expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], [])
+  mock_api_called = False
+  async def async_mock_get_intelligent_dispatches(*args, **kwargs):
+    nonlocal mock_api_called
+    mock_api_called = True
+    return expected_dispatches
+  
+  save_dispatches_called = False
+  save_dispatches_dispatches = None
+  async def async_save_dispatches(*args, **kwargs):
+    nonlocal save_dispatches_called, save_dispatches_dispatches
+    save_dispatches_called = True
+    dispatches, = args
+    save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
+  
+  account_info = get_account_info()
+  expected_history: list[IntelligentDispatchesHistoryItem] = [
+    IntelligentDispatchesHistoryItem(current - timedelta(days=3, seconds=1), IntelligentDispatches("SMART_CONTROL_OFF", [], [])),
+    IntelligentDispatchesHistoryItem(current - timedelta(days=2, seconds=1), IntelligentDispatches("SMART_CONTROL_OFF", [], []))
+  ]
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), IntelligentDispatchesHistory(expected_history), 1, last_retrieved)
+  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, IntelligentDispatchesHistory([]), 1, last_retrieved)
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_dispatches: IntelligentDispatchesCoordinatorResult = await async_refresh_intelligent_dispatches(
+      current,
+      client,
+      account_info,
+      intelligent_device,
+      existing_dispatches,
+      False,
+      False,
+      True,
+      async_save_dispatches,
+      async_save_dispatches_history
+    )
+
+    assert retrieved_dispatches is not None
+    assert retrieved_dispatches.next_refresh == current.replace(second=0, microsecond=0) + timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)
+    assert retrieved_dispatches.last_evaluated == expected_retrieved_dispatches.last_evaluated
+    assert retrieved_dispatches.dispatches == expected_retrieved_dispatches.dispatches
+    assert mock_api_called == True
+
+    assert save_dispatches_called == True
+    assert save_dispatches_dispatches == retrieved_dispatches.dispatches
+
+    assert save_dispatches_history_called == True
+    assert save_dispatches_history_history is not None
+    assert len(save_dispatches_history_history.history) == 2
+
+    assert save_dispatches_history_history.history[0].timestamp == expected_history[1].timestamp
+    assert save_dispatches_history_history.history[0].dispatches == expected_history[1].dispatches
+
+    assert save_dispatches_history_history.history[1].timestamp == current
+    assert save_dispatches_history_history.history[1].dispatches == retrieved_dispatches.dispatches
 
 @pytest.mark.asyncio
 async def test_when_settings_not_retrieved_then_existing_dispatches_returned():
@@ -427,9 +607,17 @@ async def test_when_settings_not_retrieved_then_existing_dispatches_returned():
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved, 1, IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], []), 1, last_retrieved)
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved, 1, IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], []), IntelligentDispatchesHistory([]), 1, last_retrieved)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -442,7 +630,8 @@ async def test_when_settings_not_retrieved_then_existing_dispatches_returned():
       False,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert retrieved_dispatches is not None
@@ -455,6 +644,9 @@ async def test_when_settings_not_retrieved_then_existing_dispatches_returned():
 
     assert save_dispatches_called == False
     assert save_dispatches_dispatches == None
+
+    assert save_dispatches_history_called == False
+    assert save_dispatches_history_history == None
 
 @pytest.mark.asyncio
 async def test_when_exception_raised_then_existing_dispatches_returned_and_exception_captured():
@@ -472,9 +664,17 @@ async def test_when_exception_raised_then_existing_dispatches_returned_and_excep
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved, 1, IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], []), 1, last_retrieved)
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved, 1, IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], []), IntelligentDispatchesHistory([]), 1, last_retrieved)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -487,7 +687,8 @@ async def test_when_exception_raised_then_existing_dispatches_returned_and_excep
       False,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert retrieved_dispatches is not None
@@ -501,6 +702,9 @@ async def test_when_exception_raised_then_existing_dispatches_returned_and_excep
 
     assert save_dispatches_called == False
     assert save_dispatches_dispatches == None
+
+    assert save_dispatches_history_called == False
+    assert save_dispatches_history_history == None
 
 @pytest.mark.asyncio
 async def test_when_requests_reached_for_hour_and_due_to_be_reset_then_dispatches_retrieved():
@@ -518,10 +722,18 @@ async def test_when_requests_reached_for_hour_and_due_to_be_reset_then_dispatche
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), 20, current - timedelta(hours=1))
-  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, 1, last_retrieved)
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), IntelligentDispatchesHistory([]), 20, current - timedelta(hours=1))
+  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, IntelligentDispatchesHistory([]), 1, last_retrieved)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -534,7 +746,8 @@ async def test_when_requests_reached_for_hour_and_due_to_be_reset_then_dispatche
       False,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert retrieved_dispatches is not None
@@ -545,6 +758,12 @@ async def test_when_requests_reached_for_hour_and_due_to_be_reset_then_dispatche
 
     assert save_dispatches_called == True
     assert save_dispatches_dispatches == retrieved_dispatches.dispatches
+
+    assert save_dispatches_history_called == True
+    assert save_dispatches_history_history is not None
+    assert len(save_dispatches_history_history.history) == 1
+    assert save_dispatches_history_history.history[0].timestamp == current
+    assert save_dispatches_history_history.history[0].dispatches == retrieved_dispatches.dispatches
 
 @pytest.mark.asyncio
 async def test_when_requests_reached_for_hour_and_not_due_to_be_reset_then_existing_dispatches_returned_with_error():
@@ -562,9 +781,17 @@ async def test_when_requests_reached_for_hour_and_not_due_to_be_reset_then_exist
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), 20, current)
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), IntelligentDispatchesHistory([]), 20, current)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -577,7 +804,8 @@ async def test_when_requests_reached_for_hour_and_not_due_to_be_reset_then_exist
       False,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert retrieved_dispatches is not None
@@ -592,6 +820,9 @@ async def test_when_requests_reached_for_hour_and_not_due_to_be_reset_then_exist
 
     assert save_dispatches_called == False
     assert save_dispatches_dispatches == None
+
+    assert save_dispatches_history_called == False
+    assert save_dispatches_history_history == None
 
 @pytest.mark.asyncio
 async def test_when_manual_refresh_is_called_within_one_minute_then_existing_dispatches_returned_with_error():
@@ -609,9 +840,17 @@ async def test_when_manual_refresh_is_called_within_one_minute_then_existing_dis
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(seconds=1), 1, mock_intelligent_dispatches(), 1, current)
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(seconds=1), 1, mock_intelligent_dispatches(), IntelligentDispatchesHistory([]), 1, current)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -624,7 +863,8 @@ async def test_when_manual_refresh_is_called_within_one_minute_then_existing_dis
       False,
       True,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert retrieved_dispatches is not None
@@ -639,6 +879,9 @@ async def test_when_manual_refresh_is_called_within_one_minute_then_existing_dis
 
     assert save_dispatches_called == False
     assert save_dispatches_dispatches == None
+
+    assert save_dispatches_history_called == False
+    assert save_dispatches_history_history == None
 
 @pytest.mark.asyncio
 async def test_when_manual_refresh_is_called_after_one_minute_then_dispatches_retrieved():
@@ -656,10 +899,18 @@ async def test_when_manual_refresh_is_called_after_one_minute_then_dispatches_re
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=1), 1, mock_intelligent_dispatches(), 1, current - timedelta(hours=1))
-  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, 1, last_retrieved)
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=1), 1, mock_intelligent_dispatches(), IntelligentDispatchesHistory([]), 1, current - timedelta(hours=1))
+  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, IntelligentDispatchesHistory([]), 1, last_retrieved)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -672,7 +923,8 @@ async def test_when_manual_refresh_is_called_after_one_minute_then_dispatches_re
       False,
       True,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert mock_api_called == True
@@ -683,6 +935,12 @@ async def test_when_manual_refresh_is_called_after_one_minute_then_dispatches_re
 
     assert save_dispatches_called == True
     assert save_dispatches_dispatches == retrieved_dispatches.dispatches
+
+    assert save_dispatches_history_called == True
+    assert save_dispatches_history_history is not None
+    assert len(save_dispatches_history_history.history) == 1
+    assert save_dispatches_history_history.history[0].timestamp == current
+    assert save_dispatches_history_history.history[0].dispatches == retrieved_dispatches.dispatches
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("planned_is_empty,completed_is_empty",[
@@ -709,15 +967,23 @@ async def test_when_no_dispatches_are_retrieved_and_none_exist_then_dispatches_r
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=1), 1, mock_intelligent_dispatches(), 1, current - timedelta(hours=1))
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=1), 1, mock_intelligent_dispatches(), IntelligentDispatchesHistory([]), 1, current - timedelta(hours=1))
   if planned_is_empty:
     existing_dispatches.dispatches.planned = []
   elif completed_is_empty:
     existing_dispatches.dispatches.completed = []
 
-  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, 1, last_retrieved)
+  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, IntelligentDispatchesHistory([]), 1, last_retrieved)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -730,7 +996,8 @@ async def test_when_no_dispatches_are_retrieved_and_none_exist_then_dispatches_r
       False,
       True,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert mock_api_called == True
@@ -741,6 +1008,9 @@ async def test_when_no_dispatches_are_retrieved_and_none_exist_then_dispatches_r
 
     assert save_dispatches_called == False
     assert save_dispatches_dispatches == None
+
+    assert save_dispatches_history_called == False
+    assert save_dispatches_history_history == None
 
 @pytest.mark.asyncio
 async def test_when_retrieved_planned_dispatch_started_and_in_boosting_mode_then_started_dispatches_not_added_to():
@@ -766,10 +1036,18 @@ async def test_when_retrieved_planned_dispatch_started_and_in_boosting_mode_then
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), 1, last_retrieved)
-  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, 1, last_retrieved)
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), IntelligentDispatchesHistory([]), 1, last_retrieved)
+  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, IntelligentDispatchesHistory([]), 1, last_retrieved)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -782,7 +1060,8 @@ async def test_when_retrieved_planned_dispatch_started_and_in_boosting_mode_then
       False,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert retrieved_dispatches is not None
@@ -793,6 +1072,12 @@ async def test_when_retrieved_planned_dispatch_started_and_in_boosting_mode_then
     assert mock_api_called == True
 
     assert save_dispatches_called == True
+
+    assert save_dispatches_history_called == True
+    assert save_dispatches_history_history is not None
+    assert len(save_dispatches_history_history.history) == 1
+    assert save_dispatches_history_history.history[0].timestamp == current
+    assert save_dispatches_history_history.history[0].dispatches == retrieved_dispatches.dispatches
 
 @pytest.mark.asyncio
 async def test_when_retrieved_planned_dispatch_started_and_not_in_boosting_mode_then_started_dispatches_added_to():
@@ -818,10 +1103,18 @@ async def test_when_retrieved_planned_dispatch_started_and_not_in_boosting_mode_
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), 1, last_retrieved)
-  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, 1, last_retrieved)
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), IntelligentDispatchesHistory([]), 1, last_retrieved)
+  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, IntelligentDispatchesHistory([]), 1, last_retrieved)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -834,7 +1127,8 @@ async def test_when_retrieved_planned_dispatch_started_and_not_in_boosting_mode_
       False,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert retrieved_dispatches is not None
@@ -848,6 +1142,12 @@ async def test_when_retrieved_planned_dispatch_started_and_not_in_boosting_mode_
     assert retrieved_dispatches.dispatches.started[0].end == current.replace(second=0, microsecond=0) + timedelta(minutes=30)
 
     assert save_dispatches_called == True
+
+    assert save_dispatches_history_called == True
+    assert save_dispatches_history_history is not None
+    assert len(save_dispatches_history_history.history) == 1
+    assert save_dispatches_history_history.history[0].timestamp == current
+    assert save_dispatches_history_history.history[0].dispatches == retrieved_dispatches.dispatches
 
 @pytest.mark.asyncio
 async def test_when_retrieved_planned_dispatch_started_and_existing_started_dispatch_exists_in_previous_period_then_existing_started_dispatch_extended():
@@ -873,9 +1173,17 @@ async def test_when_retrieved_planned_dispatch_started_and_existing_started_disp
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(expected_dispatches.current_state), 1, last_retrieved)
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(expected_dispatches.current_state), IntelligentDispatchesHistory([]), 1, last_retrieved)
   existing_dispatches.dispatches.planned = expected_dispatches.planned.copy()
   existing_dispatches.dispatches.completed = expected_dispatches.completed.copy()
   existing_dispatches.dispatches.started = [
@@ -884,7 +1192,7 @@ async def test_when_retrieved_planned_dispatch_started_and_existing_started_disp
       current.replace(second=0, microsecond=0)
     )
   ]
-  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, 1, last_retrieved)
+  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, IntelligentDispatchesHistory([]), 1, last_retrieved)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -897,7 +1205,8 @@ async def test_when_retrieved_planned_dispatch_started_and_existing_started_disp
       False,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert retrieved_dispatches is not None
@@ -911,6 +1220,12 @@ async def test_when_retrieved_planned_dispatch_started_and_existing_started_disp
     assert retrieved_dispatches.dispatches.started[0].end == current.replace(second=0, microsecond=0) + timedelta(minutes=30)
 
     assert save_dispatches_called == True
+
+    assert save_dispatches_history_called == True
+    assert save_dispatches_history_history is not None
+    assert len(save_dispatches_history_history.history) == 1
+    assert save_dispatches_history_history.history[0].timestamp == current
+    assert save_dispatches_history_history.history[0].dispatches == retrieved_dispatches.dispatches
 
 @pytest.mark.asyncio
 async def test_when_retrieved_planned_dispatch_started_and_existing_started_dispatch_exists_not_in_previous_period_then_existing_started_dispatch_not_extended():
@@ -936,16 +1251,24 @@ async def test_when_retrieved_planned_dispatch_started_and_existing_started_disp
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), 1, last_retrieved)
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), IntelligentDispatchesHistory([]), 1, last_retrieved)
   existing_dispatches.dispatches.started = [
     SimpleIntelligentDispatchItem(
       current.replace(second=0, microsecond=0) - timedelta(hours=2),
       current.replace(second=0, microsecond=0) - timedelta(hours=1)
     )
   ]
-  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, 1, last_retrieved)
+  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, IntelligentDispatchesHistory([]), 1, last_retrieved)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -958,7 +1281,8 @@ async def test_when_retrieved_planned_dispatch_started_and_existing_started_disp
       False,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert retrieved_dispatches is not None
@@ -975,6 +1299,12 @@ async def test_when_retrieved_planned_dispatch_started_and_existing_started_disp
     assert retrieved_dispatches.dispatches.started[1].end == current.replace(second=0, microsecond=0) + timedelta(minutes=30)
 
     assert save_dispatches_called == True
+
+    assert save_dispatches_history_called == True
+    assert save_dispatches_history_history is not None
+    assert len(save_dispatches_history_history.history) == 1
+    assert save_dispatches_history_history.history[0].timestamp == current
+    assert save_dispatches_history_history.history[0].dispatches == retrieved_dispatches.dispatches
 
 @pytest.mark.asyncio
 async def test_when_existing_started_dispatches_more_than_three_days_old_then_old_started_dispatches_removed():
@@ -1000,16 +1330,24 @@ async def test_when_existing_started_dispatches_more_than_three_days_old_then_ol
     save_dispatches_called = True
     dispatches, = args
     save_dispatches_dispatches = dispatches
+
+  save_dispatches_history_called = False
+  save_dispatches_history_history = None
+  async def async_save_dispatches_history(*args, **kwargs):
+    nonlocal save_dispatches_history_called, save_dispatches_history_history
+    save_dispatches_history_called = True
+    history, = args
+    save_dispatches_history_history = history
   
   account_info = get_account_info()
-  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), 1, last_retrieved)
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), IntelligentDispatchesHistory([]), 1, last_retrieved)
   existing_dispatches.dispatches.started = [
     SimpleIntelligentDispatchItem(
       current.replace(second=0, microsecond=0) - timedelta(days=3, hours=1),
       current.replace(second=0, microsecond=0) - timedelta(days=3)
     )
   ]
-  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, 1, last_retrieved)
+  expected_retrieved_dispatches = IntelligentDispatchesCoordinatorResult(current, 1, expected_dispatches, IntelligentDispatchesHistory([]), 1, last_retrieved)
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -1022,7 +1360,8 @@ async def test_when_existing_started_dispatches_more_than_three_days_old_then_ol
       False,
       False,
       True,
-      async_save_dispatches
+      async_save_dispatches,
+      async_save_dispatches_history
     )
 
     assert retrieved_dispatches is not None
@@ -1036,3 +1375,9 @@ async def test_when_existing_started_dispatches_more_than_three_days_old_then_ol
     assert retrieved_dispatches.dispatches.started[0].end == current.replace(second=0, microsecond=0) + timedelta(minutes=30)
 
     assert save_dispatches_called == True
+
+    assert save_dispatches_history_called == True
+    assert save_dispatches_history_history is not None
+    assert len(save_dispatches_history_history.history) == 1
+    assert save_dispatches_history_history.history[0].timestamp == current
+    assert save_dispatches_history_history.history[0].dispatches == retrieved_dispatches.dispatches

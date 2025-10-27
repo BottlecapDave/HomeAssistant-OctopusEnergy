@@ -28,8 +28,9 @@ from . import BaseCoordinatorResult
 from ..api_client.intelligent_device import IntelligentDevice
 from ..storage.intelligent_dispatches import async_save_cached_intelligent_dispatches
 
-from ..intelligent import clean_previous_dispatches, has_intelligent_tariff, mock_intelligent_dispatches
+from ..intelligent import clean_intelligent_dispatch_history, clean_previous_dispatches, has_dispatches_changed, has_intelligent_tariff, mock_intelligent_dispatches
 from ..coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
+from ..storage.intelligent_dispatches_history import IntelligentDispatchesHistory, async_save_cached_intelligent_dispatches_history
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -71,37 +72,16 @@ class IntelligentDispatchDataUpdateCoordinator(DataUpdateCoordinator):
 
 class IntelligentDispatchesCoordinatorResult(BaseCoordinatorResult):
   dispatches: IntelligentDispatches
+  history: IntelligentDispatchesHistory
   requests_current_hour: int
   requests_current_hour_last_reset: datetime
 
-  def __init__(self, last_evaluated: datetime, request_attempts: int, dispatches: IntelligentDispatches, requests_current_hour: int, requests_current_hour_last_reset: datetime, last_error: Exception | None = None):
+  def __init__(self, last_evaluated: datetime, request_attempts: int, dispatches: IntelligentDispatches, history: IntelligentDispatchesHistory, requests_current_hour: int, requests_current_hour_last_reset: datetime, last_error: Exception | None = None):
     super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_INTELLIGENT, None, last_error)
     self.dispatches = dispatches
+    self.history = history
     self.requests_current_hour = requests_current_hour
     self.requests_current_hour_last_reset = requests_current_hour_last_reset
-
-def has_dispatch_items_changed(existing_dispatches: list[SimpleIntelligentDispatchItem], new_dispatches: list[SimpleIntelligentDispatchItem]):
-  if len(existing_dispatches) != len(new_dispatches):
-    return True
-
-  if len(existing_dispatches) > 0:
-    for i in range(0, len(existing_dispatches)):
-      if (existing_dispatches[i].start != new_dispatches[i].start or
-          existing_dispatches[i].end != new_dispatches[i].end):
-        return True
-
-  return False
-
-def has_dispatches_changed(existing_dispatches: IntelligentDispatches, new_dispatches: IntelligentDispatches):
-  return (
-    existing_dispatches.current_state != new_dispatches.current_state or
-    len(existing_dispatches.completed) != len(new_dispatches.completed) or
-    has_dispatch_items_changed(existing_dispatches.completed, new_dispatches.completed) or
-    len(existing_dispatches.planned) != len(new_dispatches.planned) or
-    has_dispatch_items_changed(existing_dispatches.planned, new_dispatches.planned) or
-    len(existing_dispatches.started) != len(new_dispatches.started) or
-    has_dispatch_items_changed(existing_dispatches.started, new_dispatches.started)
-  )
 
 def merge_started_dispatches(current: datetime,
                              current_state: str,
@@ -165,6 +145,7 @@ async def async_retrieve_intelligent_dispatches(
           existing_intelligent_dispatches_result.last_evaluated,
           existing_intelligent_dispatches_result.request_attempts,
           existing_intelligent_dispatches_result.dispatches,
+          existing_intelligent_dispatches_result.history,
           existing_intelligent_dispatches_result.requests_current_hour,
           existing_intelligent_dispatches_result.requests_current_hour_last_reset,
           last_error=error
@@ -180,6 +161,7 @@ async def async_retrieve_intelligent_dispatches(
           existing_intelligent_dispatches_result.last_evaluated,
           existing_intelligent_dispatches_result.request_attempts,
           existing_intelligent_dispatches_result.dispatches,
+          existing_intelligent_dispatches_result.history,
           existing_intelligent_dispatches_result.requests_current_hour,
           existing_intelligent_dispatches_result.requests_current_hour_last_reset,
           last_error=error
@@ -216,8 +198,12 @@ async def async_retrieve_intelligent_dispatches(
 
         dispatches.completed = clean_previous_dispatches(current,
                                                          (existing_intelligent_dispatches_result.dispatches.completed if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and existing_intelligent_dispatches_result.dispatches.completed is not None else []) + dispatches.completed)
+        
+        new_history = clean_intelligent_dispatch_history(current,
+                                                         dispatches,
+                                                         existing_intelligent_dispatches_result.history.history if existing_intelligent_dispatches_result is not None else [])
 
-        return IntelligentDispatchesCoordinatorResult(current, 1, dispatches, requests_current_hour + 1, requests_last_reset)
+        return IntelligentDispatchesCoordinatorResult(current, 1, dispatches, IntelligentDispatchesHistory(new_history), requests_current_hour + 1, requests_last_reset)
       
       result = None
       if (existing_intelligent_dispatches_result is not None):
@@ -225,6 +211,7 @@ async def async_retrieve_intelligent_dispatches(
           existing_intelligent_dispatches_result.last_evaluated,
           existing_intelligent_dispatches_result.request_attempts + 1,
           existing_intelligent_dispatches_result.dispatches,
+          existing_intelligent_dispatches_result.history,
           existing_intelligent_dispatches_result.requests_current_hour + 1,
           existing_intelligent_dispatches_result.requests_current_hour_last_reset,
           last_error=raised_exception
@@ -234,7 +221,15 @@ async def async_retrieve_intelligent_dispatches(
           _LOGGER.warning(f"Failed to retrieve new dispatches - using cached dispatches. See diagnostics sensor for more information.")
       else:
         # We want to force into our fallback mode
-        result = IntelligentDispatchesCoordinatorResult(current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT), 2, None, requests_current_hour, requests_last_reset, last_error=raised_exception)
+        result = IntelligentDispatchesCoordinatorResult(
+          current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT),
+          2,
+          None,
+          IntelligentDispatchesHistory([]),
+          requests_current_hour,
+          requests_last_reset,
+          last_error=raised_exception
+        )
         _LOGGER.warning(f"Failed to retrieve new dispatches. See diagnostics sensor for more information.")
 
       return result
@@ -253,6 +248,7 @@ async def async_refresh_intelligent_dispatches(
   is_manual_refresh: bool,
   planned_dispatches_supported: bool,
   async_save_dispatches: Callable[[IntelligentDispatches], Awaitable[list]],
+  async_save_dispatches_history: Callable[[IntelligentDispatchesHistory], Awaitable[list]],
 ):
   result = await async_retrieve_intelligent_dispatches(
     current,
@@ -282,10 +278,17 @@ async def async_refresh_intelligent_dispatches(
         existing_intelligent_dispatches_result.dispatches is None or
         has_dispatches_changed(existing_intelligent_dispatches_result.dispatches, result.dispatches)):
       await async_save_dispatches(result.dispatches)
+      await async_save_dispatches_history(result.history)
 
   return result
 
-async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, device_id: str, mock_intelligent_data: bool, manual_dispatch_refreshes: bool, planned_dispatches_supported: bool):
+async def async_setup_intelligent_dispatches_coordinator(
+    hass,
+    account_id: str,
+    device_id: str,
+    mock_intelligent_data: bool,
+    manual_dispatch_refreshes: bool,
+    planned_dispatches_supported: bool):
   async def async_update_intelligent_dispatches_data(is_manual_refresh = False):
     """Fetch data from API endpoint."""
     # Request our account data to be refreshed
@@ -304,17 +307,22 @@ async def async_setup_intelligent_dispatches_coordinator(hass, account_id: str, 
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
     account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
     account_info = account_result.account if account_result is not None else None
+    existing_intelligent_dispatches_result = (hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][device_id]
+                                              if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] and
+                                              device_id in hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] 
+                                              else None)
       
     hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][device_id] = await async_refresh_intelligent_dispatches(
       current,
       client,
       account_info,
       intelligent_device,
-      hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][device_id] if DATA_INTELLIGENT_DISPATCHES in hass.data[DOMAIN][account_id] and device_id in hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES] else None,
+      existing_intelligent_dispatches_result,
       mock_intelligent_data,
       is_manual_refresh,
       planned_dispatches_supported,
-      lambda dispatches: async_save_cached_intelligent_dispatches(hass, device_id, dispatches)
+      lambda dispatches: async_save_cached_intelligent_dispatches(hass, device_id, dispatches),
+      lambda history: async_save_cached_intelligent_dispatches_history(hass, device_id, history)
     )
     
     return hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES][device_id]
