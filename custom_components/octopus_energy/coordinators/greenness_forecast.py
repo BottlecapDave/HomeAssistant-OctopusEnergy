@@ -36,7 +36,7 @@ async def async_refresh_greenness_forecast(
 ) -> GreennessForecastCoordinatorResult:
   if existing_result is None or current >= existing_result.next_refresh:
     try:
-      result = await client.async_get_greenness_forecast()
+      result = await client.async_get_greener_nights_forecast()
 
       return GreennessForecastCoordinatorResult(current, 1, result)
     except Exception as e:

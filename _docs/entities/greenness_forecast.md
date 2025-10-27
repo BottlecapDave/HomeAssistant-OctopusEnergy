@@ -1,6 +1,6 @@
 # Greenness Forecast
 
-To support the [greenness forecast](https://octopus.energy/smart/greener-days/) supported by Octopus Energy, the following entities are provided.
+To support the [greener nights](https://octopus.energy/smart/greener-nights/) supported by Octopus Energy, the following entities are provided.
 
 ## Current Index
 
