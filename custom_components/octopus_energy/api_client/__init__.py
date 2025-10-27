@@ -5,6 +5,7 @@ import aiohttp
 from asyncio import TimeoutError
 from datetime import (datetime, timedelta, time, timezone)
 from threading import RLock
+import pytz
 
 from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime, parse_date)
 
@@ -325,13 +326,12 @@ wheel_of_fortune_mutation = '''mutation {{
   }}
 }}'''
 
-greenness_forecast_query = '''query {
-  greennessForecast {
-    validFrom
-    validTo
+greener_night_forecast_query = '''query {
+  greenerNightsForecast {
+    date
+    isGreenerNight
     greennessScore
     greennessIndex
-    highlightFlag
   }
 }'''
 
@@ -1039,28 +1039,34 @@ class OctopusEnergyApiClient:
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
-  
-  async def async_get_greenness_forecast(self) -> list[GreennessForecast]:
+    
+  async def async_get_greener_nights_forecast(self) -> list[GreennessForecast]:
     """Get the latest greenness forecast"""
     await self.async_refresh_token()
 
     try:
-      request_context = "greenness-forecast"
+      request_context = "greener-night-forecast"
       client = self._create_client_session()
-      url = f'{self._base_url}/v1/graphql/'
-      payload = { "query": greenness_forecast_query }
+      local_now = now()
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = { "query": greener_night_forecast_query }
       headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
-      async with client.post(url, json=payload, headers=headers) as greenness_forecast_response:
+      async with client.post(url, json=payload, headers=headers) as greener_night_forecast_response:
 
-        response_body = await self.__async_read_response__(greenness_forecast_response, url)
-        if (response_body is not None and "data" in response_body and "greennessForecast" in response_body["data"]):
-          forecast = list(map(lambda item: GreennessForecast(as_utc(parse_datetime(item["validFrom"])),
-                                                             as_utc(parse_datetime(item["validTo"])),
-                                                             int(item["greennessScore"]),
-                                                             item["greennessIndex"],
-                                                             item["highlightFlag"]),
-                          response_body["data"]["greennessForecast"]))
-          forecast.sort(key=lambda item: (item.start.timestamp(), item.start.fold))
+        response_body = await self.__async_read_response__(greener_night_forecast_response, url)
+        if (response_body is not None and "data" in response_body and "greenerNightsForecast" in response_body["data"]):
+          london_tz = pytz.timezone('Europe/London')
+          forecast = list(
+            map(lambda item: GreennessForecast(
+              parse_datetime(f"{item["date"]}T23:00:00").astimezone(london_tz),
+              parse_datetime(f"{item["date"]}T06:00:00").astimezone(london_tz) + timedelta(days=1),
+              int(item["greennessScore"]),
+              item["greennessIndex"],
+              item["isGreenerNight"]
+            ),
+            response_body["data"]["greenerNightsForecast"])
+          )
+          forecast.sort(key=lambda item: item.start)
           return forecast
     
     except TimeoutError:

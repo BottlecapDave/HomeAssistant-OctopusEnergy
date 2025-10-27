@@ -221,6 +221,25 @@ where states_meta.entity_id = 'binary_sensor.octopus_energy_xxx_intelligent_disp
 order by last_updated_ts desc
 ```
 
+## I was expecting the saving session/free electricity session sensor to turn on during a period, but it didn't. Is there a reason for this?
+
+One thing that people get confused about these sensors is that they represent two different programs held by Octopus, and recently Octopus have sometimes been confusing the messaging around these programs (e.g. at the time of writing one is implied to be a subset of the other).
+
+Saving session sensors are in relation to [Octopus Saving Sessions](https://octopus.energy/saving-sessions/). These sessions are about using **less** energy that you normally use, where any energy saved is credited back to your account in the form of octopoints. These sessions typically occur within the winter when renewable energy is low.
+
+Free electricity session sensors are in relation to [Octopus Free Electricity](https://octopus.energy/free-electricity/). These sessions are about using **more** energy than you normally use, where any energy used above your standard consumption is credited back to your account, basically making that excess energy free. These sessions typically occur when there's an excess of renewable energy (e.g. high wind).
+
+If you think the sensor is still not coming on when it should, then please raise any issue.
+
+## Current rate sensors were not zero during a free electricity session. Is this expected?
+
+The current rate sensor will not be adjusted during free electricity sessions. This is by design, for a couple of reasons
+
+1. The electricity price is only £0 for any electricity that you use within each applicable 30 minute period that is above your average consumption for that period. Therefore you are still charged the standard rate for any consumption below or equal to this average consumption. So the entire period is not technically free and so changing the rate sensor in my opinion is misleading.
+2. The electricity is charged at your standard rate and then credited back. This means that while any electricity is technically free over your consumption, you are still "billed" at your standard rate. Because of this latter reason, to my knowledge none of the OE charts take this into account and the cost sensors are designed to match as close as possible to the costs appearing on the website when you look at your history.
+
+There are no plans to change this. If you are wanting to drive automations, it is advised to use the [free electricity sensor](./entities/octoplus.md#free-electricity-sessions-calendar) for these situations.
+
 ## Do you support older versions of the integration?
 
 Due to time constraints, I will only ever support the latest version of the integration. If you have an issue with an older version of the integration, my initial answer will always be to update to the latest version. This might be different to what HACS is reporting if you are not on the minimum supported Home Assistant version (which is highlighted in each release's changelog). 

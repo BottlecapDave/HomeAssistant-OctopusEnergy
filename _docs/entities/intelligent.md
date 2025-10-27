@@ -14,10 +14,6 @@ This sensor is used to determine if you're within a dispatching period (i.e. "sm
 
 Depending on your [account configuration](../setup/account.md#intelligent-rates-mode), what is determined as an active dispatching period will change. If you have configured to accept [planned or started dispatches](../setup/account.md#planned-and-started-dispatches-will-turn-into-off-peak-rates), then the sensor will turn on when you're are within an active planned or started dispatch period. If you have configured to accept [only started dispatches](../setup/account.md#only-started-dispatches-will-turn-into-off-peak-rates), then the sensor will turn on when you're are within an active started dispatch period, but not planned dispatch.
 
-!!! info
-
-    This sensor will only turn on during dispatches for a single intelligent device. If you're after a sensor that turns on during the standard off peak rates as well or cover multiple intelligent devices then you're best to use the [off peak sensor](./electricity.md#off-peak).
-
 !!! warning
 
     If you are using this to drive other automations for cheap rates (e.g. to fill batteries), you should perform additional checks to make sure your vehicle is actually charging. If it isn't, this sensor could be incorrectly on if during a dispatch outside of the standard off peak period and you will therefore not receive the off peak rate.
@@ -31,6 +27,14 @@ Depending on your [account configuration](../setup/account.md#intelligent-rates-
     * OHME
 
     If you are supplied by one of the above providers, this sensor will never turn on. 
+
+!!! info
+
+    This sensor will only turn on during dispatches for a single intelligent device. If you're after a sensor that turns on during the standard off peak rates as well or cover multiple intelligent devices then you're best to use the [off peak sensor](./electricity.md#off-peak).
+
+!!! note
+
+    Sensor came on when you did/didn't expected it to? You can see what the state of your dispatches were at the time by using the [get_point_in_time_intelligent_dispatch_history service](../services.md#octopus_energyget_point_in_time_intelligent_dispatch_history)
 
 | Attribute | Type | Description |
 |-----------|------|-------------|

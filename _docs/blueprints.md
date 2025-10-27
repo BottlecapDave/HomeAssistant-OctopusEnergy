@@ -24,7 +24,7 @@ This blueprint will fire a configured action when the consumption has 24 hours w
 
 ### Alert when consumption data is late
 
-[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%octopus_energy_late_consumption_data.yaml) | [Source](./blueprints/octopus_energy_late_consumption_data.yaml)
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_late_consumption_data.yaml) | [Source](./blueprints/octopus_energy_late_consumption_data.yaml)
 
 This blueprint will fire a configured action when the latest available consumption data is x hours old, where x is configured via the blueprint.
 
@@ -52,7 +52,7 @@ This blueprint will automatically redeem all redeemable points for account credi
 
 ### Alert when current consumption is approaching saving sessions baseline
 
-[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%octopus_energy_baseline_alert.yaml) | [Source](./blueprints/octopus_energy_baseline_alert.yaml)
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_baseline_alert.yaml) | [Source](./blueprints/octopus_energy_baseline_alert.yaml)
 
 This blueprint will fire a configured action when the consumption for the current interval (i.e. the current 30 minute period) reaches a configured percentage of the saving session baseline.
 
@@ -62,7 +62,7 @@ This blueprint will fire a configured action when the consumption for the curren
 
 ### Alert when current consumption has reached free electricity sessions baseline
 
-[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%octopus_energy_free_electricity_baseline_reached.yaml) | [Source](./blueprints/octopus_energy_free_electricity_baseline_reached.yaml)
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_free_electricity_baseline_reached.yaml) | [Source](./blueprints/octopus_energy_free_electricity_baseline_reached.yaml)
 
 This blueprint will fire a configured action when the consumption for the current interval (i.e. the current 30 minute period) reaches the current free electricity session baseline.
 
@@ -74,7 +74,7 @@ This blueprint will fire a configured action when the consumption for the curren
 
 ## Manual Intelligent Dispatch Refreshes
 
-[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%octopus_energy_manual_intelligent_refresh.yaml) | [Source](./blueprints/octopus_energy_manual_intelligent_refresh.yaml)
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_manual_intelligent_refresh.yaml) | [Source](./blueprints/octopus_energy_manual_intelligent_refresh.yaml)
 
 This blueprint will fire the [intelligent dispatches service](./services.md#octopus_energyrefresh_intelligent_dispatches) either when a sensor from another integration determines the car has been plugged in (e.g. the plug status from the [MyEnergi integration](https://github.com/CJNE/ha-myenergi)) or when the data is stale and overdue a refresh (in case the dispatch information has changed).
 

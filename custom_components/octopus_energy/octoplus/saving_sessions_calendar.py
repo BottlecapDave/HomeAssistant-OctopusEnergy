@@ -67,6 +67,7 @@ class OctopusEnergySavingSessionsCalendar(OctopusEnergyOctoplusSensor, Coordinat
 
     current_date = utcnow()
     current_event = current_octoplus_sessions_event(current_date, self._events)
+    self._event = None
     if (current_event is not None):
       self._event = CalendarEvent(
         uid=current_event.code,

@@ -8,6 +8,7 @@ from .const import (
   CONFIG_KIND_ACCOUNT,
   CONFIG_ACCOUNT_ID,
   DATA_FREE_ELECTRICITY_SESSIONS_COORDINATOR,
+  DATA_GREENNESS_FORECAST_COORDINATOR,
   DOMAIN,
 
   DATA_SAVING_SESSIONS_COORDINATOR,
@@ -16,6 +17,7 @@ from .const import (
 
 from .octoplus.free_electricity_sessions_calendar import OctopusEnergyFreeElectricitySessionsCalendar
 from .octoplus.saving_sessions_calendar import OctopusEnergySavingSessionsCalendar
+from .greenness_forecast.greener_nights_calendar import OctopusEnergyGreenerNightsSessionsCalendar
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -38,10 +40,12 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
 
   saving_session_coordinator = hass.data[DOMAIN][account_id][DATA_SAVING_SESSIONS_COORDINATOR]
   free_electricity_session_coordinator = hass.data[DOMAIN][account_id][DATA_FREE_ELECTRICITY_SESSIONS_COORDINATOR]
+  greenness_forecast_coordinator = hass.data[DOMAIN][account_id][DATA_GREENNESS_FORECAST_COORDINATOR]
 
   now = utcnow()
   entities = [
     OctopusEnergySavingSessionsCalendar(hass, saving_session_coordinator, account_id),
+    OctopusEnergyGreenerNightsSessionsCalendar(hass, greenness_forecast_coordinator, account_id),
   ]
 
   if octoplus_enrolled:

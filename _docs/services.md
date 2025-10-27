@@ -308,6 +308,25 @@ Refreshes intelligent dispatches for a given account.
 
 For an automation example, please refer to the available [blueprint](./blueprints.md#manual-intelligent-dispatch-refreshes).
 
+### octopus_energy.get_point_in_time_intelligent_dispatch_history
+
+Retrieve the intelligent dispatch history which was active for a given point in time based on up to the last 48 hours of intelligent dispatches that have been captured locally. This can be used to determine why [is dispatching](./entities/intelligent.md#is-dispatching) or [off peak](./entities/electricity.md#off-peak) might have turned on during a certain time period.
+
+!!! info
+
+    The OE API doesn't provide historic intelligent dispatch information, so this information is stored locally as it changes. Therefore depending on how often your dispatch information refreshes, it can take a while for data to become available.
+
+!!! note
+
+    The data that powers this service is available at `config/.storage/octopus_energy.intelligent_dispatches_history_{{DEVICE_ID}}`
+
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The [dispatching](./entities/intelligent.md#is-dispatching) entity that you want to refresh the content for (e.g. `binary_sensor.octopus_energy_{{DEVICE_ID}}_intelligent_dispatching`). |
+| `data.point_in_time`     | `no`     | The point in time to get the historic dispatch information that was active at the time.
+
+
 ## Miscellaneous
 
 ### octopus_energy.purge_invalid_external_statistic_ids

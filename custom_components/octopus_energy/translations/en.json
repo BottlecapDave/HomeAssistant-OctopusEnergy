@@ -341,6 +341,12 @@
     },
     "invalid_rate_weightings": {
       "message": "{error}"
+    },
+    "point_in_time_intelligent_dispatch_history_data_out_of_bounds": {
+      "message": "The requested point in time is before historic data is available. The earliest available intelligent dispatch data is from {earliest_timestamp}"
+    },
+    "point_in_time_intelligent_dispatch_history_data_unavailable": {
+      "message": "No intelligent dispatch data is currently available. This will refresh automatically over time when intelligent dispatches are updated."
     }
   },
   "issues": {
@@ -423,6 +429,10 @@
     "free_electricity_session_binary_sensor_deprecated": {
       "title": "Free electricity session binary sensor deprecated",
       "description": "The free electricity session binary sensor (`binary_sensor.octopus_energy_ACCOUNT_ID_octoplus_free_electricity_session`) has been deprecated in favour of using calendar entities. This will allow for better integration with automations and the calendar view. The deprecated sensor will be removed in May 2026. Please click \"Learn More\" for more information on this change."
+    },
+    "greenness_forecast_binary_sensor_deprecated": {
+      "title": "Greenness forecast highlighted binary sensor deprecated",
+      "description": "The greenness forecast highlighted binary sensor (`binary_sensor.octopus_energy_ACCOUNT_ID_greenness_forecast_highlighted`) has been deprecated in favour of using calendar entities. This will allow for better integration with automations and the calendar view. The deprecated sensor will be removed in May 2026. If you are using this sensor, please migrate all uses before the update around that time."
     }
   },
   "entity": {

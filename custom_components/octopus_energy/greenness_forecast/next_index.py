@@ -18,11 +18,12 @@ from homeassistant.components.sensor import (
 
 from ..utils.attributes import dict_to_typed_dict
 from ..coordinators.greenness_forecast import GreennessForecastCoordinatorResult
-from . import get_current_and_next_forecast, greenness_forecast_to_dictionary, greenness_forecast_to_dictionary_list
+from . import get_current_and_next_forecast, greenness_forecast_to_dictionary
+from ..greenness_forecast.base import OctopusEnergyGreennessForecastSensor
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyGreennessForecastNextIndex(CoordinatorEntity, RestoreSensor):
+class OctopusEnergyGreennessForecastNextIndex(CoordinatorEntity, RestoreSensor, OctopusEnergyGreennessForecastSensor):
   """Sensor for displaying the next rate."""
   
   _unrecorded_attributes = frozenset({"data_last_retrieved"})
@@ -31,6 +32,7 @@ class OctopusEnergyGreennessForecastNextIndex(CoordinatorEntity, RestoreSensor):
     """Init sensor."""
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
+    OctopusEnergyGreennessForecastSensor.__init__(self, account_id)
 
     self._state = None
     self._last_updated = None

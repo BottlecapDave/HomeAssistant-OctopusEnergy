@@ -47,12 +47,12 @@ async def test_when_results_retrieved_then_results_returned():
   
   expected_result = greenness_forecast
   mock_api_called = False
-  async def async_mocked_get_greenness_forecast(*args, **kwargs):
+  async def async_mocked_get_greener_nights_forecast(*args, **kwargs):
     nonlocal mock_api_called
     mock_api_called = True
     return expected_result
 
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_greenness_forecast=async_mocked_get_greenness_forecast): 
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_greener_nights_forecast=async_mocked_get_greener_nights_forecast): 
     client = OctopusEnergyApiClient("NOT_REAL")
 
     # Act
@@ -78,12 +78,12 @@ async def test_when_exception_raised_then_existing_results_returned_and_exceptio
   
   mock_api_called = False
   raised_exception = RequestException("My exception", [])
-  async def async_mocked_get_greenness_forecast(*args, **kwargs):
+  async def async_mocked_get_greener_nights_forecast(*args, **kwargs):
     nonlocal mock_api_called
     mock_api_called = True
     raise raised_exception
 
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_greenness_forecast=async_mocked_get_greenness_forecast): 
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_greener_nights_forecast=async_mocked_get_greener_nights_forecast): 
     client = OctopusEnergyApiClient("NOT_REAL")
 
     # Act

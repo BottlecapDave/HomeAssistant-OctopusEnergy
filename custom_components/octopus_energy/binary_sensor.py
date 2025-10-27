@@ -2,9 +2,10 @@ import logging
 
 import voluptuous as vol
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, SupportsResponse
 from homeassistant.helpers import config_validation as cv, entity_platform, issue_registry as ir
 from homeassistant.util.dt import (utcnow)
+import homeassistant.helpers.config_validation as cv
 
 from .electricity.off_peak import OctopusEnergyElectricityOffPeak
 from .octoplus.saving_sessions import OctopusEnergySavingSessions
@@ -47,6 +48,7 @@ from .const import (
   INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS,
   INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLES,
   REPAIR_FREE_ELECTRICITY_SESSION_BINARY_SENSOR_DEPRECATED,
+  REPAIR_GREENNESS_FORECAST_BINARY_SENSOR_DEPRECATED,
   REPAIR_SAVING_SESSION_BINARY_SENSOR_DEPRECATED,
   REPAIR_TARGET_RATE_REMOVAL_PROPOSAL
 )
@@ -150,6 +152,15 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
     translation_key="saving_session_binary_sensor_deprecated",
   )
 
+  ir.async_create_issue(
+    hass,
+    DOMAIN,
+    REPAIR_GREENNESS_FORECAST_BINARY_SENSOR_DEPRECATED,
+    is_fixable=False,
+    severity=ir.IssueSeverity.WARNING,
+    translation_key="greenness_forecast_binary_sensor_deprecated",
+  )
+
   if octoplus_enrolled:
     entities.append(OctopusEnergyFreeElectricitySessions(hass, free_electricity_session_coordinator, account_id))   
     ir.async_create_issue(
@@ -225,8 +236,9 @@ def get_intelligent_entities(hass, account_id: str, config: dict):
   for intelligent_device in intelligent_devices:
 
     if intelligent_device.device_type == INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLES or intelligent_device.device_type == INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS:
+      
+      platform = entity_platform.async_get_current_platform()
       if (manually_refresh_dispatches):
-        platform = entity_platform.async_get_current_platform()
         platform.async_register_entity_service(
           "refresh_intelligent_dispatches",
           vol.All(
@@ -237,6 +249,20 @@ def get_intelligent_entities(hass, account_id: str, config: dict):
           ),
           "async_refresh_dispatches"
         )
+
+      platform.async_register_entity_service(
+        "get_point_in_time_intelligent_dispatch_history",
+        vol.All(
+          cv.make_entity_service_schema(
+          {
+            vol.Required("point_in_time"): cv.datetime
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
+        ),
+        "async_get_point_in_time_intelligent_dispatch_history",
+        supports_response=SupportsResponse.ONLY
+      )
 
       coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR.format(intelligent_device.id)]
       entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, intelligent_device, account_id, intelligent_rate_mode, manually_refresh_dispatches))

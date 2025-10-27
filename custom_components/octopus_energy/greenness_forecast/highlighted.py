@@ -19,10 +19,11 @@ from homeassistant.helpers.restore_state import RestoreEntity
 from ..utils.attributes import dict_to_typed_dict
 from ..coordinators.greenness_forecast import GreennessForecastCoordinatorResult
 from . import get_current_and_next_forecast, greenness_forecast_to_dictionary
+from ..greenness_forecast.base import OctopusEnergyGreennessForecastSensor
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyGreennessForecastHighlighted(CoordinatorEntity, BinarySensorEntity, RestoreEntity):
+class OctopusEnergyGreennessForecastHighlighted(CoordinatorEntity, BinarySensorEntity, RestoreEntity, OctopusEnergyGreennessForecastSensor):
   """Sensor for determining if the current forecast has been highlighted."""
   
   _unrecorded_attributes = frozenset({"data_last_retrieved"})
@@ -31,6 +32,7 @@ class OctopusEnergyGreennessForecastHighlighted(CoordinatorEntity, BinarySensorE
     """Init sensor."""
 
     CoordinatorEntity.__init__(self, coordinator)
+    OctopusEnergyGreennessForecastSensor.__init__(self, account_id)
   
     self._account_id = account_id
     self._state = None
