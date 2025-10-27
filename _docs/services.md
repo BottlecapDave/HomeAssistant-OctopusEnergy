@@ -308,7 +308,7 @@ Refreshes intelligent dispatches for a given account.
 
 For an automation example, please refer to the available [blueprint](./blueprints.md#manual-intelligent-dispatch-refreshes).
 
-### get_point_in_time_intelligent_dispatch_history
+### octopus_energy.get_point_in_time_intelligent_dispatch_history
 
 Retrieve the intelligent dispatch history which was active for a given point in time based on up to the last 48 hours of intelligent dispatches that have been captured locally. This can be used to determine why [is dispatching](./entities/intelligent.md#is-dispatching) or [off peak](./entities/electricity.md#off-peak) might have turned on during a certain time period.
 

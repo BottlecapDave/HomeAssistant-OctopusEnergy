@@ -16,7 +16,11 @@ Determines the current Octoplus points balance. This sensor will only be availab
 | `redeemable_points` | `integer` | The number of points that can be redeemed into account credit |
 | `data_last_retrieved` | `datetime` | The date/time the underlying data was last retrieved from Octopus Energy APIs |
 
-## Saving Sessions
+## Octopus Saving Sessions
+
+These sensors are for [Octopus Saving Sessions](https://octopus.energy/saving-sessions/).
+
+### Saving Sessions
 
 !!! warning 
 
@@ -39,7 +43,7 @@ Binary sensor to indicate if a saving session that the account has joined is act
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#saving-sessions-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
-## Saving Sessions Calendar
+### Saving Sessions Calendar
 
 `calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_sessions`
 
@@ -55,7 +59,7 @@ Standard calendar attributes will indicate the current/next saving session.
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#saving-sessions-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
-### Automation Example
+#### Automation Example
 
 Below is an example of raising a persistent notification 5 minutes before a saving session starts.
 
@@ -75,7 +79,7 @@ actions:
       Saving session starts at {{ start_time }} for {{ minutes }} minutes.
 ```
 
-## Saving Session Events
+### Saving Session Events
 
 `event.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_session_events`
 
@@ -111,7 +115,7 @@ Each joined event item will include the following attributes
 | `rewarded_octopoints` | `integer` | The total number of octopoints that were awarded (if any or known) |
 | `octopoints_per_kwh` | `integer` | The number of octopoints that are/were awarded per kwh saved during the event (if known) |
 
-## Saving Session Baseline
+### Saving Session Baseline
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_octoplus_saving_session_baseline`
 
@@ -159,7 +163,11 @@ Each item within `baselines` consists of the following attributes
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#saving-sessions-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
-## Free Electricity Sessions
+## Octopus Free Electricity
+
+These sensors are for [Octopus Free Electricity](https://octopus.energy/free-electricity/).
+
+### Free Electricity Sessions
 
 !!! warning 
 
@@ -188,7 +196,7 @@ Binary sensor to indicate if a free electricity session is active.
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#free-electricity-sessions-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
-## Free Electricity Sessions Calendar
+### Free Electricity Sessions Calendar
 
 `calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session`
 
@@ -210,7 +218,7 @@ Standard calendar attributes will indicate the current/next saving session.
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#free-electricity-sessions-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
-### Automation Example
+#### Automation Example
 
 Below is an example of raising a persistent notification 5 minutes before a free electricity session starts.
 
@@ -230,7 +238,7 @@ actions:
       Free electricity session starts at {{ start_time }} for {{ minutes }} minutes.
 ```
 
-## Free Electricity Session Events
+### Free Electricity Session Events
 
 `event.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session_events`
 
@@ -255,7 +263,7 @@ Each item in the `events` attribute will include the following attributes
 | `end` | `datetime` | The date/time the event starts |
 | `duration_in_minutes` | `integer` | The duration of the event in minutes |
 
-## Free Electricity Session Baseline
+### Free Electricity Session Baseline
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_octoplus_free_electricity_session_baseline`
 
