@@ -1058,7 +1058,7 @@ class OctopusEnergyApiClient:
           london_tz = pytz.timezone('Europe/London')
           forecast = list(
             map(lambda item: GreennessForecast(
-              parse_datetime(f"{item["date"]}T11:00:00").astimezone(london_tz),
+              parse_datetime(f"{item["date"]}T23:00:00").astimezone(london_tz),
               parse_datetime(f"{item["date"]}T06:00:00").astimezone(london_tz) + timedelta(days=1),
               int(item["greennessScore"]),
               item["greennessIndex"],
