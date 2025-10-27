@@ -88,3 +88,44 @@ For `current`, the following attributes are provided
 !!! info
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#greenness-forecast-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+
+## Greener Nights Calendar
+
+`calendar.octopus_energy_{{ACCOUNT_ID}}_greener_nights`
+
+Read only [calendar](https://www.home-assistant.io/integrations/calendar) sensor to record nights that are highlighted as "greener nights". Will be `on` when a greener night is active. Calendar events will be automatically added/removed by the integration when greener nights are discovered. 
+
+Standard calendar attributes will indicate the current/next highlighted greener night.
+
+!!! warning
+
+    The sensor does not store past events indefinitely. Past events could be removed without notice.
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#greenness-forecast-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `greenness_index` | `int` | The index for the current/next forecast |
+| `greenness_score` | `string` | The score associated by Octopus Energy for the current/next forecast |
+
+### Automation Example
+
+Below is an example of raising a persistent notification 5 minutes before a saving session starts.
+
+```yaml
+triggers:
+- trigger: calendar
+  entity_id: calendar.octopus_energy_{{ACCOUNT_ID}}_greener_nights
+  event: start
+  offset: -00:05:00
+actions:
+- action: persistent_notification.create
+  data:
+    title: Greener Night Starting
+    message: >
+      {% set minutes = ((state_attr(trigger.entity_id, 'end_time') | as_datetime - state_attr(trigger.entity_id, 'start_time') | as_datetime).seconds / 60) | round(0) | string %}
+      {% set start_time = (state_attr(trigger.entity_id, 'start_time') | as_datetime).strftime('%H:%M') %}
+      Greener night starts at {{ start_time }} for {{ minutes }} minutes.
+```
