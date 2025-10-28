@@ -22,6 +22,9 @@ from .statistics import get_statistic_ids_to_remove
 from .intelligent import get_intelligent_features, mock_intelligent_devices
 from .config.rolling_target_rates import async_migrate_rolling_target_config
 from .coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult, async_setup_heat_pump_coordinator
+from .coordinators.fan_club_discounts import DiscountSource, FanClubDiscountCoordinatorResult, async_setup_fan_club_discounts_coordinator
+from .fan_club import combine_discounts, mock_fan_club_forecast
+from .api_client.fan_club import FanClubResponse
 
 from .config.main import async_migrate_main_config
 from .config.target_rates import async_migrate_target_config
@@ -62,6 +65,7 @@ from .const import (
   CONFIG_MAIN_PRICE_CAP_SETTINGS,
   CONFIG_VERSION,
   DATA_DISCOVERY_MANAGER,
+  DATA_FAN_CLUB_DISCOUNTS,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
   DATA_CUSTOM_RATE_WEIGHTINGS_KEY,
   DATA_HOME_PRO_CLIENT,
@@ -449,6 +453,25 @@ async def async_setup_dependencies(hass, config):
   await async_setup_free_electricity_sessions_coordinators(hass, account_id)
 
   await async_setup_greenness_forecast_coordinator(hass, account_id)
+
+  # Setup Fan Club coordinator
+  mock_fan_club = account_debug_override.mock_fan_club if account_debug_override is not None else False
+  fan_club_response: FanClubResponse | None = None
+  if mock_fan_club:
+    fan_club_response = mock_fan_club_forecast()
+  else:
+    fan_club_response = await client.async_get_fan_club_discounts(account_id)
+
+  if fan_club_response is not None:
+    discounts: list[DiscountSource] = []
+    if fan_club_response is not None and fan_club_response.fanClubStatus is not None:
+      for item in fan_club_response.fanClubStatus:
+        discounts.append(DiscountSource(source=item.discountSource, discounts=combine_discounts(item)))
+
+    if (len(discounts) > 0):
+      # Make it old so we can force a refresh
+      hass.data[DOMAIN][account_id][DATA_FAN_CLUB_DISCOUNTS] = FanClubDiscountCoordinatorResult(now - timedelta(days=1), 1, discounts)
+      await async_setup_fan_club_discounts_coordinator(hass, account_id, mock_fan_club)
 
 async def options_update_listener(hass, entry):
   """Handle options update."""

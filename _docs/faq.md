@@ -19,6 +19,7 @@ Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-
 | Greenness Forecast | 180 | Doesn't change frequently |
 | Free electricity sessions | 90 | Data is provided by my own [private API](https://github.com/BottlecapDave/OctopusEnergyApi) and there is usually at least half a day notice before the sessions which is why this is refreshed slightly less than saving sessions. |
 | Heat Pump state | 1 | Data is updated frequently and doesn't seem to cause any issues around rate limits. This might change in the future. |
+| Fan Club Discounts | 15 | As forecasts change frequently, trying to balance between updates and not overloading the API. |
 
 If data cannot be refreshed for any reason (e.g. no internet or APIs are down), then the integration will attempt to retrieve data as soon as possible, slowly waiting longer between each attempt, to a maximum of 30 minutes between each attempt. Below is a rough example assuming the first (failed) scheduled refresh was at `10:35`.
 

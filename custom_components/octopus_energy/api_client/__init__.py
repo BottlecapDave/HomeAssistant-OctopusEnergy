@@ -24,6 +24,7 @@ from .wheel_of_fortune import WheelOfFortuneSpinsResponse
 from .greenness_forecast import GreennessForecast
 from .free_electricity_sessions import FreeElectricitySession, FreeElectricitySessionsResponse
 from .heat_pump import HeatPumpResponse
+from .fan_club import FanClubResponse
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -551,6 +552,29 @@ query {{
 }}
 '''
 
+fan_club_discount_query = '''
+query {{
+  fanClubStatus(accountNumber: "{account_id}") {{
+    discountSource
+    current {{
+      startAt
+      discount
+    }}
+    historic {{
+      startAt
+      discount
+    }}
+    forecast {{
+      baseTime
+      data {{
+        validTime
+        projectedDiscount
+      }}
+    }}
+  }}
+}}
+'''
+
 
 user_agent_value = "bottlecapdave-ha-octopus-energy"
 
@@ -956,6 +980,31 @@ class OctopusEnergyApiClient:
       raise TimeoutException()
     
     return None
+  
+  async def async_get_fan_club_discounts(self, account_id: str) -> FanClubResponse | None:
+    """Get fan club discounts"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "fan-club-discounts"
+      client = self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": fan_club_discount_query.format(account_id=account_id) }
+      headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as fan_club_response:
+        response = await self.__async_read_response__(fan_club_response, url)
+        _LOGGER.debug(f'async_get_fan_club_discounts response: {response}')
+
+        if (response is not None 
+            and "data" in response 
+            and "fanClubStatus" in response["data"] ):
+          return FanClubResponse.parse_obj(response["data"])
+        
+      return None
+    
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
 
   async def async_get_heat_pump_configuration_and_status(self, account_id: str, euid: str):
     """Get a heat pump configuration and status"""

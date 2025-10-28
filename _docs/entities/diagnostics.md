@@ -199,3 +199,18 @@ This sensor states when heat pump data was last retrieved.
 | `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
 | `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
 | `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
+
+## Fan Club Discount Last Retrieved
+
+`sensor.octopus_energy_{{ACCOUNT_ID}}_fan_club_discount_data_last_retrieved`
+
+This sensor states when fan club discount data was last retrieved.
+
+!!! note
+    This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
+| `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
+| `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
