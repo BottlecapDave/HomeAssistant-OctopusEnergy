@@ -112,7 +112,7 @@ Standard calendar attributes will indicate the current/next highlighted greener 
 
 ### Automation Example
 
-Below is an example of raising a persistent notification 5 minutes before a saving session starts.
+Below is an example of raising a persistent notification 5 minutes before a greener night starts.
 
 ```yaml
 triggers:
