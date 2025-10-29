@@ -112,7 +112,7 @@ Standard calendar attributes will indicate the current/next highlighted greener 
 
 ### Automation Example
 
-Below is an example of raising a persistent notification 5 minutes before a saving session starts.
+Below is an example of raising a persistent notification 5 minutes before a Greenness night with a greenness score of at least 50 starts.
 
 ```yaml
 triggers:
@@ -120,6 +120,10 @@ triggers:
   entity_id: calendar.octopus_energy_{{ACCOUNT_ID}}_greener_nights
   event: start
   offset: -00:05:00
+conditions:
+  - condition: template
+    value_template: |-
+      {{ state_attr('trigger.entity_id','greenness_score') > 50 }}
 actions:
 - action: persistent_notification.create
   data:
