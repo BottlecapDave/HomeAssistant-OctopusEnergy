@@ -17,6 +17,7 @@ blueprint:
     actions:
       name: Actions
       description: Notifications or similar to be run. {{message}} is an example message
+      default: []
       selector:
         action: {}
     minimum_awarded_points:
