@@ -26,6 +26,7 @@ blueprint:
     actions:
       name: Actions
       description: Notifications or similar to be run. {{message}} is an example message when redemption is successful
+      default: []
       selector:
         action: {}
 mode: single

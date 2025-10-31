@@ -5,7 +5,7 @@ import aiohttp
 from asyncio import TimeoutError
 from datetime import (datetime, timedelta, time, timezone)
 from threading import RLock
-import pytz
+from zoneinfo import ZoneInfo
 
 from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime, parse_date)
 
@@ -1047,7 +1047,6 @@ class OctopusEnergyApiClient:
     try:
       request_context = "greener-night-forecast"
       client = self._create_client_session()
-      local_now = now()
       url = f'{self._backend_base_url}/v1/graphql/'
       payload = { "query": greener_night_forecast_query }
       headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
@@ -1055,7 +1054,7 @@ class OctopusEnergyApiClient:
 
         response_body = await self.__async_read_response__(greener_night_forecast_response, url)
         if (response_body is not None and "data" in response_body and "greenerNightsForecast" in response_body["data"]):
-          london_tz = pytz.timezone('Europe/London')
+          london_tz = ZoneInfo("Europe/London")
           forecast = list(
             map(lambda item: GreennessForecast(
               parse_datetime(f"{item["date"]}T23:00:00").astimezone(london_tz),
