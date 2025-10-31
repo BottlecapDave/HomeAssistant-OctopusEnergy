@@ -1,3 +1,11 @@
+## [17.1.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.1.0...v17.1.1) (2025-10-31)
+
+
+### Bug Fixes
+
+* Fixed blocking loop error for greener nights ([492afdf](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/492afdfd999669001b189989d2e4d98aeded16a9))
+* Fixed issue with heat pump zones where changing hvac mode incorrectly set temperature (15 minutes dev time) ([8baa4f1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8baa4f11d987d0bfd789aa3286116c123d75e9db))
+
 # [17.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.0.3...v17.1.0) (2025-10-27)
 
 
