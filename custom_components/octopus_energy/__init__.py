@@ -10,6 +10,10 @@ from homeassistant.const import (
 )
 from homeassistant.helpers import issue_registry as ir
 
+from homeassistant.helpers.helper_integration import (
+    async_remove_helper_config_entry_from_source_device,
+)
+
 from .api_client_home_pro import OctopusEnergyHomeProApiClient
 from .coordinators.account import AccountCoordinatorResult, async_setup_account_info_coordinator
 from .coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult, async_setup_intelligent_dispatches_coordinator
@@ -22,6 +26,7 @@ from .statistics import get_statistic_ids_to_remove
 from .intelligent import get_intelligent_features, mock_intelligent_devices
 from .config.rolling_target_rates import async_migrate_rolling_target_config
 from .coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult, async_setup_heat_pump_coordinator
+from .config.tariff_comparison import async_migrate_tariff_comparison_config
 
 from .config.main import async_migrate_main_config
 from .config.target_rates import async_migrate_target_config
@@ -43,6 +48,7 @@ from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_he
 from .utils.repairs import safe_repair_key
 
 from .const import (
+  CONFIG_COST_TRACKER_TARGET_ENTITY_ID,
   CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS,
   CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES,
   CONFIG_KIND,
@@ -123,8 +129,16 @@ async def async_migrate_entry(hass, config_entry):
       new_data = await async_migrate_rolling_target_config(config_entry.version, new_data, hass.config_entries.async_entries)
     elif CONFIG_KIND in new_data and new_data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
       new_data = await async_migrate_cost_tracker_config(config_entry.version, new_data, hass.config_entries.async_entries)
+
+      if config_entry.version < 9:
+        async_remove_helper_config_entry_from_source_device(
+          hass,
+          helper_config_entry_id=config_entry.entry_id,
+          source_device_id=new_data[CONFIG_COST_TRACKER_TARGET_ENTITY_ID],
+        )
+
     elif CONFIG_KIND in new_data and new_data[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:
-      new_data = await async_migrate_cost_tracker_config(config_entry.version, new_data, hass.config_entries.async_entries)
+      new_data = await async_migrate_tariff_comparison_config(config_entry.version, new_data, hass.config_entries.async_entries)
     
     hass.config_entries.async_update_entry(config_entry, title=title, data=new_data, options={}, version=CONFIG_VERSION)
 
