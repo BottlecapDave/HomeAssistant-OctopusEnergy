@@ -8,10 +8,9 @@ from homeassistant.util.dt import (utcnow)
 from homeassistant.const import (
     EVENT_HOMEASSISTANT_STOP
 )
-from homeassistant.helpers import issue_registry as ir
-
-from homeassistant.helpers.helper_integration import (
-    async_remove_helper_config_entry_from_source_device,
+from homeassistant.helpers import (
+  issue_registry as ir,
+  helper_integration as hi
 )
 
 from .api_client_home_pro import OctopusEnergyHomeProApiClient
@@ -131,7 +130,7 @@ async def async_migrate_entry(hass, config_entry):
       new_data = await async_migrate_cost_tracker_config(config_entry.version, new_data, hass.config_entries.async_entries)
 
       if config_entry.version < 9:
-        async_remove_helper_config_entry_from_source_device(
+        hi.async_remove_helper_config_entry_from_source_device(
           hass,
           helper_config_entry_id=config_entry.entry_id,
           source_device_id=new_data[CONFIG_COST_TRACKER_TARGET_ENTITY_ID],
