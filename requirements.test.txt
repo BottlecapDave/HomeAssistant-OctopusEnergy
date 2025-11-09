@@ -2,7 +2,7 @@ pytest
 pytest-socket
 pytest-asyncio
 mock
-homeassistant
+homeassistant==2025.8.3
 pydantic
 psutil-home-assistant
 sqlalchemy

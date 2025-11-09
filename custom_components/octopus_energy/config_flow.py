@@ -242,7 +242,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Required(CONFIG_MAIN_INTELLIGENT_SETTINGS): section(
         vol.Schema(
             {
-                vol.Required(CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES): bool,
+                vol.Required(CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES, default=False): bool,
                 vol.Required(CONFIG_MAIN_INTELLIGENT_RATE_MODE): selector.SelectSelector(
                   selector.SelectSelectorConfig(
                       options=[

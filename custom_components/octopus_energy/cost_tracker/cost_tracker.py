@@ -40,14 +40,15 @@ from ..const import (
 )
 
 from ..coordinators.electricity_rates import ElectricityRatesCoordinatorResult
-from . import add_consumption, get_device_info_from_device_entry
+from . import add_consumption
 from ..cost_tracker import calculate_consumption_and_cost
 from ..utils.rate_information import get_rate_index, get_unique_rates
 from ..utils.attributes import dict_to_typed_dict
+from .base import BaseCostTracker
 
 _LOGGER = logging.getLogger(__name__)
 
-class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
+class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor, BaseCostTracker):
   """Sensor for calculating the cost for a given sensor."""
 
   def __init__(self, hass: HomeAssistant, coordinator, config_entry, config, device_entry, peak_type = None):
@@ -68,7 +69,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor):
     self._hass = hass
     self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
 
-    self._attr_device_info = get_device_info_from_device_entry(device_entry)
+    BaseCostTracker.__init__(self, hass, config[CONFIG_COST_TRACKER_TARGET_ENTITY_ID])
 
   @property
   def entity_registry_enabled_default(self) -> bool:
