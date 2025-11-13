@@ -52,6 +52,7 @@ account_query = '''query {{
     electricityAgreements(active: true) {{
 			meterPoint {{
 				mpan
+				direction
 				meters(includeInactive: false) {{
           activeFrom
           activeTo
@@ -792,12 +793,15 @@ class OctopusEnergyApiClient:
         _LOGGER.error("Failed to retrieve auth token")
       
   def map_electricity_meters(self, meter_point):
+    is_export = (meter_point["meterPoint"]["direction"] == 'EXPORT') \
+      if "meterPoint" in meter_point and "direction" in meter_point["meterPoint"] and meter_point["meterPoint"]["direction"] is not None \
+      else None
     meters = list(
       map(lambda m: {
         "active_from": parse_date(m["activeFrom"]) if m["activeFrom"] is not None else None,
         "active_to": parse_date(m["activeTo"]) if m["activeTo"] is not None else None,
         "serial_number": m["serialNumber"],
-        "is_export": m["smartExportElectricityMeter"] is not None,
+        "is_export": is_export if is_export is not None else m["smartExportElectricityMeter"] is not None,
         "is_smart_meter": f'{m["meterType"]}'.startswith("S1") or f'{m["meterType"]}'.startswith("S2"),
         "device_id": m["smartImportElectricityMeter"]["deviceId"] if m["smartImportElectricityMeter"] is not None else None,
         "manufacturer": m["smartImportElectricityMeter"]["manufacturer"] 
