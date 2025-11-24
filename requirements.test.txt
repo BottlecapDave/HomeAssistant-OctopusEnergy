@@ -1,6 +1,7 @@
 pytest
 pytest-socket
 pytest-asyncio
+pytest-cov
 mock
 homeassistant==2025.8.3
 pydantic

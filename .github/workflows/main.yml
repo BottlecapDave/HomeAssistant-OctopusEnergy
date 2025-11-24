@@ -58,7 +58,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run unit tests
         run: |
-          python3 -m pytest tests/unit
+          python3 -m pytest --cov=custom_components.octopus_energy tests/unit
+
   integration_tests:
     # Tests are geared towards my account, so ignore for others
     if: ${{ github.repository_owner == 'BottlecapDave' && github.repository_owner == github.actor }}
@@ -81,7 +82,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
       - name: Run integration tests
         run: |
-          python3 -m pytest tests/integration
+          python3 -m pytest --cov=custom_components.octopus_energy --cov-append tests/integration
         env:
           API_KEY: ${{ secrets.OCTOPUS_ENERGY_API_TOKEN }}
           GAS_MPRN: ${{ secrets.OCTOPUS_ENERGY_GAS_MPRN }}
