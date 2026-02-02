@@ -4,7 +4,7 @@
     "step": {
       "account": {
         "title": "Octopus Energy Account",
-        "description": "Setup your basic account information. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account",
+        "description": "Setup your basic account information. Full documentation can be found at {setup_account_docs_url}",
         "data": {
           "account_id": "Account ID (e.g. A-AAAA1111)",
           "api_key": "Api key",
@@ -13,14 +13,14 @@
           "auto_discover_cost_trackers": "Automatically discover sensors suitable for cost trackers"
         },
         "data_description": {
-          "account_id": "You account ID can be found on your bill or at the top of https://octopus.energy/dashboard",
-          "api_key": "You API key can be found at https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
+          "account_id": "You account ID can be found on your bill or at the top of {octopus_energy_dashboard_url}",
+          "api_key": "You API key can be found at {octopus_energy_api_access_url}",
           "calorific_value": "This can be found on your gas statement and can change from time to time"
         },
         "sections": {
           "home_mini_settings": {
             "name": "Home Mini settings",
-            "description": "Settings related to the Home Mini - https://octopus.energy/blog/octopus-home-mini/",
+            "description": "Settings related to the Home Mini - {home_mini_url}",
             "data": {
               "supports_live_consumption": "I have a Home Mini",
               "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
@@ -65,7 +65,7 @@
       },
       "cost_tracker": {
         "title": "Octopus Energy Cost Tracker",
-        "description": "Track the cost for a given energy based sensor. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/cost_tracker.",
+        "description": "Track the cost for a given energy based sensor. Full documentation can be found at {setup_cost_tracker_docs_url}.",
         "data": {
           "name": "The name of your cost sensor",
           "mpan": "The meter the cost rates should be associated with",
@@ -88,7 +88,7 @@
       },
       "tariff_comparison": {
         "title": "Octopus Energy Tariff Comparison",
-        "description": "Compare your cost with another tariff to see if you're on the best tariff for your energy use. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/tariff_comparison.",
+        "description": "Compare your cost with another tariff to see if you're on the best tariff for your energy use. Full documentation can be found at {setup_tariff_comparison_docs_url}.",
         "data": {
           "name": "The name of your tariff comparison",
           "mpan_mprn": "The meter of the data that should be compared to",
@@ -105,7 +105,7 @@
       },
       "reconfigure_account": {
         "title": "Update Account Info",
-        "description": "Update your basic account information. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account",
+        "description": "Update your basic account information. Full documentation can be found at {setup_account_docs_url}",
         "data": {
           "api_key": "Api key",
           "calorific_value": "Gas calorific value.",
@@ -113,13 +113,13 @@
           "auto_discover_cost_trackers": "Automatically discover sensors suitable for cost trackers"
         },
         "data_description": {
-          "api_key": "You API key can be found at https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
+          "api_key": "You API key can be found at {octopus_energy_api_access_url}",
           "calorific_value": "This can be found on your gas statement and can change from time to time"
         },
         "sections": {
           "home_mini_settings": {
             "name": "Home Mini settings",
-            "description": "Settings related to the Home Mini - https://octopus.energy/blog/octopus-home-mini/",
+            "description": "Settings related to the Home Mini - {home_mini_url}",
             "data": {
               "supports_live_consumption": "I have a Home Mini",
               "live_electricity_consumption_refresh_in_minutes": "Home Mini electricity refresh rate in minutes",
@@ -163,7 +163,7 @@
         }
       },
       "reconfigure_cost_tracker": {
-        "description": "Track the cost for a given energy based sensor",
+        "description": "Track the cost for a given energy based sensor. Full documentation can be found at {setup_cost_tracker_docs_url}.",
         "data": {
           "name": "The name of your cost sensor",
           "mpan": "The meter the cost rates should be associated with",
@@ -178,7 +178,7 @@
         }
       },
       "reconfigure_tariff_comparison": {
-        "description": "Compare your cost with another tariff to see if you're on the best tariff for your energy use. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/tariff_comparison.",
+        "description": "Compare your cost with another tariff to see if you're on the best tariff for your energy use. Full documentation can be found at {setup_tariff_comparison_docs_url}.",
         "data": {
           "name": "The name of your tariff comparison",
           "mpan_mprn": "The meter of the data that should be compared to",

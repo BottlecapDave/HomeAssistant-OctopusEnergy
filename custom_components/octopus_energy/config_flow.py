@@ -130,6 +130,15 @@ def get_account_ids(hass):
 
     return account_ids
 
+description_placeholders = {
+  "setup_account_docs_url": "https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account",
+  "octopus_energy_dashboard_url": "https://octopus.energy/dashboard",
+  "octopus_energy_api_access_url": "https://octopus.energy/dashboard/new/accounts/personal-details/api-access",
+  "home_mini_url": "https://octopus.energy/home-mini",
+  "setup_cost_tracker_docs_url": "https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/cost_tracker",
+  "setup_tariff_comparison_docs_url": "https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/tariff_comparison",
+}
+
 class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN): 
   """Config flow."""
 
@@ -254,6 +263,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
         self.__setup_account_schema__(),
         user_input if user_input is not None else {}
       ),
+      description_placeholders=description_placeholders,
       errors=errors
     )
   
@@ -280,6 +290,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
         self.__setup_account_schema__(False),
         config
       ),
+      description_placeholders=description_placeholders,
       errors=errors
     )
   
@@ -357,6 +368,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
           CONFIG_COST_TRACKER_WEEKDAY_RESET: f"{user_input[CONFIG_COST_TRACKER_WEEKDAY_RESET]}" if user_input is not None and CONFIG_COST_TRACKER_WEEKDAY_RESET in user_input else "0",
         }
       ),
+      description_placeholders=description_placeholders,
       errors=errors
     )
   
@@ -393,6 +405,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
           CONFIG_COST_TRACKER_WEEKDAY_RESET: f"{config[CONFIG_COST_TRACKER_WEEKDAY_RESET]}" if config is not None and CONFIG_COST_TRACKER_WEEKDAY_RESET in config else "0",
         }
       ),
+      description_placeholders=description_placeholders,
       errors=errors
     )
   
@@ -452,6 +465,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
         data_schema,
         user_input if user_input is not None else {}
       ),
+      description_placeholders=description_placeholders,
       errors=errors
     )
   
@@ -486,6 +500,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
         data_schema,
         config
       ),
+      description_placeholders=description_placeholders,
       errors=errors
     )
   
@@ -533,6 +548,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     return self.async_show_form(
       step_id="account",
       data_schema=self.__setup_account_schema__(),
+      description_placeholders=description_placeholders,
     )
   
   async def async_step_reconfigure(self, user_input):
