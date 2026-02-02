@@ -23,7 +23,7 @@ async def async_validate_tariff_comparison_config(data, account_info, now: datet
 
   matches = re.search(REGEX_ENTITY_NAME, data[CONFIG_TARIFF_COMPARISON_NAME])
   if matches is None:
-    errors[CONFIG_TARIFF_COMPARISON_NAME] = "invalid_target_name"
+    errors[CONFIG_TARIFF_COMPARISON_NAME] = "invalid_tracker_name"
 
   elec_meter_tariffs = get_electricity_meter_tariffs(account_info, now)
   gas_meter_tariffs = get_gas_meter_tariffs(account_info, now)

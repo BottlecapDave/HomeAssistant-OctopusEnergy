@@ -20,7 +20,7 @@ def validate_cost_tracker_config(data, account_info, now):
 
   matches = re.search(REGEX_ENTITY_NAME, data[CONFIG_COST_TRACKER_NAME])
   if matches is None:
-    errors[CONFIG_COST_TRACKER_NAME] = "invalid_target_name"
+    errors[CONFIG_COST_TRACKER_NAME] = "invalid_tracker_name"
 
   meter_tariffs = get_electricity_meter_tariffs(account_info, now)
   if (data[CONFIG_COST_TRACKER_MPAN] not in meter_tariffs):

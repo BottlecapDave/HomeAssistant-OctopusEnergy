@@ -63,67 +63,6 @@
           }
         }
       },
-      "target_rate": {
-        "title": "Octopus Energy Target Rate",
-        "description": "Setup a target rate period. Continuous target will find the cheapest continuous period for your target hours. While intermittent will find the cheapest periods with potential gaps, which when combined will meet your target hours. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/target_rate",
-        "data": {
-          "name": "The name of your target",
-          "hours": "The hours you require in decimal format.",
-          "hours_mode": "How the defined hours should be interpreted",
-          "type": "The type of target you're after",
-          "mpan": "The MPAN number of the meter to apply the target to",
-          "start_time": "The minimum time to start the device",
-          "end_time": "The maximum time to stop the device",
-          "offset": "The offset to apply to the scheduled block to be considered active",
-          "rolling_target": "Re-evaluate multiple times a day",
-          "last_rates": "Find last applicable rates",
-          "target_invert_target_rates": "Invert targeted rates",
-          "minimum_rate": "The optional minimum rate for target hours",
-          "maximum_rate": "The optional maximum rate for target hours",
-          "weighting": "The optional weighting to apply to the discovered rates",
-          "free_electricity_weighting": "The weighting to apply to rates during free electricity sessions",
-          "target_times_evaluation_mode": "When should target times be selected"
-        },
-        "data_description": {
-          "hours": "This has to be a multiple of 0.5.",
-          "minimum_rate": "This is in pounds and pence (e.g. 0.12)",
-          "maximum_rate": "This is in pounds and pence (e.g. 0.12)"
-        }
-      },
-      "target_rate_account": {
-        "title": "Octopus Energy Target Rate",
-        "description": "Select the account your target rate sensor will be using for its calculations",
-        "data": {
-          "account_id": "Account"
-        }
-      },
-      "rolling_target_rate_account": {
-        "title": "Octopus Energy Rolling Target Rate",
-        "description": "Select the account your rolling target rate sensor will be using for its calculations",
-        "data": {
-          "account_id": "Account"
-        }
-      },
-      "rolling_target_rate": {
-        "title": "Octopus Energy Rolling Target Rate",
-        "description": "Setup a rolling target rate period. Continuous target will find the cheapest continuous period for your target hours. While intermittent will find the cheapest periods with potential gaps, which when combined will meet your target hours. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/rolling_target_rate",
-        "data": {
-          "name": "The name of your target",
-          "hours": "The hours you require in decimal format.",
-          "hours_mode": "How the defined hours should be interpreted",
-          "mpan": "The MPAN number of the meter to apply the target to",
-          "look_ahead_hours": "The number of hours to look ahead when evaluating the available rates",
-          "offset": "The offset to apply to the scheduled block to be considered active",
-          "last_rates": "Find last applicable rates",
-          "target_invert_target_rates": "Invert targeted rates",
-          "minimum_rate": "The optional minimum rate for target hours",
-          "maximum_rate": "The optional maximum rate for target hours",
-          "weighting": "The optional weighting to apply to the discovered rates",
-          "rolling_target": "Re-evaluate multiple times a day",
-          "free_electricity_weighting": "The weighting to apply to rates during free electricity sessions",
-          "target_times_evaluation_mode": "When should target times be selected"
-        }
-      },
       "cost_tracker": {
         "title": "Octopus Energy Cost Tracker",
         "description": "Track the cost for a given energy based sensor. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/cost_tracker.",
@@ -164,7 +103,6 @@
           "account_id": "Account"
         }
       },
-
       "reconfigure_account": {
         "title": "Update Account Info",
         "description": "Update your basic account information. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account",
@@ -224,50 +162,6 @@
           }
         }
       },
-      "reconfigure_target_rate": {
-        "title": "Update Target Rate",
-        "description": "Update the settings for your target rate sensor, which can be used to help you save energy and money. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/target_rate",
-        "data": {
-          "hours": "The hours you require in decimal format.",
-          "hours_mode": "How the defined hours should be interpreted",
-          "mpan": "The MPAN number of the meter to apply the target to",
-          "start_time": "The minimum time to start the device",
-          "end_time": "The maximum time to stop the device",
-          "offset": "The offset to apply to the scheduled block to be considered active",
-          "last_rates": "Find last applicable rates",
-          "target_invert_target_rates": "Invert targeted rates",
-          "minimum_rate": "The optional minimum rate for target hours",
-          "maximum_rate": "The optional maximum rate for target hours",
-          "rolling_target": "Re-evaluate multiple times a day",
-          "weighting": "The optional weighting to apply to the discovered rates",
-          "free_electricity_weighting": "The weighting to apply to rates during free electricity sessions",
-          "target_times_evaluation_mode": "When should target times be selected"
-        }
-      },
-      "reconfigure_rolling_target_rate": {
-        "title": "Update Rolling Target Rate",
-        "description": "Update the settings for your rolling target rate sensor, which can be used to help you save energy and money. Full documentation can be found at https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/rolling_target_rate",
-        "data": {
-          "hours": "The hours you require in decimal format.",
-          "hours_mode": "How the defined hours should be interpreted",
-          "mpan": "The MPAN number of the meter to apply the target to",
-          "look_ahead_hours": "The number of hours to look ahead when evaluating the available rates",
-          "offset": "The offset to apply to the scheduled block to be considered active",
-          "rolling_target": "Re-evaluate multiple times a day",
-          "last_rates": "Find last applicable rates",
-          "target_invert_target_rates": "Invert targeted rates",
-          "minimum_rate": "The optional minimum rate for target hours",
-          "maximum_rate": "The optional maximum rate for target hours",
-          "weighting": "The optional weighting to apply to the discovered rates",
-          "free_electricity_weighting": "The weighting to apply to rates during free electricity sessions",
-          "target_times_evaluation_mode": "When should target times be selected"
-        },
-        "data_description": {
-          "hours": "This has to be a multiple of 0.5.",
-          "minimum_rate": "This is in pounds and pence (e.g. 0.12)",
-          "maximum_rate": "This is in pounds and pence (e.g. 0.12)"
-        }
-      },
       "reconfigure_cost_tracker": {
         "description": "Track the cost for a given energy based sensor",
         "data": {
@@ -297,23 +191,12 @@
       "server_error": "Failed to connect to OE servers. Please try again later",
       "account_not_found": "Invalid API key or account id specified",
       "value_greater_than_zero": "Value must be greater or equal to 1",
-      "invalid_target_hours": "Target hours must be in half hour increments (e.g. 0.5 = 30 minutes; 1 = 60 minutes).",
-      "invalid_target_name": "Name must only include lower case alpha characters and underscore (e.g. my_target)",
-      "invalid_target_time": "Must be in the format HH:MM",
-      "invalid_offset": "Offset must be in the form of HH:MM:SS with an optional negative symbol",
-      "invalid_hours_time_frame": "The target hours do not fit in the elected target time frame",
+      "invalid_tracker_name": "Name must only include lower case alpha characters and underscore (e.g. my_target)",
       "invalid_mpan": "Meter not found in account with an active tariff",
-      "invalid_end_time_agile": "Target time not fit for agile tariffs. Please consult target rate documentation for more information.",
       "duplicate_account": "Account has already been configured",
       "invalid_week_day": "Week reset day must be between 0 and 6 (inclusively)",
       "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)",
-      "invalid_price": "Price must be in the form pounds and pence (e.g. 0.10)",
-      "invalid_weighting": "The weighting format is not supported. Please consult documentation for more information.",
-      "invalid_weighting_slots": "The number of weighting blocks does not equal the specified number of hours.",
-      "weighting_not_supported_for_type": "Weighting is only supported for continuous target rates",
-      "weighting_not_supported_for_hour_mode": "Weighting is not supported for this hour mode",
       "invalid_product_or_tariff": "Product or tariff code does not exist",
-      "minimum_or_maximum_rate_not_specified": "Either minimum and/or maximum rate must be specified for minimum hours mode",
       "all_home_pro_values_not_set": "Home Pro address must be set if API key is set",
       "home_pro_connection_failed": "Cannot connect to Home Pro device. Please check the specified address is correct and that you've installed the custom API as per the instructions.",
       "home_pro_authentication_failed": "Cannot authenticate with API on Home Pro device. Please check authentication token matches the value you configured.",
@@ -339,9 +222,6 @@
     "invalid_target_temperature": {
       "message": "Temperature must be equal or between {min_temperature} and {max_temperature}"
     },
-    "invalid_rate_weightings": {
-      "message": "{error}"
-    },
     "point_in_time_intelligent_dispatch_history_data_out_of_bounds": {
       "message": "The requested point in time is before historic data is available. The earliest available intelligent dispatch data is from {earliest_timestamp}"
     },
@@ -361,10 +241,6 @@
     "unknown_product": {
       "title": "Unknown product - {type} - {product_code}",
       "description": "The product \"{product_code}\" associated with your {type} meter has not been found. Click on \"Learn More\" with instructions on what to do next."
-    },
-    "invalid_target_rate": {
-      "title": "Invalid target rate \"{name}\"",
-      "description": "The target rate \"{name}\" has become invalid. Click on \"Learn More\" with instructions on what to do next."
     },
     "octopus_mini_not_valid": {
       "title": "Octopus Mini not valid for {type} meter",
@@ -433,6 +309,10 @@
     "greenness_forecast_binary_sensor_deprecated": {
       "title": "Greenness forecast highlighted binary sensor deprecated",
       "description": "The greenness forecast highlighted binary sensor (`binary_sensor.octopus_energy_ACCOUNT_ID_greenness_forecast_highlighted`) has been deprecated in favour of using calendar entities. This will allow for better integration with automations and the calendar view. The deprecated sensor will be removed in May 2026. If you are using this sensor, please migrate all uses before the update around that time."
+    },
+    "target_rate_not_supported": {
+      "title": "Target rate configuration not supported",
+      "description": "Configuration for target rates is now achieved via an additional integration and no longer provided as part of this integration. Please click \"Learn More\" for more information on how to migrate to the new way of creating target rate sensors."
     }
   },
   "entity": {
