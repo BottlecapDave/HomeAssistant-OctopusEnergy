@@ -8,3 +8,5 @@ psutil-home-assistant
 sqlalchemy
 fnvhash
 fnv_hash_fast
+# Fixes compatibility issues "module 'pycares' has no attribute 'ares_query_a_result'"
+pycares==4.11.0
