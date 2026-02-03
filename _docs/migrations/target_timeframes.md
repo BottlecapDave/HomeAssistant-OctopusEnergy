@@ -42,7 +42,7 @@ Now we have our data source representing Octopus Energy and data coming from thi
 
 ![Integration sub menu](../assets/target_timeframes_sub_menu.png)
 
-For porting a [target rate sensor](../setup/target_rate.md), you would select [target timeframe](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/setup/target_timeframe/) and for porting a [rolling target rate sensor](../setup/rolling_target_rate.md), you would select [rolling target timeframe](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/setup/rolling_target_timeframe/).
+For porting a `target rate sensor`, you would select [target timeframe](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/setup/target_timeframe/) and for porting a `rolling target rate sensor`, you would select [rolling target timeframe](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/setup/rolling_target_timeframe/).
 
 All options within the sensors should feel familiar, as they represent what's available within this integration. Below are some noticeable differences
 
@@ -65,6 +65,6 @@ The following list of related services and their counterparts.
 
 | OE Service | Target Timeframes Service |
 |-|-|
-| [octopus_energy.update_target_config](../services.md#octopus_energyupdate_target_config) | [target_timeframes.update_target_timeframe_config](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/services/#target_timeframesupdate_target_timeframe_config) |
-| [octopus_energy.update_rolling_target_config](../services.md#octopus_energyupdate_rolling_target_config) | [target_timeframes.update_rolling_target_timeframe_config](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/services/#target_timeframesupdate_rolling_target_timeframe_config) |
-| [octopus_energy.register_rate_weightings](../services.md#octopus_energyregister_rate_weightings) | Data is now loaded as part of [target_timeframes.update_target_timeframe_data_source](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/services/#target_timeframesupdate_target_timeframe_data_source). Therefore data can be manipulated before this service is called. A [blueprint](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/blueprints/#octopus-energy-and-carbon-intensity) is available as an example. |
+| octopus_energy.update_target_config | [target_timeframes.update_target_timeframe_config](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/services/#target_timeframesupdate_target_timeframe_config) |
+| octopus_energy.update_rolling_target_config | [target_timeframes.update_rolling_target_timeframe_config](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/services/#target_timeframesupdate_rolling_target_timeframe_config) |
+| octopus_energy.register_rate_weightings | Data is now loaded as part of [target_timeframes.update_target_timeframe_data_source](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/services/#target_timeframesupdate_target_timeframe_data_source). Therefore data can be manipulated before this service is called. A [blueprint](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/blueprints/#octopus-energy-and-carbon-intensity) is available as an example. |

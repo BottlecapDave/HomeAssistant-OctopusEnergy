@@ -22,7 +22,6 @@ If you find this useful and are planning on moving to Octopus Energy, why not us
 Below are the main features of the integration
 
 * [Electricity](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/electricity/) and [gas](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/gas/) meter support including consumption data and rate information
-* [Custom sensor support to target cheapest rates](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/target_rate/)
 * [Custom sensor support for tracking costs of other entities](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/cost_tracker)
 * [Custom sensor support for comparing to other tariffs](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/tariff_comparison)
 * [Octopus Home mini support](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account/#home-mini)

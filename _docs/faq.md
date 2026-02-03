@@ -177,20 +177,6 @@ The integration will only surface entities associated with meters in your first 
 
 If you [follow the instructions](#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this) to download diagnostics, you can see all agreements associated with each of your meters. You will need an agreement with a start date in the past and an end date either set to `null` or in the future for the meter to be picked up by the integration.
 
-## I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?
-
-Rate data for agile tariffs are not available in full for the next day, which can cause issues with target rate sensors in their default state. We prevent you from setting up target rate sensors in this form. More information around this can be found in the [target rate documentation](./setup/target_rate.md#agile-users).
-
-## Why won't my target rates update?
-
-The target rate sensors are set to update every minute, which includes determining if you're within a target time period and calculating future target time periods. This can be confirmed by evaluating the [last_updated](https://community.home-assistant.io/t/how-to-display-the-last-updated-field-of-an-entity-in-the-lovelace-view/728892/2?u=bottlecapdave) attribute of the sensor. 
-
-The `target_times` will evaluate once all rates are available for the specified time period and all existing target times are in the past. When this was last evaluated can be confirmed via the `target_times_last_evaluated` attribute. For example, if you are looking for target rates between 16:00 (today) and 16:00 (tomorrow), and you only have rates up to 23:00 (today), then target times will not be evaluated until rate information is available up to 16:00 (tomorrow). This can be confirmed by reviewing the data available in your current and next day rates entities.
-
-If there is a delay in retrieving rate information, there is chance that when it comes to evaluation, times are picked that are in the past because they were the lowest. This will result in your target rate sensor skipping a day and waiting to calculate new target times for the next scheduled time period. This can be confirmed by comparing the `target_times` and the `target_times_last_evaluated` attribute. If this happens frequently, then please adjust the target time periods of your target rate sensor to something that works for you.
-
-If the `last_updated` attribute is not updating, then please raise an issue.
-
 ## My gas consumption/costs seem out
 
 Depending on the native reading from your meter or the sensor you're looking at, the consumption may have to be converted from kWh into cubic meters.

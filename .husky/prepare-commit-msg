@@ -1,1 +1,1 @@
-# exec < /dev/tty && npx cz --hook || true
+exec < /dev/tty && npx cz --hook || true
