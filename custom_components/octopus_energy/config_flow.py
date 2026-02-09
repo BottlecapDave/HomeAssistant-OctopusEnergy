@@ -20,6 +20,7 @@ from .const import (
   CONFIG_COST_TRACKER_MANUAL_RESET,
   CONFIG_DEFAULT_LIVE_ELECTRICITY_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_DEFAULT_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
+  CONFIG_DEFAULT_MINIMUM_DISPATCH_DURATION_IN_MINUTES,
   CONFIG_KIND_ROLLING_TARGET_RATE,
   CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS,
   CONFIG_MAIN_CALORIFIC_VALUE,
@@ -31,6 +32,7 @@ from .const import (
   CONFIG_MAIN_HOME_PRO_API_KEY,
   CONFIG_MAIN_HOME_PRO_SETTINGS,
   CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_MINIMUM_DISPATCH_DURATION_IN_MINUTES,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY,
@@ -203,6 +205,24 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
         ),
         {"collapsed": True},
       ),
+      vol.Required(CONFIG_MAIN_INTELLIGENT_SETTINGS): section(
+        vol.Schema(
+            {
+                vol.Required(CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES, default=False): bool,
+                vol.Required(CONFIG_MAIN_INTELLIGENT_RATE_MODE): selector.SelectSelector(
+                  selector.SelectSelectorConfig(
+                      options=[
+                        selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES, label="Planned and started dispatches will turn into off peak rates"),
+                        selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, label="Only started dispatches will turn into off peak rates"),
+                      ],
+                      mode=selector.SelectSelectorMode.DROPDOWN,
+                  )
+                ),
+                vol.Required(CONFIG_MAIN_INTELLIGENT_MINIMUM_DISPATCH_DURATION_IN_MINUTES, default=CONFIG_DEFAULT_MINIMUM_DISPATCH_DURATION_IN_MINUTES): cv.positive_int,
+            }
+        ),
+        {"collapsed": True},
+      ),
       vol.Required(CONFIG_MAIN_HOME_PRO_SETTINGS): section(
         vol.Schema(
             {
@@ -217,23 +237,6 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
             {
                 vol.Optional(CONFIG_MAIN_ELECTRICITY_PRICE_CAP): cv.positive_float,
                 vol.Optional(CONFIG_MAIN_GAS_PRICE_CAP): cv.positive_float,
-            }
-        ),
-        {"collapsed": True},
-      ),
-      vol.Required(CONFIG_MAIN_INTELLIGENT_SETTINGS): section(
-        vol.Schema(
-            {
-                vol.Required(CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES, default=False): bool,
-                vol.Required(CONFIG_MAIN_INTELLIGENT_RATE_MODE): selector.SelectSelector(
-                  selector.SelectSelectorConfig(
-                      options=[
-                        selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES, label="Planned and started dispatches will turn into off peak rates"),
-                        selector.SelectOptionDict(value=CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, label="Only started dispatches will turn into off peak rates"),
-                      ],
-                      mode=selector.SelectSelectorMode.DROPDOWN,
-                  )
-                ),
             }
         ),
         {"collapsed": True},

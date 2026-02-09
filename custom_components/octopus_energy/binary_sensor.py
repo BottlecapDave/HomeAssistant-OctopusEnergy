@@ -21,10 +21,12 @@ from .heat_pump.weather_compensation_enabled import OctopusEnergyHeatPumpWeather
 from .utils.debug_overrides import async_get_account_debug_override
 
 from .const import (
+  CONFIG_DEFAULT_MINIMUM_DISPATCH_DURATION_IN_MINUTES,
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
   CONFIG_ACCOUNT_ID,
   CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_MINIMUM_DISPATCH_DURATION_IN_MINUTES,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
   CONFIG_MAIN_INTELLIGENT_SETTINGS,
@@ -198,6 +200,9 @@ def get_intelligent_entities(hass, account_id: str, config: dict):
       )
 
       coordinator = hass.data[DOMAIN][account_id][DATA_INTELLIGENT_DISPATCHES_COORDINATOR.format(intelligent_device.id)]
-      entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, intelligent_device, account_id, intelligent_rate_mode, manually_refresh_dispatches))
+      minimum_dispatch_duration_in_minutes = (config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_MINIMUM_DISPATCH_DURATION_IN_MINUTES] 
+                                 if CONFIG_MAIN_INTELLIGENT_SETTINGS in config and CONFIG_MAIN_INTELLIGENT_MINIMUM_DISPATCH_DURATION_IN_MINUTES in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] 
+                                 else CONFIG_DEFAULT_MINIMUM_DISPATCH_DURATION_IN_MINUTES)
+      entities.append(OctopusEnergyIntelligentDispatching(hass, coordinator, intelligent_device, account_id, intelligent_rate_mode, manually_refresh_dispatches, minimum_dispatch_duration_in_minutes))
 
   return entities

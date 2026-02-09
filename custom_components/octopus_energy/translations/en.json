@@ -54,11 +54,13 @@
             "description": "These are settings related to the intelligent tariff. If you're not on this tariff, none of this applies.",
             "data": {
               "intelligent_manual_dispatches": "Manually refresh intelligent dispatches",
-              "intelligent_rate_mode": "Intelligent tariff rate mode"
+              "intelligent_rate_mode": "Intelligent tariff rate mode",
+              "intelligent_minimum_dispatch_duration_in_minutes": "Minimum required minutes for planned dispatches"
             },
             "data_description": {
-              "intelligent_manual_dispatches": "This will expose a service which can be called to refresh the dispatches on demand. See docs for more information.",
-              "intelligent_rate_mode": "Determines how rates should be adjusted when dispatches are found outside of normal off peak periods"
+              "intelligent_manual_dispatches": "Dispatches will not automatically refresh, but instead only refresh when an exposed service/action is called. See docs for more information.",
+              "intelligent_rate_mode": "Determines how rates should be adjusted when dispatches are found outside of normal off peak periods",
+              "intelligent_minimum_dispatch_duration_in_minutes": "This will impact dispatch sensors and adjusted rate information"
             }
           }
         }
@@ -153,11 +155,13 @@
             "description": "These are settings related to the intelligent tariff. If you're not on this tariff, none of this applies.",
             "data": {
               "intelligent_manual_dispatches": "Manually refresh intelligent dispatches",
-              "intelligent_rate_mode": "Intelligent tariff rate mode"
+              "intelligent_rate_mode": "Intelligent tariff rate mode",
+              "intelligent_minimum_dispatch_duration_in_minutes": "Minimum required minutes for planned dispatches"
             },
             "data_description": {
-              "intelligent_manual_dispatches": "This will expose a service which can be called to refresh the dispatches on demand. See docs for more information.",
-              "intelligent_rate_mode": "Determines how rates should be adjusted when dispatches are found outside of normal off peak periods"
+              "intelligent_manual_dispatches": "Dispatches will not automatically refresh, but instead only refresh when an exposed service/action is called. See docs for more information.",
+              "intelligent_rate_mode": "Determines how rates should be adjusted when dispatches are found outside of normal off peak periods",
+              "intelligent_minimum_dispatch_duration_in_minutes": "This will impact dispatch sensors and adjusted rate information"
             }
           }
         }

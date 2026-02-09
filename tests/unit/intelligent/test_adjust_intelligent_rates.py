@@ -298,3 +298,25 @@ async def test_when_complete_non_smart_charge_dispatch_present_in_rate_then_rate
       
     else:
       assert rate == adjusted_rates[index]
+
+@pytest.mark.asyncio
+async def test_when_complete_non_smart_charge_dispatch_present_in_rate_but_below_minimum_dispatch_period_then_rates_not_adjusted():
+  # Arrange
+  rates = create_rates()
+  started_dispatches: list[SimpleIntelligentDispatchItem] = [
+    SimpleIntelligentDispatchItem(
+      as_utc(parse_datetime("2022-10-10T05:00:00Z")),
+      as_utc(parse_datetime("2022-10-10T05:02:59Z"))
+  )]
+  planned_dispatches: list[IntelligentDispatchItem] = []
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
+  minimum_dispatch_in_minutes = 3
+
+  # Act
+  adjusted_rates = adjust_intelligent_rates(create_rates(), planned_dispatches, started_dispatches, mode, minimum_dispatch_in_minutes)
+
+  # Assert
+  assert len(rates) == len(adjusted_rates)
+  for index, rate in enumerate(rates):
+    assert rate == adjusted_rates[index]
+    assert "is_intelligent_adjusted" not in adjusted_rates[index]

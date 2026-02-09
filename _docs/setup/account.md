@@ -47,15 +47,21 @@ There are some tariffs where direct debit and non direct debit rates are availab
 
     It might take a couple of minutes for these changes to reflect once changed.
 
-## Manually refresh intelligent dispatches
+## Intelligent Settings
+
+### Manually refresh intelligent dispatches
 
 By default, intelligent dispatches are retrieved [periodically](../faq.md#how-often-is-data-refreshed). This is fine for most scenarios, but this can be a little slow depending on what else you're doing off the back of the dispatches. If you have other ways of knowing when new dispatches should be available (e.g. your charger changes to a charging state or a manual button in your HA dashboard), then you can turn on `Manually refresh intelligent dispatches`. This will disable the periodic refreshing and expose a [service](../services.md#octopus_energyrefresh_intelligent_dispatches) which can be called to refresh the dispatches.
 
-## Intelligent rates mode
+!!! warning
+
+    This should only be turned on if you know what you're doing. Turning this on and not calling the service/action can result in rate and intelligent related sensors not updating correctly.
+
+### Intelligent rates mode
 
 If you are on an intelligent tariff then it's possible for you to get cheaper rates outside of your normal off peak periods if Octopus Energy schedules the charges and your car accepts the charges. The rate information provides by Octopus Energy doesn't take these periods into account, so the integration has to use the planned/completed dispatch information to adjust the rates appropriately. Due to the quality of the available data, this _can_ be off sometimes. This feature allows how the rate information is adjusted in these scenarios.
 
-### Planned and started dispatches will turn into off peak rates
+#### Planned and started dispatches will turn into off peak rates
 
 This is the default behaviour. In this scenario, all planned dispatches will be assumed to be converted into successful off peak charges by the car and therefore all rates during these periods will be converted into the off peak rate. This will be indicated by the `is_intelligent_adjusted` property against the rate. This is useful when planning other devices to turn on in the future during these cheap periods.
 
@@ -65,7 +71,7 @@ Please see the [FAQ](../faq.md#what-are-started-dispatches-and-how-are-they-calc
 
     One side effect of this is around cost sensors, where if a planned dispatch does not turn into a started dispatch, the cost sensor can increase in value when the planned dispatch is removed.
 
-### Only started dispatches will turn into off peak rates
+#### Only started dispatches will turn into off peak rates
 
 In this scenario only started dispatches will be taken into account for adjustments meaning all rates during only started dispatch periods will be converted into the off peak rate. This will be indicated by the `is_intelligent_adjusted` property. This means no future planning can be made to take advantage of these cheap periods by rates alone.
 
@@ -75,7 +81,15 @@ Please see the [FAQ](../faq.md#what-are-started-dispatches-and-how-are-they-calc
 
     One side effect of this is around cost sensors, where when a started dispatch arrives the cost sensor will decrease in value.
 
-## Home Pro
+### Minimum required minutes for planned dispatches
+
+Octopus Intelligent can be known to provide planned dispatches with small windows (e.g. 3 minutes long). Depending on your charging mechanism, these small windows can result in the charging mechanism not having long enough to react and therefore causing these periods to not be counted as off peak periods. If you are doing other things during dispatch periods, this can result in your home performing tasks that are then counted as off peak tasks, or may not be long enough with the default refresh rate to do anything meaningful. 
+
+Therefore, you can use this setting to determine the minimum length in minutes a planned dispatch must be in order to be taken into account by the integration. If a planned dispatch is below this number, then the [is dispatching sensor](../entities/intelligent.md#is-dispatching) and [off peak sensor](../entities/electricity.md#off-peak) will not turn on during these dispatches, nor will the [rate sensors](../entities/electricity.md#current-rate) be adjusted to off peak rates during these periods.
+
+This defaults to zero to include all possible planned dispatches.
+
+## Home Pro Settings
 
 If you are lucky enough to own an [Octopus Home Pro](https://forum.octopus.energy/t/for-the-pro-user/8453/2352/) (note that is is no longer possible to obtain one), you can now receive this data locally from within Home Assistant.
 
