@@ -465,16 +465,6 @@ query {{
       }}
       weatherCompensation {{
         enabled
-        allowableRange {{
-            minimum {{
-            value
-            unit
-          }}
-          maximum {{
-            value
-            unit
-          }}
-        }}
         currentRange {{
           minimum {{
             value

@@ -68,7 +68,6 @@ class AllowableRange(BaseModel):
 
 class WeatherCompensation(BaseModel):
     enabled: bool
-    allowableRange: AllowableRange
     currentRange: AllowableRange
 
 
