@@ -1,3 +1,26 @@
+# [18.0.0-beta.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.1.1...v18.0.0-beta.1) (2026-02-11)
+
+
+### Bug Fixes
+
+* Fixed api requests for heat pumps which requested invalid data which isn't used (15 minutes dev time) ([08363e4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/08363e49177cfd18f0a8fec5a83eaae9b9c2ff80))
+* Fixed issue with repair keys that don't provide string based ids (15 minutes dev time) ([967ec6f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/967ec6f06102cdcc7ec6bb4eab0da015e7c8864e))
+* Fixed warning for adding external statistics (Thanks @ProximusAl) ([cc53944](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cc5394468b5c2eadd64de088c6bb1803d2b23c9b))
+* Improved export meter detection (Thanks @TCWORLD) ([5e50617](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5e5061754ff197cd692803c30323bc8296723a1b))
+* Updated cost trackers to link to tracked devices based on HA recommendations (1 hour dev time) ([f3d6d74](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f3d6d74698d40bd3c77db4f61be0838bfdd2cf71))
+* Updated saving sessions to use new APIs (15 minutes dev time) ([f36827c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f36827c5da57b68067e2ca87a4d8ace26d561b6e))
+
+
+### Features
+
+* Added ability to configure the minimum length of intelligent dispatches in order to trigger dispatch sensors (2 hours dev time) ([6e98d12](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6e98d1237a98d752819a89fcabd06c38ac0220c4))
+* removed target rate sensors which are now available via a separate integration (2 hours dev time) ([25e492b](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/25e492be77624abb4793ecb905d6fb2de75bd6b7))
+
+
+### BREAKING CHANGES
+
+* Target rate and Rolling target rate sensors have now been removed as per the notice period. Please see https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/migrations/target_timeframes if you need assistance in migrating the functionality.
+
 ## [17.1.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.1.0...v17.1.1) (2025-10-31)
 
 
