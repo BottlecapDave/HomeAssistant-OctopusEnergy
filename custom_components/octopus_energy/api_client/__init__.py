@@ -290,7 +290,7 @@ octoplus_saving_session_join_mutation = '''mutation {{
 
 octoplus_saving_session_query = '''query {{
 	savingSessions {{
-    events(getDevEvents: false) {{
+    events(includeDev: false) {{
 			id
       code
 			rewardPerKwhInOctoPoints
@@ -1053,7 +1053,7 @@ class OctopusEnergyApiClient:
       client = self._create_client_session()
       url = f'{self._backend_base_url}/v1/graphql/'
       payload = { "query": greener_night_forecast_query }
-      headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as greener_night_forecast_response:
 
         response_body = await self.__async_read_response__(greener_night_forecast_response, url)
@@ -1083,10 +1083,10 @@ class OctopusEnergyApiClient:
     try:
       request_context = "saving-sessions"
       client = self._create_client_session()
-      url = f'{self._base_url}/v1/graphql/'
+      url = f'{self._backend_base_url}/v1/graphql/'
       # Get account response
       payload = { "query": octoplus_saving_session_query.format(account_id=account_id) }
-      headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as account_response:
         response_body = await self.__async_read_response__(account_response, url)
 
