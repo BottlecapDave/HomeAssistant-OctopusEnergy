@@ -393,7 +393,8 @@ FULLY_SUPPORTED_INTELLIGENT_PROVIDERS = [
   "SMART_PEAR",
   "HYPERVOLT",
   "INDRA",
-  "OCPP"
+  "OCPP",
+  "OCTOPUS_ENERGY"
 ]
 
 def get_intelligent_features(provider: str) -> IntelligentFeatures:
