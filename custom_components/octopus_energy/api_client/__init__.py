@@ -52,6 +52,7 @@ account_query = '''query {{
     electricityAgreements(active: true) {{
 			meterPoint {{
 				mpan
+				direction
 				meters(includeInactive: false) {{
           activeFrom
           activeTo
@@ -289,7 +290,7 @@ octoplus_saving_session_join_mutation = '''mutation {{
 
 octoplus_saving_session_query = '''query {{
 	savingSessions {{
-    events(getDevEvents: false) {{
+    events(includeDev: false) {{
 			id
       code
 			rewardPerKwhInOctoPoints
@@ -464,16 +465,6 @@ query {{
       }}
       weatherCompensation {{
         enabled
-        allowableRange {{
-            minimum {{
-            value
-            unit
-          }}
-          maximum {{
-            value
-            unit
-          }}
-        }}
         currentRange {{
           minimum {{
             value
@@ -792,12 +783,15 @@ class OctopusEnergyApiClient:
         _LOGGER.error("Failed to retrieve auth token")
       
   def map_electricity_meters(self, meter_point):
+    is_export = (meter_point["meterPoint"]["direction"] == 'EXPORT') \
+      if "meterPoint" in meter_point and "direction" in meter_point["meterPoint"] and meter_point["meterPoint"]["direction"] is not None \
+      else None
     meters = list(
       map(lambda m: {
         "active_from": parse_date(m["activeFrom"]) if m["activeFrom"] is not None else None,
         "active_to": parse_date(m["activeTo"]) if m["activeTo"] is not None else None,
         "serial_number": m["serialNumber"],
-        "is_export": m["smartExportElectricityMeter"] is not None,
+        "is_export": is_export if is_export is not None else m["smartExportElectricityMeter"] is not None,
         "is_smart_meter": f'{m["meterType"]}'.startswith("S1") or f'{m["meterType"]}'.startswith("S2"),
         "device_id": m["smartImportElectricityMeter"]["deviceId"] if m["smartImportElectricityMeter"] is not None else None,
         "manufacturer": m["smartImportElectricityMeter"]["manufacturer"] 
@@ -1049,7 +1043,7 @@ class OctopusEnergyApiClient:
       client = self._create_client_session()
       url = f'{self._backend_base_url}/v1/graphql/'
       payload = { "query": greener_night_forecast_query }
-      headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as greener_night_forecast_response:
 
         response_body = await self.__async_read_response__(greener_night_forecast_response, url)
@@ -1079,10 +1073,10 @@ class OctopusEnergyApiClient:
     try:
       request_context = "saving-sessions"
       client = self._create_client_session()
-      url = f'{self._base_url}/v1/graphql/'
+      url = f'{self._backend_base_url}/v1/graphql/'
       # Get account response
       payload = { "query": octoplus_saving_session_query.format(account_id=account_id) }
-      headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as account_response:
         response_body = await self.__async_read_response__(account_response, url)
 

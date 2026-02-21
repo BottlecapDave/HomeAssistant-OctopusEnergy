@@ -8,7 +8,13 @@ from homeassistant.util.dt import (utcnow)
 from homeassistant.const import (
     EVENT_HOMEASSISTANT_STOP
 )
-from homeassistant.helpers import issue_registry as ir
+from homeassistant.helpers import (
+  issue_registry as ir
+)
+
+from homeassistant.helpers.helper_integration import (
+    async_remove_helper_config_entry_from_source_device,
+)
 
 from .api_client_home_pro import OctopusEnergyHomeProApiClient
 from .coordinators.account import AccountCoordinatorResult, async_setup_account_info_coordinator
@@ -20,18 +26,16 @@ from .coordinators.free_electricity_sessions import async_setup_free_electricity
 from .coordinators.greenness_forecast import async_setup_greenness_forecast_coordinator
 from .statistics import get_statistic_ids_to_remove
 from .intelligent import get_intelligent_features, mock_intelligent_devices
-from .config.rolling_target_rates import async_migrate_rolling_target_config
 from .coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult, async_setup_heat_pump_coordinator
+from .config.tariff_comparison import async_migrate_tariff_comparison_config
 
 from .config.main import async_migrate_main_config
-from .config.target_rates import async_migrate_target_config
 from .config.cost_tracker import async_migrate_cost_tracker_config
 from .utils import get_active_tariff
 from .utils.debug_overrides import async_get_account_debug_override, async_get_meter_debug_override
 from .utils.error import api_exception_to_string
 from .storage.account import async_load_cached_account, async_save_cached_account
 from .storage.intelligent_device import async_load_cached_intelligent_devices, async_save_cached_intelligent_devices
-from .storage.rate_weightings import async_load_cached_rate_weightings
 from .storage.intelligent_dispatches import async_load_cached_intelligent_dispatches
 from .storage.intelligent_dispatches_history import IntelligentDispatchesHistory, async_load_cached_intelligent_dispatches_history
 from .api_client.intelligent_dispatches import IntelligentDispatches
@@ -43,6 +47,8 @@ from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_he
 from .utils.repairs import safe_repair_key
 
 from .const import (
+  CONFIG_COST_TRACKER_TARGET_ENTITY_ID,
+  CONFIG_DEFAULT_MINIMUM_DISPATCH_DURATION_IN_MINUTES,
   CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS,
   CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES,
   CONFIG_KIND,
@@ -55,6 +61,7 @@ from .const import (
   CONFIG_MAIN_HOME_PRO_API_KEY,
   CONFIG_MAIN_HOME_PRO_SETTINGS,
   CONFIG_MAIN_INTELLIGENT_MANUAL_DISPATCHES,
+  CONFIG_MAIN_INTELLIGENT_MINIMUM_DISPATCH_DURATION_IN_MINUTES,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
   CONFIG_MAIN_INTELLIGENT_SETTINGS,
@@ -63,7 +70,6 @@ from .const import (
   CONFIG_VERSION,
   DATA_DISCOVERY_MANAGER,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
-  DATA_CUSTOM_RATE_WEIGHTINGS_KEY,
   DATA_HOME_PRO_CLIENT,
   DATA_INTELLIGENT_DEVICES,
   DATA_INTELLIGENT_DISPATCHES,
@@ -81,12 +87,12 @@ from .const import (
   REFRESH_RATE_IN_MINUTES_INTELLIGENT,
   REPAIR_ACCOUNT_NOT_FOUND,
   REPAIR_INVALID_API_KEY,
+  REPAIR_TARGET_RATE_NOT_SUPPORTED,
   REPAIR_UNIQUE_RATES_CHANGED_KEY,
   REPAIR_UNKNOWN_INTELLIGENT_PROVIDER
 )
 
 ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "number", "switch", "text", "time", "event", "select", "climate", "water_heater", "calendar"]
-TARGET_RATE_PLATFORMS = ["binary_sensor"]
 COST_TRACKER_PLATFORMS = ["sensor"]
 TARIFF_COMPARISON_PLATFORMS = ["sensor"]
 
@@ -117,14 +123,18 @@ async def async_migrate_entry(hass, config_entry):
     if CONFIG_MAIN_API_KEY in new_data or CONFIG_MAIN_OLD_API_KEY in new_data or (CONFIG_KIND in new_data and new_data[CONFIG_KIND] == CONFIG_KIND_ACCOUNT):
       new_data = await async_migrate_main_config(config_entry.version, new_data)
       title = new_data[CONFIG_ACCOUNT_ID]
-    elif CONFIG_KIND in new_data and new_data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
-      new_data = await async_migrate_target_config(config_entry.version, new_data, hass.config_entries.async_entries)
-    elif CONFIG_KIND in new_data and new_data[CONFIG_KIND] == CONFIG_KIND_ROLLING_TARGET_RATE:
-      new_data = await async_migrate_rolling_target_config(config_entry.version, new_data, hass.config_entries.async_entries)
     elif CONFIG_KIND in new_data and new_data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
       new_data = await async_migrate_cost_tracker_config(config_entry.version, new_data, hass.config_entries.async_entries)
+
+      if config_entry.version < 9:
+        async_remove_helper_config_entry_from_source_device(
+          hass,
+          helper_config_entry_id=config_entry.entry_id,
+          source_device_id=new_data[CONFIG_COST_TRACKER_TARGET_ENTITY_ID],
+        )
+
     elif CONFIG_KIND in new_data and new_data[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:
-      new_data = await async_migrate_cost_tracker_config(config_entry.version, new_data, hass.config_entries.async_entries)
+      new_data = await async_migrate_tariff_comparison_config(config_entry.version, new_data, hass.config_entries.async_entries)
     
     hass.config_entries.async_update_entry(config_entry, title=title, data=new_data, options={}, version=CONFIG_VERSION)
 
@@ -181,46 +191,17 @@ async def async_setup_entry(hass, entry):
       await discovery_manager.async_setup()
       hass.data[DOMAIN][account_id][DATA_DISCOVERY_MANAGER] = discovery_manager
   
-  elif config[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE:
-    if DOMAIN not in hass.data or account_id not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN][account_id]:
-      raise ConfigEntryNotReady("Account has not been setup")
+  elif (config[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE or config[CONFIG_KIND] == CONFIG_KIND_ROLLING_TARGET_RATE):
+    ir.async_create_issue(
+      hass,
+      DOMAIN,
+      REPAIR_TARGET_RATE_NOT_SUPPORTED,
+      is_fixable=False,
+      severity=ir.IssueSeverity.ERROR,
+      learn_more_url="https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/migrations/target_timeframes",
+      translation_key="target_rate_not_supported",
+    )
     
-    now = utcnow()
-    account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
-    account_info = account_result.account if account_result is not None else None
-    for point in account_info["electricity_meter_points"]:
-      # We only care about points that have active agreements
-      electricity_tariff = get_active_tariff(now, point["agreements"])
-      if electricity_tariff is not None:
-        for meter in point["meters"]:
-          mpan = point["mpan"]
-          serial_number = meter["serial_number"]
-          previous_consumption_coordinator_key = DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)
-          if previous_consumption_coordinator_key not in hass.data[DOMAIN][account_id]:
-            raise ConfigEntryNotReady(f"Electricity rates have not been setup for {mpan}/{serial_number}")
-
-    await hass.config_entries.async_forward_entry_setups(entry, TARGET_RATE_PLATFORMS)
-
-  elif config[CONFIG_KIND] == CONFIG_KIND_ROLLING_TARGET_RATE:
-    if DOMAIN not in hass.data or account_id not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN][account_id]:
-      raise ConfigEntryNotReady("Account has not been setup")
-    
-    now = utcnow()
-    account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
-    account_info = account_result.account if account_result is not None else None
-    for point in account_info["electricity_meter_points"]:
-      # We only care about points that have active agreements
-      electricity_tariff = get_active_tariff(now, point["agreements"])
-      if electricity_tariff is not None:
-        for meter in point["meters"]:
-          mpan = point["mpan"]
-          serial_number = meter["serial_number"]
-          previous_consumption_coordinator_key = DATA_ELECTRICITY_RATES_COORDINATOR_KEY.format(mpan, serial_number)
-          if previous_consumption_coordinator_key not in hass.data[DOMAIN][account_id]:
-            raise ConfigEntryNotReady(f"Electricity rates have not been setup for {mpan}/{serial_number}")
-
-    await hass.config_entries.async_forward_entry_setups(entry, TARGET_RATE_PLATFORMS)
-  
   elif config[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
     if DOMAIN not in hass.data or account_id not in hass.data[DOMAIN] or DATA_ACCOUNT not in hass.data[DOMAIN][account_id]:
       raise ConfigEntryNotReady("Account has not been setup")
@@ -372,11 +353,6 @@ async def async_setup_dependencies(hass, config):
     mpan = point["mpan"]
     electricity_tariff = get_active_tariff(now, point["agreements"])
 
-    rate_weightings = await async_load_cached_rate_weightings(hass, mpan)
-    if rate_weightings is not None:
-      key = DATA_CUSTOM_RATE_WEIGHTINGS_KEY.format(mpan)
-      hass.data[DOMAIN][account_id][key] = rate_weightings
-
     for meter in point["meters"]:  
       serial_number = meter["serial_number"]
       
@@ -411,6 +387,10 @@ async def async_setup_dependencies(hass, config):
         intelligent_rate_mode = (config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_RATE_MODE] 
                                  if CONFIG_MAIN_INTELLIGENT_SETTINGS in config and CONFIG_MAIN_INTELLIGENT_RATE_MODE in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] 
                                  else CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES)
+        
+        minimum_dispatch_duration_in_minutes = (config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_MINIMUM_DISPATCH_DURATION_IN_MINUTES] 
+                                 if CONFIG_MAIN_INTELLIGENT_SETTINGS in config and CONFIG_MAIN_INTELLIGENT_MINIMUM_DISPATCH_DURATION_IN_MINUTES in config[CONFIG_MAIN_INTELLIGENT_SETTINGS] 
+                                 else CONFIG_DEFAULT_MINIMUM_DISPATCH_DURATION_IN_MINUTES)
         await async_setup_electricity_rates_coordinator(hass,
                                                         account_id,
                                                         mpan,
@@ -418,7 +398,8 @@ async def async_setup_dependencies(hass, config):
                                                         is_smart_meter,
                                                         is_export_meter,
                                                         intelligent_rate_mode,
-                                                        tariff_override)
+                                                        tariff_override,
+                                                        minimum_dispatch_duration_in_minutes)
 
   mock_heat_pump = account_debug_override.mock_heat_pump if account_debug_override is not None else False
   if mock_heat_pump:
@@ -479,9 +460,6 @@ async def async_unload_entry(hass, entry):
 
     elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:
       unload_ok = await hass.config_entries.async_unload_platforms(entry, TARIFF_COMPARISON_PLATFORMS)
-
-    elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE or entry.data[CONFIG_KIND] == CONFIG_KIND_ROLLING_TARGET_RATE:
-      unload_ok = await hass.config_entries.async_unload_platforms(entry, TARGET_RATE_PLATFORMS)
     
     elif entry.data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
       unload_ok = await hass.config_entries.async_unload_platforms(entry, COST_TRACKER_PLATFORMS)

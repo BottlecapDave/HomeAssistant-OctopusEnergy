@@ -165,16 +165,6 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
         },
         "weatherCompensation": {
           "enabled": "true",
-          "allowableRange": {
-            "minimum": {
-              "value": "30",
-              "unit": "DEGREES_CELSIUS"
-            },
-            "maximum": {
-              "value": "70",
-              "unit": "DEGREES_CELSIUS"
-            }
-          },
           "currentRange": {
             "minimum": {
               "value": "37",

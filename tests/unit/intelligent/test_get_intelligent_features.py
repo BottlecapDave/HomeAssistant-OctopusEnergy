@@ -27,6 +27,7 @@ from custom_components.octopus_energy.intelligent import get_intelligent_feature
   ("INDRA", True, True, True, True, True, False, True),
   ("OHME", False, False, False, False, False, False, False),
   ("OCPP", True, True, True, True, True, False, True),
+  ("OCTOPUS_ENERGY", True, True, True, True, True, False, True),
   ("DAIKIN".lower(), True, True, True, True, True, False, True),
   ("ECOBEE".lower(), True, True, True, True, True, False, True),
   ("ENERGIZER".lower(), True, True, True, True, True, False, True),
@@ -50,6 +51,7 @@ from custom_components.octopus_energy.intelligent import get_intelligent_feature
   ("INDRA".lower(), True, True, True, True, True, False, True),
   ("OHME".lower(), False, False, False, False, False, False, False),
   ("OCPP".lower(), True, True, True, True, True, False, True),
+  ("OCTOPUS_ENERGY".lower(), True, True, True, True, True, False, True),
   # Unexpected providers
   ("unexpected".lower(), False, False, False, False, False, True, False),
   ("".lower(), False, False, False, False, False, True, False),

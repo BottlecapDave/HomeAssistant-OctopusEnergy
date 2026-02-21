@@ -29,6 +29,7 @@ mock_intelligent_device_id_two = "6F-5B-4C-3D-2E-1F"
 # Not expected to dispatch
 # 11:00 - 11:20 Smart Charge (Removed before dispatch)
 # 12:00 - 13:00 Bump Charge
+# 14:00 - 14:02 Smart Charge (Too short to dispatch)
 
 def mock_intelligent_dispatches(current_state = "SMART_CONTROL_CAPABLE", device_id = mock_intelligent_device_id_one) -> IntelligentDispatches:
   planned: list[IntelligentDispatchItem] = []
@@ -47,6 +48,13 @@ def mock_intelligent_dispatches(current_state = "SMART_CONTROL_CAPABLE", device_
       utcnow().replace(hour=13, minute=0, second=0, microsecond=0),
       4.6,
       INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS[-1].upper(),
+      "home"
+    ),
+    IntelligentDispatchItem(
+      utcnow().replace(hour=14, minute=0, second=0, microsecond=0),
+      utcnow().replace(hour=14, minute=2, second=0, microsecond=0),
+      1.1,
+      None,
       "home"
     )
   ]
@@ -167,7 +175,8 @@ def has_intelligent_tariff(current: datetime, account_info):
 
 def get_applicable_dispatch_periods(planned_dispatches: list[IntelligentDispatchItem],
                                     started_dispatches: list[SimpleIntelligentDispatchItem],
-                                    mode: str):
+                                    mode: str,
+                                    minimum_dispatch_duration_in_minutes: int = 0):
   dispatches: list[SimpleIntelligentDispatchItem] = []
   if planned_dispatches is not None and mode == CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES:
     for planned_dispatch in planned_dispatches:
@@ -207,20 +216,22 @@ def get_applicable_dispatch_periods(planned_dispatches: list[IntelligentDispatch
       if dispatch_exists == False:
         dispatches.append(SimpleIntelligentDispatchItem(started_dispatch.start, started_dispatch.end))
 
+  dispatches = [dispatch for dispatch in dispatches if (dispatch.end - dispatch.start).total_seconds() >= minimum_dispatch_duration_in_minutes * 60]
   dispatches.sort(key = lambda x: x.start)
   return dispatches
 
 def adjust_intelligent_rates(rates,
                              planned_dispatches: list[IntelligentDispatchItem],
                              started_dispatches: list[SimpleIntelligentDispatchItem],
-                             mode: str):
+                             mode: str,
+                             minimum_dispatch_duration_in_minutes: int = 0):
   if len(rates) < 1:
     return rates
 
   off_peak_rate =  min(rates, key = lambda x: x["value_inc_vat"])
   adjusted_rates = []
 
-  applicable_dispatches = get_applicable_dispatch_periods(planned_dispatches, started_dispatches, mode)
+  applicable_dispatches = get_applicable_dispatch_periods(planned_dispatches, started_dispatches, mode, minimum_dispatch_duration_in_minutes)
 
   for rate in rates:
     if rate["value_inc_vat"] == off_peak_rate["value_inc_vat"]:
@@ -382,7 +393,8 @@ FULLY_SUPPORTED_INTELLIGENT_PROVIDERS = [
   "SMART_PEAR",
   "HYPERVOLT",
   "INDRA",
-  "OCPP"
+  "OCPP",
+  "OCTOPUS_ENERGY"
 ]
 
 def get_intelligent_features(provider: str) -> IntelligentFeatures:

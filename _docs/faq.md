@@ -52,6 +52,20 @@ Therefore, there is the concept of started dispatches. Once data is refreshed, a
 
     * OHME
 
+## I'm on an intelligent tariff but the off peak sensor is only coming on during standard off peak times. Is there something wrong?
+
+For intelligent tariffs, this sensor will turn on when you're within the standard off peak rates or within an active ad hoc dispatching period.
+
+Depending on your [account configuration](./setup/account.md#intelligent-rates-mode), what is determined as an active dispatching period will change. If you have configured to accept [planned or started dispatches](./setup/account.md#planned-and-started-dispatches-will-turn-into-off-peak-rates), then the sensor will turn on when you're are within an active planned or started dispatch period. If you have configured to accept [only started dispatches](./setup/account.md#only-started-dispatches-will-turn-into-off-peak-rates), then the sensor will turn on when you're are within an active started dispatch period, but not planned dispatch.
+
+This above does not apply and will not come on outside of the standard off peak hours for the following intelligent providers
+
+* OHME
+
+Assuming you're with a valid intelligent provider, another reason might be you've turned on [manual dispatch refetches](./setup/account.md#manually-refresh-intelligent-dispatches), which turns off automatic refreshing. If you're not calling the service (either manually or via the provided [blueprint](./services.md#octopus_energyrefresh_intelligent_dispatches)), then the dispatches won't be available to adjust the off peak sensor. 
+
+If you are with an accepted provider and are getting dispatch information, then you can use this [available service](./services.md#octopus_energyget_point_in_time_intelligent_dispatch_history) to see what state the dispatches are at a given point in time when you believe the off peak sensor should be on. If you are seeing dispatches available based on your settings and still having issues, please raise an issue.
+
 ## The integration provides features I don't need, can I turn the feature off?
 
 There is no config option to turn features on/off. This is because the required data is not cut and dry per feature as some data is shared among "features" (e.g. rate data is required to determine if consumption data is peak or off peak).
@@ -162,20 +176,6 @@ The identifiers of the entities should then be checked against your Octopus Ener
 The integration will only surface entities associated with meters in your first active property. Each meter must also have an active tariff associated with it. 
 
 If you [follow the instructions](#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this) to download diagnostics, you can see all agreements associated with each of your meters. You will need an agreement with a start date in the past and an end date either set to `null` or in the future for the meter to be picked up by the integration.
-
-## I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?
-
-Rate data for agile tariffs are not available in full for the next day, which can cause issues with target rate sensors in their default state. We prevent you from setting up target rate sensors in this form. More information around this can be found in the [target rate documentation](./setup/target_rate.md#agile-users).
-
-## Why won't my target rates update?
-
-The target rate sensors are set to update every minute, which includes determining if you're within a target time period and calculating future target time periods. This can be confirmed by evaluating the [last_updated](https://community.home-assistant.io/t/how-to-display-the-last-updated-field-of-an-entity-in-the-lovelace-view/728892/2?u=bottlecapdave) attribute of the sensor. 
-
-The `target_times` will evaluate once all rates are available for the specified time period and all existing target times are in the past. When this was last evaluated can be confirmed via the `target_times_last_evaluated` attribute. For example, if you are looking for target rates between 16:00 (today) and 16:00 (tomorrow), and you only have rates up to 23:00 (today), then target times will not be evaluated until rate information is available up to 16:00 (tomorrow). This can be confirmed by reviewing the data available in your current and next day rates entities.
-
-If there is a delay in retrieving rate information, there is chance that when it comes to evaluation, times are picked that are in the past because they were the lowest. This will result in your target rate sensor skipping a day and waiting to calculate new target times for the next scheduled time period. This can be confirmed by comparing the `target_times` and the `target_times_last_evaluated` attribute. If this happens frequently, then please adjust the target time periods of your target rate sensor to something that works for you.
-
-If the `last_updated` attribute is not updating, then please raise an issue.
 
 ## My gas consumption/costs seem out
 

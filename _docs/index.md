@@ -5,7 +5,6 @@
 Below are the main features of the integration
 
 * [Electricity](./entities/electricity.md) and [gas](./entities/gas.md) meter support including consumption data and rate information
-* [Custom sensor support to target cheapest rates](#target-rate-sensors)
 * [Custom sensor support for tracking costs of other entities](#cost-tracker-sensors)
 * [Custom sensor support for comparing to other tariffs](#tariff-comparison-sensors)
 * [Octopus Home mini support](#home-mini)
@@ -99,14 +98,6 @@ To support Octopus Energy's [greener days](https://octopus.energy/smart/greener-
 
 To support heat pumps connected to Octopus Energy, like the [Cosy 6](https://octopus.energy/cosy-heat-pump/). [Full list of heat pump entities](./entities/heat_pump.md).
 
-## Target Rate Sensors
-
-These sensors calculate the lowest continuous or intermittent rates **within a 24 hour period** or on a rolling basis and turn on when these periods are active. If you are targeting an export meter, then the sensors will calculate the highest continuous or intermittent rates **within a 24 hour period** or on a rolling basis and turn on when these periods are active.
-
-These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money. You can go through this flow as many times as you need target rate sensors.
-
-Please follow the setup guides for either [standard target rate](./setup/target_rate.md) or [rolling target rate](./setup/rolling_target_rate.md) sensors.
-
 ## Cost Tracker Sensors
 
 These sensors track the consumption of other existing sensors and provide a daily cost of those sensors.
@@ -146,3 +137,7 @@ Before raising anything, please read through the [faq](./faq.md). If you have qu
 ## Sponsorship
 
 Please see the [sponsorship](./sponsorship.md) page for more information.
+
+## Other Integrations
+
+Please see some of my [other integrations](https://bottlecapdave.github.io/HomeAssistant-Integrations).

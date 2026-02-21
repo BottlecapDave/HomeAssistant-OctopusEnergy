@@ -5,25 +5,10 @@ from homeassistant.components.sensor import (
   SensorStateClass,
 )
 
-from homeassistant.helpers.entity import DeviceInfo
-
 from ..utils.conversions import pence_to_pounds_pence, round_pounds, value_inc_vat_to_pounds
 from ..utils.cost import consumption_cost_in_pence
 
 _LOGGER = logging.getLogger(__name__)
-
-def get_device_info_from_device_entry(device_entry):
-  if device_entry is None:
-    return None
-
-  return DeviceInfo(
-    identifiers=device_entry.identifiers,
-    name=device_entry.name,
-    connections=device_entry.connections,
-    manufacturer=device_entry.manufacturer,
-    model=device_entry.model,
-    sw_version=device_entry.sw_version
-  )
 
 class CostTrackerResult:
   tracked_consumption_data: list

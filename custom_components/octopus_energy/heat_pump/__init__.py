@@ -185,16 +185,6 @@ def mock_heat_pump_status_and_configuration():
         },
         "weatherCompensation": {
           "enabled": True,
-          "allowableRange": {
-            "minimum": {
-              "value": "30",
-              "unit": "DEGREES_CELSIUS"
-            },
-            "maximum": {
-              "value": "70",
-              "unit": "DEGREES_CELSIUS"
-            }
-          },
           "currentRange": {
             "minimum": {
               "value": f"{30 + random.randrange(1, 20)}",

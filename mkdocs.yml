@@ -6,8 +6,6 @@ nav:
   - Home: index.md
   - Setup:
     - ./setup/account.md
-    - ./setup/target_rate.md
-    - ./setup/rolling_target_rate.md
     - ./setup/cost_tracker.md
     - ./setup/tariff_comparison.md
     - ./setup/energy_dashboard.md
@@ -27,7 +25,6 @@ nav:
   - events.md
   - Repairs:
     - ./repairs/account_not_found.md
-    - ./repairs/invalid_target_rate.md
     - ./repairs/octopus_mini_not_valid.md
     - ./repairs/unknown_product.md
     - ./repairs/cost_override_obsolete.md
@@ -43,6 +40,7 @@ nav:
     - ./architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events.md
   - faq.md
   - sponsorship.md
+  - Other Integrations: https://bottlecapdave.github.io/HomeAssistant-Integrations
 
 # extra:
 #   version:

@@ -4,7 +4,7 @@ import datetime
 from . import (build_consumption_statistics, async_get_last_sum)
 
 from homeassistant.core import HomeAssistant
-from homeassistant.components.recorder.models import StatisticMetaData
+from homeassistant.components.recorder.models import StatisticMetaData, StatisticMeanType
 from homeassistant.components.recorder.statistics import (
     async_add_external_statistics
 )
@@ -69,6 +69,8 @@ async def async_import_external_statistics_from_consumption(
       source=DOMAIN,
       statistic_id=statistic_id,
       unit_of_measurement=unit_of_measurement,
+      mean_type=StatisticMeanType.NONE,
+      unit_class=None,
     ),
     statistics
   )
@@ -95,6 +97,8 @@ async def async_import_external_statistics_from_consumption(
           source=DOMAIN,
           statistic_id=peak_statistic_id,
           unit_of_measurement=unit_of_measurement,
+          mean_type=StatisticMeanType.NONE,
+          unit_class=None,
         ),
         peak_statistics
       )

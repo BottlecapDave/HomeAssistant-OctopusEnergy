@@ -68,7 +68,8 @@ async def async_refresh_electricity_rates_data(
     remove_no_active_rate: Callable[[], Awaitable[None]] = None,
     intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
     raise_rates_empty: Callable[[Tariff], None] = None,
-    clear_rates_empty: Callable[[Tariff], None] = None
+    clear_rates_empty: Callable[[Tariff], None] = None,
+    minimum_dispatch_duration_in_minutes: int = 0,
   ) -> ElectricityRatesCoordinatorResult: 
   if (account_info is not None):
     period_from = as_utc((current - timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
@@ -141,7 +142,8 @@ async def async_refresh_electricity_rates_data(
               new_rates = adjust_intelligent_rates(new_rates,
                                                    dispatch_result.dispatches.planned,
                                                    dispatch_result.dispatches.started,
-                                                   intelligent_rate_mode)
+                                                   intelligent_rate_mode,
+                                                   minimum_dispatch_duration_in_minutes)
           
               _LOGGER.debug(f"Rates adjusted: {new_rates}; device id: {key} dispatches: {dispatch_result.dispatches.to_dict()}")
 
@@ -213,7 +215,8 @@ async def async_refresh_electricity_rates_data(
             new_rates = adjust_intelligent_rates(new_rates,
                                                 dispatch_result.dispatches.planned,
                                                 dispatch_result.dispatches.started,
-                                                intelligent_rate_mode)
+                                                intelligent_rate_mode,
+                                                minimum_dispatch_duration_in_minutes)
             _LOGGER.debug(f"Rates adjusted: {new_rates}; device id: {key} dispatches: {dispatch_result.dispatches.to_dict()}")
     
       if rates_adjusted:
@@ -278,7 +281,8 @@ async def async_setup_electricity_rates_coordinator(hass,
                                                     is_smart_meter: bool,
                                                     is_export_meter: bool,
                                                     intelligent_rate_mode: str,
-                                                    tariff_override = None):
+                                                    tariff_override = None,
+                                                    minimum_dispatch_duration_in_minutes: int = 0):
   key = DATA_ELECTRICITY_RATES_KEY.format(target_mpan, target_serial_number)
 
   # Reset data rates as we might have new information
@@ -319,7 +323,8 @@ async def async_setup_electricity_rates_coordinator(hass,
       lambda: async_remove_no_active_tariff(hass, target_mpan, target_serial_number),
       intelligent_rate_mode,
       lambda tariff: raise_rates_empty(hass, account_id, tariff, target_mpan, target_serial_number, True),
-      lambda tariff: clear_rates_empty(hass, account_id, tariff)
+      lambda tariff: clear_rates_empty(hass, account_id, tariff),
+      minimum_dispatch_duration_in_minutes
     )
 
     return hass.data[DOMAIN][account_id][key]
