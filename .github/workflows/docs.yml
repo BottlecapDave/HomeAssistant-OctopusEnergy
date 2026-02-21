@@ -35,7 +35,7 @@ jobs:
           restore-keys: |
             mkdocs-material-
       - run: pip install -r requirements.txt
-      - run: mkdocs build
+      - run: mkdocs build --strict
 
   deploy_docs:
     if: ${{ github.repository_owner == 'BottlecapDave' && (github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main') }}

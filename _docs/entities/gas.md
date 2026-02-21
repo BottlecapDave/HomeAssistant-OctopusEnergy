@@ -347,7 +347,7 @@ Each charge item has the following attributes
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_total_consumption_m3`
 
 !!! warning
-    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
+    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro-settings). Do not set unless you have one.
 
 The total consumption reported by the meter for for all time in m3. This is calculated/estimated using your set [calorific value](../setup/account.md#calorific-value) from the kWh data reported by Octopus Energy. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.
 
@@ -370,7 +370,7 @@ The total consumption reported by the meter for for all time in m3. This is calc
 `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_total_consumption_kwh`
 
 !!! warning
-    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro). Do not set unless you have one.
+    This will only be available if you have specified you have an [Octopus Home Mini](../setup/account.md#home-mini) or have configured an [Octopus Home Pro](../setup//account.md#home-pro-settings). Do not set unless you have one.
 
 The total consumption reported by the meter for for all time in kWh. This is natively reported by Octopus Energy. This will try and update every minute for Home Mini and every 10 seconds for Home Pro.
 
