@@ -444,15 +444,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#target-rate-sensors" class="md-nav__link">
-    <span class="md-ellipsis">
-      Target Rate Sensors
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#cost-tracker-sensors" class="md-nav__link">
     <span class="md-ellipsis">
       Cost Tracker Sensors
@@ -533,6 +524,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#other-integrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other Integrations
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -588,48 +588,6 @@
   
   <span class="md-ellipsis">
     Account
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="setup/target_rate/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Target Rate Sensor(s)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="setup/rolling_target_rate/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Rolling Target Rate Sensor(s)
   </span>
   
 
@@ -1106,27 +1064,6 @@
   
   
     <li class="md-nav__item">
-      <a href="repairs/invalid_target_rate/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Repairs - Invalid Target Rate
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="repairs/octopus_mini_not_valid/" class="md-nav__link">
         
   
@@ -1459,6 +1396,26 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://bottlecapdave.github.io/HomeAssistant-Integrations" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Other Integrations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1633,15 +1590,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#target-rate-sensors" class="md-nav__link">
-    <span class="md-ellipsis">
-      Target Rate Sensors
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#cost-tracker-sensors" class="md-nav__link">
     <span class="md-ellipsis">
       Cost Tracker Sensors
@@ -1722,6 +1670,15 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#other-integrations" class="md-nav__link">
+    <span class="md-ellipsis">
+      Other Integrations
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1745,7 +1702,6 @@
 <p>Below are the main features of the integration</p>
 <ul>
 <li><a href="entities/electricity/">Electricity</a> and <a href="entities/gas/">gas</a> meter support including consumption data and rate information</li>
-<li><a href="#target-rate-sensors">Custom sensor support to target cheapest rates</a></li>
 <li><a href="#cost-tracker-sensors">Custom sensor support for tracking costs of other entities</a></li>
 <li><a href="#tariff-comparison-sensors">Custom sensor support for comparing to other tariffs</a></li>
 <li><a href="#home-mini">Octopus Home mini support</a></li>
@@ -1786,7 +1742,7 @@
 <p>Export sensors are not provided as the data is not available.</p>
 </div>
 <h3 id="home-pro">Home Pro<a class="headerlink" href="#home-pro" title="Permanent link">#</a></h3>
-<p>If you are lucky enough to own an <a href="https://forum.octopus.energy/t/for-the-pro-user/8453/2352/">Octopus Home Pro</a> (note that is is no longer possible to obtain one), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to configure your <a href="setup/account/#home-pro">Home Pro</a>. This will gain <a href="entities/electricity/#home-minipro-entities">electricity entities</a> and <a href="entities/gas/#home-minipro-entities">gas entities</a> which can be added to the <a href="https://www.home-assistant.io/blog/2021/08/04/home-energy-management/">energy dashboard</a>.</p>
+<p>If you are lucky enough to own an <a href="https://forum.octopus.energy/t/for-the-pro-user/8453/2352/">Octopus Home Pro</a> (note that is is no longer possible to obtain one), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to configure your <a href="setup/account/#home-pro-settings">Home Pro</a>. This will gain <a href="entities/electricity/#home-minipro-entities">electricity entities</a> and <a href="entities/gas/#home-minipro-entities">gas entities</a> which can be added to the <a href="https://www.home-assistant.io/blog/2021/08/04/home-energy-management/">energy dashboard</a>.</p>
 <div class="admonition info">
 <p class="admonition-title">Info</p>
 <p>You will only have the same data exposed in the integration that is available within the Octopus app. There has been reports of gas not appearing within the Octopus app (and integration) straight away, so you might have to wait a few days for this to appear. Once it's available within the Octopus app, if you reload the integration (or restart Home Assistant) then the entities should become available.</p>
@@ -1810,10 +1766,6 @@
 <p>To support Octopus Energy's <a href="https://octopus.energy/smart/greener-days/">greener days</a>. <a href="entities/greenness_forecast/">Full list of greenness forecast entities</a>.</p>
 <h3 id="heat-pumps">Heat Pumps<a class="headerlink" href="#heat-pumps" title="Permanent link">#</a></h3>
 <p>To support heat pumps connected to Octopus Energy, like the <a href="https://octopus.energy/cosy-heat-pump/">Cosy 6</a>. <a href="entities/heat_pump/">Full list of heat pump entities</a>.</p>
-<h2 id="target-rate-sensors">Target Rate Sensors<a class="headerlink" href="#target-rate-sensors" title="Permanent link">#</a></h2>
-<p>These sensors calculate the lowest continuous or intermittent rates <strong>within a 24 hour period</strong> or on a rolling basis and turn on when these periods are active. If you are targeting an export meter, then the sensors will calculate the highest continuous or intermittent rates <strong>within a 24 hour period</strong> or on a rolling basis and turn on when these periods are active.</p>
-<p>These sensors can then be used in automations to turn on/off devices that save you (and the planet) energy and money. You can go through this flow as many times as you need target rate sensors.</p>
-<p>Please follow the setup guides for either <a href="setup/target_rate/">standard target rate</a> or <a href="setup/rolling_target_rate/">rolling target rate</a> sensors.</p>
 <h2 id="cost-tracker-sensors">Cost Tracker Sensors<a class="headerlink" href="#cost-tracker-sensors" title="Permanent link">#</a></h2>
 <p>These sensors track the consumption of other existing sensors and provide a daily cost of those sensors.</p>
 <p>Please follow the <a href="setup/cost_tracker/">setup guide</a>.</p>
@@ -1834,6 +1786,8 @@
 <p>Before raising anything, please read through the <a href="faq/">faq</a>. If you have questions, then you can raise a <a href="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/discussions">discussion</a>. If you have found a bug or have a feature request please <a href="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues">raise it</a> using the appropriate report template.</p>
 <h2 id="sponsorship">Sponsorship<a class="headerlink" href="#sponsorship" title="Permanent link">#</a></h2>
 <p>Please see the <a href="sponsorship/">sponsorship</a> page for more information.</p>
+<h2 id="other-integrations">Other Integrations<a class="headerlink" href="#other-integrations" title="Permanent link">#</a></h2>
+<p>Please see some of my <a href="https://bottlecapdave.github.io/HomeAssistant-Integrations">other integrations</a>.</p>
 
 
 

@@ -329,48 +329,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../setup/target_rate/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Target Rate Sensor(s)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../setup/rolling_target_rate/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Rolling Target Rate Sensor(s)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../setup/cost_tracker/" class="md-nav__link">
         
   
@@ -945,27 +903,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../../repairs/invalid_target_rate/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Repairs - Invalid Target Rate
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../../repairs/octopus_mini_not_valid/" class="md-nav__link">
         
   
@@ -1290,6 +1227,26 @@
   
   <span class="md-ellipsis">
     Sponsorship
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://bottlecapdave.github.io/HomeAssistant-Integrations" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Other Integrations
   </span>
   
 
@@ -1717,7 +1674,7 @@
 <ul>
 <li><code>binary_sensor.octopus_intelligent_slot</code> - Use the <a href="../electricity/#off-peak">off peak sensor</a></li>
 <li><code>binary_sensor.octopus_intelligent_planned_dispatch_slot</code> - Use the <a href="#is-dispatching">is dispatching sensor</a></li>
-<li><code>binary_sensor.octopus_intelligent_slot_next_1_hour</code>, <code>binary_sensor.octopus_intelligent_slot_next_2_hours</code> and <code>binary_sensor.octopus_intelligent_slot_next_3_hours</code> - These sensors felt like they would always fall short of peoples requirements as everyone has different time periods they wish to know about. The <a href="../electricity/#off-peak">off peak sensor</a> exposes the current and next start/end times which could be used in a template sensor to determine how long the rate is cheap for when on. Or the <a href="../../setup/target_rate/">target rate</a> or <a href="../../setup/rolling_target_rate/">rolling target rate</a> might help for what you need.</li>
+<li><code>binary_sensor.octopus_intelligent_slot_next_1_hour</code>, <code>binary_sensor.octopus_intelligent_slot_next_2_hours</code> and <code>binary_sensor.octopus_intelligent_slot_next_3_hours</code> - These sensors felt like they would always fall short of peoples requirements as everyone has different time periods they wish to know about. The <a href="../electricity/#off-peak">off peak sensor</a> exposes the current and next start/end times which could be used in a template sensor to determine how long the rate is cheap for when on. Or a <a href="https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/">Target Timeframe</a> might help for what you need.</li>
 <li><code>sensor.octopus_intelligent_next_offpeak_start</code> - The default off peak start date/time can be found as an attribute on the <a href="../electricity/#off-peak">off peak sensor</a>. This can be extracted using a <a href="https://www.home-assistant.io/integrations/template/">template sensor</a>.</li>
 <li><code>sensor.octopus_intelligent_offpeak_end</code> - The default off peak end date/time can be found as an attribute on the <a href="../electricity/#off-peak">off peak sensor</a>. This can be extracted using a <a href="https://www.home-assistant.io/integrations/template/">template sensor</a>.</li>
 <li><code>switch.octopus_intelligent_bump_charge</code> - Use the <a href="#bump-charge">bump charge sensor</a></li>

@@ -329,48 +329,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../setup/target_rate/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Target Rate Sensor(s)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../setup/rolling_target_rate/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Rolling Target Rate Sensor(s)
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../setup/cost_tracker/" class="md-nav__link">
         
   
@@ -831,27 +789,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../repairs/invalid_target_rate/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Repairs - Invalid Target Rate
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../repairs/octopus_mini_not_valid/" class="md-nav__link">
         
   
@@ -1215,6 +1152,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#im-on-an-intelligent-tariff-but-the-off-peak-sensor-is-only-coming-on-during-standard-off-peak-times-is-there-something-wrong" class="md-nav__link">
+    <span class="md-ellipsis">
+      I'm on an intelligent tariff but the off peak sensor is only coming on during standard off peak times. Is there something wrong?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-integration-provides-features-i-dont-need-can-i-turn-the-feature-off" class="md-nav__link">
     <span class="md-ellipsis">
       The integration provides features I don't need, can I turn the feature off?
@@ -1308,24 +1254,6 @@
   <a href="#i-have-meters-that-are-missing-is-the-integration-broken" class="md-nav__link">
     <span class="md-ellipsis">
       I have meters that are missing. Is the integration broken?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#im-an-agile-user-and-having-trouble-setting-up-a-target-rate-sensor-what-am-i-doing-wrong" class="md-nav__link">
-    <span class="md-ellipsis">
-      I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-wont-my-target-rates-update" class="md-nav__link">
-    <span class="md-ellipsis">
-      Why won't my target rates update?
     </span>
   </a>
   
@@ -1467,6 +1395,26 @@
   
 
     
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://bottlecapdave.github.io/HomeAssistant-Integrations" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Other Integrations
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
   </ul>
 </nav>
                   </div>
@@ -1506,6 +1454,15 @@
   <a href="#what-are-started-dispatches-and-how-are-they-calculated" class="md-nav__link">
     <span class="md-ellipsis">
       What are started dispatches and how are they calculated?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#im-on-an-intelligent-tariff-but-the-off-peak-sensor-is-only-coming-on-during-standard-off-peak-times-is-there-something-wrong" class="md-nav__link">
+    <span class="md-ellipsis">
+      I'm on an intelligent tariff but the off peak sensor is only coming on during standard off peak times. Is there something wrong?
     </span>
   </a>
   
@@ -1605,24 +1562,6 @@
   <a href="#i-have-meters-that-are-missing-is-the-integration-broken" class="md-nav__link">
     <span class="md-ellipsis">
       I have meters that are missing. Is the integration broken?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#im-an-agile-user-and-having-trouble-setting-up-a-target-rate-sensor-what-am-i-doing-wrong" class="md-nav__link">
-    <span class="md-ellipsis">
-      I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#why-wont-my-target-rates-update" class="md-nav__link">
-    <span class="md-ellipsis">
-      Why won't my target rates update?
     </span>
   </a>
   
@@ -1884,6 +1823,15 @@
 <li>OHME</li>
 </ul>
 </div>
+<h2 id="im-on-an-intelligent-tariff-but-the-off-peak-sensor-is-only-coming-on-during-standard-off-peak-times-is-there-something-wrong">I'm on an intelligent tariff but the off peak sensor is only coming on during standard off peak times. Is there something wrong?<a class="headerlink" href="#im-on-an-intelligent-tariff-but-the-off-peak-sensor-is-only-coming-on-during-standard-off-peak-times-is-there-something-wrong" title="Permanent link">#</a></h2>
+<p>For intelligent tariffs, this sensor will turn on when you're within the standard off peak rates or within an active ad hoc dispatching period.</p>
+<p>Depending on your <a href="../setup/account/#intelligent-rates-mode">account configuration</a>, what is determined as an active dispatching period will change. If you have configured to accept <a href="../setup/account/#planned-and-started-dispatches-will-turn-into-off-peak-rates">planned or started dispatches</a>, then the sensor will turn on when you're are within an active planned or started dispatch period. If you have configured to accept <a href="../setup/account/#only-started-dispatches-will-turn-into-off-peak-rates">only started dispatches</a>, then the sensor will turn on when you're are within an active started dispatch period, but not planned dispatch.</p>
+<p>This above does not apply and will not come on outside of the standard off peak hours for the following intelligent providers</p>
+<ul>
+<li>OHME</li>
+</ul>
+<p>Assuming you're with a valid intelligent provider, another reason might be you've turned on <a href="../setup/account/#manually-refresh-intelligent-dispatches">manual dispatch refetches</a>, which turns off automatic refreshing. If you're not calling the service (either manually or via the provided <a href="../services/#octopus_energyrefresh_intelligent_dispatches">blueprint</a>), then the dispatches won't be available to adjust the off peak sensor. </p>
+<p>If you are with an accepted provider and are getting dispatch information, then you can use this <a href="../services/#octopus_energyget_point_in_time_intelligent_dispatch_history">available service</a> to see what state the dispatches are at a given point in time when you believe the off peak sensor should be on. If you are seeing dispatches available based on your settings and still having issues, please raise an issue.</p>
 <h2 id="the-integration-provides-features-i-dont-need-can-i-turn-the-feature-off">The integration provides features I don't need, can I turn the feature off?<a class="headerlink" href="#the-integration-provides-features-i-dont-need-can-i-turn-the-feature-off" title="Permanent link">#</a></h2>
 <p>There is no config option to turn features on/off. This is because the required data is not cut and dry per feature as some data is shared among "features" (e.g. rate data is required to determine if consumption data is peak or off peak).</p>
 <p>However, the integration only requests the data specified above that is needed for the provided entities to function. If you disable the entities that you don't need, then the integration won't request the corresponding data. </p>
@@ -1962,13 +1910,6 @@
 <h2 id="i-have-meters-that-are-missing-is-the-integration-broken">I have meters that are missing. Is the integration broken?<a class="headerlink" href="#i-have-meters-that-are-missing-is-the-integration-broken" title="Permanent link">#</a></h2>
 <p>The integration will only surface entities associated with meters in your first active property. Each meter must also have an active tariff associated with it. </p>
 <p>If you <a href="#ive-been-asked-for-my-meter-information-in-a-bug-request-how-do-i-obtain-this">follow the instructions</a> to download diagnostics, you can see all agreements associated with each of your meters. You will need an agreement with a start date in the past and an end date either set to <code>null</code> or in the future for the meter to be picked up by the integration.</p>
-<h2 id="im-an-agile-user-and-having-trouble-setting-up-a-target-rate-sensor-what-am-i-doing-wrong">I'm an agile user and having trouble setting up a target rate sensor. What am I doing wrong?<a class="headerlink" href="#im-an-agile-user-and-having-trouble-setting-up-a-target-rate-sensor-what-am-i-doing-wrong" title="Permanent link">#</a></h2>
-<p>Rate data for agile tariffs are not available in full for the next day, which can cause issues with target rate sensors in their default state. We prevent you from setting up target rate sensors in this form. More information around this can be found in the <a href="../setup/target_rate/#agile-users">target rate documentation</a>.</p>
-<h2 id="why-wont-my-target-rates-update">Why won't my target rates update?<a class="headerlink" href="#why-wont-my-target-rates-update" title="Permanent link">#</a></h2>
-<p>The target rate sensors are set to update every minute, which includes determining if you're within a target time period and calculating future target time periods. This can be confirmed by evaluating the <a href="https://community.home-assistant.io/t/how-to-display-the-last-updated-field-of-an-entity-in-the-lovelace-view/728892/2?u=bottlecapdave">last_updated</a> attribute of the sensor. </p>
-<p>The <code>target_times</code> will evaluate once all rates are available for the specified time period and all existing target times are in the past. When this was last evaluated can be confirmed via the <code>target_times_last_evaluated</code> attribute. For example, if you are looking for target rates between 16:00 (today) and 16:00 (tomorrow), and you only have rates up to 23:00 (today), then target times will not be evaluated until rate information is available up to 16:00 (tomorrow). This can be confirmed by reviewing the data available in your current and next day rates entities.</p>
-<p>If there is a delay in retrieving rate information, there is chance that when it comes to evaluation, times are picked that are in the past because they were the lowest. This will result in your target rate sensor skipping a day and waiting to calculate new target times for the next scheduled time period. This can be confirmed by comparing the <code>target_times</code> and the <code>target_times_last_evaluated</code> attribute. If this happens frequently, then please adjust the target time periods of your target rate sensor to something that works for you.</p>
-<p>If the <code>last_updated</code> attribute is not updating, then please raise an issue.</p>
 <h2 id="my-gas-consumptioncosts-seem-out">My gas consumption/costs seem out<a class="headerlink" href="#my-gas-consumptioncosts-seem-out" title="Permanent link">#</a></h2>
 <p>Depending on the native reading from your meter or the sensor you're looking at, the consumption may have to be converted from kWh into cubic meters.</p>
 <ul>
