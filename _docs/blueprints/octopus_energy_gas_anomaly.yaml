@@ -6,7 +6,7 @@ blueprint:
   input:
     consumption_entity:
       name: Consumption entity
-      description: The entity which reports the previous accumulative consumption (e.g sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption)
+      description: The entity which reports the previous accumulative consumption (e.g sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_previous_accumulative_consumption_kwh)
       selector:
         entity:
           filter:
