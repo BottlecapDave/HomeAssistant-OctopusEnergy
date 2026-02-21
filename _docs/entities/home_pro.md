@@ -15,6 +15,6 @@ Once configured, the following entities will retrieve data locally from your Oct
 
 !!! info
 
-    This is only available if you have setup the [Custom API](../setup/account.md#home-pro).
+    This is only available if you have setup the [Custom API](../setup/account.md#home-pro-settings).
 
 Allows you to set scrolling text on the home pro device. If the text is greater than 3 characters, then it will scroll on the device, otherwise it will be statically displayed.

@@ -9,7 +9,8 @@
     "release": "semantic-release",
     "test-unit": "python -m pytest tests/unit",
     "test-integration": "python -m pytest tests/integration",
-    "docs-serve": "python -m mkdocs serve"
+    "docs-serve": "python -m mkdocs serve",
+    "docs-build": "python -m mkdocs build --strict"
   },
   "repository": {
     "type": "git",
