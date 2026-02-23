@@ -13,6 +13,7 @@ class Connectivity(BaseModel):
 class Telemetry(BaseModel):
     temperatureInCelsius: Optional[float]
     humidityPercentage: Optional[float]
+    voltage: Optional[float]
     retrievedAt: Optional[str]
 
 

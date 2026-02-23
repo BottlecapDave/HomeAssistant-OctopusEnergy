@@ -421,6 +421,7 @@ query {{
       telemetry {{
         temperatureInCelsius
         humidityPercentage
+        voltage
         retrievedAt
       }}
     }}

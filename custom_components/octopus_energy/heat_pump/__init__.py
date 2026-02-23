@@ -1,5 +1,6 @@
 from datetime import timedelta
 import random
+from typing import Optional
 
 from homeassistant.util.dt import (utcnow)
 
@@ -22,6 +23,7 @@ def mock_heat_pump_status_and_configuration():
           "telemetry": {
             "temperatureInCelsius": 57 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": None,
+            "voltage": 2.0 + (random.randrange(1, 10) * 0.1),
             "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         },
@@ -34,6 +36,7 @@ def mock_heat_pump_status_and_configuration():
           "telemetry": {
             "temperatureInCelsius": -273 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": None,
+            "voltage": 2.0 + (random.randrange(1, 10) * 0.1),
             "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         },
@@ -46,6 +49,7 @@ def mock_heat_pump_status_and_configuration():
           "telemetry": {
             "temperatureInCelsius": None,
             "humidityPercentage": None,
+            "voltage": None,
             "retrievedAt": None
           }
         },
@@ -58,6 +62,7 @@ def mock_heat_pump_status_and_configuration():
           "telemetry": {
             "temperatureInCelsius": -273 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": None,
+            "voltage": 2.0 + (random.randrange(1, 10) * 0.1),
             "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         },
@@ -70,6 +75,7 @@ def mock_heat_pump_status_and_configuration():
           "telemetry": {
             "temperatureInCelsius": 18 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": 57 + (random.randrange(1, 20) * 0.1),
+            "voltage": 2.0 + (random.randrange(1, 10) * 0.1),
             "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         },
@@ -82,6 +88,7 @@ def mock_heat_pump_status_and_configuration():
           "telemetry": {
             "temperatureInCelsius": 22 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": 54 + (random.randrange(1, 20) * 0.1),
+            "voltage": 2.0 + (random.randrange(1, 10) * 0.1),
             "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         },
@@ -94,6 +101,7 @@ def mock_heat_pump_status_and_configuration():
           "telemetry": {
             "temperatureInCelsius": 22 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": 60 + (random.randrange(1, 20) * 0.1),
+            "voltage": 2.0 + (random.randrange(1, 10) * 0.1),
             "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         },
@@ -106,6 +114,7 @@ def mock_heat_pump_status_and_configuration():
           "telemetry": {
             "temperatureInCelsius": 22 + (random.randrange(1, 20) * 0.1),
             "humidityPercentage": 46 + (random.randrange(1, 20) * 0.1),
+            "voltage": 2.0 + (random.randrange(1, 10) * 0.1),
             "retrievedAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
           }
         }
@@ -365,3 +374,11 @@ def mock_heat_pump_status_and_configuration():
   }
 
   return HeatPumpResponse.model_validate(data)
+
+def calculate_battery_percentage(voltage: Optional[float]) -> Optional[float]:
+  if voltage is None:
+    return None
+  
+  # Assuming 2.0V is 0% and 3.0V is 100% rounded to 2 decimal places
+  percentage = round(((voltage - 2.0) / (3.0 - 2.0)) * 100, 2)
+  return max(0, min(100, percentage))

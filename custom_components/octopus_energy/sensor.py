@@ -76,6 +76,7 @@ from .heat_pump.lifetime_energy_input import OctopusEnergyHeatPumpLifetimeEnergy
 from .heat_pump.fixed_target_flow_temperature import OctopusEnergyHeatPumpFixedTargetFlowTemperature
 from .heat_pump.weather_compensation_minimum_temperature import OctopusEnergyHeatPumpWeatherCompensationMinimumTemperature
 from .heat_pump.weather_compensation_maximum_temperature import OctopusEnergyHeatPumpWeatherCompensationMaximumTemperature
+from .heat_pump.sensor_battery import OctopusEnergyHeatPumpSensorBattery
 from .api_client.intelligent_device import IntelligentDevice
 from .intelligent.current_state import OctopusEnergyIntelligentCurrentState
 from .intelligent import get_intelligent_features
@@ -622,6 +623,14 @@ def setup_heat_pump_sensors(hass: HomeAssistant, account_id: str, heat_pump_id: 
             continue
 
           entities.append(OctopusEnergyHeatPumpSensorTemperature(
+            hass,
+            coordinator,
+            heat_pump_id,
+            heat_pump_response.octoHeatPumpControllerConfiguration.heatPump,
+            sensor
+          ))
+
+          entities.append(OctopusEnergyHeatPumpSensorBattery(
             hass,
             coordinator,
             heat_pump_id,
