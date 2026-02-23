@@ -13,6 +13,7 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
           },
           "telemetry": {
             "temperatureInCelsius": 52.5,
+            "voltage": 2.1,
             "humidityPercentage": None,
             "retrievedAt": "2025-05-09T17:28:44.152000+00:00"
           }
@@ -26,6 +27,7 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
           "telemetry": {
             "temperatureInCelsius": -90.3,
             "humidityPercentage": None,
+            "voltage": 2.0,
             "retrievedAt": "2025-05-09T17:28:44.152000+00:00"
           }
         },
@@ -38,6 +40,7 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
           "telemetry": {
             "temperatureInCelsius": None,
             "humidityPercentage": None,
+            "voltage": None,
             "retrievedAt": None
           }
         },
@@ -50,6 +53,7 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
           "telemetry": {
             "temperatureInCelsius": -90.3,
             "humidityPercentage": None,
+            "voltage": 2.0,
             "retrievedAt": "2025-05-09T17:28:44.152000+00:00"
           }
         },
@@ -62,6 +66,7 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
           "telemetry": {
             "temperatureInCelsius": 21.0,
             "humidityPercentage": 36.0,
+            "voltage": 2.0,
             "retrievedAt": "2025-05-09T17:27:51.160000+00:00"
           }
         },
@@ -74,6 +79,7 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
           "telemetry": {
             "temperatureInCelsius": 20.8,
             "humidityPercentage": 37.0,
+            "voltage": 2.0,
             "retrievedAt": "2025-05-09T17:28:39.347000+00:00"
           }
         },
@@ -86,6 +92,7 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
           "telemetry": {
             "temperatureInCelsius": 20.9,
             "humidityPercentage": 38.0,
+            "voltage": 2.0,
             "retrievedAt": "2025-05-09T17:28:46.611000+00:00"
           }
         }
