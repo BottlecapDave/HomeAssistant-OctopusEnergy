@@ -50,6 +50,27 @@ You should take the latest [published release](https://github.com/BottlecapDave/
 
 To install, place the contents of `custom_components` into the `<config directory>/custom_components` folder of your Home Assistant installation. Once installed, don't forget to restart your home assistant instance for the integration to be picked up.
 
+For convenience you can use this script on Linux to install or update if you are running Home Assistant in Docker or have Home Assistant OS without HACS.
+```bash
+#!/bin/bash
+# To update / install : If updating remove integration from HA before running script to be safe
+cd config || exit
+(
+    rm -rf custom_components/octopus_energy # Remove any existing install
+    cd custom_components || exit
+    curl -s https://api.github.com/repos/BottlecapDave/HomeAssistant-OctopusEnergy/releases/latest \
+        | grep "zipball_url" \
+        | cut -d : -f 2,3 \
+        | tr -d \" \
+        | tr -d , \
+        | wget -O /tmp/octopus_energy.zip -qi -
+    unzip /tmp/octopus_energy.zip */custom_components/octopus_energy/* -d /tmp/octo >& /dev/null
+    cp -r /tmp/octo/BottlecapDave-HomeAssistant-OctopusEnergy-*/custom_components/octopus_energy/ .
+    rm /tmp/octopus_energy.zip
+    rm -rf /tmp/octo
+)
+```
+
 ## How to setup
 
 Please follow the [setup guide](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/setup/account) to setup your initial account. This guide details the configuration, along with the sensors that will be available to you.
