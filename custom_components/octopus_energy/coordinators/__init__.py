@@ -51,25 +51,35 @@ class BaseCoordinatorResult:
     self.last_error = last_error
     _LOGGER.debug(f'last_evaluated: {last_evaluated}; last_retrieved: {last_retrieved}; request_attempts: {request_attempts}; refresh_rate_in_minutes: {refresh_rate_in_minutes}; next_refresh: {self.next_refresh}; last_error: {self.last_error}')
 
+def has_rates_changed(old_rates: list, new_rates: list):
+  if len(old_rates) != len(new_rates):
+    return True
+  else:
+    for i in range(len(old_rates)):
+      if old_rates[i] != new_rates[i]:
+        return True
+
+  return False
+
 def __raise_rate_event(event_key: str,
-                       rates: list,
+                       new_rates: list,
+                       old_rates: list,
                        additional_attributes: "dict[str, Any]",
                        fire_event: Callable[[str, "dict[str, Any]"], None]):
   
-  min_max_average_rates = get_min_max_average_rates(rates)
+  if has_rates_changed(old_rates, new_rates) == False:
+    _LOGGER.debug(f'Not firing event {event_key} as rates have not changed')
+    return False
 
-  event_data = { "rates": rates, "min_rate": min_max_average_rates["min"], "max_rate": min_max_average_rates["max"], "average_rate": min_max_average_rates["average"] }
+  min_max_average_rates = get_min_max_average_rates(new_rates)
+
+  event_data = { "rates": new_rates, "min_rate": min_max_average_rates["min"], "max_rate": min_max_average_rates["max"], "average_rate": min_max_average_rates["average"] }
   event_data.update(additional_attributes)
   fire_event(event_key, event_data)
 
-def raise_rate_events(now: datetime,
-                      rates: list, 
-                      additional_attributes: "dict[str, Any]",
-                      fire_event: Callable[[str, "dict[str, Any]"], None],
-                      previous_event_key: str,
-                      current_event_key: str,
-                      next_event_key: str):
-  
+  return True
+
+def __rates_to_current_previous_next_rates(now: datetime, rates: list):
   today_start = as_utc(now.replace(hour=0, minute=0, second=0, microsecond=0))
   today_end = as_utc((now + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0))
 
@@ -85,9 +95,24 @@ def raise_rate_events(now: datetime,
     else:
       current_rates.append(rate)
 
-  __raise_rate_event(previous_event_key, previous_rates, additional_attributes, fire_event)
-  __raise_rate_event(current_event_key, current_rates, additional_attributes, fire_event)
-  __raise_rate_event(next_event_key, next_rates, additional_attributes, fire_event)
+  return (previous_rates, current_rates, next_rates)
+
+def raise_rate_events(current_datetime: datetime,
+                      new_rates: list,
+                      previous_datetime: datetime,
+                      previous_rates: list,
+                      additional_attributes: "dict[str, Any]",
+                      fire_event: Callable[[str, "dict[str, Any]"], None],
+                      previous_event_key: str,
+                      current_event_key: str,
+                      next_event_key: str):
+  
+  (old_previous_rates, old_current_rates, old_next_rates) = __rates_to_current_previous_next_rates(previous_datetime, previous_rates)
+  (new_previous_rates, new_current_rates, new_next_rates) = __rates_to_current_previous_next_rates(current_datetime, new_rates)
+
+  __raise_rate_event(previous_event_key, new_previous_rates, old_previous_rates, additional_attributes, fire_event)
+  __raise_rate_event(current_event_key, new_current_rates, old_current_rates, additional_attributes, fire_event)
+  __raise_rate_event(next_event_key, new_next_rates, old_next_rates, additional_attributes, fire_event)
 
 def get_electricity_meter_tariff(current: datetime, account_info, target_mpan: str, target_serial_number: str):
   if len(account_info["electricity_meter_points"]) > 0:

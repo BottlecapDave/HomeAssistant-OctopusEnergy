@@ -461,10 +461,7 @@ async def test_when_existing_rates_are_requested_period_and_same_tariff_code_the
     assert mock_api_called == False
     assert raise_no_active_tariff_called == False
     
-    assert len(actual_fired_events.keys()) == 3
-    assert_raised_events(actual_fired_events, EVENT_GAS_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
-    assert_raised_events(actual_fired_events, EVENT_GAS_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
-    assert_raised_events(actual_fired_events, EVENT_GAS_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
+    assert len(actual_fired_events.keys()) == 0
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == True
 
@@ -934,7 +931,7 @@ async def test_when_existing_rates_is_old_and_rates_empty_then_rates_retrieved()
     return None
   
   account_info = get_account_info()
-  existing_rates = GasRatesCoordinatorResult(period_from, 1, create_rate_data(period_from - timedelta(days=60), period_to - timedelta(days=60), [2, 4]))
+  existing_rates = GasRatesCoordinatorResult(period_from, 1, create_rate_data(expected_period_from, expected_period_to, [2, 4]))
   expected_retrieved_rates = GasRatesCoordinatorResult(current, 1, expected_rates)
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
