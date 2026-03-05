@@ -12,21 +12,33 @@ The first thing you need to do is install the new integration. Full instructions
 
 Once installed, you'll need to configure the integration by setting up a data source that represents data coming from this integration. This can be done by [following the link](https://my.home-assistant.io/redirect/config_flow_start/?domain=target_timeframes) or navigating to your integrations view, clicking 'Add integration' and searching for 'Target Timeframes'. You'll need a data source for each of your meters you want to create target rate sensors for (e.g. one for import and one for export).
 
-The recommended name is `Octopus Energy Import` and the recommended source id is `octopus_energy_import`, but you can pick whatever you want as long as it's unique within the integration.
+The recommended name is `Octopus Energy Import`.
+
+The recommended source id will depend on if you're wanting to just consume the rates straight from this integration, or if you want the target timeframe sensors to also include other additional/external data (e.g. carbon intensity or free electricity sessions).
+
+### I just want OE rate data
+
+The source id should follow the following format `octopus_energy_<<METER MPAN OR MPRN>>_<<METER SERIAL NUMBER>>`, depending on which meter you want the rate information to come from. For example if you want your target timeframes to be powered by your import meter with an MPAN of `123` and serial number of `ABC`, then your data source id should be equal to `octopus_energy_123_ABC`. 
+
+Once rate information is retrieved by this integration, data should flow automatically into this data source. You can confirm this by looking at the [Data Source Last Updated entity](bottlecapdave.github.io/HomeAssistant-TargetTimeframes/setup/data_source/#data-source-last-updated).
+
+### I want OE rate data as well as other data
+
+The recommended source id is `octopus_energy_import`, but you can pick whatever you want as long as it's unique within the integration and not equal to `octopus_energy_<<METER MPAN OR MPRN>>_<<METER SERIAL NUMBER>>`
 
 ![Data Source window](../assets/target_timeframes_data_source.png)
 
-## Configuring Octopus Energy data
+#### Configuring data
 
 Next, we'll need to get data from the Octopus Energy integration into the Target Timeframes integration. The recommended approach is an automation based on one of the [available blueprints](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/blueprints/#octopus-energy). 
 
 There are different blueprints available depending upon whether you want your target rate sensors to take account of just carbon intensity, just Octopus rates, or both. For target rate sensors that use Octopus rates there are different blueprints depending upon whether you want to take account of Octopus free electricity sessions or not.
 
-Select the blueprint you want to use and click 'Install blueprint'.  You will get a prompt to open a page in Home Assistant, click 'Open link', you'll get a second prompt to confirm you want to import the blueprint, click 'Preview blueprint' then 'Import blueprint' and the blueprint will be installed in your Home Assistant.
+Select the blueprint you want to use and click 'Install blueprint'. You will get a prompt to open a page in Home Assistant, click 'Open link', you'll get a second prompt to confirm you want to import the blueprint, click 'Preview blueprint' then 'Import blueprint' and the blueprint will be installed in your Home Assistant.
 
-Next you need to create an automation using the blueprint you just imported.  The automation will track when the rate entities within the Octopus Energy integration are updated and will then transform the rate data into the shape required by Target Timeframes and use the available service to add the rate data with the data source we just created. Each `value` in Target Timeframes will represent our rate in pounds/pence.
+Next you need to create an automation using the blueprint you just imported. The automation will track when the rate entities within the Octopus Energy integration are updated and will then transform the rate data into the shape required by Target Timeframes and use the available service to add the rate data with the data source we just created. Each `value` in Target Timeframes will represent our rate in pounds/pence.
 
-Click the name of the blueprint you just imported.  You'll be prompted to configure the blueprint with the names of your Octopus Integration sensors. Use the dropdowns to select the appropriate Home Assistant sensor or event name:
+Click the name of the blueprint you just imported. You'll be prompted to configure the blueprint with the names of your Octopus Integration sensors. Use the dropdowns to select the appropriate Home Assistant sensor or event name:
 
 ![Blueprint configuration](../assets/target_timeframes_blueprint.png)
 

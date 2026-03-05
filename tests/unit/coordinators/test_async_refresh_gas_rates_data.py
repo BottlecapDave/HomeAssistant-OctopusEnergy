@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import pytest
 import mock
 
+from tests.unit.coordinators import assert_raised_target_timeframe_update_event
 from unit import (create_rate_data)
 
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
@@ -325,10 +326,11 @@ async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
     assert requested_period_from == expected_period_from
     assert requested_period_to == expected_period_to
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert_raised_events(actual_fired_events, EVENT_GAS_PREVIOUS_DAY_RATES, requested_period_from, requested_period_from + timedelta(days=1))
     assert_raised_events(actual_fired_events, EVENT_GAS_CURRENT_DAY_RATES, requested_period_from + timedelta(days=1), requested_period_from + timedelta(days=2))
     assert_raised_events(actual_fired_events, EVENT_GAS_NEXT_DAY_RATES, requested_period_from + timedelta(days=2), requested_period_from + timedelta(days=3))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mprn)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == True
   
@@ -394,10 +396,11 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
     assert mock_api_called == True
     assert raise_no_active_tariff_called == False
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert_raised_events(actual_fired_events, EVENT_GAS_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
     assert_raised_events(actual_fired_events, EVENT_GAS_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
     assert_raised_events(actual_fired_events, EVENT_GAS_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mprn)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == True
 
@@ -535,10 +538,11 @@ async def test_when_existing_rates_are_requested_period_and_different_tariff_cod
     assert requested_period_from == expected_period_from
     assert requested_period_to == expected_period_to
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert_raised_events(actual_fired_events, EVENT_GAS_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
     assert_raised_events(actual_fired_events, EVENT_GAS_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
     assert_raised_events(actual_fired_events, EVENT_GAS_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mprn)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == True
 
@@ -607,10 +611,11 @@ async def test_when_existing_rates_contains_some_of_period_and_same_tariff_code_
     assert mock_api_called == True
     assert raise_no_active_tariff_called == False
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert_raised_events(actual_fired_events, EVENT_GAS_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
     assert_raised_events(actual_fired_events, EVENT_GAS_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
     assert_raised_events(actual_fired_events, EVENT_GAS_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mprn)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == True
 
@@ -694,10 +699,11 @@ async def test_when_existing_rates_contains_some_of_period_and_different_tariff_
     assert mock_api_called == True
     assert raise_no_active_tariff_called == False
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert_raised_events(actual_fired_events, EVENT_GAS_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
     assert_raised_events(actual_fired_events, EVENT_GAS_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
     assert_raised_events(actual_fired_events, EVENT_GAS_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mprn)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == True
 
@@ -956,6 +962,6 @@ async def test_when_existing_rates_is_old_and_rates_empty_then_rates_retrieved()
     assert mock_api_called == True
     assert raise_no_active_tariff_called == False
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert raise_rates_empty_called == True
     assert clear_rates_empty_called == False

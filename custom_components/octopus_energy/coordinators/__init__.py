@@ -11,11 +11,12 @@ from homeassistant.helpers import issue_registry as ir
 
 from ..utils import (
   Tariff,
-  get_active_tariff
+  get_active_tariff,
+  private_rates_to_target_timeframe_data
 )
 from ..utils.rate_information import get_min_max_average_rates
 from ..utils.requests import calculate_next_refresh
-from ..const import DOMAIN, REPAIR_TARIFF_RATES_EMPTY
+from ..const import DOMAIN, EVENT_TARGET_TIMEFRAME_UPDATE_DATA_SOURCE, EVENT_TARGET_TIMEFRAME_UPDATE_DATA_SOURCE_ID, REPAIR_TARIFF_RATES_EMPTY
 from ..utils.repairs import safe_repair_key
 
 _LOGGER = logging.getLogger(__name__)
@@ -110,9 +111,15 @@ def raise_rate_events(current_datetime: datetime,
   (old_previous_rates, old_current_rates, old_next_rates) = __rates_to_current_previous_next_rates(previous_datetime, previous_rates)
   (new_previous_rates, new_current_rates, new_next_rates) = __rates_to_current_previous_next_rates(current_datetime, new_rates)
 
-  __raise_rate_event(previous_event_key, new_previous_rates, old_previous_rates, additional_attributes, fire_event)
-  __raise_rate_event(current_event_key, new_current_rates, old_current_rates, additional_attributes, fire_event)
-  __raise_rate_event(next_event_key, new_next_rates, old_next_rates, additional_attributes, fire_event)
+  previous_event_raised = __raise_rate_event(previous_event_key, new_previous_rates, old_previous_rates, additional_attributes, fire_event)
+  current_event_raised = __raise_rate_event(current_event_key, new_current_rates, old_current_rates, additional_attributes, fire_event)
+  next_event_raised = __raise_rate_event(next_event_key, new_next_rates, old_next_rates, additional_attributes, fire_event)
+
+  if (previous_event_raised or current_event_raised or next_event_raised):
+    fire_event(EVENT_TARGET_TIMEFRAME_UPDATE_DATA_SOURCE, { 
+      "data_source_id": EVENT_TARGET_TIMEFRAME_UPDATE_DATA_SOURCE_ID.format(additional_attributes["mpan"] if "mpan" in additional_attributes else additional_attributes["mprn"], additional_attributes["serial_number"]),
+      "data": private_rates_to_target_timeframe_data(new_rates) 
+    })
 
 def get_electricity_meter_tariff(current: datetime, account_info, target_mpan: str, target_serial_number: str):
   if len(account_info["electricity_meter_points"]) > 0:

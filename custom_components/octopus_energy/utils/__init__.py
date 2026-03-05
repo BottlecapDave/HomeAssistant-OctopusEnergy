@@ -163,3 +163,25 @@ def private_rates_to_public_rates(rates: list):
     new_rates.append(new_rate)
 
   return new_rates
+
+def private_rates_to_target_timeframe_data(rates: list):
+  new_rates = []
+
+  for rate in rates:
+    metadata = {}
+    if "is_capped" in rate:
+      metadata["is_capped"] = rate["is_capped"]
+      
+    if "is_intelligent_adjusted" in rate:
+      metadata["is_intelligent_adjusted"] = rate["is_intelligent_adjusted"]
+
+    new_rate = {
+      "start": as_local(rate["start"]),
+      "end": as_local(rate["end"]),
+      "value": rate["value_inc_vat"],
+      "metadata": metadata
+    }
+
+    new_rates.append(new_rate)
+
+  return new_rates

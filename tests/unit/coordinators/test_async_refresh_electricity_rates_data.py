@@ -1,16 +1,16 @@
 from datetime import datetime, timedelta
-from custom_components.octopus_energy.storage.intelligent_dispatches_history import IntelligentDispatchesHistory
 import pytest
 import mock
 
 from unit import (create_rate_data)
-
+from tests.unit.coordinators import assert_raised_target_timeframe_update_event
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
 from custom_components.octopus_energy.coordinators.electricity_rates import ElectricityRatesCoordinatorResult, async_refresh_electricity_rates_data
 from custom_components.octopus_energy.const import EVENT_ELECTRICITY_CURRENT_DAY_RATES, EVENT_ELECTRICITY_NEXT_DAY_RATES, EVENT_ELECTRICITY_PREVIOUS_DAY_RATES, REFRESH_RATE_IN_MINUTES_RATES
 from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches, SimpleIntelligentDispatchItem
 from custom_components.octopus_energy.api_client.intelligent_device import IntelligentDevice
 from custom_components.octopus_energy.coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
+from custom_components.octopus_energy.storage.intelligent_dispatches_history import IntelligentDispatchesHistory
 from zoneinfo import ZoneInfo
 
 current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
@@ -359,10 +359,11 @@ async def test_when_existing_rates_is_none_then_rates_retrieved(existing_rates):
     assert requested_period_from == expected_period_from
     assert requested_period_to == expected_period_to
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_PREVIOUS_DAY_RATES, requested_period_from, requested_period_from + timedelta(days=1))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, requested_period_from + timedelta(days=1), requested_period_from + timedelta(days=2))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, requested_period_from + timedelta(days=2), requested_period_from + timedelta(days=3))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mpan)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == True
   
@@ -451,10 +452,11 @@ async def test_when_dispatches_is_not_defined_and_existing_rates_is_none_then_ra
     assert requested_period_from == expected_period_from
     assert requested_period_to == expected_period_to
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_PREVIOUS_DAY_RATES, requested_period_from, requested_period_from + timedelta(days=1))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, requested_period_from + timedelta(days=1), requested_period_from + timedelta(days=2))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, requested_period_from + timedelta(days=2), requested_period_from + timedelta(days=3))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mpan)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == True
 
@@ -525,10 +527,11 @@ async def test_when_existing_rates_is_old_then_rates_retrieved():
     assert mock_api_called == True
     assert raise_no_active_tariff_called == False
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mpan)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == True
 
@@ -677,10 +680,11 @@ async def test_when_existing_rates_are_requested_period_and_different_tariff_the
     assert requested_period_from == expected_period_from
     assert requested_period_to == expected_period_to
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mpan)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == True
 
@@ -754,10 +758,11 @@ async def test_when_existing_rates_contains_some_of_period_and_same_tariff_then_
     assert mock_api_called == True
     assert raise_no_active_tariff_called == False
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mpan)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == True
 
@@ -858,10 +863,11 @@ async def test_when_existing_rates_contains_some_of_period_and_different_tariff_
     assert mock_api_called == True
     assert raise_no_active_tariff_called == False
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mpan)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == True
 
@@ -979,10 +985,11 @@ async def test_when_dispatched_rates_provided_then_rates_are_adjusted_if_meter_i
     assert raise_no_active_tariff_called == False
     assert number_of_intelligent_rates == expected_number_of_intelligent_rates
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mpan)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == True
 
@@ -1090,10 +1097,11 @@ async def test_when_started_dispatched_rates_provided_then_rates_are_adjusted_if
     assert raise_no_active_tariff_called == False
     assert number_of_intelligent_rates == expected_number_of_intelligent_rates
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mpan)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == True
 
@@ -1196,10 +1204,11 @@ async def test_when_dispatched_rates_provided_then_rates_are_adjusted():
     assert raise_no_active_tariff_called == False
     assert number_of_intelligent_rates == expected_number_of_intelligent_rates
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_PREVIOUS_DAY_RATES, expected_period_from, expected_period_from + timedelta(days=1))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, expected_period_from + timedelta(days=2), expected_period_from + timedelta(days=3))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mpan)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == True
 
@@ -1438,8 +1447,9 @@ async def test_when_rates_next_refresh_is_in_the_future_dispatches_retrieved_aft
     assert raise_no_active_tariff_called == False
     assert number_of_intelligent_rates == expected_number_of_intelligent_rates
     
-    assert len(actual_fired_events.keys()) == 1
+    assert len(actual_fired_events.keys()) == 2
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mpan)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == False
 
@@ -1538,8 +1548,9 @@ async def test_when_rates_next_refresh_is_in_the_future_started_dispatches_retri
     assert raise_no_active_tariff_called == False
     assert number_of_intelligent_rates == expected_number_of_intelligent_rates
     
-    assert len(actual_fired_events.keys()) == 1
+    assert len(actual_fired_events.keys()) == 2
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mpan)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == False
 
@@ -1858,8 +1869,9 @@ async def test_when_rate_is_intelligent_and_dispatches_available_and_rates_not_r
     assert raise_no_active_tariff_called == False
     assert number_of_intelligent_rates == expected_number_of_intelligent_rates
     
-    assert len(actual_fired_events.keys()) == 1
+    assert len(actual_fired_events.keys()) == 2
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mpan)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == False
 
@@ -1989,8 +2001,9 @@ async def test_when_rate_is_intelligent_and_one_intelligent_device_dispatches_av
     assert raise_no_active_tariff_called == False
     assert number_of_intelligent_rates == expected_number_of_intelligent_rates
     
-    assert len(actual_fired_events.keys()) == 1
+    assert len(actual_fired_events.keys()) == 2
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, expected_period_from + timedelta(days=1), expected_period_from + timedelta(days=2))
+    assert_raised_target_timeframe_update_event(actual_fired_events, retrieved_rates.rates, serial_number, mpan)
     assert raise_rates_empty_called == False
     assert clear_rates_empty_called == False
 
@@ -2180,7 +2193,7 @@ async def test_when_clocks_change_then_rates_are_correct(existing_rates):
     # assert requested_period_from == expected_period_from
     # assert requested_period_to == expected_period_to
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_PREVIOUS_DAY_RATES, datetime.strptime("2024-10-26T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2024-10-27T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_CURRENT_DAY_RATES, datetime.strptime("2024-10-27T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2024-10-28T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"))
     assert_raised_events(actual_fired_events, EVENT_ELECTRICITY_NEXT_DAY_RATES, datetime.strptime("2024-10-28T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2024-10-29T00:00:00+00:00", "%Y-%m-%dT%H:%M:%S%z"))
@@ -2254,6 +2267,6 @@ async def test_when_existing_rates_is_old_but_no_rates_returned_then_rates_retri
     assert mock_api_called == True
     assert raise_no_active_tariff_called == False
     
-    assert len(actual_fired_events.keys()) == 3
+    assert len(actual_fired_events.keys()) == 4
     assert raise_rates_empty_called == True
     assert clear_rates_empty_called == False
