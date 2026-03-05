@@ -20,7 +20,7 @@ The recommended source id will depend on if you're wanting to just consume the r
 
 The source id should follow the following format `octopus_energy_<<METER MPAN OR MPRN>>_<<METER SERIAL NUMBER>>`, depending on which meter you want the rate information to come from. For example if you want your target timeframes to be powered by your import meter with an MPAN of `123` and serial number of `ABC`, then your data source id should be equal to `octopus_energy_123_ABC`. 
 
-Once rate information is retrieved by this integration, data should flow automatically into this data source. You can confirm this by looking at the [Data Source Last Updated entity](bottlecapdave.github.io/HomeAssistant-TargetTimeframes/setup/data_source/#data-source-last-updated).
+Once rate information is retrieved by this integration, data should flow automatically into this data source. You can confirm this by looking at the [Data Source Last Updated entity](https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/setup/data_source/#data-source-last-updated).
 
 ### I want OE rate data as well as other data
 
