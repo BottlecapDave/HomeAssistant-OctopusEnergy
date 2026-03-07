@@ -616,6 +616,25 @@ def rates_to_thirty_minute_increments(data, period_from: datetime, period_to: da
     
   return results
 
+def get_standing_charge(data: list, tariff_code: str, favour_direct_debit_rates: bool):
+  for item in data:
+    if ("payment_method" in item and
+        item["payment_method"] is not None and
+        (
+          (item["payment_method"].lower() == "direct_debit" and favour_direct_debit_rates != True) or
+          (item["payment_method"].lower() != "direct_debit" and favour_direct_debit_rates != False)
+        )):
+      continue
+
+    return {
+      "start": parse_datetime(item["valid_from"]) if "valid_from" in item and item["valid_from"] is not None else None,
+      "end": parse_datetime(item["valid_to"]) if "valid_to" in item and item["valid_to"] is not None else None,
+      "value_inc_vat": float(item["value_inc_vat"]),
+      "tariff_code": tariff_code,
+    }
+  
+  return None
+
 class ApiException(Exception): ...
 
 class ServerException(ApiException): ...
@@ -1455,12 +1474,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth, headers=headers) as response:
         data = await self.__async_read_response__(response, url)
         if (data is not None and "results" in data and len(data["results"]) > 0):
-          result = {
-            "start": parse_datetime(data["results"][0]["valid_from"]) if "valid_from" in data["results"][0] and data["results"][0]["valid_from"] is not None else None,
-            "end": parse_datetime(data["results"][0]["valid_to"]) if "valid_to" in data["results"][0] and data["results"][0]["valid_to"] is not None else None,
-            "value_inc_vat": float(data["results"][0]["value_inc_vat"]),
-            "tariff_code": tariff_code,
-          }
+          result = get_standing_charge(data["results"], tariff_code, self._favour_direct_debit_rates)
 
       return result
     except TimeoutError:
@@ -1480,12 +1494,7 @@ class OctopusEnergyApiClient:
       async with client.get(url, auth=auth, headers=headers) as response:
         data = await self.__async_read_response__(response, url)
         if (data is not None and "results" in data and len(data["results"]) > 0):
-          result = {
-            "start": parse_datetime(data["results"][0]["valid_from"]) if "valid_from" in data["results"][0] and data["results"][0]["valid_from"] is not None else None,
-            "end": parse_datetime(data["results"][0]["valid_to"]) if "valid_to" in data["results"][0] and data["results"][0]["valid_to"] is not None else None,
-            "value_inc_vat": float(data["results"][0]["value_inc_vat"]),
-            "tariff_code": tariff_code,
-          }
+          result = get_standing_charge(data["results"], tariff_code, self._favour_direct_debit_rates)
 
       return result
     except TimeoutError:
