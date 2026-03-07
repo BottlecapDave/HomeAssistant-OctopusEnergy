@@ -728,14 +728,44 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#configuring-octopus-energy-data" class="md-nav__link">
+    <nav class="md-nav" aria-label="Setting up data sources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#i-just-want-oe-rate-data" class="md-nav__link">
     <span class="md-ellipsis">
-      Configuring Octopus Energy data
+      I just want OE rate data
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#i-want-oe-rate-data-as-well-as-other-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      I want OE rate data as well as other data
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="I want OE rate data as well as other data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring data
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1270,14 +1300,44 @@
     </span>
   </a>
   
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#configuring-octopus-energy-data" class="md-nav__link">
+    <nav class="md-nav" aria-label="Setting up data sources">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#i-just-want-oe-rate-data" class="md-nav__link">
     <span class="md-ellipsis">
-      Configuring Octopus Energy data
+      I just want OE rate data
     </span>
   </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#i-want-oe-rate-data-as-well-as-other-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      I want OE rate data as well as other data
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="I want OE rate data as well as other data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#configuring-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuring data
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1324,14 +1384,20 @@
 <p>The first thing you need to do is install the new integration. Full instructions can be found on <a href="https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/#how-to-install">the website</a>.</p>
 <h2 id="setting-up-data-sources">Setting up data sources<a class="headerlink" href="#setting-up-data-sources" title="Permanent link">#</a></h2>
 <p>Once installed, you'll need to configure the integration by setting up a data source that represents data coming from this integration. This can be done by <a href="https://my.home-assistant.io/redirect/config_flow_start/?domain=target_timeframes">following the link</a> or navigating to your integrations view, clicking 'Add integration' and searching for 'Target Timeframes'. You'll need a data source for each of your meters you want to create target rate sensors for (e.g. one for import and one for export).</p>
-<p>The recommended name is <code>Octopus Energy Import</code> and the recommended source id is <code>octopus_energy_import</code>, but you can pick whatever you want as long as it's unique within the integration.</p>
+<p>The recommended name is <code>Octopus Energy Import</code>.</p>
+<p>The recommended source id will depend on if you're wanting to just consume the rates straight from this integration, or if you want the target timeframe sensors to also include other additional/external data (e.g. carbon intensity or free electricity sessions).</p>
+<h3 id="i-just-want-oe-rate-data">I just want OE rate data<a class="headerlink" href="#i-just-want-oe-rate-data" title="Permanent link">#</a></h3>
+<p>The source id should follow the following format <code>octopus_energy_&lt;&lt;METER MPAN OR MPRN&gt;&gt;_&lt;&lt;METER SERIAL NUMBER&gt;&gt;</code>, depending on which meter you want the rate information to come from. For example if you want your target timeframes to be powered by your import meter with an MPAN of <code>123</code> and serial number of <code>ABC</code>, then your data source id should be equal to <code>octopus_energy_123_ABC</code>. </p>
+<p>Once rate information is retrieved by this integration, data should flow automatically into this data source. You can confirm this by looking at the <a href="https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/setup/data_source/#data-source-last-updated">Data Source Last Updated entity</a>.</p>
+<h3 id="i-want-oe-rate-data-as-well-as-other-data">I want OE rate data as well as other data<a class="headerlink" href="#i-want-oe-rate-data-as-well-as-other-data" title="Permanent link">#</a></h3>
+<p>The recommended source id is <code>octopus_energy_import</code>, but you can pick whatever you want as long as it's unique within the integration and not equal to <code>octopus_energy_&lt;&lt;METER MPAN OR MPRN&gt;&gt;_&lt;&lt;METER SERIAL NUMBER&gt;&gt;</code></p>
 <p><img alt="Data Source window" src="../../assets/target_timeframes_data_source.png" /></p>
-<h2 id="configuring-octopus-energy-data">Configuring Octopus Energy data<a class="headerlink" href="#configuring-octopus-energy-data" title="Permanent link">#</a></h2>
+<h4 id="configuring-data">Configuring data<a class="headerlink" href="#configuring-data" title="Permanent link">#</a></h4>
 <p>Next, we'll need to get data from the Octopus Energy integration into the Target Timeframes integration. The recommended approach is an automation based on one of the <a href="https://bottlecapdave.github.io/HomeAssistant-TargetTimeframes/blueprints/#octopus-energy">available blueprints</a>. </p>
 <p>There are different blueprints available depending upon whether you want your target rate sensors to take account of just carbon intensity, just Octopus rates, or both. For target rate sensors that use Octopus rates there are different blueprints depending upon whether you want to take account of Octopus free electricity sessions or not.</p>
-<p>Select the blueprint you want to use and click 'Install blueprint'.  You will get a prompt to open a page in Home Assistant, click 'Open link', you'll get a second prompt to confirm you want to import the blueprint, click 'Preview blueprint' then 'Import blueprint' and the blueprint will be installed in your Home Assistant.</p>
-<p>Next you need to create an automation using the blueprint you just imported.  The automation will track when the rate entities within the Octopus Energy integration are updated and will then transform the rate data into the shape required by Target Timeframes and use the available service to add the rate data with the data source we just created. Each <code>value</code> in Target Timeframes will represent our rate in pounds/pence.</p>
-<p>Click the name of the blueprint you just imported.  You'll be prompted to configure the blueprint with the names of your Octopus Integration sensors. Use the dropdowns to select the appropriate Home Assistant sensor or event name:</p>
+<p>Select the blueprint you want to use and click 'Install blueprint'. You will get a prompt to open a page in Home Assistant, click 'Open link', you'll get a second prompt to confirm you want to import the blueprint, click 'Preview blueprint' then 'Import blueprint' and the blueprint will be installed in your Home Assistant.</p>
+<p>Next you need to create an automation using the blueprint you just imported. The automation will track when the rate entities within the Octopus Energy integration are updated and will then transform the rate data into the shape required by Target Timeframes and use the available service to add the rate data with the data source we just created. Each <code>value</code> in Target Timeframes will represent our rate in pounds/pence.</p>
+<p>Click the name of the blueprint you just imported. You'll be prompted to configure the blueprint with the names of your Octopus Integration sensors. Use the dropdowns to select the appropriate Home Assistant sensor or event name:</p>
 <p><img alt="Blueprint configuration" src="../../assets/target_timeframes_blueprint.png" /></p>
 <p>Make sure you select the right Octopus Integration events for your target timeframe data source sensor, e.g. 'previous day rates' for an import sensor, not 'previous day rates export'.</p>
 <p>Once you have completed the blueprint configuration click Save and this will create the automation for you, fully populated with the sensor and event names you configured.  You have the option to rename the automation, add a description, category, etc if you want to.</p>
