@@ -12,7 +12,6 @@ from ..const import (
   CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
   COORDINATOR_REFRESH_IN_SECONDS,
   DATA_ACCOUNT_COORDINATOR,
-  DATA_INTELLIGENT_DEVICES,
   DOMAIN,
   DATA_CLIENT,
   DATA_ELECTRICITY_RATES_COORDINATOR_KEY,
@@ -34,8 +33,6 @@ from . import BaseCoordinatorResult, clear_rates_empty, combine_rates, get_elect
 from ..intelligent import adjust_intelligent_rates, is_intelligent_product
 from ..utils.rate_information import get_unique_rates, has_peak_rates
 from ..utils.tariff_cache import async_save_cached_tariff_total_unique_rates
-from ..api_client.intelligent_device import IntelligentDevice
-from ..coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
 from ..utils.repairs import safe_repair_key
 
 _LOGGER = logging.getLogger(__name__)
@@ -152,6 +149,8 @@ async def async_refresh_electricity_rates_data(
         
         raise_rate_events(current,
                           private_rates_to_public_rates(new_rates),
+                          existing_rates_result.rates_last_adjusted if existing_rates_result is not None else current,
+                          private_rates_to_public_rates(existing_rates_result.rates) if existing_rates_result is not None and existing_rates_result.rates is not None else [],
                           { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": tariff.code },
                           fire_event,
                           EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,
@@ -225,6 +224,8 @@ async def async_refresh_electricity_rates_data(
         
         raise_rate_events(current,
                           private_rates_to_public_rates(new_rates),
+                          existing_rates_result.rates_last_adjusted if existing_rates_result is not None else current,
+                          private_rates_to_public_rates(existing_rates_result.rates) if existing_rates_result is not None and existing_rates_result.rates is not None else [],
                           { "mpan": target_mpan, "serial_number": target_serial_number, "tariff_code": tariff.code, "intelligent_dispatches_updated": True },
                           fire_event,
                           EVENT_ELECTRICITY_PREVIOUS_DAY_RATES,

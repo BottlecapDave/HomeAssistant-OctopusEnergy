@@ -151,6 +151,9 @@ EVENT_ALL_SAVING_SESSIONS = "octopus_energy_all_octoplus_saving_sessions"
 EVENT_NEW_FREE_ELECTRICITY_SESSION = "octopus_energy_new_octoplus_free_electricity_session"
 EVENT_ALL_FREE_ELECTRICITY_SESSIONS = "octopus_energy_all_octoplus_free_electricity_sessions"
 
+EVENT_TARGET_TIMEFRAME_UPDATE_DATA_SOURCE = "target_timeframe_update_data_source"
+EVENT_TARGET_TIMEFRAME_UPDATE_DATA_SOURCE_ID = "octopus_energy_{}_{}"
+
 REPAIR_UNIQUE_RATES_CHANGED_KEY = "electricity_unique_rates_updated_{}"
 REPAIR_INVALID_API_KEY = "invalid_api_key_{}"
 REPAIR_ACCOUNT_NOT_FOUND = "account_not_found_{}"

@@ -104,6 +104,8 @@ async def async_refresh_gas_rates_data(
 
         raise_rate_events(current,
                           private_rates_to_public_rates(new_rates),
+                          existing_rates_result.last_retrieved if existing_rates_result is not None else current,
+                          private_rates_to_public_rates(existing_rates_result.rates) if existing_rates_result is not None and existing_rates_result.rates is not None else [],
                           { "mprn": target_mprn, "serial_number": target_serial_number, "tariff_code": tariff.code },
                           fire_event,
                           EVENT_GAS_PREVIOUS_DAY_RATES,
