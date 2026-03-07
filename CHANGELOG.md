@@ -1,3 +1,18 @@
+# [18.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v18.0.0...v18.1.0) (2026-03-07)
+
+
+### Bug Fixes
+
+* Fixed standing charges not adhering to direct debit settings (30 minutes dev time) ([9dba798](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9dba798629de55e3ec57036f0f4fd408a96e60f9))
+* Updated previous/current/next day rates updated events to only fire when the rates actually change (1 hour dev time) ([b98db85](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b98db85efa9fcfe4fba40c0d7a784fc56c2827ef))
+
+
+### Features
+
+* Added battery sensor for heat pump sensors (30 minutes dev time) ([20b9dac](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/20b9dac06f0db9a8996fd3953e08716bd3eea852))
+* Added battery sensor for heat pump sensors (30 minutes dev time) ([#1657](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1657)) ([df407a5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/df407a55218459f5182cf5faa92422e51760561e))
+* Added raising of target timeframe data source events (2 hours dev time) ([6ad8db1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6ad8db123c540ca07f888a5cc23914ed935873d1))
+
 # [18.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v17.1.1...v18.0.0) (2026-02-21)
 
 
