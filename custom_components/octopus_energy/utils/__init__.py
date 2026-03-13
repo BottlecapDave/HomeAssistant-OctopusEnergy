@@ -1,4 +1,5 @@
 
+import logging
 import re
 from datetime import datetime, timedelta
 
@@ -9,6 +10,8 @@ from ..const import (
 )
 from ..utils.conversions import value_inc_vat_to_pounds
 from .rate_information import get_current_rate_information
+
+_LOGGER = logging.getLogger(__name__)
 
 class TariffParts:
   energy: str
@@ -138,6 +141,8 @@ def get_off_peak_times(current: datetime, rates: list, include_intelligent_adjus
       end = rates[-1]["end"]
       if end >= current:
         times.append(OffPeakTime(start, end))
+  else:
+    _LOGGER.debug(f"Unable to determine off-peak times for current time '{current}' as we couldn't find an off-peak value or rates were null")
 
   return times
 

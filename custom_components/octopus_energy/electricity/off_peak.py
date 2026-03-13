@@ -85,6 +85,7 @@ class OctopusEnergyElectricityOffPeak(CoordinatorEntity, OctopusEnergyElectricit
       }
       
       times = get_off_peak_times(current, rates, True)
+      _LOGGER.debug(f"Calculated off-peak times for '{self._mpan}/{self._serial_number}': {[time.to_dict() for time in times]}")
       if times is not None and len(times) > 0:
         time = times.pop(0)
         if time.start <= current:
