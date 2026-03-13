@@ -630,16 +630,16 @@ def setup_heat_pump_sensors(hass: HomeAssistant, account_id: str, heat_pump_id: 
             sensor
           ))
 
-          entities.append(OctopusEnergyHeatPumpSensorBattery(
-            hass,
-            coordinator,
-            heat_pump_id,
-            heat_pump_response.octoHeatPumpControllerConfiguration.heatPump,
-            sensor
-          ))
-
           if sensor.type == "ZIGBEE":
             entities.append(OctopusEnergyHeatPumpSensorHumidity(
+              hass,
+              coordinator,
+              heat_pump_id,
+              heat_pump_response.octoHeatPumpControllerConfiguration.heatPump,
+              sensor
+            ))
+
+            entities.append(OctopusEnergyHeatPumpSensorBattery(
               hass,
               coordinator,
               heat_pump_id,
