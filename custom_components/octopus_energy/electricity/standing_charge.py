@@ -9,6 +9,7 @@ from homeassistant.core import HomeAssistant, callback
 from homeassistant.components.sensor import (
   RestoreSensor,
   SensorDeviceClass,
+  SensorStateClass
 )
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity,
@@ -40,6 +41,11 @@ class OctopusEnergyElectricityCurrentStandingCharge(CoordinatorEntity, OctopusEn
   def name(self):
     """Name of the sensor."""
     return f'Current Standing Charge {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})'
+
+  @property
+  def state_class(self):
+    """The state class of sensor"""
+    return SensorStateClass.TOTAL
 
   @property
   def device_class(self):
