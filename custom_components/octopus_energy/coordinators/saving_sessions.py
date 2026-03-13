@@ -34,7 +34,7 @@ class SavingSessionsCoordinatorResult(BaseCoordinatorResult):
     self.available_events = available_events
     self.joined_events = joined_events
 
-def filter_available_events(current: datetime, available_events: list[SavingSession], joined_events: list[SavingSession]) -> list[SavingSession]:
+def filter_available_events(current: datetime, available_events: list[SavingSession], joined_events: list[SavingSession], region: str) -> list[SavingSession]:
   filtered_events = []
   for upcoming_event in available_events:
     is_joined = False
@@ -43,7 +43,13 @@ def filter_available_events(current: datetime, available_events: list[SavingSess
         is_joined = True
         break
 
-    if (upcoming_event.start >= current and is_joined == False):
+    is_in_region = upcoming_event.targetRegions is None or len(upcoming_event.targetRegions) == 0 or f"_{region}" in upcoming_event.targetRegions
+    if (is_in_region == False):
+      _LOGGER.info(f"Excluding saving session {upcoming_event.code} as it is not in the correct region. Event regions: {','.join(upcoming_event.targetRegions)}, user region: {region}")
+
+    if (upcoming_event.start >= current and
+        is_joined == False and
+        is_in_region):
       filtered_events.append(upcoming_event)
 
   return filtered_events
@@ -52,13 +58,14 @@ async def async_refresh_saving_sessions(
     current: datetime,
     client: OctopusEnergyApiClient,
     account_id: str,
+    region: str,
     existing_saving_sessions_result: SavingSessionsCoordinatorResult,
     fire_event: Callable[[str, "dict[str, Any]"], None],
 ) -> SavingSessionsCoordinatorResult:
   if existing_saving_sessions_result is None or current >= existing_saving_sessions_result.next_refresh:
     try:
       result = await client.async_get_saving_sessions(account_id)
-      available_events = filter_available_events(current, result.available_events, result.joined_events)
+      available_events = filter_available_events(current, result.available_events, result.joined_events, region)
 
       for available_event in available_events:
         is_new = True
@@ -144,7 +151,7 @@ async def async_refresh_saving_sessions(
   
   return existing_saving_sessions_result
 
-async def async_setup_saving_sessions_coordinators(hass, account_id: str):
+async def async_setup_saving_sessions_coordinators(hass, account_id: str, region: str):
 
   async def async_update_saving_sessions():
     """Fetch data from API endpoint."""
@@ -158,6 +165,7 @@ async def async_setup_saving_sessions_coordinators(hass, account_id: str):
       current,
       client,
       account_id,
+      region,
       previous_result if force_update == False else None,
       hass.bus.async_fire
     )
