@@ -1,3 +1,12 @@
+## [18.1.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v18.1.0...v18.1.1) (2026-03-14)
+
+
+### Bug Fixes
+
+* Added missing state class on electricity standing charge which was stopping statistics from being created (15 minutes dev time) ([55ba83e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/55ba83e5f549982ac5f9e2e35896a36dc1696f4f))
+* Fixed battery sensor for heat pump sensors to only be present for zigbee based devices (15 minutes dev time) ([334579a](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/334579a04c64cf97b23f171cd6218efaa9fddea7))
+* Fixed saving sessions to ignore available sessions if not available in the users region (1.5 hours dev time) ([1d33907](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1d3390795b99e43376e2191f60bf721d1df97bd5))
+
 # [18.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v18.0.0...v18.1.0) (2026-03-07)
 
 
