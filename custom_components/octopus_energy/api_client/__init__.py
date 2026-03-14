@@ -297,6 +297,9 @@ octoplus_saving_session_query = '''query {{
 			startAt
 			endAt
       devEvent
+      targetGsp {{
+        groupId
+      }}
 		}}
 		account(accountNumber: "{account_id}") {{
 			hasJoinedCampaign
@@ -1105,13 +1108,17 @@ class OctopusEnergyApiClient:
                                                                           ev["code"],
                                                                           as_utc(parse_datetime(ev["startAt"])),
                                                                           as_utc(parse_datetime(ev["endAt"])),
-                                                                          ev["rewardPerKwhInOctoPoints"]),
+                                                                          ev["rewardPerKwhInOctoPoints"],
+                                                                          list(map(lambda gsp: gsp["groupId"], ev["targetGsp"]))
+                                                                          if "targetGsp" in ev and ev["targetGsp"] is not None
+                                                                          else None),
                                         response_body["data"]["savingSessions"]["events"])), 
                                         list(map(lambda ev: SavingSession(ev["eventId"],
                                                                           None,
                                                                           as_utc(parse_datetime(ev["startAt"])),
                                                                           as_utc(parse_datetime(ev["endAt"])),
-                                                                          ev["rewardGivenInOctoPoints"]),
+                                                                          ev["rewardGivenInOctoPoints"],
+                                                                          None),
                                         response_body["data"]["savingSessions"]["account"]["joinedEvents"])))
         else:
           _LOGGER.error("Failed to retrieve saving sessions")

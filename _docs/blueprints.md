@@ -72,7 +72,7 @@ This blueprint will fire a configured action when the consumption for the curren
 
 ## Intelligent
 
-## Manual Intelligent Dispatch Refreshes
+### Manual Intelligent Dispatch Refreshes
 
 [Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_manual_intelligent_refresh.yaml) | [Source](./blueprints/octopus_energy_manual_intelligent_refresh.yaml)
 

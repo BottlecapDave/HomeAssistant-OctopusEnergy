@@ -21,6 +21,12 @@ This represents the temperature reported by a sensor (e.g. Cosy Pod) that is ass
 
     There are reports that some of these sensors can report negative values in certain installations. Unfortunately, there doesn't appear to be anything in the API that determines when these sensors are or are not applicable. In these situations, you'll need to manually disable or ignore them.
 
+## Battery Sensor
+
+`sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{SENSOR_CODE}}_battery`
+
+This represents the battery reported by a sensor (e.g. Cosy Pod) that is associated with a heat pump.
+
 ## Zone
 
 `climate.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{ZONE_CODE}}`

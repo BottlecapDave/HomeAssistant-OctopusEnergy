@@ -146,8 +146,8 @@ async def async_retrieve_intelligent_dispatches(
           existing_intelligent_dispatches_result.request_attempts,
           existing_intelligent_dispatches_result.dispatches,
           existing_intelligent_dispatches_result.history,
-          existing_intelligent_dispatches_result.requests_current_hour,
-          existing_intelligent_dispatches_result.requests_current_hour_last_reset,
+          requests_current_hour,
+          requests_last_reset,
           last_error=error
         )
       
@@ -162,8 +162,8 @@ async def async_retrieve_intelligent_dispatches(
           existing_intelligent_dispatches_result.request_attempts,
           existing_intelligent_dispatches_result.dispatches,
           existing_intelligent_dispatches_result.history,
-          existing_intelligent_dispatches_result.requests_current_hour,
-          existing_intelligent_dispatches_result.requests_current_hour_last_reset,
+          requests_current_hour,
+          requests_last_reset,
           last_error=error
         )
 
@@ -212,8 +212,8 @@ async def async_retrieve_intelligent_dispatches(
           existing_intelligent_dispatches_result.request_attempts + 1,
           existing_intelligent_dispatches_result.dispatches,
           existing_intelligent_dispatches_result.history,
-          existing_intelligent_dispatches_result.requests_current_hour + 1,
-          existing_intelligent_dispatches_result.requests_current_hour_last_reset,
+          requests_current_hour + 1,
+          requests_last_reset,
           last_error=raised_exception
         )
 
