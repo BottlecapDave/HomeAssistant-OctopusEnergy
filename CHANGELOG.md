@@ -1,3 +1,18 @@
+# [19.0.0-beta.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v18.1.2...v19.0.0-beta.1) (2026-04-02)
+
+
+### Features
+
+* moved heat pump sensors to use new heat pump APIs (2.5 hours dev time) ([ef536f3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ef536f3bbbc39ac7305f91fd47887629f0564c40))
+
+
+### BREAKING CHANGES
+
+* The new heat pump APIs provided by Octopus Energy no longer provide live data, and there are no
+plans to add them back. Therefore, all live sensors for heat pumps are no longer provided by this
+integration. The old APIs have been deprecated and will no longer work properly after 8th April
+2026.
+
 ## [18.1.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v18.1.1...v18.1.2) (2026-03-20)
 
 
