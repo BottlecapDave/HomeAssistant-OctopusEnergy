@@ -66,10 +66,6 @@ from .diagnostics_entities.gas_standing_charge_data_last_retrieved import Octopu
 from .heat_pump import get_mock_heat_pump_id
 from .heat_pump.sensor_temperature import OctopusEnergyHeatPumpSensorTemperature
 from .heat_pump.sensor_humidity import OctopusEnergyHeatPumpSensorHumidity
-from .heat_pump.live_power_input import OctopusEnergyHeatPumpLivePowerInput
-from .heat_pump.live_heat_output import OctopusEnergyHeatPumpLiveHeatOutput
-from .heat_pump.live_cop import OctopusEnergyHeatPumpLiveCoP
-from .heat_pump.live_outdoor_temperature import OctopusEnergyHeatPumpLiveOutdoorTemperature
 from .heat_pump.lifetime_scop import OctopusEnergyHeatPumpLifetimeSCoP
 from .heat_pump.lifetime_heat_output import OctopusEnergyHeatPumpLifetimeHeatOutput
 from .heat_pump.lifetime_energy_input import OctopusEnergyHeatPumpLifetimeEnergyInput
@@ -127,6 +123,7 @@ from .const import (
   DATA_GREENNESS_FORECAST_COORDINATOR,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
+  DATA_HEAT_PUMP_IDS,
   DATA_HOME_PRO_CLIENT,
   DATA_INTELLIGENT_DEVICES,
   DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
@@ -565,8 +562,9 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
     key = DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY.format(heat_pump_id)
     coordinator = hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR.format(heat_pump_id)]
     entities.extend(setup_heat_pump_sensors(hass, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data, coordinator))
-  elif "heat_pump_ids" in account_info:
-    for heat_pump_id in account_info["heat_pump_ids"]:
+  else:
+    heat_pump_ids = hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_IDS] if DATA_HEAT_PUMP_IDS in hass.data[DOMAIN][account_id] else []
+    for heat_pump_id in heat_pump_ids:
       key = DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY.format(heat_pump_id)
       coordinator = hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR.format(heat_pump_id)]
       entities.extend(setup_heat_pump_sensors(hass, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data, coordinator))
@@ -590,30 +588,30 @@ def setup_heat_pump_sensors(hass: HomeAssistant, account_id: str, heat_pump_id: 
   if heat_pump_response is None:
     return entities
 
-  if heat_pump_response.octoHeatPumpControllerConfiguration is not None:
+  if heat_pump_response.heatPumpControllerConfiguration is not None:
     if coordinator is not None:
-      entities.append(OctopusEnergyHeatPumpDataLastRetrieved(hass, coordinator, account_id, heat_pump_id, heat_pump_response.octoHeatPumpControllerConfiguration.heatPump))
+      entities.append(OctopusEnergyHeatPumpDataLastRetrieved(hass, coordinator, account_id, heat_pump_id, heat_pump_response.heatPumpControllerConfiguration.heatPump))
 
     entities.append(OctopusEnergyHeatPumpFixedTargetFlowTemperature(
         hass,
         coordinator,
         heat_pump_id,
-        heat_pump_response.octoHeatPumpControllerConfiguration.heatPump
+        heat_pump_response.heatPumpControllerConfiguration.heatPump
       ))
     entities.append(OctopusEnergyHeatPumpWeatherCompensationMinimumTemperature(
         hass,
         coordinator,
         heat_pump_id,
-        heat_pump_response.octoHeatPumpControllerConfiguration.heatPump
+        heat_pump_response.heatPumpControllerConfiguration.heatPump
       ))
     entities.append(OctopusEnergyHeatPumpWeatherCompensationMaximumTemperature(
         hass,
         coordinator,
         heat_pump_id,
-        heat_pump_response.octoHeatPumpControllerConfiguration.heatPump
+        heat_pump_response.heatPumpControllerConfiguration.heatPump
       ))
 
-    for zone in heat_pump_response.octoHeatPumpControllerConfiguration.zones:
+    for zone in heat_pump_response.heatPumpControllerConfiguration.zones:
       if zone.configuration is not None and zone.configuration.sensors is not None:
         if zone.configuration.enabled == False:
           continue
@@ -626,7 +624,7 @@ def setup_heat_pump_sensors(hass: HomeAssistant, account_id: str, heat_pump_id: 
             hass,
             coordinator,
             heat_pump_id,
-            heat_pump_response.octoHeatPumpControllerConfiguration.heatPump,
+            heat_pump_response.heatPumpControllerConfiguration.heatPump,
             sensor
           ))
 
@@ -635,7 +633,7 @@ def setup_heat_pump_sensors(hass: HomeAssistant, account_id: str, heat_pump_id: 
               hass,
               coordinator,
               heat_pump_id,
-              heat_pump_response.octoHeatPumpControllerConfiguration.heatPump,
+              heat_pump_response.heatPumpControllerConfiguration.heatPump,
               sensor
             ))
 
@@ -643,59 +641,30 @@ def setup_heat_pump_sensors(hass: HomeAssistant, account_id: str, heat_pump_id: 
               hass,
               coordinator,
               heat_pump_id,
-              heat_pump_response.octoHeatPumpControllerConfiguration.heatPump,
+              heat_pump_response.heatPumpControllerConfiguration.heatPump,
               sensor
             ))
 
-    if heat_pump_response.octoHeatPumpLivePerformance is not None:
-      entities.append(OctopusEnergyHeatPumpLivePowerInput(
-        hass,
-        coordinator,
-        heat_pump_id,
-        heat_pump_response.octoHeatPumpControllerConfiguration.heatPump
-      ))
-
-      entities.append(OctopusEnergyHeatPumpLiveHeatOutput(
-        hass,
-        coordinator,
-        heat_pump_id,
-        heat_pump_response.octoHeatPumpControllerConfiguration.heatPump
-      ))
-
-      entities.append(OctopusEnergyHeatPumpLiveCoP(
-        hass,
-        coordinator,
-        heat_pump_id,
-        heat_pump_response.octoHeatPumpControllerConfiguration.heatPump
-      ))
-
-      entities.append(OctopusEnergyHeatPumpLiveOutdoorTemperature(
-        hass,
-        coordinator,
-        heat_pump_id,
-        heat_pump_response.octoHeatPumpControllerConfiguration.heatPump
-      ))
-
-    if heat_pump_response.octoHeatPumpLifetimePerformance is not None:
+    if heat_pump_response.heatPumpLifetimePerformance is not None:
       entities.append(OctopusEnergyHeatPumpLifetimeEnergyInput(
         hass,
         coordinator,
         heat_pump_id,
-        heat_pump_response.octoHeatPumpControllerConfiguration.heatPump
+        heat_pump_response.heatPumpControllerConfiguration.heatPump
       ))
 
       entities.append(OctopusEnergyHeatPumpLifetimeHeatOutput(
         hass,
         coordinator,
         heat_pump_id,
-        heat_pump_response.octoHeatPumpControllerConfiguration.heatPump
+        heat_pump_response.heatPumpControllerConfiguration.heatPump
       ))
 
       entities.append(OctopusEnergyHeatPumpLifetimeSCoP(
         hass,
         coordinator,
         heat_pump_id,
-        heat_pump_response.octoHeatPumpControllerConfiguration.heatPump
+        heat_pump_response.heatPumpControllerConfiguration.heatPump
       ))
 
   return entities

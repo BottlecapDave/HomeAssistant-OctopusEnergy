@@ -15,6 +15,7 @@ from .const import (
   CONFIG_COST_TRACKER_TARGET_ENTITY_ID,
   CONFIG_MAIN_API_KEY,
   DATA_ACCOUNT,
+  DATA_HEAT_PUMP_IDS,
   DOMAIN,
 
   DATA_CLIENT
@@ -129,8 +130,9 @@ async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str,
   if mock_heat_pump:
     heat_pump_id = get_mock_heat_pump_id()
     heat_pumps[heat_pump_id] = mock_heat_pump_status_and_configuration().dict()
-  elif "heat_pump_ids" in account_info:
-    for heat_pump_id in account_info["heat_pump_ids"]:
+  else:
+    heat_pump_ids = await client.async_get_heat_pump_ids(account_id, account_info["property_ids"]) if account_info is not None else []
+    for heat_pump_id in heat_pump_ids:
       try:
         heat_pump = await client.async_get_heat_pump_configuration_and_status(account_id, heat_pump_id)
         heat_pumps[heat_pump_id] = heat_pump.dict() if heat_pump is not None else "Not found"

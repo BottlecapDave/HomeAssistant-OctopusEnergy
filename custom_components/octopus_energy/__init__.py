@@ -1,6 +1,7 @@
 import logging
 from datetime import datetime, timedelta
 
+from custom_components.octopus_energy.storage.heat_pump_ids import async_load_cached_heat_pump_ids, async_save_cached_heat_pump_ids
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
 from homeassistant.components.recorder import get_instance
@@ -70,6 +71,7 @@ from .const import (
   CONFIG_VERSION,
   DATA_DISCOVERY_MANAGER,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
+  DATA_HEAT_PUMP_IDS,
   DATA_HOME_PRO_CLIENT,
   DATA_INTELLIGENT_DEVICES,
   DATA_INTELLIGENT_DISPATCHES,
@@ -417,8 +419,17 @@ async def async_setup_dependencies(hass, config):
       await async_save_cached_heat_pump(hass, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data)
     except:
       hass.data[DOMAIN][account_id][key] = HeatPumpCoordinatorResult(now, 1, heat_pump_id, await async_load_cached_heat_pump(hass, account_id, heat_pump_id))
-  elif "heat_pump_ids" in account_info:
-    for heat_pump_id in account_info["heat_pump_ids"]:
+  elif "property_ids" in account_info:
+    heat_pump_ids = []
+    try:
+      heat_pump_ids = await client.async_get_heat_pump_ids(account_id, account_info["property_ids"])
+      await async_save_cached_heat_pump_ids(hass, account_id, heat_pump_ids)
+    except:
+      _LOGGER.warning(f"Failed to retrieve heat pump information for {account_id} during startup. Loading from cache.")
+      heat_pump_ids = await async_load_cached_heat_pump_ids(hass, account_id)
+
+    hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_IDS] = heat_pump_ids
+    for heat_pump_id in heat_pump_ids:
       await async_setup_heat_pump_coordinator(hass, account_id, heat_pump_id, False)
 
       key = DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY.format(heat_pump_id)

@@ -355,22 +355,6 @@ def mock_heat_pump_status_and_configuration():
       },
       "readAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
     },
-    "octoHeatPumpLivePerformance": {
-      "coefficientOfPerformance": str(3 + (random.randrange(1, 20) * 0.1)),
-      "outdoorTemperature": {
-        "unit": "DEGREES_CELSIUS",
-        "value": str(10 + (random.randrange(1, 20) * 0.1))
-      },
-      "heatOutput": {
-        "value": str(4 + (random.randrange(1, 9) * 0.1)),
-        "unit": "KILOWATT"
-      },
-      "powerInput": {
-        "unit": "KILOWATT",
-        "value": str(1 + (random.randrange(1, 9) * 0.1))
-      },
-      "readAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
-    }
   }
 
   return HeatPumpResponse.model_validate(data)
