@@ -85,13 +85,13 @@ class OctopusEnergyHeatPumpFixedTargetFlowTemperature(CoordinatorEntity, BaseOct
     
     if (result is not None 
         and result.data is not None 
-        and result.data.octoHeatPumpControllerConfiguration is not None
-        and result.data.octoHeatPumpControllerConfiguration.heatPump is not None
-        and result.data.octoHeatPumpControllerConfiguration.heatPump.heatingFlowTemperature is not None
-        and result.data.octoHeatPumpControllerConfiguration.heatPump.heatingFlowTemperature.currentTemperature is not None):
+        and result.data.heatPumpControllerConfiguration is not None
+        and result.data.heatPumpControllerConfiguration.heatPump is not None
+        and result.data.heatPumpControllerConfiguration.heatPump.heatingFlowTemperature is not None
+        and result.data.heatPumpControllerConfiguration.heatPump.heatingFlowTemperature.currentTemperature is not None):
       _LOGGER.debug(f"Updating OctopusEnergyHeatPumpFixedTargetFlowTemperature for '{self._heat_pump_id}'")
 
-      self._state = float(result.data.octoHeatPumpControllerConfiguration.heatPump.heatingFlowTemperature.currentTemperature.value)
+      self._state = float(result.data.heatPumpControllerConfiguration.heatPump.heatingFlowTemperature.currentTemperature.value)
       self._last_updated = current
 
     self._attributes = dict_to_typed_dict(self._attributes)

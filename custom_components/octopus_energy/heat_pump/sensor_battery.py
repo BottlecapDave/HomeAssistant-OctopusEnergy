@@ -2,7 +2,6 @@ from datetime import datetime
 import logging
 from typing import List
 
-from custom_components.octopus_energy.heat_pump import calculate_battery_percentage
 from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
@@ -24,6 +23,7 @@ from .base import (BaseOctopusEnergyHeatPumpSensorSensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..api_client.heat_pump import HeatPump, Sensor, SensorConfiguration
 from ..coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult
+from ..heat_pump import calculate_battery_percentage
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -85,12 +85,12 @@ class OctopusEnergyHeatPumpSensorBattery(CoordinatorEntity, BaseOctopusEnergyHea
     result: HeatPumpCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     if (result is not None and 
         result.data is not None and 
-        result.data.octoHeatPumpControllerStatus is not None and
-        result.data.octoHeatPumpControllerStatus.sensors):
+        result.data.heatPumpControllerStatus is not None and
+        result.data.heatPumpControllerStatus.sensors):
       _LOGGER.debug(f"Updating OctopusEnergyHeatPumpSensorBattery for '{self._heat_pump_id}/{self._sensor.code}'")
 
       self._state = None
-      sensors: List[Sensor] = result.data.octoHeatPumpControllerStatus.sensors
+      sensors: List[Sensor] = result.data.heatPumpControllerStatus.sensors
       for sensor in sensors:
         if sensor.code == self._sensor.code and sensor.telemetry is not None:
           self._state = calculate_battery_percentage(sensor.telemetry.voltage)

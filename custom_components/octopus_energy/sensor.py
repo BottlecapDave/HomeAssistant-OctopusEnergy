@@ -73,6 +73,10 @@ from .heat_pump.fixed_target_flow_temperature import OctopusEnergyHeatPumpFixedT
 from .heat_pump.weather_compensation_minimum_temperature import OctopusEnergyHeatPumpWeatherCompensationMinimumTemperature
 from .heat_pump.weather_compensation_maximum_temperature import OctopusEnergyHeatPumpWeatherCompensationMaximumTemperature
 from .heat_pump.sensor_battery import OctopusEnergyHeatPumpSensorBattery
+from .heat_pump.live_cop import OctopusEnergyHeatPumpLiveCoP
+from .heat_pump.live_energy_output import OctopusEnergyHeatPumpLiveEnergyOutput
+from .heat_pump.live_outdoor_temperature import OctopusEnergyHeatPumpLiveOutdoorTemperature
+from .heat_pump.live_energy_input import OctopusEnergyHeatPumpLiveEnergyInput
 from .api_client.intelligent_device import IntelligentDevice
 from .intelligent.current_state import OctopusEnergyIntelligentCurrentState
 from .intelligent import get_intelligent_features
@@ -645,27 +649,54 @@ def setup_heat_pump_sensors(hass: HomeAssistant, account_id: str, heat_pump_id: 
               sensor
             ))
 
-    if heat_pump_response.heatPumpLifetimePerformance is not None:
-      entities.append(OctopusEnergyHeatPumpLifetimeEnergyInput(
-        hass,
-        coordinator,
-        heat_pump_id,
-        heat_pump_response.heatPumpControllerConfiguration.heatPump
-      ))
+    entities.append(OctopusEnergyHeatPumpLifetimeEnergyInput(
+      hass,
+      coordinator,
+      heat_pump_id,
+      heat_pump_response.heatPumpControllerConfiguration.heatPump
+    ))
 
-      entities.append(OctopusEnergyHeatPumpLifetimeHeatOutput(
-        hass,
-        coordinator,
-        heat_pump_id,
-        heat_pump_response.heatPumpControllerConfiguration.heatPump
-      ))
+    entities.append(OctopusEnergyHeatPumpLifetimeHeatOutput(
+      hass,
+      coordinator,
+      heat_pump_id,
+      heat_pump_response.heatPumpControllerConfiguration.heatPump
+    ))
 
-      entities.append(OctopusEnergyHeatPumpLifetimeSCoP(
-        hass,
-        coordinator,
-        heat_pump_id,
-        heat_pump_response.heatPumpControllerConfiguration.heatPump
-      ))
+    entities.append(OctopusEnergyHeatPumpLifetimeSCoP(
+      hass,
+      coordinator,
+      heat_pump_id,
+      heat_pump_response.heatPumpControllerConfiguration.heatPump
+    ))
+
+    entities.append(OctopusEnergyHeatPumpLiveEnergyInput(
+      hass,
+      coordinator,
+      heat_pump_id,
+      heat_pump_response.heatPumpControllerConfiguration.heatPump
+    ))
+
+    entities.append(OctopusEnergyHeatPumpLiveEnergyOutput(
+      hass,
+      coordinator,
+      heat_pump_id,
+      heat_pump_response.heatPumpControllerConfiguration.heatPump
+    ))
+
+    entities.append(OctopusEnergyHeatPumpLiveCoP(
+      hass,
+      coordinator,
+      heat_pump_id,
+      heat_pump_response.heatPumpControllerConfiguration.heatPump
+    ))
+
+    entities.append(OctopusEnergyHeatPumpLiveOutdoorTemperature(
+      hass,
+      coordinator,
+      heat_pump_id,
+      heat_pump_response.heatPumpControllerConfiguration.heatPump
+    ))
 
   return entities
 

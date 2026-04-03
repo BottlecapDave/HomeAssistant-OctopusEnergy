@@ -12,7 +12,7 @@ def get_mock_heat_pump_id():
 def mock_heat_pump_status_and_configuration():
   now = utcnow()
   data = {
-    "octoHeatPumpControllerStatus": {
+    "heatPumpControllerStatus": {
       "sensors": [
         {
           "code": "ADC1",
@@ -162,7 +162,7 @@ def mock_heat_pump_status_and_configuration():
         }
       ]
     },
-    "octoHeatPumpControllerConfiguration": {
+    "heatPumpControllerConfiguration": {
       "controller": {
         "state": [
           "NORMAL_MODE"
@@ -343,7 +343,7 @@ def mock_heat_pump_status_and_configuration():
         }
       ]
     },
-    "octoHeatPumpLifetimePerformance": {
+    "heatPumpLifetimePerformance": {
       "seasonalCoefficientOfPerformance": str(3 + (random.randrange(1, 9) * 0.1)),
       "heatOutput": {
         "unit": "KILOWATT_HOUR",
@@ -355,6 +355,42 @@ def mock_heat_pump_status_and_configuration():
       },
       "readAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
     },
+    "heatPumpTimeSeriesPerformance": [
+      {
+        "energyInput": {
+          "unit": "KILOWATT_HOUR",
+          "value": str(0.5 + (random.randrange(1, 20) * 0.1))
+        },
+        "energyOutput": {
+          "unit": "KILOWATT_HOUR",
+          "value": str(2 + (random.randrange(1, 20) * 0.1))
+        },
+        "outdoorTemperature": {
+          "unit": "DEGREES_CELSIUS",
+          "value": str(10 + (random.randrange(1, 20) * 0.1))
+        },
+        "coefficientOfPerformance": str(3 + (random.randrange(1, 9) * 0.1)),
+        "startAt": (now - timedelta(minutes=10)).strftime("%Y-%m-%dT%H:%M:%S.%f%z"),
+        "endAt": (now - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+      },
+      {
+        "energyInput": {
+          "unit": "KILOWATT_HOUR",
+          "value": str(0.5 + (random.randrange(1, 20) * 0.1))
+        },
+        "energyOutput": {
+          "unit": "KILOWATT_HOUR",
+          "value": str(2 + (random.randrange(1, 20) * 0.1))
+        },
+        "outdoorTemperature": {
+          "unit": "DEGREES_CELSIUS",
+          "value": str(10 + (random.randrange(1, 20) * 0.1))
+        },
+        "coefficientOfPerformance": str(3 + (random.randrange(1, 9) * 0.1)),
+        "startAt": (now - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%S.%f%z"),
+        "endAt": now.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+      }
+    ]
   }
 
   return HeatPumpResponse.model_validate(data)
