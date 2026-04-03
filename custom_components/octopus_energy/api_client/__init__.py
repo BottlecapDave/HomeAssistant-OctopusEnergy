@@ -705,7 +705,7 @@ def process_graphql_response(data: Any, url: str, request_context: str, ignore_e
     for error in data["errors"]:
       if ("extensions" in error and
           "errorCode" in error["extensions"] and
-          error["extensions"]["errorCode"] in ("KT-CT-1139", "KT-CT-1111", "KT-CT-1143", "KT-CT-1134", "KT-CT-1135")):
+          error["extensions"]["errorCode"] in ("KT-CT-1139", "KT-CT-1111", "KT-CT-1143", "KT-CT-1134", "KT-CT-1135", "OE-0103")):
         raise AuthenticationException(f"Authentication failed - {errors_as_string}. See logs for more details.", errors)
 
       if ("extensions" in error and
@@ -1043,8 +1043,8 @@ class OctopusEnergyApiClient:
     """Get a heat pump configuration and status"""
     await self.async_refresh_token()
 
-    end_at: datetime = now().replace(microsecond=0).isoformat()
-    start_at: datetime = (end_at - timedelta(minutes=5)).isoformat()
+    end_at: datetime = now().replace(microsecond=0)
+    start_at: datetime = (end_at - timedelta(minutes=5))
 
     try:
       request_context = "heatpump-configuration"
@@ -1054,8 +1054,8 @@ class OctopusEnergyApiClient:
         "query": heat_pump_status_and_config_query.format(
           account_id=account_id,
           euid=euid,
-          start_at=start_at,
-          end_at=end_at,
+          start_at=start_at.isoformat(),
+          end_at=end_at.isoformat(),
         )
       }
       headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
