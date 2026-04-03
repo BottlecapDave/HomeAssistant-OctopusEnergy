@@ -1,7 +1,6 @@
 import logging
 from datetime import datetime, timedelta
 
-from custom_components.octopus_energy.storage.heat_pump_ids import async_load_cached_heat_pump_ids, async_save_cached_heat_pump_ids
 from homeassistant.exceptions import ConfigEntryNotReady
 from homeassistant.helpers import device_registry as dr
 from homeassistant.components.recorder import get_instance
@@ -46,6 +45,7 @@ from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult,
 from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configuration
 from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_heat_pump
 from .utils.repairs import safe_repair_key
+from .storage.heat_pump_ids import async_load_cached_heat_pump_ids, async_save_cached_heat_pump_ids
 
 from .const import (
   CONFIG_COST_TRACKER_TARGET_ENTITY_ID,

@@ -2,7 +2,6 @@ from datetime import datetime
 import logging
 from typing import List
 
-from custom_components.octopus_energy.heat_pump import calculate_battery_percentage
 from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
@@ -24,6 +23,7 @@ from .base import (BaseOctopusEnergyHeatPumpSensorSensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..api_client.heat_pump import HeatPump, Sensor, SensorConfiguration
 from ..coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult
+from ..heat_pump import calculate_battery_percentage
 
 _LOGGER = logging.getLogger(__name__)
 
