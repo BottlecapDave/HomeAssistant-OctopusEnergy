@@ -1043,8 +1043,8 @@ class OctopusEnergyApiClient:
     """Get a heat pump configuration and status"""
     await self.async_refresh_token()
 
-    start_at: datetime = (now() - timedelta(minutes=5))
-    end_at: datetime = (now() - timedelta(minutes=5))
+    end_at: datetime = now().replace(microsecond=0).isoformat()
+    start_at: datetime = (end_at - timedelta(minutes=5)).isoformat()
 
     try:
       request_context = "heatpump-configuration"
@@ -1054,8 +1054,8 @@ class OctopusEnergyApiClient:
         "query": heat_pump_status_and_config_query.format(
           account_id=account_id,
           euid=euid,
-          start_at=start_at.replace(microsecond=0).isoformat(),
-          end_at=end_at.replace(microsecond=0).isoformat()
+          start_at=start_at,
+          end_at=end_at,
         )
       }
       headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
