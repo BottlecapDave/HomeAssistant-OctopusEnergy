@@ -1,3 +1,16 @@
+# [19.0.0-beta.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v19.0.0-beta.1...v19.0.0-beta.2) (2026-04-03)
+
+
+### Features
+
+* Updated live sensors to use new APIs (1 hour dev time) ([efa95b4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/efa95b449cb41ae356139e8ee6c224b20657ab23))
+
+
+### BREAKING CHANGES
+
+* \"Live power input\" sensor is now \"live energy input\" and is reported in kWh instead of kW. \"Live
+heat output\" sensor is now \"live energy output\" and is reported in kWh instead of kW.
+
 # [19.0.0-beta.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v18.1.2...v19.0.0-beta.1) (2026-04-02)
 
 
