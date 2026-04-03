@@ -1043,11 +1043,21 @@ class OctopusEnergyApiClient:
     """Get a heat pump configuration and status"""
     await self.async_refresh_token()
 
+    end_at: datetime = now().replace(microsecond=0).isoformat()
+    start_at: datetime = (end_at - timedelta(minutes=5)).isoformat()
+
     try:
       request_context = "heatpump-configuration"
       client = self._create_client_session()
       url = f'{self._backend_base_url}/v1/graphql/'
-      payload = { "query": heat_pump_status_and_config_query.format(account_id=account_id, euid=euid) }
+      payload = {
+        "query": heat_pump_status_and_config_query.format(
+          account_id=account_id,
+          euid=euid,
+          start_at=start_at,
+          end_at=end_at,
+        )
+      }
       headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as heat_pump_response:
         response = await self.__async_read_response__(heat_pump_response, url)
