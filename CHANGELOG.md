@@ -1,3 +1,11 @@
+# [19.0.0-beta.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v19.0.0-beta.2...v19.0.0-beta.3) (2026-04-03)
+
+
+### Bug Fixes
+
+* Added missing unit class for external statistics  (30 minutes dev time) ([0035491](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0035491f6ee2f2d31b7940f181a6ebf28fe7ef53))
+* Fixed issue with live heat pump query (15 minutes dev time) ([88f0c45](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/88f0c453e02b480706b0816bebfe92e3229b578d))
+
 # [19.0.0-beta.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v19.0.0-beta.1...v19.0.0-beta.2) (2026-04-03)
 
 
