@@ -84,14 +84,14 @@ class OctopusEnergyHeatPumpWeatherCompensationMaximumTemperature(CoordinatorEnti
     
     if (result is not None 
         and result.data is not None 
-        and result.data.octoHeatPumpControllerConfiguration is not None
-        and result.data.octoHeatPumpControllerConfiguration.heatPump is not None
-        and result.data.octoHeatPumpControllerConfiguration.heatPump.weatherCompensation is not None
-        and result.data.octoHeatPumpControllerConfiguration.heatPump.weatherCompensation.currentRange is not None
-        and result.data.octoHeatPumpControllerConfiguration.heatPump.weatherCompensation.currentRange.maximum is not None):
+        and result.data.heatPumpControllerConfiguration is not None
+        and result.data.heatPumpControllerConfiguration.heatPump is not None
+        and result.data.heatPumpControllerConfiguration.heatPump.weatherCompensation is not None
+        and result.data.heatPumpControllerConfiguration.heatPump.weatherCompensation.currentRange is not None
+        and result.data.heatPumpControllerConfiguration.heatPump.weatherCompensation.currentRange.maximum is not None):
       _LOGGER.debug(f"Updating OctopusEnergyHeatPumpWeatherCompensationMaximumTemperature for '{self._heat_pump_id}'")
 
-      self._state = float(result.data.octoHeatPumpControllerConfiguration.heatPump.weatherCompensation.currentRange.maximum.value)
+      self._state = float(result.data.heatPumpControllerConfiguration.heatPump.weatherCompensation.currentRange.maximum.value)
       self._last_updated = current
 
     self._attributes = dict_to_typed_dict(self._attributes)

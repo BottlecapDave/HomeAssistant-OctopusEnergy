@@ -127,8 +127,16 @@ class HeatPumpLifetimePerformance(BaseModel):
     energyInput: ValueAndUnit
     readAt: str
 
+class HeatPumpTimeSeriesPerformance(BaseModel):
+    energyInput: ValueAndUnit
+    energyOutput: ValueAndUnit
+    outdoorTemperature: ValueAndUnit
+    startAt: str
+    endAt: str
+
 
 class HeatPumpResponse(BaseModel):
     heatPumpControllerStatus: HeatPumpControllerStatus
     heatPumpControllerConfiguration: HeatPumpControllerConfiguration
     heatPumpLifetimePerformance: HeatPumpLifetimePerformance
+    heatPumpTimeSeriesPerformance: List[HeatPumpTimeSeriesPerformance]

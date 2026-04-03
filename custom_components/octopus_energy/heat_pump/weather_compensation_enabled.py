@@ -66,13 +66,13 @@ class OctopusEnergyHeatPumpWeatherCompensationEnabled(CoordinatorEntity, BaseOct
     
     if (result is not None 
         and result.data is not None 
-        and result.data.octoHeatPumpControllerConfiguration is not None
-        and result.data.octoHeatPumpControllerConfiguration.heatPump is not None
-        and result.data.octoHeatPumpControllerConfiguration.heatPump.weatherCompensation is not None
-        and result.data.octoHeatPumpControllerConfiguration.heatPump.weatherCompensation.enabled is not None):
+        and result.data.heatPumpControllerConfiguration is not None
+        and result.data.heatPumpControllerConfiguration.heatPump is not None
+        and result.data.heatPumpControllerConfiguration.heatPump.weatherCompensation is not None
+        and result.data.heatPumpControllerConfiguration.heatPump.weatherCompensation.enabled is not None):
       _LOGGER.debug(f"Updating OctopusEnergyHeatPumpWeatherCompensationEnabled for '{self._heat_pump_id}'")
 
-      self._state = result.data.octoHeatPumpControllerConfiguration.heatPump.weatherCompensation.enabled
+      self._state = result.data.heatPumpControllerConfiguration.heatPump.weatherCompensation.enabled
       self._last_updated = current
 
     self._attributes = dict_to_typed_dict(self._attributes)

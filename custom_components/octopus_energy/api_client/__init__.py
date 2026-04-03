@@ -446,6 +446,22 @@ query {{
       }}
     }}
   }}
+  heatPumpTimeSeriesPerformance(accountNumber: "{account_id}", euid: "{euid}", startAt: "{start_at}", endAt: "{end_at}", performanceGrouping: LIVE) {{
+    startAt
+    endAt
+    energyInput {{
+      value
+      unit
+    }}
+    energyOutput {{
+      value
+      unit
+    }}
+    outdoorTemperature {{
+      value
+      unit
+    }}
+  }}
   heatPumpControllerConfiguration(accountNumber: "{account_id}", euid: "{euid}") {{
     controller {{
       state
@@ -1040,7 +1056,8 @@ class OctopusEnergyApiClient:
             and "data" in response
             and "heatPumpControllerConfiguration" in response["data"]
             and "heatPumpControllerStatus" in response["data"]
-            and "heatPumpLifetimePerformance" in response["data"]):
+            and "heatPumpLifetimePerformance" in response["data"]
+            and "heatPumpTimeSeriesPerformance" in response["data"]):
           return HeatPumpResponse.model_validate(response["data"])
 
       return None
