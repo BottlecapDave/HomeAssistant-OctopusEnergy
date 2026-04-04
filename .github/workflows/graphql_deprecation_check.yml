@@ -1,0 +1,48 @@
+name: Check GraphQL Deprecations
+
+on:
+  workflow_dispatch:
+  schedule:
+    # Run weekly on Monday at 2:00 AM UTC
+    - cron: '0 2 * * 1'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  HUSKY: 0
+
+jobs:
+  check-deprecations:
+    if: ${{ github.repository_owner == 'BottlecapDave' }}
+    name: Check GraphQL Deprecations
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run GraphQL deprecation check
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: npm run check-graphql-deprecations
+        continue-on-error: true
+      
+      - name: Report status
+        if: failure()
+        run: |
+          echo "⚠️ GraphQL deprecations were found. Check the logs above for details."
+          echo "Issues should have been created automatically if GITHUB_TOKEN is configured."

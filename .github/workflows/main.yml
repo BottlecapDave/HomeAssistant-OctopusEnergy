@@ -31,7 +31,7 @@ jobs:
     name: Validate
     runs-on: "ubuntu-latest"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: "home-assistant/actions/hassfest@master"
       - name: HACS Action
         uses: "hacs/action@main"
@@ -47,7 +47,7 @@ jobs:
         python-version: ["3.13", "3.14"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Setup
@@ -70,7 +70,7 @@ jobs:
         python-version: ["3.13", "3.14"]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: Setup
@@ -99,7 +99,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
       - name: asdf_install
