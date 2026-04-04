@@ -449,14 +449,6 @@ query {{
   heatPumpTimeSeriesPerformance(accountNumber: "{account_id}", euid: "{euid}", startAt: "{start_at}", endAt: "{end_at}", performanceGrouping: LIVE) {{
     startAt
     endAt
-    energyInput {{
-      value
-      unit
-    }}
-    energyOutput {{
-      value
-      unit
-    }}
     outdoorTemperature {{
       value
       unit

@@ -357,36 +357,18 @@ def mock_heat_pump_status_and_configuration():
     },
     "heatPumpTimeSeriesPerformance": [
       {
-        "energyInput": {
-          "unit": "KILOWATT_HOUR",
-          "value": str(0.5 + (random.randrange(1, 20) * 0.1))
-        },
-        "energyOutput": {
-          "unit": "KILOWATT_HOUR",
-          "value": str(2 + (random.randrange(1, 20) * 0.1))
-        },
         "outdoorTemperature": {
           "unit": "DEGREES_CELSIUS",
           "value": str(10 + (random.randrange(1, 20) * 0.1))
         },
-        "coefficientOfPerformance": str(3 + (random.randrange(1, 9) * 0.1)),
         "startAt": (now - timedelta(minutes=10)).strftime("%Y-%m-%dT%H:%M:%S.%f%z"),
         "endAt": (now - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
       },
       {
-        "energyInput": {
-          "unit": "KILOWATT_HOUR",
-          "value": str(0.5 + (random.randrange(1, 20) * 0.1))
-        },
-        "energyOutput": {
-          "unit": "KILOWATT_HOUR",
-          "value": str(2 + (random.randrange(1, 20) * 0.1))
-        },
         "outdoorTemperature": {
           "unit": "DEGREES_CELSIUS",
           "value": str(10 + (random.randrange(1, 20) * 0.1))
         },
-        "coefficientOfPerformance": str(3 + (random.randrange(1, 9) * 0.1)),
         "startAt": (now - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%S.%f%z"),
         "endAt": now.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
       }
