@@ -1,3 +1,12 @@
+# [19.0.0-beta.4](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v19.0.0-beta.3...v19.0.0-beta.4) (2026-04-04)
+
+
+### Features
+
+* Removed live input/output/cop again as expected API isn't providing live data ([8421d99](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8421d99d2e83222dbbb7e8b5a80de2e9c8186f48))
+* Updated APIs for intelligent device settings due to deprecations (1.5 hours dev time) ([0f8f057](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0f8f0574b76b90ab5c5d9fb1b1a99ec600effd20))
+* Updated APIs for intelligent device settings due to deprecations (1.5 hours dev time) ([#1700](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1700)) ([92563b9](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/92563b9e44226840d03fb0bebb4e4a6ac3eeb4d7))
+
 # [19.0.0-beta.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v19.0.0-beta.2...v19.0.0-beta.3) (2026-04-03)
 
 

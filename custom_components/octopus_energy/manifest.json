@@ -17,6 +17,6 @@
     "pydantic"
   ],
   "ssdp": [],
-  "version": "19.0.0-beta.3",
+  "version": "19.0.0-beta.4",
   "zeroconf": []
 }
