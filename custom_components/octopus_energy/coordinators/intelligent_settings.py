@@ -21,7 +21,7 @@ from ..const import (
 )
 
 from ..api_client import ApiException, OctopusEnergyApiClient
-from ..api_client.intelligent_settings import IntelligentSettings
+from ..api_client.intelligent_device_settings import IntelligentDeviceSettings
 from . import BaseCoordinatorResult
 
 from ..intelligent import has_intelligent_tariff, mock_intelligent_settings
@@ -29,9 +29,9 @@ from ..intelligent import has_intelligent_tariff, mock_intelligent_settings
 _LOGGER = logging.getLogger(__name__)
 
 class IntelligentCoordinatorResult(BaseCoordinatorResult):
-  settings: IntelligentSettings
+  settings: IntelligentDeviceSettings
 
-  def __init__(self, last_evaluated: datetime, request_attempts: int, settings: IntelligentSettings, last_error: Exception | None = None):
+  def __init__(self, last_evaluated: datetime, request_attempts: int, settings: IntelligentDeviceSettings, last_error: Exception | None = None):
     super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_INTELLIGENT, None, last_error)
     self.settings = settings
 

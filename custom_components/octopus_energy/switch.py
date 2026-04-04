@@ -3,7 +3,6 @@ import logging
 from .utils.debug_overrides import async_get_account_debug_override
 from .intelligent.smart_charge import OctopusEnergyIntelligentSmartCharge
 from .intelligent.bump_charge import OctopusEnergyIntelligentBumpCharge
-from .api_client import OctopusEnergyApiClient
 from .intelligent import get_intelligent_features
 from .api_client.intelligent_device import IntelligentDevice
 from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
@@ -17,8 +16,7 @@ from .const import (
   CONFIG_MAIN_API_KEY,
 
   DATA_INTELLIGENT_SETTINGS_COORDINATOR,
-  DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
-  DATA_ACCOUNT
+  DATA_INTELLIGENT_DISPATCHES_COORDINATOR
 )
 
 _LOGGER = logging.getLogger(__name__)

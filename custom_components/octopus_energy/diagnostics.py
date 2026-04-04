@@ -116,7 +116,7 @@ async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str,
     intelligent_device_dict = intelligent_device.to_dict()
     intelligent_settings = await client.async_get_intelligent_settings(account_id, intelligent_device.id)
     intelligent_device_dict["id"] = "**REDACTED**"
-    intelligent_device_dict["settings"] = intelligent_settings.to_dict() if intelligent_settings is not None else None
+    intelligent_device_dict["settings"] = intelligent_settings.dict() if intelligent_settings is not None else None
 
     intelligent_devices_dict.append(intelligent_device_dict)
   
