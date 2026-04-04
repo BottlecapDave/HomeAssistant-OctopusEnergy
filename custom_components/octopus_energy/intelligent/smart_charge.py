@@ -70,7 +70,7 @@ class OctopusEnergyIntelligentSmartCharge(CoordinatorEntity, SwitchEntity, Octop
       return self._state
 
     if settings_result.settings is not None:
-      self._state = settings_result.settings.smart_charge
+      self._state = settings_result.settings.status.isSuspended
     
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()

@@ -1,6 +1,6 @@
 import logging
 import json
-from typing import Any
+from typing import Any, List
 import aiohttp
 from asyncio import TimeoutError
 from datetime import (datetime, timedelta, time, timezone)
@@ -17,13 +17,13 @@ from ..utils import (
 
 from .intelligent_device import IntelligentDevice
 from .octoplus import RedeemOctoplusPointsResponse
-from .intelligent_settings import IntelligentSettings
 from .intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
 from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSessionsResponse
 from .wheel_of_fortune import WheelOfFortuneSpinsResponse
 from .greenness_forecast import GreennessForecast
 from .free_electricity_sessions import FreeElectricitySession, FreeElectricitySessionsResponse
 from .heat_pump import HeatPumpResponse
+from .intelligent_device_settings import IntelligentDeviceSettingPreferenceSchedule, IntelligentDeviceSettings
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -200,26 +200,18 @@ intelligent_settings_query = '''query {{
     status {{
       isSuspended
     }}
-		... on SmartFlexVehicle {{
-			chargingPreferences {{
-				weekdayTargetTime
-				weekdayTargetSoc
-				weekendTargetTime
-				weekendTargetSoc
-				minimumSoc
-				maximumSoc
-			}}
-		}}
-		... on SmartFlexChargePoint {{
-			chargingPreferences {{
-				weekdayTargetTime
-				weekdayTargetSoc
-				weekendTargetTime
-				weekendTargetSoc
-				minimumSoc
-				maximumSoc
-			}}
-		}}
+    preferences {{
+      targetType
+      unit
+      mode
+      schedules {{
+        dayOfWeek
+        time
+        min
+        max
+        upperLimit
+      }}
+    }}
 	}}
 }}'''
 
@@ -449,14 +441,6 @@ query {{
   heatPumpTimeSeriesPerformance(accountNumber: "{account_id}", euid: "{euid}", startAt: "{start_at}", endAt: "{end_at}", performanceGrouping: LIVE) {{
     startAt
     endAt
-    energyInput {{
-      value
-      unit
-    }}
-    energyOutput {{
-      value
-      unit
-    }}
     outdoorTemperature {{
       value
       unit
@@ -1662,23 +1646,7 @@ class OctopusEnergyApiClient:
 
           devices = list(response_body["data"]["devices"])
           if len(devices) == 1:
-            smart_charge = devices[0]["status"]["isSuspended"] == False if "status" in devices[0] and "isSuspended" in devices[0]["status"] else None
-            charging_preferences = devices[0]["chargingPreferences"] if "chargingPreferences" in devices[0] else None
-            return IntelligentSettings(
-              smart_charge,
-              int(charging_preferences["weekdayTargetSoc"])
-              if charging_preferences is not None and "weekdayTargetSoc" in charging_preferences
-              else None,
-              int(charging_preferences["weekendTargetSoc"])
-              if charging_preferences is not None and "weekendTargetSoc" in charging_preferences
-              else None,
-              self.__ready_time_to_time__(charging_preferences["weekdayTargetTime"])
-              if charging_preferences is not None and "weekdayTargetTime" in charging_preferences
-              else None,
-              self.__ready_time_to_time__(charging_preferences["weekendTargetTime"])
-              if charging_preferences is not None and "weekendTargetTime" in charging_preferences
-              else None
-            )
+            return IntelligentDeviceSettings.model_validate(devices[0])
         else:
           _LOGGER.error("Failed to retrieve intelligent settings")
       
@@ -1709,13 +1677,18 @@ class OctopusEnergyApiClient:
 
     settings = await self.async_get_intelligent_settings(account_id, device_id)
 
+    new_schedules = []
+    for schedule in settings.preferences.schedules:
+      schedule.max = target_percentage
+      new_schedules.append(schedule)
+
     try:
       request_context = "set-intelligent-target-perc"
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": intelligent_settings_mutation.format(
           device_id=device_id,
-          schedules=self.__intelligent_settings_schedules__(target_percentage, settings.ready_time_weekday if settings is not None else time(hour=7, minute=0))
+          schedules=self.__intelligent_settings_schedules__(new_schedules)
         )
       }
 
@@ -1740,13 +1713,18 @@ class OctopusEnergyApiClient:
     
     settings = await self.async_get_intelligent_settings(account_id, device_id)
 
+    new_schedules = []
+    for schedule in settings.preferences.schedules:
+      schedule.time = target_time
+      new_schedules.append(schedule)
+
     try:
       request_context = "set-intelligent-target-time"
       client = self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
       payload = { "query": intelligent_settings_mutation.format(
           device_id=device_id,
-          schedules=self.__intelligent_settings_schedules__(settings.charge_limit_weekday if settings is not None else 100, target_time)
+          schedules=self.__intelligent_settings_schedules__(new_schedules)
         )
       }
 
@@ -1758,12 +1736,11 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
-  def __intelligent_settings_schedules__(self, target_percentage: int, target_time: time) -> str:
-    daysOfWeek = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"]
-    return ", ".join(list(map(lambda day: intelligent_settings_mutation_schedule
-                    .format(day_of_week=day,
-                            target_percentage=target_percentage,
-                            target_time=target_time.strftime("%H:%M")), daysOfWeek)))
+  def __intelligent_settings_schedules__(self, schedules: List[IntelligentDeviceSettingPreferenceSchedule]) -> str:
+    return ", ".join(list(map(lambda schedule: intelligent_settings_mutation_schedule
+                    .format(day_of_week=schedule.dayOfWeek,
+                            target_percentage=schedule.max,
+                            target_time=schedule.time.strftime("%H:%M")), schedules)))
 
   async def async_turn_on_intelligent_bump_charge(
       self, device_id: str,

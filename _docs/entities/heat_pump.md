@@ -82,37 +82,6 @@ This represents the energy/power drawn by the heat pump since commissioning or l
 
 This represents the energy/heat supplied by the heat pump since commissioning or last reset in kWh.
 
-## Live Coefficient of Performance
-
-`sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_live_cop`
-
-This represents the instantaneous efficiency of the heat pump.
-
-!!! note
-    As this integration uses cloud polling this will inherently have a delay.
-
-!!! info
-
-    This sensor will report zero when the heat pump is not reporting input energy, otherwise the reported COP can be inaccurate.
-
-## Live Energy Input 
-
-`sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_live_energy_input`
-
-This represents the instantaneous energy/power being drawn by the heat pump in kWh. 
-
-!!! note
-    As this integration uses cloud polling this will inherently have a delay.
-
-## Live Energy Output
-
-`sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_live_energy_output`
-
-This represents the instantaneous energy/heat being supplied by heat pump in kWh. 
-
-!!! note
-    As the integration uses cloud polling this will inherently have a delay.
-
 ## Live Outdoor Temperature
 
 `sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_live_outdoor_temperature`

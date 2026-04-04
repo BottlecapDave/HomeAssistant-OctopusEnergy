@@ -128,8 +128,6 @@ class HeatPumpLifetimePerformance(BaseModel):
     readAt: str
 
 class HeatPumpTimeSeriesPerformance(BaseModel):
-    energyInput: ValueAndUnit
-    energyOutput: ValueAndUnit
     outdoorTemperature: ValueAndUnit
     startAt: str
     endAt: str

@@ -337,14 +337,6 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
       {
         "startAt": "2025-05-09T17:25:51+01:00",
         "endAt": "2025-05-09T17:30:51+01:00",
-        "energyInput": {
-          "value": "10.0",
-          "unit": "KILOWATT_HOUR"
-        },
-        "energyOutput": {
-          "value": "30.0",
-          "unit": "KILOWATT_HOUR"
-        },
         "outdoorTemperature": {
           "value": "15.0",
           "unit": "DEGREES_CELSIUS"
@@ -353,14 +345,6 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
       {
         "startAt": "2025-05-09T17:30:51+01:00",
         "endAt": "2025-05-09T17:35:51+01:00",
-        "energyInput": {
-          "value": "12.0",
-          "unit": "KILOWATT_HOUR"
-        },
-        "energyOutput": {
-          "value": "35.0",
-          "unit": "KILOWATT_HOUR"
-        },
         "outdoorTemperature": {
           "value": "16.0",
           "unit": "DEGREES_CELSIUS"
@@ -380,19 +364,11 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
   assert float(result.heatPumpLifetimePerformance.energyInput.value) == 256.439
 
   assert len(result.heatPumpTimeSeriesPerformance) == 2
-  assert float(result.heatPumpTimeSeriesPerformance[0].energyInput.value) == 10.0
-  assert result.heatPumpTimeSeriesPerformance[0].energyInput.unit == "KILOWATT_HOUR"
-  assert float(result.heatPumpTimeSeriesPerformance[0].energyOutput.value) == 30.0
-  assert result.heatPumpTimeSeriesPerformance[0].energyOutput.unit == "KILOWATT_HOUR"
   assert float(result.heatPumpTimeSeriesPerformance[0].outdoorTemperature.value) == 15.0
   assert result.heatPumpTimeSeriesPerformance[0].outdoorTemperature.unit == "DEGREES_CELSIUS"
   assert result.heatPumpTimeSeriesPerformance[0].startAt == "2025-05-09T17:25:51+01:00"
   assert result.heatPumpTimeSeriesPerformance[0].endAt == "2025-05-09T17:30:51+01:00"
 
-  assert float(result.heatPumpTimeSeriesPerformance[1].energyInput.value) == 12.0
-  assert result.heatPumpTimeSeriesPerformance[1].energyInput.unit == "KILOWATT_HOUR"
-  assert float(result.heatPumpTimeSeriesPerformance[1].energyOutput.value) == 35.0
-  assert result.heatPumpTimeSeriesPerformance[1].energyOutput.unit == "KILOWATT_HOUR"
   assert float(result.heatPumpTimeSeriesPerformance[1].outdoorTemperature.value) == 16.0
   assert result.heatPumpTimeSeriesPerformance[1].outdoorTemperature.unit == "DEGREES_CELSIUS"
   assert result.heatPumpTimeSeriesPerformance[1].startAt == "2025-05-09T17:30:51+01:00"
