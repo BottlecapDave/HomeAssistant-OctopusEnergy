@@ -333,24 +333,22 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
       },
       "readAt": "2025-05-09T18:28:51.628000+01:00"
     },
-    "heatPumpTimeSeriesPerformance": [
-      {
-        "startAt": "2025-05-09T17:25:51+01:00",
-        "endAt": "2025-05-09T17:30:51+01:00",
-        "outdoorTemperature": {
-          "value": "15.0",
-          "unit": "DEGREES_CELSIUS"
-        }
+    "heatPumpLivePerformance": {
+      "coefficientOfPerformance": "1.2",
+      "outdoorTemperature": {
+        "unit": "DEGREES_CELSIUS",
+        "value": "1.3"
       },
-      {
-        "startAt": "2025-05-09T17:30:51+01:00",
-        "endAt": "2025-05-09T17:35:51+01:00",
-        "outdoorTemperature": {
-          "value": "16.0",
-          "unit": "DEGREES_CELSIUS"
-        }
-      }
-    ]
+      "heatOutput": {
+        "value": "1.4",
+        "unit": "KILOWATT"
+      },
+      "powerInput": {
+        "unit": "KILOWATT",
+        "value": "1.5"
+      },
+      "readAt": "2025-05-09T19:28:51.628000+01:00"
+    }
   }
 
   # Act
@@ -362,17 +360,15 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
   assert float(result.heatPumpLifetimePerformance.seasonalCoefficientOfPerformance) == 2.985
   assert float(result.heatPumpLifetimePerformance.heatOutput.value) == 765.599
   assert float(result.heatPumpLifetimePerformance.energyInput.value) == 256.439
-
-  assert len(result.heatPumpTimeSeriesPerformance) == 2
-  assert float(result.heatPumpTimeSeriesPerformance[0].outdoorTemperature.value) == 15.0
-  assert result.heatPumpTimeSeriesPerformance[0].outdoorTemperature.unit == "DEGREES_CELSIUS"
-  assert result.heatPumpTimeSeriesPerformance[0].startAt == "2025-05-09T17:25:51+01:00"
-  assert result.heatPumpTimeSeriesPerformance[0].endAt == "2025-05-09T17:30:51+01:00"
-
-  assert float(result.heatPumpTimeSeriesPerformance[1].outdoorTemperature.value) == 16.0
-  assert result.heatPumpTimeSeriesPerformance[1].outdoorTemperature.unit == "DEGREES_CELSIUS"
-  assert result.heatPumpTimeSeriesPerformance[1].startAt == "2025-05-09T17:30:51+01:00"
-  assert result.heatPumpTimeSeriesPerformance[1].endAt == "2025-05-09T17:35:51+01:00"
+  
+  assert float(result.heatPumpLivePerformance.coefficientOfPerformance) == 1.2
+  assert float(result.heatPumpLivePerformance.outdoorTemperature.value) == 1.3
+  assert result.heatPumpLivePerformance.outdoorTemperature.unit == "DEGREES_CELSIUS"
+  assert float(result.heatPumpLivePerformance.heatOutput.value) == 1.4
+  assert result.heatPumpLivePerformance.heatOutput.unit == "KILOWATT"
+  assert float(result.heatPumpLivePerformance.powerInput.value) == 1.5
+  assert result.heatPumpLivePerformance.powerInput.unit == "KILOWATT"
+  assert result.heatPumpLivePerformance.readAt == "2025-05-09T19:28:51.628000+01:00"
 
 
   
