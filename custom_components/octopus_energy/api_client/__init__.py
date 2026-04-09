@@ -438,13 +438,21 @@ query {{
       }}
     }}
   }}
-  heatPumpTimeSeriesPerformance(accountNumber: "{account_id}", euid: "{euid}", startAt: "{start_at}", endAt: "{end_at}", performanceGrouping: LIVE) {{
-    startAt
-    endAt
+  heatPumpLivePerformance(accountNumber: "{account_id}", euid: "{euid}") {{
+    coefficientOfPerformance
     outdoorTemperature {{
       value
       unit
     }}
+    heatOutput {{
+      value
+      unit
+    }}
+    powerInput {{
+      value
+      unit
+    }}
+    readAt
   }}
   heatPumpControllerConfiguration(accountNumber: "{account_id}", euid: "{euid}") {{
     controller {{
@@ -1027,9 +1035,6 @@ class OctopusEnergyApiClient:
     """Get a heat pump configuration and status"""
     await self.async_refresh_token()
 
-    end_at: datetime = now().replace(microsecond=0)
-    start_at: datetime = (end_at - timedelta(minutes=5))
-
     try:
       request_context = "heatpump-configuration"
       client = self._create_client_session()
@@ -1038,8 +1043,6 @@ class OctopusEnergyApiClient:
         "query": heat_pump_status_and_config_query.format(
           account_id=account_id,
           euid=euid,
-          start_at=start_at.isoformat(),
-          end_at=end_at.isoformat(),
         )
       }
       headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
@@ -1051,7 +1054,7 @@ class OctopusEnergyApiClient:
             and "heatPumpControllerConfiguration" in response["data"]
             and "heatPumpControllerStatus" in response["data"]
             and "heatPumpLifetimePerformance" in response["data"]
-            and "heatPumpTimeSeriesPerformance" in response["data"]):
+            and "heatPumpLivePerformance" in response["data"]):
           return HeatPumpResponse.model_validate(response["data"])
 
       return None

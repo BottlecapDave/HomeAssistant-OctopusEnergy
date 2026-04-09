@@ -355,24 +355,21 @@ def mock_heat_pump_status_and_configuration():
       },
       "readAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
     },
-    "heatPumpTimeSeriesPerformance": [
-      {
-        "outdoorTemperature": {
-          "unit": "DEGREES_CELSIUS",
-          "value": str(10 + (random.randrange(1, 20) * 0.1))
-        },
-        "startAt": (now - timedelta(minutes=10)).strftime("%Y-%m-%dT%H:%M:%S.%f%z"),
-        "endAt": (now - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+    "heatPumpLivePerformance": {
+      "coefficientOfPerformance": str(3 + (random.randrange(1, 20) * 0.1)),
+      "outdoorTemperature": {
+        "unit": "DEGREES_CELSIUS",
+        "value": str(10 + (random.randrange(1, 20) * 0.1))
       },
-      {
-        "outdoorTemperature": {
-          "unit": "DEGREES_CELSIUS",
-          "value": str(10 + (random.randrange(1, 20) * 0.1))
-        },
-        "startAt": (now - timedelta(minutes=5)).strftime("%Y-%m-%dT%H:%M:%S.%f%z"),
-        "endAt": now.strftime("%Y-%m-%dT%H:%M:%S.%f%z")
+      "heatOutput": {
+        "value": str(4 + (random.randrange(1, 9) * 0.1)),
+        "unit": "KILOWATT"
+      },
+      "powerInput": {
+        "unit": "KILOWATT",
+        "value": str(1 + (random.randrange(1, 9) * 0.1))
       }
-    ]
+    }
   }
 
   return HeatPumpResponse.model_validate(data)
