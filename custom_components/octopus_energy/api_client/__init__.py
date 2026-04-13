@@ -717,6 +717,8 @@ def process_graphql_response(data: Any, url: str, request_context: str, ignore_e
 class OctopusEnergyApiClient:
   _refresh_token_lock = RLock()
   _session_lock = RLock()
+  _tariff_link_lock = RLock()
+  _tariff_links = dict()
 
   def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None, timeout_in_seconds = 20, favour_direct_debit_rates = True):
     if (api_key is None):
@@ -1397,6 +1399,38 @@ class OctopusEnergyApiClient:
 
   async def async_get_electricity_rates(self, product_code: str, tariff_code: str, is_smart_meter: bool, period_from: datetime, period_to: datetime):
     """Get the current rates"""
+    
+    rate_links = await self._async_get_tariff_code_rate_links(product_code, tariff_code)
+    if (rate_links is not None):
+      results = []
+
+      for rate_link in rate_links:
+
+        try:
+          request_context = "electricity-rates"
+          client = self._create_client_session()
+          auth = aiohttp.BasicAuth(self._api_key, '')
+          page = 1
+          has_more_rates = True
+          while has_more_rates:
+            url = f'{rate_link}?period_from={period_from.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}&page={page}'
+            headers = { integration_context_header: request_context }
+            async with client.get(url, auth=auth, headers=headers) as response:
+              data = await self.__async_read_response__(response, url)
+              if data is None:
+                return None
+              else:
+                results = results + rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap, self._favour_direct_debit_rates)
+                has_more_rates = "next" in data and data["next"] is not None
+                if has_more_rates:
+                  page = page + 1
+        
+        except TimeoutError:
+          _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+          raise TimeoutException()
+        
+      results.sort(key=get_start)
+      return results
 
     if is_day_night_tariff(tariff_code):
       return await self.async_get_electricity_day_night_rates(product_code, tariff_code, is_smart_meter, period_from, period_to)
@@ -1515,21 +1549,67 @@ class OctopusEnergyApiClient:
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
+    
+  def _get_rate_links(self, links: list):
+    result = []
+    for link in links:
+      if "rel" in link and link["rel"] in ["standard_unit_rates", "day_unit_rates", "night_unit_rates"] and link["href"] is not None:
+        result.append(link["href"])
+    
+    return result
+    
+  async def _async_get_tariff_code_rate_links(self, product_code: str, tariff_code: str) -> list[str] | None:
+    with self._tariff_link_lock:
 
-  async def async_get_product(self, product_code):
+      if tariff_code in self._tariff_links:
+        return self._tariff_links[tariff_code]
+
+      try:
+        request_context = "get-product-info"
+        client = self._create_client_session()
+        auth = aiohttp.BasicAuth(self._api_key, '')
+        url = f'{self._base_url}/v1/products/{product_code}'
+        headers = { integration_context_header: request_context }
+        async with client.get(url, auth=auth, headers=headers) as response:
+          result = await self.__async_read_response__(response, url)
+
+          if (result is not None):
+            if ("single_register_electricity_tariffs" in result):
+              for tariff in result["single_register_electricity_tariffs"]:
+                if "direct_debit_monthly" in tariff and "links" in tariff["direct_debit_monthly"]:
+                  self._tariff_links[tariff_code] = self._get_rate_links(tariff["direct_debit_monthly"]["links"])
+
+            if ("dual_register_electricity_tariffs" in result):
+              for tariff in result["dual_register_electricity_tariffs"]:
+                if "direct_debit_monthly" in tariff and "links" in tariff["direct_debit_monthly"]:
+                  self._tariff_links[tariff_code] = self._get_rate_links(tariff["direct_debit_monthly"]["links"])
+
+            if ("four_rate_ev_electricity_tariffs" in result):
+              for tariff in result["four_rate_ev_electricity_tariffs"]:
+                if "direct_debit_monthly" in tariff and "links" in tariff["direct_debit_monthly"]:
+                  self._tariff_links[tariff_code] = self._get_rate_links(tariff["direct_debit_monthly"]["links"])
+
+            return self._tariff_links[tariff_code]
+      except TimeoutError:
+        _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+        raise TimeoutException()
+
+  async def async_get_product(self, product_code: str):
     """Get all products"""
 
-    try:
-      request_context = "get-product-info"
-      client = self._create_client_session()
-      auth = aiohttp.BasicAuth(self._api_key, '')
-      url = f'{self._base_url}/v1/products/{product_code}'
-      headers = { integration_context_header: request_context }
-      async with client.get(url, auth=auth, headers=headers) as response:
-        return await self.__async_read_response__(response, url)
-    except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
-      raise TimeoutException()
+    with self._tariff_link_lock:
+      try:
+        request_context = "get-product-info"
+        client = self._create_client_session()
+        auth = aiohttp.BasicAuth(self._api_key, '')
+        url = f'{self._base_url}/v1/products/{product_code}'
+        headers = { integration_context_header: request_context }
+        async with client.get(url, auth=auth, headers=headers) as response:
+          result = await self.__async_read_response__(response, url)
+          return result
+      except TimeoutError:
+        _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+        raise TimeoutException()
 
   async def async_get_electricity_standing_charge(self, product_code: str, tariff_code: str, period_from: datetime, period_to: datetime):
     """Get the electricity standing charges"""
