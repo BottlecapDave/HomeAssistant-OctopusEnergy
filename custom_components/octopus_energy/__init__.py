@@ -410,6 +410,7 @@ async def async_setup_dependencies(hass, config):
 
   mock_heat_pump = account_debug_override.mock_heat_pump if account_debug_override is not None else False
   if mock_heat_pump:
+    _LOGGER.info("Mocking heat pump configuration and status")
     heat_pump_id = get_mock_heat_pump_id()
     await async_setup_heat_pump_coordinator(hass, account_id, heat_pump_id, True)
 
@@ -418,6 +419,7 @@ async def async_setup_dependencies(hass, config):
       hass.data[DOMAIN][account_id][key] = HeatPumpCoordinatorResult(now, 1, heat_pump_id, mock_heat_pump_status_and_configuration())
       await async_save_cached_heat_pump(hass, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data)
     except:
+      _LOGGER.warning(f"Failed to retrieve mocked heat pump information for {account_id} during startup. Loading from cache.")
       hass.data[DOMAIN][account_id][key] = HeatPumpCoordinatorResult(now, 1, heat_pump_id, await async_load_cached_heat_pump(hass, account_id, heat_pump_id))
   elif "property_ids" in account_info:
     heat_pump_ids = []
