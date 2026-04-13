@@ -718,7 +718,6 @@ class OctopusEnergyApiClient:
   _refresh_token_lock = RLock()
   _session_lock = RLock()
   _tariff_link_lock = RLock()
-  _tariff_links = dict()
 
   def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None, timeout_in_seconds = 20, favour_direct_debit_rates = True):
     if (api_key is None):
@@ -734,6 +733,7 @@ class OctopusEnergyApiClient:
     self._graphql_refresh_expiration = None
 
     self._product_tracker_cache = dict()
+    self._tariff_links_cache = dict()
 
     self._electricity_price_cap = electricity_price_cap
     self._gas_price_cap = gas_price_cap
@@ -1420,7 +1420,13 @@ class OctopusEnergyApiClient:
               if data is None:
                 return None
               else:
-                results = results + rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap, self._favour_direct_debit_rates)
+                thirty_minute_rates = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap, self._favour_direct_debit_rates)
+                for rate in thirty_minute_rates:
+                  is_night_rate = self.__is_night_rate(rate, is_smart_meter)
+                  if (("day-unit-rates" not in rate_link and "night-unit-rates" not in rate_link) or 
+                      (is_night_rate == True and "night-unit-rates" in rate_link) or
+                      (is_night_rate == False and "day-unit-rates" in rate_link)):
+                    results.append(rate)
                 has_more_rates = "next" in data and data["next"] is not None
                 if has_more_rates:
                   page = page + 1
@@ -1431,6 +1437,8 @@ class OctopusEnergyApiClient:
         
       results.sort(key=get_start)
       return results
+    
+    _LOGGER.debug(f"Failed to retrieve rate links for tariff code: {tariff_code}; product code: {product_code}. Falling back to old way of determining tariffs")
 
     if is_day_night_tariff(tariff_code):
       return await self.async_get_electricity_day_night_rates(product_code, tariff_code, is_smart_meter, period_from, period_to)
@@ -1557,12 +1565,25 @@ class OctopusEnergyApiClient:
         result.append(link["href"])
     
     return result
+
+  def _get_rate_links_for_code(self, tariff: dict):
+    links = []
+    code = None
+    if "direct_debit_monthly" in tariff and "links" in tariff["direct_debit_monthly"]:
+      code = tariff["direct_debit_monthly"]["code"]
+      links.extend(self._get_rate_links(tariff["direct_debit_monthly"]["links"]))
+    elif "varying" in tariff and "links" in tariff["varying"]:
+      code = tariff["varying"]["code"]
+      links.extend(self._get_rate_links(tariff["varying"]["links"]))
+
+    return (code, links)
     
   async def _async_get_tariff_code_rate_links(self, product_code: str, tariff_code: str) -> list[str] | None:
     with self._tariff_link_lock:
 
-      if tariff_code in self._tariff_links:
-        return self._tariff_links[tariff_code]
+      if tariff_code in self._tariff_links_cache:
+        _LOGGER.debug(f"Found cached rate links for tariff code: {tariff_code}")
+        return self._tariff_links_cache[tariff_code]
 
       try:
         request_context = "get-product-info"
@@ -1576,20 +1597,23 @@ class OctopusEnergyApiClient:
           if (result is not None):
             if ("single_register_electricity_tariffs" in result):
               for tariff in result["single_register_electricity_tariffs"]:
-                if "direct_debit_monthly" in tariff and "links" in tariff["direct_debit_monthly"]:
-                  self._tariff_links[tariff_code] = self._get_rate_links(tariff["direct_debit_monthly"]["links"])
+                (code, links) = self._get_rate_links_for_code(result["single_register_electricity_tariffs"][tariff])
+                if (code is not None):
+                  self._tariff_links_cache[code] = links
 
             if ("dual_register_electricity_tariffs" in result):
               for tariff in result["dual_register_electricity_tariffs"]:
-                if "direct_debit_monthly" in tariff and "links" in tariff["direct_debit_monthly"]:
-                  self._tariff_links[tariff_code] = self._get_rate_links(tariff["direct_debit_monthly"]["links"])
+                (code, links) = self._get_rate_links_for_code(result["dual_register_electricity_tariffs"][tariff])
+                if (code is not None):
+                  self._tariff_links_cache[code] = links
 
             if ("four_rate_ev_electricity_tariffs" in result):
               for tariff in result["four_rate_ev_electricity_tariffs"]:
-                if "direct_debit_monthly" in tariff and "links" in tariff["direct_debit_monthly"]:
-                  self._tariff_links[tariff_code] = self._get_rate_links(tariff["direct_debit_monthly"]["links"])
+                (code, links) = self._get_rate_links_for_code(result["four_rate_ev_electricity_tariffs"][tariff])
+                if (code is not None):
+                  self._tariff_links_cache[code] = links
 
-            return self._tariff_links[tariff_code]
+            return self._tariff_links_cache[tariff_code] if tariff_code in self._tariff_links_cache else None
       except TimeoutError:
         _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
         raise TimeoutException()
