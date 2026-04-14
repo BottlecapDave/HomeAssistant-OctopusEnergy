@@ -1,3 +1,17 @@
+## [18.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v18.1.2...v18.2.0) (2026-04-14)
+
+
+### Bug Fixes
+* Added missing unit class for external statistics (30 minutes dev time) ([0035491](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0035491f6ee2f2d31b7940f181a6ebf28fe7ef53))
+* Updated off peak/dispatch sensors to not turn off/on at 30 minute marks when intelligent settings set to started only (2 hours dev time) ([9a3beae](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9a3beaef997579fc6a7074453ffbae02735b315e))
+
+
+### Features
+
+* Moved heat pump sensors to use new heat pump APIs (5 hours dev time) ([ef536f3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ef536f3bbbc39ac7305f91fd47887629f0564c40))
+* Updated APIs for intelligent device settings due to deprecations (1.5 hours dev time) ([0f8f057](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0f8f0574b76b90ab5c5d9fb1b1a99ec600effd20))
+
+
 ## [18.1.2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v18.1.1...v18.1.2) (2026-03-20)
 
 
