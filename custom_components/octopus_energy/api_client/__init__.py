@@ -1746,7 +1746,7 @@ class OctopusEnergyApiClient:
   def __intelligent_settings_schedules__(self, schedules: List[IntelligentDeviceSettingPreferenceSchedule]) -> str:
     return ", ".join(list(map(lambda schedule: intelligent_settings_mutation_schedule
                     .format(day_of_week=schedule.dayOfWeek,
-                            target_percentage=schedule.max,
+                            target_percentage=int(schedule.max),
                             target_time=schedule.time.strftime("%H:%M")), schedules)))
 
   async def async_turn_on_intelligent_bump_charge(
