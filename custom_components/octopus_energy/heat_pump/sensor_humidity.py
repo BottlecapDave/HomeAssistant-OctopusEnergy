@@ -83,12 +83,12 @@ class OctopusEnergyHeatPumpSensorHumidity(CoordinatorEntity, BaseOctopusEnergyHe
     result: HeatPumpCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     if (result is not None and 
         result.data is not None and 
-        result.data.octoHeatPumpControllerStatus is not None and
-        result.data.octoHeatPumpControllerStatus.sensors):
+        result.data.heatPumpControllerStatus is not None and
+        result.data.heatPumpControllerStatus.sensors):
       _LOGGER.debug(f"Updating OctopusEnergyHeatPumpSensorHumidity for '{self._heat_pump_id}/{self._sensor.code}'")
 
       self._state = None
-      sensors: List[Sensor] = result.data.octoHeatPumpControllerStatus.sensors
+      sensors: List[Sensor] = result.data.heatPumpControllerStatus.sensors
       for sensor in sensors:
         if sensor.code == self._sensor.code and sensor.telemetry is not None:
           self._state = sensor.telemetry.humidityPercentage

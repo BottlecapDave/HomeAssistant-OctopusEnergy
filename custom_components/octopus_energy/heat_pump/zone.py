@@ -94,12 +94,12 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
     result: HeatPumpCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None    
     if (result is not None and 
         result.data is not None and 
-        result.data.octoHeatPumpControllerStatus is not None and
-        result.data.octoHeatPumpControllerStatus.zones and
+        result.data.heatPumpControllerStatus is not None and
+        result.data.heatPumpControllerStatus.zones and
         (self._last_updated is None or self._last_updated < result.last_retrieved)):
       _LOGGER.debug(f"Updating OctopusEnergyHeatPumpZone for '{self._heat_pump_id}/{self._zone.configuration.code}'")
 
-      zones: List[Zone] = result.data.octoHeatPumpControllerStatus.zones
+      zones: List[Zone] = result.data.heatPumpControllerStatus.zones
       for zone in zones:
         if zone.telemetry is not None and zone.zone == self._zone.configuration.code and zone.telemetry.mode is not None:
 
@@ -124,15 +124,15 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
           if zone.telemetry.setpointInCelsius is not None and zone.telemetry.setpointInCelsius > 0:
             self._attr_target_temperature = zone.telemetry.setpointInCelsius
 
-          if result.data.octoHeatPumpControllerStatus.sensors and self._zone.configuration.primarySensor:
-            sensors: List[Sensor] = result.data.octoHeatPumpControllerStatus.sensors
+          if result.data.heatPumpControllerStatus.sensors and self._zone.configuration.primarySensor:
+            sensors: List[Sensor] = result.data.heatPumpControllerStatus.sensors
             for sensor in sensors:
               if sensor.code == self._zone.configuration.primarySensor and sensor.telemetry is not None:
                 self._attr_current_temperature = sensor.telemetry.temperatureInCelsius
                 self._attr_current_humidity = sensor.telemetry.humidityPercentage
 
-          if result.data.octoHeatPumpControllerConfiguration is not None and result.data.octoHeatPumpControllerConfiguration.zones:
-            configs: List[ConfigurationZone] = result.data.octoHeatPumpControllerConfiguration.zones
+          if result.data.heatPumpControllerConfiguration is not None and result.data.heatPumpControllerConfiguration.zones:
+            configs: List[ConfigurationZone] = result.data.heatPumpControllerConfiguration.zones
             for config in configs:
               if config.configuration is not None and config.configuration.code == self._zone.configuration.code and config.configuration.currentOperation is not None:
                 self._end_timestamp = datetime.fromisoformat(config.configuration.currentOperation.end) if config.configuration.currentOperation.end is not None else None
@@ -283,7 +283,7 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
   async def async_set_heat_pump_flow_temp_config(self, weather_comp_enabled: bool, weather_comp_min_temperature: float, weather_comp_max_temperature: float, fixed_flow_temperature: float):
     """Update flow temperature configuration"""
     try:
-      await self._client.async_set_heat_pump_flow_temp_config(self._heat_pump_id, weather_comp_enabled, weather_comp_min_temperature, weather_comp_max_temperature, fixed_flow_temperature)
+      await self._client.async_set_heat_pump_flow_temp_config(self._account_id, self._heat_pump_id, weather_comp_enabled, weather_comp_min_temperature, weather_comp_max_temperature, fixed_flow_temperature)
     except Exception as e:
       if self._is_mocked:
         _LOGGER.warning(f'Suppress async_set_heat_pump_flow_temp_config error due to mocking mode: {e}')

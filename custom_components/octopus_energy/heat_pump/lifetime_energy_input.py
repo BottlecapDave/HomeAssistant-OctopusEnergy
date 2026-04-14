@@ -85,11 +85,11 @@ class OctopusEnergyHeatPumpLifetimeEnergyInput(CoordinatorEntity, BaseOctopusEne
 
     if (result is not None 
         and result.data is not None 
-        and result.data.octoHeatPumpLifetimePerformance is not None):
+        and result.data.heatPumpLifetimePerformance is not None):
       _LOGGER.debug(f"Updating OctopusEnergyHeatPumpLifetimeEnergyInput for '{self._heat_pump_id}'")
 
-      self._state = float(result.data.octoHeatPumpLifetimePerformance.energyInput.value)
-      self._attributes["read_at"] = datetime.fromisoformat(result.data.octoHeatPumpLifetimePerformance.readAt)
+      self._state = float(result.data.heatPumpLifetimePerformance.energyInput.value)
+      self._attributes["read_at"] = datetime.fromisoformat(result.data.heatPumpLifetimePerformance.readAt)
       self._last_updated = current
 
     self._attributes = dict_to_typed_dict(self._attributes)

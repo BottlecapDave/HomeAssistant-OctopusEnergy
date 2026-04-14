@@ -1,7 +1,6 @@
 from datetime import datetime
 import logging
 
-from custom_components.octopus_energy.const import DOMAIN
 from homeassistant.const import (
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
@@ -29,6 +28,7 @@ from ..coordinators.intelligent_dispatches import IntelligentDispatchDataUpdateC
 from ..utils.attributes import dict_to_typed_dict
 from ..api_client.intelligent_device import IntelligentDevice
 from ..coordinators import MultiCoordinatorEntity
+from ..const import DOMAIN
 
 _LOGGER = logging.getLogger(__name__)
 

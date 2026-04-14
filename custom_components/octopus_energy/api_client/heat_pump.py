@@ -36,7 +36,7 @@ class Zone(BaseModel):
     telemetry: ZoneTelemetry
 
 
-class OctoHeatPumpControllerStatus(BaseModel):
+class HeatPumpControllerStatus(BaseModel):
     sensors: List[Sensor]
     zones: List[Zone]
 
@@ -115,29 +115,27 @@ class ConfigurationZone(BaseModel):
     configuration: Configuration
 
 
-class OctoHeatPumpControllerConfiguration(BaseModel):
+class HeatPumpControllerConfiguration(BaseModel):
     controller: Controller
     heatPump: HeatPump
     zones: List[ConfigurationZone]
 
 
-class OctoHeatPumpLivePerformance(BaseModel):
-    coefficientOfPerformance: str | None
-    heatOutput: ValueAndUnit
-    powerInput: ValueAndUnit
-    outdoorTemperature: ValueAndUnit
-    readAt: str
-
-
-class OctoHeatPumpLifetimePerformance(BaseModel):
+class HeatPumpLifetimePerformance(BaseModel):
     seasonalCoefficientOfPerformance: str | None
     heatOutput: ValueAndUnit
     energyInput: ValueAndUnit
     readAt: str
 
+class HeatPumpLivePerformance(BaseModel):
+    coefficientOfPerformance: float | None
+    heatOutput: ValueAndUnit
+    powerInput: ValueAndUnit
+    outdoorTemperature: ValueAndUnit
+    readAt: str
 
 class HeatPumpResponse(BaseModel):
-    octoHeatPumpControllerStatus: OctoHeatPumpControllerStatus
-    octoHeatPumpControllerConfiguration: OctoHeatPumpControllerConfiguration
-    octoHeatPumpLivePerformance: OctoHeatPumpLivePerformance
-    octoHeatPumpLifetimePerformance: OctoHeatPumpLifetimePerformance
+    heatPumpControllerStatus: HeatPumpControllerStatus
+    heatPumpControllerConfiguration: HeatPumpControllerConfiguration
+    heatPumpLifetimePerformance: HeatPumpLifetimePerformance
+    heatPumpLivePerformance: HeatPumpLivePerformance

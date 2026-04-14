@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Check if commenter has write access
         id: check
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const commentAuthor = context.payload.comment.user.login;
@@ -31,7 +31,7 @@ jobs:
 
       - name: Remove label if maintainer
         if: steps.check.outputs.is-maintainer == 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const labelName = "awaiting-maintainer-response";
@@ -52,7 +52,7 @@ jobs:
 
       - name: Add label if not maintainer
         if: steps.check.outputs.is-maintainer != 'true'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           script: |
             const labelName = "awaiting-maintainer-response";

@@ -3,7 +3,7 @@ from custom_components.octopus_energy.api_client.heat_pump import HeatPumpRespon
 def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_object():
   # Arrange
   data = {
-    "octoHeatPumpControllerStatus": {
+    "heatPumpControllerStatus": {
       "sensors": [
         {
           "code": "ADC1",
@@ -140,7 +140,7 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
         }
       ]
     },
-    "octoHeatPumpControllerConfiguration": {
+    "heatPumpControllerConfiguration": {
       "controller": {
         "state": [
           "NORMAL_MODE"
@@ -321,23 +321,7 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
         }
       ]
     },
-    "octoHeatPumpLivePerformance": {
-      "coefficientOfPerformance": "32.510",
-      "heatOutput": {
-        "value": "0.000",
-        "unit": "KILOWATT"
-      },
-      "powerInput": {
-        "value": "0.002",
-        "unit": "KILOWATT"
-      },
-      "outdoorTemperature": {
-        "value": "18.400",
-        "unit": "DEGREES_CELSIUS"
-      },
-      "readAt": "2025-05-09T18:28:51.630000+01:00"
-    },
-    "octoHeatPumpLifetimePerformance": {
+    "heatPumpLifetimePerformance": {
       "seasonalCoefficientOfPerformance": "2.985",
       "heatOutput": {
         "value": "765.599",
@@ -348,6 +332,22 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
         "unit": "KILOWATT_HOUR"
       },
       "readAt": "2025-05-09T18:28:51.628000+01:00"
+    },
+    "heatPumpLivePerformance": {
+      "coefficientOfPerformance": "1.2",
+      "outdoorTemperature": {
+        "unit": "DEGREES_CELSIUS",
+        "value": "1.3"
+      },
+      "heatOutput": {
+        "value": "1.4",
+        "unit": "KILOWATT"
+      },
+      "powerInput": {
+        "unit": "KILOWATT",
+        "value": "1.5"
+      },
+      "readAt": "2025-05-09T19:28:51.628000+01:00"
     }
   }
 
@@ -357,11 +357,15 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
   # Assert
   assert result is not None
 
-  assert float(result.octoHeatPumpLivePerformance.coefficientOfPerformance) == 32.510
-  assert float(result.octoHeatPumpLivePerformance.heatOutput.value) == 0.000
-  assert float(result.octoHeatPumpLivePerformance.powerInput.value) == 0.002
-  assert float(result.octoHeatPumpLivePerformance.outdoorTemperature.value) == 18.400
-
-  assert float(result.octoHeatPumpLifetimePerformance.seasonalCoefficientOfPerformance) == 2.985
-  assert float(result.octoHeatPumpLifetimePerformance.heatOutput.value) == 765.599
-  assert float(result.octoHeatPumpLifetimePerformance.energyInput.value) == 256.439
+  assert float(result.heatPumpLifetimePerformance.seasonalCoefficientOfPerformance) == 2.985
+  assert float(result.heatPumpLifetimePerformance.heatOutput.value) == 765.599
+  assert float(result.heatPumpLifetimePerformance.energyInput.value) == 256.439
+  
+  assert float(result.heatPumpLivePerformance.coefficientOfPerformance) == 1.2
+  assert float(result.heatPumpLivePerformance.outdoorTemperature.value) == 1.3
+  assert result.heatPumpLivePerformance.outdoorTemperature.unit == "DEGREES_CELSIUS"
+  assert float(result.heatPumpLivePerformance.heatOutput.value) == 1.4
+  assert result.heatPumpLivePerformance.heatOutput.unit == "KILOWATT"
+  assert float(result.heatPumpLivePerformance.powerInput.value) == 1.5
+  assert result.heatPumpLivePerformance.powerInput.unit == "KILOWATT"
+  assert result.heatPumpLivePerformance.readAt == "2025-05-09T19:28:51.628000+01:00"

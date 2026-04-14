@@ -45,6 +45,7 @@ from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult,
 from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configuration
 from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_heat_pump
 from .utils.repairs import safe_repair_key
+from .storage.heat_pump_ids import async_load_cached_heat_pump_ids, async_save_cached_heat_pump_ids
 
 from .const import (
   CONFIG_COST_TRACKER_TARGET_ENTITY_ID,
@@ -70,6 +71,7 @@ from .const import (
   CONFIG_VERSION,
   DATA_DISCOVERY_MANAGER,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
+  DATA_HEAT_PUMP_IDS,
   DATA_HOME_PRO_CLIENT,
   DATA_INTELLIGENT_DEVICES,
   DATA_INTELLIGENT_DISPATCHES,
@@ -408,6 +410,7 @@ async def async_setup_dependencies(hass, config):
 
   mock_heat_pump = account_debug_override.mock_heat_pump if account_debug_override is not None else False
   if mock_heat_pump:
+    _LOGGER.info("Mocking heat pump configuration and status")
     heat_pump_id = get_mock_heat_pump_id()
     await async_setup_heat_pump_coordinator(hass, account_id, heat_pump_id, True)
 
@@ -416,9 +419,19 @@ async def async_setup_dependencies(hass, config):
       hass.data[DOMAIN][account_id][key] = HeatPumpCoordinatorResult(now, 1, heat_pump_id, mock_heat_pump_status_and_configuration())
       await async_save_cached_heat_pump(hass, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data)
     except:
+      _LOGGER.warning(f"Failed to retrieve mocked heat pump information for {account_id} during startup. Loading from cache.")
       hass.data[DOMAIN][account_id][key] = HeatPumpCoordinatorResult(now, 1, heat_pump_id, await async_load_cached_heat_pump(hass, account_id, heat_pump_id))
-  elif "heat_pump_ids" in account_info:
-    for heat_pump_id in account_info["heat_pump_ids"]:
+  elif "property_ids" in account_info:
+    heat_pump_ids = []
+    try:
+      heat_pump_ids = await client.async_get_heat_pump_ids(account_id, account_info["property_ids"])
+      await async_save_cached_heat_pump_ids(hass, account_id, heat_pump_ids)
+    except:
+      _LOGGER.warning(f"Failed to retrieve heat pump information for {account_id} during startup. Loading from cache.")
+      heat_pump_ids = await async_load_cached_heat_pump_ids(hass, account_id)
+
+    hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_IDS] = heat_pump_ids
+    for heat_pump_id in heat_pump_ids:
       await async_setup_heat_pump_coordinator(hass, account_id, heat_pump_id, False)
 
       key = DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY.format(heat_pump_id)

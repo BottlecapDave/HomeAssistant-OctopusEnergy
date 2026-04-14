@@ -6,12 +6,12 @@ from homeassistant.util.dt import (utcnow, parse_datetime)
 
 from ..utils import get_active_tariff
 
-from ..const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLES, INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS, INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS, REFRESH_RATE_IN_MINUTES_INTELLIGENT
+from ..const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES, CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLES, INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS, INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS, REFRESH_RATE_IN_MINUTES_INTELLIGENT
 
 from ..storage.intelligent_dispatches_history import IntelligentDispatchesHistory, IntelligentDispatchesHistoryItem
-from ..api_client.intelligent_settings import IntelligentSettings
 from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches, SimpleIntelligentDispatchItem
 from ..api_client.intelligent_device import IntelligentDevice
+from ..api_client.intelligent_device_settings import IntelligentDeviceSettings
 
 mock_intelligent_data_key = "MOCK_INTELLIGENT_DATA"
 
@@ -23,7 +23,7 @@ mock_intelligent_device_id_two = "6F-5B-4C-3D-2E-1F"
 # Expected successful dispatches (UTC)
 # 07:00 - 08:00 Smart Charge
 # 10:10 - 10:30 Smart Charge (Late dispatch)
-# 18:00 - 18:20 Smart Charge (Late dispatch)
+# 17:40 - 18:20 Smart Charge (Late dispatch)
 # 19:00 - 20:00 Smart Charge
 
 # Not expected to dispatch
@@ -93,10 +93,10 @@ def mock_intelligent_dispatches(current_state = "SMART_CONTROL_CAPABLE", device_
     )
 
   # Simulate a dispatch coming in late
-  if (utcnow() >= utcnow().replace(hour=18, minute=0, second=0, microsecond=0) - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)):
+  if (utcnow() >= utcnow().replace(hour=17, minute=40, second=0, microsecond=0) - timedelta(minutes=REFRESH_RATE_IN_MINUTES_INTELLIGENT)):
     dispatches.append(
       IntelligentDispatchItem(
-        utcnow().replace(hour=18, minute=0, second=0, microsecond=0),
+        utcnow().replace(hour=17, minute=40, second=0, microsecond=0),
         utcnow().replace(hour=18, minute=20, second=0, microsecond=0),
         1.2,
         INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS[0].upper(),
@@ -124,13 +124,70 @@ def mock_intelligent_dispatches(current_state = "SMART_CONTROL_CAPABLE", device_
   return IntelligentDispatches(current_state, planned, completed)
 
 def mock_intelligent_settings():
-  return IntelligentSettings(
-    True,
-    90,
-    80,
-    time(7,20),
-    time(9,10),
-  )
+  data = {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "status": {
+      "isSuspended": False
+    },
+    "preferences": {
+      "targetType": "RELATIVE_STATE_OF_CHARGE",
+      "unit": "PERCENTAGE",
+      "mode": "CHARGE",
+      "schedules": [
+        {
+          "dayOfWeek": "MONDAY",
+          "time": "07:30:00",
+          "min": None,
+          "max": 43,
+          "upperLimit": 100
+        },
+        {
+          "dayOfWeek": "TUESDAY",
+          "time": "07:30:00",
+          "min": None,
+          "max": 43,
+          "upperLimit": 100
+        },
+        {
+          "dayOfWeek": "WEDNESDAY",
+          "time": "07:30:00",
+          "min": None,
+          "max": 43,
+          "upperLimit": 100
+        },
+        {
+          "dayOfWeek": "THURSDAY",
+          "time": "07:30:00",
+          "min": None,
+          "max": 43,
+          "upperLimit": 100
+        },
+        {
+          "dayOfWeek": "FRIDAY",
+          "time": "07:30:00",
+          "min": None,
+          "max": 43,
+          "upperLimit": 100
+        },
+        {
+          "dayOfWeek": "SATURDAY",
+          "time": "07:30:00",
+          "min": None,
+          "max": 43,
+          "upperLimit": 100
+        },
+        {
+          "dayOfWeek": "SUNDAY",
+          "time": "07:30:00",
+          "min": None,
+          "max": 43,
+          "upperLimit": 100
+        }
+      ]
+    }
+  }
+
+  return IntelligentDeviceSettings.model_validate(data)
 
 def mock_intelligent_devices():
   return [
@@ -215,6 +272,16 @@ def get_applicable_dispatch_periods(planned_dispatches: list[IntelligentDispatch
 
       if dispatch_exists == False:
         dispatches.append(SimpleIntelligentDispatchItem(started_dispatch.start, started_dispatch.end))
+
+    if planned_dispatches is not None and mode == CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY:
+      for dispatch in dispatches:
+        for planned_dispatch in planned_dispatches:
+          # If the planned dispatch starts within the existing dispatch and ends after it, extend by 30 minutes
+          # so we don't end up with sensors going off and on during the transition from planned to started dispatches
+          if (planned_dispatch.start >= dispatch.start and
+              planned_dispatch.start <= dispatch.end and
+              planned_dispatch.end > dispatch.end):
+            dispatch.end = dispatch.end + timedelta(minutes=30)
 
   dispatches = [dispatch for dispatch in dispatches if (dispatch.end - dispatch.start).total_seconds() >= minimum_dispatch_duration_in_minutes * 60]
   dispatches.sort(key = lambda x: x.start)

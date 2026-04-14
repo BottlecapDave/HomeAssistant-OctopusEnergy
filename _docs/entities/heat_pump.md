@@ -99,7 +99,7 @@ This represents the instantaneous efficiency of the heat pump.
 
 `sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_live_power_input`
 
-This represents the instantaneous energy/power being drawn by the heat pump in kWh. 
+This represents the instantaneous energy/power being drawn by the heat pump in kW. 
 
 !!! note
     As this integration uses cloud polling this will inherently have a delay.
@@ -108,12 +108,12 @@ This represents the instantaneous energy/power being drawn by the heat pump in k
 
 `sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_live_heat_output`
 
-This represents the instantaneous energy/heat being supplied by heat pump in kWh. 
+This represents the instantaneous energy/heat being supplied by heat pump in kW. 
 
 !!! note
     As the integration uses cloud polling this will inherently have a delay.
 
-## Live Outdoor Temp
+## Live Outdoor Temperature
 
 `sensor.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_live_outdoor_temperature`
 

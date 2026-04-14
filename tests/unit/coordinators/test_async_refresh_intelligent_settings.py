@@ -5,8 +5,8 @@ import mock
 from custom_components.octopus_energy.const import REFRESH_RATE_IN_MINUTES_INTELLIGENT
 from custom_components.octopus_energy.intelligent import mock_intelligent_settings
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
-from custom_components.octopus_energy.api_client.intelligent_settings import IntelligentSettings
 from custom_components.octopus_energy.coordinators.intelligent_settings import IntelligentCoordinatorResult, async_refresh_intelligent_settings
+from custom_components.octopus_energy.api_client.intelligent_device_settings import IntelligentDeviceSettingPreference, IntelligentDeviceSettingStatus, IntelligentDeviceSettings
 
 current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
 last_retrieved = datetime.strptime("2023-07-14T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
@@ -46,15 +46,75 @@ def get_account_info(is_active_agreement = True, active_product_code = product_c
     ]
   }
 
+def get_intelligent_settings(smart_charge: bool, charge_limit: float, ready_time: time):
+  data = {
+    "id": "00000000-0000-0000-0000-000000000001",
+    "status": {
+      "isSuspended": smart_charge
+    },
+    "preferences": {
+      "targetType": "RELATIVE_STATE_OF_CHARGE",
+      "unit": "PERCENTAGE",
+      "mode": "CHARGE",
+      "schedules": [
+        {
+          "dayOfWeek": "MONDAY",
+          "time": ready_time.strftime("%H:%M:%S"),
+          "min": None,
+          "max": charge_limit,
+          "upperLimit": 100
+        },
+        {
+          "dayOfWeek": "TUESDAY",
+          "time": ready_time.strftime("%H:%M:%S"),
+          "min": None,
+          "max": charge_limit,
+          "upperLimit": 100
+        },
+        {
+          "dayOfWeek": "WEDNESDAY",
+          "time": ready_time.strftime("%H:%M:%S"),
+          "min": None,
+          "max": charge_limit,
+          "upperLimit": 100
+        },
+        {
+          "dayOfWeek": "THURSDAY",
+          "time": ready_time.strftime("%H:%M:%S"),
+          "min": None,
+          "max": charge_limit,
+          "upperLimit": 100
+        },
+        {
+          "dayOfWeek": "FRIDAY",
+          "time": ready_time.strftime("%H:%M:%S"),
+          "min": None,
+          "max": charge_limit,
+          "upperLimit": 100
+        },
+        {
+          "dayOfWeek": "SATURDAY",
+          "time": ready_time.strftime("%H:%M:%S"),
+          "min": None,
+          "max": charge_limit,
+          "upperLimit": 100
+        },
+        {
+          "dayOfWeek": "SUNDAY",
+          "time": ready_time.strftime("%H:%M:%S"),
+          "min": None,
+          "max": charge_limit,
+          "upperLimit": 100
+        }
+      ]
+    }
+  }
+
+  return IntelligentDeviceSettings.model_validate(data)
+
 @pytest.mark.asyncio
 async def test_when_account_info_is_none_then_existing_settings_returned():
-  expected_settings = IntelligentSettings(
-    False,
-    50,
-    60,
-    time(6,30),
-    time(10,10),
-  )
+  expected_settings = get_intelligent_settings(False, 50, time(6,30))
   mock_api_called = False
   async def async_mock_get_intelligent_settings(*args, **kwargs):
     nonlocal mock_api_called
@@ -80,13 +140,7 @@ async def test_when_account_info_is_none_then_existing_settings_returned():
 
 @pytest.mark.asyncio
 async def test_when_not_on_intelligent_tariff_then_none_returned():
-  expected_settings = IntelligentSettings(
-    False,
-    50,
-    60,
-    time(6,30),
-    time(10,10),
-  )
+  expected_settings = get_intelligent_settings(False, 50, time(6,30))
   mock_api_called = False
   async def async_mock_get_intelligent_settings(*args, **kwargs):
     nonlocal mock_api_called
@@ -113,13 +167,7 @@ async def test_when_not_on_intelligent_tariff_then_none_returned():
 
 @pytest.mark.asyncio
 async def test_when_device_id_is_none_then_none_returned():
-  expected_settings = IntelligentSettings(
-    False,
-    50,
-    60,
-    time(6,30),
-    time(10,10),
-  )
+  expected_settings = get_intelligent_settings(False, 50, time(6,30))
   mock_api_called = False
   async def async_mock_get_intelligent_settings(*args, **kwargs):
     nonlocal mock_api_called
@@ -168,22 +216,12 @@ async def test_when_mock_is_true_then_none_returned():
 
     assert mock_api_called == True
     assert retrieved_settings is not None
-    assert retrieved_settings.settings.charge_limit_weekday == mock_intelligent_settings().charge_limit_weekday
-    assert retrieved_settings.settings.charge_limit_weekend == mock_intelligent_settings().charge_limit_weekend
-    assert retrieved_settings.settings.ready_time_weekday == mock_intelligent_settings().ready_time_weekday
-    assert retrieved_settings.settings.ready_time_weekend == mock_intelligent_settings().ready_time_weekend
-    assert retrieved_settings.settings.smart_charge == mock_intelligent_settings().smart_charge
+    assert retrieved_settings.settings == mock_intelligent_settings()
 
 @pytest.mark.asyncio
 async def test_when_next_refresh_is_in_the_future_then_existing_settings_returned():
   current = datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
-  expected_settings = IntelligentSettings(
-    False,
-    50,
-    60,
-    time(6,30),
-    time(10,10),
-  )
+  expected_settings = get_intelligent_settings(False, 50, time(6,30))
   mock_api_called = False
   async def async_mock_get_intelligent_settings(*args, **kwargs):
     nonlocal mock_api_called
@@ -215,13 +253,7 @@ async def test_when_next_refresh_is_in_the_future_then_existing_settings_returne
   (IntelligentCoordinatorResult(last_retrieved, 1, None)),
 ])
 async def test_when_existing_settings_is_none_then_settings_retrieved(existing_settings):
-  expected_settings = IntelligentSettings(
-    False,
-    50,
-    60,
-    time(6,30),
-    time(10,10),
-  )
+  expected_settings = get_intelligent_settings(False, 50, time(6,30))
   mock_api_called = False
   async def async_mock_get_intelligent_settings(*args, **kwargs):
     nonlocal mock_api_called, expected_settings
@@ -249,13 +281,7 @@ async def test_when_existing_settings_is_none_then_settings_retrieved(existing_s
     
 @pytest.mark.asyncio
 async def test_when_existing_settings_is_old_then_settings_retrieved():
-  expected_settings = IntelligentSettings(
-    False,
-    50,
-    60,
-    time(6,30),
-    time(10,10),
-  )
+  expected_settings = get_intelligent_settings(False, 50, time(6,30))
   mock_api_called = False
   async def async_mock_get_intelligent_settings(*args, **kwargs):
     nonlocal mock_api_called
@@ -292,13 +318,7 @@ async def test_when_settings_not_retrieved_then_existing_settings_returned():
     return None
   
   account_info = get_account_info()
-  existing_settings = IntelligentCoordinatorResult(last_retrieved, 1, IntelligentSettings(
-    False,
-    50,
-    60,
-    time(6,30),
-    time(10,10),
-  ))
+  existing_settings = IntelligentCoordinatorResult(last_retrieved, 1, get_intelligent_settings(False, 50, time(6,30)))
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_settings=async_mock_get_intelligent_settings):
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -329,13 +349,7 @@ async def test_when_exception_raised_then_existing_settings_returned_and_excepti
     raise raised_exception
   
   account_info = get_account_info()
-  existing_settings = IntelligentCoordinatorResult(last_retrieved, 1, IntelligentSettings(
-    False,
-    50,
-    60,
-    time(6,30),
-    time(10,10),
-  ))
+  existing_settings = IntelligentCoordinatorResult(last_retrieved, 1, get_intelligent_settings(False, 50, time(6,30)))
   
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_settings=async_mock_get_intelligent_settings):
     client = OctopusEnergyApiClient("NOT_REAL")

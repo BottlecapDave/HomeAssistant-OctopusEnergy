@@ -78,8 +78,9 @@ class OctopusEnergyIntelligentTargetTime(CoordinatorEntity, TimeEntity, OctopusE
     if settings_result is None or (self._last_updated is not None and self._last_updated > settings_result.last_retrieved):
       return self._state
 
-    if settings_result.settings is not None:
-      self._state = settings_result.settings.ready_time_weekday
+    if settings_result.settings is not None and len(settings_result.settings.preferences.schedules) > 0:
+      target_time: time = settings_result.settings.preferences.schedules[0].time
+      self._state = target_time
 
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()

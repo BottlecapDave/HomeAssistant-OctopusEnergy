@@ -19,6 +19,7 @@ from .api_client.heat_pump import HeatPumpResponse
 from .heat_pump import get_mock_heat_pump_id
 from .heat_pump.weather_compensation_enabled import OctopusEnergyHeatPumpWeatherCompensationEnabled
 from .utils.debug_overrides import async_get_account_debug_override
+from .intelligent import get_intelligent_features
 
 from .const import (
   CONFIG_DEFAULT_MINIMUM_DISPATCH_DURATION_IN_MINUTES,
@@ -34,6 +35,7 @@ from .const import (
   DATA_GREENNESS_FORECAST_COORDINATOR,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
+  DATA_HEAT_PUMP_IDS,
   DATA_INTELLIGENT_DEVICES,
   DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
   DOMAIN,
@@ -130,8 +132,9 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
     key = DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY.format(heat_pump_id)
     coordinator = hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR.format(heat_pump_id)]
     entities.extend(setup_heat_pump_sensors(hass, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data, coordinator))
-  elif "heat_pump_ids" in account_info:
-    for heat_pump_id in account_info["heat_pump_ids"]:
+  else:
+    heat_pump_ids = hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_IDS] if DATA_HEAT_PUMP_IDS in hass.data[DOMAIN][account_id] else []
+    for heat_pump_id in heat_pump_ids:
       key = DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY.format(heat_pump_id)
       coordinator = hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR.format(heat_pump_id)]
       entities.extend(setup_heat_pump_sensors(hass, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data, coordinator))
@@ -146,12 +149,12 @@ def setup_heat_pump_sensors(hass: HomeAssistant, account_id: str, heat_pump_id: 
   if heat_pump_response is None:
     return entities
 
-  if heat_pump_response.octoHeatPumpControllerConfiguration is not None:
+  if heat_pump_response.heatPumpControllerConfiguration is not None:
     entities.append(OctopusEnergyHeatPumpWeatherCompensationEnabled(
         hass,
         coordinator,
         heat_pump_id,
-        heat_pump_response.octoHeatPumpControllerConfiguration.heatPump
+        heat_pump_response.heatPumpControllerConfiguration.heatPump
       ))
 
   return entities
@@ -171,7 +174,7 @@ def get_intelligent_entities(hass, account_id: str, config: dict):
   for intelligent_device in intelligent_devices:
 
     if intelligent_device.device_type == INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLES or intelligent_device.device_type == INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS:
-      
+
       platform = entity_platform.async_get_current_platform()
       if (manually_refresh_dispatches):
         platform.async_register_entity_service(

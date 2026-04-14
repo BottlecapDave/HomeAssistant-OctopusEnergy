@@ -1,11 +1,9 @@
 from datetime import datetime
 import logging
-from typing import List
 
 from homeassistant.const import (
     STATE_UNAVAILABLE,
-    STATE_UNKNOWN,
-    UnitOfPower
+    STATE_UNKNOWN
 )
 from homeassistant.core import HomeAssistant, callback
 
@@ -15,7 +13,6 @@ from homeassistant.helpers.update_coordinator import (
 )
 from homeassistant.components.sensor import (
   RestoreSensor,
-  SensorDeviceClass,
   SensorStateClass,
 )
 
@@ -70,15 +67,15 @@ class OctopusEnergyHeatPumpLiveCoP(CoordinatorEntity, BaseOctopusEnergyHeatPumpS
 
     if (result is not None 
         and result.data is not None 
-        and result.data.octoHeatPumpLivePerformance is not None):
+        and result.data.heatPumpLivePerformance is not None):
       _LOGGER.debug(f"Updating OctopusEnergyHeatPumpLiveCoP for '{self._heat_pump_id}'")
 
       self._state = 0
       # Only update the CoP if heat pump is actively running
-      if float(result.data.octoHeatPumpLivePerformance.powerInput.value) != 0:
-        self._state = float(result.data.octoHeatPumpLivePerformance.coefficientOfPerformance) if result.data.octoHeatPumpLivePerformance.coefficientOfPerformance is not None else None
+      if float(result.data.heatPumpLivePerformance.powerInput.value) != 0:
+        self._state = float(result.data.heatPumpLivePerformance.coefficientOfPerformance) if result.data.heatPumpLivePerformance.coefficientOfPerformance is not None else None
 
-      self._attributes["read_at"] = datetime.fromisoformat(result.data.octoHeatPumpLivePerformance.readAt)
+      self._attributes["read_at"] = datetime.fromisoformat(result.data.heatPumpLivePerformance.readAt)
       self._last_updated = current
 
     self._attributes = dict_to_typed_dict(self._attributes)
