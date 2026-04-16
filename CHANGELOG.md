@@ -1,3 +1,11 @@
+## [18.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v18.2.0...v18.2.1) (2026-04-16)
+
+
+### Bug Fixes
+
+* Fixed issue with setting target time/percentage for intelligent devices (15 minutes dev time) ([841f2c7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/841f2c742def38b53654707115389dbbd6498122))
+* Fixed smart charge sensor from reporting incorrect value (Thanks [@charliegadget](https://github.com/charliegadget)) ([f7f5563](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f7f5563ccf3ff0771f90d55d74fee5d393d40ae0)), closes [#1716](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1716)
+
 ## [18.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v18.1.2...v18.2.0) (2026-04-14)
 
 
