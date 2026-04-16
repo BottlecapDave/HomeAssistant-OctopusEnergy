@@ -229,7 +229,7 @@ intelligent_settings_mutation = '''mutation {{
 intelligent_settings_mutation_schedule = '''{{
   dayOfWeek: {day_of_week}
   time: "{target_time}"
-  max: {target_percentage}
+  max: "{target_percentage}"
 }}'''
 
 intelligent_turn_on_bump_charge_mutation = '''mutation {{
@@ -1679,6 +1679,8 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     settings = await self.async_get_intelligent_settings(account_id, device_id)
+    if (settings is None):
+      raise Exception('Failed to retrieve intelligent settings')
 
     new_schedules = []
     for schedule in settings.preferences.schedules:
@@ -1715,6 +1717,8 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
     
     settings = await self.async_get_intelligent_settings(account_id, device_id)
+    if (settings is None):
+      raise Exception('Failed to retrieve intelligent settings')
 
     new_schedules = []
     for schedule in settings.preferences.schedules:
