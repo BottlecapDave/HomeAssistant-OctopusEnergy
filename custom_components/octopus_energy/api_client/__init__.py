@@ -229,7 +229,7 @@ intelligent_settings_mutation = '''mutation {{
 intelligent_settings_mutation_schedule = '''{{
   dayOfWeek: {day_of_week}
   time: "{target_time}"
-  max: {target_percentage}
+  max: "{target_percentage}"
 }}'''
 
 intelligent_turn_on_bump_charge_mutation = '''mutation {{
