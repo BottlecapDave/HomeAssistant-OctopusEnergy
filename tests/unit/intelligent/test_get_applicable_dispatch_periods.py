@@ -256,3 +256,91 @@ def test_when_get_applicable_dispatch_periods_called_with_source_none_and_below_
   assert len(result) == 1
   assert result[0].start == datetime.strptime("2025-09-14T11:10:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
   assert result[0].end == datetime.strptime("2025-09-14T11:13:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+
+def test_when_started_dispatch_is_within_planned_dispatch_and_not_started_only_then_dont_extend_by_thirty_minutes():
+  # Arrange
+  planned_dispatches = [
+    IntelligentDispatchItem(
+      start=datetime.strptime("2025-09-14T10:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+      end=datetime.strptime("2025-09-14T11:01:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+      charge_in_kwh=1.0,
+      source=INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS[0],
+      location="location"
+    )
+  ]
+  started_dispatches = [
+    SimpleIntelligentDispatchItem(
+      start=datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+      end=datetime.strptime("2025-09-14T11:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+    )
+  ]
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
+
+  # Act
+  result = get_applicable_dispatch_periods(planned_dispatches, started_dispatches, mode)
+
+  # Assert
+  assert len(result) == 1
+  assert result[0].start == datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].end == datetime.strptime("2025-09-14T11:01:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+
+def test_when_started_dispatch_is_within_planned_dispatch_then_extend_by_thirty_minutes():
+  # Arrange
+  planned_dispatches = [
+    IntelligentDispatchItem(
+      start=datetime.strptime("2025-09-14T10:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+      end=datetime.strptime("2025-09-14T11:01:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+      charge_in_kwh=1.0,
+      source=INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS[0],
+      location="location"
+    ),
+    IntelligentDispatchItem(
+      start=datetime.strptime("2025-09-14T11:40:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+      end=datetime.strptime("2025-09-14T12:01:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+      charge_in_kwh=1.0,
+      source=INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS[0],
+      location="location"
+    )
+  ]
+  started_dispatches = [
+    SimpleIntelligentDispatchItem(
+      start=datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+      end=datetime.strptime("2025-09-14T11:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+    )
+  ]
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY
+
+  # Act
+  result = get_applicable_dispatch_periods(planned_dispatches, started_dispatches, mode)
+
+  # Assert
+  assert len(result) == 1
+  assert result[0].start == datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].end == datetime.strptime("2025-09-14T11:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+
+def test_when_planned_dispatch_ends_before_started_dispatch_ends_then_dont_extend_by_thirty_minutes():
+  # Arrange
+  planned_dispatches = [
+    IntelligentDispatchItem(
+      start=datetime.strptime("2025-09-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+      end=datetime.strptime("2025-09-14T10:59:59+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+      charge_in_kwh=1.0,
+      source=INTELLIGENT_SOURCE_SMART_CHARGE_OPTIONS[0],
+      location="location"
+    )
+  ]
+  started_dispatches = [
+    SimpleIntelligentDispatchItem(
+      start=datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+      end=datetime.strptime("2025-09-14T11:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+    )
+  ]
+  mode = CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY
+
+  # Act
+  result = get_applicable_dispatch_periods(planned_dispatches, started_dispatches, mode)
+
+  # Assert
+  assert len(result) == 1
+  assert result[0].start == datetime.strptime("2025-09-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  assert result[0].end == datetime.strptime("2025-09-14T11:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")

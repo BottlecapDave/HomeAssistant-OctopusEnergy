@@ -369,6 +369,3 @@ def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_heat_pump_obj
   assert float(result.heatPumpLivePerformance.powerInput.value) == 1.5
   assert result.heatPumpLivePerformance.powerInput.unit == "KILOWATT"
   assert result.heatPumpLivePerformance.readAt == "2025-05-09T19:28:51.628000+01:00"
-
-
-  
