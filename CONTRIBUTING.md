@@ -34,5 +34,5 @@ python -m pytest tests/unit
 Integration tests are written utilising `pytest`. To run them
 
 ```bash
-API_KEY=<<OCTOPUS_API_KEY>> python -m pytest tests/integration
+API_KEY=<<OCTOPUS_API_KEY>> ACCOUNT_ID=<<OCTOPUSE_ACCOUNT_ID>> GAS_MPRN=<<GAS_METER_MPRN>> GAS_SN=<<GAS_SN>> ELECTRICITY_MPAN<<ELECTRICITY_MPAN>> ELECTRICITY_SN=<<ELECTRICITY_SN>> python -m pytest tests/integration
 ```

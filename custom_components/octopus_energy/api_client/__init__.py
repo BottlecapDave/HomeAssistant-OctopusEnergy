@@ -560,6 +560,11 @@ user_agent_value = "bottlecapdave-ha-octopus-energy"
 
 integration_context_header = "Ha-Integration-Context"
 
+# Not a fan of this, but no other way to identify this type of tariff. Hopefully OE don't change their tariff structure
+intelligent_tariffs = [
+  "IOG-SMB-TOU"
+]
+
 def get_valid_from(rate):
   return rate["valid_from"]
 
@@ -1374,7 +1379,7 @@ class OctopusEnergyApiClient:
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our day period 
           day_rates = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap, self._favour_direct_debit_rates)
           for rate in day_rates:
-            if self.__is_night_rate(rate, is_smart_meter) == False:
+            if self.__is_night_rate(rate, is_smart_meter, product_code) == False:
               results.append(rate)
 
       url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/night-unit-rates?period_from={period_from.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}'
@@ -1386,7 +1391,7 @@ class OctopusEnergyApiClient:
         # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our night period 
         night_rates = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap, self._favour_direct_debit_rates)
         for rate in night_rates:
-          if self.__is_night_rate(rate, is_smart_meter) == True:
+          if self.__is_night_rate(rate, is_smart_meter, product_code) == True:
             results.append(rate)
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
@@ -1422,7 +1427,7 @@ class OctopusEnergyApiClient:
               else:
                 thirty_minute_rates = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap, self._favour_direct_debit_rates)
                 for rate in thirty_minute_rates:
-                  is_night_rate = self.__is_night_rate(rate, is_smart_meter)
+                  is_night_rate = self.__is_night_rate(rate, is_smart_meter, product_code)
                   if (("day-unit-rates" not in rate_link and "night-unit-rates" not in rate_link) or 
                       (is_night_rate == True and "night-unit-rates" in rate_link) or
                       (is_night_rate == False and "day-unit-rates" in rate_link)):
@@ -2079,12 +2084,21 @@ class OctopusEnergyApiClient:
   def __get_interval_end(self, item):
     return (item["end"].timestamp(), item["end"].fold)
 
-  def __is_night_rate(self, rate, is_smart_meter):
+  def __is_night_rate(self, rate, is_smart_meter: bool, product_code: str):
     # Normally the economy seven night rate is between 12am and 7am UK time
     # https://octopus.energy/help-and-faqs/articles/what-is-an-economy-7-meter-and-tariff/
     # However, if a smart meter is being used then the times are between 12:30am and 7:30am UTC time
     # https://octopus.energy/help-and-faqs/articles/what-happens-to-my-economy-seven-e7-tariff-when-i-have-a-smart-meter-installed/
-    if is_smart_meter:
+
+    is_intelligent_tariff = False
+    for intelligent_tariff in intelligent_tariffs:
+      if intelligent_tariff in product_code:
+        is_intelligent_tariff = True
+        break
+
+    if is_intelligent_tariff:
+      is_night_rate = self.__is_between_times(rate, "23:30:00", "05:30:00", False)
+    elif is_smart_meter:
         is_night_rate = self.__is_between_times(rate, "00:30:00", "07:30:00", True)
     else:
         is_night_rate = self.__is_between_times(rate, "00:00:00", "07:00:00", False)
