@@ -8,7 +8,7 @@ from homeassistant.util.dt import (as_local, as_utc, parse_datetime)
 from ..const import (
   REGEX_TARIFF_PARTS,
 )
-from ..utils.conversions import value_inc_vat_to_pounds
+from ..utils.conversions import pence_to_pounds_pence_accurate
 from .rate_information import get_current_rate_information
 
 _LOGGER = logging.getLogger(__name__)
@@ -102,7 +102,7 @@ def is_off_peak(current: datetime, rates):
   return (off_peak_value is not None and 
           rate_information is not None and 
           rate_information["current_rate"]["is_intelligent_adjusted"] == False and 
-          value_inc_vat_to_pounds(off_peak_value) == rate_information["current_rate"]["value_inc_vat"])
+          pence_to_pounds_pence_accurate(off_peak_value) == rate_information["current_rate"]["value_inc_vat"])
 
 class OffPeakTime:
   start: datetime
@@ -156,7 +156,7 @@ def private_rates_to_public_rates(rates: list):
     new_rate = {
       "start": as_local(rate["start"]),
       "end": as_local(rate["end"]),
-      "value_inc_vat": value_inc_vat_to_pounds(rate["value_inc_vat"])
+      "value_inc_vat": pence_to_pounds_pence_accurate(rate["value_inc_vat"])
     }
 
     if "is_capped" in rate:

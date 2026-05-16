@@ -10,8 +10,7 @@ from homeassistant.components.recorder.statistics import (
 
 from ..const import DOMAIN
 from ..utils import get_active_tariff
-from ..utils.cost import consumption_cost_in_pence
-from ..utils.conversions import pence_to_pounds_pence
+from ..utils.conversions import pence_to_pounds_pence, consumption_cost_in_pence
 
 _LOGGER = logging.getLogger(__name__)
 

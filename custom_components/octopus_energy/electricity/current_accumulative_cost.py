@@ -144,7 +144,8 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
           "end": charge["end"],
           "rate": charge["rate"],
           "consumption": charge["consumption"],
-          "cost": charge["cost"]
+          "cost": charge["cost"],
+          "raw_cost": charge["raw_cost"]
         }, consumption_and_cost["charges"]))
       }
 

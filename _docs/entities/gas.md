@@ -233,6 +233,7 @@ Each charge item has the following attributes
 | `rate` | `float` | The rate the consumption is charged at. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `consumption` | `float` | The consumption value of the specified period |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `cost_raw` | `float` | The cost of the consumption at the specified rate at a more accurate level. This is used to calculate the total to reduce rounding errors when comparing with Octopus Energy bills. This is in pounds and pence (e.g. 1.0112 = £1.0112) |
 
 !!! info
 
@@ -412,3 +413,4 @@ Each charge item has the following attributes
 | `rate` | `float` | The rate the consumption is charged at. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `consumption` | `float` | The consumption value of the specified period |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `cost_raw` | `float` | The cost of the consumption at the specified rate at a more accurate level. This is used to calculate the total to reduce rounding errors when comparing with Octopus Energy bills. This is in pounds and pence (e.g. 1.0112 = £1.0112) |

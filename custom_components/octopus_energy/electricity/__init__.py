@@ -1,7 +1,6 @@
 import logging
 
-from ..utils.cost import consumption_cost_in_pence
-from ..utils.conversions import pence_to_pounds_pence, round_pounds, value_inc_vat_to_pounds
+from ..utils.conversions import pence_to_pounds_pence, pence_to_pounds_pence_accurate, consumption_cost_in_pence
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -29,7 +28,7 @@ def calculate_electricity_consumption_and_cost(
     if (last_reset is None or last_reset < sorted_consumption_data[0]["start"]):
 
       charges = []
-      total_cost = 0
+      total_cost_in_pence = 0
       total_consumption = 0
 
       for consumption in sorted_consumption_data:
@@ -49,27 +48,29 @@ def calculate_electricity_consumption_and_cost(
 
         total_consumption = total_consumption + consumption_value
         cost = pence_to_pounds_pence(consumption_cost_in_pence(consumption_value, value))
-        total_cost = round_pounds(total_cost + cost)
+        raw_cost = consumption_value * value
+        total_cost_in_pence = total_cost_in_pence + raw_cost
 
         current_charge = {
           "start": rate["start"],
           "end": rate["end"],
-          "rate": value_inc_vat_to_pounds(value),
+          "rate": pence_to_pounds_pence_accurate(value),
           "consumption": consumption_value,
           "cost": cost,
+          "raw_cost": pence_to_pounds_pence_accurate(raw_cost),
         }
 
         charges.append(current_charge)
       
-      total_cost_plus_standing_charge = total_cost + pence_to_pounds_pence(standing_charge)
+      total_cost_in_pence_plus_standing_charge = total_cost_in_pence + standing_charge
 
       last_reset = sorted_consumption_data[0]["start"] if len(sorted_consumption_data) > 0 else None
       last_calculated_timestamp = sorted_consumption_data[-1]["end"] if len(sorted_consumption_data) > 0 else None
 
       result = {
         "standing_charge": pence_to_pounds_pence(standing_charge),
-        "total_cost_without_standing_charge": total_cost,
-        "total_cost": total_cost_plus_standing_charge,
+        "total_cost_without_standing_charge": pence_to_pounds_pence(total_cost_in_pence),
+        "total_cost": pence_to_pounds_pence(total_cost_in_pence_plus_standing_charge),
         "total_consumption": total_consumption,
         "last_reset": last_reset,
         "last_evaluated": last_calculated_timestamp,
