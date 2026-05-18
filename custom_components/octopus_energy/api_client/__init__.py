@@ -555,6 +555,14 @@ query {{
 }}
 '''
 
+heat_pump_set_hush_mode_mutation = '''
+mutation {{
+  heatPumpSetHushMode(accountNumber: "{account_id}" euid: "{euid}" hushModeEnabled: {is_enabled}) {{
+    transactionId
+  }}
+}}
+'''
+
 
 user_agent_value = "bottlecapdave-ha-octopus-energy"
 
@@ -1063,6 +1071,31 @@ class OctopusEnergyApiClient:
             and "heatPumpLifetimePerformance" in response["data"]
             and "heatPumpLivePerformance" in response["data"]):
           return HeatPumpResponse.model_validate(response["data"])
+
+      return None
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_set_heat_pump_hush_mode(self, account_id: str, euid: str, is_enabled: bool):
+    """Get a heat pump configuration and status"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "heatpump-hush-mode"
+      client = self._create_client_session()
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = {
+        "query": heat_pump_set_hush_mode_mutation.format(
+          account_id=account_id,
+          euid=euid,
+          is_enabled=is_enabled
+        )
+      }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as heat_pump_response:
+        await self.__async_read_response__(heat_pump_response, url)
 
       return None
 

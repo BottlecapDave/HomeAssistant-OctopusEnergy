@@ -147,6 +147,18 @@ Allows you to set the heat pump configuration for fixed and weather compensated 
 | `data.weather_comp_max_temperature`       | `no`     | Maximum allowable temperature for weather compensation, typically no higher than 70. |
 | `data.fixed_flow_temperature`        | `no`     | If a fixed flow temperature is enabled this value will be used, typically between 30 and 70. |
 
+### octopus_energy.set_heat_pump_hush_mode
+
+Sets the hush mode on a given heat pump.
+
+!!! note
+    There does not seem to be any API that can be used to determine if a heat pump is in hush mode or not
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | Any climate entity belonging to the heat pump which the configuration should be applied to (e.g. `climate.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{ZONE_CODE}}`). |
+| `data.is_enabled`              | `no`     | Determines if the hush mode is enabled or disabled. |
+
 ## Intelligent
 
 The following services are available if you are on an intelligent tariff.

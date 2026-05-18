@@ -249,6 +249,21 @@ set_heat_pump_flow_temp_config:
           max: 70
           mode: box
 
+set_heat_pump_hush_mode:
+  name: Set heat pump hush mode
+  description: Sets the hush mode for a heat pump
+  target:
+    entity:
+      integration: octopus_energy
+      domain: climate
+  fields:
+    is_enabled:
+      name: Is enabled
+      description: Determines if the hush mode is enabled or disabled
+      required: true
+      selector:
+        boolean:
+
 refresh_intelligent_dispatches:
   name: Refresh intelligent dispatches
   description: Refreshes the intelligent dispatches. For more information please see https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/services/#octopus_energyrefresh_intelligent_dispatches.

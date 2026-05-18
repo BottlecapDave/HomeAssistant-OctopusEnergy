@@ -292,6 +292,19 @@ class OctopusEnergyHeatPumpZone(CoordinatorEntity, BaseOctopusEnergyHeatPumpSens
 
     self.async_write_ha_state()
 
+  @callback
+  async def async_set_hush_mode(self, is_enabled: bool):
+    """Update hush mode"""
+    try:
+      await self._client.async_set_heat_pump_hush_mode(self._account_id, self._heat_pump_id, is_enabled)
+    except Exception as e:
+      if self._is_mocked:
+        _LOGGER.warning(f'Suppress async_set_heat_pump_hush_mode error due to mocking mode: {e}')
+      else:
+        raise
+
+    self.async_write_ha_state()
+
   def get_zone_mode(self):
     if self._attr_preset_mode == PRESET_BOOST:
       return "BOOST"
