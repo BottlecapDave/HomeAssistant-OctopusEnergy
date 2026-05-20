@@ -96,7 +96,7 @@ from .const import (
 
 ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "number", "switch", "text", "time", "event", "select", "climate", "water_heater", "calendar"]
 COST_TRACKER_PLATFORMS = ["sensor"]
-TARIFF_COMPARISON_PLATFORMS = ["sensor"]
+TARIFF_COMPARISON_PLATFORMS = ["event", "sensor"]
 
 from .api_client import ApiException, AuthenticationException, OctopusEnergyApiClient
 
