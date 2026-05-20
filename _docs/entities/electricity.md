@@ -202,6 +202,7 @@ Due to limitation of HA entities, the data will be updated as a single record, w
 | `is_smart_meter` | `boolean` | Determines if the meter is considered smart by Octopus Energy |
 | `total` | `float` | The total energy value for the previous day. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
+| `latest_consumption_timestamp` | `datetime` | The timestamp of the latest available consumption record, potentially outside of the provided days worth of data |
 
 Each charge item has the following attributes
 
