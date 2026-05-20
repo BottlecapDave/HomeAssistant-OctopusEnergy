@@ -1090,7 +1090,7 @@ class OctopusEnergyApiClient:
         "query": heat_pump_set_hush_mode_mutation.format(
           account_id=account_id,
           euid=euid,
-          is_enabled=is_enabled
+          is_enabled=str(is_enabled).lower()
         )
       }
       headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
