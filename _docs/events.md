@@ -263,12 +263,14 @@ This event is raised when a new saving session is discovered.
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `account_id` | `string` | The id of the account the new saving session is for |
+| `account_region_id` | `string` | The id of the region that is registered for saving session events for the account |
 | `event_code` | `string` | The code of the new saving session event. This is required if you wishing to use the [join event service](./services.md#octopus_energyjoin_octoplus_saving_session_event) |
 | `event_id` | `string` | The id of the event |
 | `event_start` | `datetime` | The date/time the event starts |
 | `event_end` | `datetime` | The date/time the event ends |
 | `event_duration_in_minutes` | `integer` | The duration of the event in minutes |
 | `event_octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |
+| `event_target_regions` | `list` | The list of regions the event is for |
 
 #### Automation Example
 
@@ -294,6 +296,7 @@ This event is raised when saving sessions are refreshed and contain all availabl
 | Attribute | Type | Description |
 |-----------|------|-------------|
 | `account_id` | `string` | The id of the account the saving session events are for |
+| `account_region_id` | `string` | The id of the region that is registered for saving session events for the account |
 | `available_events` | `array` | The collection of saving session events that you haven't joined |
 | `joined_events` | `array` | The collection of saving session events that you have joined. This will include upcoming and past events |
 
@@ -307,6 +310,7 @@ Each available event item will include the following attributes
 | `end` | `datetime` | The date/time the event starts |
 | `duration_in_minutes` | `integer` | The duration of the event in minutes |
 | `octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |
+| `target_regions` | `list` | The list of regions the event is for |
 
 Each joined event item will include the following attributes
 
@@ -318,6 +322,7 @@ Each joined event item will include the following attributes
 | `duration_in_minutes` | `integer` | The duration of the event in minutes |
 | `octopoints_per_kwh` | `integer` | The number of octopoints that are awarded per kwh saved during the event |
 | `rewarded_octopoints` | `integer` | The total number of octopoints that were awarded (if any or known) |
+| `target_regions` | `list` | The list of regions the event is for |
 
 #### Automation Example
 

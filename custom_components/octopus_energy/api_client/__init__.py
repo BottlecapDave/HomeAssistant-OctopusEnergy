@@ -293,11 +293,14 @@ octoplus_saving_session_query = '''query {{
 			startAt
 			endAt
       devEvent
-      targetGsp {{
-        groupId
+      targetRegion {{
+        regionId
       }}
 		}}
 		account(accountNumber: "{account_id}") {{
+      signedUpMeterPoint {{
+        regionId
+      }}
 			hasJoinedCampaign
 			joinedEvents {{
 				eventId
@@ -1211,8 +1214,8 @@ class OctopusEnergyApiClient:
                                                                           as_utc(parse_datetime(ev["startAt"])),
                                                                           as_utc(parse_datetime(ev["endAt"])),
                                                                           ev["rewardPerKwhInOctoPoints"],
-                                                                          list(map(lambda gsp: gsp["groupId"], ev["targetGsp"]))
-                                                                          if "targetGsp" in ev and ev["targetGsp"] is not None
+                                                                          list(map(lambda gsp: gsp["regionId"], ev["targetRegion"]))
+                                                                          if "targetRegion" in ev and ev["targetRegion"] is not None
                                                                           else None),
                                         response_body["data"]["savingSessions"]["events"])), 
                                         list(map(lambda ev: SavingSession(ev["eventId"],
@@ -1221,7 +1224,8 @@ class OctopusEnergyApiClient:
                                                                           as_utc(parse_datetime(ev["endAt"])),
                                                                           ev["rewardGivenInOctoPoints"],
                                                                           None),
-                                        response_body["data"]["savingSessions"]["account"]["joinedEvents"])))
+                                        response_body["data"]["savingSessions"]["account"]["joinedEvents"])),
+                                        response_body["data"]["savingSessions"]["account"]["signedUpMeterPoint"]["regionId"])
         else:
           _LOGGER.error("Failed to retrieve saving sessions")
     except TimeoutError:

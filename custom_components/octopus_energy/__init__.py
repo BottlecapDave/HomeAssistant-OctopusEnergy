@@ -375,15 +375,10 @@ async def async_setup_dependencies(hass, config):
 
   await async_register_intelligent_devices(hass, config, now, account_id, should_mock_intelligent_data)
 
-  region = None
   for point in account_info["electricity_meter_points"]:
     # We only care about points that have active agreements
     electricity_tariff = get_active_tariff(now, point["agreements"])
     if electricity_tariff is not None:
-      if region is None:
-        tariff_parts = get_tariff_parts(electricity_tariff.code)
-        region = tariff_parts.region
-
       for meter in point["meters"]:
         mpan = point["mpan"]
         serial_number = meter["serial_number"]
@@ -443,7 +438,7 @@ async def async_setup_dependencies(hass, config):
 
   await async_setup_account_info_coordinator(hass, account_id)
 
-  await async_setup_saving_sessions_coordinators(hass, account_id, region)
+  await async_setup_saving_sessions_coordinators(hass, account_id)
 
   await async_setup_free_electricity_sessions_coordinators(hass, account_id)
 
