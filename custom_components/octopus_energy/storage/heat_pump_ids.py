@@ -14,7 +14,7 @@ async def async_load_cached_heat_pump_ids(hass, account_id: str) -> list[str]:
       _LOGGER.debug(f"Loaded cached heat pump ids for {account_id}")
       return data.get("heat_pump_ids", [])
   except:
-    return None
+    return []
 
 async def async_save_cached_heat_pump_ids(hass, account_id: str, heat_pump_ids: list[str]):
   if heat_pump_ids is not None:

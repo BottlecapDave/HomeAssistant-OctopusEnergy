@@ -430,6 +430,9 @@ async def async_setup_dependencies(hass, config):
       _LOGGER.warning(f"Failed to retrieve heat pump information for {account_id} during startup. Loading from cache.")
       heat_pump_ids = await async_load_cached_heat_pump_ids(hass, account_id)
 
+    if heat_pump_ids is None:
+      heat_pump_ids = []
+
     hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_IDS] = heat_pump_ids
     for heat_pump_id in heat_pump_ids:
       await async_setup_heat_pump_coordinator(hass, account_id, heat_pump_id, False)
