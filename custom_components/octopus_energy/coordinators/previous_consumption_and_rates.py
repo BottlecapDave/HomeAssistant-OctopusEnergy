@@ -268,9 +268,9 @@ async def async_fetch_consumption_and_rates(
     
     try:
       if (is_electricity == True):
-        consumption_data = await client.async_get_electricity_consumption(identifier, serial_number, page_size=52)
-        latest_consumption_timestamp = consumption_data[-1]["end"] if consumption_data is not None and len(consumption_data) > 0 else latest_consumption_timestamp
-        consumption_data = get_latest_day(consumption_data)
+        captured_consumption_data = await client.async_get_electricity_consumption(identifier, serial_number, page_size=52)
+        latest_consumption_timestamp = captured_consumption_data[-1]["end"] if captured_consumption_data is not None and len(captured_consumption_data) > 0 else latest_consumption_timestamp
+        consumption_data = get_latest_day(captured_consumption_data)
 
         if consumption_data is not None:
           period_from = consumption_data[0]["start"]
@@ -318,10 +318,12 @@ async def async_fetch_consumption_and_rates(
                                                     intelligent_rate_mode)
             
                 _LOGGER.debug(f"Rates adjusted: {rate_data}; device id: {key} dispatches: {item.dispatches.to_dict()}")
+        else:
+          _LOGGER.debug(f"No previous consumption data retrieved for electricity {identifier}/{serial_number} - start: {captured_consumption_data[0]["start"] if captured_consumption_data is not None and len(captured_consumption_data) > 0 else ''}; end: {captured_consumption_data[-1]["end"] if captured_consumption_data is not None and len(captured_consumption_data) > 0 else ''}; total: {len(captured_consumption_data) if captured_consumption_data is not None else 0}")
       else:
-        consumption_data = await client.async_get_gas_consumption(identifier, serial_number, page_size=52)
-        latest_consumption_timestamp = consumption_data[-1]["end"] if consumption_data is not None and len(consumption_data) > 0 else latest_consumption_timestamp
-        consumption_data = get_latest_day(consumption_data)
+        captured_consumption_data = await client.async_get_gas_consumption(identifier, serial_number, page_size=52)
+        latest_consumption_timestamp = captured_consumption_data[-1]["end"] if captured_consumption_data is not None and len(captured_consumption_data) > 0 else latest_consumption_timestamp
+        consumption_data = get_latest_day(captured_consumption_data)
 
         if consumption_data is not None:
           period_from = consumption_data[0]["start"]
@@ -344,6 +346,8 @@ async def async_fetch_consumption_and_rates(
               client.async_get_gas_rates(tariff.product, tariff.code, period_from, period_to),
               client.async_get_gas_standing_charge(tariff.product, tariff.code, period_from, period_to)
             )
+        else:
+          _LOGGER.debug(f"No previous consumption data retrieved for gas {identifier}/{serial_number} - start: {captured_consumption_data[0]["start"] if captured_consumption_data is not None and len(captured_consumption_data) > 0 else ''}; end: {captured_consumption_data[-1]["end"] if captured_consumption_data is not None and len(captured_consumption_data) > 0 else ''}; total: {len(captured_consumption_data) if captured_consumption_data is not None else 0}")
       
       _LOGGER.debug(f"{'electricity' if is_electricity else 'gas'} {identifier}/{serial_number}: consumption_data: {len(consumption_data) if consumption_data is not None else None}; rate_data: {len(rate_data) if rate_data is not None else None}; standing_charge: {standing_charge}")
       if consumption_data is not None and len(consumption_data) >= MINIMUM_CONSUMPTION_DATA_LENGTH and rate_data is not None and len(rate_data) > 0 and standing_charge is not None:

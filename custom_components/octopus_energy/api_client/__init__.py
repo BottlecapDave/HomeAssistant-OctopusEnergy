@@ -786,7 +786,7 @@ class OctopusEnergyApiClient:
       if (self._graphql_expiration is not None and (self._graphql_expiration - timedelta(minutes=5)) > now()):
         return
 
-      if (self._graphql_refresh_expiration is not None and self._graphql_refresh_expiration >= now()):
+      if (self._graphql_refresh_expiration is not None and self._graphql_refresh_expiration < now()):
         _LOGGER.debug("Refresh token expired - clearing")
         self._graphql_refresh_token = None
         self._graphql_expiration = None
@@ -827,7 +827,7 @@ class OctopusEnergyApiClient:
         self._graphql_refresh_token = token_response_body["data"]["obtainKrakenToken"]["refreshToken"]
         self._graphql_refresh_expiration = datetime.fromtimestamp(token_response_body["data"]["obtainKrakenToken"]["refreshExpiresIn"], tz=timezone.utc)
         self._graphql_expiration = now() + timedelta(hours=1)
-      elif (self._graphql_expiration is None or self._graphql_expiration > now()):
+      elif (self._graphql_expiration is None or self._graphql_expiration < now()):
         raise AuthenticationException("Failed to retrieve auth token and current token is expired")
       else:
         _LOGGER.error("Failed to retrieve auth token")

@@ -37,7 +37,9 @@ The best way to determine why this has occurred is to [download the diagnostics]
               "manufacturer": "xxx",
               "model": "xxx",
               "firmware": "xxx",
-              "latest_consumption": "2025-08-30T00:00:00+00:00",
+              "latest_consumption_data": [
+                ...
+              ],
               "device": {
                 "total_consumption": 31221.6,
                 "consumption": 0.1,
@@ -75,7 +77,9 @@ The best way to determine why this has occurred is to [download the diagnostics]
               "manufacturer": "xxx",
               "model": "xxx",
               "firmware": "xxx",
-              "latest_consumption": "2025-08-30T00:00:00+00:00",
+              "latest_consumption_data": [
+                ...
+              ],
               "device": {
                 "total_consumption": 150664.71746,
                 "consumption": 0.0,
