@@ -1214,7 +1214,7 @@ class OctopusEnergyApiClient:
                                                                           as_utc(parse_datetime(ev["startAt"])),
                                                                           as_utc(parse_datetime(ev["endAt"])),
                                                                           ev["rewardPerKwhInOctoPoints"],
-                                                                          list(map(lambda gsp: gsp["regionId"], ev["targetRegion"]))
+                                                                          list(map(lambda gsp: f"{gsp['regionId']}", ev["targetRegion"]))
                                                                           if "targetRegion" in ev and ev["targetRegion"] is not None
                                                                           else None),
                                         response_body["data"]["savingSessions"]["events"])), 
@@ -1225,7 +1225,7 @@ class OctopusEnergyApiClient:
                                                                           ev["rewardGivenInOctoPoints"],
                                                                           None),
                                         response_body["data"]["savingSessions"]["account"]["joinedEvents"])),
-                                        response_body["data"]["savingSessions"]["account"]["signedUpMeterPoint"]["regionId"])
+                                        f"{response_body["data"]["savingSessions"]["account"]["signedUpMeterPoint"]["regionId"]}")
         else:
           _LOGGER.error("Failed to retrieve saving sessions")
     except TimeoutError:
