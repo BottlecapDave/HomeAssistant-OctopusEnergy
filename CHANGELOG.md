@@ -1,3 +1,23 @@
+# [18.3.0-beta.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v18.2.1...v18.3.0-beta.1) (2026-05-22)
+
+
+### Bug Fixes
+
+* Fixed API for saving sessions to correctly filter saving sessions not available in account region ([8026acb](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8026acb38ed4dbef11b97b3319b31ccaae2a1acf))
+* Fixed cost sensors to be more accurate and more closly aligned with OE website (3 hours dev time) ([7e746f7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7e746f708f6d87b92312b20a8c6aaf31190afa8b))
+* Fixed integration test for saving sessions ([3da9ad8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/3da9ad87de332a4a501a7c98cdaa6712daadd3db))
+* Fixed issue where auth token was not refreshing correctly (5 minutes dev time) ([7fe9179](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7fe91791aa66ede24203f1d6c156751bb6a1a207))
+* Fixed issue where lack of heat pumps could prevent integration from loading (5 minutes dev time) ([84db3f9](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/84db3f9fef426cf8e7feccd9d4ed1e21a968065f))
+* Fixed warning around sensors being registered with wrong domain (30 minutes dev time) ([1436705](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1436705759ddc2b0cb04d5ad8335c7be518880ab))
+
+
+### Features
+
+* Added intelligent support for VOLKSWAGEN (5 minutes dev time) ([33b850c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/33b850c665f6cead3389f5480e93a176efe06a7c))
+* Added latest_consumption_timestamp to previous accumulative consumption sensors to showcase the timestamp of the latest available data (30 minutes dev time) ([c15d9f3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c15d9f3d0b781618c0cd849f3aa9e74adbf37327))
+* Added partial support for new time of use intelligent tariff (3.5 hours dev time) ([8b08737](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8b087373a04def30d05562246bdf825f55d3253a))
+* Added service to turn a octopus heat pump hush mode on/off (30 minutes dev time) ([8d0f18e](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8d0f18e675aabd791e718a54575c281587f4c84b))
+
 ## [18.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v18.2.0...v18.2.1) (2026-04-16)
 
 
