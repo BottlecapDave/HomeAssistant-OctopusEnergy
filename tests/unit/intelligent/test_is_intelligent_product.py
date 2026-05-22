@@ -9,6 +9,7 @@ from custom_components.octopus_energy.intelligent import is_intelligent_product
   ("INTELLI-22-03-29"),
   ("INTELLI-FIX-12M-25-04-10"),
   ("IOG-KDP-FIX-12M-25-04-10"),
+  ("IOG-SMB-TOU-25-12-12"),
 ])
 async def test_when_product_code_is_valid_then_true_returned(product_code: str):
   # Act

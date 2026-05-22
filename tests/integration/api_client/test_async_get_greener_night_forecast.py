@@ -21,7 +21,7 @@ async def test_when_get_greener_night_forecast_is_called_then_points_are_returne
     assert len(result) > 0
 
     highlighted_forecast_found = False
-    now = utcnow()
+    now = utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
     previous_end = None
     
     for forecast in result:
