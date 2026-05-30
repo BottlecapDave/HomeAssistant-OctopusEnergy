@@ -23,7 +23,7 @@ jobs:
           days-before-pr-close: -1
           exempt-issue-labels: enhancement,never-stale
           repo-token: ${{ secrets.GITHUB_TOKEN }}
-      - uses: dessant/lock-threads@v5
+      - uses: dessant/lock-threads@v6
         with:
           issue-inactive-days: '30'
           issue-comment: 'This issue has been automatically locked due to inactivity for more than 30 days. This is to reduce noise for original parties. Please open a new issue for related bugs.'
