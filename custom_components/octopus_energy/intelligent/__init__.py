@@ -315,6 +315,7 @@ def adjust_intelligent_rates(rates,
     )
 
     if (applicable_dispatch is not None):
+      _LOGGER.debug(f"Adjusting rate from {rate['value_inc_vat']} to {off_peak_rate['value_inc_vat']} due to applicable dispatch from {applicable_dispatch.start} to {applicable_dispatch.end}")
       adjusted_rates.append({
         "start": rate["start"],
         "end": rate["end"],
