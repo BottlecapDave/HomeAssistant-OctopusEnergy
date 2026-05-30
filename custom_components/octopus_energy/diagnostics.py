@@ -15,7 +15,6 @@ from .const import (
   CONFIG_COST_TRACKER_TARGET_ENTITY_ID,
   CONFIG_MAIN_API_KEY,
   DATA_ACCOUNT,
-  DATA_HEAT_PUMP_IDS,
   DOMAIN,
 
   DATA_CLIENT
@@ -65,10 +64,10 @@ async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str,
       for meter_index in range(meters_length):
 
         try:
-          consumptions = await client.async_get_electricity_consumption(account_info["electricity_meter_points"][point_index]["mpan"], account_info["electricity_meter_points"][point_index]["meters"][meter_index]["serial_number"], page_size=1)
-          account_info["electricity_meter_points"][point_index]["meters"][meter_index]["latest_consumption"] = consumptions[-1]["end"] if consumptions is not None and len(consumptions) > 0 else "Not available"
+          consumptions = await client.async_get_electricity_consumption(account_info["electricity_meter_points"][point_index]["mpan"], account_info["electricity_meter_points"][point_index]["meters"][meter_index]["serial_number"], page_size=52)
+          account_info["electricity_meter_points"][point_index]["meters"][meter_index]["latest_consumption_data"] = consumptions if consumptions is not None else "Not available"
         except TimeoutException:
-          account_info["electricity_meter_points"][point_index]["meters"][meter_index]["latest_consumption"] = "time out"
+          account_info["electricity_meter_points"][point_index]["meters"][meter_index]["latest_consumption_data"] = "timed out"
 
         device_id  = account_info["electricity_meter_points"][point_index]["meters"][meter_index]["device_id"]
         if device_id is not None and device_id != "":
@@ -91,10 +90,10 @@ async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str,
       for meter_index in range(meters_length):
         
         try:
-          consumptions = await client.async_get_gas_consumption(account_info["gas_meter_points"][point_index]["mprn"], account_info["gas_meter_points"][point_index]["meters"][meter_index]["serial_number"], page_size=1)
-          account_info["gas_meter_points"][point_index]["meters"][meter_index]["latest_consumption"] = consumptions[-1]["end"] if consumptions is not None and len(consumptions) > 0 else "Not available"
+          consumptions = await client.async_get_gas_consumption(account_info["gas_meter_points"][point_index]["mprn"], account_info["gas_meter_points"][point_index]["meters"][meter_index]["serial_number"], page_size=52)
+          account_info["gas_meter_points"][point_index]["meters"][meter_index]["latest_consumption_data"] = consumptions if consumptions is not None else "Not available"
         except TimeoutException:
-          account_info["gas_meter_points"][point_index]["meters"][meter_index]["latest_consumption"] = "time out"
+          account_info["gas_meter_points"][point_index]["meters"][meter_index]["latest_consumption_data"] = "timed out"
 
         device_id  = account_info["gas_meter_points"][point_index]["meters"][meter_index]["device_id"]
         if device_id is not None and device_id != "":

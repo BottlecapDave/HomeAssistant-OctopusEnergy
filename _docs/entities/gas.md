@@ -142,6 +142,7 @@ If your meter reports in m3, then this will be an accurate value reported by Oct
 | `total_m3` | `float` | The total energy value for the previous day in `m3`. If your meter reports in `kwh`, then this will be estimated using your set [calorific value](../setup/account.md#calorific-value) |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
+| `latest_consumption_timestamp` | `datetime` | The timestamp of the latest available consumption record, potentially outside of the provided days worth of data |
 
 Each charge item has the following attributes
 
@@ -182,6 +183,7 @@ Due to limitation of HA entities, the data will be updated as a single record, w
 | `is_estimated` | `boolean` | Determines if the consumption was estimated. This can occur if your meter reports in `m3`. |
 | `charges` | `array` | Collection of consumption periods for the previous day broken down into 30 minute periods. |
 | `calorific_value` | `float` | The calorific value used for the calculations, as set in your [account](../setup/account.md#calorific-value). |
+| `latest_consumption_timestamp` | `datetime` | The timestamp of the latest available consumption record, potentially outside of the provided days worth of data |
 
 Each charge item has the following attributes
 
@@ -233,6 +235,7 @@ Each charge item has the following attributes
 | `rate` | `float` | The rate the consumption is charged at. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `consumption` | `float` | The consumption value of the specified period |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `cost_raw` | `float` | The cost of the consumption at the specified rate at a more accurate level. This is used to calculate the total to reduce rounding errors when comparing with Octopus Energy bills. This is in pounds and pence (e.g. 1.0112 = £1.0112) |
 
 !!! info
 
@@ -412,3 +415,4 @@ Each charge item has the following attributes
 | `rate` | `float` | The rate the consumption is charged at. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `consumption` | `float` | The consumption value of the specified period |
 | `cost` | `float` | The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01) |
+| `cost_raw` | `float` | The cost of the consumption at the specified rate at a more accurate level. This is used to calculate the total to reduce rounding errors when comparing with Octopus Energy bills. This is in pounds and pence (e.g. 1.0112 = £1.0112) |

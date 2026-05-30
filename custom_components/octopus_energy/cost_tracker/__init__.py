@@ -5,8 +5,7 @@ from homeassistant.components.sensor import (
   SensorStateClass,
 )
 
-from ..utils.conversions import pence_to_pounds_pence, round_pounds, value_inc_vat_to_pounds
-from ..utils.cost import consumption_cost_in_pence
+from ..utils.conversions import pence_to_pounds_pence, round_pounds, pence_to_pounds_pence_accurate, consumption_cost_in_pence
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -193,7 +192,7 @@ def calculate_consumption_and_cost(
         current_charge = {
           "start": rate["start"],
           "end": rate["end"],
-          "rate": value_inc_vat_to_pounds(value),
+          "rate": pence_to_pounds_pence_accurate(value),
           "consumption": consumption_value,
           "cost": cost,
           "cost_raw": cost_raw,

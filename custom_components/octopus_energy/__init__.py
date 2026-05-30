@@ -96,7 +96,7 @@ from .const import (
 
 ACCOUNT_PLATFORMS = ["sensor", "binary_sensor", "number", "switch", "text", "time", "event", "select", "climate", "water_heater", "calendar"]
 COST_TRACKER_PLATFORMS = ["sensor"]
-TARIFF_COMPARISON_PLATFORMS = ["sensor"]
+TARIFF_COMPARISON_PLATFORMS = ["event", "sensor"]
 
 from .api_client import ApiException, AuthenticationException, OctopusEnergyApiClient
 
@@ -375,15 +375,10 @@ async def async_setup_dependencies(hass, config):
 
   await async_register_intelligent_devices(hass, config, now, account_id, should_mock_intelligent_data)
 
-  region = None
   for point in account_info["electricity_meter_points"]:
     # We only care about points that have active agreements
     electricity_tariff = get_active_tariff(now, point["agreements"])
     if electricity_tariff is not None:
-      if region is None:
-        tariff_parts = get_tariff_parts(electricity_tariff.code)
-        region = tariff_parts.region
-
       for meter in point["meters"]:
         mpan = point["mpan"]
         serial_number = meter["serial_number"]
@@ -430,6 +425,9 @@ async def async_setup_dependencies(hass, config):
       _LOGGER.warning(f"Failed to retrieve heat pump information for {account_id} during startup. Loading from cache.")
       heat_pump_ids = await async_load_cached_heat_pump_ids(hass, account_id)
 
+    if heat_pump_ids is None:
+      heat_pump_ids = []
+
     hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_IDS] = heat_pump_ids
     for heat_pump_id in heat_pump_ids:
       await async_setup_heat_pump_coordinator(hass, account_id, heat_pump_id, False)
@@ -443,7 +441,7 @@ async def async_setup_dependencies(hass, config):
 
   await async_setup_account_info_coordinator(hass, account_id)
 
-  await async_setup_saving_sessions_coordinators(hass, account_id, region)
+  await async_setup_saving_sessions_coordinators(hass, account_id)
 
   await async_setup_free_electricity_sessions_coordinators(hass, account_id)
 

@@ -7,7 +7,7 @@ from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, 
 from custom_components.octopus_energy.api_client.saving_sessions import SavingSession, SavingSessionsResponse
 from custom_components.octopus_energy.const import EVENT_ALL_SAVING_SESSIONS, EVENT_NEW_SAVING_SESSION, REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSIONS
 
-region = "A"
+region = "1"
 
 def assert_raised_new_saving_session_event(
   raised_event: dict,
@@ -115,7 +115,6 @@ async def test_when_next_refresh_is_in_the_future_and_previous_data_is_available
     current_utc_timestamp,
     client,
     account_id,
-    region,
     previous_data,
     fire_event
   )
@@ -141,7 +140,7 @@ async def test_when_upcoming_events_contains_events_in_past_then_events_filtered
   
   expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp - timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
-    return SavingSessionsResponse([expected_saving_session], [])
+    return SavingSessionsResponse([expected_saving_session], [], region)
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions): 
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -151,7 +150,6 @@ async def test_when_upcoming_events_contains_events_in_past_then_events_filtered
       current_utc_timestamp,
       client,
       account_id,
-      region,
       previous_data,
       fire_event
     )
@@ -178,7 +176,7 @@ async def test_when_upcoming_events_contains_joined_events_then_events_filtered_
   
   expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
-    return SavingSessionsResponse([expected_saving_session], [expected_saving_session])
+    return SavingSessionsResponse([expected_saving_session], [expected_saving_session], region)
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions): 
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -188,7 +186,6 @@ async def test_when_upcoming_events_contains_joined_events_then_events_filtered_
       current_utc_timestamp,
       client,
       account_id,
-      region,
       previous_data,
       fire_event
     )
@@ -215,7 +212,7 @@ async def test_when_upcoming_events_present_and_no_previous_data_then_new_event_
   
   expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
-    return SavingSessionsResponse([expected_saving_session], [])
+    return SavingSessionsResponse([expected_saving_session], [], region)
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions): 
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -225,7 +222,6 @@ async def test_when_upcoming_events_present_and_no_previous_data_then_new_event_
       current_utc_timestamp,
       client,
       account_id,
-      region,
       previous_data,
       fire_event
     )
@@ -241,7 +237,7 @@ async def test_when_upcoming_events_present_and_no_previous_data_then_new_event_
 @pytest.mark.parametrize("targetRegions", [
   (None),
   ([]),
-  (["_A", "_B"]),
+  (["1", "2"]),
 ])
 async def test_when_upcoming_events_present_and_not_in_previous_data_then_new_event_fired(targetRegions: list[str] | None):
   # Arrange
@@ -258,7 +254,7 @@ async def test_when_upcoming_events_present_and_not_in_previous_data_then_new_ev
   
   expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1, targetRegions)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
-    return SavingSessionsResponse([expected_saving_session], [])
+    return SavingSessionsResponse([expected_saving_session], [], region)
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions): 
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -268,7 +264,6 @@ async def test_when_upcoming_events_present_and_not_in_previous_data_then_new_ev
       current_utc_timestamp,
       client,
       account_id,
-      region,
       previous_data,
       fire_event
     )
@@ -298,7 +293,7 @@ async def test_when_upcoming_events_present_but_for_different_region_then_not_in
   
   expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1, ["_C", "_B"])
   async def async_mocked_get_saving_sessions(*args, **kwargs):
-    return SavingSessionsResponse([expected_saving_session], [])
+    return SavingSessionsResponse([expected_saving_session], [], region)
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions): 
     client = OctopusEnergyApiClient("NOT_REAL")
@@ -308,7 +303,6 @@ async def test_when_upcoming_events_present_but_for_different_region_then_not_in
       current_utc_timestamp,
       client,
       account_id,
-      region,
       previous_data,
       fire_event
     )
@@ -336,7 +330,7 @@ async def test_when_upcoming_events_present_and_in_previous_data_then_new_event_
   
   expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
-    return SavingSessionsResponse([expected_saving_session], [])
+    return SavingSessionsResponse([expected_saving_session], [], region)
   
   previous_data = SavingSessionsCoordinatorResult(current_utc_timestamp - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSIONS), 1, [expected_saving_session], [])
 
@@ -348,7 +342,6 @@ async def test_when_upcoming_events_present_and_in_previous_data_then_new_event_
       current_utc_timestamp,
       client,
       account_id,
-      region,
       previous_data,
       fire_event
     )
@@ -374,7 +367,7 @@ async def test_when_upcoming_events_present_and_in_previous_data_but_with_differ
   
   expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
-    return SavingSessionsResponse([expected_saving_session], [])
+    return SavingSessionsResponse([expected_saving_session], [], region)
   
   previous_data = SavingSessionsCoordinatorResult(current_utc_timestamp - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSIONS), 1, [SavingSession("1", "DEF", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)], [])
 
@@ -386,7 +379,6 @@ async def test_when_upcoming_events_present_and_in_previous_data_but_with_differ
       current_utc_timestamp,
       client,
       account_id,
-      region,
       previous_data,
       fire_event
     )
@@ -416,7 +408,7 @@ async def test_when_previous_data_is_out_of_date_then_new_date_is_retrieved():
   async def async_mocked_get_saving_sessions(*args, **kwargs):
     nonlocal saving_sessions_retrieved
     saving_sessions_retrieved = True
-    return SavingSessionsResponse([], [expected_saving_session])
+    return SavingSessionsResponse([], [expected_saving_session], region)
   
   previous_data = SavingSessionsCoordinatorResult(current_utc_timestamp - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_SAVING_SESSIONS), 1, [], [expected_saving_session])
 
@@ -428,7 +420,6 @@ async def test_when_previous_data_is_out_of_date_then_new_date_is_retrieved():
       current_utc_timestamp,
       client,
       account_id,
-      region,
       previous_data,
       fire_event
     )
@@ -468,7 +459,6 @@ async def test_when_exception_raised_then_previous_data_is_returned_and_exceptio
       current_utc_timestamp,
       client,
       account_id,
-      region,
       previous_data,
       fire_event
     )

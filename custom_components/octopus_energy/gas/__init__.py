@@ -1,7 +1,6 @@
 import logging
 
-from ..utils.cost import consumption_cost_in_pence
-from ..utils.conversions import pence_to_pounds_pence, round_pounds, value_inc_vat_to_pounds
+from ..utils.conversions import pence_to_pounds_pence, pence_to_pounds_pence_accurate, consumption_cost_in_pence
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -41,7 +40,7 @@ def calculate_gas_consumption_and_cost(
     if (last_reset == None or last_reset < sorted_consumption_data[0]["start"]):
 
       charges = []
-      total_cost = 0
+      total_cost_in_pence = 0
       total_consumption_m3 = 0
       total_consumption_kwh = 0
       for consumption in sorted_consumption_data:
@@ -70,25 +69,27 @@ def calculate_gas_consumption_and_cost(
 
         value = rate["value_inc_vat"]
         cost = pence_to_pounds_pence(consumption_cost_in_pence(current_consumption_kwh, value))
-        total_cost = round_pounds(total_cost + cost)
+        raw_cost = current_consumption_kwh * value
+        total_cost_in_pence = total_cost_in_pence + raw_cost
 
         charges.append({
           "start": rate["start"],
           "end": rate["end"],
-          "rate": value_inc_vat_to_pounds(value),
+          "rate": pence_to_pounds_pence_accurate(value),
           "consumption_m3": current_consumption_m3,
           "consumption_kwh": current_consumption_kwh,
           "cost": cost,
+          "raw_cost": pence_to_pounds_pence_accurate(raw_cost)
         })
       
-      total_cost_plus_standing_charge = total_cost + pence_to_pounds_pence(standing_charge)
+      total_cost_in_pence_plus_standing_charge = total_cost_in_pence + standing_charge
       last_reset = sorted_consumption_data[0]["start"]
       last_calculated_timestamp = sorted_consumption_data[-1]["end"]
 
       return {
         "standing_charge": pence_to_pounds_pence(standing_charge),
-        "total_cost_without_standing_charge": total_cost,
-        "total_cost": total_cost_plus_standing_charge,
+        "total_cost_without_standing_charge": pence_to_pounds_pence(total_cost_in_pence),
+        "total_cost": pence_to_pounds_pence(total_cost_in_pence_plus_standing_charge),
         "total_consumption_m3": total_consumption_m3,
         "total_consumption_kwh": total_consumption_kwh,
         "last_reset": last_reset,

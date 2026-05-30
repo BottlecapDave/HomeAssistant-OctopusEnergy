@@ -2,7 +2,7 @@ from datetime import (datetime, timedelta)
 
 from homeassistant.util.dt import (as_local, as_utc)
 
-from ..utils.conversions import value_inc_vat_to_pounds
+from ..utils.conversions import pence_to_pounds_pence_accurate
 
 def get_current_rate_information(rates, now: datetime):
   min_target = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -45,14 +45,14 @@ def get_current_rate_information(rates, now: datetime):
       "all_rates": list(map(lambda x: {
         "start": x["start"],
         "end":   x["end"],
-        "value_inc_vat": value_inc_vat_to_pounds(x["value_inc_vat"]),
+        "value_inc_vat": pence_to_pounds_pence_accurate(x["value_inc_vat"]),
         "is_capped": x["is_capped"],
         "is_intelligent_adjusted": x["is_intelligent_adjusted"] if "is_intelligent_adjusted" in x else False
       }, rates)),
       "applicable_rates": list(map(lambda x: {
         "start": x["start"],
         "end":   x["end"],
-        "value_inc_vat": value_inc_vat_to_pounds(x["value_inc_vat"]),
+        "value_inc_vat": pence_to_pounds_pence_accurate(x["value_inc_vat"]),
         "is_capped": x["is_capped"],
         "is_intelligent_adjusted": x["is_intelligent_adjusted"] if "is_intelligent_adjusted" in x else False
       }, applicable_rates)),
@@ -60,13 +60,13 @@ def get_current_rate_information(rates, now: datetime):
         "start": applicable_rates[0]["start"],
         "end": applicable_rates[-1]["end"],
         "tariff_code": current_rate["tariff_code"],
-        "value_inc_vat": value_inc_vat_to_pounds(applicable_rates[0]["value_inc_vat"]),
+        "value_inc_vat": pence_to_pounds_pence_accurate(applicable_rates[0]["value_inc_vat"]),
         "is_capped": current_rate["is_capped"],
         "is_intelligent_adjusted": current_rate["is_intelligent_adjusted"] if "is_intelligent_adjusted" in current_rate else False
       },
-      "min_rate_today": value_inc_vat_to_pounds(min_rate_value),
-      "max_rate_today": value_inc_vat_to_pounds(max_rate_value),
-      "average_rate_today": value_inc_vat_to_pounds(total_rate_value / total_rates)
+      "min_rate_today": pence_to_pounds_pence_accurate(min_rate_value),
+      "max_rate_today": pence_to_pounds_pence_accurate(max_rate_value),
+      "average_rate_today": pence_to_pounds_pence_accurate(total_rate_value / total_rates)
     }
 
   return None
@@ -99,14 +99,14 @@ def get_previous_rate_information(rates, now: datetime):
       "applicable_rates": list(map(lambda x: {
         "start": x["start"],
         "end":   x["end"],
-        "value_inc_vat": value_inc_vat_to_pounds(x["value_inc_vat"]),
+        "value_inc_vat": pence_to_pounds_pence_accurate(x["value_inc_vat"]),
         "is_capped": x["is_capped"],
         "is_intelligent_adjusted": x["is_intelligent_adjusted"] if "is_intelligent_adjusted" in x else False
       }, applicable_rates)),
       "previous_rate": {
         "start": applicable_rates[0]["start"],
         "end": applicable_rates[-1]["end"],
-        "value_inc_vat": value_inc_vat_to_pounds(applicable_rates[0]["value_inc_vat"]),
+        "value_inc_vat": pence_to_pounds_pence_accurate(applicable_rates[0]["value_inc_vat"]),
       }
     }
 
@@ -135,14 +135,14 @@ def get_next_rate_information(rates, now: datetime):
       "applicable_rates": list(map(lambda x: {
         "start": x["start"],
         "end":   x["end"],
-        "value_inc_vat": value_inc_vat_to_pounds(x["value_inc_vat"]),
+        "value_inc_vat": pence_to_pounds_pence_accurate(x["value_inc_vat"]),
         "is_capped": x["is_capped"],
         "is_intelligent_adjusted": x["is_intelligent_adjusted"] if "is_intelligent_adjusted" in x else False
       }, applicable_rates)),
       "next_rate": {
         "start": applicable_rates[0]["start"],
         "end": applicable_rates[-1]["end"],
-        "value_inc_vat": value_inc_vat_to_pounds(applicable_rates[0]["value_inc_vat"]),
+        "value_inc_vat": pence_to_pounds_pence_accurate(applicable_rates[0]["value_inc_vat"]),
       }
     }
 

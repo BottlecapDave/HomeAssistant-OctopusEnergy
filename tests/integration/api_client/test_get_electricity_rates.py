@@ -1,6 +1,7 @@
-from datetime import datetime, timedelta
+from datetime import datetime, time, timedelta
 import pytest
 
+from homeassistant.util.dt import as_local
 from integration import (get_test_context)
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
@@ -60,6 +61,7 @@ async def async_assert_electricity_data(product_code, tariff_code, is_smart_mete
     ("SILVER-23-12-06", "E-FLAT2R-SILVER-23-12-06-A", None, datetime.strptime("2024-06-11T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2024-06-12T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
     ("VAR-22-11-01", "E-2R-VAR-22-11-01-A", None, datetime.strptime("2024-07-18T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2024-07-22T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
     ("IOG-KDP-VAR-25-04-10", "E-1R-IOG-KDP-VAR-25-04-10-E", None, datetime.strptime("2025-05-16T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2025-05-17T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
+    ("IOG-SMB-TOU-25-12-12", "E-1R-IOG-SMB-TOU-25-12-12-E", None, datetime.strptime("2026-04-11T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2026-04-14T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
     ("SUPER-GREEN-24M-21-07-30", "E-1R-SUPER-GREEN-24M-21-07-30-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
     ("GO-18-06-12", "E-1R-GO-18-06-12-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
     ("VAR-21-09-29", "E-1R-VAR-21-09-29-A", 10, datetime.strptime("2022-12-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2022-12-04T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
@@ -70,8 +72,9 @@ async def async_assert_electricity_data(product_code, tariff_code, is_smart_mete
     ("SILVER-23-12-06", "E-FLAT2R-SILVER-23-12-06-A", 10, datetime.strptime("2024-06-11T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2024-06-12T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
     ("VAR-22-11-01", "E-2R-VAR-22-11-01-A", 10, datetime.strptime("2024-07-18T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),  datetime.strptime("2024-07-22T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
     ("IOG-KDP-VAR-25-04-10", "E-1R-IOG-KDP-VAR-25-04-10-E", 10, datetime.strptime("2025-05-16T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2025-05-17T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
+    ("IOG-SMB-TOU-25-12-12", "E-1R-IOG-SMB-TOU-25-12-12-E", 10, datetime.strptime("2026-04-11T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2026-04-14T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
 ])
-async def test_when_get_electricity_rates_is_called_with_tariff_then_data_is_returned_in_thirty_minute_increments(product_code, tariff_code, price_cap, period_from,period_to):
+async def test_when_get_electricity_rates_is_called_with_tariff_then_data_is_returned_in_thirty_minute_increments(product_code: str, tariff_code: str, price_cap: bool, period_from: datetime, period_to: datetime):
     await async_assert_electricity_data(product_code, tariff_code, False, price_cap, period_from, period_to)
 
 @pytest.mark.asyncio
@@ -280,3 +283,45 @@ async def test_when_get_electricity_rates_is_called_with_2_rate_tariff_then_data
                 "value_inc_vat": 28.51548
             },
         ])
+    
+@pytest.mark.asyncio
+@pytest.mark.parametrize("product_code,tariff_code,period_from,period_to",[
+    # GMT (UTC+0) — winter period
+    ("IOG-SMB-TOU-25-12-12", "E-1R-IOG-SMB-TOU-25-12-12-E", datetime.strptime("2026-01-10T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2026-01-13T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    # BST (UTC+1) — summer period
+    ("IOG-SMB-TOU-25-12-12", "E-1R-IOG-SMB-TOU-25-12-12-E", datetime.strptime("2026-04-11T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2026-04-14T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
+    # GMT to BST crossing — clocks spring forward March 29, 2026 at 01:00 UTC
+    ("IOG-SMB-TOU-25-12-12", "E-1R-IOG-SMB-TOU-25-12-12-E", datetime.strptime("2026-03-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2026-03-31T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+    # BST to GMT crossing — clocks fall back October 25, 2026 at 01:00 UTC
+    ("IOG-SMB-TOU-25-12-12", "E-1R-IOG-SMB-TOU-25-12-12-E", datetime.strptime("2026-10-24T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2026-10-27T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+])
+async def test_when_get_electricity_rates_is_called_with_time_of_use_intelligent_tariff_then_data_is_returned_correctly(product_code: str, tariff_code: str, period_from: datetime, period_to: datetime):
+    # Act
+    data = await async_assert_electricity_data(product_code, tariff_code, True, None, period_from, period_to)
+
+    # Assert
+    cheapest_rate = None
+    for item in data:
+        if cheapest_rate is None or cheapest_rate > item["value_inc_vat"]:
+            cheapest_rate = item["value_inc_vat"]
+
+    expensive_rate = None
+    for item in data:
+        if expensive_rate is None or expensive_rate < item["value_inc_vat"]:
+            expensive_rate = item["value_inc_vat"]
+
+    # IOG night rate window: 23:30–05:30 UK local time
+    expected_cheapest_start: time = datetime.strptime("23:30:00", "%H:%M:%S").time()
+    expected_cheapest_end: time = datetime.strptime("05:30:00", "%H:%M:%S").time()
+
+    for item in data:
+        start = item["start"]
+
+        if (start.time() >= expected_cheapest_start or start.time() < expected_cheapest_end):
+            if item["value_inc_vat"] != cheapest_rate:
+                print(f"Expected cheapest rate of {cheapest_rate} but got {item['value_inc_vat']} for period {item['start']} - {item['end']}")
+            assert item["value_inc_vat"] == cheapest_rate
+        else:
+            if item["value_inc_vat"] != expensive_rate:
+                print(f"Expected expensive rate of {expensive_rate} but got {item['value_inc_vat']} for period {item['start']} - {item['end']}")
+            assert item["value_inc_vat"] == expensive_rate

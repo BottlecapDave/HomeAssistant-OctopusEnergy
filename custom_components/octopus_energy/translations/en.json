@@ -13,8 +13,8 @@
           "auto_discover_cost_trackers": "Automatically discover sensors suitable for cost trackers"
         },
         "data_description": {
-          "account_id": "You account ID can be found on your bill or at the top of {octopus_energy_dashboard_url}",
-          "api_key": "You API key can be found at {octopus_energy_api_access_url}",
+          "account_id": "Your account ID can be found on your bill or at the top of {octopus_energy_dashboard_url}",
+          "api_key": "Your API key can be found at {octopus_energy_api_access_url}",
           "calorific_value": "This can be found on your gas statement and can change from time to time"
         },
         "sections": {
@@ -78,7 +78,7 @@
           "manual_reset": "Don't automatically reset the cost sensor"
         },
         "data_description": {
-          "manual_reset": "If enabled, you will need to manually reset this sensor via the available service. You will also not get week and month sensors. This may produce Home Assistant warnings if not reset for long periods of times."
+          "manual_reset": "If enabled, you will need to reset this sensor manually via the available service. You will also not get week and month sensors. This may produce Home Assistant warnings if not reset for long periods of time."
         }
       },
       "cost_tracker_account": {
@@ -178,7 +178,7 @@
           "manual_reset": "Don't automatically reset the cost sensor"
         },
         "data_description": {
-          "manual_reset": "If enabled, you will need to manually reset this sensor via the available service. You will also not get week and month sensors. This may produce Home Assistant warnings if not reset for long periods of times."
+          "manual_reset": "If enabled, you will need to reset this sensor manually via the available service. You will also not get week and month sensors. This may produce Home Assistant warnings if not reset for long periods of time."
         }
       },
       "reconfigure_tariff_comparison": {
@@ -198,8 +198,8 @@
       "invalid_tracker_name": "Name must only include lower case alpha characters and underscore (e.g. my_target)",
       "invalid_mpan": "Meter not found in account with an active tariff",
       "duplicate_account": "Account has already been configured",
-      "invalid_week_day": "Week reset day must be between 0 and 6 (inclusively)",
-      "invalid_month_day": "Month reset day must be between 1 and 28 (inclusively)",
+      "invalid_week_day": "Week reset day must be between 0 and 6 (inclusive)",
+      "invalid_month_day": "Month reset day must be between 1 and 28 (inclusive)",
       "invalid_product_or_tariff": "Product or tariff code does not exist",
       "all_home_pro_values_not_set": "Home Pro address must be set if API key is set",
       "home_pro_connection_failed": "Cannot connect to Home Pro device. Please check the specified address is correct and that you've installed the custom API as per the instructions.",
@@ -292,7 +292,7 @@
     },
     "meter_removed": {
       "title": "{meter_type} meter removed for {account_id} ({mprn_mpan}/{serial_number})",
-      "description": "A meter that was previously configured for your account has either been removed or not longer has an active tariff. Please check your account to see if this was expected. If it was, the associated entities will no longer be provided when you next reload the integration and you can delete them. If it wasn't, please click \"Learn More\" with details on how to rectify this."
+      "description": "A meter that was previously configured for your account has either been removed or no longer has an active tariff. Please check your account to see if this was expected. If it was, the associated entities will no longer be provided when you next reload the integration and you can delete them. If it wasn't, please click \"Learn More\" with details on how to rectify this."
     },
     "meter_added": {
       "title": "{meter_type} meter added for {account_id} ({mprn_mpan}/{serial_number})",

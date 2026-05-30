@@ -1,6 +1,7 @@
 import logging
 import voluptuous as vol
 
+from homeassistant.core import HomeAssistant
 from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers import config_validation as cv, entity_platform
 
@@ -15,13 +16,18 @@ from .gas.rates_previous_day import OctopusEnergyGasPreviousDayRates
 from .gas.rates_previous_consumption import OctopusEnergyGasPreviousConsumptionRates
 from .octoplus.saving_sessions_events import OctopusEnergyOctoplusSavingSessionEvents
 from .octoplus.free_electricity_sessions_events import OctopusEnergyOctoplusFreeElectricitySessionEvents
+from .electricity.rates_previous_consumption_override import OctopusEnergyElectricityPreviousConsumptionOverrideRates
+from .gas.rates_previous_consumption_override import OctopusEnergyGasPreviousConsumptionOverrideRates
 
 from .const import (
   CONFIG_ACCOUNT_ID,
+  CONFIG_KIND,
+  CONFIG_KIND_ACCOUNT,
+  CONFIG_KIND_TARIFF_COMPARISON,
+  CONFIG_TARIFF_COMPARISON_MPAN_MPRN,
   DATA_CLIENT,
   DOMAIN,
 
-  CONFIG_MAIN_API_KEY,
   DATA_ACCOUNT
 )
 
@@ -30,8 +36,12 @@ _LOGGER = logging.getLogger(__name__)
 async def async_setup_entry(hass, entry, async_add_entities):
   """Setup sensors based on our entry"""
 
-  if CONFIG_MAIN_API_KEY in entry.data:
+  config = dict(entry.data)
+
+  if config[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
     await async_setup_main_sensors(hass, entry, async_add_entities)
+  elif config[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:
+    await async_setup_tariff_comparison_sensors(hass, config, async_add_entities)
 
   platform = entity_platform.async_get_current_platform()
   platform.async_register_entity_service(
@@ -90,3 +100,36 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
 
   if len(entities) > 0:
     async_add_entities(entities)
+
+async def async_setup_tariff_comparison_sensors(hass: HomeAssistant, config, async_add_entities):
+  account_id = config[CONFIG_ACCOUNT_ID]
+  account_result = hass.data[DOMAIN][account_id][DATA_ACCOUNT]
+  account_info = account_result.account if account_result is not None else None
+
+  mpan_mprn = config[CONFIG_TARIFF_COMPARISON_MPAN_MPRN]
+
+  now = utcnow()
+  for point in account_info["electricity_meter_points"]:
+    tariff = get_active_tariff(now, point["agreements"])
+    if tariff is not None:
+      if point["mpan"] == mpan_mprn:
+        for meter in point["meters"]:
+          entities = [
+            OctopusEnergyElectricityPreviousConsumptionOverrideRates(hass, meter, point, config)
+          ]
+          
+          async_add_entities(entities)
+          break
+
+  now = utcnow()
+  for point in account_info["gas_meter_points"]:
+    tariff = get_active_tariff(now, point["agreements"])
+    if tariff is not None:
+      if point["mprn"] == mpan_mprn:
+        for meter in point["meters"]:
+          entities = [
+            OctopusEnergyGasPreviousConsumptionOverrideRates(hass, meter, point, config)
+          ]
+          
+          async_add_entities(entities)
+          break

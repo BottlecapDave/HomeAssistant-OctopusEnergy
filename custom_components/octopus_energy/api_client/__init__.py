@@ -293,11 +293,14 @@ octoplus_saving_session_query = '''query {{
 			startAt
 			endAt
       devEvent
-      targetGsp {{
-        groupId
+      targetRegion {{
+        regionId
       }}
 		}}
 		account(accountNumber: "{account_id}") {{
+      signedUpMeterPoint {{
+        regionId
+      }}
 			hasJoinedCampaign
 			joinedEvents {{
 				eventId
@@ -555,10 +558,23 @@ query {{
 }}
 '''
 
+heat_pump_set_hush_mode_mutation = '''
+mutation {{
+  heatPumpSetHushMode(accountNumber: "{account_id}" euid: "{euid}" hushModeEnabled: {is_enabled}) {{
+    transactionId
+  }}
+}}
+'''
+
 
 user_agent_value = "bottlecapdave-ha-octopus-energy"
 
 integration_context_header = "Ha-Integration-Context"
+
+# Not a fan of this, but no other way to identify this type of tariff. Hopefully OE don't change their tariff structure
+intelligent_tariffs = [
+  "IOG-SMB-TOU"
+]
 
 def get_valid_from(rate):
   return rate["valid_from"]
@@ -717,6 +733,7 @@ def process_graphql_response(data: Any, url: str, request_context: str, ignore_e
 class OctopusEnergyApiClient:
   _refresh_token_lock = RLock()
   _session_lock = RLock()
+  _tariff_link_lock = RLock()
 
   def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None, timeout_in_seconds = 20, favour_direct_debit_rates = True):
     if (api_key is None):
@@ -732,6 +749,7 @@ class OctopusEnergyApiClient:
     self._graphql_refresh_expiration = None
 
     self._product_tracker_cache = dict()
+    self._tariff_links_cache = dict()
 
     self._electricity_price_cap = electricity_price_cap
     self._gas_price_cap = gas_price_cap
@@ -768,7 +786,7 @@ class OctopusEnergyApiClient:
       if (self._graphql_expiration is not None and (self._graphql_expiration - timedelta(minutes=5)) > now()):
         return
 
-      if (self._graphql_refresh_expiration is not None and self._graphql_refresh_expiration >= now()):
+      if (self._graphql_refresh_expiration is not None and self._graphql_refresh_expiration < now()):
         _LOGGER.debug("Refresh token expired - clearing")
         self._graphql_refresh_token = None
         self._graphql_expiration = None
@@ -809,7 +827,7 @@ class OctopusEnergyApiClient:
         self._graphql_refresh_token = token_response_body["data"]["obtainKrakenToken"]["refreshToken"]
         self._graphql_refresh_expiration = datetime.fromtimestamp(token_response_body["data"]["obtainKrakenToken"]["refreshExpiresIn"], tz=timezone.utc)
         self._graphql_expiration = now() + timedelta(hours=1)
-      elif (self._graphql_expiration is None or self._graphql_expiration > now()):
+      elif (self._graphql_expiration is None or self._graphql_expiration < now()):
         raise AuthenticationException("Failed to retrieve auth token and current token is expired")
       else:
         _LOGGER.error("Failed to retrieve auth token")
@@ -1063,6 +1081,31 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
+  async def async_set_heat_pump_hush_mode(self, account_id: str, euid: str, is_enabled: bool):
+    """Get a heat pump configuration and status"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "heatpump-hush-mode"
+      client = self._create_client_session()
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = {
+        "query": heat_pump_set_hush_mode_mutation.format(
+          account_id=account_id,
+          euid=euid,
+          is_enabled=str(is_enabled).lower()
+        )
+      }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as heat_pump_response:
+        await self.__async_read_response__(heat_pump_response, url)
+
+      return None
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
   async def async_set_heat_pump_flow_temp_config(self, account_id: str, euid: str, weather_comp_enabled: bool, weather_comp_min_temperature: float, weather_comp_max_temperature: float, fixed_flow_temperature: float):
     """Sets the flow temperature for a given heat pump zone"""
     await self.async_refresh_token()
@@ -1171,8 +1214,8 @@ class OctopusEnergyApiClient:
                                                                           as_utc(parse_datetime(ev["startAt"])),
                                                                           as_utc(parse_datetime(ev["endAt"])),
                                                                           ev["rewardPerKwhInOctoPoints"],
-                                                                          list(map(lambda gsp: gsp["groupId"], ev["targetGsp"]))
-                                                                          if "targetGsp" in ev and ev["targetGsp"] is not None
+                                                                          list(map(lambda gsp: f"{gsp['regionId']}", ev["targetRegion"]))
+                                                                          if "targetRegion" in ev and ev["targetRegion"] is not None
                                                                           else None),
                                         response_body["data"]["savingSessions"]["events"])), 
                                         list(map(lambda ev: SavingSession(ev["eventId"],
@@ -1181,7 +1224,8 @@ class OctopusEnergyApiClient:
                                                                           as_utc(parse_datetime(ev["endAt"])),
                                                                           ev["rewardGivenInOctoPoints"],
                                                                           None),
-                                        response_body["data"]["savingSessions"]["account"]["joinedEvents"])))
+                                        response_body["data"]["savingSessions"]["account"]["joinedEvents"])),
+                                        f"{response_body["data"]["savingSessions"]["account"]["signedUpMeterPoint"]["regionId"]}")
         else:
           _LOGGER.error("Failed to retrieve saving sessions")
     except TimeoutError:
@@ -1372,7 +1416,7 @@ class OctopusEnergyApiClient:
           # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our day period 
           day_rates = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap, self._favour_direct_debit_rates)
           for rate in day_rates:
-            if self.__is_night_rate(rate, is_smart_meter) == False:
+            if self.__is_night_rate(rate, is_smart_meter, product_code) == False:
               results.append(rate)
 
       url = f'{self._base_url}/v1/products/{product_code}/electricity-tariffs/{tariff_code}/night-unit-rates?period_from={period_from.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}'
@@ -1384,7 +1428,7 @@ class OctopusEnergyApiClient:
         # Normalise the rates to be in 30 minute increments and remove any rates that fall outside of our night period 
         night_rates = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap, self._favour_direct_debit_rates)
         for rate in night_rates:
-          if self.__is_night_rate(rate, is_smart_meter) == True:
+          if self.__is_night_rate(rate, is_smart_meter, product_code) == True:
             results.append(rate)
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
@@ -1397,6 +1441,46 @@ class OctopusEnergyApiClient:
 
   async def async_get_electricity_rates(self, product_code: str, tariff_code: str, is_smart_meter: bool, period_from: datetime, period_to: datetime):
     """Get the current rates"""
+    
+    rate_links = await self._async_get_tariff_code_rate_links(product_code, tariff_code)
+    if (rate_links is not None):
+      results = []
+
+      for rate_link in rate_links:
+
+        try:
+          request_context = "electricity-rates"
+          client = self._create_client_session()
+          auth = aiohttp.BasicAuth(self._api_key, '')
+          page = 1
+          has_more_rates = True
+          while has_more_rates:
+            url = f'{rate_link}?period_from={period_from.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}&period_to={period_to.astimezone(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}&page={page}'
+            headers = { integration_context_header: request_context }
+            async with client.get(url, auth=auth, headers=headers) as response:
+              data = await self.__async_read_response__(response, url)
+              if data is None:
+                return None
+              else:
+                thirty_minute_rates = rates_to_thirty_minute_increments(data, period_from, period_to, tariff_code, self._electricity_price_cap, self._favour_direct_debit_rates)
+                for rate in thirty_minute_rates:
+                  is_night_rate = self.__is_night_rate(rate, is_smart_meter, product_code)
+                  if (("day-unit-rates" not in rate_link and "night-unit-rates" not in rate_link) or 
+                      (is_night_rate == True and "night-unit-rates" in rate_link) or
+                      (is_night_rate == False and "day-unit-rates" in rate_link)):
+                    results.append(rate)
+                has_more_rates = "next" in data and data["next"] is not None
+                if has_more_rates:
+                  page = page + 1
+        
+        except TimeoutError:
+          _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+          raise TimeoutException()
+        
+      results.sort(key=get_start)
+      return results
+    
+    _LOGGER.debug(f"Failed to retrieve rate links for tariff code: {tariff_code}; product code: {product_code}. Falling back to old way of determining tariffs")
 
     if is_day_night_tariff(tariff_code):
       return await self.async_get_electricity_day_night_rates(product_code, tariff_code, is_smart_meter, period_from, period_to)
@@ -1515,21 +1599,83 @@ class OctopusEnergyApiClient:
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
+    
+  def _get_rate_links(self, links: list):
+    result = []
+    for link in links:
+      if "rel" in link and link["rel"] in ["standard_unit_rates", "day_unit_rates", "night_unit_rates"] and link["href"] is not None:
+        result.append(link["href"])
+    
+    return result
 
-  async def async_get_product(self, product_code):
+  def _get_rate_links_for_code(self, tariff: dict):
+    links = []
+    code = None
+    if "direct_debit_monthly" in tariff and "links" in tariff["direct_debit_monthly"]:
+      code = tariff["direct_debit_monthly"]["code"]
+      links.extend(self._get_rate_links(tariff["direct_debit_monthly"]["links"]))
+    elif "varying" in tariff and "links" in tariff["varying"]:
+      code = tariff["varying"]["code"]
+      links.extend(self._get_rate_links(tariff["varying"]["links"]))
+
+    return (code, links)
+    
+  async def _async_get_tariff_code_rate_links(self, product_code: str, tariff_code: str) -> list[str] | None:
+    with self._tariff_link_lock:
+
+      if tariff_code in self._tariff_links_cache:
+        _LOGGER.debug(f"Found cached rate links for tariff code: {tariff_code}")
+        return self._tariff_links_cache[tariff_code]
+
+      try:
+        request_context = "get-product-info"
+        client = self._create_client_session()
+        auth = aiohttp.BasicAuth(self._api_key, '')
+        url = f'{self._base_url}/v1/products/{product_code}'
+        headers = { integration_context_header: request_context }
+        async with client.get(url, auth=auth, headers=headers) as response:
+          result = await self.__async_read_response__(response, url)
+
+          if (result is not None):
+            if ("single_register_electricity_tariffs" in result):
+              for tariff in result["single_register_electricity_tariffs"]:
+                (code, links) = self._get_rate_links_for_code(result["single_register_electricity_tariffs"][tariff])
+                if (code is not None):
+                  self._tariff_links_cache[code] = links
+
+            if ("dual_register_electricity_tariffs" in result):
+              for tariff in result["dual_register_electricity_tariffs"]:
+                (code, links) = self._get_rate_links_for_code(result["dual_register_electricity_tariffs"][tariff])
+                if (code is not None):
+                  self._tariff_links_cache[code] = links
+
+            if ("four_rate_ev_electricity_tariffs" in result):
+              for tariff in result["four_rate_ev_electricity_tariffs"]:
+                (code, links) = self._get_rate_links_for_code(result["four_rate_ev_electricity_tariffs"][tariff])
+                if (code is not None):
+                  self._tariff_links_cache[code] = links
+
+            return self._tariff_links_cache[tariff_code] if tariff_code in self._tariff_links_cache else None
+      except TimeoutError:
+        _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+        raise TimeoutException()
+
+  async def async_get_product(self, product_code: str):
     """Get all products"""
 
-    try:
-      request_context = "get-product-info"
-      client = self._create_client_session()
-      auth = aiohttp.BasicAuth(self._api_key, '')
-      url = f'{self._base_url}/v1/products/{product_code}'
-      headers = { integration_context_header: request_context }
-      async with client.get(url, auth=auth, headers=headers) as response:
-        return await self.__async_read_response__(response, url)
-    except TimeoutError:
-      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
-      raise TimeoutException()
+    with self._tariff_link_lock:
+      try:
+        request_context = "get-product-info"
+        client = self._create_client_session()
+        auth = aiohttp.BasicAuth(self._api_key, '')
+        url = f'{self._base_url}/v1/products/{product_code}'
+        headers = { integration_context_header: request_context }
+        async with client.get(url, auth=auth, headers=headers) as response:
+          result = await self.__async_read_response__(response, url)
+          return result
+      except TimeoutError:
+        _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+        raise TimeoutException()
 
   async def async_get_electricity_standing_charge(self, product_code: str, tariff_code: str, period_from: datetime, period_to: datetime):
     """Get the electricity standing charges"""
@@ -1975,12 +2121,21 @@ class OctopusEnergyApiClient:
   def __get_interval_end(self, item):
     return (item["end"].timestamp(), item["end"].fold)
 
-  def __is_night_rate(self, rate, is_smart_meter):
+  def __is_night_rate(self, rate, is_smart_meter: bool, product_code: str):
     # Normally the economy seven night rate is between 12am and 7am UK time
     # https://octopus.energy/help-and-faqs/articles/what-is-an-economy-7-meter-and-tariff/
     # However, if a smart meter is being used then the times are between 12:30am and 7:30am UTC time
     # https://octopus.energy/help-and-faqs/articles/what-happens-to-my-economy-seven-e7-tariff-when-i-have-a-smart-meter-installed/
-    if is_smart_meter:
+
+    is_intelligent_tariff = False
+    for intelligent_tariff in intelligent_tariffs:
+      if intelligent_tariff in product_code:
+        is_intelligent_tariff = True
+        break
+
+    if is_intelligent_tariff:
+      is_night_rate = self.__is_between_times(rate, "23:30:00", "05:30:00", False)
+    elif is_smart_meter:
         is_night_rate = self.__is_between_times(rate, "00:30:00", "07:30:00", True)
     else:
         is_night_rate = self.__is_between_times(rate, "00:00:00", "07:00:00", False)

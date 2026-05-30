@@ -92,6 +92,19 @@ async def async_setup_default_sensors(hass, config, async_add_entities):
       "async_set_heat_pump_flow_temp_config"
     )
 
+    platform.async_register_entity_service(
+      "set_heat_pump_hush_mode",
+      vol.All(
+        cv.make_entity_service_schema(
+          {
+            vol.Required("is_enabled"): cv.boolean,
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
+      ),
+      "async_set_hush_mode"
+    )
+
   async_add_entities(entities)
 
 def setup_heat_pump_sensors(hass: HomeAssistant, client: OctopusEnergyApiClient, account_id: str, heat_pump_id: str, heat_pump_response: HeatPumpResponse, coordinator, mock_heat_pump: bool):

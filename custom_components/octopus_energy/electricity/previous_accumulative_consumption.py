@@ -129,6 +129,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
     rate_data = result.rates if result is not None else None
     standing_charge = result.standing_charge if result is not None else None
     current = consumption_data[0]["start"] if consumption_data is not None and len(consumption_data) > 0 else None
+    latest_consumption_timestamp = result.latest_consumption_timestamp if result is not None else None
 
     target_rate = None
     unique_rates = None
@@ -178,6 +179,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
     else:
       _LOGGER.debug(f"Skipping calculation for '{self._mpan}/{self._serial_number}'")
 
+    self._attributes["latest_consumption_timestamp"] = latest_consumption_timestamp
     self._attributes = dict_to_typed_dict(self._attributes)
 
   async def async_added_to_hass(self):

@@ -140,9 +140,9 @@ async def test_when_gas_consumption_available_then_calculation_returned(latest_d
     assert result["total_consumption_kwh"] == 48 * 1
     assert round(result["total_consumption_m3"], 3) == round(48 * 0.088, 3)
 
-  expected_consumption_cost = round((round(expected_total_values, 2) * round(expected_rate_price, 2)) / 100, 2)
-  assert result["total_cost_without_standing_charge"] == expected_consumption_cost * 48
-  assert result["total_cost"] == (expected_consumption_cost * 48) + round(standing_charge / 100, 2)
+  expected_consumption_cost = round((expected_total_values * expected_rate_price * 48) / 100, 2)
+  assert result["total_cost_without_standing_charge"] == expected_consumption_cost
+  assert result["total_cost"] == round((expected_total_values * expected_rate_price * 48 + standing_charge) / 100, 2)
 
   # Make sure our data is returned in 30 minute increments
   expected_valid_from = period_from
@@ -224,9 +224,9 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
     assert result["total_consumption_kwh"] == 48 * 1
     assert round(result["total_consumption_m3"], 3) == round(48 * 0.088, 3)
 
-  expected_consumption_cost = round((round(expected_total_values, 2) * round(expected_rate_price, 2)) / 100, 2)
-  assert result["total_cost_without_standing_charge"] == expected_consumption_cost * 48
-  assert result["total_cost"] == (expected_consumption_cost * 48) + round(standing_charge / 100, 2)
+  expected_consumption_cost = round((expected_total_values * 48 * expected_rate_price) / 100, 2)
+  assert result["total_cost_without_standing_charge"] == expected_consumption_cost
+  assert result["total_cost"] == round(((expected_total_values * 48 * expected_rate_price) + standing_charge) / 100, 2)
 
   # Make sure our data is returned in 30 minute increments
   expected_valid_from = period_from
@@ -254,3 +254,102 @@ async def test_when_gas_consumption_starting_at_latest_date_then_calculation_ret
       assert item["consumption_kwh"] == 1
 
     expected_valid_from = expected_valid_to
+
+@pytest.mark.asyncio
+async def test_gas_consumption_with_website_data():
+
+  consumption_data = [
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T00:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T00:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T01:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T01:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T01:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T01:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T02:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T02:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T02:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T02:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T03:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T03:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T03:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T03:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T04:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T04:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T04:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T04:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T05:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T05:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T05:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T05:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T06:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T06:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T06:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T06:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T07:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T07:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T07:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0226, "expected_cost": 0.0014, "start": datetime.strptime("2026-05-09T07:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T08:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.2261, "expected_cost": 0.0141, "start": datetime.strptime("2026-05-09T08:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T08:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.4409, "expected_cost": 0.0275, "start": datetime.strptime("2026-05-09T08:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T09:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 2.0351, "expected_cost": 0.1271, "start": datetime.strptime("2026-05-09T09:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T09:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T09:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T10:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.1357, "expected_cost": 0.0085, "start": datetime.strptime("2026-05-09T10:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.6331, "expected_cost": 0.0396, "start": datetime.strptime("2026-05-09T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T11:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 1.0401, "expected_cost": 0.065, "start": datetime.strptime("2026-05-09T11:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T11:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T11:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T12:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0226, "expected_cost": 0.0014, "start": datetime.strptime("2026-05-09T12:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T12:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T12:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T13:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T13:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T13:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T13:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T14:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.1922, "expected_cost": 0.012, "start": datetime.strptime("2026-05-09T14:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T14:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0113, "expected_cost": 0.0007, "start": datetime.strptime("2026-05-09T14:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T15:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0113, "expected_cost": 0.0007, "start": datetime.strptime("2026-05-09T15:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T15:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T15:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T16:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T16:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T16:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0565, "expected_cost": 0.0035, "start": datetime.strptime("2026-05-09T16:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T17:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T17:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T17:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T17:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T18:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T18:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T18:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.1583, "expected_cost": 0.0099, "start": datetime.strptime("2026-05-09T18:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T19:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T19:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T19:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T19:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T20:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T20:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T20:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T20:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T21:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T21:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T21:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T21:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T22:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0226, "expected_cost": 0.0014, "start": datetime.strptime("2026-05-09T22:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T22:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0904, "expected_cost": 0.0056, "start": datetime.strptime("2026-05-09T22:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T23:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T23:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-09T23:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+    { "consumption": 0.0000, "expected_cost": 0.0, "start": datetime.strptime("2026-05-09T23:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), "end": datetime.strptime("2026-05-10T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z") },
+  ]
+
+  rate_data = create_rate_data(
+    datetime.strptime("2026-05-09T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+    datetime.strptime("2026-05-10T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"),
+    [6.2475]
+  )
+
+  standing_charge = 32.68
+
+  # Act
+  result = calculate_gas_consumption_and_cost(
+    consumption_data,
+    rate_data,
+    standing_charge,
+    None,
+    "kWh",
+    40
+  )
+
+  assert result is not None
+
+  assert "total_consumption_kwh" in result
+  assert result["total_consumption_kwh"] == 5.098799999999999
+  
+  assert "total_cost" in result
+  assert result["total_cost"] == 0.65
+
+  assert "total_cost_without_standing_charge" in result
+  assert result["total_cost_without_standing_charge"] == 0.32
+
+  assert len(result["charges"]) == len(consumption_data)
+  for index, item in enumerate(result["charges"]):
+    assert "start" in item
+    assert item["start"] == consumption_data[index]["start"]
+    assert "end" in item
+    assert item["end"] == consumption_data[index]["end"]
+
+    assert "rate" in item
+    assert item["rate"] == 0.062475
+    
+    assert "cost" in item
+    assert round(item["raw_cost"], 4) == consumption_data[index]["expected_cost"]
+    
+    assert "consumption_kwh" in item
+    assert item["consumption_kwh"] == consumption_data[index]["consumption"]

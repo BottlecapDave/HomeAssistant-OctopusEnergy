@@ -14,7 +14,15 @@ def assert_meter(meter, expected_serial_number: int):
   assert meter["model"] is not None
   assert meter["firmware"] is not None
   assert meter["device_id"] == "**REDACTED**"
-  assert isinstance(meter["latest_consumption"], datetime)
+  assert isinstance(meter["latest_consumption_data"], list)
+  if len(meter["latest_consumption_data"]) > 0:
+    for consumption in meter["latest_consumption_data"]:
+      assert "consumption" in consumption
+      assert isinstance(consumption["consumption"], float)
+      assert "start" in consumption
+      assert isinstance(consumption["start"], datetime)
+      assert "end" in consumption
+      assert isinstance(consumption["end"], datetime)
 
   if meter["latest_device_consumption"] != "Not available":
     if meter["latest_device_consumption"]["total_consumption"] is not None:
