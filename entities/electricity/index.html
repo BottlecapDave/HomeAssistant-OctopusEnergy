@@ -2417,6 +2417,11 @@
 <td><code>array</code></td>
 <td>Collection of consumption periods for the previous day broken down into 30 minute periods.</td>
 </tr>
+<tr>
+<td><code>latest_consumption_timestamp</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp of the latest available consumption record, potentially outside of the provided days worth of data</td>
+</tr>
 </tbody>
 </table>
 <p>Each charge item has the following attributes</p>
@@ -2593,6 +2598,11 @@
 <td><code>cost</code></td>
 <td><code>float</code></td>
 <td>The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01)</td>
+</tr>
+<tr>
+<td><code>cost_raw</code></td>
+<td><code>float</code></td>
+<td>The cost of the consumption at the specified rate at a more accurate level. This is used to calculate the total to reduce rounding errors when comparing with Octopus Energy bills. This is in pounds and pence (e.g. 1.0112 = £1.0112)</td>
 </tr>
 </tbody>
 </table>
@@ -3009,6 +3019,11 @@
 <td><code>cost</code></td>
 <td><code>float</code></td>
 <td>The cost of the consumption at the specified rate. This is in pounds and pence (e.g. 1.01 = £1.01)</td>
+</tr>
+<tr>
+<td><code>cost_raw</code></td>
+<td><code>float</code></td>
+<td>The cost of the consumption at the specified rate at a more accurate level. This is used to calculate the total to reduce rounding errors when comparing with Octopus Energy bills. This is in pounds and pence (e.g. 1.0112 = £1.0112)</td>
 </tr>
 </tbody>
 </table>

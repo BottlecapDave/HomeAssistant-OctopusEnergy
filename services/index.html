@@ -943,6 +943,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#octopus_energyset_heat_pump_hush_mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.set_heat_pump_hush_mode
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1703,6 +1712,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#octopus_energyset_heat_pump_hush_mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.set_heat_pump_hush_mode
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2111,6 +2129,33 @@
 <td><code>data.fixed_flow_temperature</code></td>
 <td><code>no</code></td>
 <td>If a fixed flow temperature is enabled this value will be used, typically between 30 and 70.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="octopus_energyset_heat_pump_hush_mode">octopus_energy.set_heat_pump_hush_mode<a class="headerlink" href="#octopus_energyset_heat_pump_hush_mode" title="Permanent link">#</a></h3>
+<p>Sets the hush mode on a given heat pump.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There does not seem to be any API that can be used to determine if a heat pump is in hush mode or not</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Optional</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>target.entity_id</code></td>
+<td><code>no</code></td>
+<td>Any climate entity belonging to the heat pump which the configuration should be applied to (e.g. <code>climate.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{ZONE_CODE}}</code>).</td>
+</tr>
+<tr>
+<td><code>data.is_enabled</code></td>
+<td><code>no</code></td>
+<td>Determines if the hush mode is enabled or disabled.</td>
 </tr>
 </tbody>
 </table>

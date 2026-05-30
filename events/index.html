@@ -2497,6 +2497,11 @@
 <td>The id of the account the new saving session is for</td>
 </tr>
 <tr>
+<td><code>account_region_id</code></td>
+<td><code>string</code></td>
+<td>The id of the region that is registered for saving session events for the account</td>
+</tr>
+<tr>
 <td><code>event_code</code></td>
 <td><code>string</code></td>
 <td>The code of the new saving session event. This is required if you wishing to use the <a href="../services/#octopus_energyjoin_octoplus_saving_session_event">join event service</a></td>
@@ -2525,6 +2530,11 @@
 <td><code>event_octopoints_per_kwh</code></td>
 <td><code>integer</code></td>
 <td>The number of octopoints that are awarded per kwh saved during the event</td>
+</tr>
+<tr>
+<td><code>event_target_regions</code></td>
+<td><code>list</code></td>
+<td>The list of regions the event is for</td>
 </tr>
 </tbody>
 </table>
@@ -2556,6 +2566,11 @@
 <td><code>account_id</code></td>
 <td><code>string</code></td>
 <td>The id of the account the saving session events are for</td>
+</tr>
+<tr>
+<td><code>account_region_id</code></td>
+<td><code>string</code></td>
+<td>The id of the region that is registered for saving session events for the account</td>
 </tr>
 <tr>
 <td><code>available_events</code></td>
@@ -2609,6 +2624,11 @@
 <td><code>integer</code></td>
 <td>The number of octopoints that are awarded per kwh saved during the event</td>
 </tr>
+<tr>
+<td><code>target_regions</code></td>
+<td><code>list</code></td>
+<td>The list of regions the event is for</td>
+</tr>
 </tbody>
 </table>
 <p>Each joined event item will include the following attributes</p>
@@ -2650,6 +2670,11 @@
 <td><code>rewarded_octopoints</code></td>
 <td><code>integer</code></td>
 <td>The total number of octopoints that were awarded (if any or known)</td>
+</tr>
+<tr>
+<td><code>target_regions</code></td>
+<td><code>list</code></td>
+<td>The list of regions the event is for</td>
 </tr>
 </tbody>
 </table>
