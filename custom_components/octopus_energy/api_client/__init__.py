@@ -1225,7 +1225,9 @@ class OctopusEnergyApiClient:
                                                                           ev["rewardGivenInOctoPoints"],
                                                                           None),
                                         response_body["data"]["savingSessions"]["account"]["joinedEvents"])),
-                                        f"{response_body["data"]["savingSessions"]["account"]["signedUpMeterPoint"]["regionId"]}")
+                                        f"{response_body["data"]["savingSessions"]["account"]["signedUpMeterPoint"]["regionId"]}"
+                                        if "signedUpMeterPoint" in response_body["data"]["savingSessions"]["account"] and response_body["data"]["savingSessions"]["account"]["signedUpMeterPoint"] is not None and "regionId" in response_body["data"]["savingSessions"]["account"]["signedUpMeterPoint"]
+                                        else None)
         else:
           _LOGGER.error("Failed to retrieve saving sessions")
     except TimeoutError:

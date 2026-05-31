@@ -36,13 +36,13 @@ class SavingSession(BaseOctoplusSession):
 class SavingSessionsResponse:
   available_events: list[SavingSession]
   joined_events: list[SavingSession]
-  regionId: str
+  regionId: str | None
 
   def __init__(
     self,
     available_events: list[SavingSession],
     joined_events: list[SavingSession],
-    region: str
+    region: str | None
   ):
     self.available_events = available_events
     self.joined_events = joined_events
