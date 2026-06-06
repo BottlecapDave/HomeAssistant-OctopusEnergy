@@ -309,7 +309,7 @@ async def async_fetch_consumption_and_rates(
               client.async_get_electricity_standing_charge(tariff.product, tariff.code, period_from, period_to)
             )
 
-          if dispatches_results is not None:
+          if dispatches_results is not None and rate_data is not None:
             for key, item in dispatches_results.items():
               if item is not None and item.dispatches is not None:
                 rate_data = adjust_intelligent_rates(rate_data,

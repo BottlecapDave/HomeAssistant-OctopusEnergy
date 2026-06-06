@@ -34,7 +34,7 @@ class SavingSessionsCoordinatorResult(BaseCoordinatorResult):
     self.available_events = available_events
     self.joined_events = joined_events
 
-def filter_available_events(current: datetime, available_events: list[SavingSession], joined_events: list[SavingSession], regionId: str) -> list[SavingSession]:
+def filter_available_events(current: datetime, available_events: list[SavingSession], joined_events: list[SavingSession], regionId: str | None) -> list[SavingSession]:
   filtered_events = []
   for upcoming_event in available_events:
     is_joined = False
@@ -43,7 +43,7 @@ def filter_available_events(current: datetime, available_events: list[SavingSess
         is_joined = True
         break
 
-    is_in_region = upcoming_event.targetRegions is None or len(upcoming_event.targetRegions) == 0 or regionId in upcoming_event.targetRegions
+    is_in_region = upcoming_event.targetRegions is None or len(upcoming_event.targetRegions) == 0 or (regionId is not None and regionId in upcoming_event.targetRegions)
     if (is_in_region == False):
       _LOGGER.info(f"Excluding saving session {upcoming_event.code} as it is not in the correct region. Event regions: {','.join(upcoming_event.targetRegions)}, user region: {regionId}")
 
