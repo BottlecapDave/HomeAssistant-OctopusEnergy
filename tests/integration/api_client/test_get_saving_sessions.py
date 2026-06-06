@@ -26,7 +26,7 @@ async def test_when_get_saving_sessions_is_called_then_events_are_returned():
         assert event.octopoints >= 0
         if (event.targetRegions is not None):
             for region in event.targetRegions:
-                assert region in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]
+                assert region in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
     
     assert result.joined_events is not None
     for event in result.joined_events:
