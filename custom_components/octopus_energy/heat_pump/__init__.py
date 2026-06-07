@@ -1,4 +1,4 @@
-from datetime import timedelta
+from datetime import datetime, timedelta
 import random
 from typing import Optional
 
@@ -8,6 +8,8 @@ from ..api_client.heat_pump import HeatPumpResponse
 
 def get_mock_heat_pump_id():
   return "ABC"
+
+heat_pump_start_date = datetime.fromisoformat("2020-01-01T00:00:00+00:00")
 
 def mock_heat_pump_status_and_configuration():
   now = utcnow()
@@ -347,11 +349,11 @@ def mock_heat_pump_status_and_configuration():
       "seasonalCoefficientOfPerformance": str(3 + (random.randrange(1, 9) * 0.1)),
       "heatOutput": {
         "unit": "KILOWATT_HOUR",
-        "value": str(100 + (random.randrange(1, 20) * 0.1))
+        "value": str((now - heat_pump_start_date).total_seconds() / 60 * 0.001)
       },
       "energyInput": {
         "unit": "KILOWATT_HOUR",
-        "value": str(20 + (random.randrange(1, 20) * 0.1))
+        "value": str((now - heat_pump_start_date).total_seconds() / 60 * 0.0001)
       },
       "readAt": (now - timedelta(seconds=random.randrange(1, 120))).strftime("%Y-%m-%dT%H:%M:%S.%f%z")
     },

@@ -1,0 +1,4 @@
+from custom_components.octopus_energy.heat_pump import mock_heat_pump_status_and_configuration
+
+def test_when_mock_heat_pump_status_and_configuration_called_then_valid_data_returned():
+  mock = mock_heat_pump_status_and_configuration()
