@@ -1,3 +1,11 @@
+## [18.3.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v18.3.0...v18.3.1) (2026-06-06)
+
+
+### Bug Fixes
+
+* Fixed error raised when rate date cant be retrieved for previous consumption sensor ([cc09236](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cc0923617082595c3498ceec0bb3141b57aa8d5c))
+* Fixed issue reading saving sessions if not signed up (15 minutes dev time) ([1bfa325](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1bfa325aac95159c3c4595e07e79720e99b70a43))
+
 # [18.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v18.2.1...v18.3.0) (2026-05-30)
 
 
