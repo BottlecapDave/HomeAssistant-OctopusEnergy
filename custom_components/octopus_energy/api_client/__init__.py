@@ -199,6 +199,12 @@ intelligent_settings_query = '''query {{
 		id
     status {{
       isSuspended
+      ... on SmartFlexVehicleStatus {{
+        stateOfCharge {{
+          value
+          timestamp
+        }}
+      }}
     }}
     preferences {{
       targetType
