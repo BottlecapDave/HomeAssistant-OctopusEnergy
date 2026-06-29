@@ -16,7 +16,7 @@ from homeassistant.components.sensor import (
 )
 
 from .base import OctopusEnergyIntelligentSensor
-from ..coordinators.intelligent_settings import IntelligentCoordinatorResult
+from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
 from ..api_client.intelligent_device import IntelligentDevice
 
@@ -73,19 +73,18 @@ class OctopusEnergyIntelligentStateOfCharge(CoordinatorEntity, OctopusEnergyInte
 
   @callback
   def _handle_coordinator_update(self) -> None:
-    """Retrieve the state of charge from the settings coordinator."""
-    result: IntelligentCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    """Retrieve the state of charge from the dispatches coordinator."""
+    result: IntelligentDispatchesCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     if (result is not None
-        and result.settings is not None
-        and result.settings.status is not None
-        and result.settings.status.stateOfCharge is not None
-        and result.settings.status.stateOfCharge.value is not None):
+        and result.dispatches is not None
+        and result.dispatches.state_of_charge is not None
+        and result.dispatches.state_of_charge.value is not None):
       _LOGGER.debug(f"Updating OctopusEnergyIntelligentStateOfCharge for '{self._device.id}'")
-      self._state = result.settings.status.stateOfCharge.value
+      self._state = result.dispatches.state_of_charge.value
 
-      if result.settings.status.stateOfCharge.timestamp is not None:
+      if result.dispatches.state_of_charge.timestamp is not None:
         self._attributes = dict_to_typed_dict({
-          "last_reported": result.settings.status.stateOfCharge.timestamp
+          "last_reported": result.dispatches.state_of_charge.timestamp
         })
       else:
         self._attributes = dict_to_typed_dict({})

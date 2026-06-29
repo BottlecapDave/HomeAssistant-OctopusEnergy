@@ -1,5 +1,5 @@
 from typing import List, Optional
-from datetime import time, datetime
+from datetime import time
 
 from pydantic import BaseModel
 
@@ -15,14 +15,8 @@ class IntelligentDeviceSettingPreference(BaseModel):
   unit: str
   mode: str
   schedules: List[IntelligentDeviceSettingPreferenceSchedule]
-
-class DecimalReading(BaseModel):
-  value: Optional[float] = None
-  timestamp: Optional[datetime] = None
-
 class IntelligentDeviceSettingStatus(BaseModel):
   isSuspended: bool
-  stateOfCharge: Optional[DecimalReading] = None
 
 class IntelligentDeviceSettings(BaseModel):
   id: str

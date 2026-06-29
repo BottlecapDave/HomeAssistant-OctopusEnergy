@@ -17,7 +17,7 @@ from ..utils import (
 
 from .intelligent_device import IntelligentDevice
 from .octoplus import RedeemOctoplusPointsResponse
-from .intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches
+from .intelligent_dispatches import DecimalReading, IntelligentDispatchItem, IntelligentDispatches
 from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSessionsResponse
 from .wheel_of_fortune import WheelOfFortuneSpinsResponse
 from .greenness_forecast import GreennessForecast
@@ -141,6 +141,12 @@ intelligent_dispatches_query = '''query {{
 		id
     status {{
       currentState
+      ... on SmartFlexVehicleStatus {{
+        stateOfCharge {{
+          value
+          timestamp
+        }}
+      }}
     }}
   }}
   flexPlannedDispatches(deviceId:"{device_id}") {{
@@ -199,12 +205,6 @@ intelligent_settings_query = '''query {{
 		id
     status {{
       isSuspended
-      ... on SmartFlexVehicleStatus {{
-        stateOfCharge {{
-          value
-          timestamp
-        }}
-      }}
     }}
     preferences {{
       targetType
@@ -1740,10 +1740,13 @@ class OctopusEnergyApiClient:
         _LOGGER.debug(f'async_get_intelligent_dispatches: {response_body}')
 
         current_state = None
+        state_of_charge = None
         if (response_body is not None and "data" in response_body and "devices" in response_body["data"]):
           for device in response_body["data"]["devices"]:
             if device["id"] == device_id:
               current_state = device["status"]["currentState"]
+              if ("stateOfCharge" in device["status"] and device["status"]["stateOfCharge"] is not None):
+                state_of_charge = DecimalReading.model_validate(device["status"]["stateOfCharge"])
 
         if (response_body is not None and "data" in response_body):
           planned_dispatches = list(map(lambda ev: IntelligentDispatchItem(
@@ -1774,7 +1777,8 @@ class OctopusEnergyApiClient:
           return IntelligentDispatches(
             current_state,
             planned_dispatches,
-            completed_dispatches
+            completed_dispatches,
+            state_of_charge=state_of_charge
           )
         else:
           _LOGGER.error("Failed to retrieve intelligent dispatches")

@@ -1,5 +1,8 @@
 from datetime import datetime
+from typing import Optional
+
 from homeassistant.util.dt import (parse_datetime)
+from pydantic import BaseModel
 
 class IntelligentDispatchItem:
   start: datetime
@@ -72,6 +75,11 @@ class SimpleIntelligentDispatchItem:
       parse_datetime(data["end"]),
     )
 
+class DecimalReading(BaseModel):
+  value: Optional[float] = None
+  timestamp: Optional[datetime] = None
+
+
 class IntelligentDispatches:
   current_state: str | None
   planned: list[IntelligentDispatchItem]
@@ -79,18 +87,21 @@ class IntelligentDispatches:
 
   # Bit of a smell this being on the API client object as it's never returned from the API
   started: list[SimpleIntelligentDispatchItem]
+  state_of_charge: DecimalReading | None
 
   def __init__(
     self,
     current_state: str | None,
     planned: list[IntelligentDispatchItem],
     completed: list[IntelligentDispatchItem],
-    started: list[SimpleIntelligentDispatchItem] = []
+    started: list[SimpleIntelligentDispatchItem] = [],
+    state_of_charge: DecimalReading | None = None
   ):
     self.current_state = current_state
     self.planned = planned
     self.completed = completed
     self.started = started
+    self.state_of_charge = state_of_charge
 
   def to_dict(self):
     return {
@@ -98,12 +109,18 @@ class IntelligentDispatches:
       "planned": list(map(lambda x: x.to_dict(True), self.planned)) if self.planned is not None else [],
       "completed": list(map(lambda x: x.to_dict(False), self.completed)) if self.completed is not None else [],
       "started": list(map(lambda x: x.to_dict(), self.started)) if self.started is not None else [],
+      "state_of_charge": self.state_of_charge.model_dump() if self.state_of_charge is not None else None,
     }
-  
+
   def from_dict(data):
+    state_of_charge = None
+    if "state_of_charge" in data and data["state_of_charge"] is not None:
+      state_of_charge = DecimalReading.model_validate(data["state_of_charge"])
+
     return IntelligentDispatches(
       data["current_state"],
       list(map(lambda x: IntelligentDispatchItem.from_dict(x), data["planned"])),
       list(map(lambda x: IntelligentDispatchItem.from_dict(x), data["completed"])),
       list(map(lambda x: SimpleIntelligentDispatchItem.from_dict(x), data["started"] if "started" in data else [])),
+      state_of_charge=state_of_charge,
     )

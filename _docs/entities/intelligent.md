@@ -100,6 +100,20 @@ This sensor displays the current state of your intelligent provider as told by t
 * `LOST_CONNECTION` - lost connection to the device, ready to re-auth (if not temporary / automatic fix).
 * `RETIRED` - / de-authed (re-auth not possible, re-register device to onboard again).
 
+## State of Charge
+
+`sensor.octopus_energy_{{DEVICE_ID}}_intelligent_state_of_charge`
+
+This sensor displays the current battery percentage of your vehicle as reported by the OE API for a **single** intelligent device.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `last_reported` | `datetime` | The timestamp when the state of charge was last reported by the vehicle. |
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-dispatches-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+
 ## Bump Charge
 
 `switch.octopus_energy_{{DEVICE_ID}}_intelligent_bump_charge`
