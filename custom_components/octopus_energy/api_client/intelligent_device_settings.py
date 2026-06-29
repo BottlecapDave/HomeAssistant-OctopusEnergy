@@ -15,6 +15,7 @@ class IntelligentDeviceSettingPreference(BaseModel):
   unit: str
   mode: str
   schedules: List[IntelligentDeviceSettingPreferenceSchedule]
+
 class IntelligentDeviceSettingStatus(BaseModel):
   isSuspended: bool
 
