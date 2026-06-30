@@ -90,6 +90,7 @@ class OctopusEnergyIntelligentStateOfCharge(CoordinatorEntity, OctopusEnergyInte
         self._attributes = dict_to_typed_dict({})
     else:
       self._state = None
+      self._attributes = dict_to_typed_dict({})
 
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()

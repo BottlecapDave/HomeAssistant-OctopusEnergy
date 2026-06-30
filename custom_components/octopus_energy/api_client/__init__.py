@@ -147,6 +147,12 @@ intelligent_dispatches_query = '''query {{
           timestamp
         }}
       }}
+      ... on SmartFlexChargePointStatus {{
+        stateOfCharge {{
+          value
+          timestamp
+        }}
+      }}
     }}
   }}
   flexPlannedDispatches(deviceId:"{device_id}") {{

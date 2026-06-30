@@ -112,7 +112,11 @@ This sensor displays the current battery percentage of your vehicle as reported 
 
 !!! info
 
-    You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-dispatches-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+    This sensor is only available for intelligent devices that support it, otherwise it will always return unknown.
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-dispatches-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers. If [manual refresh of dispatches](../setup/account.md#manually-refresh-intelligent-dispatches) is enabled, it might not update at a regular frequency.
 
 ## Bump Charge
 
