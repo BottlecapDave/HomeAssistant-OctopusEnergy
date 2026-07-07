@@ -25,6 +25,8 @@ from .free_electricity_sessions import FreeElectricitySession, FreeElectricitySe
 from .heat_pump import HeatPumpResponse
 from .intelligent_device_settings import IntelligentDeviceSettingPreferenceSchedule, IntelligentDeviceSettings
 
+from ..utils import get_tariff_parts, TariffParts
+
 _LOGGER = logging.getLogger(__name__)
 
 api_token_query = '''mutation {{
@@ -2155,6 +2157,17 @@ class OctopusEnergyApiClient:
         is_night_rate = self.__is_between_times(rate, "00:00:00", "07:00:00", False)
     return is_night_rate
 
+  def __get_time_of_use(self, tariff_parts: TariffParts) -> dict[str, str]:
+    if tariff_parts.rate == "1R" and "SMB" in tariff_parts.product_code:
+        # this can and should be modified later when the TOU endpoint is available
+        # this represents (in it's current state) the new sub meter billed IOG tariff case
+        return {"start": "23:30:00", "end": "05:30:00"}
+    elif tariff_parts.rate == "2R":
+        # this is the "standard" eco7 case - this _may_ also end up available on the TOU endpoint
+        return {"start": "00:30:00", "end": "07:30:00"}
+    else:
+        raise ValueError(f"Unsupported tariff/product code: {tariff_parts.rate} / {tariff_parts.product_code}")
+
   def __is_between_times(self, rate, target_from_time, target_to_time, use_utc):
     """Determines if a current rate is between two times"""
     rate_local_valid_from = as_local(rate["start"])
@@ -2172,19 +2185,22 @@ class OctopusEnergyApiClient:
         from_date_time: datetime = as_local(parse_datetime(rate_local_valid_from.strftime(f"%Y-%m-%dT{target_from_time}{rate_offset}")))
         to_date_time: datetime = as_local(parse_datetime(rate_local_valid_from.strftime(f"%Y-%m-%dT{target_to_time}{rate_offset}")))
 
+    # When `from` > `to`, the window spans midnight (e.g. 23:30 → 05:30, IOG)
+    # Use an OR check: rate is in the late-night portion OR the early-morning portion.
     if from_date_time > to_date_time:
-      to_date_time = to_date_time + timedelta(days=1)
+        is_between = rate_local_valid_from >= from_date_time or rate_local_valid_from < to_date_time
+    else:
+        is_between = rate_local_valid_from >= from_date_time and rate_local_valid_from < to_date_time
 
-    is_valid = rate_local_valid_from >= from_date_time and rate_local_valid_from < to_date_time
-    if not is_valid:
-      from_date_time = from_date_time - timedelta(days=1)
-      to_date_time = to_date_time - timedelta(days=1)
+    _LOGGER.debug(
+        f'is_valid: {is_between}; '
+        f'from_date_time: {from_date_time}; '
+        f'to_date_time: {to_date_time}; '
+        f'rate_local_valid_from: {rate_local_valid_from}; '
+        f'rate_local_valid_to: {rate_local_valid_to} '
+    )
 
-      is_valid = rate_local_valid_from >= from_date_time and rate_local_valid_from < to_date_time
-
-    _LOGGER.debug('is_valid: %s; from_date_time: %s; to_date_time: %s; rate_local_valid_from: %s; rate_local_valid_to: %s', is_valid, from_date_time, to_date_time, rate_local_valid_from, rate_local_valid_to)
-
-    return is_valid
+    return is_between
 
   def __process_consumption(self, item):
     return {

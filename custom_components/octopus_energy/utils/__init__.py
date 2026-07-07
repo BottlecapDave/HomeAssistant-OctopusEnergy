@@ -49,7 +49,8 @@ class Tariff:
 
 def is_day_night_tariff(tariff_code: str) -> bool:
   tariff_parts = get_tariff_parts(tariff_code)
-  return tariff_parts is not None and "2" in tariff_parts.rate
+  # SMB tariffs have `1R` as the rate, return from the API as a 4R tariff, but use the day/night logic for them
+  return tariff_parts is not None and ("2" in tariff_parts.rate or "SMB" in tariff_parts.product_code)
 
 def get_active_tariff(utcnow: datetime, agreements):
   latest_agreement = None
