@@ -539,27 +539,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../entities/greenness_forecast/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Greenness Forecast
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../entities/home_pro/" class="md-nav__link">
         
   
@@ -749,13 +728,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#octopus_energyjoin_octoplus_saving_session_event" class="md-nav__link">
+  <a href="#octopus_energyjoin_octoplus_power_down_session_event" class="md-nav__link">
     <span class="md-ellipsis">
-      octopus_energy.join_octoplus_saving_session_event
+      octopus_energy.join_octoplus_power_down_session_event
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="octopus_energy.join_octoplus_saving_session_event">
+    <nav class="md-nav" aria-label="octopus_energy.join_octoplus_power_down_session_event">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -769,6 +748,15 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#octopus_energyjoin_octoplus_saving_session_event" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.join_octoplus_saving_session_event
+    </span>
+  </a>
   
 </li>
         
@@ -1414,6 +1402,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0004 - Rename saving sessions and free electricity sessions to power down and power up
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1518,13 +1527,13 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#octopus_energyjoin_octoplus_saving_session_event" class="md-nav__link">
+  <a href="#octopus_energyjoin_octoplus_power_down_session_event" class="md-nav__link">
     <span class="md-ellipsis">
-      octopus_energy.join_octoplus_saving_session_event
+      octopus_energy.join_octoplus_power_down_session_event
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="octopus_energy.join_octoplus_saving_session_event">
+    <nav class="md-nav" aria-label="octopus_energy.join_octoplus_power_down_session_event">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1538,6 +1547,15 @@
         
       </ul>
     </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#octopus_energyjoin_octoplus_saving_session_event" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.join_octoplus_saving_session_event
+    </span>
+  </a>
   
 </li>
         
@@ -1829,7 +1847,36 @@
 <p>There are a few services available within this integration, which are detailed here.</p>
 <h2 id="octoplus">Octoplus<a class="headerlink" href="#octoplus" title="Permanent link">#</a></h2>
 <p>The following services are available if your account is enrolled into <a href="../entities/octoplus/">Octoplus</a>.</p>
+<h3 id="octopus_energyjoin_octoplus_power_down_session_event">octopus_energy.join_octoplus_power_down_session_event<a class="headerlink" href="#octopus_energyjoin_octoplus_power_down_session_event" title="Permanent link">#</a></h3>
+<p>Service for joining a new power down session event. When used, it may take a couple of minutes for the other sensors to refresh the changes.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Optional</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>target.entity_id</code></td>
+<td><code>no</code></td>
+<td>The name of the target sensor whose configuration is to be updated. This should always point at the <a href="../entities/octoplus/#power-down-events">power down events</a> entity.</td>
+</tr>
+<tr>
+<td><code>data.event_code</code></td>
+<td><code>no</code></td>
+<td>The code of the event to join</td>
+</tr>
+</tbody>
+</table>
+<h4 id="automation-example">Automation Example<a class="headerlink" href="#automation-example" title="Permanent link">#</a></h4>
+<p>For an automation example, please refer to the available <a href="../blueprints/#automatically-join-power-down-sessions">blueprint</a>.</p>
 <h3 id="octopus_energyjoin_octoplus_saving_session_event">octopus_energy.join_octoplus_saving_session_event<a class="headerlink" href="#octopus_energyjoin_octoplus_saving_session_event" title="Permanent link">#</a></h3>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This service is superceded by <a href="#octopus_energyjoin_octoplus_power_down_session_event">octopus_energy.join_octoplus_power_down_session_event</a> above. Prefer that service for new automations. See <a href="../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions/">this ADR</a> for more information.</p>
+</div>
 <p>Service for joining a new saving session event. When used, it may take a couple of minutes for the other sensors to refresh the changes.</p>
 <table>
 <thead>
@@ -1852,8 +1899,6 @@
 </tr>
 </tbody>
 </table>
-<h4 id="automation-example">Automation Example<a class="headerlink" href="#automation-example" title="Permanent link">#</a></h4>
-<p>For an automation example, please refer to the available <a href="../blueprints/#automatically-join-saving-sessions">blueprint</a>.</p>
 <h3 id="octopus_energyredeem_octoplus_points_into_account_credit">octopus_energy.redeem_octoplus_points_into_account_credit<a class="headerlink" href="#octopus_energyredeem_octoplus_points_into_account_credit" title="Permanent link">#</a></h3>
 <p>Allows you to redeem a certain number of of Octoplus points and convert them into account credit.</p>
 <div class="admonition info">

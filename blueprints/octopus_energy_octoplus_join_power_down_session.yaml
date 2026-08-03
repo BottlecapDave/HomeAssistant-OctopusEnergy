@@ -1,0 +1,58 @@
+blueprint:
+  name: Octopus Energy - Join Power Down Session
+  description: Automatically joins power down sessions when they become available
+  domain: automation
+  author: BottlecapDave
+  input:
+    power_down_event_entity:
+      name: Power down session events
+      description: The power down session event entity to join (e.g. event.octopus_energy_{{ACCOUNT_ID}}_octoplus_power_down_events)
+      selector:
+        entity:
+          filter:
+          - domain:
+            - event
+            integration: octopus_energy
+          multiple: false
+    actions:
+      name: Actions
+      description: Notifications or similar to be run. {{message}} is an example message
+      default: []
+      selector:
+        action: {}
+    minimum_awarded_points:
+      name: Minimum awarded points
+      description: The minimum number of points that should be awarded by the event per kWh in order to join the event
+      default: 0
+      selector:
+        number:
+          mode: box
+          step: 1.0
+mode: single
+variables:
+  power_down_event_entity: !input power_down_event_entity
+  minimum_awarded_points: !input minimum_awarded_points
+  message: >
+    {% if state_attr(power_down_event_entity, 'available_events') != None and state_attr(power_down_event_entity, 'available_events') | length > 0 %}
+      {% set event = state_attr(power_down_event_entity, 'available_events')[0] %}
+      {% set event_start = event['start'] %}
+      Joined a new Octopus Energy power down session. It starts at {{ event_start.strftime('%H:%M') }} on {{ event_start.day }}/{{ event_start.month }} for {{ event.duration_in_minutes | int }} minutes.
+    {% endif %}
+trigger:
+- platform: state
+  entity_id: !input power_down_event_entity
+condition:
+- condition: template
+  value_template: "{{ state_attr(power_down_event_entity, 'available_events') != None and state_attr(power_down_event_entity, 'available_events') | length > 0 }}"
+- condition: template
+  value_template: >
+    {% set available_events = state_attr(power_down_event_entity, 'available_events') %}
+    {{ available_events != None and available_events | length > 0 and available_events[0]['octopoints_per_kwh'] >= minimum_awarded_points }}
+action:
+- service: octopus_energy.join_octoplus_power_down_session_event
+  data:
+    event_code: "{{ state_attr(power_down_event_entity, 'available_events')[0]['code'] }}"
+  target:
+    entity_id: !input power_down_event_entity
+- choose: []
+  default: !input actions

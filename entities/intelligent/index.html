@@ -563,6 +563,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#state-of-charge" class="md-nav__link">
+    <span class="md-ellipsis">
+      State of Charge
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#bump-charge" class="md-nav__link">
     <span class="md-ellipsis">
       Bump Charge
@@ -608,6 +617,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#charge-cap-hours" class="md-nav__link">
+    <span class="md-ellipsis">
+      Charge Cap Hours
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#migrating-from-megakidha_octopus_intelligent" class="md-nav__link">
     <span class="md-ellipsis">
       Migrating from megakid/ha_octopus_intelligent?
@@ -637,27 +655,6 @@
   
   <span class="md-ellipsis">
     Wheel Of Fortune
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../greenness_forecast/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Greenness Forecast
   </span>
   
 
@@ -1188,6 +1185,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0004 - Rename saving sessions and free electricity sessions to power down and power up
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1300,6 +1318,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#state-of-charge" class="md-nav__link">
+    <span class="md-ellipsis">
+      State of Charge
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#bump-charge" class="md-nav__link">
     <span class="md-ellipsis">
       Bump Charge
@@ -1339,6 +1366,15 @@
   <a href="#target-time-time" class="md-nav__link">
     <span class="md-ellipsis">
       Target Time (Time)
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#charge-cap-hours" class="md-nav__link">
+    <span class="md-ellipsis">
+      Charge Cap Hours
     </span>
   </a>
   
@@ -1577,6 +1613,33 @@
 <li><code>LOST_CONNECTION</code> - lost connection to the device, ready to re-auth (if not temporary / automatic fix).</li>
 <li><code>RETIRED</code> - / de-authed (re-auth not possible, re-register device to onboard again).</li>
 </ul>
+<h2 id="state-of-charge">State of Charge<a class="headerlink" href="#state-of-charge" title="Permanent link">#</a></h2>
+<p><code>sensor.octopus_energy_{{DEVICE_ID}}_intelligent_state_of_charge</code></p>
+<p>This sensor displays the current battery percentage of your vehicle as reported by the OE API for a <strong>single</strong> intelligent device.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>last_reported</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp when the state of charge was last reported by the vehicle.</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>This sensor is only available for intelligent devices that support it, otherwise it will always return unknown.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#intelligent-dispatches-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers. If <a href="../../setup/account/#manually-refresh-intelligent-dispatches">manual refresh of dispatches</a> is enabled, it might not update at a regular frequency.</p>
+</div>
 <h2 id="bump-charge">Bump Charge<a class="headerlink" href="#bump-charge" title="Permanent link">#</a></h2>
 <p><code>switch.octopus_energy_{{DEVICE_ID}}_intelligent_bump_charge</code></p>
 <p>This sensor is used to turn on/off bump ("on-demand") charging for a <strong>single</strong> intelligent device.</p>
@@ -1669,6 +1732,22 @@
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. If enabled, it is advised to disable the <a href="#target-time-select">select based sensor</a> as the two can get out of sync. </p>
 </div>
+<h2 id="charge-cap-hours">Charge Cap Hours<a class="headerlink" href="#charge-cap-hours" title="Permanent link">#</a></h2>
+<p><code>sensor.octopus_energy_{{DEVICE_ID}}_intelligent_charge_cap_hours</code></p>
+<p>This sensor gives the number of hours used for dispatches during the current daily cap period (e.g. 12 noon to 12 noon).</p>
+<p>This is built from dispatches that have started due to incomplete data being available from completed dispatches (no way of knowing if a completed dispatch was from a boost charge or a planned dispatch).</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>This entity is not available for the following intelligent providers</p>
+<ul>
+<li>OHME</li>
+</ul>
+<p>This is due to started dispatches not being supported.</p>
+</div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>You can use the <a href="../diagnostics/#intelligent-settings-data-last-retrieved">data_last_retrieved sensor</a> to determine when the underlying data was last retrieved from the OE servers.</p>
+</div>
 <h2 id="migrating-from-megakidha_octopus_intelligent">Migrating from megakid/ha_octopus_intelligent?<a class="headerlink" href="#migrating-from-megakidha_octopus_intelligent" title="Permanent link">#</a></h2>
 <p>If you're moving to this integration from <a href="https://github.com/megakid/ha_octopus_intelligent">megakid/ha_octopus_intelligent</a>, below is a quick guide on what entities you should use</p>
 <ul>
@@ -1703,7 +1782,7 @@
       
     </span>
     <nav>
-      BottlecapDave, Sam Reed
+      BottlecapDave, Sam Reed, matt7aylor
     </nav>
   </span>
 

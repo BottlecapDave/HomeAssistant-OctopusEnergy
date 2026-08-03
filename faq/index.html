@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events/">
+        <link rel="prev" href="../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions/">
       
       
         <link rel="next" href="../sponsorship/">
@@ -523,27 +523,6 @@
   
   <span class="md-ellipsis">
     Wheel Of Fortune
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../entities/greenness_forecast/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Greenness Forecast
   </span>
   
 
@@ -1074,6 +1053,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0004 - Rename saving sessions and free electricity sessions to power down and power up
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1191,6 +1191,15 @@
   <a href="#ive-added-my-previous-consumption-sensors-to-the-energy-dashboard-but-they-are-reported-in-a-single-chunk-and-are-a-day-or-more-out-is-this-a-bug" class="md-nav__link">
     <span class="md-ellipsis">
       I've added my previous consumption sensors to the Energy dashboard, but they are reported in a single chunk and are a day or more out. Is this a bug?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sensors-relating-to-my-home-mini-have-stopped-updating-or-reporting-as-unknown-eg-current-electricity-consumption-is-this-a-problem-with-the-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sensors relating to my Home Mini have stopped updating or reporting as unknown (e.g. current electricity consumption). Is this a problem with the integration?
     </span>
   </a>
   
@@ -1505,6 +1514,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#sensors-relating-to-my-home-mini-have-stopped-updating-or-reporting-as-unknown-eg-current-electricity-consumption-is-this-a-problem-with-the-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      Sensors relating to my Home Mini have stopped updating or reporting as unknown (e.g. current electricity consumption). Is this a problem with the integration?
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#why-are-the-names-of-the-entities-so-long-and-can-you-change-them-to-be-shorter" class="md-nav__link">
     <span class="md-ellipsis">
       Why are the names of the entities so long, and can you change them to be shorter?
@@ -1741,12 +1759,12 @@
 <td>This should only change if the user's tariff changes, so no need to request data too often. Keep in sync with account refreshes. This will stop updating once we have the data for the requested time period.</td>
 </tr>
 <tr>
-<td>Saving sessions</td>
+<td>Power Down sessions</td>
 <td>15</td>
 <td>Inactive for most of the year and new sessions have enough warning to allow a bit of lag.</td>
 </tr>
 <tr>
-<td>Saving session target</td>
+<td>Power Down target</td>
 <td>30</td>
 <td>Not relevant most of the time and intensive due to retrieving consumption data</td>
 </tr>
@@ -1756,12 +1774,7 @@
 <td>Doesn't change that frequently, and not fundamental for a smart home (other than knowledge) so no need to request too often.</td>
 </tr>
 <tr>
-<td>Greenness Forecast</td>
-<td>180</td>
-<td>Doesn't change frequently</td>
-</tr>
-<tr>
-<td>Free electricity sessions</td>
+<td>Power Up sessions</td>
 <td>90</td>
 <td>Data is provided by my own <a href="https://github.com/BottlecapDave/OctopusEnergyApi">private API</a> and there is usually at least half a day notice before the sessions which is why this is refreshed slightly less than saving sessions.</td>
 </tr>
@@ -1860,6 +1873,11 @@
 </div>
 <p>Please follow the <a href="../setup/energy_dashboard/#previous-day-consumption">guide</a> for instructions on how to add these separate sensors to the energy dashboard.</p>
 <p>You should not have this issue for current consumption sensors, as they are updated in realtime.</p>
+<h2 id="sensors-relating-to-my-home-mini-have-stopped-updating-or-reporting-as-unknown-eg-current-electricity-consumption-is-this-a-problem-with-the-integration">Sensors relating to my Home Mini have stopped updating or reporting as unknown (e.g. current electricity consumption). Is this a problem with the integration?<a class="headerlink" href="#sensors-relating-to-my-home-mini-have-stopped-updating-or-reporting-as-unknown-eg-current-electricity-consumption-is-this-a-problem-with-the-integration" title="Permanent link">#</a></h2>
+<p>While the Home Mini is local, the data unfortunately can't be polled directly and instead has to go via the OE servers.</p>
+<p>The first thing to check is if the Home Mini is communicating with the OE servers. This can be confirmed by going to the "my energy" section of the website. If the website isn't reporting live data or has any data populated for today in the daily view, then it means there's something wrong with the connection between the Home Mini and the OE servers. This can be for a number of reasons</p>
+<p>The first thing to check is if the Home Mini hasn't frozen. There have been reports of this happening, especially in hot weather or locations. A quick reboot (turn it off and on again) usually fixes the problem. If this isn't the issue, then it might be worth looking at the <a href="https://octopus.energy/octopus-home-mini-faq">FAQ</a>.</p>
+<p>If your Home Mini is reporting data on the OE website, then please raise an <a href="https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues">issue</a>. Please include diagnostic data and an hour worth of debug Home Assistant logs.</p>
 <h2 id="why-are-the-names-of-the-entities-so-long-and-can-you-change-them-to-be-shorter">Why are the names of the entities so long, and can you change them to be shorter?<a class="headerlink" href="#why-are-the-names-of-the-entities-so-long-and-can-you-change-them-to-be-shorter" title="Permanent link">#</a></h2>
 <p>Naming things are hard. The entity ids are long for the following reasons</p>
 <ul>

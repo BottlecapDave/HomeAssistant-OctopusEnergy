@@ -467,6 +467,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#enforce-cap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enforce Cap
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -724,27 +733,6 @@
   
   <span class="md-ellipsis">
     Wheel Of Fortune
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../entities/greenness_forecast/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Greenness Forecast
   </span>
   
 
@@ -1275,6 +1263,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0004 - Rename saving sessions and free electricity sessions to power down and power up
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1480,6 +1489,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#enforce-cap" class="md-nav__link">
+    <span class="md-ellipsis">
+      Enforce Cap
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1606,6 +1624,13 @@
 <p>Octopus Intelligent can be known to provide planned dispatches with small windows (e.g. 3 minutes long). Depending on your charging mechanism, these small windows can result in the charging mechanism not having long enough to react and therefore causing these periods to not be counted as off peak periods. If you are doing other things during dispatch periods, this can result in your home performing tasks that are then counted as off peak tasks, or may not be long enough with the default refresh rate to do anything meaningful. </p>
 <p>Therefore, you can use this setting to determine the minimum length in minutes a planned dispatch must be in order to be taken into account by the integration. If a planned dispatch is below this number, then the <a href="../../entities/intelligent/#is-dispatching">is dispatching sensor</a> and <a href="../../entities/electricity/#off-peak">off peak sensor</a> will not turn on during these dispatches, nor will the <a href="../../entities/electricity/#current-rate">rate sensors</a> be adjusted to off peak rates during these periods.</p>
 <p>This defaults to zero to include all possible planned dispatches.</p>
+<h3 id="enforce-cap">Enforce Cap<a class="headerlink" href="#enforce-cap" title="Permanent link">#</a></h3>
+<p>With newer intelligent tariffs, a <a href="https://octopus.energy/blog/intelligent-octopus-go-smarter-charging-for-a-greener-grid/">6 hour cap</a> has been introduced. This can be enforced within the OE app. However, there are times when you might want to go over the cap for your car charging, but don't want your other automations to kick in because you know they'll be charged at peak rates.</p>
+<p>With this setting enabled, any rates where planned charges are scheduled but exceed the day's 6 hour cap won't be automatically adjusted to off peak rates. If you are driving automations from the "off peak" sensor or rate information and you're on one of these tariffs, it is advised to turn this setting on</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This is an artificial restriction imposed by the integration and is separate from the restriction setting within the OE app. You can have this enabled in the integration but disabled within the app and vice versa.</p>
+</div>
 <h2 id="home-pro-settings">Home Pro Settings<a class="headerlink" href="#home-pro-settings" title="Permanent link">#</a></h2>
 <p>If you are lucky enough to own an <a href="https://forum.octopus.energy/t/for-the-pro-user/8453/2352/">Octopus Home Pro</a> (note that is is no longer possible to obtain one), you can now receive this data locally from within Home Assistant.</p>
 <div class="admonition warning">

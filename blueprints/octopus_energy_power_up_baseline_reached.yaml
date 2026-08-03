@@ -1,6 +1,6 @@
 blueprint:
-  name: Octopus Energy - Free Electricity Session Baseline Reached
-  description: Automatically get an alert if current interval consumption has reached the current free electricity baseline
+  name: Octopus Energy - Power Up Session Baseline Reached
+  description: Automatically get an alert if current interval consumption has reached the current power up baseline
   domain: automation
   author: BottlecapDave
   input:
@@ -15,7 +15,7 @@ blueprint:
             integration: octopus_energy
     baseline_entity:
       name: Baseline entity
-      description: The entity which reports the current target baseline (e.g sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_octoplus_free_electricity_session_baseline)
+      description: The entity which reports the current target baseline (e.g sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_octoplus_power_up_baseline)
       selector:
         entity:
           filter:
@@ -31,7 +31,7 @@ trigger_variables:
   interval_consumption_entity: !input interval_consumption_entity
   baseline_entity: !input baseline_entity
 variables:
-  message: 'You have reached your current baseline ({{ states(baseline_entity) | round(2) }} kWh). Free electricity is now available for the current 30 minute period.'
+  message: 'You have reached your current baseline ({{ states(baseline_entity) | round(2) }} kWh). Power up is now available for the current 30 minute period.'
 mode: queued
 max: 4
 trigger:

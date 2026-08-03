@@ -541,27 +541,6 @@
   
   
     <li class="md-nav__item">
-      <a href="../greenness_forecast/" class="md-nav__link">
-        
-  
-  <span class="md-ellipsis">
-    Greenness Forecast
-  </span>
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="../home_pro/" class="md-nav__link">
         
   
@@ -677,15 +656,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#greenness-forecast-data-last-retrieved" class="md-nav__link">
-    <span class="md-ellipsis">
-      Greenness Forecast Data Last Retrieved
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#intelligent-dispatches-data-last-retrieved" class="md-nav__link">
     <span class="md-ellipsis">
       Intelligent Dispatches Data Last Retrieved
@@ -734,6 +704,24 @@
   <a href="#free-electricity-sessions-data-last-retrieved" class="md-nav__link">
     <span class="md-ellipsis">
       Free Electricity Sessions Data Last Retrieved
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#power-down-data-last-retrieved" class="md-nav__link">
+    <span class="md-ellipsis">
+      Power Down Data Last Retrieved
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#power-up-sessions-data-last-retrieved" class="md-nav__link">
+    <span class="md-ellipsis">
+      Power Up Sessions Data Last Retrieved
     </span>
   </a>
   
@@ -1233,6 +1221,27 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    0004 - Rename saving sessions and free electricity sessions to power down and power up
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1354,15 +1363,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#greenness-forecast-data-last-retrieved" class="md-nav__link">
-    <span class="md-ellipsis">
-      Greenness Forecast Data Last Retrieved
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#intelligent-dispatches-data-last-retrieved" class="md-nav__link">
     <span class="md-ellipsis">
       Intelligent Dispatches Data Last Retrieved
@@ -1411,6 +1411,24 @@
   <a href="#free-electricity-sessions-data-last-retrieved" class="md-nav__link">
     <span class="md-ellipsis">
       Free Electricity Sessions Data Last Retrieved
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#power-down-data-last-retrieved" class="md-nav__link">
+    <span class="md-ellipsis">
+      Power Down Data Last Retrieved
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#power-up-sessions-data-last-retrieved" class="md-nav__link">
+    <span class="md-ellipsis">
+      Power Up Sessions Data Last Retrieved
     </span>
   </a>
   
@@ -1532,39 +1550,6 @@
 <h2 id="current-consumption-home-pro-data-last-retrieved">Current Consumption Home Pro Data Last Retrieved<a class="headerlink" href="#current-consumption-home-pro-data-last-retrieved" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_home_pro_current_consumption_data_last_retrieved</code> or <code>sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_home_pro_current_consumption_data_last_retrieved</code></p>
 <p>This sensor states when the home pro current consumption data was last retrieved.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
-</div>
-<table>
-<thead>
-<tr>
-<th>Attribute</th>
-<th>Type</th>
-<th>Description</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>attempts</code></td>
-<td><code>integer</code></td>
-<td>The number of attempts that have been made to retrieve the data</td>
-</tr>
-<tr>
-<td><code>next_refresh</code></td>
-<td><code>datetime</code></td>
-<td>The timestamp of when the data will next be attempted to be retrieved</td>
-</tr>
-<tr>
-<td><code>last_error</code></td>
-<td><code>string</code></td>
-<td>The error that was raised to cause the last retrieval attempt to fail</td>
-</tr>
-</tbody>
-</table>
-<h2 id="greenness-forecast-data-last-retrieved">Greenness Forecast Data Last Retrieved<a class="headerlink" href="#greenness-forecast-data-last-retrieved" title="Permanent link">#</a></h2>
-<p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_greenness_forecast_data_last_retrieved</code></p>
-<p>This sensor states when greenness forecast data was last retrieved.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
@@ -1778,6 +1763,72 @@
 <h2 id="free-electricity-sessions-data-last-retrieved">Free Electricity Sessions Data Last Retrieved<a class="headerlink" href="#free-electricity-sessions-data-last-retrieved" title="Permanent link">#</a></h2>
 <p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_free_electricity_sessions_data_last_retrieved</code></p>
 <p>This sensor states when free electricity sessions data was last retrieved.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attempts</code></td>
+<td><code>integer</code></td>
+<td>The number of attempts that have been made to retrieve the data</td>
+</tr>
+<tr>
+<td><code>next_refresh</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp of when the data will next be attempted to be retrieved</td>
+</tr>
+<tr>
+<td><code>last_error</code></td>
+<td><code>string</code></td>
+<td>The error that was raised to cause the last retrieval attempt to fail</td>
+</tr>
+</tbody>
+</table>
+<h2 id="power-down-data-last-retrieved">Power Down Data Last Retrieved<a class="headerlink" href="#power-down-data-last-retrieved" title="Permanent link">#</a></h2>
+<p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_power_down_data_last_retrieved</code></p>
+<p>This sensor states when power down sessions data was last retrieved.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>attempts</code></td>
+<td><code>integer</code></td>
+<td>The number of attempts that have been made to retrieve the data</td>
+</tr>
+<tr>
+<td><code>next_refresh</code></td>
+<td><code>datetime</code></td>
+<td>The timestamp of when the data will next be attempted to be retrieved</td>
+</tr>
+<tr>
+<td><code>last_error</code></td>
+<td><code>string</code></td>
+<td>The error that was raised to cause the last retrieval attempt to fail</td>
+</tr>
+</tbody>
+</table>
+<h2 id="power-up-sessions-data-last-retrieved">Power Up Sessions Data Last Retrieved<a class="headerlink" href="#power-up-sessions-data-last-retrieved" title="Permanent link">#</a></h2>
+<p><code>sensor.octopus_energy_{{ACCOUNT_ID}}_power_up_data_last_retrieved</code></p>
+<p>This sensor states when power up sessions data was last retrieved.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>This is <a href="../../faq/#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them">disabled by default</a>. </p>
