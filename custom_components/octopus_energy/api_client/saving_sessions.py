@@ -34,16 +34,22 @@ class SavingSession(BaseOctoplusSession):
     self.targetRegions = targetRegions
 
 class SavingSessionsResponse:
-  available_events: list[SavingSession]
-  joined_events: list[SavingSession]
+  available_power_down_events: list[SavingSession]
+  joined_power_down_events: list[SavingSession]
+  available_power_up_events: list[SavingSession]
+  joined_power_up_events: list[SavingSession]
   regionId: str | None
 
   def __init__(
     self,
-    available_events: list[SavingSession],
-    joined_events: list[SavingSession],
+    available_power_down_events: list[SavingSession],
+    joined_power_down_events: list[SavingSession],
+    available_power_up_events: list[SavingSession],
+    joined_power_up_events: list[SavingSession],
     region: str | None
   ):
-    self.available_events = available_events
-    self.joined_events = joined_events
+    self.available_power_down_events = available_power_down_events
+    self.joined_power_down_events = joined_power_down_events
+    self.available_power_up_events = available_power_up_events
+    self.joined_power_up_events = joined_power_up_events
     self.regionId = region

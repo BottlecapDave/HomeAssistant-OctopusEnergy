@@ -17,8 +17,8 @@ async def test_when_get_saving_sessions_is_called_then_events_are_returned():
     # Assert
     assert result is not None
 
-    assert result.available_events is not None
-    for event in result.available_events:
+    assert result.available_power_down_events is not None
+    for event in result.available_power_down_events:
         assert event.id is not None
         assert event.code is not None
         assert event.start is not None
@@ -28,8 +28,27 @@ async def test_when_get_saving_sessions_is_called_then_events_are_returned():
             for region in event.targetRegions:
                 assert region in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
     
-    assert result.joined_events is not None
-    for event in result.joined_events:
+    assert result.joined_power_down_events is not None
+    for event in result.joined_power_down_events:
+        assert event.id is not None
+        assert event.code is None
+        assert event.start is not None
+        assert event.end is not None
+        assert event.octopoints is None or event.octopoints >= 0
+
+    assert result.available_power_up_events is not None
+    for event in result.available_power_up_events:
+        assert event.id is not None
+        assert event.code is not None
+        assert event.start is not None
+        assert event.end is not None
+        assert event.octopoints >= 0
+        if (event.targetRegions is not None):
+            for region in event.targetRegions:
+                assert region in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"]
+
+    assert result.joined_power_up_events is not None
+    for event in result.joined_power_up_events:
         assert event.id is not None
         assert event.code is None
         assert event.start is not None
