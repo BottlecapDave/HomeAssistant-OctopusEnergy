@@ -40,12 +40,7 @@ class OctopusEnergyIntelligentTargetTimeSelect(CoordinatorEntity, SelectEntity, 
     self._is_mocked = is_mocked
     self.entity_id = generate_entity_id("select.{}", self.unique_id, hass=hass)
 
-    self._options = []
-    current_time = datetime(2025, 1, 1, 0, 0)
-    final_time = datetime(2025, 1, 1, 23, 30)
-    while current_time < final_time:
-      self._options.append(f"{current_time.hour:02}:{current_time.minute:02}")
-      current_time = current_time + timedelta(minutes=30)
+    self._build_options()
 
   @property
   def unique_id(self):
@@ -121,9 +116,21 @@ class OctopusEnergyIntelligentTargetTimeSelect(CoordinatorEntity, SelectEntity, 
 
     if state is not None:
       self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
-      self._attributes = dict_to_typed_dict(state.attributes)
+      # `options` is derived fresh via _build_options/capability_attributes and must not be
+      # restored, otherwise the stale list overwrites the current one on every state write.
+      self._attributes = dict_to_typed_dict(state.attributes, keys_to_ignore=["options"])
     
     if (self._state is None):
       self._state = None
-    
+
+    self._build_options()
+  
     _LOGGER.debug(f'Restored OctopusEnergyIntelligentTargetTime state: {self._state}')
+
+  def _build_options(self):
+    self._options = []
+    current_time = datetime(2025, 1, 1, 0, 0)
+    final_time = datetime(2025, 1, 1, 23, 30)
+    while current_time <= final_time:
+      self._options.append(f"{current_time.hour:02}:{current_time.minute:02}")
+      current_time = current_time + timedelta(minutes=30)

@@ -6,8 +6,6 @@ from homeassistant.const import (
     STATE_UNKNOWN,
 )
 from homeassistant.core import HomeAssistant, callback
-from homeassistant.helpers.entity import generate_entity_id
-
 from homeassistant.util.dt import (now)
 from homeassistant.helpers.update_coordinator import (
   CoordinatorEntity
@@ -42,8 +40,6 @@ class OctopusEnergyElectricityOffPeak(CoordinatorEntity, OctopusEnergyElectricit
     }
     self._last_updated = None
 
-    self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
-
   @property
   def unique_id(self):
     """The id of the sensor."""
@@ -52,7 +48,7 @@ class OctopusEnergyElectricityOffPeak(CoordinatorEntity, OctopusEnergyElectricit
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Off Peak {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})"
+    return f"Off Peak {self._export_name_addition}".rstrip()
 
   @property
   def icon(self):

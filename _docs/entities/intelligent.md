@@ -100,6 +100,24 @@ This sensor displays the current state of your intelligent provider as told by t
 * `LOST_CONNECTION` - lost connection to the device, ready to re-auth (if not temporary / automatic fix).
 * `RETIRED` - / de-authed (re-auth not possible, re-register device to onboard again).
 
+## State of Charge
+
+`sensor.octopus_energy_{{DEVICE_ID}}_intelligent_state_of_charge`
+
+This sensor displays the current battery percentage of your vehicle as reported by the OE API for a **single** intelligent device.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `last_reported` | `datetime` | The timestamp when the state of charge was last reported by the vehicle. |
+
+!!! info
+
+    This sensor is only available for intelligent devices that support it, otherwise it will always return unknown.
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-dispatches-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers. If [manual refresh of dispatches](../setup/account.md#manually-refresh-intelligent-dispatches) is enabled, it might not update at a regular frequency.
+
 ## Bump Charge
 
 `switch.octopus_energy_{{DEVICE_ID}}_intelligent_bump_charge`
@@ -190,6 +208,27 @@ This gives you finer control over the times (still within valid time periods), b
 
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). If enabled, it is advised to disable the [select based sensor](#target-time-select) as the two can get out of sync. 
+
+## Charge Cap Hours
+
+`sensor.octopus_energy_{{DEVICE_ID}}_intelligent_charge_cap_hours`
+
+This sensor gives the number of hours used for dispatches during the current daily cap period (e.g. 12 noon to 12 noon).
+
+This is built from dispatches that have started due to incomplete data being available from completed dispatches (no way of knowing if a completed dispatch was from a boost charge or a planned dispatch).
+
+!!! info
+
+    This entity is not available for the following intelligent providers
+
+    * OHME
+
+    This is due to started dispatches not being supported.
+
+!!! info
+
+    You can use the [data_last_retrieved sensor](./diagnostics.md#intelligent-settings-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
+
 
 ## Migrating from megakid/ha_octopus_intelligent?
 

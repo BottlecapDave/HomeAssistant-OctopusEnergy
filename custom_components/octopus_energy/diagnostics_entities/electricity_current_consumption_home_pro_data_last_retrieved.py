@@ -8,7 +8,7 @@ class OctopusEnergyElectricityCurrentConsumptionHomeProDataLastRetrieved(Octopus
     """Init sensor."""
     self._mpan = point["mpan"]
     self._serial_number = meter["serial_number"]
-    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
+    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point, generate_legacy_entity_id=True)
     OctopusEnergyBaseDataLastRetrieved.__init__(self, hass, coordinator)
 
   @property

@@ -26,7 +26,7 @@ from .base import (OctopusEnergyGasSensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
 
-from ..statistics.cost import async_import_external_statistics_from_cost, get_gas_cost_statistic_unique_id
+from ..statistics.cost import async_import_external_statistics_from_cost, get_gas_cost_statistic_name, get_gas_cost_statistic_unique_id
 
 _LOGGER = logging.getLogger(__name__)
   
@@ -61,7 +61,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Previous Accumulative Cost Gas ({self._serial_number}/{self._mprn})"
+    return "Previous Accumulative Cost"
 
   @property
   def device_class(self):
@@ -130,7 +130,7 @@ class OctopusEnergyPreviousAccumulativeGasCost(CoordinatorEntity, OctopusEnergyG
         current,
         self._hass,
         get_gas_cost_statistic_unique_id(self._serial_number, self._mprn),
-        self.name,
+        get_gas_cost_statistic_name(self._serial_number, self._mprn),
         consumption_and_cost["charges"],
         rate_data,
         "GBP",

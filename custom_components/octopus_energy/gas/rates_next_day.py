@@ -38,7 +38,7 @@ class OctopusEnergyGasNextDayRates(OctopusEnergyGasSensor, EventEntity, RestoreE
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Next Day Rates Gas ({self._serial_number}/{self._mprn})"
+    return "Next Day Rates"
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""

@@ -38,7 +38,7 @@ class OctopusEnergyIntelligentChargeTarget(CoordinatorEntity, RestoreNumber, Oct
     self._is_mocked = is_mocked
     self.entity_id = generate_entity_id("number.{}", self.unique_id, hass=hass)
 
-    self._attr_native_min_value = 0
+    self._attr_native_min_value = 5
     self._attr_native_max_value = 100
     self._attr_native_step = 1
     self._attr_mode = NumberMode.BOX

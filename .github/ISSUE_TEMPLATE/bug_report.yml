@@ -73,7 +73,6 @@ body:
     id: confirm
     attributes:
       label: Confirmation
-      description: ""
       options:
         - label: I confirm that I cannot find my solution within the [documentation](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy)
           required: true

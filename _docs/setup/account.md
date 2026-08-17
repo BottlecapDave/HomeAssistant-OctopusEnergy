@@ -89,6 +89,16 @@ Therefore, you can use this setting to determine the minimum length in minutes a
 
 This defaults to zero to include all possible planned dispatches.
 
+### Enforce Cap
+
+With newer intelligent tariffs, a [6 hour cap](https://octopus.energy/blog/intelligent-octopus-go-smarter-charging-for-a-greener-grid/) has been introduced. This can be enforced within the OE app. However, there are times when you might want to go over the cap for your car charging, but don't want your other automations to kick in because you know they'll be charged at peak rates.
+
+With this setting enabled, any rates where planned charges are scheduled but exceed the day's 6 hour cap won't be automatically adjusted to off peak rates. If you are driving automations from the "off peak" sensor or rate information and you're on one of these tariffs, it is advised to turn this setting on
+
+!!! warning
+
+    This is an artificial restriction imposed by the integration and is separate from the restriction setting within the OE app. You can have this enabled in the integration but disabled within the app and vice versa.
+
 ## Home Pro Settings
 
 If you are lucky enough to own an [Octopus Home Pro](https://forum.octopus.energy/t/for-the-pro-user/8453/2352/) (note that is is no longer possible to obtain one), you can now receive this data locally from within Home Assistant.

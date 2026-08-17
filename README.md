@@ -28,7 +28,6 @@ Below are the main features of the integration
 * [Intelligent tariff settings support](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/intelligent/)
 * [Saving sessions support](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/octoplus/#saving-sessions)
 * [Wheel of fortune support](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/wheel_of_fortune/)
-* [Greener days support](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/greenness_forecast)
 * [Heat Pump support](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/entities/heat_pump)
 
 ## How to install

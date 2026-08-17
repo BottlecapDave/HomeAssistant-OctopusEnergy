@@ -28,7 +28,7 @@ from . import (
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
 
-from ..statistics.consumption import async_import_external_statistics_from_consumption, get_electricity_consumption_statistic_unique_id
+from ..statistics.consumption import async_import_external_statistics_from_consumption, get_electricity_consumption_statistic_name, get_electricity_consumption_statistic_unique_id
 from ..statistics.refresh import async_refresh_previous_electricity_consumption_data
 from ..api_client import OctopusEnergyApiClient
 from ..coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult
@@ -72,7 +72,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
   @property
   def name(self):
     """Name of the sensor."""
-    base_name = f"Previous Accumulative Consumption {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})"
+    base_name = f"Previous Accumulative Consumption {self._export_name_addition}".rstrip()
     
     if self._peak_type is not None:
       return f"{base_name} ({get_peak_name(self._peak_type)})"
@@ -154,7 +154,7 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
           current,
           self._hass,
           get_electricity_consumption_statistic_unique_id(self._serial_number, self._mpan, self._is_export),
-          self.name,
+          get_electricity_consumption_statistic_name(self._serial_number, self._mpan, self._is_export),
           consumption_and_cost["charges"],
           rate_data,
           UnitOfEnergy.KILO_WATT_HOUR,

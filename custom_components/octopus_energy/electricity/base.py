@@ -9,7 +9,7 @@ from ..const import (
 class OctopusEnergyElectricitySensor:
   _unrecorded_attributes = frozenset({"data_last_retrieved"})
 
-  def __init__(self, hass: HomeAssistant, meter, point, entity_domain = "sensor"):
+  def __init__(self, hass: HomeAssistant, meter, point, entity_domain = "sensor", generate_legacy_entity_id = False):
     """Init sensor"""
     self._point = point
     self._meter = meter
@@ -29,12 +29,13 @@ class OctopusEnergyElectricitySensor:
       "is_smart_meter": self._is_smart_meter
     }
 
-    self.entity_id = generate_entity_id(entity_domain + ".{}", self.unique_id, hass=hass)
+    self._attr_has_entity_name = generate_legacy_entity_id == False
+    if generate_legacy_entity_id:
+      self.entity_id = generate_entity_id(entity_domain + ".{}", self.unique_id, hass=hass)
 
-    export_name_suffix = " Export" if self._is_export == True else ""
     self._attr_device_info = DeviceInfo(
       identifiers={(DOMAIN, f"electricity_{self._serial_number}_{self._mpan}")},
-      name=f"Electricity Meter{export_name_suffix}",
+      name=f"Octopus Energy Electricity ({self._serial_number}/{self._mpan})",
       connections=set(),
       manufacturer=self._meter["manufacturer"],
       model=self._meter["model"],

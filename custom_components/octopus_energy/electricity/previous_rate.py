@@ -53,17 +53,12 @@ class OctopusEnergyElectricityPreviousRate(CoordinatorEntity, OctopusEnergyElect
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Previous Rate {self._export_name_addition}Electricity ({self._serial_number}/{self._mpan})"
+    return f"Previous Rate {self._export_name_addition}".rstrip()
 
   @property
   def state_class(self):
     """The state class of sensor"""
-    return SensorStateClass.TOTAL
-
-  @property
-  def device_class(self):
-    """The type of sensor"""
-    return SensorDeviceClass.MONETARY
+    return SensorStateClass.MEASUREMENT
 
   @property
   def icon(self):

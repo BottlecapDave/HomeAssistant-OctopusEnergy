@@ -24,8 +24,6 @@ from ..const import (
 )
 
 from ..api_client import (ApiException, OctopusEnergyApiClient)
-from ..api_client.intelligent_dispatches import IntelligentDispatches
-from ..api_client.intelligent_device import IntelligentDevice
 from ..utils import Tariff, private_rates_to_public_rates
 
 from ..intelligent import adjust_intelligent_rates, is_intelligent_product
@@ -33,7 +31,6 @@ from ..coordinators.intelligent_dispatches import IntelligentDispatchesCoordinat
 from . import BaseCoordinatorResult, get_electricity_meter_tariff, get_gas_meter_tariff
 from ..utils.rate_information import get_min_max_average_rates
 from ..octoplus import get_octoplus_session_weekday_dates, get_octoplus_session_weekend_dates, OctoplusSessionConsumptionDate
-from ..coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -315,7 +312,8 @@ async def async_fetch_consumption_and_rates(
                 rate_data = adjust_intelligent_rates(rate_data,
                                                     item.dispatches.planned,
                                                     item.dispatches.started,
-                                                    intelligent_rate_mode)
+                                                    intelligent_rate_mode,
+                                                    enforce_cap=True)
             
                 _LOGGER.debug(f"Rates adjusted: {rate_data}; device id: {key} dispatches: {item.dispatches.to_dict()}")
         else:

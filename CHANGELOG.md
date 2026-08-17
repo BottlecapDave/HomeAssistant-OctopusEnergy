@@ -1,3 +1,43 @@
+# [19.0.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v18.3.3...v19.0.0) (2026-08-03)
+
+
+### Bug Fixes
+
+* Improvements to invalid token recovery (30 minutes dev time) ([b7497b8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b7497b81c97e5723d9febb8ae2f6a9a87a72ffe1))
+
+
+### Features
+
+* Add Intelligent State of Charge to show vehicle battery charge level (Thanks [@matt7aylor](https://github.com/matt7aylor)) ([ffd980f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ffd980f35483d52b6328afd0fdf95f1e23788234))
+* Added new sensors to represent power up and power down events which will supercede saving session and free electricity session sensors (2 hours dev time) ([ae7ce2f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ae7ce2ff673f43cf1b42a470cb3d3a8112656762))
+* Added optional enforcement of intelligent 6 hour cap (3 hours dev time) ([24c796c](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/24c796c5eeb316c5b987198539a136c50488915a))
+* Added sensor for capturing dispatch hours during current charge cap (1 hour dev time) ([9bb5631](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9bb56310c5be9aee4ba0f7d058c29ec2e951c83a))
+* **custom:** removed free electricity binary sensor in favour of calendar sensor ([afa4d38](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/afa4d38fb579fbc32c6d21ab597ae26e16e01b02))
+* **custom:** removed greenness forecast highlighted binary sensor in favour of calendar sensor ([1e77ada](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/1e77adae8b7fc7c79e497f3944b19cea31f21699))
+* **custom:** removed saving session binary sensor in favour of calendar sensor ([9def3d8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9def3d8c0cf562c57f7f127a8dccf1481ba7b27d))
+* removed greener nights sensors due to service being discontinued ([09a10cd](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/09a10cd47db024644cbe0752ab94aec283e31aeb))
+* Updated deprecated isOctoplusEnrolled field to use new enrollmentStatus field (15 minutes dev time) ([4ac32b2](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4ac32b2be050c769e6777e5ab5d094bcab9e7069))
+* Updated intelligent charge target to support values from 0 to 100 (5 minutes dev time) ([b6cfe42](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/b6cfe42699fc6c0348990b42fe8ae78978daafc8))
+* Updated intelligent target time to allow setting 30 minute intervals throughout entire 24 hour block (5 minutes dev time) ([9c552da](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9c552dadc5412686593c073026288fada112fcf0))
+* Updated rate and standing charge sensors to be reported as measurement to support min/max/average statistics. This is to align with other HA integrations for this type of sensor ([8ced498](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/8ced4981796470a4c86f5378e5468ea189e6aecc))
+
+
+### BREAKING CHANGES
+
+* Greener night sensors are no longer provided due to the service being discontinued. Please update
+all dashboards and automations accordingly
+* With the type of sensor changing for rate and standing charge sensors, you may need to reset the
+statistics associated with these sensors. This may result in you losing long term history for these
+sensors.
+* **custom:** Removed greenness forecast highlighted binary sensor in favour of calendar sensor. This has been
+scheduled for 6 months. Similar reasoning can be found at
+https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events/
+* **custom:** Removed free electricity binary sensor in favour of calendar sensor. Full reasoning can be found at
+https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events/
+* **custom:** Saving session binary sensor has been removed in favour of calendar sensor. Full reasoning can be
+found at
+https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy/architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events/
+
 ## [18.3.3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v18.3.2...v18.3.3) (2026-07-08)
 
 

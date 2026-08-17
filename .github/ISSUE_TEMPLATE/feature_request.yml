@@ -29,7 +29,6 @@ body:
     id: docs
     attributes:
       label: Confirmation
-      description: ""
       options:
         - label: By submitting this feature request, you agree that you have read the [documentation](https://bottlecapdave.github.io/HomeAssistant-OctopusEnergy) and confirmed it does not already exist
           required: true

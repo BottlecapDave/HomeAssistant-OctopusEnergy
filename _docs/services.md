@@ -32,10 +32,6 @@ Service for joining a new saving session event. When used, it may take a couple 
 | `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated. This should always point at the [saving session events](./entities/octoplus.md#saving-session-events) entity. |
 | `data.event_code`      | `no`    | The code of the event to join |
 
-#### Automation Example
-
-For an automation example, please refer to the available [blueprint](./blueprints.md#automatically-join-saving-sessions).
-
 ### octopus_energy.redeem_octoplus_points_into_account_credit
 
 Allows you to redeem a certain number of of Octoplus points and convert them into account credit.

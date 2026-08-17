@@ -148,7 +148,7 @@ Standard calendar attributes will indicate the current/next saving session.
 
 !!! warning
 
-    These sensors are superceded by the sensors in the [Octopus Power Down](#octopus-power-down) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information.
+    These sensors are superceded by the sensors in the [Octopus Power Down](#octopus-power-down) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information. They will not be available for new accounts that are setup to avoid confusion for new users.
 
 !!! warning
 
@@ -186,7 +186,7 @@ The state of this sensor states when the saving session events were last updated
 
 !!! warning
 
-    These sensors are superceded by the sensors in the [Octopus Power Down](#octopus-power-down) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information.
+    These sensors are superceded by the sensors in the [Octopus Power Down](#octopus-power-down) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information. They will not be available for new accounts that are setup to avoid confusion for new users.
 
 !!! note
     This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor.
@@ -226,7 +226,7 @@ This will indicate the baseline consumption that you need to be below for the cu
 
 !!! warning
 
-    These sensors are superceded by the sensors in the [Octopus Power Down](#octopus-power-down) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information.
+    These sensors are superceded by the sensors in the [Octopus Power Down](#octopus-power-down) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information. They will not be available for new accounts that are setup to avoid confusion for new users.
 
 You can use the [current period consumption](./electricity.md#current-interval-accumulative-consumption) sensor (if available) to see how on track you are.
 
@@ -397,7 +397,7 @@ Standard calendar attributes will indicate the current/next saving session.
 
 !!! warning
 
-    These sensors are superceded by the sensors in the [Octopus Power Up](#octopus-power-up) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information.
+    These sensors are superceded by the sensors in the [Octopus Power Up](#octopus-power-up) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information. They will not be available for new accounts that are setup to avoid confusion for new users.
 
 !!! warning
 
@@ -441,7 +441,7 @@ The state of this sensor states when the free electricity session events were la
 
 !!! warning
 
-    These sensors are superceded by the sensors in the [Octopus Power Up](#octopus-power-up) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information.
+    These sensors are superceded by the sensors in the [Octopus Power Up](#octopus-power-up) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information. They will not be available for new accounts that are setup to avoid confusion for new users.
 
 !!! note
     This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to [free electricity sessions](https://octopus.energy/free-electricity/). This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi.
@@ -472,7 +472,7 @@ You can use the [current period consumption](./electricity.md#current-interval-a
 
 !!! warning
 
-    These sensors are superceded by the sensors in the [Octopus Power Up](#octopus-power-up) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information.
+    These sensors are superceded by the sensors in the [Octopus Power Up](#octopus-power-up) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information. They will not be available for new accounts that are setup to avoid confusion for new users.
 
 !!! note
     This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to [free electricity sessions](https://octopus.energy/free-electricity/). This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi.

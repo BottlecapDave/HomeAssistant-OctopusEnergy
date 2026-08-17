@@ -52,7 +52,7 @@ class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyEl
     """Init sensor."""
 
     MultiCoordinatorEntity.__init__(self, power_down_coordinator, [previous_rates_and_consumption_coordinator])
-    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point)
+    OctopusEnergyElectricitySensor.__init__(self, hass, meter, point, generate_legacy_entity_id=True)
 
     self._previous_rates_and_consumption_coordinator = previous_rates_and_consumption_coordinator
     self._state = None

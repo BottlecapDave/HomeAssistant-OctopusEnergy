@@ -9,7 +9,6 @@ from .const import (
   CONFIG_ACCOUNT_ID,
   CONFIG_MAIN_LEGACY_SAVING_SESSIONS_FREE_ELECTRICITY_PRESENT,
   DATA_POWER_UP_SESSIONS_COORDINATOR,
-  DATA_GREENNESS_FORECAST_COORDINATOR,
   DOMAIN,
 
   DATA_POWER_DOWN_COORDINATOR,
@@ -20,7 +19,6 @@ from .octoplus.free_electricity_sessions_calendar import OctopusEnergyFreeElectr
 from .octoplus.saving_sessions_calendar import OctopusEnergySavingSessionsCalendar
 from .octoplus.power_up_calendar import OctopusEnergyPowerUpCalendar
 from .octoplus.power_down_calendar import OctopusEnergyPowerDownCalendar
-from .greenness_forecast.greener_nights_calendar import OctopusEnergyGreenerNightsSessionsCalendar
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -44,12 +42,9 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
 
   power_down_coordinator = hass.data[DOMAIN][account_id][DATA_POWER_DOWN_COORDINATOR]
   power_up_sessions_coordinator = hass.data[DOMAIN][account_id][DATA_POWER_UP_SESSIONS_COORDINATOR]
-  greenness_forecast_coordinator = hass.data[DOMAIN][account_id][DATA_GREENNESS_FORECAST_COORDINATOR]
 
-  now = utcnow()
   entities = [
     OctopusEnergyPowerDownCalendar(hass, power_down_coordinator, account_id),
-    OctopusEnergyGreenerNightsSessionsCalendar(hass, greenness_forecast_coordinator, account_id),
   ]
 
   if legacy_saving_sessions_free_electricity_present:
