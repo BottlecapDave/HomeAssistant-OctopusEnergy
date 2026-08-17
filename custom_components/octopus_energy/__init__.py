@@ -22,7 +22,6 @@ from .coordinators.intelligent_dispatches import IntelligentDispatchesCoordinato
 from .coordinators.intelligent_settings import async_setup_intelligent_settings_coordinator
 from .coordinators.electricity_rates import async_setup_electricity_rates_coordinator
 from .coordinators.power_up_down_sessions import async_setup_power_up_down_coordinators
-from .coordinators.power_up_sessions import async_setup_power_up_sessions_coordinators
 from .statistics import get_statistic_ids_to_remove
 from .intelligent import get_intelligent_features, mock_intelligent_devices
 from .coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult, async_setup_heat_pump_coordinator
@@ -448,8 +447,6 @@ async def async_setup_dependencies(hass, config):
   await async_setup_account_info_coordinator(hass, account_id)
 
   await async_setup_power_up_down_coordinators(hass, account_id)
-
-  await async_setup_power_up_sessions_coordinators(hass, account_id)
 
 async def options_update_listener(hass, entry):
   """Handle options update."""

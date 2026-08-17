@@ -124,7 +124,6 @@ from .const import (
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_PRICE_CAP_SETTINGS,
   CONFIG_TARIFF_COMPARISON_MPAN_MPRN,
-  DATA_POWER_UP_SESSIONS_COORDINATOR,
   DATA_ACCOUNT_COORDINATOR,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
@@ -290,7 +289,6 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   
   client = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
-  power_up_sessions_coordinator = hass.data[DOMAIN][account_id][DATA_POWER_UP_SESSIONS_COORDINATOR]
   power_up_down_coordinator = hass.data[DOMAIN][account_id][DATA_POWER_UP_DOWN_COORDINATOR]
   home_pro_client = hass.data[DOMAIN][account_id][DATA_HOME_PRO_CLIENT] if DATA_HOME_PRO_CLIENT in hass.data[DOMAIN][account_id] else None
   
@@ -351,9 +349,9 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
     entities.append(OctopusEnergyOctoplusPoints(hass, client, account_id))
 
     if legacy_saving_sessions_free_electricity_present:
-      entities.append(OctopusEnergyFreeElectricitySessionsDataLastRetrieved(hass, power_up_sessions_coordinator, account_id))
+      entities.append(OctopusEnergyFreeElectricitySessionsDataLastRetrieved(hass, power_up_down_coordinator, account_id))
 
-    entities.append(OctopusEnergyPowerUpDataLastRetrieved(hass, power_up_sessions_coordinator, account_id))
+    entities.append(OctopusEnergyPowerUpDataLastRetrieved(hass, power_up_down_coordinator, account_id))
 
   account_debug_override = await async_get_account_debug_override(hass, account_id)
 
@@ -412,9 +410,9 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
 
           if octoplus_enrolled:
             if legacy_saving_sessions_free_electricity_present:
-              entities.append(OctopusEnergyFreeElectricitySessionBaseline(hass, power_up_sessions_coordinator, previous_consumption_coordinator, meter, point, account_debug_override.mock_power_down_baseline if debug_override is not None else False))
+              entities.append(OctopusEnergyFreeElectricitySessionBaseline(hass, power_up_down_coordinator, previous_consumption_coordinator, meter, point, account_debug_override.mock_power_down_baseline if debug_override is not None else False))
 
-            entities.append(OctopusEnergyPowerUpBaseline(hass, power_up_sessions_coordinator, previous_consumption_coordinator, meter, point, account_debug_override.mock_power_down_baseline if debug_override is not None else False))
+            entities.append(OctopusEnergyPowerUpBaseline(hass, power_up_down_coordinator, previous_consumption_coordinator, meter, point, account_debug_override.mock_power_down_baseline if debug_override is not None else False))
           
           # Create a peak override for each available peak type for our tariff
           total_unique_rates = await get_unique_electricity_rates(hass, client, electricity_tariff if debug_override is None or debug_override.tariff is None else debug_override.tariff)

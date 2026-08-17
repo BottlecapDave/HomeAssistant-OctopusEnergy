@@ -1,3 +1,4 @@
+from custom_components.octopus_energy.api_client.free_electricity_sessions import FreeElectricitySessionsResponse
 import pytest
 import mock
 from datetime import datetime, timedelta
@@ -5,11 +6,11 @@ from datetime import datetime, timedelta
 from custom_components.octopus_energy.coordinators.power_up_down_sessions import PowerUpDownSessionsCoordinatorResult, async_refresh_power_up_down_sessions
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
 from custom_components.octopus_energy.api_client.saving_sessions import SavingSession, SavingSessionsResponse
-from custom_components.octopus_energy.const import EVENT_ALL_SAVING_SESSIONS, EVENT_NEW_SAVING_SESSION, EVENT_ALL_POWER_DOWN_SESSIONS, EVENT_NEW_POWER_DOWN_SESSION, REFRESH_RATE_IN_MINUTES_OCTOPLUS_POWER_DOWN
+from custom_components.octopus_energy.const import EVENT_ALL_FREE_ELECTRICITY_SESSIONS, EVENT_ALL_POWER_UP_SESSIONS, EVENT_ALL_SAVING_SESSIONS, EVENT_NEW_SAVING_SESSION, EVENT_ALL_POWER_DOWN_SESSIONS, EVENT_NEW_POWER_DOWN_SESSION, REFRESH_RATE_IN_MINUTES_OCTOPLUS_POWER_DOWN
 
 region = "1"
 
-def assert_raised_new_saving_session_event(
+def assert_raised_new_power_down_event(
   raised_event: dict,
   account_id: str,
   expected_event: SavingSession
@@ -35,19 +36,20 @@ def assert_raised_new_saving_session_event(
   assert "event_octopoints_per_kwh" in raised_event
   assert raised_event["event_octopoints_per_kwh"] == expected_event.octopoints
 
-def assert_raised_all_saving_session_event(
+def assert_raised_all_power_down_event(
   raised_event: dict,
   account_id: str,
   all_available_events: list[SavingSession],
-  available_events: list[SavingSession],
-  joined_events: list[SavingSession]
+  expected_available_events: list[SavingSession],
+  expected_joined_events: list[SavingSession]
 ):
   assert "account_id" in raised_event
   assert raised_event["account_id"] == account_id
 
   assert "available_events" in raised_event
+  assert len(expected_available_events) == len(raised_event["available_events"])
   for idx, actual_event in enumerate(raised_event["available_events"]):
-    expected_event = available_events[idx]
+    expected_event = expected_available_events[idx]
 
     assert "id" in actual_event
     assert actual_event["id"] == expected_event.id
@@ -67,8 +69,9 @@ def assert_raised_all_saving_session_event(
     assert "octopoints_per_kwh" in actual_event
     assert actual_event["octopoints_per_kwh"] == expected_event.octopoints
 
+  assert len(expected_joined_events) == len(raised_event["joined_events"])
   for idx, actual_event in enumerate(raised_event["joined_events"]):
-    expected_event = joined_events[idx]
+    expected_event = expected_joined_events[idx]
 
     assert "id" in actual_event
     assert actual_event["id"] == expected_event.id
@@ -94,6 +97,35 @@ def assert_raised_all_saving_session_event(
     assert expected_available_event is not None
     assert "octopoints_per_kwh" in actual_event
     assert actual_event["octopoints_per_kwh"] == expected_available_event.octopoints
+
+def assert_raised_all_power_up_event(
+  raised_event: dict,
+  account_id: str,
+  all_available_events: list[SavingSession],
+  joined_events: list[SavingSession]
+):
+  assert "account_id" in raised_event
+  assert raised_event["account_id"] == account_id
+
+  for idx, actual_event in enumerate(raised_event["events"]):
+    expected_event = joined_events[idx]
+
+    assert "start" in actual_event
+    assert actual_event["start"] == expected_event.start
+
+    assert "end" in actual_event
+    assert actual_event["end"] == expected_event.end
+
+    assert "duration_in_minutes" in actual_event
+    assert actual_event["duration_in_minutes"] == expected_event.duration_in_minutes
+
+    expected_available_event = None
+    for event in all_available_events:
+      if event.id == expected_event.id:
+        expected_available_event = event
+        break
+
+    assert expected_available_event is not None
 
 @pytest.mark.asyncio
 async def test_when_next_refresh_is_in_the_future_and_previous_data_is_available_then_previous_data_returned():
@@ -142,7 +174,10 @@ async def test_when_upcoming_power_down_events_contains_events_in_past_then_even
   async def async_mocked_get_saving_sessions(*args, **kwargs):
     return SavingSessionsResponse([expected_saving_session], [], [], [], region)
 
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions): 
+  async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
+    return FreeElectricitySessionsResponse([])
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions, async_get_free_electricity_sessions=async_mocked_get_free_electricity_sessions):
     client = OctopusEnergyApiClient("NOT_REAL")
 
     # Act
@@ -157,9 +192,12 @@ async def test_when_upcoming_power_down_events_contains_events_in_past_then_even
     # Assert
     assert result is not None
 
-    assert len(actual_fired_events) == 2
-    assert_raised_all_saving_session_event(actual_fired_events[EVENT_ALL_SAVING_SESSIONS], account_id, [], [], [])
-    assert_raised_all_saving_session_event(actual_fired_events[EVENT_ALL_POWER_DOWN_SESSIONS], account_id, [], [], [])
+    assert len(actual_fired_events) == 4
+    assert_raised_all_power_down_event(actual_fired_events[EVENT_ALL_SAVING_SESSIONS], account_id, [], [], [])
+    assert_raised_all_power_down_event(actual_fired_events[EVENT_ALL_POWER_DOWN_SESSIONS], account_id, [], [], [])
+
+    assert_raised_all_power_up_event(actual_fired_events[EVENT_ALL_POWER_UP_SESSIONS], account_id, [], [])
+    assert_raised_all_power_up_event(actual_fired_events[EVENT_ALL_FREE_ELECTRICITY_SESSIONS], account_id, [], [])
 
 @pytest.mark.asyncio
 async def test_when_upcoming_power_down_events_contains_joined_events_then_events_filtered_out():
@@ -179,7 +217,10 @@ async def test_when_upcoming_power_down_events_contains_joined_events_then_event
   async def async_mocked_get_saving_sessions(*args, **kwargs):
     return SavingSessionsResponse([expected_saving_session], [expected_saving_session], [], [], region)
 
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions): 
+  async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
+      return FreeElectricitySessionsResponse([])
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions, async_get_free_electricity_sessions=async_mocked_get_free_electricity_sessions):
     client = OctopusEnergyApiClient("NOT_REAL")
 
     # Act
@@ -194,9 +235,12 @@ async def test_when_upcoming_power_down_events_contains_joined_events_then_event
     # Assert
     assert result is not None
 
-    assert len(actual_fired_events) == 2
-    assert_raised_all_saving_session_event(actual_fired_events[EVENT_ALL_SAVING_SESSIONS], account_id, [expected_saving_session], [], [expected_saving_session])
-    assert_raised_all_saving_session_event(actual_fired_events[EVENT_ALL_POWER_DOWN_SESSIONS], account_id, [expected_saving_session], [], [expected_saving_session])
+    assert len(actual_fired_events) == 4
+    assert_raised_all_power_down_event(actual_fired_events[EVENT_ALL_SAVING_SESSIONS], account_id, [expected_saving_session], [], [expected_saving_session])
+    assert_raised_all_power_down_event(actual_fired_events[EVENT_ALL_POWER_DOWN_SESSIONS], account_id, [expected_saving_session], [], [expected_saving_session])
+
+    assert_raised_all_power_up_event(actual_fired_events[EVENT_ALL_POWER_UP_SESSIONS], account_id, [], [])
+    assert_raised_all_power_up_event(actual_fired_events[EVENT_ALL_FREE_ELECTRICITY_SESSIONS], account_id, [], [])
 
 @pytest.mark.asyncio
 async def test_when_upcoming_power_down_events_present_and_no_previous_data_then_new_event_fired():
@@ -216,7 +260,13 @@ async def test_when_upcoming_power_down_events_present_and_no_previous_data_then
   async def async_mocked_get_saving_sessions(*args, **kwargs):
     return SavingSessionsResponse([expected_saving_session], [], [], [], region)
 
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions): 
+  async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
+      return FreeElectricitySessionsResponse([])
+  
+  async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
+      return FreeElectricitySessionsResponse([])
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions, async_get_free_electricity_sessions=async_mocked_get_free_electricity_sessions):
     client = OctopusEnergyApiClient("NOT_REAL")
 
     # Act
@@ -231,11 +281,14 @@ async def test_when_upcoming_power_down_events_present_and_no_previous_data_then
     # Assert
     assert result is not None
 
-    assert len(actual_fired_events) == 4
-    assert_raised_new_saving_session_event(actual_fired_events[EVENT_NEW_SAVING_SESSION], account_id, expected_saving_session)
-    assert_raised_all_saving_session_event(actual_fired_events[EVENT_ALL_SAVING_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
-    assert_raised_new_saving_session_event(actual_fired_events[EVENT_NEW_POWER_DOWN_SESSION], account_id, expected_saving_session)
-    assert_raised_all_saving_session_event(actual_fired_events[EVENT_ALL_POWER_DOWN_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
+    assert len(actual_fired_events) == 6
+    assert_raised_new_power_down_event(actual_fired_events[EVENT_NEW_SAVING_SESSION], account_id, expected_saving_session)
+    assert_raised_all_power_down_event(actual_fired_events[EVENT_ALL_SAVING_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
+    assert_raised_new_power_down_event(actual_fired_events[EVENT_NEW_POWER_DOWN_SESSION], account_id, expected_saving_session)
+    assert_raised_all_power_down_event(actual_fired_events[EVENT_ALL_POWER_DOWN_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
+
+    assert_raised_all_power_up_event(actual_fired_events[EVENT_ALL_POWER_UP_SESSIONS], account_id, [], [])
+    assert_raised_all_power_up_event(actual_fired_events[EVENT_ALL_FREE_ELECTRICITY_SESSIONS], account_id, [], [])
 
 @pytest.mark.asyncio
 @pytest.mark.parametrize("targetRegions", [
@@ -260,7 +313,10 @@ async def test_when_upcoming_power_down_events_present_and_not_in_previous_data_
   async def async_mocked_get_saving_sessions(*args, **kwargs):
     return SavingSessionsResponse([expected_saving_session], [], [], [], region)
 
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions): 
+  async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
+      return FreeElectricitySessionsResponse([])
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions, async_get_free_electricity_sessions=async_mocked_get_free_electricity_sessions):
     client = OctopusEnergyApiClient("NOT_REAL")
 
     # Act
@@ -277,11 +333,14 @@ async def test_when_upcoming_power_down_events_present_and_not_in_previous_data_
     assert len(result.available_power_down_events) == 1
     assert result.available_power_down_events[0] == expected_saving_session
 
-    assert len(actual_fired_events) == 4
-    assert_raised_new_saving_session_event(actual_fired_events[EVENT_NEW_SAVING_SESSION], account_id, expected_saving_session)
-    assert_raised_all_saving_session_event(actual_fired_events[EVENT_ALL_SAVING_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
-    assert_raised_new_saving_session_event(actual_fired_events[EVENT_NEW_POWER_DOWN_SESSION], account_id, expected_saving_session)
-    assert_raised_all_saving_session_event(actual_fired_events[EVENT_ALL_POWER_DOWN_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
+    assert len(actual_fired_events) == 6
+    assert_raised_new_power_down_event(actual_fired_events[EVENT_NEW_SAVING_SESSION], account_id, expected_saving_session)
+    assert_raised_all_power_down_event(actual_fired_events[EVENT_ALL_SAVING_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
+    assert_raised_new_power_down_event(actual_fired_events[EVENT_NEW_POWER_DOWN_SESSION], account_id, expected_saving_session)
+    assert_raised_all_power_down_event(actual_fired_events[EVENT_ALL_POWER_DOWN_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
+
+    assert_raised_all_power_up_event(actual_fired_events[EVENT_ALL_POWER_UP_SESSIONS], account_id, [], [])
+    assert_raised_all_power_up_event(actual_fired_events[EVENT_ALL_FREE_ELECTRICITY_SESSIONS], account_id, [], [])
 
 @pytest.mark.asyncio
 async def test_when_upcoming_power_down_events_present_but_for_different_region_then_not_in_upcoming_events():
@@ -301,7 +360,10 @@ async def test_when_upcoming_power_down_events_present_but_for_different_region_
   async def async_mocked_get_saving_sessions(*args, **kwargs):
     return SavingSessionsResponse([expected_saving_session], [], [], [], region)
 
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions): 
+  async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
+      return FreeElectricitySessionsResponse([])
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions, async_get_free_electricity_sessions=async_mocked_get_free_electricity_sessions):
     client = OctopusEnergyApiClient("NOT_REAL")
 
     # Act
@@ -317,9 +379,12 @@ async def test_when_upcoming_power_down_events_present_but_for_different_region_
     assert result is not None
     assert len(result.available_power_down_events) == 0
 
-    assert len(actual_fired_events) == 2
-    assert_raised_all_saving_session_event(actual_fired_events[EVENT_ALL_SAVING_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
-    assert_raised_all_saving_session_event(actual_fired_events[EVENT_ALL_POWER_DOWN_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
+    assert len(actual_fired_events) == 4
+    assert_raised_all_power_down_event(actual_fired_events[EVENT_ALL_SAVING_SESSIONS], account_id, [expected_saving_session], [], [])
+    assert_raised_all_power_down_event(actual_fired_events[EVENT_ALL_POWER_DOWN_SESSIONS], account_id, [expected_saving_session], [], [])
+
+    assert_raised_all_power_up_event(actual_fired_events[EVENT_ALL_POWER_UP_SESSIONS], account_id, [], [])
+    assert_raised_all_power_up_event(actual_fired_events[EVENT_ALL_FREE_ELECTRICITY_SESSIONS], account_id, [], [])
 
 
 @pytest.mark.asyncio
@@ -341,7 +406,10 @@ async def test_when_upcoming_power_down_events_present_and_in_previous_data_then
   
   previous_data = PowerUpDownSessionsCoordinatorResult(current_utc_timestamp - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_POWER_DOWN), 1, [expected_saving_session], [], [], [])
 
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions): 
+  async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
+      return FreeElectricitySessionsResponse([])
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions, async_get_free_electricity_sessions=async_mocked_get_free_electricity_sessions):
     client = OctopusEnergyApiClient("NOT_REAL")
 
     # Act
@@ -356,9 +424,12 @@ async def test_when_upcoming_power_down_events_present_and_in_previous_data_then
     # Assert
     assert result is not None
 
-    assert len(actual_fired_events) == 2
-    assert_raised_all_saving_session_event(actual_fired_events[EVENT_ALL_SAVING_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
-    assert_raised_all_saving_session_event(actual_fired_events[EVENT_ALL_POWER_DOWN_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
+    assert len(actual_fired_events) == 4
+    assert_raised_all_power_down_event(actual_fired_events[EVENT_ALL_SAVING_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
+    assert_raised_all_power_down_event(actual_fired_events[EVENT_ALL_POWER_DOWN_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
+
+    assert_raised_all_power_up_event(actual_fired_events[EVENT_ALL_POWER_UP_SESSIONS], account_id, [], [])
+    assert_raised_all_power_up_event(actual_fired_events[EVENT_ALL_FREE_ELECTRICITY_SESSIONS], account_id, [], [])
 
 @pytest.mark.asyncio
 async def test_when_upcoming_power_down_events_present_and_in_previous_data_but_with_different_event_code_then_new_event_fired():
@@ -379,7 +450,10 @@ async def test_when_upcoming_power_down_events_present_and_in_previous_data_but_
   
   previous_data = PowerUpDownSessionsCoordinatorResult(current_utc_timestamp - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_POWER_DOWN), 1, [SavingSession("1", "DEF", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)], [], [], [])
 
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions): 
+  async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
+      return FreeElectricitySessionsResponse([])
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions, async_get_free_electricity_sessions=async_mocked_get_free_electricity_sessions):
     client = OctopusEnergyApiClient("NOT_REAL")
 
     # Act
@@ -394,11 +468,14 @@ async def test_when_upcoming_power_down_events_present_and_in_previous_data_but_
     # Assert
     assert result is not None
 
-    assert len(actual_fired_events) == 4
-    assert_raised_new_saving_session_event(actual_fired_events[EVENT_NEW_SAVING_SESSION], account_id, expected_saving_session)
-    assert_raised_all_saving_session_event(actual_fired_events[EVENT_ALL_SAVING_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
-    assert_raised_new_saving_session_event(actual_fired_events[EVENT_NEW_POWER_DOWN_SESSION], account_id, expected_saving_session)
-    assert_raised_all_saving_session_event(actual_fired_events[EVENT_ALL_POWER_DOWN_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
+    assert len(actual_fired_events) == 6
+    assert_raised_new_power_down_event(actual_fired_events[EVENT_NEW_SAVING_SESSION], account_id, expected_saving_session)
+    assert_raised_all_power_down_event(actual_fired_events[EVENT_ALL_SAVING_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
+    assert_raised_new_power_down_event(actual_fired_events[EVENT_NEW_POWER_DOWN_SESSION], account_id, expected_saving_session)
+    assert_raised_all_power_down_event(actual_fired_events[EVENT_ALL_POWER_DOWN_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
+
+    assert_raised_all_power_up_event(actual_fired_events[EVENT_ALL_POWER_UP_SESSIONS], account_id, [], [])
+    assert_raised_all_power_up_event(actual_fired_events[EVENT_ALL_FREE_ELECTRICITY_SESSIONS], account_id, [], [])
 
 @pytest.mark.asyncio
 async def test_when_previous_data_is_out_of_date_then_new_date_is_retrieved():
@@ -422,7 +499,10 @@ async def test_when_previous_data_is_out_of_date_then_new_date_is_retrieved():
   
   previous_data = PowerUpDownSessionsCoordinatorResult(current_utc_timestamp - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_POWER_DOWN), 1, [], [expected_saving_session], [], [])
 
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions):
+  async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
+      return FreeElectricitySessionsResponse([])
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions, async_get_free_electricity_sessions=async_mocked_get_free_electricity_sessions):
     client = OctopusEnergyApiClient("NOT_REAL")
 
     # Act
@@ -461,7 +541,10 @@ async def test_when_exception_raised_then_previous_data_is_returned_and_exceptio
   
   previous_data = PowerUpDownSessionsCoordinatorResult(current_utc_timestamp - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_POWER_DOWN), 1, [], [SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)], [], [])
 
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions):
+  async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
+      return FreeElectricitySessionsResponse([])
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions, async_get_free_electricity_sessions=async_mocked_get_free_electricity_sessions):
     client = OctopusEnergyApiClient("NOT_REAL")
 
     # Act
@@ -501,7 +584,10 @@ async def test_when_upcoming_power_down_events_present_and_region_is_none_then_n
   async def async_mocked_get_saving_sessions(*args, **kwargs):
     return SavingSessionsResponse([expected_saving_session], [], [], [], None)
 
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions): 
+  async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
+      return FreeElectricitySessionsResponse([])
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_saving_sessions=async_mocked_get_saving_sessions, async_get_free_electricity_sessions=async_mocked_get_free_electricity_sessions):
     client = OctopusEnergyApiClient("NOT_REAL")
 
     # Act
@@ -517,6 +603,9 @@ async def test_when_upcoming_power_down_events_present_and_region_is_none_then_n
     assert result is not None
     assert len(result.available_power_down_events) == 0
 
-    assert len(actual_fired_events) == 2
-    assert_raised_all_saving_session_event(actual_fired_events[EVENT_ALL_SAVING_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
-    assert_raised_all_saving_session_event(actual_fired_events[EVENT_ALL_POWER_DOWN_SESSIONS], account_id, [expected_saving_session], [expected_saving_session], [])
+    assert len(actual_fired_events) == 4
+    assert_raised_all_power_down_event(actual_fired_events[EVENT_ALL_SAVING_SESSIONS], account_id, [expected_saving_session], [], [])
+    assert_raised_all_power_down_event(actual_fired_events[EVENT_ALL_POWER_DOWN_SESSIONS], account_id, [expected_saving_session], [], [])
+
+    assert_raised_all_power_up_event(actual_fired_events[EVENT_ALL_POWER_UP_SESSIONS], account_id, [], [])
+    assert_raised_all_power_up_event(actual_fired_events[EVENT_ALL_FREE_ELECTRICITY_SESSIONS], account_id, [], [])

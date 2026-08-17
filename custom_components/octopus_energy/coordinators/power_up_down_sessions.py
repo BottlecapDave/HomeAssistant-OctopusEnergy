@@ -64,6 +64,9 @@ def filter_available_events(current: datetime, available_events: list[SavingSess
 
   return filtered_events
 
+def get_start(event: SavingSession):
+  return event.start
+
 async def async_refresh_power_up_down_sessions(
     current: datetime,
     client: OctopusEnergyApiClient,
@@ -74,6 +77,7 @@ async def async_refresh_power_up_down_sessions(
   if existing_power_down_sessions_result is None or current >= existing_power_down_sessions_result.next_refresh:
     try:
       result = await client.async_get_saving_sessions(account_id)
+      free_electricity_result = await client.async_get_free_electricity_sessions(account_id)
       available_power_down_events = filter_available_events(current, result.available_power_down_events, result.joined_power_down_events, result.regionId)
       available_power_up_events = filter_available_events(current, result.available_power_up_events, result.joined_power_up_events, result.regionId)
 
@@ -162,7 +166,11 @@ async def async_refresh_power_up_down_sessions(
       })
 
       # Power up sessions appear to be auto-joined when they're applicable
-      for available_event in result.joined_power_up_events:
+      combined_joined_power_up_events = []
+      combined_joined_power_up_events.extend(free_electricity_result.data)
+      # combined_joined_power_up_events.extend(result.joined_power_up_events)
+      combined_joined_power_up_events.sort(key=get_start)
+      for available_event in combined_joined_power_up_events:
         is_new = True
 
         if existing_power_down_sessions_result is not None:
@@ -196,7 +204,7 @@ async def async_refresh_power_up_down_sessions(
           "start": as_local(ev.start),
           "end": as_local(ev.end),
           "duration_in_minutes": ev.duration_in_minutes
-        }, result.joined_power_up_events)),
+        }, combined_joined_power_up_events)),
       })
 
       fire_event(EVENT_ALL_POWER_UP_SESSIONS, { 
@@ -206,10 +214,10 @@ async def async_refresh_power_up_down_sessions(
           "start": as_local(ev.start),
           "end": as_local(ev.end),
           "duration_in_minutes": ev.duration_in_minutes
-        }, result.joined_power_up_events)),
+        }, combined_joined_power_up_events)),
       })
 
-      return PowerUpDownSessionsCoordinatorResult(current, 1, available_power_down_events, result.joined_power_down_events, available_power_up_events, result.joined_power_up_events)
+      return PowerUpDownSessionsCoordinatorResult(current, 1, available_power_down_events, result.joined_power_down_events, available_power_up_events, combined_joined_power_up_events)
     except Exception as e:
       if isinstance(e, ApiException) == False:
         raise
