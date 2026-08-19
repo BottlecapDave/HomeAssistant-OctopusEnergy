@@ -140,7 +140,7 @@ class OctopusEnergyFreeElectricitySessionBaseline(MultiCoordinatorEntity, Octopu
         target_free_electricity_session = BaseOctoplusSession('1', mock_free_electricity_session_start, mock_free_electricity_session_start + timedelta(hours=1))
 
       if (target_free_electricity_session is not None):
-        consumption_dates = get_octoplus_session_consumption_dates(target_free_electricity_session, power_up_down_sessions.events)
+        consumption_dates = get_octoplus_session_consumption_dates(target_free_electricity_session, power_up_down_sessions.joined_power_up_events)
         self._consumption_data = get_filtered_consumptions(previous_consumption.historic_weekday_consumption if target_free_electricity_session.start.weekday() < 5 else previous_consumption.historic_weekend_consumption, consumption_dates)
 
       target = get_octoplus_session_target(current, target_free_electricity_session, self._consumption_data if self._consumption_data is not None else [])

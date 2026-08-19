@@ -168,7 +168,7 @@ async def async_refresh_power_up_down_sessions(
       # Power up sessions appear to be auto-joined when they're applicable
       combined_joined_power_up_events = []
       combined_joined_power_up_events.extend(free_electricity_result.data)
-      # combined_joined_power_up_events.extend(result.joined_power_up_events)
+      combined_joined_power_up_events.extend(result.joined_power_up_events)
       combined_joined_power_up_events.sort(key=get_start)
       for available_event in combined_joined_power_up_events:
         is_new = True

@@ -75,7 +75,7 @@ class OctopusEnergyFreeElectricitySessionsCalendar(OctopusEnergyOctoplusSensor, 
 
     power_up_down_sessions: PowerUpDownSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
     if (power_up_down_sessions is not None):
-      self._events = power_up_down_sessions.events
+      self._events = power_up_down_sessions.joined_power_up_events
     else:
       self._events = []
 
