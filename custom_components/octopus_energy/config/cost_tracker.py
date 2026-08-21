@@ -3,23 +3,15 @@ import re
 from . import get_electricity_meter_tariffs
 
 from ..const import (
-  CONFIG_ACCOUNT_ID,
   CONFIG_COST_TRACKER_MONTH_DAY_RESET,
   CONFIG_COST_TRACKER_MPAN,
   CONFIG_COST_TRACKER_NAME,
-  CONFIG_COST_TRACKER_TARGET_ENTITY_ID,
   CONFIG_COST_TRACKER_WEEKDAY_RESET,
   REGEX_ENTITY_NAME
 )
 
-def get_cost_tracker_unique_id(account_id: str, target_entity_id: str) -> str:
+def build_cost_tracker_unique_id(account_id: str, target_entity_id: str) -> str:
   return f"octopus_energy_ct_{account_id}_{target_entity_id}"
-
-def get_cost_tracker_unique_id_from_config(data: dict) -> str:
-  return get_cost_tracker_unique_id(
-    data[CONFIG_ACCOUNT_ID],
-    data[CONFIG_COST_TRACKER_TARGET_ENTITY_ID]
-  )
 
 async def async_migrate_cost_tracker_config(version: int, data: {}, get_entries):
   new_data = {**data}

@@ -46,7 +46,7 @@ from ..cost_tracker import calculate_consumption_and_cost
 from ..utils.rate_information import get_rate_index, get_unique_rates
 from ..utils.attributes import dict_to_typed_dict
 from .base import BaseCostTracker
-from ..config.cost_tracker import get_cost_tracker_unique_id
+from ..config.cost_tracker import build_cost_tracker_unique_id
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -178,7 +178,7 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor, BaseCostT
               **self._config_entry.data,
               CONFIG_COST_TRACKER_TARGET_ENTITY_ID: new_entity_id,
             },
-            unique_id=get_cost_tracker_unique_id(
+            unique_id=build_cost_tracker_unique_id(
               self._config[CONFIG_ACCOUNT_ID],
               new_entity_id
             )

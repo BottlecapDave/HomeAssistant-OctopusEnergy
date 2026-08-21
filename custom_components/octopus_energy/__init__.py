@@ -29,7 +29,7 @@ from .coordinators.heat_pump_configuration_and_status import HeatPumpCoordinator
 from .config.tariff_comparison import async_migrate_tariff_comparison_config
 
 from .config.main import async_migrate_main_config
-from .config.cost_tracker import async_migrate_cost_tracker_config, get_cost_tracker_unique_id_from_config
+from .config.cost_tracker import async_migrate_cost_tracker_config, build_cost_tracker_unique_id
 from .utils import get_active_tariff, get_tariff_parts
 from .utils.debug_overrides import async_get_account_debug_override, async_get_meter_debug_override
 from .utils.error import api_exception_to_string
@@ -128,7 +128,10 @@ async def async_migrate_entry(hass, config_entry):
       title = new_data[CONFIG_ACCOUNT_ID]
     elif CONFIG_KIND in new_data and new_data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
       new_data = await async_migrate_cost_tracker_config(config_entry.version, new_data, hass.config_entries.async_entries)
-      unique_id = get_cost_tracker_unique_id_from_config(new_data)
+      unique_id = build_cost_tracker_unique_id(
+        new_data[CONFIG_ACCOUNT_ID],
+        new_data[CONFIG_COST_TRACKER_TARGET_ENTITY_ID]
+      )
 
       if config_entry.version < 9:
         async_remove_helper_config_entry_from_source_device(

@@ -34,16 +34,35 @@ def create_user_input(target_entity_id: str) -> dict:
   }
 
 
-@pytest.mark.asyncio
-async def test_discovery_flow_keeps_discovered_target_as_canonical_identity():
+def create_flow() -> OctopusEnergyConfigFlow:
   flow = OctopusEnergyConfigFlow()
   flow.hass = SimpleNamespace(data={
     DOMAIN: {
       "A-TEST": {
-        DATA_ACCOUNT: SimpleNamespace(account={}),
+        DATA_ACCOUNT: SimpleNamespace(account={"electricity_meter_points": []}),
       }
     }
   })
+  return flow
+
+
+def create_config_entry(target_entity_id: str) -> SimpleNamespace:
+  return SimpleNamespace(
+    data={
+      **create_user_input(target_entity_id),
+      CONFIG_KIND: CONFIG_KIND_COST_TRACKER,
+      CONFIG_ACCOUNT_ID: "A-TEST",
+    },
+  )
+
+
+def get_schema_fields(schema) -> set[str]:
+  return {getattr(field, "schema", field) for field in schema.schema}
+
+
+@pytest.mark.asyncio
+async def test_discovery_flow_keeps_discovered_target_as_canonical_identity():
+  flow = create_flow()
   flow._account_id = "A-TEST"
   flow._target_entity_id = "sensor.lounge_cooling_energy"
   flow._async_abort_entries_match = Mock()
@@ -71,7 +90,60 @@ async def test_discovery_flow_keeps_discovered_target_as_canonical_identity():
 
 
 @pytest.mark.asyncio
-async def test_migration_repairs_unique_id_from_canonical_target():
+async def test_manual_cost_tracker_form_includes_target_entity():
+  flow = create_flow()
+
+  schema = await flow.__async_setup_cost_tracker_schema__("A-TEST")
+
+  assert CONFIG_COST_TRACKER_TARGET_ENTITY_ID in get_schema_fields(schema)
+
+
+@pytest.mark.asyncio
+async def test_reconfigure_cost_tracker_form_hides_target_entity():
+  flow = create_flow()
+  flow._get_reconfigure_entry = Mock(
+    return_value=create_config_entry("sensor.lounge_cooling_energy")
+  )
+  flow.async_show_form = Mock(return_value={"type": "form"})
+
+  with patch(
+    "custom_components.octopus_energy.config_flow.validate_cost_tracker_config",
+    return_value={},
+  ):
+    await flow.async_step_reconfigure_cost_tracker(None)
+
+  schema = flow.async_show_form.call_args.kwargs["data_schema"]
+  assert CONFIG_COST_TRACKER_TARGET_ENTITY_ID not in get_schema_fields(schema)
+
+
+@pytest.mark.asyncio
+async def test_reconfigure_cost_tracker_preserves_existing_target_entity():
+  flow = create_flow()
+  config_entry = create_config_entry("sensor.lounge_cooling_energy")
+  flow._get_reconfigure_entry = Mock(return_value=config_entry)
+  flow.async_update_reload_and_abort = Mock(return_value={"type": "abort"})
+  user_input = create_user_input("sensor.kitchen_heating_energy")
+
+  with patch(
+    "custom_components.octopus_energy.config_flow.validate_cost_tracker_config",
+    return_value={},
+  ):
+    await flow.async_step_reconfigure_cost_tracker(user_input)
+
+  data_updates = flow.async_update_reload_and_abort.call_args.kwargs["data_updates"]
+  assert data_updates[CONFIG_COST_TRACKER_TARGET_ENTITY_ID] == "sensor.lounge_cooling_energy"
+  assert "unique_id" not in flow.async_update_reload_and_abort.call_args.kwargs
+
+
+@pytest.mark.parametrize(
+  "old_unique_id",
+  [
+    None,
+    "octopus_energy_ct_A-TEST_sensor.lounge_cooling_energy",
+  ],
+)
+@pytest.mark.asyncio
+async def test_migration_repairs_unique_id_from_canonical_target(old_unique_id):
   config_entry = SimpleNamespace(
     version=CONFIG_VERSION - 1,
     data={
@@ -81,7 +153,7 @@ async def test_migration_repairs_unique_id_from_canonical_target():
     },
     options={},
     title="Kitchen heating (cost tracker)",
-    unique_id="octopus_energy_ct_A-TEST_sensor.lounge_cooling_energy",
+    unique_id=old_unique_id,
     entry_id="entry-id",
   )
   config_entries = SimpleNamespace(
