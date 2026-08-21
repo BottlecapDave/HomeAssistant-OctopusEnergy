@@ -1276,6 +1276,7 @@ class OctopusEnergyApiClient:
               continue
 
             sessions.append(FreeElectricitySession(
+              item["id"],
               item["code"],
               as_utc(parse_datetime(item["start"])),
               as_utc(parse_datetime(item["end"]))))

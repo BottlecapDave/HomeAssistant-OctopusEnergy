@@ -175,14 +175,14 @@ async def async_refresh_power_up_down_sessions(
 
         if existing_power_down_sessions_result is not None:
           for existing_available_event in existing_power_down_sessions_result.joined_power_up_events:
-            # Look at code instead of id, in case the code changes but the id stays the same
-            if existing_available_event.code == available_event.code:
+            if existing_available_event.id == available_event.id:
               is_new = False
               break
 
         if is_new:
           fire_event(EVENT_NEW_FREE_ELECTRICITY_SESSION, { 
             "account_id": account_id,
+            "event_id": available_event.id,
             "event_code": available_event.code,
             "event_start": as_local(available_event.start),
             "event_end": as_local(available_event.end),
@@ -191,6 +191,7 @@ async def async_refresh_power_up_down_sessions(
 
           fire_event(EVENT_NEW_POWER_UP_SESSION, { 
             "account_id": account_id,
+            "event_id": available_event.id,
             "event_code": available_event.code,
             "event_start": as_local(available_event.start),
             "event_end": as_local(available_event.end),
@@ -200,6 +201,7 @@ async def async_refresh_power_up_down_sessions(
       fire_event(EVENT_ALL_FREE_ELECTRICITY_SESSIONS, { 
         "account_id": account_id,
         "events": list(map(lambda ev: {
+          "id": ev.id,
           "code": ev.code,
           "start": as_local(ev.start),
           "end": as_local(ev.end),
@@ -210,6 +212,7 @@ async def async_refresh_power_up_down_sessions(
       fire_event(EVENT_ALL_POWER_UP_SESSIONS, { 
         "account_id": account_id,
         "events": list(map(lambda ev: {
+          "id": ev.id,
           "code": ev.code,
           "start": as_local(ev.start),
           "end": as_local(ev.end),
