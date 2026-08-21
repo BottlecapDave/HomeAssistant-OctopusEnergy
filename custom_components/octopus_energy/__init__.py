@@ -128,16 +128,18 @@ async def async_migrate_entry(hass, config_entry):
       title = new_data[CONFIG_ACCOUNT_ID]
     elif CONFIG_KIND in new_data and new_data[CONFIG_KIND] == CONFIG_KIND_COST_TRACKER:
       new_data = await async_migrate_cost_tracker_config(config_entry.version, new_data, hass.config_entries.async_entries)
-      unique_id = build_cost_tracker_unique_id(
-        new_data[CONFIG_ACCOUNT_ID],
-        new_data[CONFIG_COST_TRACKER_TARGET_ENTITY_ID]
-      )
 
       if config_entry.version < 9:
         async_remove_helper_config_entry_from_source_device(
           hass,
           helper_config_entry_id=config_entry.entry_id,
           source_device_id=new_data[CONFIG_COST_TRACKER_TARGET_ENTITY_ID],
+        )
+
+      if config_entry.version < 11:
+        unique_id = build_cost_tracker_unique_id(
+          new_data[CONFIG_ACCOUNT_ID],
+          new_data[CONFIG_COST_TRACKER_TARGET_ENTITY_ID]
         )
 
     elif CONFIG_KIND in new_data and new_data[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:

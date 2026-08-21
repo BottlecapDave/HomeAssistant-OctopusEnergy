@@ -145,7 +145,7 @@ async def test_reconfigure_cost_tracker_preserves_existing_target_entity():
 @pytest.mark.asyncio
 async def test_migration_repairs_unique_id_from_canonical_target(old_unique_id):
   config_entry = SimpleNamespace(
-    version=CONFIG_VERSION - 1,
+    version=10,
     data={
       CONFIG_KIND: CONFIG_KIND_COST_TRACKER,
       CONFIG_ACCOUNT_ID: "A-TEST",
