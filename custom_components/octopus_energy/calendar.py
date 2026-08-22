@@ -8,10 +8,9 @@ from .const import (
   CONFIG_KIND_ACCOUNT,
   CONFIG_ACCOUNT_ID,
   CONFIG_MAIN_LEGACY_SAVING_SESSIONS_FREE_ELECTRICITY_PRESENT,
-  DATA_POWER_UP_SESSIONS_COORDINATOR,
   DOMAIN,
 
-  DATA_POWER_DOWN_COORDINATOR,
+  DATA_POWER_UP_DOWN_COORDINATOR,
   DATA_ACCOUNT
 )
 
@@ -40,20 +39,19 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
   octoplus_enrolled = account_info is not None and account_info["octoplus_enrolled"] == True
   legacy_saving_sessions_free_electricity_present = config[CONFIG_MAIN_LEGACY_SAVING_SESSIONS_FREE_ELECTRICITY_PRESENT] if CONFIG_MAIN_LEGACY_SAVING_SESSIONS_FREE_ELECTRICITY_PRESENT in config else False
 
-  power_down_coordinator = hass.data[DOMAIN][account_id][DATA_POWER_DOWN_COORDINATOR]
-  power_up_sessions_coordinator = hass.data[DOMAIN][account_id][DATA_POWER_UP_SESSIONS_COORDINATOR]
+  power_up_down_coordinator = hass.data[DOMAIN][account_id][DATA_POWER_UP_DOWN_COORDINATOR]
 
   entities = [
-    OctopusEnergyPowerDownCalendar(hass, power_down_coordinator, account_id),
+    OctopusEnergyPowerDownCalendar(hass, power_up_down_coordinator, account_id),
   ]
 
   if legacy_saving_sessions_free_electricity_present:
-    entities.append(OctopusEnergySavingSessionsCalendar(hass, power_down_coordinator, account_id))
+    entities.append(OctopusEnergySavingSessionsCalendar(hass, power_up_down_coordinator, account_id))
 
   if octoplus_enrolled:
     if legacy_saving_sessions_free_electricity_present:
-      entities.append(OctopusEnergyFreeElectricitySessionsCalendar(hass, power_up_sessions_coordinator, account_id))
-    entities.append(OctopusEnergyPowerUpCalendar(hass, power_up_sessions_coordinator, account_id))
+      entities.append(OctopusEnergyFreeElectricitySessionsCalendar(hass, power_up_down_coordinator, account_id))
+    entities.append(OctopusEnergyPowerUpCalendar(hass, power_up_down_coordinator, account_id))
 
   if len(entities) > 0:
     async_add_entities(entities)

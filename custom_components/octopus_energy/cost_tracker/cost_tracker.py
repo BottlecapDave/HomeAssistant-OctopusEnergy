@@ -32,6 +32,7 @@ from homeassistant.util.unit_conversion import (
 )
 
 from ..const import (
+  CONFIG_ACCOUNT_ID,
   CONFIG_COST_TRACKER_ENTITY_ACCUMULATIVE_VALUE,
   CONFIG_COST_TRACKER_MANUAL_RESET,
   CONFIG_COST_TRACKER_TARGET_ENTITY_ID,
@@ -45,6 +46,7 @@ from ..cost_tracker import calculate_consumption_and_cost
 from ..utils.rate_information import get_rate_index, get_unique_rates
 from ..utils.attributes import dict_to_typed_dict
 from .base import BaseCostTracker
+from ..config.cost_tracker import build_cost_tracker_unique_id
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -175,7 +177,11 @@ class OctopusEnergyCostTrackerSensor(CoordinatorEntity, RestoreSensor, BaseCostT
             data={
               **self._config_entry.data,
               CONFIG_COST_TRACKER_TARGET_ENTITY_ID: new_entity_id,
-            }
+            },
+            unique_id=build_cost_tracker_unique_id(
+              self._config[CONFIG_ACCOUNT_ID],
+              new_entity_id
+            )
         )
         _LOGGER.debug(f"Tracked entity for '{self.entity_id}' updated from '{self._config[CONFIG_COST_TRACKER_TARGET_ENTITY_ID]}' to '{new_entity_id}'. Reloading...")
         await self._hass.config_entries.async_reload(self._config_entry.entry_id)

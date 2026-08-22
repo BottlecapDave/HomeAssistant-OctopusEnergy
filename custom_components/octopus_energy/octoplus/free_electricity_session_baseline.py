@@ -25,9 +25,9 @@ from . import (
   get_octoplus_session_target
 )
 
-from ..coordinators.power_up_sessions import PowerUpSessionsCoordinatorResult
+from ..coordinators.power_up_down_sessions import PowerUpDownSessionsCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
-from ..api_client.free_electricity_sessions import FreeElectricitySession
+from ..api_client.octoplus_session import BaseOctoplusSession
 
 from ..electricity.base import OctopusEnergyElectricitySensor
 from ..coordinators import MultiCoordinatorEntity
@@ -127,20 +127,20 @@ class OctopusEnergyFreeElectricitySessionBaseline(MultiCoordinatorEntity, Octopu
       return
     
     current: datetime = utcnow()
-    free_electricity_sessions: PowerUpSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
+    power_up_down_sessions: PowerUpDownSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
     previous_consumption: PreviousConsumptionCoordinatorResult = self._previous_rates_and_consumption_coordinator.data if self._previous_rates_and_consumption_coordinator is not None else None
-    if free_electricity_sessions is not None and previous_consumption is not None:
+    if power_up_down_sessions is not None and previous_consumption is not None:
 
-      target_free_electricity_session = current_octoplus_sessions_event(current, free_electricity_sessions.events)
+      target_free_electricity_session = current_octoplus_sessions_event(current, power_up_down_sessions.joined_power_up_events)
       if (target_free_electricity_session is None):
-        target_free_electricity_session = get_next_octoplus_sessions_event(current, free_electricity_sessions.events)
+        target_free_electricity_session = get_next_octoplus_sessions_event(current, power_up_down_sessions.joined_power_up_events)
 
       if (target_free_electricity_session is None and self._mock_baseline == True):
         mock_free_electricity_session_start = current.replace(minute=0, second=0, microsecond=0)
-        target_free_electricity_session = FreeElectricitySession('1', mock_free_electricity_session_start, mock_free_electricity_session_start + timedelta(hours=1))
+        target_free_electricity_session = BaseOctoplusSession('1', mock_free_electricity_session_start, mock_free_electricity_session_start + timedelta(hours=1))
 
       if (target_free_electricity_session is not None):
-        consumption_dates = get_octoplus_session_consumption_dates(target_free_electricity_session, free_electricity_sessions.events)
+        consumption_dates = get_octoplus_session_consumption_dates(target_free_electricity_session, power_up_down_sessions.joined_power_up_events)
         self._consumption_data = get_filtered_consumptions(previous_consumption.historic_weekday_consumption if target_free_electricity_session.start.weekday() < 5 else previous_consumption.historic_weekend_consumption, consumption_dates)
 
       target = get_octoplus_session_target(current, target_free_electricity_session, self._consumption_data if self._consumption_data is not None else [])

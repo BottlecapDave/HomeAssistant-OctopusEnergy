@@ -2,7 +2,7 @@ import logging
 
 import voluptuous as vol
 
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, SupportsResponse
 from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers import config_validation as cv, entity_platform
 
@@ -59,6 +59,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
       ),
     ),
     "async_join_saving_session_event",
+    supports_response=SupportsResponse.OPTIONAL,
   )
   platform.async_register_entity_service(
     "join_octoplus_power_down_session_event",
@@ -71,6 +72,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
       ),
     ),
     "async_join_saving_session_event",
+    supports_response=SupportsResponse.OPTIONAL,
   )
 
   return True

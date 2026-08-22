@@ -15,6 +15,8 @@ Service for joining a new power down session event. When used, it may take a cou
 | `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated. This should always point at the [power down events](./entities/octoplus.md#power-down-events) entity. |
 | `data.event_code`      | `no`    | The code of the event to join |
 
+This service supports an optional response. If the event is joined successfully, calling the service with `response_variable` (or `return_response: true` when using `hass.services.async_call`) will return `{"success": true}`. If the event cannot be joined (e.g. it no longer exists), the service call will fail and raise an error containing the reason, allowing the failure to be trapped in automations/scripts.
+
 #### Automation Example
 
 For an automation example, please refer to the available [blueprint](./blueprints.md#automatically-join-power-down-sessions).
@@ -31,6 +33,8 @@ Service for joining a new saving session event. When used, it may take a couple 
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
 | `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated. This should always point at the [saving session events](./entities/octoplus.md#saving-session-events) entity. |
 | `data.event_code`      | `no`    | The code of the event to join |
+
+This service supports an optional response. If the event is joined successfully, calling the service with `response_variable` (or `return_response: true` when using `hass.services.async_call`) will return `{"success": true}`. If the event cannot be joined (e.g. it no longer exists), the service call will fail and raise an error containing the reason, allowing the failure to be trapped in automations/scripts.
 
 ### octopus_energy.redeem_octoplus_points_into_account_credit
 

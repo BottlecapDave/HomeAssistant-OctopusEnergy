@@ -1,6 +1,7 @@
 import logging
 
 from homeassistant.core import HomeAssistant, callback
+from homeassistant.exceptions import ServiceValidationError
 
 from homeassistant.components.event import (
     EventEntity,
@@ -71,6 +72,7 @@ class OctopusEnergyOctoplusSavingSessionEvents(OctopusEnergyOctoplusSensor, Even
 
     result = await self._client.async_join_octoplus_saving_session(self._account_id, event_code)
     if (result.is_successful == False):
-      raise Exception(result.errors[0])
-    else:
-      self._hass.data[DOMAIN][self._account_id][DATA_POWER_DOWN_FORCE_UPDATE] = True
+      raise ServiceValidationError(result.errors[0])
+
+    self._hass.data[DOMAIN][self._account_id][DATA_POWER_DOWN_FORCE_UPDATE] = True
+    return { "success": True }

@@ -12,9 +12,13 @@ from ..const import (
   DATA_POWER_DOWN_FORCE_UPDATE,
   DOMAIN,
   DATA_CLIENT,
-  DATA_POWER_DOWN_SESSIONS,
-  DATA_POWER_DOWN_COORDINATOR,
+  DATA_POWER_UP_DOWN_SESSIONS,
+  DATA_POWER_UP_DOWN_COORDINATOR,
+  EVENT_ALL_FREE_ELECTRICITY_SESSIONS,
+  EVENT_ALL_POWER_UP_SESSIONS,
   EVENT_ALL_SAVING_SESSIONS,
+  EVENT_NEW_FREE_ELECTRICITY_SESSION,
+  EVENT_NEW_POWER_UP_SESSION,
   EVENT_NEW_SAVING_SESSION,
   EVENT_ALL_POWER_DOWN_SESSIONS,
   EVENT_NEW_POWER_DOWN_SESSION,
@@ -27,14 +31,18 @@ from . import BaseCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
-class PowerDownSessionsCoordinatorResult(BaseCoordinatorResult):
-  available_events: list[SavingSession]
-  joined_events: list[SavingSession]
+class PowerUpDownSessionsCoordinatorResult(BaseCoordinatorResult):
+  available_power_down_events: list[SavingSession]
+  joined_power_down_events: list[SavingSession]
+  available_power_up_events: list[SavingSession]
+  joined_power_up_events: list[SavingSession]
 
-  def __init__(self, last_evaluated: datetime, request_attempts: int, available_events: list[SavingSession], joined_events: list[SavingSession], last_error: Exception | None = None):
+  def __init__(self, last_evaluated: datetime, request_attempts: int, available_power_down_events: list[SavingSession], joined_power_down_events: list[SavingSession], available_power_up_events: list[SavingSession], joined_power_up_events: list[SavingSession], last_error: Exception | None = None):
     super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_OCTOPLUS_POWER_DOWN, None, last_error)
-    self.available_events = available_events
-    self.joined_events = joined_events
+    self.available_power_down_events = available_power_down_events
+    self.joined_power_down_events = joined_power_down_events
+    self.available_power_up_events = available_power_up_events
+    self.joined_power_up_events = joined_power_up_events
 
 def filter_available_events(current: datetime, available_events: list[SavingSession], joined_events: list[SavingSession], regionId: str | None) -> list[SavingSession]:
   filtered_events = []
@@ -56,23 +64,28 @@ def filter_available_events(current: datetime, available_events: list[SavingSess
 
   return filtered_events
 
-async def async_refresh_power_down_sessions(
+def get_start(event: SavingSession):
+  return event.start
+
+async def async_refresh_power_up_down_sessions(
     current: datetime,
     client: OctopusEnergyApiClient,
     account_id: str,
-    existing_power_down_sessions_result: PowerDownSessionsCoordinatorResult,
+    existing_power_down_sessions_result: PowerUpDownSessionsCoordinatorResult,
     fire_event: Callable[[str, "dict[str, Any]"], None],
-) -> PowerDownSessionsCoordinatorResult:
+) -> PowerUpDownSessionsCoordinatorResult:
   if existing_power_down_sessions_result is None or current >= existing_power_down_sessions_result.next_refresh:
     try:
       result = await client.async_get_saving_sessions(account_id)
-      available_events = filter_available_events(current, result.available_events, result.joined_events, result.regionId)
+      free_electricity_result = await client.async_get_free_electricity_sessions(account_id)
+      available_power_down_events = filter_available_events(current, result.available_power_down_events, result.joined_power_down_events, result.regionId)
+      available_power_up_events = filter_available_events(current, result.available_power_up_events, result.joined_power_up_events, result.regionId)
 
-      for available_event in available_events:
+      for available_event in available_power_down_events:
         is_new = True
 
         if existing_power_down_sessions_result is not None:
-          for existing_available_event in existing_power_down_sessions_result.available_events:
+          for existing_available_event in existing_power_down_sessions_result.available_power_down_events:
             # Look at code instead of id, in case the code changes but the id stays the same
             if existing_available_event.code == available_event.code:
               is_new = False
@@ -103,16 +116,16 @@ async def async_refresh_power_down_sessions(
             "event_target_regions": available_event.targetRegions
           })
 
-      joined_events = []
-      for ev in result.joined_events:
+      joined_power_down_events = []
+      for ev in result.joined_power_down_events:
         # Find original event so we can retrieve the octopoints per kwh
         original_event = None
-        for available_event in result.available_events:
+        for available_event in result.available_power_down_events:
           if (available_event.id == ev.id):
             original_event = available_event
             break
 
-        joined_events.append({
+        joined_power_down_events.append({
           "id": ev.id,
           "start": as_local(ev.start),
           "end": as_local(ev.end),
@@ -133,8 +146,8 @@ async def async_refresh_power_down_sessions(
           "duration_in_minutes": ev.duration_in_minutes,
           "octopoints_per_kwh": ev.octopoints,
           "target_regions": ev.targetRegions
-        }, available_events)),
-        "joined_events": joined_events, 
+        }, available_power_down_events)),
+        "joined_events": joined_power_down_events, 
       })
 
       fire_event(EVENT_ALL_POWER_DOWN_SESSIONS, { 
@@ -148,32 +161,91 @@ async def async_refresh_power_down_sessions(
           "duration_in_minutes": ev.duration_in_minutes,
           "octopoints_per_kwh": ev.octopoints,
           "target_regions": ev.targetRegions
-        }, available_events)),
-        "joined_events": joined_events, 
+        }, available_power_down_events)),
+        "joined_events": joined_power_down_events, 
       })
 
-      return PowerDownSessionsCoordinatorResult(current, 1, available_events, result.joined_events)
+      # Power up sessions appear to be auto-joined when they're applicable
+      combined_joined_power_up_events = []
+      combined_joined_power_up_events.extend(free_electricity_result.data)
+      combined_joined_power_up_events.extend(result.joined_power_up_events)
+      combined_joined_power_up_events.sort(key=get_start)
+      for available_event in combined_joined_power_up_events:
+        is_new = True
+
+        if existing_power_down_sessions_result is not None:
+          for existing_available_event in existing_power_down_sessions_result.joined_power_up_events:
+            if existing_available_event.id == available_event.id:
+              is_new = False
+              break
+
+        if is_new:
+          fire_event(EVENT_NEW_FREE_ELECTRICITY_SESSION, { 
+            "account_id": account_id,
+            "event_id": available_event.id,
+            "event_code": available_event.code,
+            "event_start": as_local(available_event.start),
+            "event_end": as_local(available_event.end),
+            "event_duration_in_minutes": available_event.duration_in_minutes
+          })
+
+          fire_event(EVENT_NEW_POWER_UP_SESSION, { 
+            "account_id": account_id,
+            "event_id": available_event.id,
+            "event_code": available_event.code,
+            "event_start": as_local(available_event.start),
+            "event_end": as_local(available_event.end),
+            "event_duration_in_minutes": available_event.duration_in_minutes
+          })
+
+      fire_event(EVENT_ALL_FREE_ELECTRICITY_SESSIONS, { 
+        "account_id": account_id,
+        "events": list(map(lambda ev: {
+          "id": ev.id,
+          "code": ev.code,
+          "start": as_local(ev.start),
+          "end": as_local(ev.end),
+          "duration_in_minutes": ev.duration_in_minutes
+        }, combined_joined_power_up_events)),
+      })
+
+      fire_event(EVENT_ALL_POWER_UP_SESSIONS, { 
+        "account_id": account_id,
+        "events": list(map(lambda ev: {
+          "id": ev.id,
+          "code": ev.code,
+          "start": as_local(ev.start),
+          "end": as_local(ev.end),
+          "duration_in_minutes": ev.duration_in_minutes
+        }, combined_joined_power_up_events)),
+      })
+
+      return PowerUpDownSessionsCoordinatorResult(current, 1, available_power_down_events, result.joined_power_down_events, available_power_up_events, combined_joined_power_up_events)
     except Exception as e:
       if isinstance(e, ApiException) == False:
         raise
       
       result = None
       if (existing_power_down_sessions_result is not None):
-        result = PowerDownSessionsCoordinatorResult(
+        result = PowerUpDownSessionsCoordinatorResult(
           existing_power_down_sessions_result.last_evaluated,
           existing_power_down_sessions_result.request_attempts + 1,
-          existing_power_down_sessions_result.available_events,
-          existing_power_down_sessions_result.joined_events,
+          existing_power_down_sessions_result.available_power_down_events,
+          existing_power_down_sessions_result.joined_power_down_events,
+          existing_power_down_sessions_result.available_power_up_events,
+          existing_power_down_sessions_result.joined_power_up_events,
           last_error=e
         )
 
         if (result.request_attempts == 2):
           _LOGGER.warning(f"Failed to retrieve saving sessions - using cached data. See diagnostics sensor for more information.")
       else:
-        result = PowerDownSessionsCoordinatorResult(
+        result = PowerUpDownSessionsCoordinatorResult(
           # We want to force into our fallback mode
           current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_POWER_DOWN),
           2,
+          [],
+          [],
           [],
           [],
           last_error=e
@@ -184,7 +256,7 @@ async def async_refresh_power_down_sessions(
   
   return existing_power_down_sessions_result
 
-async def async_setup_power_down_coordinators(hass, account_id: str):
+async def async_setup_power_up_down_coordinators(hass, account_id: str):
 
   async def async_update_power_down_sessions():
     """Fetch data from API endpoint."""
@@ -192,9 +264,9 @@ async def async_setup_power_down_coordinators(hass, account_id: str):
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
     force_update = hass.data[DOMAIN][account_id][DATA_POWER_DOWN_FORCE_UPDATE] if DATA_POWER_DOWN_FORCE_UPDATE in hass.data[DOMAIN][account_id] else False
-    previous_result = hass.data[DOMAIN][account_id][DATA_POWER_DOWN_SESSIONS] if DATA_POWER_DOWN_SESSIONS in hass.data[DOMAIN][account_id] else None
+    previous_result = hass.data[DOMAIN][account_id][DATA_POWER_UP_DOWN_SESSIONS] if DATA_POWER_UP_DOWN_SESSIONS in hass.data[DOMAIN][account_id] else None
 
-    result = await async_refresh_power_down_sessions(
+    result = await async_refresh_power_up_down_sessions(
       current,
       client,
       account_id,
@@ -205,13 +277,13 @@ async def async_setup_power_down_coordinators(hass, account_id: str):
     if result != previous_result:
       hass.data[DOMAIN][account_id][DATA_POWER_DOWN_FORCE_UPDATE] = False
 
-    hass.data[DOMAIN][account_id][DATA_POWER_DOWN_SESSIONS] = result
-    return hass.data[DOMAIN][account_id][DATA_POWER_DOWN_SESSIONS]
+    hass.data[DOMAIN][account_id][DATA_POWER_UP_DOWN_SESSIONS] = result
+    return hass.data[DOMAIN][account_id][DATA_POWER_UP_DOWN_SESSIONS]
 
-  hass.data[DOMAIN][account_id][DATA_POWER_DOWN_COORDINATOR] = DataUpdateCoordinator(
+  hass.data[DOMAIN][account_id][DATA_POWER_UP_DOWN_COORDINATOR] = DataUpdateCoordinator(
     hass,
     _LOGGER,
-    name=f"saving_sessions_{account_id}",
+    name=f"power_up_down_sessions_{account_id}",
     update_method=async_update_power_down_sessions,
     # Because of how we're using the data, we'll update every minute, but we will only actually retrieve
     # data every 30 minutes

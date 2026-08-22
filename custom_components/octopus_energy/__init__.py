@@ -21,15 +21,14 @@ from .coordinators.account import AccountCoordinatorResult, async_setup_account_
 from .coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult, async_setup_intelligent_dispatches_coordinator
 from .coordinators.intelligent_settings import async_setup_intelligent_settings_coordinator
 from .coordinators.electricity_rates import async_setup_electricity_rates_coordinator
-from .coordinators.power_down_sessions import async_setup_power_down_coordinators
-from .coordinators.power_up_sessions import async_setup_power_up_sessions_coordinators
+from .coordinators.power_up_down_sessions import async_setup_power_up_down_coordinators
 from .statistics import get_statistic_ids_to_remove
 from .intelligent import get_intelligent_features, mock_intelligent_devices
 from .coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult, async_setup_heat_pump_coordinator
 from .config.tariff_comparison import async_migrate_tariff_comparison_config
 
 from .config.main import async_migrate_main_config
-from .config.cost_tracker import async_migrate_cost_tracker_config
+from .config.cost_tracker import async_migrate_cost_tracker_config, build_cost_tracker_unique_id
 from .utils import get_active_tariff, get_tariff_parts
 from .utils.debug_overrides import async_get_account_debug_override, async_get_meter_debug_override
 from .utils.error import api_exception_to_string
@@ -117,6 +116,7 @@ async def async_migrate_entry(hass, config_entry):
 
     new_data = dict(config_entry.data)
     title = config_entry.title
+    unique_id = config_entry.unique_id
 
     # Move to reconfiguration from options
     if (config_entry.version <= 8 and new_data is not None and config_entry.options is not None):
@@ -135,10 +135,16 @@ async def async_migrate_entry(hass, config_entry):
           source_device_id=new_data[CONFIG_COST_TRACKER_TARGET_ENTITY_ID],
         )
 
+      if config_entry.version < 11:
+        unique_id = build_cost_tracker_unique_id(
+          new_data[CONFIG_ACCOUNT_ID],
+          new_data[CONFIG_COST_TRACKER_TARGET_ENTITY_ID]
+        )
+
     elif CONFIG_KIND in new_data and new_data[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:
       new_data = await async_migrate_tariff_comparison_config(config_entry.version, new_data, hass.config_entries.async_entries)
     
-    hass.config_entries.async_update_entry(config_entry, title=title, data=new_data, options={}, version=CONFIG_VERSION)
+    hass.config_entries.async_update_entry(config_entry, title=title, data=new_data, options={}, unique_id=unique_id, version=CONFIG_VERSION)
 
     _LOGGER.debug("Migration to version %s successful", config_entry.version)
 
@@ -447,9 +453,7 @@ async def async_setup_dependencies(hass, config):
 
   await async_setup_account_info_coordinator(hass, account_id)
 
-  await async_setup_power_down_coordinators(hass, account_id)
-
-  await async_setup_power_up_sessions_coordinators(hass, account_id)
+  await async_setup_power_up_down_coordinators(hass, account_id)
 
 async def options_update_listener(hass, entry):
   """Handle options update."""

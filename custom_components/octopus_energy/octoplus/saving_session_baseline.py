@@ -25,7 +25,7 @@ from . import (
   get_octoplus_session_target
 )
 
-from ..coordinators.power_down_sessions import PowerDownSessionsCoordinatorResult
+from ..coordinators.power_up_down_sessions import PowerUpDownSessionsCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
 from ..api_client.saving_sessions import SavingSession
 
@@ -127,14 +127,14 @@ class OctopusEnergySavingSessionBaseline(MultiCoordinatorEntity, OctopusEnergyEl
       return
     
     current: datetime = utcnow()
-    saving_session: PowerDownSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
+    saving_session: PowerUpDownSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
     previous_consumption: PreviousConsumptionCoordinatorResult = self._previous_rates_and_consumption_coordinator.data if self._previous_rates_and_consumption_coordinator is not None else None
     if saving_session is not None and previous_consumption is not None:
 
-      all_saving_sessions = saving_session.available_events + saving_session.joined_events
-      target_saving_session = current_octoplus_sessions_event(current, saving_session.joined_events)
+      all_saving_sessions = saving_session.available_power_down_events + saving_session.joined_power_down_events
+      target_saving_session = current_octoplus_sessions_event(current, saving_session.joined_power_down_events)
       if (target_saving_session is None):
-        target_saving_session = get_next_octoplus_sessions_event(current, saving_session.joined_events)
+        target_saving_session = get_next_octoplus_sessions_event(current, saving_session.joined_power_down_events)
 
       if (target_saving_session is None and self._mock_baseline == True):
         mock_saving_session_start = current.replace(minute=0, second=0, microsecond=0)

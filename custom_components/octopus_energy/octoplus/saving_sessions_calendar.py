@@ -18,7 +18,7 @@ from . import (
   current_octoplus_sessions_event,
   get_next_octoplus_sessions_event
 )
-from ..coordinators.power_down_sessions import PowerDownSessionsCoordinatorResult
+from ..coordinators.power_up_down_sessions import PowerUpDownSessionsCoordinatorResult
 from ..octoplus.base import OctopusEnergyOctoplusSensor
 
 _LOGGER = logging.getLogger(__name__)
@@ -59,9 +59,9 @@ class OctopusEnergySavingSessionsCalendar(OctopusEnergyOctoplusSensor, Coordinat
   def _handle_coordinator_update(self) -> None:
     """Determine if the user is in a free electricity session."""
 
-    saving_session: PowerDownSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
+    saving_session: PowerUpDownSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
     if (saving_session is not None):
-      self._events = saving_session.joined_events
+      self._events = saving_session.joined_power_down_events
     else:
       self._events = []
 

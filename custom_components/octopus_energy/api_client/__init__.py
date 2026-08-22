@@ -307,6 +307,7 @@ backend_octoplus_saving_session_query = '''query {{
       targetRegion {{
         regionId
       }}
+      eventType
 		}}
 		account(accountNumber: "{account_id}") {{
       signedUpMeterPoint {{
@@ -318,6 +319,7 @@ backend_octoplus_saving_session_query = '''query {{
 				startAt
 				endAt
         rewardGivenInOctoPoints
+        eventType
 			}}
 		}}
 	}}
@@ -568,6 +570,8 @@ mutation {{
 }}
 '''
 
+power_down_event_types = ["TURN_DOWN"]
+power_up_event_types = ["TURN_UP", "WEEKEND_HAPPY_HOUR"]
 
 user_agent_value = "bottlecapdave-ha-octopus-energy"
 
@@ -1206,22 +1210,42 @@ class OctopusEnergyApiClient:
         response_body = await self.__async_read_response__(account_response, url)
 
         if (response_body is not None and "data" in response_body):
-          return SavingSessionsResponse(list(map(lambda ev: SavingSession(ev["id"],
-                                                                          ev["code"],
-                                                                          as_utc(parse_datetime(ev["startAt"])),
-                                                                          as_utc(parse_datetime(ev["endAt"])),
-                                                                          ev["rewardPerKwhInOctoPoints"],
-                                                                          list(map(lambda gsp: f"{gsp['regionId']}", ev["targetRegion"]))
-                                                                          if "targetRegion" in ev and ev["targetRegion"] is not None
-                                                                          else None),
-                                        response_body["data"]["savingSessions"]["events"])), 
-                                        list(map(lambda ev: SavingSession(ev["eventId"],
-                                                                          None,
-                                                                          as_utc(parse_datetime(ev["startAt"])),
-                                                                          as_utc(parse_datetime(ev["endAt"])),
-                                                                          ev["rewardGivenInOctoPoints"],
-                                                                          None),
-                                        response_body["data"]["savingSessions"]["account"]["joinedEvents"])),
+
+          available_power_down_events = []
+          available_power_up_events = []
+          joined_power_down_events = []
+          joined_power_up_events = []
+
+          for ev in response_body["data"]["savingSessions"]["events"]:
+            saving_session_event = SavingSession(ev["id"],
+                                                 ev["code"],
+                                                 as_utc(parse_datetime(ev["startAt"])),
+                                                 as_utc(parse_datetime(ev["endAt"])),
+                                                 ev["rewardPerKwhInOctoPoints"],
+                                                 list(map(lambda gsp: f"{gsp['regionId']}", ev["targetRegion"]))
+                                                 if "targetRegion" in ev and ev["targetRegion"] is not None
+                                                 else None)
+            if ev["eventType"] in power_down_event_types:
+              available_power_down_events.append(saving_session_event)
+            elif ev["eventType"] in power_up_event_types:
+              available_power_up_events.append(saving_session_event)
+
+          for ev in response_body["data"]["savingSessions"]["account"]["joinedEvents"]:
+            saving_session_event = SavingSession(ev["eventId"],
+                                                 None,
+                                                 as_utc(parse_datetime(ev["startAt"])),
+                                                 as_utc(parse_datetime(ev["endAt"])),
+                                                 ev["rewardGivenInOctoPoints"],
+                                                 None)
+            if ev["eventType"] in power_down_event_types:
+              joined_power_down_events.append(saving_session_event)
+            elif ev["eventType"] in power_up_event_types:
+              joined_power_up_events.append(saving_session_event)
+
+          return SavingSessionsResponse(available_power_down_events,
+                                        joined_power_down_events,
+                                        available_power_up_events,
+                                        joined_power_up_events,
                                         f"{response_body["data"]["savingSessions"]["account"]["signedUpMeterPoint"]["regionId"]}"
                                         if "signedUpMeterPoint" in response_body["data"]["savingSessions"]["account"] and response_body["data"]["savingSessions"]["account"]["signedUpMeterPoint"] is not None and "regionId" in response_body["data"]["savingSessions"]["account"]["signedUpMeterPoint"]
                                         else None)
@@ -1252,6 +1276,7 @@ class OctopusEnergyApiClient:
               continue
 
             sessions.append(FreeElectricitySession(
+              item["id"],
               item["code"],
               as_utc(parse_datetime(item["start"])),
               as_utc(parse_datetime(item["end"]))))

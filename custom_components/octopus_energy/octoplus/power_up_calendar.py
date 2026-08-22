@@ -16,3 +16,8 @@ class OctopusEnergyPowerUpCalendar(OctopusEnergyFreeElectricitySessionsCalendar)
   def name(self):
     """Name of the sensor."""
     return f"Octoplus Power Up ({self._account_id})"
+
+  @property
+  def calendar_summary(self):
+    """Summary for calendar entries"""
+    return f"Octopus Energy Power Up"

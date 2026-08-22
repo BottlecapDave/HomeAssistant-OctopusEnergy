@@ -5,7 +5,7 @@ Accepted
 
 ## Context
 
-The integration provides sensors for Saving Sessions and Free Electricity Sessions. These have been renamed to power down and power up sessions respectively. Because of this the name of the provided sensors can bring confussion for newer Octopus Energy users. It can also provide confusion for existing Octopus Energy users who think the inititives are new and that the integration doesn't provide functionality.
+The integration provides sensors for Saving Sessions and Free Electricity Sessions. These have been renamed to power down and power up sessions respectively. Because of this the name of the provided sensors can bring confusion for newer Octopus Energy users. It can also provide confusion for existing Octopus Energy users who think the initiatives are new and that the integration doesn't provide functionality.
 
 This has been driven from https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1759
 
@@ -25,4 +25,4 @@ New accounts which are setup will only have access to the new sensors and will n
 - Avoid confusion for users looking for power up/down functionality
 
 ### Negative
-- Users using effected entities will need to update all references, including new blueprint references
+- Users using affected entities will need to update all references, including new blueprint references

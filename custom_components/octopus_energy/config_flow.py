@@ -12,7 +12,7 @@ from homeassistant.components.sensor import (
 from homeassistant.helpers.typing import DiscoveryInfoType
 
 from .coordinators.account import AccountCoordinatorResult
-from .config.cost_tracker import validate_cost_tracker_config
+from .config.cost_tracker import build_cost_tracker_unique_id, validate_cost_tracker_config
 from .config.main import async_validate_main_config
 from .const import (
   CONFIG_COST_TRACKER_DISCOVERY_ACCOUNT_ID,
@@ -163,7 +163,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
         "name": discovery_info[CONFIG_COST_TRACKER_DISCOVERY_NAME],
       }
 
-      unique_id = f"octopus_energy_ct_{self._account_id}_{self._target_entity_id}"
+      unique_id = build_cost_tracker_unique_id(self._account_id, self._target_entity_id)
       await self.async_set_unique_id(unique_id)
       self._abort_if_unique_id_configured()
       
@@ -299,7 +299,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       errors=errors
     )
   
-  async def __async_setup_cost_tracker_schema__(self, account_id: str):
+  async def __async_setup_cost_tracker_schema__(self, account_id: str, include_target_entity_id = True):
 
     account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT] if account_id is not None and account_id in self.hass.data[DOMAIN] else None
     if (account_info is None):
@@ -308,7 +308,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     now = utcnow()
     meters = get_electricity_meters(account_info.account, now)
 
-    return vol.Schema({
+    schema = {
       vol.Required(CONFIG_COST_TRACKER_NAME): str,
       vol.Required(CONFIG_COST_TRACKER_MPAN): selector.SelectSelector(
           selector.SelectSelectorConfig(
@@ -328,7 +328,12 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
           )
       ),
       vol.Required(CONFIG_COST_TRACKER_MONTH_DAY_RESET, default=1): cv.positive_int,
-    })
+    }
+
+    if include_target_entity_id == False:
+      del schema[CONFIG_COST_TRACKER_TARGET_ENTITY_ID]
+
+    return vol.Schema(schema)
 
   async def async_step_cost_tracker_account(self, user_input):
     if user_input is None or CONFIG_ACCOUNT_ID not in user_input:
@@ -342,6 +347,9 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     """Setup a target based on the provided user input"""
     account_id = self._account_id
 
+    if user_input is not None and self._target_entity_id is not None:
+      user_input[CONFIG_COST_TRACKER_TARGET_ENTITY_ID] = self._target_entity_id
+
     account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
     if (account_info is None):
       return self.async_abort(reason="account_not_found")
@@ -350,6 +358,15 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     errors = validate_cost_tracker_config(user_input, account_info.account, now) if user_input is not None else {}
 
     if len(errors) < 1 and user_input is not None:
+      self._async_abort_entries_match({
+        CONFIG_KIND: CONFIG_KIND_COST_TRACKER,
+        CONFIG_ACCOUNT_ID: account_id,
+        CONFIG_COST_TRACKER_TARGET_ENTITY_ID: user_input[CONFIG_COST_TRACKER_TARGET_ENTITY_ID],
+      })
+      unique_id = build_cost_tracker_unique_id(account_id, user_input[CONFIG_COST_TRACKER_TARGET_ENTITY_ID])
+      await self.async_set_unique_id(unique_id, raise_on_progress=False)
+      self._abort_if_unique_id_configured()
+
       user_input[CONFIG_KIND] = CONFIG_KIND_COST_TRACKER
       user_input[CONFIG_ACCOUNT_ID] = account_id
       return self.async_create_entry(
@@ -363,7 +380,10 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       }
 
     # Reshow our form with raised logins
-    data_schema = await self.__async_setup_cost_tracker_schema__(self._account_id)
+    data_schema = await self.__async_setup_cost_tracker_schema__(
+      self._account_id,
+      include_target_entity_id=self._target_entity_id is None
+    )
     return self.async_show_form(
       step_id="cost_tracker",
       data_schema=self.add_suggested_values_to_schema(
@@ -381,6 +401,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     """Setup a target based on the provided user input"""
     config = dict()
     config.update(self._get_reconfigure_entry().data)
+    target_entity_id = config[CONFIG_COST_TRACKER_TARGET_ENTITY_ID]
 
     account_id = config[CONFIG_ACCOUNT_ID]
     account_info: AccountCoordinatorResult = self.hass.data[DOMAIN][account_id][DATA_ACCOUNT]
@@ -389,6 +410,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     
     if user_input is not None:
       config.update(user_input)
+      config[CONFIG_COST_TRACKER_TARGET_ENTITY_ID] = target_entity_id
 
     now = utcnow()
     errors = validate_cost_tracker_config(config, account_info.account, now)
@@ -400,7 +422,10 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       )
 
     # Reshow our form with raised logins
-    data_schema = await self.__async_setup_cost_tracker_schema__(account_id)
+    data_schema = await self.__async_setup_cost_tracker_schema__(
+      account_id,
+      include_target_entity_id=False
+    )
     return self.async_show_form(
       step_id="reconfigure_cost_tracker",
       data_schema=self.add_suggested_values_to_schema(

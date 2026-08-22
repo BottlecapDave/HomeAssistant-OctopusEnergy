@@ -19,8 +19,8 @@ from . import (
   get_next_octoplus_sessions_event
 )
 
-from ..coordinators.power_up_sessions import PowerUpSessionsCoordinatorResult
 from ..octoplus.base import OctopusEnergyOctoplusSensor
+from ..coordinators.power_up_down_sessions import PowerUpDownSessionsCoordinatorResult
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -63,14 +63,19 @@ class OctopusEnergyFreeElectricitySessionsCalendar(OctopusEnergyOctoplusSensor, 
   def event(self) -> CalendarEvent | None:
     """Return the next upcoming event."""
     return self._event
+
+  @property
+  def calendar_summary(self):
+    """Summary for calendar entries"""
+    return f"Octopus Energy Free Electricity"
   
   @callback
   def _handle_coordinator_update(self) -> None:
     """Determine if the user is in a free electricity session."""
 
-    free_electricity_session: PowerUpSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
-    if (free_electricity_session is not None):
-      self._events = free_electricity_session.events
+    power_up_down_sessions: PowerUpDownSessionsCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
+    if (power_up_down_sessions is not None):
+      self._events = power_up_down_sessions.joined_power_up_events
     else:
       self._events = []
 
@@ -79,8 +84,8 @@ class OctopusEnergyFreeElectricitySessionsCalendar(OctopusEnergyOctoplusSensor, 
     self._event = None
     if (current_event is not None):
       self._event = CalendarEvent(
-        uid=current_event.code,
-        summary="Octopus Energy Free Electricity",
+        uid=current_event.id,
+        summary=self.calendar_summary,
         start=current_event.start,
         end=current_event.end,
       )
@@ -88,8 +93,8 @@ class OctopusEnergyFreeElectricitySessionsCalendar(OctopusEnergyOctoplusSensor, 
       next_event = get_next_octoplus_sessions_event(current_date, self._events)
       if (next_event is not None):
         self._event = CalendarEvent(
-          uid=next_event.code,
-          summary="Octopus Energy Free Electricity",
+          uid=next_event.id,
+          summary=self.calendar_summary,
           start=next_event.start,
           end=next_event.end,
         )
@@ -105,8 +110,8 @@ class OctopusEnergyFreeElectricitySessionsCalendar(OctopusEnergyOctoplusSensor, 
       for event in self._events:
         if event.start < end_date and event.end > start_date:
           events.append(CalendarEvent(
-            uid=event.code,
-            summary="Octopus Energy Free Electricity",
+            uid=event.id,
+            summary=self.calendar_summary,
             start=event.start,
             end=event.end,
           ))
