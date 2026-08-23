@@ -1870,6 +1870,7 @@
 </tr>
 </tbody>
 </table>
+<p>This service supports an optional response. If the event is joined successfully, calling the service with <code>response_variable</code> (or <code>return_response: true</code> when using <code>hass.services.async_call</code>) will return <code>{"success": true}</code>. If the event cannot be joined (e.g. it no longer exists), the service call will fail and raise an error containing the reason, allowing the failure to be trapped in automations/scripts.</p>
 <h4 id="automation-example">Automation Example<a class="headerlink" href="#automation-example" title="Permanent link">#</a></h4>
 <p>For an automation example, please refer to the available <a href="../blueprints/#automatically-join-power-down-sessions">blueprint</a>.</p>
 <h3 id="octopus_energyjoin_octoplus_saving_session_event">octopus_energy.join_octoplus_saving_session_event<a class="headerlink" href="#octopus_energyjoin_octoplus_saving_session_event" title="Permanent link">#</a></h3>
@@ -1899,6 +1900,7 @@
 </tr>
 </tbody>
 </table>
+<p>This service supports an optional response. If the event is joined successfully, calling the service with <code>response_variable</code> (or <code>return_response: true</code> when using <code>hass.services.async_call</code>) will return <code>{"success": true}</code>. If the event cannot be joined (e.g. it no longer exists), the service call will fail and raise an error containing the reason, allowing the failure to be trapped in automations/scripts.</p>
 <h3 id="octopus_energyredeem_octoplus_points_into_account_credit">octopus_energy.redeem_octoplus_points_into_account_credit<a class="headerlink" href="#octopus_energyredeem_octoplus_points_into_account_credit" title="Permanent link">#</a></h3>
 <p>Allows you to redeem a certain number of of Octoplus points and convert them into account credit.</p>
 <div class="admonition info">
@@ -2304,7 +2306,7 @@
       
     </span>
     <nav>
-      BottlecapDave, Sam Reed
+      BottlecapDave, Rik Allen, Sam Reed
     </nav>
   </span>
 

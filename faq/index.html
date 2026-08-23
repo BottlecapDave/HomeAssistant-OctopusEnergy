@@ -1948,11 +1948,11 @@
 <p>If the cost sensors are out and you are not on an effected intelligent providers, then please raise an issue.</p>
 <h2 id="im-having-issues-with-a-sensor-is-there-any-way-i-can-see-the-attributes-for-a-certain-point-in-time">I'm having issues with a sensor. Is there any way I can see the attributes for a certain point in time?<a class="headerlink" href="#im-having-issues-with-a-sensor-is-there-any-way-i-can-see-the-attributes-for-a-certain-point-in-time" title="Permanent link">#</a></h2>
 <p>The majority of attributes for entities are stored in the database for a short amount of time (default is around 10 days). Unfortunately, the only way of obtaining historic attributes is via the database. This can be done via the <a href="https://my.home-assistant.io/redirect/supervisor_addon/?addon=a0d7b954_sqlite-web">SQLite Web Add-On</a>, where the following SQL query can be executed. You'll need to change the target entity id from <code>binary_sensor.octopus_energy_xxx_intelligent_dispatching</code> to the one you want to target.</p>
-<div class="highlight"><pre><span></span><code>SELECT states_meta.entity_id, states.state, state_attributes.shared_attrs, DATETIME(last_changed_ts, &#39;unixepoch&#39;), DATETIME(last_updated_ts, &#39;unixepoch&#39;)
-FROM &quot;states&quot;
+<div class="highlight"><pre><span></span><code>SELECT states_meta.entity_id, states.state, state_attributes.shared_attrs, DATETIME(last_changed_ts, 'unixepoch'), DATETIME(last_updated_ts, 'unixepoch')
+FROM "states"
 join state_attributes on states.attributes_id = state_attributes.attributes_id
 join states_meta on states_meta.metadata_id = states.metadata_id
-where states_meta.entity_id = &#39;binary_sensor.octopus_energy_xxx_intelligent_dispatching&#39;
+where states_meta.entity_id = 'binary_sensor.octopus_energy_xxx_intelligent_dispatching'
 order by last_updated_ts desc
 </code></pre></div>
 <h2 id="i-was-expecting-the-saving-sessionfree-electricity-session-sensor-to-turn-on-during-a-period-but-it-didnt-is-there-a-reason-for-this">I was expecting the saving session/free electricity session sensor to turn on during a period, but it didn't. Is there a reason for this?<a class="headerlink" href="#i-was-expecting-the-saving-sessionfree-electricity-session-sensor-to-turn-on-during-a-period-but-it-didnt-is-there-a-reason-for-this" title="Permanent link">#</a></h2>

@@ -1329,7 +1329,7 @@ Replace <code>{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}</code> with your
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">entity</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
 <span class="w">      </span><span class="no">event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}}_current_day_rates</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">column</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">''</span>
 <span class="w">    </span><span class="nt">color</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yellow</span>
 <span class="w">    </span><span class="nt">opacity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">    </span><span class="nt">stroke_width</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
@@ -1341,11 +1341,11 @@ Replace <code>{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}</code> with your
 <span class="w">      </span><span class="no">return entity.attributes.rates.map((entry) =&gt; {</span>
 <span class="w">      </span><span class="no">return [new Date(entry.start), entry.value_inc_vat * 100];</span>
 <span class="w">      </span><span class="no">});</span>
-<span class="w">    </span><span class="nt">offset</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;-15min&#39;</span>
+<span class="w">    </span><span class="nt">offset</span><span class="p">:</span><span class="w"> </span><span class="s">'-15min'</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">entity</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;-</span>
 <span class="w">      </span><span class="no">event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}}_next_day_rates</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">column</span>
-<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;&#39;</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">''</span>
 <span class="w">    </span><span class="nt">color</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">yellow</span>
 <span class="w">    </span><span class="nt">opacity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1</span>
 <span class="w">    </span><span class="nt">stroke_width</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
@@ -1357,7 +1357,7 @@ Replace <code>{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}</code> with your
 <span class="w">      </span><span class="no">return entity.attributes.rates.map((entry) =&gt; {</span>
 <span class="w">      </span><span class="no">return [new Date(entry.start), entry.value_inc_vat * 100];</span>
 <span class="w">      </span><span class="no">});</span>
-<span class="w">    </span><span class="nt">offset</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;-15min&#39;</span>
+<span class="w">    </span><span class="nt">offset</span><span class="p">:</span><span class="w"> </span><span class="s">'-15min'</span>
 </code></pre></div>
 <p>which will produce something like the following...</p>
 <p><img alt="chart example" src="../assets/apex-chart.png" /></p>
@@ -1465,7 +1465,7 @@ Replace <code>{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}</code> with your
 <span class="w">    </span><span class="nt">float_precision</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span>
 <span class="w">    </span><span class="nt">extend_to</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">now</span>
 <span class="w">    </span><span class="nt">stroke_width</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
-<span class="w">    </span><span class="nt">fill_raw</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;null&#39;</span>
+<span class="w">    </span><span class="nt">fill_raw</span><span class="p">:</span><span class="w"> </span><span class="s">'null'</span>
 <span class="w">  </span><span class="nt">series</span><span class="p">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">entity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_day_rates</span>
 <span class="w">      </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Import today</span>
@@ -1507,7 +1507,7 @@ Replace <code>{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}</code> with your
 <span class="w">      </span><span class="nt">tooltip</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 <span class="w">    </span><span class="nt">grid</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">borderColor</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;#7B7B7B&#39;</span>
+<span class="w">      </span><span class="nt">borderColor</span><span class="p">:</span><span class="w"> </span><span class="s">'#7B7B7B'</span>
 <span class="w">    </span><span class="nt">legend</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">show</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
 <span class="w">      </span><span class="nt">toolbar</span><span class="p">:</span>
@@ -1527,10 +1527,10 @@ Replace <code>{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}</code> with your
 <span class="w">        </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">x</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${Date.now()}</span>
 <span class="w">          </span><span class="nt">label</span><span class="p">:</span>
 <span class="w">            </span><span class="nt">text</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Now</span>
-<span class="w">            </span><span class="nt">borderColor</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;#00E396&#39;</span>
+<span class="w">            </span><span class="nt">borderColor</span><span class="p">:</span><span class="w"> </span><span class="s">'#00E396'</span>
 <span class="w">            </span><span class="nt">style</span><span class="p">:</span>
-<span class="w">              </span><span class="nt">color</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;#fff&#39;</span>
-<span class="w">              </span><span class="nt">background</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;#00E396&#39;</span>
+<span class="w">              </span><span class="nt">color</span><span class="p">:</span><span class="w"> </span><span class="s">'#fff'</span>
+<span class="w">              </span><span class="nt">background</span><span class="p">:</span><span class="w"> </span><span class="s">'#00E396'</span>
 <span class="w">            </span><span class="nt">borderWidth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
 <span class="w">    </span><span class="nt">yaxis</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">min</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">~0</span>
@@ -1539,12 +1539,12 @@ Replace <code>{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}{{_export}</code> with your
 <span class="w">      </span><span class="nt">labels</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">formatter</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
 <span class="w">          </span><span class="no">EVAL:function (val) {</span>
-<span class="w">           </span><span class="no">return &quot;£&quot; + val.toFixed(2);</span>
+<span class="w">           </span><span class="no">return "£" + val.toFixed(2);</span>
 <span class="w">          </span><span class="no">}</span>
 <span class="w">      </span><span class="nt">forceNiceScale</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">chart</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">height</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">150</span>
-<span class="w">      </span><span class="nt">foreColor</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;#7B7B7B&#39;</span>
+<span class="w">      </span><span class="nt">foreColor</span><span class="p">:</span><span class="w"> </span><span class="s">'#7B7B7B'</span>
 <span class="w">      </span><span class="nt">zoom</span><span class="p">:</span>
 <span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">x</span>
 <span class="w">        </span><span class="nt">enabled</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>

@@ -1775,8 +1775,8 @@
 <span class="w">  </span><span class="nt">data</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Power Down Session Starting</span>
 <span class="w">    </span><span class="nt">message</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
-<span class="w">      </span><span class="no">{% set minutes = ((state_attr(trigger.entity_id, &#39;end_time&#39;) | as_datetime - state_attr(trigger.entity_id, &#39;start_time&#39;) | as_datetime).seconds / 60) | round(0) | string %}</span>
-<span class="w">      </span><span class="no">{% set start_time = (state_attr(trigger.entity_id, &#39;start_time&#39;) | as_datetime).strftime(&#39;%H:%M&#39;) %}</span>
+<span class="w">      </span><span class="no">{% set minutes = ((state_attr(trigger.entity_id, 'end_time') | as_datetime - state_attr(trigger.entity_id, 'start_time') | as_datetime).seconds / 60) | round(0) | string %}</span>
+<span class="w">      </span><span class="no">{% set start_time = (state_attr(trigger.entity_id, 'start_time') | as_datetime).strftime('%H:%M') %}</span>
 <span class="w">      </span><span class="no">Power down session starts at {{ start_time }} for {{ minutes }} minutes.</span>
 </code></pre></div>
 <h3 id="power-down-events">Power Down Events<a class="headerlink" href="#power-down-events" title="Permanent link">#</a></h3>
@@ -2033,8 +2033,8 @@
 <span class="w">  </span><span class="nt">data</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Saving Session Starting</span>
 <span class="w">    </span><span class="nt">message</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
-<span class="w">      </span><span class="no">{% set minutes = ((state_attr(trigger.entity_id, &#39;end_time&#39;) | as_datetime - state_attr(trigger.entity_id, &#39;start_time&#39;) | as_datetime).seconds / 60) | round(0) | string %}</span>
-<span class="w">      </span><span class="no">{% set start_time = (state_attr(trigger.entity_id, &#39;start_time&#39;) | as_datetime).strftime(&#39;%H:%M&#39;) %}</span>
+<span class="w">      </span><span class="no">{% set minutes = ((state_attr(trigger.entity_id, 'end_time') | as_datetime - state_attr(trigger.entity_id, 'start_time') | as_datetime).seconds / 60) | round(0) | string %}</span>
+<span class="w">      </span><span class="no">{% set start_time = (state_attr(trigger.entity_id, 'start_time') | as_datetime).strftime('%H:%M') %}</span>
 <span class="w">      </span><span class="no">Saving session starts at {{ start_time }} for {{ minutes }} minutes.</span>
 </code></pre></div>
 <h3 id="saving-session-events">Saving Session Events<a class="headerlink" href="#saving-session-events" title="Permanent link">#</a></h3>
@@ -2311,8 +2311,8 @@
 <span class="w">  </span><span class="nt">data</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Power Up Session Starting</span>
 <span class="w">    </span><span class="nt">message</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
-<span class="w">      </span><span class="no">{% set minutes = ((state_attr(trigger.entity_id, &#39;end_time&#39;) | as_datetime - state_attr(trigger.entity_id, &#39;start_time&#39;) | as_datetime).seconds / 60) | round(0) | string %}</span>
-<span class="w">      </span><span class="no">{% set start_time = (state_attr(trigger.entity_id, &#39;start_time&#39;) | as_datetime).strftime(&#39;%H:%M&#39;) %}</span>
+<span class="w">      </span><span class="no">{% set minutes = ((state_attr(trigger.entity_id, 'end_time') | as_datetime - state_attr(trigger.entity_id, 'start_time') | as_datetime).seconds / 60) | round(0) | string %}</span>
+<span class="w">      </span><span class="no">{% set start_time = (state_attr(trigger.entity_id, 'start_time') | as_datetime).strftime('%H:%M') %}</span>
 <span class="w">      </span><span class="no">Power up session starts at {{ start_time }} for {{ minutes }} minutes.</span>
 </code></pre></div>
 <h3 id="power-up-session-events">Power Up Session Events<a class="headerlink" href="#power-up-session-events" title="Permanent link">#</a></h3>
@@ -2524,8 +2524,8 @@
 <span class="w">  </span><span class="nt">data</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">title</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Free Electricity Session Starting</span>
 <span class="w">    </span><span class="nt">message</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">&gt;</span>
-<span class="w">      </span><span class="no">{% set minutes = ((state_attr(trigger.entity_id, &#39;end_time&#39;) | as_datetime - state_attr(trigger.entity_id, &#39;start_time&#39;) | as_datetime).seconds / 60) | round(0) | string %}</span>
-<span class="w">      </span><span class="no">{% set start_time = (state_attr(trigger.entity_id, &#39;start_time&#39;) | as_datetime).strftime(&#39;%H:%M&#39;) %}</span>
+<span class="w">      </span><span class="no">{% set minutes = ((state_attr(trigger.entity_id, 'end_time') | as_datetime - state_attr(trigger.entity_id, 'start_time') | as_datetime).seconds / 60) | round(0) | string %}</span>
+<span class="w">      </span><span class="no">{% set start_time = (state_attr(trigger.entity_id, 'start_time') | as_datetime).strftime('%H:%M') %}</span>
 <span class="w">      </span><span class="no">Free electricity session starts at {{ start_time }} for {{ minutes }} minutes.</span>
 </code></pre></div>
 <h3 id="free-electricity-session-events">Free Electricity Session Events<a class="headerlink" href="#free-electricity-session-events" title="Permanent link">#</a></h3>
