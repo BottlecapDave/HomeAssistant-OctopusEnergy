@@ -20,6 +20,7 @@ from homeassistant.helpers.event import (
 )
 
 from homeassistant.const import (
+    Platform
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
 )
@@ -142,7 +143,7 @@ class OctopusEnergyCostTrackerMonthSensor(RestoreSensor, BaseCostTracker):
       _LOGGER.debug(f'Restored {self.unique_id} state: {self._state}')
 
     registry = er.async_get(self.hass)
-    self._tracked_entity_id = registry.async_get_entity_id("sensor", DOMAIN, self._tracked_entity_unique_id)
+    self._tracked_entity_id = registry.async_get_entity_id(Platform.SENSOR, DOMAIN, self._tracked_entity_unique_id)
     if self._tracked_entity_id is None:
       _LOGGER.warning(f"Unable to find tracked cost sensor with unique ID '{self._tracked_entity_unique_id}'")
       return
