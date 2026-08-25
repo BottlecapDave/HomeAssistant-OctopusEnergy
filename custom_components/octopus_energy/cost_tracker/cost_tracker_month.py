@@ -20,7 +20,7 @@ from homeassistant.helpers.event import (
 )
 
 from homeassistant.const import (
-    Platform
+    Platform,
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
 )
