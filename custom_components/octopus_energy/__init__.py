@@ -482,6 +482,8 @@ async def async_unload_entry(hass, entry):
       if unload_ok:
         account_id = entry.data[CONFIG_ACCOUNT_ID]
         await _async_close_client(hass, account_id)
+        from .coordinators.current_consumption import clear_home_mini_data_stale_issues
+        clear_home_mini_data_stale_issues(hass, hass.data[DOMAIN][account_id])
         hass.data[DOMAIN].pop(account_id)
 
     elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:
