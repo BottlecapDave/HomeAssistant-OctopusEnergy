@@ -13,7 +13,7 @@ from homeassistant.helpers.typing import DiscoveryInfoType
 
 from .coordinators.account import AccountCoordinatorResult
 from .config.cost_tracker import build_cost_tracker_unique_id, validate_cost_tracker_config
-from .config.main import async_validate_main_config
+from .config.main import async_validate_main_config, has_incompatible_account_child_entries
 from .const import (
   CONFIG_COST_TRACKER_DISCOVERY_ACCOUNT_ID,
   CONFIG_COST_TRACKER_DISCOVERY_NAME,
@@ -42,6 +42,10 @@ from .const import (
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_PRICE_CAP_SETTINGS,
   CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
+  CONFIG_MAIN_SUPPLIES_TO_MONITOR,
+  CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY,
+  CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY_AND_GAS,
+  CONFIG_MAIN_SUPPLIES_TO_MONITOR_GAS,
   CONFIG_TARIFF_COMPARISON_MPAN_MPRN,
   CONFIG_TARIFF_COMPARISON_NAME,
   CONFIG_TARIFF_COMPARISON_PRODUCT_CODE,
@@ -61,7 +65,6 @@ from .const import (
   CONFIG_VERSION,
   DATA_ACCOUNT,
   DATA_CLIENT,
-  DEFAULT_CALORIFIC_VALUE,
   DOMAIN,
   
   CONFIG_MAIN_API_KEY,
@@ -193,7 +196,17 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     schema = {
       vol.Required(CONFIG_ACCOUNT_ID): str,
       vol.Required(CONFIG_MAIN_API_KEY): str,
-      vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=DEFAULT_CALORIFIC_VALUE): cv.positive_float,
+      vol.Required(CONFIG_MAIN_SUPPLIES_TO_MONITOR, default=CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY_AND_GAS): selector.SelectSelector(
+        selector.SelectSelectorConfig(
+          options=[
+            selector.SelectOptionDict(value=CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY, label="Electricity only"),
+            selector.SelectOptionDict(value=CONFIG_MAIN_SUPPLIES_TO_MONITOR_GAS, label="Gas only"),
+            selector.SelectOptionDict(value=CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY_AND_GAS, label="Electricity and gas"),
+          ],
+          mode=selector.SelectSelectorMode.DROPDOWN,
+        )
+      ),
+      vol.Optional(CONFIG_MAIN_CALORIFIC_VALUE): cv.positive_float,
       vol.Required(CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES): bool,
       vol.Required(CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS): bool,
       vol.Required(CONFIG_MAIN_HOME_MINI_SETTINGS): section(
@@ -279,9 +292,20 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
 
     if user_input is not None:
       config.update(user_input)
+      if CONFIG_MAIN_CALORIFIC_VALUE not in user_input:
+        config.pop(CONFIG_MAIN_CALORIFIC_VALUE, None)
 
     account_ids = []
     errors = await async_validate_main_config(config, account_ids)
+
+    if len(errors) < 1 and user_input is not None:
+      account_id = config[CONFIG_ACCOUNT_ID]
+      account_data = self.hass.data.get(DOMAIN, {}).get(account_id, {})
+      account_result: AccountCoordinatorResult = account_data.get(DATA_ACCOUNT)
+      account_info = account_result.account if account_result is not None else None
+      child_entries = self.hass.config_entries.async_entries(DOMAIN, include_ignore=False)
+      if has_incompatible_account_child_entries(config, account_info, child_entries):
+        errors[CONFIG_MAIN_SUPPLIES_TO_MONITOR] = "incompatible_child_entries"
 
     if len(errors) < 1 and user_input is not None:
       return self.async_update_reload_and_abort(

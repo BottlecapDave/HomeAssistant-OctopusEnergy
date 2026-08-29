@@ -19,7 +19,10 @@ from custom_components.octopus_energy.const import (
   CONFIG_MAIN_LIVE_GAS_CONSUMPTION_REFRESH_IN_MINUTES,
   CONFIG_MAIN_CALORIFIC_VALUE,
   CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
-  CONFIG_MAIN_GAS_PRICE_CAP
+  CONFIG_MAIN_GAS_PRICE_CAP,
+  CONFIG_MAIN_SUPPLIES_TO_MONITOR,
+  CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY,
+  CONFIG_MAIN_SUPPLIES_TO_MONITOR_GAS,
 )
 from . import assert_errors_not_present
 
@@ -74,6 +77,52 @@ async def test_when_data_is_valid_and_minimal_then_no_errors_returned():
 
     # Assert
     assert_errors_not_present(errors, config_keys)
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("supplies_to_monitor", [None, "invalid"])
+async def test_when_supplies_to_monitor_is_invalid_then_error_returned(supplies_to_monitor):
+  # Arrange
+  data = {
+    CONFIG_MAIN_API_KEY: "test-api-key",
+    CONFIG_ACCOUNT_ID: "A-123",
+    CONFIG_MAIN_SUPPLIES_TO_MONITOR: supplies_to_monitor,
+  }
+
+  async def async_mocked_get_account(*args, **kwargs):
+    return get_account_info()
+
+  # Act
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_account=async_mocked_get_account):
+    errors = await async_validate_main_config(data)
+
+  # Assert
+  assert errors[CONFIG_MAIN_SUPPLIES_TO_MONITOR] == "invalid_supplies_to_monitor"
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+  "supplies_to_monitor,account_info",
+  [
+    (CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY, {"electricity_meter_points": []}),
+    (CONFIG_MAIN_SUPPLIES_TO_MONITOR_GAS, {"electricity_meter_points": [], "gas_meter_points": []}),
+  ],
+)
+async def test_when_selected_supply_is_not_on_account_then_error_returned(supplies_to_monitor, account_info):
+  # Arrange
+  data = {
+    CONFIG_MAIN_API_KEY: "test-api-key",
+    CONFIG_ACCOUNT_ID: "A-123",
+    CONFIG_MAIN_SUPPLIES_TO_MONITOR: supplies_to_monitor,
+  }
+
+  async def async_mocked_get_account(*args, **kwargs):
+    return account_info
+
+  # Act
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_account=async_mocked_get_account):
+    errors = await async_validate_main_config(data)
+
+  # Assert
+  assert errors[CONFIG_MAIN_SUPPLIES_TO_MONITOR] == "selected_supply_not_found"
 
 @pytest.mark.asyncio
 async def test_when_data_is_valid_then_no_errors_returned():

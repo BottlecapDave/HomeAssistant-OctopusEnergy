@@ -25,6 +25,7 @@ from ..api_client import ApiException, AuthenticationException, OctopusEnergyApi
 from . import BaseCoordinatorResult
 from ..utils import get_active_tariff
 from ..utils.repairs import safe_repair_key
+from ..utils.supplies import filter_account_info
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -171,7 +172,8 @@ async def async_refresh_account(
   raise_product_not_found: Callable[[str, bool], None],
   raise_meter_removed: Callable[[str, str, bool], None],
   raise_meter_added: Callable[[str, str, bool], None],
-  clear_issue: Callable[[str], None]
+  clear_issue: Callable[[str], None],
+  config: dict | None = None,
 ):
   if (current >= previous_request.next_refresh):
     account_info = None
@@ -181,6 +183,7 @@ async def async_refresh_account(
       if account_info is None:
         raise_account_not_found()
       else:
+        account_info = filter_account_info(account_info, config if config is not None else {})
         _LOGGER.debug('Account information retrieved')
 
         # Delete legacy issues
@@ -228,7 +231,7 @@ async def async_refresh_account(
 
   return previous_request
 
-async def async_setup_account_info_coordinator(hass, account_id: str):
+async def async_setup_account_info_coordinator(hass, account_id: str, config: dict | None = None):
   async def async_update_account_data():
     """Fetch data from API endpoint."""
     # Only get data every half hour or if we don't have any data
@@ -248,7 +251,8 @@ async def async_setup_account_info_coordinator(hass, account_id: str):
       lambda product_code, is_electricity: raise_product_not_found(hass, product_code, is_electricity),
       lambda mprn_mpan, serial_number, is_electricity: raise_meter_removed(hass, account_id, mprn_mpan, serial_number, is_electricity),
       lambda mprn_mpan, serial_number, is_electricity: raise_meter_added(hass, account_id, mprn_mpan, serial_number, is_electricity),
-      lambda key: clear_issue(hass, key)
+      lambda key: clear_issue(hass, key),
+      config,
     )
     
     return hass.data[DOMAIN][account_id][DATA_ACCOUNT]

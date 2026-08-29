@@ -8,6 +8,7 @@
         "data": {
           "account_id": "Account ID (e.g. A-AAAA1111)",
           "api_key": "Api key",
+          "supplies_to_monitor": "Supplies to monitor",
           "calorific_value": "Gas calorific value.",
           "favour_direct_debit_rates": "Favour direct debit rates where available",
           "auto_discover_cost_trackers": "Automatically discover sensors suitable for cost trackers"
@@ -15,7 +16,8 @@
         "data_description": {
           "account_id": "Your account ID can be found on your bill or at the top of {octopus_energy_dashboard_url}",
           "api_key": "Your API key can be found at {octopus_energy_api_access_url}",
-          "calorific_value": "This can be found on your gas statement and can change from time to time"
+          "supplies_to_monitor": "Only meter-based data and Wheel of Fortune entities for the selected supplies will be exposed",
+          "calorific_value": "Optional. Defaults to 40 for gas calculations if not set; your current value can be found on your gas statement"
         },
         "sections": {
           "home_mini_settings": {
@@ -112,13 +114,15 @@
         "description": "Update your basic account information. Full documentation can be found at {setup_account_docs_url}",
         "data": {
           "api_key": "Api key",
+          "supplies_to_monitor": "Supplies to monitor",
           "calorific_value": "Gas calorific value.",
           "favour_direct_debit_rates": "Favour direct debit rates where available",
           "auto_discover_cost_trackers": "Automatically discover sensors suitable for cost trackers"
         },
         "data_description": {
           "api_key": "You API key can be found at {octopus_energy_api_access_url}",
-          "calorific_value": "This can be found on your gas statement and can change from time to time"
+          "supplies_to_monitor": "Only meter-based data and Wheel of Fortune entities for the selected supplies will be exposed",
+          "calorific_value": "Optional. Defaults to 40 for gas calculations if not set; your current value can be found on your gas statement"
         },
         "sections": {
           "home_mini_settings": {
@@ -202,6 +206,9 @@
       "invalid_tracker_name": "Name must only include lower case alpha characters and underscore (e.g. my_target)",
       "invalid_mpan": "Meter not found in account with an active tariff",
       "duplicate_account": "Account has already been configured",
+      "invalid_supplies_to_monitor": "Select which supplies should be monitored",
+      "selected_supply_not_found": "The selected supply was not found on this account",
+      "incompatible_child_entries": "An existing cost tracker or tariff comparison uses a supply you are trying to disable. Remove or reconfigure it first.",
       "invalid_week_day": "Week reset day must be between 0 and 6 (inclusive)",
       "invalid_month_day": "Month reset day must be between 1 and 28 (inclusive)",
       "invalid_product_or_tariff": "Product or tariff code does not exist",

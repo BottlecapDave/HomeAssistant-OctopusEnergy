@@ -38,24 +38,37 @@ class DiscoveryManager:
         """Init."""
         self._hass = hass
         self._account_id = account_id
+        self._cancel = None
+        self._cancel_stop_listener = None
 
     async def async_setup(self):
         @callback
         async def _async_refresh(_: datetime) -> None:
             await self._async_start_discovery()
 
-        cancel = async_track_time_interval(
+        self._cancel = async_track_time_interval(
             self._hass, _async_refresh, datetime.timedelta(hours=DISCOVERY_REFRESH_IN_HOURS)
         )
 
         @callback
         def _on_homeassistant_stop(event) -> None:
             """Cancel cleanup."""
-            cancel()
+            self.async_unload()
 
-        self._hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, _on_homeassistant_stop)
+        self._cancel_stop_listener = self._hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, _on_homeassistant_stop)
 
         await self._async_start_discovery()
+
+    @callback
+    def async_unload(self) -> None:
+        """Cancel discovery listeners."""
+        if self._cancel is not None:
+            self._cancel()
+            self._cancel = None
+
+        if self._cancel_stop_listener is not None:
+            self._cancel_stop_listener()
+            self._cancel_stop_listener = None
 
     async def _async_start_discovery(self) -> None:
         """Start the discovery procedure."""
