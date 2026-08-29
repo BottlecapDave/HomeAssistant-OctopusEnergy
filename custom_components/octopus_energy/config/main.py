@@ -2,7 +2,11 @@ import re
 from ..const import (
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
+  CONFIG_KIND_COST_TRACKER,
+  CONFIG_KIND_TARIFF_COMPARISON,
   CONFIG_ACCOUNT_ID,
+  CONFIG_TARIFF_COMPARISON_MPAN_MPRN,
+  CONFIG_TARIFF_COMPARISON_TARIFF_CODE,
   CONFIG_MAIN_API_KEY,
   CONFIG_MAIN_ELECTRICITY_PRICE_CAP,
   CONFIG_MAIN_GAS_PRICE_CAP,
@@ -18,11 +22,53 @@ from ..const import (
   CONFIG_MAIN_OLD_API_KEY,
   CONFIG_MAIN_PRICE_CAP_SETTINGS,
   CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION,
+  CONFIG_MAIN_SUPPLIES_TO_MONITOR,
+  CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY,
+  CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY_AND_GAS,
+  CONFIG_MAIN_SUPPLIES_TO_MONITOR_GAS,
   CONFIG_MAIN_HOME_PRO_ADDRESS,
   CONFIG_MAIN_HOME_PRO_API_KEY
 )
 from ..api_client import AuthenticationException, OctopusEnergyApiClient, RequestException, ServerException
 from ..api_client_home_pro import OctopusEnergyHomeProApiClient
+
+
+def has_incompatible_account_child_entries(config: dict, account_info: dict | None, entries: list) -> bool:
+  """Return whether child entries use a supply that would be disabled."""
+  supplies_to_monitor = config.get(
+    CONFIG_MAIN_SUPPLIES_TO_MONITOR,
+    CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY_AND_GAS,
+  )
+  if supplies_to_monitor == CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY_AND_GAS:
+    return False
+
+  electricity_meter_points = account_info.get("electricity_meter_points", []) if account_info is not None else []
+  gas_meter_points = account_info.get("gas_meter_points", []) if account_info is not None else []
+  electricity_mpans = {point["mpan"] for point in electricity_meter_points}
+  gas_mprns = {point["mprn"] for point in gas_meter_points}
+
+  for entry in entries:
+    entry_config = entry.data
+    if entry_config.get(CONFIG_ACCOUNT_ID) != config.get(CONFIG_ACCOUNT_ID):
+      continue
+
+    if (supplies_to_monitor == CONFIG_MAIN_SUPPLIES_TO_MONITOR_GAS and
+        entry_config.get(CONFIG_KIND) == CONFIG_KIND_COST_TRACKER):
+      return True
+
+    if entry_config.get(CONFIG_KIND) == CONFIG_KIND_TARIFF_COMPARISON:
+      target = entry_config.get(CONFIG_TARIFF_COMPARISON_MPAN_MPRN)
+      tariff_code = entry_config.get(CONFIG_TARIFF_COMPARISON_TARIFF_CODE, "")
+      is_electricity = target in electricity_mpans or tariff_code.startswith("E-")
+      is_gas = target in gas_mprns or tariff_code.startswith("G-")
+      if (supplies_to_monitor == CONFIG_MAIN_SUPPLIES_TO_MONITOR_GAS and
+          is_electricity):
+        return True
+      if (supplies_to_monitor == CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY and
+          is_gas):
+        return True
+
+  return False
 
 async def async_migrate_main_config(version: int, data: {}):
   new_data = {**data}
@@ -112,10 +158,24 @@ async def async_migrate_main_config(version: int, data: {}):
   if (version <= 9):
     new_data[CONFIG_MAIN_LEGACY_SAVING_SESSIONS_FREE_ELECTRICITY_PRESENT] = True
 
+  if (version <= 12 and CONFIG_MAIN_SUPPLIES_TO_MONITOR not in new_data):
+    new_data[CONFIG_MAIN_SUPPLIES_TO_MONITOR] = CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY_AND_GAS
+
   return new_data
 
 async def async_validate_main_config(data, account_ids = []):
   errors = {}
+
+  supplies_to_monitor = data.get(
+    CONFIG_MAIN_SUPPLIES_TO_MONITOR,
+    CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY_AND_GAS,
+  )
+  if supplies_to_monitor not in (
+    CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY,
+    CONFIG_MAIN_SUPPLIES_TO_MONITOR_GAS,
+    CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY_AND_GAS,
+  ):
+    errors[CONFIG_MAIN_SUPPLIES_TO_MONITOR] = "invalid_supplies_to_monitor"
 
   if data[CONFIG_ACCOUNT_ID] in account_ids:
     errors[CONFIG_ACCOUNT_ID] = "duplicate_account"
@@ -126,6 +186,7 @@ async def async_validate_main_config(data, account_ids = []):
     return errors
   
   client = OctopusEnergyApiClient(data[CONFIG_MAIN_API_KEY])
+  account_info = None
 
   try:
     account_info = await client.async_get_account(data[CONFIG_ACCOUNT_ID])
@@ -137,6 +198,14 @@ async def async_validate_main_config(data, account_ids = []):
   
   if (CONFIG_MAIN_API_KEY not in errors and account_info is None):
     errors[CONFIG_MAIN_API_KEY] = "account_not_found"
+
+  if account_info is not None:
+    if (supplies_to_monitor == CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY and
+        len(account_info.get("electricity_meter_points", [])) < 1):
+      errors[CONFIG_MAIN_SUPPLIES_TO_MONITOR] = "selected_supply_not_found"
+    elif (supplies_to_monitor == CONFIG_MAIN_SUPPLIES_TO_MONITOR_GAS and
+          len(account_info.get("gas_meter_points", [])) < 1):
+      errors[CONFIG_MAIN_SUPPLIES_TO_MONITOR] = "selected_supply_not_found"
 
   if (CONFIG_MAIN_HOME_MINI_SETTINGS in data and 
       CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in data[CONFIG_MAIN_HOME_MINI_SETTINGS] and

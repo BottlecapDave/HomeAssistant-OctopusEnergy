@@ -22,6 +22,7 @@ from .const import (
 from .api_client import OctopusEnergyApiClient, TimeoutException
 from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configuration
 from .utils.debug_overrides import AccountDebugOverride, async_get_account_debug_override
+from .utils.supplies import filter_account_info
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -43,13 +44,15 @@ async def async_get_device_consumption_data(client: OctopusEnergyApiClient, devi
   except Exception as e:
     return f"Failed to retrieve - {e}"
 
-async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str, existing_account_info: dict, account_debug_override: AccountDebugOverride | None, get_entity_info: Callable[[dict], dict]):
+async def async_get_diagnostics(client: OctopusEnergyApiClient, account_id: str, existing_account_info: dict, account_debug_override: AccountDebugOverride | None, get_entity_info: Callable[[dict], dict], config: dict | None = None):
   _LOGGER.info('Retrieving account details for diagnostics...')
 
   if existing_account_info is None:
     account_info = await client.async_get_account(account_id)
   else:
     account_info = copy.deepcopy(existing_account_info)
+
+  account_info = filter_account_info(account_info, config if config is not None else {})
 
   redacted_mappings = {}
   redacted_mapping_count = 1
@@ -187,7 +190,7 @@ async def async_get_device_diagnostics(hass, entry, device):
 
       return entity_info
 
-    diagnostics = await async_get_diagnostics(client, account_id, account_info, account_debug_override, get_entity_info)
+    diagnostics = await async_get_diagnostics(client, account_id, account_info, account_debug_override, get_entity_info, config)
     
     return {
       **diagnostics,
@@ -230,7 +233,7 @@ async def async_get_config_entry_diagnostics(hass, entry):
 
       return entity_info
 
-    diagnostics = await async_get_diagnostics(client, account_id, account_info, account_debug_override, get_entity_info)
+    diagnostics = await async_get_diagnostics(client, account_id, account_info, account_debug_override, get_entity_info, config)
     
     return {
       **diagnostics,

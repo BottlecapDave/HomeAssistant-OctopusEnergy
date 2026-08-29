@@ -35,6 +35,7 @@ async def test_reconfigure_account_updates_without_explicit_reload():
   })
   flow = OctopusEnergyConfigFlow()
   flow._get_reconfigure_entry = Mock(return_value=config_entry)
+  flow.hass = SimpleNamespace(data={}, config_entries=SimpleNamespace(async_entries=Mock(return_value=[])))
   configure_update_helpers(flow)
 
   with patch(

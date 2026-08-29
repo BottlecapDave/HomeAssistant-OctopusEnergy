@@ -2,6 +2,24 @@
 
 Setup is done entirely via the [integration UI](https://my.home-assistant.io/redirect/config_flow_start/?domain=octopus_energy).
 
+## Supplies To Monitor
+
+This determines which meter supplies are exposed by the integration:
+
+* `Electricity only` exposes meter-based electricity data and entities.
+* `Gas only` exposes meter-based gas data and entities.
+* `Electricity and gas` exposes meter-based data and entities for both supplies. This is the default for new and existing accounts.
+
+If a supply is not selected, meter-derived entities such as rates, standing charges and consumption will not be created for that supply. The associated meter-specific polling will also not be started, even if Octopus Energy returns the meter as part of your account.
+
+When an existing account is changed to exclude a supply, its old entities are left in Home Assistant's entity registry to preserve their identity and history. They will become unavailable and can be removed manually if they are no longer required. Re-enabling the supply restores entities with the same unique IDs.
+
+This setting does not disable account-level features which are not derived from an electricity or gas meter, such as Octoplus sessions, the greenness forecast, intelligent controls or heat pump support. These will continue to be available where supported by your account. Wheel of Fortune remains available, but only the entity and query for each selected supply will be set up.
+
+!!! info
+
+    The integration will continue to retrieve your account information periodically. This is a shared request which includes both electricity and gas agreement information, so selecting a single supply does not remove this request or all account-level API calls. It only prevents entities and polling from being set up for meters belonging to the excluded supply.
+
 ## Home Mini
 
 If you are lucky enough to own an [Octopus Home Mini](https://octopus.energy/blog/octopus-home-mini/) (you can request one via this link), you can now receive this data within Home Assistant. When setting up (or editing) your account within Home Assistant, you will need to check the box next to `I have a Home Mini`. This will gain the following entities which can be added to the [energy dashboard](https://www.home-assistant.io/blog/2021/08/04/home-energy-management/):
@@ -22,9 +40,13 @@ This determines how often data related to your Home Mini is retrieved from Octop
 
 You can adjust these independently between gas and electricity.
 
+Home Mini data and refresh settings for an excluded supply are ignored.
+
 ## Calorific Value
 
-When calculating gas costs, a calorific value is included in the calculation. Unfortunately this changes from region to region and is not provided by the Octopus Energy API. The default value of this is `40`, but if you check your latest bill you should be able to find the value for you. This will give you a more accurate consumption and cost calculation when your meter reports in `m3`.
+The gas calorific value is optional. If it is not set, the integration will use a default value of `40` for gas calculations. It is ignored when gas is not included in `Supplies to monitor`.
+
+The calorific value is used when converting gas consumption between `m3` and `kWh` and when calculating gas costs. Unfortunately this changes from region to region and is not provided by the Octopus Energy API. You can find the value on your latest gas bill and configure it to improve the accuracy of these calculations.
 
 !!! info
 
