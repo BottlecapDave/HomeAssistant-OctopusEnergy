@@ -43,6 +43,7 @@ from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult,
 from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configuration
 from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_heat_pump
 from .utils.repairs import safe_repair_key
+from .utils.supplies import filter_account_info, supports_electricity
 from .storage.heat_pump_ids import async_load_cached_heat_pump_ids, async_save_cached_heat_pump_ids
 
 from .const import (
@@ -196,9 +197,12 @@ async def async_setup_entry(hass, entry):
       if child_entry_config[CONFIG_KIND] != CONFIG_KIND_ACCOUNT and child_entry_config[CONFIG_ACCOUNT_ID] == account_id:
         await hass.config_entries.async_reload(child_entry.entry_id)
 
-    if CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS in config and config[CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS] == True:
+    if (CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS in config and
+        config[CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS] == True and
+        supports_electricity(config)):
       discovery_manager = DiscoveryManager(hass, account_id)
       await discovery_manager.async_setup()
+      entry.async_on_unload(discovery_manager.async_unload)
       hass.data[DOMAIN][account_id][DATA_DISCOVERY_MANAGER] = discovery_manager
   
   elif (config[CONFIG_KIND] == CONFIG_KIND_TARGET_RATE or config[CONFIG_KIND] == CONFIG_KIND_ROLLING_TARGET_RATE):
@@ -309,10 +313,10 @@ async def async_setup_dependencies(hass, config):
 
   try:
     ir.async_delete_issue(hass, DOMAIN, safe_repair_key(REPAIR_INVALID_API_KEY, account_id))
-    account_info = await client.async_get_account(config[CONFIG_ACCOUNT_ID])
-    if (account_info is None):
+    raw_account_info = await client.async_get_account(config[CONFIG_ACCOUNT_ID])
+    if (raw_account_info is None):
       raise ConfigEntryNotReady(f"Failed to retrieve account information")
-    await async_save_cached_account(hass, account_id, account_info)
+    await async_save_cached_account(hass, account_id, raw_account_info)
   except Exception as e:
     if isinstance(e, ApiException) == False:
       raise
@@ -329,12 +333,13 @@ async def async_setup_dependencies(hass, config):
       )
       raise ConfigEntryNotReady(f"Failed to retrieve account information: {api_exception_to_string(e)}")
     else:
-      account_info = await async_load_cached_account(hass, account_id)
-      if (account_info is None):
+      raw_account_info = await async_load_cached_account(hass, account_id)
+      if (raw_account_info is None):
         raise ConfigEntryNotReady(f"Failed to retrieve account information: {api_exception_to_string(e)}")
       else:
         _LOGGER.warning(f"Using cached account information for {account_id} during startup. This data will be updated automatically when available.")
 
+  account_info = filter_account_info(raw_account_info, config)
   hass.data[DOMAIN][account_id][DATA_ACCOUNT] = AccountCoordinatorResult(utcnow(), 1, account_info)
 
   device_registry = dr.async_get(hass)
@@ -453,7 +458,7 @@ async def async_setup_dependencies(hass, config):
       except:
         hass.data[DOMAIN][account_id][key] = HeatPumpCoordinatorResult(now, 1, heat_pump_id, await async_load_cached_heat_pump(hass, account_id, heat_pump_id))
 
-  await async_setup_account_info_coordinator(hass, account_id)
+  await async_setup_account_info_coordinator(hass, account_id, config)
 
   await async_setup_power_up_down_coordinators(hass, account_id)
 

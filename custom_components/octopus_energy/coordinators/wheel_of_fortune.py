@@ -32,11 +32,13 @@ async def async_refresh_wheel_of_fortune_spins(
     current: datetime,
     client: OctopusEnergyApiClient,
     account_id: str,
-    existing_result: WheelOfFortuneSpinsCoordinatorResult
+    existing_result: WheelOfFortuneSpinsCoordinatorResult,
+    include_electricity: bool = True,
+    include_gas: bool = True,
 ) -> WheelOfFortuneSpinsCoordinatorResult:
   if existing_result is None or current >= existing_result.next_refresh:
     try:
-      result = await client.async_get_wheel_of_fortune_spins(account_id)
+      result = await client.async_get_wheel_of_fortune_spins(account_id, include_electricity, include_gas)
 
       return WheelOfFortuneSpinsCoordinatorResult(current, 1, result)
     except Exception as e:
@@ -62,7 +64,12 @@ async def async_refresh_wheel_of_fortune_spins(
   
   return existing_result
 
-async def async_setup_wheel_of_fortune_spins_coordinator(hass, account_id: str):
+async def async_setup_wheel_of_fortune_spins_coordinator(
+  hass,
+  account_id: str,
+  include_electricity: bool = True,
+  include_gas: bool = True,
+):
   async def async_update_data():
     """Fetch data from API endpoint."""
     current = now()
@@ -72,7 +79,9 @@ async def async_setup_wheel_of_fortune_spins_coordinator(hass, account_id: str):
       current,
       client,
       account_id,
-      hass.data[DOMAIN][account_id][DATA_WHEEL_OF_FORTUNE_SPINS] if DATA_WHEEL_OF_FORTUNE_SPINS in hass.data[DOMAIN][account_id] else None
+      hass.data[DOMAIN][account_id][DATA_WHEEL_OF_FORTUNE_SPINS] if DATA_WHEEL_OF_FORTUNE_SPINS in hass.data[DOMAIN][account_id] else None,
+      include_electricity,
+      include_gas,
     )
 
     return hass.data[DOMAIN][account_id][DATA_WHEEL_OF_FORTUNE_SPINS]

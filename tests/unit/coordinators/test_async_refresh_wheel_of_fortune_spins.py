@@ -37,9 +37,13 @@ async def test_when_results_retrieved_then_results_returned():
   
   expected_result = WheelOfFortuneSpinsResponse(1, 2)
   mock_api_called = False
-  async def async_mocked_get_wheel_of_fortune_spins(*args, **kwargs):
+  requested_supplies = None
+  async def async_mocked_get_wheel_of_fortune_spins(_, requested_account_id, include_electricity, include_gas):
     nonlocal mock_api_called
+    nonlocal requested_supplies
     mock_api_called = True
+    assert requested_account_id == account_id
+    requested_supplies = (include_electricity, include_gas)
     return expected_result
 
   with mock.patch.multiple(OctopusEnergyApiClient, async_get_wheel_of_fortune_spins=async_mocked_get_wheel_of_fortune_spins): 
@@ -50,7 +54,9 @@ async def test_when_results_retrieved_then_results_returned():
       current_utc_timestamp,
       client,
       account_id,
-      previous_data
+      previous_data,
+      True,
+      False,
     )
 
     # Assert
@@ -60,6 +66,7 @@ async def test_when_results_retrieved_then_results_returned():
     assert result.spins == expected_result
 
     assert mock_api_called == True
+    assert requested_supplies == (True, False)
 
 @pytest.mark.asyncio
 async def test_when_exception_raised_then_previous_result_returned_and_exception_captured():

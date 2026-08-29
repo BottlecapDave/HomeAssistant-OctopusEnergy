@@ -19,7 +19,11 @@ from .intelligent_device import IntelligentDevice
 from .octoplus import RedeemOctoplusPointsResponse
 from .intelligent_dispatches import DecimalReading, IntelligentDispatchItem, IntelligentDispatches
 from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSessionsResponse
-from .wheel_of_fortune import WheelOfFortuneSpinsResponse
+from .wheel_of_fortune import (
+  WheelOfFortuneSpinsResponse,
+  build_wheel_of_fortune_query,
+  map_wheel_of_fortune_spins_response,
+)
 from .free_electricity_sessions import FreeElectricitySession, FreeElectricitySessionsResponse
 from .heat_pump import HeatPumpResponse
 from .intelligent_device_settings import IntelligentDeviceSettingPreferenceSchedule, IntelligentDeviceSettings
@@ -323,15 +327,6 @@ backend_octoplus_saving_session_query = '''query {{
 			}}
 		}}
 	}}
-}}'''
-
-backend_wheel_of_fortune_query = '''query {{
-  electricity: wheelOfFortuneSpinsAllowed(fuelType:ELECTRICITY, accountNumber: "{account_id}") {{
-    spinsAllowed
-  }}
-  gas: wheelOfFortuneSpinsAllowed(fuelType:GAS, accountNumber: "{account_id}") {{
-    spinsAllowed
-  }}
 }}'''
 
 backend_wheel_of_fortune_mutation = '''mutation {{
@@ -2084,7 +2079,12 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
   
-  async def async_get_wheel_of_fortune_spins(self, account_id: str) -> WheelOfFortuneSpinsResponse:
+  async def async_get_wheel_of_fortune_spins(
+    self,
+    account_id: str,
+    include_electricity: bool = True,
+    include_gas: bool = True,
+  ) -> WheelOfFortuneSpinsResponse:
     """Get the user's wheel of fortune spins"""
     await self.async_refresh_token()
 
@@ -2092,21 +2092,15 @@ class OctopusEnergyApiClient:
       request_context = "wheel-of-fortune"
       client = await self._create_client_session()
       url = f'{self._backend_base_url}/v1/graphql/'
-      payload = { "query": backend_wheel_of_fortune_query.format(account_id=account_id) }
+      payload = { "query": build_wheel_of_fortune_query(account_id, include_electricity, include_gas) }
       headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
         _LOGGER.debug(f'async_get_wheel_of_fortune_spins: {response_body}')
 
-        if (response_body is not None and "data" in response_body and
-            "electricity" in response_body["data"] and
-            "gas" in response_body["data"]):
-          
-          spins = response_body["data"]
-          return WheelOfFortuneSpinsResponse(
-            int(spins["electricity"]["spinsAllowed"]) if "electricity" in spins and "spinsAllowed" in spins["electricity"] else 0,
-            int(spins["gas"]["spinsAllowed"]) if "gas" in spins and "spinsAllowed" in spins["gas"] else 0
-          )
+        result = map_wheel_of_fortune_spins_response(response_body, include_electricity, include_gas)
+        if result is not None:
+          return result
         else:
           _LOGGER.error("Failed to retrieve wheel of fortune spins")
       

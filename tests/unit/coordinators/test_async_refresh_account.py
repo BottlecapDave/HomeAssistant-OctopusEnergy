@@ -4,6 +4,12 @@ import mock
 
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, AuthenticationException, ApiException
 from custom_components.octopus_energy.coordinators.account import AccountCoordinatorResult, async_refresh_account
+from custom_components.octopus_energy.const import (
+  CONFIG_MAIN_SUPPLIES_TO_MONITOR,
+  CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY,
+  CONFIG_MAIN_SUPPLIES_TO_MONITOR_GAS,
+)
+from custom_components.octopus_energy.utils.supplies import filter_account_info
 
 current = datetime.strptime("2025-08-30T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
 expected_next_refresh = datetime.strptime("2025-08-30T16:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")
@@ -82,6 +88,56 @@ def assert_unsuccessful_result(result: AccountCoordinatorResult, previous_result
   assert result.next_refresh == previous_result.next_refresh + timedelta(minutes=1)
   assert result.request_attempts == previous_result.request_attempts + 1
   assert result.last_error is not None
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+  "supplies_to_monitor,expected_electricity_points,expected_gas_points",
+  [
+    (CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY, 1, 0),
+    (CONFIG_MAIN_SUPPLIES_TO_MONITOR_GAS, 0, 1),
+  ],
+)
+async def test_when_supply_is_excluded_then_refresh_filters_before_product_and_meter_checks(
+  supplies_to_monitor,
+  expected_electricity_points,
+  expected_gas_points,
+):
+  # Arrange
+  raw_account_info = get_account_info()
+  config = {CONFIG_MAIN_SUPPLIES_TO_MONITOR: supplies_to_monitor}
+  previous_result = AccountCoordinatorResult(
+    current - timedelta(days=1),
+    1,
+    filter_account_info(raw_account_info, config),
+  )
+  client = OctopusEnergyApiClient("NOT_REAL")
+  client.async_get_account = mock.AsyncMock(return_value=raw_account_info)
+  client.async_get_product = mock.AsyncMock(return_value={})
+  raise_meter_removed = mock.Mock()
+  raise_meter_added = mock.Mock()
+
+  # Act
+  result = await async_refresh_account(
+    current,
+    client,
+    account_id,
+    previous_result,
+    mock.Mock(),
+    mock.Mock(),
+    mock.Mock(),
+    raise_meter_removed,
+    raise_meter_added,
+    mock.Mock(),
+    config,
+  )
+
+  # Assert
+  assert len(result.account["electricity_meter_points"]) == expected_electricity_points
+  assert len(result.account["gas_meter_points"]) == expected_gas_points
+  assert client.async_get_product.await_count == 1
+  raise_meter_removed.assert_not_called()
+  raise_meter_added.assert_not_called()
 
 @pytest.mark.asyncio
 async def test_when_gas_meter_is_missing_then_event_raised():
