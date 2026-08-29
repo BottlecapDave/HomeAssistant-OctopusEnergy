@@ -20,6 +20,7 @@ from homeassistant.components.sensor import (
 from ..coordinators.current_consumption import CurrentConsumptionCoordinatorResult
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
+from ..utils.consumption import get_latest_consumption_item
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -80,8 +81,9 @@ class OctopusEnergyCurrentElectricityDemand(CoordinatorEntity, OctopusEnergyElec
     consumption_result: CurrentConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     consumption_data = consumption_result.data if consumption_result is not None else None
 
-    if (consumption_data is not None):
-      self._state = consumption_data[-1]["demand"]
+    latest_consumption = get_latest_consumption_item(consumption_data, "demand")
+    if latest_consumption is not None:
+      self._state = latest_consumption["demand"]
 
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()

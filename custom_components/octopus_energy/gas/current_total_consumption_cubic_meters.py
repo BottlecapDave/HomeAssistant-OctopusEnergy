@@ -24,6 +24,7 @@ from homeassistant.util.dt import (now)
 from ..coordinators.current_consumption import CurrentConsumptionCoordinatorResult
 from .base import (OctopusEnergyGasSensor)
 from ..utils.attributes import dict_to_typed_dict
+from ..utils.consumption import get_latest_consumption_item
 from . import convert_kwh_to_m3
 
 _LOGGER = logging.getLogger(__name__)
@@ -95,20 +96,20 @@ class OctopusEnergyCurrentTotalGasConsumptionCubicMeters(CoordinatorEntity, Octo
     consumption_result: CurrentConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     consumption_data = consumption_result.data if consumption_result is not None else None
 
-    if (consumption_data is not None and len(consumption_data) > 0):
+    latest_consumption = get_latest_consumption_item(consumption_data, "total_consumption")
+    if latest_consumption is not None:
       _LOGGER.debug(f"Calculated total gas consumption for '{self._mprn}/{self._serial_number}'...")
 
-      if consumption_data[-1]["total_consumption"] is not None:
-        if "is_kwh" not in consumption_data[-1] or consumption_data[-1]["is_kwh"] == True:
-          self._state = convert_kwh_to_m3(consumption_data[-1]["total_consumption"], self._calorific_value) if consumption_data[-1]["total_consumption"] is not None and consumption_data[-1]["total_consumption"] != 0 else None
-        else:
-          self._state = consumption_data[-1]["total_consumption"] if consumption_data[-1]["total_consumption"] is not None and consumption_data[-1]["total_consumption"] != 0 else None
+      if "is_kwh" not in latest_consumption or latest_consumption["is_kwh"] == True:
+        self._state = convert_kwh_to_m3(latest_consumption["total_consumption"], self._calorific_value) if latest_consumption["total_consumption"] != 0 else None
+      else:
+        self._state = latest_consumption["total_consumption"] if latest_consumption["total_consumption"] != 0 else None
 
-        self._attributes = {
-          "mprn": self._mprn,
-          "serial_number": self._serial_number,
-          "is_smart_meter": self._is_smart_meter,
-        }
+      self._attributes = {
+        "mprn": self._mprn,
+        "serial_number": self._serial_number,
+        "is_smart_meter": self._is_smart_meter,
+      }
 
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()

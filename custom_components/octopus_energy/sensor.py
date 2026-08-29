@@ -441,7 +441,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   
               mini_not_available_key = safe_repair_key("octopus_mini_not_valid_electricity_{}_{}", mpan, serial_number)
               if meter["device_id"] is not None and meter["device_id"] != "":
-                consumption_coordinator = await async_create_current_consumption_coordinator(hass, account_id, client, meter["device_id"], live_consumption_refresh_in_minutes)
+                consumption_coordinator = await async_create_current_consumption_coordinator(hass, account_id, client, meter["device_id"], live_consumption_refresh_in_minutes, "electricity", mpan, serial_number)
                 entities.append(OctopusEnergyCurrentElectricityConsumption(hass, consumption_coordinator, meter, point))
                 entities.append(OctopusEnergyCurrentAccumulativeElectricityConsumption(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, meter, point))
                 entities.append(OctopusEnergyCurrentAccumulativeElectricityCost(hass, consumption_coordinator, electricity_rate_coordinator, electricity_standing_charges_coordinator, meter, point))
@@ -553,7 +553,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
             
             mini_not_available_key = safe_repair_key("octopus_mini_not_valid_gas_{}_{}", mprn, serial_number)
             if meter["device_id"] is not None and meter["device_id"] != "":
-              consumption_coordinator = await async_create_current_consumption_coordinator(hass, account_id, client, meter["device_id"], live_consumption_refresh_in_minutes)
+              consumption_coordinator = await async_create_current_consumption_coordinator(hass, account_id, client, meter["device_id"], live_consumption_refresh_in_minutes, "gas", mprn, serial_number)
               entities.append(OctopusEnergyCurrentGasConsumption(hass, consumption_coordinator, meter, point))
               entities.append(OctopusEnergyCurrentAccumulativeGasConsumptionKwh(hass, consumption_coordinator, gas_rate_coordinator, gas_standing_charges_coordinator, meter, point, calorific_value))
               entities.append(OctopusEnergyCurrentAccumulativeGasConsumptionCubicMeters(hass, consumption_coordinator, gas_rate_coordinator, gas_standing_charges_coordinator, meter, point, calorific_value))
