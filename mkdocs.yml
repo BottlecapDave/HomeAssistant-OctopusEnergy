@@ -17,6 +17,7 @@ nav:
     - Wheel Of Fortune: ./entities/wheel_of_fortune.md
     - Home Pro: ./entities/home_pro.md
     - Heat Pump: ./entities/heat_pump.md
+    - Charge Point: ./entities/charge_point.md
     - Diagnostics: ./entities/diagnostics.md
   - Migrations:
     - ./migrations/target_timeframes.md
