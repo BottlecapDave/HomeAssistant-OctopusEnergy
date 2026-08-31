@@ -57,7 +57,7 @@ This represents when the current boost charge is due to end. This will be unavai
 
 `sensor.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_live_power`
 
-This represents the instantaneous power draw of the charger, in kW.
+This represents the instantaneous power draw of the charger, in kW. This will read `0` while the charger isn't actually charging.
 
 !!! info
 

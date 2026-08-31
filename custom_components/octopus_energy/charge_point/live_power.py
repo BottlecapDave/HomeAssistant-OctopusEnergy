@@ -47,7 +47,9 @@ class OctopusEnergyChargePointLivePower(CoordinatorEntity, BaseOctopusEnergyChar
     self._client = client
     self._account_id = account_id
     self._is_mocked = is_mocked
-    self._state = None
+    # 0kW rather than unknown/None - not charging genuinely means no power is
+    # being drawn, which is a real, known value, not an absence of data.
+    self._state = 0
     self._stream_task: asyncio.Task | None = None
 
   @property
@@ -104,7 +106,7 @@ class OctopusEnergyChargePointLivePower(CoordinatorEntity, BaseOctopusEnergyChar
       _LOGGER.debug(f"Stopping live power stream for charge point '{self._charge_point_id}' - no longer charging")
       self._stream_task.cancel()
       self._stream_task = None
-      self._state = None
+      self._state = 0
       self.async_write_ha_state()
 
     super()._handle_coordinator_update()
@@ -121,7 +123,9 @@ class OctopusEnergyChargePointLivePower(CoordinatorEntity, BaseOctopusEnergyChar
             if reading is not None and "value" in reading:
               self._state = float(reading["value"])
             else:
-              self._state = None
+              # Stream reported no reading (e.g. charging just stopped) - 0kW
+              # is the accurate value here, not unknown.
+              self._state = 0
 
             self.async_write_ha_state()
 
