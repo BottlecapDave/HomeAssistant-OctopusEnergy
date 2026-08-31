@@ -11,16 +11,7 @@ attribute_keys_to_skip = [
   # bluetooth_low_energy_pin would silently lose meaningful leading zeros.
   'simcard_identifier', 'bluetooth_low_energy_pin',
 ]
-default_keys_to_ignore = [
-  'last_evaluated', 'data_last_retrieved', 'total_cost_without_standing_charge', 'state_class', 'device_class',
-  # TEMPORARY: strips stale device-level attributes (bluetoothLowEnergyPin/
-  # simcardIdentifier/onboarding) that base.py used to stuff onto every
-  # charge point entity before that was removed - HA's restore_state store
-  # is keyed by entity_id and independent of the entity registry, so
-  # deleting+recreating the entities alone didn't clear them; this drops
-  # them on restore instead. Revert once confirmed clean on a real restart.
-  'bluetooth_low_energy_pin', 'simcard_identifier', 'external_device_id', 'onboarded_at',
-]
+default_keys_to_ignore = ['last_evaluated', 'data_last_retrieved', 'total_cost_without_standing_charge', 'state_class', 'device_class']
 
 def dict_to_typed_dict(data: dict, keys_to_ignore = []):
   if data is not None:
