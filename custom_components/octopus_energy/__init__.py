@@ -474,14 +474,11 @@ async def async_setup_dependencies(hass, config):
       _LOGGER.warning(f"Failed to retrieve mocked charge point information for {account_id} during startup. Loading from cache.")
       hass.data[DOMAIN][account_id][key] = ChargePointCoordinatorResult(now, 1, charge_point_id, await async_load_cached_charge_point(hass, account_id, charge_point_id))
   elif "property_ids" in account_info:
-    _LOGGER.warning(f"CHARGEPOINT DEBUG: entering block, property_ids={account_info.get('property_ids')}")
     charge_point_ids = []
     try:
       charge_point_ids = await client.async_get_charge_point_ids(account_id, account_info["property_ids"])
-      _LOGGER.warning(f"CHARGEPOINT DEBUG: charge_point_ids={charge_point_ids}")
       await async_save_cached_charge_point_ids(hass, account_id, charge_point_ids)
-    except Exception as e:
-      _LOGGER.warning(f"CHARGEPOINT DEBUG: exception during fetch: {type(e).__name__}: {e}")
+    except:
       _LOGGER.warning(f"Failed to retrieve charge point information for {account_id} during startup. Loading from cache.")
       charge_point_ids = await async_load_cached_charge_point_ids(hass, account_id)
 
@@ -500,11 +497,9 @@ async def async_setup_dependencies(hass, config):
       key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
       try:
         status = await client.async_get_charge_point_configuration_and_status(account_id, property_id, charge_point_id)
-        _LOGGER.warning(f"CHARGEPOINT DEBUG: status for {charge_point_id}={status}")
         hass.data[DOMAIN][account_id][key] = ChargePointCoordinatorResult(now, 1, charge_point_id, status)
         await async_save_cached_charge_point(hass, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data)
-      except Exception as e:
-        _LOGGER.warning(f"CHARGEPOINT DEBUG: exception fetching status for {charge_point_id}: {type(e).__name__}: {e}")
+      except:
         hass.data[DOMAIN][account_id][key] = ChargePointCoordinatorResult(now, 1, charge_point_id, await async_load_cached_charge_point(hass, account_id, charge_point_id))
 
   await async_setup_account_info_coordinator(hass, account_id)
