@@ -91,6 +91,10 @@ This represents a summary of the charger's configured weekly charging schedule. 
 
     This is read only. Use the Octopus app to change your charger's schedule.
 
+!!! info
+
+    Every scheduled start/end time also arms a one-off timer that triggers the same fast burst-refresh as [boost](#boost) start/stop - so [operational state](#operational-state) and [live power](#live-power) pick up a scheduled charging transition quickly too, not just a manually-triggered one.
+
 ## Random Delay
 
 `switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_random_delay_switch`
@@ -134,6 +138,10 @@ This can be used to start or stop a boost charge. Turning this on starts a boost
 !!! info
 
     If you require boost to be on for a different amount of time, then you can use the [available service](../services.md#octopus_energyboost_charge_point).
+
+!!! info
+
+    Starting or stopping boost triggers a brief burst of much more frequent polling (every 10s for 60s), so [operational state](#operational-state) and [live power](#live-power) reflect the change quickly rather than waiting for the normal refresh interval.
 
 ## Services
 

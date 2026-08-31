@@ -767,7 +767,7 @@ def setup_charge_point_sensors(hass: HomeAssistant, account_id: str, charge_poin
   entities.append(OctopusEnergyChargePointBoostEndTime(hass, coordinator, charge_point_id, charge_point))
   entities.append(OctopusEnergyChargePointLivePower(hass, coordinator, client, account_id, charge_point_id, charge_point, is_mocked))
   entities.append(OctopusEnergyChargePointEnergy(hass, charge_point_id, charge_point))
-  entities.append(OctopusEnergyChargePointSchedule(hass, client, account_id, charge_point_id, charge_point))
+  entities.append(OctopusEnergyChargePointSchedule(hass, client, account_id, charge_point_id, charge_point, coordinator))
 
   return entities
 
