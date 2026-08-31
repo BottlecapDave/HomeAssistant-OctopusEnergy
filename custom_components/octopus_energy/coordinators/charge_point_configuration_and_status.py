@@ -161,9 +161,13 @@ class ChargePointDataUpdateCoordinator(DataUpdateCoordinator):
     try:
       end = utcnow() + timedelta(seconds=duration_seconds)
       while utcnow() < end:
+        # Wait a full interval before polling - the change we're bursting
+        # around (e.g. a boost toggle) hasn't necessarily propagated on
+        # Octopus's side yet, so an immediate poll can catch the charger
+        # still in its pre-change state and read as an instant revert.
+        await asyncio.sleep(interval_seconds)
         self.__force_next_refresh = True
         await self.async_request_refresh()
-        await asyncio.sleep(interval_seconds)
     finally:
       self.update_interval = self.__normal_interval
 
