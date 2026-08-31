@@ -34,34 +34,18 @@ This represents how charging is currently being controlled. The possible values 
 
 ## Control Mode
 
-`sensor.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_control_mode`
+`select.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_control_mode_select`
 
-This represents whether the charger is being controlled automatically or manually. The possible values are
+This represents, and can be used to change, whether the charger is being controlled automatically or manually. The possible values are
 
 * `SMART`
 * `MANUAL`
 
-This can be changed via the [equivalent select entity](#control-mode-select) below.
-
-### Control Mode (select)
-
-`select.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_control_mode_select`
-
-This can be used to change the [control mode](#control-mode) between `SMART` and `MANUAL`.
-
 ## LED Brightness
-
-`sensor.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_led_brightness`
-
-This represents the configured brightness of the charger's status LED, as a percentage.
-
-This can be changed via the [equivalent number entity](#led-brightness-number) below.
-
-### LED Brightness (number)
 
 `number.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_led_brightness_number`
 
-This can be used to change the [LED brightness](#led-brightness) between 0 and 100%.
+This represents, and can be used to change, the brightness of the charger's status LED, as a percentage between 0 and 100.
 
 ## Boost End Time
 
@@ -95,17 +79,9 @@ This represents a summary of the charger's configured weekly charging schedule. 
 
 ## Random Delay
 
-`binary_sensor.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_random_delay`
-
-This determines if random delay is enabled, which adds a small random delay before charging starts to help smooth demand across the grid.
-
-This can be changed via the [equivalent switch entity](#random-delay-switch) below.
-
-### Random Delay (switch)
-
 `switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_random_delay_switch`
 
-This can be used to turn [random delay](#random-delay) on or off.
+This represents, and can be used to turn on or off, random delay - a small random delay before charging starts to help smooth demand across the grid.
 
 ## Connected
 
@@ -115,49 +91,25 @@ This determines if the charger is currently connected to the internet.
 
 ## Eco Mode
 
-`binary_sensor.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_eco_mode`
-
-This determines if eco mode is enabled.
-
-This can be changed via the [equivalent switch entity](#eco-mode-switch) below.
-
-### Eco Mode (switch)
-
 `switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_eco_mode_switch`
 
-This can be used to turn [eco mode](#eco-mode) on or off.
+This represents, and can be used to turn on or off, eco mode.
 
 ## Away Mode
 
-`binary_sensor.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_away_mode`
-
-This determines if away mode is enabled.
-
-This can be changed via the [equivalent switch entity](#away-mode-switch) below.
-
-### Away Mode (switch)
-
 `switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_away_mode_switch`
 
-This can be used to turn [away mode](#away-mode) on or off.
+This represents, and can be used to turn on or off, away mode.
 
 ## Cable Auto Lock
 
-`binary_sensor.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_cable_auto_lock`
+`switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_cable_auto_lock_switch`
 
-This determines if the charge cable auto lock is enabled.
+This represents, and can be used to turn on or off, the charge cable auto lock.
 
 !!! note
 
-    This entity (and its equivalent switch) will only be available if your charger supports cable auto lock.
-
-This can be changed via the [equivalent switch entity](#cable-auto-lock-switch) below.
-
-### Cable Auto Lock (switch)
-
-`switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_cable_auto_lock_switch`
-
-This can be used to turn [cable auto lock](#cable-auto-lock) on or off.
+    This entity will only be available if your charger supports cable auto lock.
 
 ## Boost
 

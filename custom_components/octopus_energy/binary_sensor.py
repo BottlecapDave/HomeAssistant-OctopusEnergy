@@ -17,11 +17,7 @@ from .heat_pump import get_mock_heat_pump_id
 from .heat_pump.weather_compensation_enabled import OctopusEnergyHeatPumpWeatherCompensationEnabled
 from .api_client.charge_point import OnboardedChargePoint
 from .charge_point import get_mock_charge_point_id
-from .charge_point.random_delay import OctopusEnergyChargePointRandomDelay
 from .charge_point.connected import OctopusEnergyChargePointConnected
-from .charge_point.cable_auto_lock import OctopusEnergyChargePointCableAutoLock
-from .charge_point.eco_mode import OctopusEnergyChargePointEcoMode
-from .charge_point.away_mode import OctopusEnergyChargePointAwayMode
 from .utils.debug_overrides import async_get_account_debug_override
 
 from .const import (
@@ -140,13 +136,13 @@ def setup_charge_point_sensors(hass: HomeAssistant, account_id: str, charge_poin
   if charge_point is None:
     return entities
 
-  entities.append(OctopusEnergyChargePointRandomDelay(hass, coordinator, charge_point_id, charge_point))
+  # Random delay, eco mode, away mode and cable auto lock all have an
+  # equivalent switch (see switch.py) that already shows its own on/off
+  # state - no need for a separate read-only binary_sensor duplicating the
+  # same value (matches the IOG precedent: e.g. the smart_charge switch has
+  # no matching binary_sensor either). Connected has no switch counterpart
+  # (nothing to control - it's just a status flag), so it stays here.
   entities.append(OctopusEnergyChargePointConnected(hass, coordinator, charge_point_id, charge_point))
-  entities.append(OctopusEnergyChargePointEcoMode(hass, coordinator, charge_point_id, charge_point))
-  entities.append(OctopusEnergyChargePointAwayMode(hass, coordinator, charge_point_id, charge_point))
-
-  if charge_point.configuration is not None and charge_point.configuration.isChargeCableAutoLockAvailable:
-    entities.append(OctopusEnergyChargePointCableAutoLock(hass, coordinator, charge_point_id, charge_point))
 
   return entities
 

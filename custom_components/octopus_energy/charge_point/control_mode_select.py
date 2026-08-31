@@ -15,13 +15,15 @@ from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from .base import BaseOctopusEnergyChargePointSensor
-from .control_mode import control_mode_options
 from ..api_client import OctopusEnergyApiClient
 from ..api_client.charge_point import OnboardedChargePoint
 from ..coordinators.charge_point_configuration_and_status import ChargePointCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
+
+# ControlMode enum, confirmed via live GraphQL introspection
+control_mode_options = ["SMART", "MANUAL"]
 
 class OctopusEnergyChargePointControlModeSelect(CoordinatorEntity, BaseOctopusEnergyChargePointSensor, SelectEntity, RestoreEntity):
   """Select for setting the control mode of a charge point (mirrors the ControlMode enum: SMART/MANUAL)."""

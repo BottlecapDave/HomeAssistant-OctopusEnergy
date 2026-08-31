@@ -15,14 +15,11 @@ class BaseOctopusEnergyChargePointSensor:
     self._charge_point = charge_point
     self._charge_point_id = charge_point_id
 
-    self._attributes = {
-      "bluetooth_low_energy_pin": charge_point.bluetoothLowEnergyPin,
-      "simcard_identifier": charge_point.simcardIdentifier,
-    }
-
-    if charge_point.onboarding is not None:
-      self._attributes["external_device_id"] = charge_point.onboarding.externalDeviceId
-      self._attributes["onboarded_at"] = charge_point.onboarding.onboardedAt
+    # Device-level info (bluetoothLowEnergyPin, simcardIdentifier, onboarding)
+    # belongs on the device page via DeviceInfo below, the same way
+    # firmwareVersion/model/serialNumber already do - not duplicated as an
+    # attribute on every single entity, which is what was here before.
+    self._attributes = {}
 
     self.entity_id = generate_entity_id(entity_domain + ".{}", self.unique_id, hass=hass)
 
