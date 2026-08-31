@@ -5,6 +5,9 @@ from .utils.debug_overrides import async_get_account_debug_override
 from .intelligent import get_intelligent_features
 from .intelligent.charge_target import OctopusEnergyIntelligentChargeTarget
 from .api_client.intelligent_device import IntelligentDevice
+from .api_client.charge_point import OnboardedChargePoint
+from .charge_point import get_mock_charge_point_id
+from .charge_point.led_brightness_number import OctopusEnergyChargePointLedBrightnessNumber
 from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
 
 from .const import (
@@ -16,6 +19,9 @@ from .const import (
   CONFIG_MAIN_API_KEY,
 
   DATA_INTELLIGENT_SETTINGS_COORDINATOR,
+  DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR,
+  DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY,
+  DATA_CHARGE_POINT_IDS,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -54,5 +60,28 @@ async def async_setup_intelligent_sensors(hass, config):
 
     if intelligent_features.charge_limit_supported == True:
       entities.append(OctopusEnergyIntelligentChargeTarget(hass, settings_coordinator, client, intelligent_device, account_id, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False))
+
+  is_mocked = account_debug_override.mock_charge_point if account_debug_override is not None else False
+  if is_mocked:
+    charge_point_id = get_mock_charge_point_id()
+    key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
+    coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
+    entities.extend(setup_charge_point_numbers(hass, coordinator, client, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, is_mocked))
+  else:
+    charge_point_ids = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_IDS] if DATA_CHARGE_POINT_IDS in hass.data[DOMAIN][account_id] else []
+    for charge_point_id in charge_point_ids:
+      key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
+      coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
+      entities.extend(setup_charge_point_numbers(hass, coordinator, client, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, is_mocked))
+
+  return entities
+
+def setup_charge_point_numbers(hass, coordinator, client, account_id: str, charge_point_id: str, charge_point: OnboardedChargePoint, is_mocked: bool):
+  entities = []
+
+  if charge_point is None:
+    return entities
+
+  entities.append(OctopusEnergyChargePointLedBrightnessNumber(hass, coordinator, client, account_id, charge_point_id, charge_point, is_mocked))
 
   return entities

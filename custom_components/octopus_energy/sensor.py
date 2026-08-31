@@ -76,6 +76,15 @@ from .heat_pump.live_outdoor_temperature import OctopusEnergyHeatPumpLiveOutdoor
 from .heat_pump.live_cop import OctopusEnergyHeatPumpLiveCoP
 from .heat_pump.live_heat_output import OctopusEnergyHeatPumpLiveHeatOutput
 from .heat_pump.live_power_input import OctopusEnergyHeatPumpLivePowerInput
+from .diagnostics_entities.charge_point_data_last_retrieved import OctopusEnergyChargePointDataLastRetrieved
+from .charge_point import get_mock_charge_point_id
+from .charge_point.operational_state import OctopusEnergyChargePointOperationalState
+from .charge_point.charging_method import OctopusEnergyChargePointChargingMethod
+from .charge_point.control_mode import OctopusEnergyChargePointControlMode
+from .charge_point.boost_end_time import OctopusEnergyChargePointBoostEndTime
+from .charge_point.led_brightness import OctopusEnergyChargePointLedBrightness
+from .charge_point.live_power import OctopusEnergyChargePointLivePower
+from .charge_point.schedule import OctopusEnergyChargePointSchedule
 from .api_client.intelligent_device import IntelligentDevice
 from .intelligent.current_state import OctopusEnergyIntelligentCurrentState
 from .intelligent.state_of_charge import OctopusEnergyIntelligentStateOfCharge
@@ -94,6 +103,7 @@ from .coordinators.current_consumption_home_pro import async_create_home_pro_cur
 from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
 
 from .api_client.heat_pump import HeatPumpResponse
+from .api_client.charge_point import OnboardedChargePoint
 from .api_client.intelligent_device import IntelligentDevice
 
 from .api_client import OctopusEnergyApiClient
@@ -128,6 +138,9 @@ from .const import (
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
   DATA_HEAT_PUMP_IDS,
+  DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR,
+  DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY,
+  DATA_CHARGE_POINT_IDS,
   DATA_HOME_PRO_CLIENT,
   DATA_INTELLIGENT_DEVICES,
   DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
@@ -599,6 +612,20 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
       coordinator = hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR.format(heat_pump_id)]
       entities.extend(setup_heat_pump_sensors(hass, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data, coordinator))
 
+  client = hass.data[DOMAIN][account_id][DATA_CLIENT]
+  mock_charge_point = account_debug_override.mock_charge_point if account_debug_override is not None else False
+  if mock_charge_point:
+    charge_point_id = get_mock_charge_point_id()
+    key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
+    coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
+    entities.extend(setup_charge_point_sensors(hass, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, coordinator, client, mock_charge_point))
+  else:
+    charge_point_ids = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_IDS] if DATA_CHARGE_POINT_IDS in hass.data[DOMAIN][account_id] else []
+    for charge_point_id in charge_point_ids:
+      key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
+      coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
+      entities.extend(setup_charge_point_sensors(hass, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, coordinator, client, mock_charge_point))
+
   # Migrate entity ids that might have changed
   # for item in entity_ids_to_migrate:
   #   entity_id = registry.async_get_entity_id("sensor", DOMAIN, item["old"])
@@ -723,6 +750,26 @@ def setup_heat_pump_sensors(hass: HomeAssistant, account_id: str, heat_pump_id: 
       heat_pump_id,
       heat_pump_response.heatPumpControllerConfiguration.heatPump
     ))
+
+  return entities
+
+def setup_charge_point_sensors(hass: HomeAssistant, account_id: str, charge_point_id: str, charge_point: OnboardedChargePoint, coordinator, client: OctopusEnergyApiClient, is_mocked: bool):
+
+  entities = []
+
+  if charge_point is None:
+    return entities
+
+  if coordinator is not None:
+    entities.append(OctopusEnergyChargePointDataLastRetrieved(hass, coordinator, account_id, charge_point_id, charge_point))
+
+  entities.append(OctopusEnergyChargePointOperationalState(hass, coordinator, charge_point_id, charge_point))
+  entities.append(OctopusEnergyChargePointChargingMethod(hass, coordinator, charge_point_id, charge_point))
+  entities.append(OctopusEnergyChargePointControlMode(hass, coordinator, charge_point_id, charge_point))
+  entities.append(OctopusEnergyChargePointBoostEndTime(hass, coordinator, charge_point_id, charge_point))
+  entities.append(OctopusEnergyChargePointLedBrightness(hass, coordinator, charge_point_id, charge_point))
+  entities.append(OctopusEnergyChargePointLivePower(hass, coordinator, client, account_id, charge_point_id, charge_point, is_mocked))
+  entities.append(OctopusEnergyChargePointSchedule(hass, client, account_id, charge_point_id, charge_point))
 
   return entities
 

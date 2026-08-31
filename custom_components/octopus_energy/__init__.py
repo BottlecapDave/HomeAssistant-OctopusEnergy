@@ -25,6 +25,7 @@ from .coordinators.power_up_down_sessions import async_setup_power_up_down_coord
 from .statistics import get_statistic_ids_to_remove
 from .intelligent import get_intelligent_features, mock_intelligent_devices
 from .coordinators.heat_pump_configuration_and_status import HeatPumpCoordinatorResult, async_setup_heat_pump_coordinator
+from .coordinators.charge_point_configuration_and_status import ChargePointCoordinatorResult, async_setup_charge_point_coordinator
 from .config.tariff_comparison import async_migrate_tariff_comparison_config
 
 from .config.main import async_migrate_main_config
@@ -44,6 +45,10 @@ from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configur
 from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_heat_pump
 from .utils.repairs import safe_repair_key
 from .storage.heat_pump_ids import async_load_cached_heat_pump_ids, async_save_cached_heat_pump_ids
+
+from .charge_point import get_mock_charge_point_id, mock_charge_point_status_and_configuration
+from .storage.charge_point import async_load_cached_charge_point, async_save_cached_charge_point
+from .storage.charge_point_ids import async_load_cached_charge_point_ids, async_save_cached_charge_point_ids
 
 from .const import (
   CONFIG_COST_TRACKER_MPAN,
@@ -72,6 +77,8 @@ from .const import (
   DATA_DISCOVERY_MANAGER,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
   DATA_HEAT_PUMP_IDS,
+  DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY,
+  DATA_CHARGE_POINT_IDS,
   DATA_HOME_PRO_CLIENT,
   DATA_INTELLIGENT_DEVICES,
   DATA_INTELLIGENT_DISPATCHES,
@@ -452,6 +459,47 @@ async def async_setup_dependencies(hass, config):
         await async_save_cached_heat_pump(hass, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data)
       except:
         hass.data[DOMAIN][account_id][key] = HeatPumpCoordinatorResult(now, 1, heat_pump_id, await async_load_cached_heat_pump(hass, account_id, heat_pump_id))
+
+  mock_charge_point = account_debug_override.mock_charge_point if account_debug_override is not None else False
+  if mock_charge_point:
+    _LOGGER.info("Mocking charge point configuration and status")
+    charge_point_id = get_mock_charge_point_id()
+    await async_setup_charge_point_coordinator(hass, account_id, None, charge_point_id, True)
+
+    key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
+    try:
+      hass.data[DOMAIN][account_id][key] = ChargePointCoordinatorResult(now, 1, charge_point_id, mock_charge_point_status_and_configuration())
+      await async_save_cached_charge_point(hass, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data)
+    except:
+      _LOGGER.warning(f"Failed to retrieve mocked charge point information for {account_id} during startup. Loading from cache.")
+      hass.data[DOMAIN][account_id][key] = ChargePointCoordinatorResult(now, 1, charge_point_id, await async_load_cached_charge_point(hass, account_id, charge_point_id))
+  elif "property_ids" in account_info:
+    charge_point_ids = []
+    try:
+      charge_point_ids = await client.async_get_charge_point_ids(account_id, account_info["property_ids"])
+      await async_save_cached_charge_point_ids(hass, account_id, charge_point_ids)
+    except:
+      _LOGGER.warning(f"Failed to retrieve charge point information for {account_id} during startup. Loading from cache.")
+      charge_point_ids = await async_load_cached_charge_point_ids(hass, account_id)
+
+    if charge_point_ids is None:
+      charge_point_ids = []
+
+    # Charge points are looked up per property, but not tracked against which
+    # property they belong to; assume the account's first property, matching
+    # the common single-property case (mirrors heat pump's simpler by-euid lookup).
+    property_id = account_info["property_ids"][0] if len(account_info["property_ids"]) > 0 else None
+
+    hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_IDS] = charge_point_ids
+    for charge_point_id in charge_point_ids:
+      await async_setup_charge_point_coordinator(hass, account_id, property_id, charge_point_id, False)
+
+      key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
+      try:
+        hass.data[DOMAIN][account_id][key] = ChargePointCoordinatorResult(now, 1, charge_point_id, await client.async_get_charge_point_configuration_and_status(account_id, property_id, charge_point_id))
+        await async_save_cached_charge_point(hass, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data)
+      except:
+        hass.data[DOMAIN][account_id][key] = ChargePointCoordinatorResult(now, 1, charge_point_id, await async_load_cached_charge_point(hass, account_id, charge_point_id))
 
   await async_setup_account_info_coordinator(hass, account_id)
 
