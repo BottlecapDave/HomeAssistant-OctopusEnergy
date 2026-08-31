@@ -575,12 +575,14 @@ mutation {{
 backend_charge_points_at_location_query = '''
 query {{
   chargePointsAtLocation(accountNumber: "{account_id}", propertyId: "{property_id}") {{
-    deviceUUID model serialNumber bluetoothLowEnergyPin simcardIdentifier firmwareVersion
-    controlMode chargingMethod operationalState boostEndTime
-    onboarding {{ accountNumber propertyId onboardedAt externalDeviceId }}
-    configuration {{
-      isRandomDelayEnabled isConnected LEDBrightnessPercentage
-      isChargeCableAutoLockAvailable isChargeCableAutoLockEnabled isEcoModeEnabled isAwayMode
+    chargePoints {{
+      deviceUUID model serialNumber bluetoothLowEnergyPin simcardIdentifier firmwareVersion
+      controlMode chargingMethod operationalState boostEndTime
+      onboarding {{ accountNumber propertyId onboardedAt externalDeviceId }}
+      configuration {{
+        isRandomDelayEnabled isConnected LEDBrightnessPercentage
+        isChargeCableAutoLockAvailable isChargeCableAutoLockEnabled isEcoModeEnabled isAwayMode
+      }}
     }}
   }}
 }}
@@ -1351,12 +1353,13 @@ class OctopusEnergyApiClient:
           if (response is not None
               and "data" in response
               and "chargePointsAtLocation" in response["data"]
-              and response["data"]["chargePointsAtLocation"] is not None):
+              and response["data"]["chargePointsAtLocation"] is not None
+              and response["data"]["chargePointsAtLocation"]["chargePoints"] is not None):
 
             charge_points.extend(list(
               map(
                 lambda charge_point: charge_point["deviceUUID"],
-                response["data"]["chargePointsAtLocation"]
+                response["data"]["chargePointsAtLocation"]["chargePoints"]
               )
             ))
 
@@ -1387,8 +1390,9 @@ class OctopusEnergyApiClient:
         if (response is not None
             and "data" in response
             and "chargePointsAtLocation" in response["data"]
-            and response["data"]["chargePointsAtLocation"] is not None):
-          for charge_point in response["data"]["chargePointsAtLocation"]:
+            and response["data"]["chargePointsAtLocation"] is not None
+            and response["data"]["chargePointsAtLocation"]["chargePoints"] is not None):
+          for charge_point in response["data"]["chargePointsAtLocation"]["chargePoints"]:
             if charge_point["deviceUUID"] == device_uuid:
               return OnboardedChargePoint.model_validate(charge_point)
 

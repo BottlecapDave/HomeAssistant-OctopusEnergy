@@ -474,14 +474,11 @@ async def async_setup_dependencies(hass, config):
       _LOGGER.warning(f"Failed to retrieve mocked charge point information for {account_id} during startup. Loading from cache.")
       hass.data[DOMAIN][account_id][key] = ChargePointCoordinatorResult(now, 1, charge_point_id, await async_load_cached_charge_point(hass, account_id, charge_point_id))
   elif "property_ids" in account_info:
-    _LOGGER.warning(f"CHARGEPOINT DEBUG: entering block, property_ids={account_info.get('property_ids')}")
     charge_point_ids = []
     try:
       charge_point_ids = await client.async_get_charge_point_ids(account_id, account_info["property_ids"])
-      _LOGGER.warning(f"CHARGEPOINT DEBUG: charge_point_ids={charge_point_ids}")
       await async_save_cached_charge_point_ids(hass, account_id, charge_point_ids)
-    except Exception as e:
-      _LOGGER.warning(f"CHARGEPOINT DEBUG: exception during fetch: {type(e).__name__}: {e}")
+    except Exception:
       _LOGGER.warning(f"Failed to retrieve charge point information for {account_id} during startup. Loading from cache.")
       charge_point_ids = await async_load_cached_charge_point_ids(hass, account_id)
 
