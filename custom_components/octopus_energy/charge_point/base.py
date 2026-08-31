@@ -26,10 +26,23 @@ class BaseOctopusEnergyChargePointSensor:
 
     self.entity_id = generate_entity_id(entity_domain + ".{}", self.unique_id, hass=hass)
 
+    # Deliberately the SAME device identifier the existing Intelligent
+    # Octopus Go (IOG) entities already register under (see
+    # intelligent/base.py's `(DOMAIN, self._device.id)`, where
+    # `self._device.id` is the IOG device's id - which is the same physical
+    # charger's externalDeviceId). This merges onto the existing "Octopus
+    # Charge (Electric Vehicle Charger)" device instead of creating a
+    # second, separate device for the same physical charger. Falls back to
+    # a charge-point-scoped identifier only in the unlikely case onboarding
+    # data is missing (would otherwise crash with no external device id).
+    device_identifier = (
+      charge_point.onboarding.externalDeviceId
+      if charge_point.onboarding is not None and charge_point.onboarding.externalDeviceId is not None
+      else f"charge_point_{charge_point.serialNumber}"
+    )
+
     self._attr_device_info = DeviceInfo(
-      identifiers={(DOMAIN, f"charge_point_{charge_point.serialNumber}")},
-      # NOT "Octopus Charge (...)" - collides with the existing IOG device's name
-      name=f"Octopus Charge Point ({charge_point.model})",
+      identifiers={(DOMAIN, device_identifier)},
       connections=set(),
       manufacturer="Octopus",
       model=charge_point.model,
