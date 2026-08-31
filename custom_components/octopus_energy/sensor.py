@@ -82,6 +82,7 @@ from .charge_point.operational_state import OctopusEnergyChargePointOperationalS
 from .charge_point.charging_method import OctopusEnergyChargePointChargingMethod
 from .charge_point.boost_end_time import OctopusEnergyChargePointBoostEndTime
 from .charge_point.live_power import OctopusEnergyChargePointLivePower
+from .charge_point.energy import OctopusEnergyChargePointEnergy
 from .charge_point.schedule import OctopusEnergyChargePointSchedule
 from .api_client.intelligent_device import IntelligentDevice
 from .intelligent.current_state import OctopusEnergyIntelligentCurrentState
@@ -765,6 +766,7 @@ def setup_charge_point_sensors(hass: HomeAssistant, account_id: str, charge_poin
   entities.append(OctopusEnergyChargePointChargingMethod(hass, coordinator, charge_point_id, charge_point))
   entities.append(OctopusEnergyChargePointBoostEndTime(hass, coordinator, charge_point_id, charge_point))
   entities.append(OctopusEnergyChargePointLivePower(hass, coordinator, client, account_id, charge_point_id, charge_point, is_mocked))
+  entities.append(OctopusEnergyChargePointEnergy(hass, charge_point_id, charge_point))
   entities.append(OctopusEnergyChargePointSchedule(hass, client, account_id, charge_point_id, charge_point))
 
   return entities

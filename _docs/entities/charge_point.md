@@ -67,6 +67,20 @@ This represents the instantaneous power draw of the charger, in kW. This will re
 
     Since the connection is only opened/closed in response to the [operational state](#operational-state) sensor's own regular refresh, there can be up to a refresh interval's delay between charging actually starting or stopping and this sensor beginning or ending its updates.
 
+## Energy
+
+`sensor.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_energy`
+
+This represents the charger's cumulative energy consumption, suitable for adding to the [Energy dashboard](https://www.home-assistant.io/docs/energy/individual-devices/).
+
+!!! info
+
+    Octopus's API doesn't provide a live cumulative energy reading for the charger - only a per-session total once a session has fully ended - so this is calculated by integrating the [live power](#live-power) sensor's own readings over time, the same approach Home Assistant's built-in "Integration - Riemann sum integral" helper uses.
+
+!!! note
+
+    This starts from 0 when the sensor is first created - there's no way to know your charger's actual historical lifetime total from the API, so it only reflects consumption from that point onward, not your charger's full lifetime usage.
+
 ## Schedule
 
 `sensor.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_schedule`
