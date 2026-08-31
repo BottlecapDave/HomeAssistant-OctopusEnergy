@@ -116,3 +116,11 @@ This represents, and can be used to turn on or off, the charge cable auto lock.
 `switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_boost_switch`
 
 This can be used to start or stop a boost charge. Turning this on starts a boost charge for a fixed 1 hour duration; see the [boost end time](#boost-end-time) sensor for exactly when it'll finish.
+
+!!! info
+
+    If you require boost to be on for a different amount of time, then you can use the [available service](../services.md#octopus_energyboost_charge_point).
+
+## Services
+
+There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services.md#charge-point).

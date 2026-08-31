@@ -23,9 +23,11 @@ from ..utils.attributes import dict_to_typed_dict
 
 _LOGGER = logging.getLogger(__name__)
 
-# Boost charging takes an explicit end time rather than a bare on/off. The
-# existing boost_end_time sensor already shows exactly when it'll finish,
-# so this fixed default duration doesn't need to be configurable to be useful.
+# Boost charging takes an explicit end time rather than a bare on/off, so
+# turning the switch straight on uses this fixed default duration - the
+# existing boost_end_time sensor shows exactly when it'll finish. For a
+# custom duration, use the boost_charge_point service instead (registered
+# in switch.py, calls async_boost_charge_point below).
 default_boost_duration = timedelta(hours=1)
 
 boosting_states = ["BOOST_CHARGING"]
@@ -91,6 +93,21 @@ class OctopusEnergyChargePointBoostSwitch(CoordinatorEntity, BaseOctopusEnergyCh
     except Exception as e:
       if self._is_mocked:
         _LOGGER.warning(f'Suppress async_turn_on error due to mocking mode: {e}')
+      else:
+        raise
+
+    self._state = True
+    self._last_updated = utcnow()
+    self.async_write_ha_state()
+
+  async def async_boost_charge_point(self, hours: int, minutes: int):
+    """Start boost charging for a specific duration (see the boost_charge_point service)."""
+    end_datetime = utcnow() + timedelta(hours=hours, minutes=minutes)
+    try:
+      await self._client.async_start_charge_point_boost(self._account_id, self._charge_point_id, end_datetime)
+    except Exception as e:
+      if self._is_mocked:
+        _LOGGER.warning(f'Suppress async_boost_charge_point error due to mocking mode: {e}')
       else:
         raise
 

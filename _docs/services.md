@@ -176,6 +176,20 @@ Sets the hush mode on a given heat pump.
 | `target.entity_id`       | `no`     | Any climate entity belonging to the heat pump which the configuration should be applied to (e.g. `climate.octopus_energy_heat_pump_{{HEAT_PUMP_ID}}_{{ZONE_CODE}}`). |
 | `data.is_enabled`              | `no`     | Determines if the hush mode is enabled or disabled. |
 
+## Charge Point
+
+The following services are available if you have an [Octopus Charge](./entities/charge_point.md) home EV charger registered against your account.
+
+### octopus_energy.boost_charge_point
+
+Allows you to boost charge for a set amount of time.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The name of the charge point boost switch to apply this to (e.g. `switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_boost_switch`). |
+| `data.hours`              | `no`     | The number of hours to turn boost charging on for. This can be between 0 and 12. |
+| `data.minutes`       | `no`     | The number of minutes to turn boost charging on for. This can be 0, 15, 30, or 45. |
+
 ## Intelligent
 
 The following services are available if you are on an intelligent tariff.
