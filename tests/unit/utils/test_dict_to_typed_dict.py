@@ -42,6 +42,34 @@ async def test_when_key_is_skipped_attribute_then_left_as_string():
   assert isinstance(result["mpan"], str)
 
 @pytest.mark.asyncio
+async def test_when_key_is_charge_point_identifier_then_left_as_string():
+  # Arrange - simcard_identifier (ICCID) and bluetooth_low_energy_pin are
+  # all-digit strings that must not be coerced to int: an ICCID can be up to
+  # 20 digits, comfortably overflowing SQLite/recorder's 64-bit integer
+  # range (this exact value broke state serialization for every charge
+  # point entity before simcard_identifier was added to the skip list), and
+  # a PIN would silently lose meaningful leading zeros if coerced.
+  input = {
+    "simcard_identifier": "89440000000000000000",
+    "bluetooth_low_energy_pin": "003300",
+  }
+
+  # Act
+  result = dict_to_typed_dict(input)
+
+  # Assert
+  assert input["simcard_identifier"] == "89440000000000000000"
+  assert input["bluetooth_low_energy_pin"] == "003300"
+
+  assert result is not None
+
+  assert result["simcard_identifier"] == "89440000000000000000"
+  assert isinstance(result["simcard_identifier"], str)
+
+  assert result["bluetooth_low_energy_pin"] == "003300"
+  assert isinstance(result["bluetooth_low_energy_pin"], str)
+
+@pytest.mark.asyncio
 async def test_when_key_is_ignored_then_not_returned():
   # Arrange
   input = {
