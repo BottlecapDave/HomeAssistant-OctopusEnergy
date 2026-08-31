@@ -99,6 +99,12 @@ class OctopusEnergyChargePointBoostSwitch(CoordinatorEntity, BaseOctopusEnergyCh
     self._state = True
     self._last_updated = utcnow()
     self.async_write_ha_state()
+    # We already know the operational state is about to change - poll for
+    # the real confirmation much sooner than the normal refresh interval,
+    # so dependent entities (e.g. live power) don't lag behind by up to a
+    # full interval.
+    if self.coordinator is not None:
+      self.coordinator.async_start_burst_refresh()
 
   async def async_boost_charge_point(self, hours: int, minutes: int):
     """Start boost charging for a specific duration (see the boost_charge_point service)."""
@@ -114,6 +120,12 @@ class OctopusEnergyChargePointBoostSwitch(CoordinatorEntity, BaseOctopusEnergyCh
     self._state = True
     self._last_updated = utcnow()
     self.async_write_ha_state()
+    # We already know the operational state is about to change - poll for
+    # the real confirmation much sooner than the normal refresh interval,
+    # so dependent entities (e.g. live power) don't lag behind by up to a
+    # full interval.
+    if self.coordinator is not None:
+      self.coordinator.async_start_burst_refresh()
 
   async def async_turn_off(self, **kwargs):
     """Stop boost charging."""
@@ -128,6 +140,8 @@ class OctopusEnergyChargePointBoostSwitch(CoordinatorEntity, BaseOctopusEnergyCh
     self._state = False
     self._last_updated = utcnow()
     self.async_write_ha_state()
+    if self.coordinator is not None:
+      self.coordinator.async_start_burst_refresh()
 
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
