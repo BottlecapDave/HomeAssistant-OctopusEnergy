@@ -284,7 +284,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     errors = await async_validate_main_config(config, account_ids)
 
     if len(errors) < 1 and user_input is not None:
-      return self.async_update_reload_and_abort(
+      return self.async_update_and_abort(
         self._get_reconfigure_entry(),
         data_updates=config,
       )
@@ -416,7 +416,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     errors = validate_cost_tracker_config(config, account_info.account, now)
 
     if len(errors) < 1 and user_input is not None:
-      return self.async_update_reload_and_abort(
+      return self.async_update_and_abort(
         self._get_reconfigure_entry(),
         data_updates=config,
       )
@@ -517,7 +517,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
     errors = await async_validate_tariff_comparison_config(config, account_info.account, now, client)
 
     if len(errors) < 1 and user_input is not None:
-      return self.async_update_reload_and_abort(
+      return self.async_update_and_abort(
         self._get_reconfigure_entry(),
         data_updates=config,
       )
