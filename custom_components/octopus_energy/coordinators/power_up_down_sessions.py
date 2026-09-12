@@ -220,7 +220,7 @@ async def async_refresh_power_up_down_sessions(
           "end": as_local(ev.end),
           "duration_in_minutes": ev.duration_in_minutes,
           "availability": ev.availability
-        }, result.available_power_up_events)),
+        }, available_power_up_events)),
         "events": list(map(lambda ev: {
           "id": ev.id,
           "code": ev.code,
