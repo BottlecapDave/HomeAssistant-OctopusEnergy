@@ -23,6 +23,7 @@ from .wheel_of_fortune import WheelOfFortuneSpinsResponse
 from .free_electricity_sessions import FreeElectricitySession, FreeElectricitySessionsResponse
 from .heat_pump import HeatPumpResponse
 from .intelligent_device_settings import IntelligentDeviceSettingPreferenceSchedule, IntelligentDeviceSettings
+from .smart_meter_telemetry import SmartMeterTelemetryResponseError, normalize_smart_meter_telemetry_response
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -1411,17 +1412,17 @@ class OctopusEnergyApiClient:
       async with client.post(url, json=payload, headers=headers) as live_consumption_response:
         response_body = await self.__async_read_response__(live_consumption_response, url)
 
-        if (response_body is not None and "data" in response_body and "smartMeterTelemetry" in response_body["data"] and response_body["data"]["smartMeterTelemetry"] is not None and len(response_body["data"]["smartMeterTelemetry"]) > 0):
-          return list(map(lambda mp: {
-            "total_consumption": float(mp["consumption"]) / 1000 if "consumption" in mp and mp["consumption"] is not None else None,
-            "total_export": float(mp["export"]) / 1000 if "export" in mp and mp["export"] is not None else None,
-            "consumption": float(mp["consumptionDelta"]) / 1000 if "consumptionDelta" in mp and mp["consumptionDelta"] is not None else 0,
-            "demand": float(mp["demand"]) if "demand" in mp and mp["demand"] is not None else None,
-            "start": parse_datetime(mp["readAt"]),
-            "end": parse_datetime(mp["readAt"]) + timedelta(minutes=30)
-          }, response_body["data"]["smartMeterTelemetry"]))
-        else:
-          _LOGGER.debug(f"Failed to retrieve smart meter consumption data - device_id: {device_id}; period_from: {period_from}; period_to: {period_to}")
+        try:
+          normalized_telemetry = normalize_smart_meter_telemetry_response(response_body)
+          return [
+            item for item in normalized_telemetry
+            if period_from <= item["start"].astimezone(period_from.tzinfo) < period_to
+          ]
+        except SmartMeterTelemetryResponseError as e:
+          raise RequestException(
+            "Failed to parse smart meter consumption data. See logs for more details.",
+            [str(e)]
+          ) from e
     
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')

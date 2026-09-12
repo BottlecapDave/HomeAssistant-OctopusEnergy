@@ -114,6 +114,8 @@ You should not have this issue for current consumption sensors, as they are upda
 
 While the Home Mini is local, the data unfortunately can't be polled directly and instead has to go via the OE servers.
 
+If the integration has not received up-to-date data for at least 30 minutes, it will raise a repair notice and remove it automatically when current data returns. The diagnostic current consumption sensor also reports whether telemetry is fresh, unchanged, empty, stale, or affected by an API error.
+
 The first thing to check is if the Home Mini is communicating with the OE servers. This can be confirmed by going to the "my energy" section of the website. If the website isn't reporting live data or has any data populated for today in the daily view, then it means there's something wrong with the connection between the Home Mini and the OE servers. This can be for a number of reasons
 
 The first thing to check is if the Home Mini hasn't frozen. There have been reports of this happening, especially in hot weather or locations. A quick reboot (turn it off and on again) usually fixes the problem. If this isn't the issue, then it might be worth looking at the [FAQ](https://octopus.energy/octopus-home-mini-faq).
