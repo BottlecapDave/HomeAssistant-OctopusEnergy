@@ -300,3 +300,32 @@ get_point_in_time_intelligent_dispatch_history:
       description: The datetime of the point in time to retrieve the application intelligent dispatch history for
       selector:
         datetime:
+
+boost_charge_point:
+  name: Boost charge point
+  description: Start a charge point boost charge for a given time period
+  target:
+    entity:
+      integration: octopus_energy
+      domain: switch
+  fields:
+    hours:
+      name: Hours
+      description: The number of hours to boost for
+      required: true
+      selector:
+        number:
+          step: 1
+          min: 0
+          max: 12
+          mode: box
+    minutes:
+      name: Minutes
+      description: The number of minutes to boost for
+      required: true
+      selector:
+        number:
+          step: 15
+          min: 0
+          max: 45
+          mode: box

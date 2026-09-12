@@ -22,6 +22,8 @@ from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSes
 from .wheel_of_fortune import WheelOfFortuneSpinsResponse
 from .free_electricity_sessions import FreeElectricitySession, FreeElectricitySessionsResponse
 from .heat_pump import HeatPumpResponse
+from .charge_point import OnboardedChargePoint
+from ..utils.charge_point_power_stream import parse_charge_point_power_stream_chunk
 from .intelligent_device_settings import IntelligentDeviceSettingPreferenceSchedule, IntelligentDeviceSettings
 
 _LOGGER = logging.getLogger(__name__)
@@ -568,6 +570,142 @@ mutation {{
     transactionId
   }}
 }}
+'''
+
+backend_charge_points_at_location_query = '''
+query {{
+  chargePointsAtLocation(accountNumber: "{account_id}", propertyId: "{property_id}") {{
+    chargePoints {{
+      deviceUUID model serialNumber bluetoothLowEnergyPin simcardIdentifier firmwareVersion
+      controlMode chargingMethod operationalState boostEndTime
+      onboarding {{ accountNumber propertyId onboardedAt externalDeviceId }}
+      configuration {{
+        isRandomDelayEnabled isConnected LEDBrightnessPercentage
+        isChargeCableAutoLockAvailable isChargeCableAutoLockEnabled isEcoModeEnabled isAwayMode
+      }}
+    }}
+  }}
+}}
+'''
+
+backend_charge_point_set_eco_mode_mutation = '''
+mutation {{
+  chargePointSetECOModeState(input: {{
+    accountNumber: "{account_id}",
+    deviceUUID: "{device_uuid}",
+    enableECOMode: {is_enabled}
+  }}) {{
+    __typename
+  }}
+}}
+'''
+
+backend_charge_point_set_random_delay_mutation = '''
+mutation {{
+  chargePointSetRandomDelay(input: {{
+    accountNumber: "{account_id}",
+    deviceUUID: "{device_uuid}",
+    enableRandomDelay: {is_enabled}
+  }}) {{
+    __typename
+  }}
+}}
+'''
+
+backend_charge_point_set_charge_cable_auto_lock_mutation = '''
+mutation {{
+  chargePointSetChargeCableAutoLockState(input: {{
+    accountNumber: "{account_id}",
+    deviceUUID: "{device_uuid}",
+    enableChargeCableAutoLock: {is_enabled}
+  }}) {{
+    __typename
+  }}
+}}
+'''
+
+backend_charge_point_set_away_mode_mutation = '''
+mutation {{
+  chargePointSetAwayModeState(input: {{
+    accountNumber: "{account_id}",
+    deviceUUID: "{device_uuid}",
+    enableAwayMode: {is_enabled}
+  }}) {{
+    __typename
+  }}
+}}
+'''
+
+backend_charge_point_set_control_mode_mutation = '''
+mutation {{
+  chargePointSetControlMode(input: {{
+    accountNumber: "{account_id}",
+    deviceUUID: "{device_uuid}",
+    controlMode: {control_mode}
+  }}) {{
+    __typename
+  }}
+}}
+'''
+
+backend_charge_point_set_led_brightness_mutation = '''
+mutation {{
+  chargePointSetLEDBrightness(input: {{
+    accountNumber: "{account_id}",
+    deviceUUID: "{device_uuid}",
+    brightnessPercentage: {brightness_percentage}
+  }}) {{
+    __typename
+  }}
+}}
+'''
+
+backend_charge_point_start_boost_charge_mutation = '''
+mutation {{
+  chargePointStartBoostCharge(input: {{
+    accountNumber: "{account_id}",
+    deviceUUID: "{device_uuid}",
+    endTime: "{end_time}"
+  }}) {{
+    __typename
+  }}
+}}
+'''
+
+backend_charge_point_stop_boost_charge_mutation = '''
+mutation {{
+  chargePointStopBoostCharge(input: {{
+    accountNumber: "{account_id}",
+    deviceUUID: "{device_uuid}"
+  }}) {{
+    __typename
+  }}
+}}
+'''
+
+backend_charge_point_schedules_query = '''
+query {{
+  chargePointSchedules(accountNumber: "{account_id}", deviceUUID: "{device_uuid}") {{
+    schedules {{
+      day
+      chargePointScheduleSettings {{
+        start
+        end
+        action
+      }}
+    }}
+  }}
+}}
+'''
+
+backend_charge_point_power_readings_subscription = '''
+subscription OctoChargerGetPowerReadings($accountNumber: String!, $deviceUUID: UUID!) {
+  electricChargerPowerReadings(accountNumber: $accountNumber, deviceUUID: $deviceUUID) {
+    __typename
+    value
+    unit
+  }
+}
 '''
 
 power_down_event_types = ["TURN_DOWN"]
@@ -1195,6 +1333,339 @@ class OctopusEnergyApiClient:
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
+
+  async def async_get_charge_point_ids(self, account_id: str, property_ids: list[str]):
+    """Get the user's charge points"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "chargepoint-ids"
+      client = await self._create_client_session()
+      url = f'{self._backend_base_url}/v1/graphql/'
+
+      charge_points = []
+      for (property_id) in property_ids:
+        payload = { "query": backend_charge_points_at_location_query.format(account_id=account_id, property_id=property_id) }
+        headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
+        async with client.post(url, json=payload, headers=headers) as charge_point_response:
+          response = await self.__async_read_response__(charge_point_response, url)
+
+          if (response is not None
+              and "data" in response
+              and "chargePointsAtLocation" in response["data"]
+              and response["data"]["chargePointsAtLocation"] is not None
+              and response["data"]["chargePointsAtLocation"]["chargePoints"] is not None):
+
+            charge_points.extend(list(
+              map(
+                lambda charge_point: charge_point["deviceUUID"],
+                response["data"]["chargePointsAtLocation"]["chargePoints"]
+              )
+            ))
+
+      return charge_points
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_get_charge_point_configuration_and_status(self, account_id: str, property_id: str, device_uuid: str) -> OnboardedChargePoint | None:
+    """Get a charge point's configuration and status"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "chargepoint-configuration"
+      client = await self._create_client_session()
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = {
+        "query": backend_charge_points_at_location_query.format(
+          account_id=account_id,
+          property_id=property_id,
+        )
+      }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as charge_point_response:
+        response = await self.__async_read_response__(charge_point_response, url)
+
+        if (response is not None
+            and "data" in response
+            and "chargePointsAtLocation" in response["data"]
+            and response["data"]["chargePointsAtLocation"] is not None
+            and response["data"]["chargePointsAtLocation"]["chargePoints"] is not None):
+          for charge_point in response["data"]["chargePointsAtLocation"]["chargePoints"]:
+            if charge_point["deviceUUID"] == device_uuid:
+              return OnboardedChargePoint.model_validate(charge_point)
+
+      return None
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_set_charge_point_eco_mode(self, account_id: str, device_uuid: str, is_enabled: bool):
+    """Sets the eco mode state for a given charge point"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "set-chargepoint-eco-mode"
+      client = await self._create_client_session()
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = {
+        "query": backend_charge_point_set_eco_mode_mutation.format(
+          account_id=account_id,
+          device_uuid=device_uuid,
+          is_enabled=str(is_enabled).lower()
+        )
+      }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as charge_point_response:
+        await self.__async_read_response__(charge_point_response, url)
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_set_charge_point_random_delay(self, account_id: str, device_uuid: str, is_enabled: bool):
+    """Sets the random delay state for a given charge point"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "set-chargepoint-random-delay"
+      client = await self._create_client_session()
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = {
+        "query": backend_charge_point_set_random_delay_mutation.format(
+          account_id=account_id,
+          device_uuid=device_uuid,
+          is_enabled=str(is_enabled).lower()
+        )
+      }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as charge_point_response:
+        await self.__async_read_response__(charge_point_response, url)
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_set_charge_point_charge_cable_auto_lock(self, account_id: str, device_uuid: str, is_enabled: bool):
+    """Sets the charge cable auto lock state for a given charge point"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "set-chargepoint-cable-auto-lock"
+      client = await self._create_client_session()
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = {
+        "query": backend_charge_point_set_charge_cable_auto_lock_mutation.format(
+          account_id=account_id,
+          device_uuid=device_uuid,
+          is_enabled=str(is_enabled).lower()
+        )
+      }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as charge_point_response:
+        await self.__async_read_response__(charge_point_response, url)
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_set_charge_point_away_mode(self, account_id: str, device_uuid: str, is_enabled: bool):
+    """Sets the away mode state for a given charge point"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "set-chargepoint-away-mode"
+      client = await self._create_client_session()
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = {
+        "query": backend_charge_point_set_away_mode_mutation.format(
+          account_id=account_id,
+          device_uuid=device_uuid,
+          is_enabled=str(is_enabled).lower()
+        )
+      }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as charge_point_response:
+        await self.__async_read_response__(charge_point_response, url)
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_set_charge_point_control_mode(self, account_id: str, device_uuid: str, control_mode: str):
+    """Sets the control mode for a given charge point"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "set-chargepoint-control-mode"
+      client = await self._create_client_session()
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = {
+        "query": backend_charge_point_set_control_mode_mutation.format(
+          account_id=account_id,
+          device_uuid=device_uuid,
+          control_mode=control_mode
+        )
+      }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as charge_point_response:
+        await self.__async_read_response__(charge_point_response, url)
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_set_charge_point_led_brightness(self, account_id: str, device_uuid: str, brightness_percentage: int):
+    """Sets the LED brightness percentage for a given charge point"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "set-chargepoint-led-brightness"
+      client = await self._create_client_session()
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = {
+        "query": backend_charge_point_set_led_brightness_mutation.format(
+          account_id=account_id,
+          device_uuid=device_uuid,
+          brightness_percentage=brightness_percentage
+        )
+      }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as charge_point_response:
+        await self.__async_read_response__(charge_point_response, url)
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_start_charge_point_boost(self, account_id: str, device_uuid: str, end_datetime: datetime):
+    """Starts boost charging for a given charge point until the given end time"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "start-chargepoint-boost"
+      client = await self._create_client_session()
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = {
+        "query": backend_charge_point_start_boost_charge_mutation.format(
+          account_id=account_id,
+          device_uuid=device_uuid,
+          end_time=end_datetime.isoformat(sep="T")
+        )
+      }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as charge_point_response:
+        await self.__async_read_response__(charge_point_response, url)
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_stop_charge_point_boost(self, account_id: str, device_uuid: str):
+    """Stops boost charging for a given charge point"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "stop-chargepoint-boost"
+      client = await self._create_client_session()
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = {
+        "query": backend_charge_point_stop_boost_charge_mutation.format(
+          account_id=account_id,
+          device_uuid=device_uuid
+        )
+      }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as charge_point_response:
+        await self.__async_read_response__(charge_point_response, url)
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_get_charge_point_schedules(self, account_id: str, device_uuid: str):
+    """Get the schedules for a given charge point"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "chargepoint-schedules"
+      client = await self._create_client_session()
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = {
+        "query": backend_charge_point_schedules_query.format(
+          account_id=account_id,
+          device_uuid=device_uuid,
+        )
+      }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as charge_point_response:
+        response = await self.__async_read_response__(charge_point_response, url)
+
+        if (response is not None
+            and "data" in response
+            and "chargePointSchedules" in response["data"]
+            and response["data"]["chargePointSchedules"] is not None):
+          return response["data"]["chargePointSchedules"].get("schedules", [])
+
+      return None
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_stream_charge_point_power(self, account_id: str, device_uuid: str, is_retry: bool = False):
+    """Streams live power readings for a given charge point.
+
+    Despite the schema naming this `electricChargerPowerReadings` under
+    `Subscription`, it is not served over a WebSocket - it is a single
+    long-lived HTTP POST whose response streams as
+    `multipart/mixed;boundary=graphql`, one chunk per reading (or an empty
+    `{}` heartbeat between them), for as long as the connection stays open.
+    The only thing that makes the server stream instead of resolving once
+    and closing is the Accept header's `subscriptionSpec=1.0` parameter -
+    a different, unrelated mechanism to the `deferSpec=20220824` used
+    elsewhere in this client for `@defer`/`@stream` on regular queries.
+
+    Yields a dict `{"value": float, "unit": str}` for each reading, or
+    `None` when the stream reports no reading for that update (e.g.
+    charging just stopped). Swallows `{}` heartbeat chunks internally.
+    """
+    await self.async_refresh_token()
+
+    client = await self._create_client_session()
+    url = f'{self._backend_base_url}/v1/graphql/'
+    headers = {
+      "Authorization": f"{self._graphql_token}",
+      "Accept": "multipart/mixed;subscriptionSpec=1.0, application/graphql-response+json, application/json",
+      "X-APOLLO-OPERATION-NAME": "OctoChargerGetPowerReadings",
+      integration_context_header: "chargepoint-power-stream",
+    }
+    payload = {
+      "query": backend_charge_point_power_readings_subscription,
+      "operationName": "OctoChargerGetPowerReadings",
+      "variables": { "accountNumber": account_id, "deviceUUID": device_uuid },
+      "extensions": { "clientLibrary": { "name": "apollo-kotlin", "version": "4.3.3" } },
+    }
+
+    async with client.post(url, json=payload, headers=headers) as response:
+      if response.status in (401, 403):
+        if not is_retry:
+          await self.async_refresh_token()
+          async for reading in self.async_stream_charge_point_power(account_id, device_uuid, True):
+            yield reading
+          return
+        raise AuthenticationException("Authentication failed while streaming charge point power", [])
+
+      if response.status >= 400:
+        raise RequestException(f"HTTP error! status: {response.status}", [])
+
+      buffer = ""
+      async for chunk in response.content.iter_any():
+        buffer, readings = parse_charge_point_power_stream_chunk(buffer, chunk)
+        for reading in readings:
+          yield reading
 
   async def async_get_saving_sessions(self, account_id: str) -> SavingSessionsResponse:
     """Get the user's seasons savings"""

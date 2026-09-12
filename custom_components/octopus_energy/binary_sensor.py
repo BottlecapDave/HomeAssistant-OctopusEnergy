@@ -15,6 +15,9 @@ from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
 from .api_client.heat_pump import HeatPumpResponse
 from .heat_pump import get_mock_heat_pump_id
 from .heat_pump.weather_compensation_enabled import OctopusEnergyHeatPumpWeatherCompensationEnabled
+from .api_client.charge_point import OnboardedChargePoint
+from .charge_point import get_mock_charge_point_id
+from .charge_point.connected import OctopusEnergyChargePointConnected
 from .utils.debug_overrides import async_get_account_debug_override
 
 from .const import (
@@ -30,6 +33,9 @@ from .const import (
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR,
   DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_KEY,
   DATA_HEAT_PUMP_IDS,
+  DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR,
+  DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY,
+  DATA_CHARGE_POINT_IDS,
   DATA_INTELLIGENT_DEVICES,
   DATA_INTELLIGENT_DISPATCHES_COORDINATOR,
   DOMAIN,
@@ -90,6 +96,19 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
       coordinator = hass.data[DOMAIN][account_id][DATA_HEAT_PUMP_CONFIGURATION_AND_STATUS_COORDINATOR.format(heat_pump_id)]
       entities.extend(setup_heat_pump_sensors(hass, account_id, heat_pump_id, hass.data[DOMAIN][account_id][key].data, coordinator))
 
+  mock_charge_point = account_debug_override.mock_charge_point if account_debug_override is not None else False
+  if mock_charge_point:
+    charge_point_id = get_mock_charge_point_id()
+    key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
+    coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
+    entities.extend(setup_charge_point_sensors(hass, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, coordinator))
+  else:
+    charge_point_ids = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_IDS] if DATA_CHARGE_POINT_IDS in hass.data[DOMAIN][account_id] else []
+    for charge_point_id in charge_point_ids:
+      key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
+      coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
+      entities.extend(setup_charge_point_sensors(hass, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, coordinator))
+
   if len(entities) > 0:
     async_add_entities(entities)
 
@@ -107,6 +126,23 @@ def setup_heat_pump_sensors(hass: HomeAssistant, account_id: str, heat_pump_id: 
         heat_pump_id,
         heat_pump_response.heatPumpControllerConfiguration.heatPump
       ))
+
+  return entities
+
+def setup_charge_point_sensors(hass: HomeAssistant, account_id: str, charge_point_id: str, charge_point: OnboardedChargePoint, coordinator):
+
+  entities = []
+
+  if charge_point is None:
+    return entities
+
+  # Random delay, eco mode, away mode and cable auto lock all have an
+  # equivalent switch (see switch.py) that already shows its own on/off
+  # state - no need for a separate read-only binary_sensor duplicating the
+  # same value (matches the IOG precedent: e.g. the smart_charge switch has
+  # no matching binary_sensor either). Connected has no switch counterpart
+  # (nothing to control - it's just a status flag), so it stays here.
+  entities.append(OctopusEnergyChargePointConnected(hass, coordinator, charge_point_id, charge_point))
 
   return entities
 
