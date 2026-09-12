@@ -176,7 +176,7 @@ async def async_setup_entry(hass, entry):
   hass.data[DOMAIN].setdefault(account_id, {})
 
   if config[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
-    await async_setup_dependencies(hass, config)
+    await async_setup_dependencies(hass, config, entry.entry_id)
     await hass.config_entries.async_forward_entry_setups(entry, ACCOUNT_PLATFORMS)
 
     async def async_close_connection(_) -> None:
@@ -267,7 +267,17 @@ async def async_setup_entry(hass, entry):
 
   return True
 
-async def async_setup_dependencies(hass, config):
+def _async_get_device_by_identifier(
+  device_registry: dr.DeviceRegistry,
+  identifier: tuple[str, str],
+  config_entry_id: str | None = None
+) -> dr.DeviceEntry | None:
+  """Retrieve a device by identifier with backward compatibility for older Home Assistant cores."""
+  if hasattr(device_registry, "async_get_device_by_identifier") and config_entry_id is not None:
+    return device_registry.async_get_device_by_identifier(identifier, config_entry_id)
+  return device_registry.async_get_device(identifiers={identifier})
+
+async def async_setup_dependencies(hass, config, entry_id: str | None = None):
   """Setup the coordinator and api client which will be shared by various entities"""
   account_id = config[CONFIG_ACCOUNT_ID]
 
@@ -348,13 +358,13 @@ async def async_setup_dependencies(hass, config):
 
         tariff = get_active_tariff(now, point["agreements"])
         if tariff is None:
-          gas_device = device_registry.async_get_device(identifiers={(DOMAIN, f"gas_{serial_number}_{mprn}")})
+          gas_device = _async_get_device_by_identifier(device_registry, (DOMAIN, f"gas_{serial_number}_{mprn}"), entry_id)
           if gas_device is not None:
             _LOGGER.debug(f'Removed gas device {serial_number}/{mprn} due to no active tariff')
             device_registry.async_remove_device(gas_device.id)
 
         # Remove gas meter devices which had incorrect identifier
-        gas_device = device_registry.async_get_device(identifiers={(DOMAIN, f"electricity_{serial_number}_{mprn}")})
+        gas_device = _async_get_device_by_identifier(device_registry, (DOMAIN, f"electricity_{serial_number}_{mprn}"), entry_id)
         if gas_device is not None:
           device_registry.async_remove_device(gas_device.id)
 
@@ -368,7 +378,7 @@ async def async_setup_dependencies(hass, config):
       
       if electricity_tariff is None:
         _LOGGER.debug(f'Removed electricity device {serial_number}/{mpan} due to no active tariff')
-        electricity_device = device_registry.async_get_device(identifiers={(DOMAIN, f"electricity_{serial_number}_{mpan}")})
+        electricity_device = _async_get_device_by_identifier(device_registry, (DOMAIN, f"electricity_{serial_number}_{mpan}"), entry_id)
         if electricity_device is not None:
           device_registry.async_remove_device(electricity_device.id)
 
