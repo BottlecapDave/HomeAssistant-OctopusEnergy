@@ -1,0 +1,85 @@
+blueprint:
+  name: Octopus Energy - Join Weekend Happy Hour Event
+  description: Automatically joins Octoplus weekend happy hour events when they become available
+  domain: automation
+  author: BottlecapDave
+  input:
+    power_up_events_entity:
+      name: Power up events
+      description: The power up events entity that exposes the available weekend happy hour events (e.g. event.octopus_energy_{{ACCOUNT_ID}}_octoplus_power_up_events)
+      selector:
+        entity:
+          filter:
+          - domain:
+            - event
+            integration: octopus_energy
+          multiple: false
+    weekend_happy_hours_entity:
+      name: Weekend happy hours
+      description: The weekend happy hours entity that indicates how many weekend happy hour events are currently available (e.g. sensor.octopus_energy_{{ACCOUNT_ID}}_octoplus_weekend_happy_hours)
+      selector:
+        entity:
+          filter:
+          - domain:
+            - sensor
+            integration: octopus_energy
+          multiple: false
+    event_selection:
+      name: Event selection
+      description: Whether to join the earliest or latest available event
+      default: earliest
+      selector:
+        select:
+          options:
+          - label: Earliest
+            value: earliest
+          - label: Latest
+            value: latest
+    actions:
+      name: Actions
+      description: Notifications or similar to be run. {{message}} is an example message
+      default: []
+      selector:
+        action: {}
+mode: single
+variables:
+  power_up_events_entity: !input power_up_events_entity
+  weekend_happy_hours_entity: !input weekend_happy_hours_entity
+  event_selection: !input event_selection
+trigger:
+- platform: state
+  entity_id:
+  - !input power_up_events_entity
+  - !input weekend_happy_hours_entity
+condition:
+- condition: template
+  value_template: >-
+    {{ (states(weekend_happy_hours_entity) | int(0)) > 1 or ((state_attr(power_up_events_entity, 'available_events') | default([], true)) | length > 1) }}
+action:
+- variables:
+    selected_event_code: >-
+      {% set available_events = state_attr(power_up_events_entity, 'available_events') | default([], true) %}
+      {% set ns = namespace(candidates=[]) %}
+      {% for event in available_events %}
+        {% if (event.availability | default('', true) | lower) != 'full' %}
+          {% set ns.candidates = ns.candidates + [event] %}
+        {% endif %}
+      {% endfor %}
+      {% set sorted_events = ns.candidates | sort(attribute='start', reverse=(event_selection == 'latest')) %}
+      {{ sorted_events[0].code if sorted_events | length > 0 else none }}
+    message: >-
+      {% set available_events = state_attr(power_up_events_entity, 'available_events') | default([], true) %}
+      {% set match = available_events | selectattr('code', 'eq', selected_event_code) | list %}
+      {% if match | length > 0 %}
+        {% set event = match[0] %}
+        Joined a new Octopus Energy weekend happy hour event. It starts at {{ event.start.strftime('%H:%M') }} on {{ event.start.day }}/{{ event.start.month }} for {{ event.duration_in_minutes | int }} minutes.
+      {% endif %}
+- condition: template
+  value_template: "{{ selected_event_code not in [none, 'None', ''] }}"
+- service: octopus_energy.join_octoplus_weekend_happy_hour_event
+  data:
+    event_code: "{{ selected_event_code }}"
+  target:
+    entity_id: !input power_up_events_entity
+- choose: []
+  default: !input actions

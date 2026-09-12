@@ -75,6 +75,20 @@ async def async_setup_entry(hass, entry, async_add_entities):
     supports_response=SupportsResponse.OPTIONAL,
   )
 
+  platform.async_register_entity_service(
+    "join_octoplus_weekend_happy_hour_event",
+    vol.All(
+      cv.make_entity_service_schema(
+        {
+          vol.Required("event_code"): str,
+        },
+        extra=vol.ALLOW_EXTRA,
+      ),
+    ),
+    "async_join_weekend_happy_hour_event",
+    supports_response=SupportsResponse.OPTIONAL,
+  )
+
   return True
 
 async def async_setup_main_sensors(hass, entry, async_add_entities):
@@ -101,7 +115,7 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
     if legacy_saving_sessions_free_electricity_present:
       entities.append(OctopusEnergyOctoplusFreeElectricitySessionEvents(hass, account_id))
 
-    entities.append(OctopusEnergyOctoplusPowerUpEvents(hass, account_id))
+    entities.append(OctopusEnergyOctoplusPowerUpEvents(hass, client, account_id))
 
   if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:

@@ -172,7 +172,7 @@ async def test_when_upcoming_power_down_events_contains_events_in_past_then_even
   
   expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp - timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
-    return SavingSessionsResponse([expected_saving_session], [], [], [], region)
+    return SavingSessionsResponse([expected_saving_session], [], [], [], region, 0)
 
   async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
     return FreeElectricitySessionsResponse([])
@@ -215,7 +215,7 @@ async def test_when_upcoming_power_down_events_contains_joined_events_then_event
   
   expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
-    return SavingSessionsResponse([expected_saving_session], [expected_saving_session], [], [], region)
+    return SavingSessionsResponse([expected_saving_session], [expected_saving_session], [], [], region, 0)
 
   async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
       return FreeElectricitySessionsResponse([])
@@ -258,7 +258,7 @@ async def test_when_upcoming_power_down_events_present_and_no_previous_data_then
   
   expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
-    return SavingSessionsResponse([expected_saving_session], [], [], [], region)
+    return SavingSessionsResponse([expected_saving_session], [], [], [], region, 0)
 
   async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
       return FreeElectricitySessionsResponse([])
@@ -311,7 +311,7 @@ async def test_when_upcoming_power_down_events_present_and_not_in_previous_data_
   
   expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1, targetRegions)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
-    return SavingSessionsResponse([expected_saving_session], [], [], [], region)
+    return SavingSessionsResponse([expected_saving_session], [], [], [], region, 0)
 
   async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
       return FreeElectricitySessionsResponse([])
@@ -358,7 +358,7 @@ async def test_when_upcoming_power_down_events_present_but_for_different_region_
   
   expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1, ["_C", "_B"])
   async def async_mocked_get_saving_sessions(*args, **kwargs):
-    return SavingSessionsResponse([expected_saving_session], [], [], [], region)
+    return SavingSessionsResponse([expected_saving_session], [], [], [], region, 0)
 
   async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
       return FreeElectricitySessionsResponse([])
@@ -402,7 +402,7 @@ async def test_when_upcoming_power_down_events_present_and_in_previous_data_then
   
   expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
-    return SavingSessionsResponse([expected_saving_session], [], [], [], region)
+    return SavingSessionsResponse([expected_saving_session], [], [], [], region, 0)
   
   previous_data = PowerUpDownSessionsCoordinatorResult(current_utc_timestamp - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_POWER_DOWN), 1, [expected_saving_session], [], [], [])
 
@@ -446,7 +446,7 @@ async def test_when_upcoming_power_down_events_present_and_in_previous_data_but_
   
   expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)
   async def async_mocked_get_saving_sessions(*args, **kwargs):
-    return SavingSessionsResponse([expected_saving_session], [], [], [], region)
+    return SavingSessionsResponse([expected_saving_session], [], [], [], region, 0)
   
   previous_data = PowerUpDownSessionsCoordinatorResult(current_utc_timestamp - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_POWER_DOWN), 1, [SavingSession("1", "DEF", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1)], [], [], [])
 
@@ -495,7 +495,7 @@ async def test_when_previous_data_is_out_of_date_then_new_date_is_retrieved():
   async def async_mocked_get_saving_sessions(*args, **kwargs):
     nonlocal saving_sessions_retrieved
     saving_sessions_retrieved = True
-    return SavingSessionsResponse([], [expected_saving_session], [], [], region)
+    return SavingSessionsResponse([], [expected_saving_session], [], [], region, 0)
   
   previous_data = PowerUpDownSessionsCoordinatorResult(current_utc_timestamp - timedelta(minutes=REFRESH_RATE_IN_MINUTES_OCTOPLUS_POWER_DOWN), 1, [], [expected_saving_session], [], [])
 
@@ -582,7 +582,7 @@ async def test_when_upcoming_power_down_events_present_and_region_is_none_then_n
   
   expected_saving_session = SavingSession("1", "ABC", current_utc_timestamp + timedelta(minutes=1), current_utc_timestamp + timedelta(minutes=31), 1, ["_C", "_B"])
   async def async_mocked_get_saving_sessions(*args, **kwargs):
-    return SavingSessionsResponse([expected_saving_session], [], [], [], None)
+    return SavingSessionsResponse([expected_saving_session], [], [], [], None, 0)
 
   async def async_mocked_get_free_electricity_sessions(*args, **kwargs):
       return FreeElectricitySessionsResponse([])

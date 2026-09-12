@@ -48,6 +48,22 @@ This blueprint will automatically redeem all redeemable points for account credi
 
     You can manually run the automation if the redeemable points is over the threshold to get it in a state where automatic redemption will happen in the future.
 
+### Automatically join weekend happy hour events
+
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_join_weekend_happy_hour_event.yaml) | [Source](./blueprints/octopus_energy_octoplus_join_weekend_happy_hour_event.yaml)
+
+This blueprint will trigger when a weekend happy hour event has been discovered, and join either the earliest or latest available event (configurable) that isn't full.
+
+### Automatically join weekend happy hour events by rate
+
+[Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_join_weekend_happy_hour_event_by_rate.yaml) | [Source](./blueprints/octopus_energy_octoplus_join_weekend_happy_hour_event_by_rate.yaml)
+
+This blueprint works in the same way as the [automatically join weekend happy hour events](#automatically-join-weekend-happy-hour-events) blueprint, but also takes into account current and next day electricity rates (combined together). It will join the available, non full event with the lowest or highest average rate across its duration (configurable), using the earliest/latest setting as a tie breaker when more than one event shares the best rate.
+
+!!! info
+
+    This blueprint requires the electricity current day and next day rates event entities. Next day rates are only populated once they have been published (usually mid afternoon); before then, only current day rates will be used.
+
 ### Alert when current consumption is approaching power down baseline
 
 [Install blueprint](https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_power_down_baseline_alert.yaml) | [Source](./blueprints/octopus_energy_power_down_baseline_alert.yaml)

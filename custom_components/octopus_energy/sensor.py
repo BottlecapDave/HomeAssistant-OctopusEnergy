@@ -44,6 +44,7 @@ from .cost_tracker.cost_tracker_month import OctopusEnergyCostTrackerMonthSensor
 from .octoplus.free_electricity_session_baseline import OctopusEnergyFreeElectricitySessionBaseline
 from .octoplus.power_up_baseline import OctopusEnergyPowerUpBaseline
 from .octoplus.power_down_baseline import OctopusEnergyPowerDownBaseline
+from .octoplus.weekend_happy_hours import OctopusEnergyOctoplusWeekendHappyHours
 from .diagnostics_entities.account_data_last_retrieved import OctopusEnergyAccountDataLastRetrieved
 from .diagnostics_entities.electricity_current_consumption_home_pro_data_last_retrieved import OctopusEnergyElectricityCurrentConsumptionHomeProDataLastRetrieved
 from .diagnostics_entities.gas_current_consumption_data_last_retrieved import OctopusEnergyGasCurrentConsumptionDataLastRetrieved
@@ -347,6 +348,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
 
   if octoplus_enrolled:
     entities.append(OctopusEnergyOctoplusPoints(hass, client, account_id))
+    entities.append(OctopusEnergyOctoplusWeekendHappyHours(hass, power_up_down_coordinator, account_id))
 
     if legacy_saving_sessions_free_electricity_present:
       entities.append(OctopusEnergyFreeElectricitySessionsDataLastRetrieved(hass, power_up_down_coordinator, account_id))

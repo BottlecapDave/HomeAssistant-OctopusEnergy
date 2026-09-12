@@ -1,0 +1,131 @@
+blueprint:
+  name: Octopus Energy - Join Weekend Happy Hour Event (By Rate)
+  description: Automatically joins Octoplus weekend happy hour events when they become available, choosing the event with the best current or next day rate
+  domain: automation
+  author: BottlecapDave
+  input:
+    power_up_events_entity:
+      name: Power up events
+      description: The power up events entity that exposes the available weekend happy hour events (e.g. event.octopus_energy_{{ACCOUNT_ID}}_octoplus_power_up_events)
+      selector:
+        entity:
+          filter:
+          - domain:
+            - event
+            integration: octopus_energy
+          multiple: false
+    weekend_happy_hours_entity:
+      name: Weekend happy hours
+      description: The weekend happy hours entity that indicates how many weekend happy hour events are currently available (e.g. sensor.octopus_energy_{{ACCOUNT_ID}}_octoplus_weekend_happy_hours)
+      selector:
+        entity:
+          filter:
+          - domain:
+            - sensor
+            integration: octopus_energy
+          multiple: false
+    electricity_rates_current_day_entity:
+      name: Electricity current day rates
+      description: The electricity current day rates entity used to determine which available event has the best rate (e.g. event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_day_rates)
+      selector:
+        entity:
+          filter:
+          - domain:
+            - event
+            integration: octopus_energy
+          multiple: false
+    electricity_rates_next_day_entity:
+      name: Electricity next day rates
+      description: The electricity next day rates entity used to determine which available event has the best rate (e.g. event.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_next_day_rates)
+      selector:
+        entity:
+          filter:
+          - domain:
+            - event
+            integration: octopus_energy
+          multiple: false
+    event_selection:
+      name: Event selection
+      description: When more than one available event shares the best rate, whether to join the earliest or latest of them
+      default: earliest
+      selector:
+        select:
+          options:
+          - label: Earliest
+            value: earliest
+          - label: Latest
+            value: latest
+    rate_selection:
+      name: Rate selection
+      description: Whether to join the available event with the lowest or highest average rate across the event's duration
+      default: lowest
+      selector:
+        select:
+          options:
+          - label: Lowest
+            value: lowest
+          - label: Highest
+            value: highest
+    actions:
+      name: Actions
+      description: Notifications or similar to be run. {{message}} is an example message
+      default: []
+      selector:
+        action: {}
+mode: single
+variables:
+  power_up_events_entity: !input power_up_events_entity
+  weekend_happy_hours_entity: !input weekend_happy_hours_entity
+  electricity_rates_current_day_entity: !input electricity_rates_current_day_entity
+  electricity_rates_next_day_entity: !input electricity_rates_next_day_entity
+  event_selection: !input event_selection
+  rate_selection: !input rate_selection
+trigger:
+- platform: state
+  entity_id:
+  - !input power_up_events_entity
+  - !input weekend_happy_hours_entity
+  - !input electricity_rates_current_day_entity
+  - !input electricity_rates_next_day_entity
+condition:
+- condition: template
+  value_template: >-
+    {{ (states(weekend_happy_hours_entity) | int(0)) > 1 or ((state_attr(power_up_events_entity, 'available_events') | default([], true)) | length > 1) }}
+- condition: template
+  value_template: >-
+    {{ ((state_attr(electricity_rates_current_day_entity, 'rates') | default([], true)) + (state_attr(electricity_rates_next_day_entity, 'rates') | default([], true))) | length > 0 }}
+action:
+- variables:
+    selected_event_code: >-
+      {% set available_events = state_attr(power_up_events_entity, 'available_events') | default([], true) %}
+      {% set rates = (state_attr(electricity_rates_current_day_entity, 'rates') | default([], true)) + (state_attr(electricity_rates_next_day_entity, 'rates') | default([], true)) %}
+      {% set ns = namespace(events=[]) %}
+      {% for event in available_events if (event.availability | default('', true) | lower) != 'full' %}
+        {% set matching_rates = rates | selectattr('start', 'lt', event.end) | selectattr('end', 'gt', event.start) | list %}
+        {% if matching_rates | length > 0 %}
+          {% set average_rate = (matching_rates | sum(attribute='value_inc_vat')) / (matching_rates | length) %}
+          {% set ns.events = ns.events + [{'code': event.code, 'start': event.start, 'rate': average_rate}] %}
+        {% endif %}
+      {% endfor %}
+      {% set time_sorted = ns.events | sort(attribute='start', reverse=(event_selection == 'latest')) %}
+      {% set rate_sorted = time_sorted | sort(attribute='rate', reverse=(rate_selection == 'highest')) %}
+      {{ rate_sorted[0].code if rate_sorted | length > 0 else none }}
+    message: >-
+      {% set available_events = state_attr(power_up_events_entity, 'available_events') | default([], true) %}
+      {% set rates = (state_attr(electricity_rates_current_day_entity, 'rates') | default([], true)) + (state_attr(electricity_rates_next_day_entity, 'rates') | default([], true)) %}
+      {% set match = available_events | selectattr('code', 'eq', selected_event_code) | list %}
+      {% if match | length > 0 %}
+        {% set event = match[0] %}
+        {% set matching_rates = rates | selectattr('start', 'lt', event.end) | selectattr('end', 'gt', event.start) | list %}
+        {% set average_rate = (matching_rates | sum(attribute='value_inc_vat')) / (matching_rates | length) if matching_rates | length > 0 else none %}
+        Joined a new Octopus Energy weekend happy hour event. It starts at {{ event.start.strftime('%H:%M') }} on {{ event.start.day }}/{{ event.start.month }} for {{ event.duration_in_minutes | int }} minutes{% if average_rate is not none %} at an average rate of {{ average_rate }}{% endif %}.
+      {% endif %}
+- condition: template
+  value_template: "{{ selected_event_code not in [none, 'None', ''] }}"
+- service: octopus_energy.join_octoplus_weekend_happy_hour_event
+  data:
+    event_code: "{{ selected_event_code }}"
+  target:
+    entity_id: !input power_up_events_entity
+- choose: []
+  default: !input actions
