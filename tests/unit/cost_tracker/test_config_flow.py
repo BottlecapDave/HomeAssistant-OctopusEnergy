@@ -79,7 +79,7 @@ async def test_discovery_flow_keeps_discovered_target_as_canonical_identity():
 
   assert user_input[CONFIG_COST_TRACKER_TARGET_ENTITY_ID] == "sensor.lounge_cooling_energy"
   flow.async_set_unique_id.assert_awaited_once_with(
-    "octopus_energy_ct_A-TEST_sensor.lounge_cooling_energy",
+    "octopus_energy_ct_A-TEST_sensor.lounge_cooling_energy_1234567890123",
     raise_on_progress=False,
   )
   flow._async_abort_entries_match.assert_called_once_with({
@@ -121,6 +121,7 @@ async def test_reconfigure_cost_tracker_preserves_existing_target_entity():
   flow = create_flow()
   config_entry = create_config_entry("sensor.lounge_cooling_energy")
   flow._get_reconfigure_entry = Mock(return_value=config_entry)
+  flow.async_update_and_abort = Mock(return_value={"type": "abort"})
   flow.async_update_reload_and_abort = Mock(return_value={"type": "abort"})
   user_input = create_user_input("sensor.kitchen_heating_energy")
 
@@ -130,9 +131,11 @@ async def test_reconfigure_cost_tracker_preserves_existing_target_entity():
   ):
     await flow.async_step_reconfigure_cost_tracker(user_input)
 
-  data_updates = flow.async_update_reload_and_abort.call_args.kwargs["data_updates"]
+  flow.async_update_and_abort.assert_called_once()
+  flow.async_update_reload_and_abort.assert_not_called()
+  data_updates = flow.async_update_and_abort.call_args.kwargs["data_updates"]
   assert data_updates[CONFIG_COST_TRACKER_TARGET_ENTITY_ID] == "sensor.lounge_cooling_energy"
-  assert "unique_id" not in flow.async_update_reload_and_abort.call_args.kwargs
+  assert "unique_id" not in flow.async_update_and_abort.call_args.kwargs
 
 
 @pytest.mark.parametrize(
@@ -145,11 +148,12 @@ async def test_reconfigure_cost_tracker_preserves_existing_target_entity():
 @pytest.mark.asyncio
 async def test_migration_repairs_unique_id_from_canonical_target(old_unique_id):
   config_entry = SimpleNamespace(
-    version=10,
+    version=11,
     data={
       CONFIG_KIND: CONFIG_KIND_COST_TRACKER,
       CONFIG_ACCOUNT_ID: "A-TEST",
       CONFIG_COST_TRACKER_TARGET_ENTITY_ID: "sensor.kitchen_heating_energy",
+      CONFIG_COST_TRACKER_MPAN: "1234567890123",
     },
     options={},
     title="Kitchen heating (cost tracker)",
@@ -170,6 +174,6 @@ async def test_migration_repairs_unique_id_from_canonical_target(old_unique_id):
     title="Kitchen heating (cost tracker)",
     data=config_entry.data,
     options={},
-    unique_id="octopus_energy_ct_A-TEST_sensor.kitchen_heating_energy",
+    unique_id="octopus_energy_ct_A-TEST_sensor.kitchen_heating_energy_1234567890123",
     version=CONFIG_VERSION,
   )

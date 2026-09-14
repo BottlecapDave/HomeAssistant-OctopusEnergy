@@ -10,7 +10,7 @@ from homeassistant.components.event import (
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.entity import generate_entity_id
 
-from ..const import DATA_POWER_DOWN_FORCE_UPDATE, DOMAIN, EVENT_ALL_SAVING_SESSIONS
+from ..const import DATA_POWER_UP_DOWN_FORCE_UPDATE, DOMAIN, EVENT_ALL_SAVING_SESSIONS
 
 from ..api_client import OctopusEnergyApiClient
 from ..utils.attributes import dict_to_typed_dict
@@ -74,5 +74,5 @@ class OctopusEnergyOctoplusSavingSessionEvents(OctopusEnergyOctoplusSensor, Even
     if (result.is_successful == False):
       raise ServiceValidationError(result.errors[0])
 
-    self._hass.data[DOMAIN][self._account_id][DATA_POWER_DOWN_FORCE_UPDATE] = True
+    self._hass.data[DOMAIN][self._account_id][DATA_POWER_UP_DOWN_FORCE_UPDATE] = True
     return { "success": True }

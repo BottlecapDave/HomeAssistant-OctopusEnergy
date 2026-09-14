@@ -4,6 +4,7 @@ import logging
 from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.exceptions import ServiceValidationError
 from homeassistant.helpers.entity import generate_entity_id
+from homeassistant.helpers import entity_registry as er
 from homeassistant.util.dt import (now)
 
 from homeassistant.components.sensor import (
@@ -19,6 +20,7 @@ from homeassistant.helpers.event import (
 )
 
 from homeassistant.const import (
+    Platform,
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
 )
@@ -40,7 +42,7 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyCostTrackerWeekSensor(RestoreSensor, BaseCostTracker):
   """Sensor for calculating the cost for a given sensor over the course of a week."""
 
-  def __init__(self, hass: HomeAssistant, config_entry, config, device_entry, tracked_entity_id: str, peak_type = None):
+  def __init__(self, hass: HomeAssistant, config_entry, config, device_entry, tracked_entity_unique_id: str, peak_type = None):
     """Init sensor."""
     # Pass coordinator to base class
 
@@ -50,7 +52,8 @@ class OctopusEnergyCostTrackerWeekSensor(RestoreSensor, BaseCostTracker):
     self._attributes["total_consumption"] = 0
     self._attributes["accumulated_data"] = []
     self._last_reset = None
-    self._tracked_entity_id = tracked_entity_id
+    self._tracked_entity_unique_id = tracked_entity_unique_id
+    self._tracked_entity_id = None
     self._config_entry = config_entry
     self._peak_type = peak_type
     
@@ -137,6 +140,12 @@ class OctopusEnergyCostTrackerWeekSensor(RestoreSensor, BaseCostTracker):
       self._attributes.update(self._config)
     
       _LOGGER.debug(f'Restored {self.unique_id} state: {self._state}')
+
+    registry = er.async_get(self.hass)
+    self._tracked_entity_id = registry.async_get_entity_id(Platform.SENSOR, DOMAIN, self._tracked_entity_unique_id)
+    if self._tracked_entity_id is None:
+      _LOGGER.warning(f"Unable to find tracked cost sensor with unique ID '{self._tracked_entity_unique_id}'")
+      return
 
     self.async_on_remove(
       async_track_state_change_event(

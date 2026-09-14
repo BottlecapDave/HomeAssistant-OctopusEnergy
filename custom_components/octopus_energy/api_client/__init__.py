@@ -308,12 +308,14 @@ backend_octoplus_saving_session_query = '''query {{
         regionId
       }}
       eventType
+      capacityStatus
 		}}
 		account(accountNumber: "{account_id}") {{
       signedUpMeterPoint {{
         regionId
       }}
 			hasJoinedCampaign
+      tokenBalance
 			joinedEvents {{
 				eventId
 				startAt
@@ -322,6 +324,17 @@ backend_octoplus_saving_session_query = '''query {{
         eventType
 			}}
 		}}
+	}}
+}}'''
+
+backend_redeem_weekend_happy_hour_mutation = '''mutation {{
+	bookSavingSessionsWeekendHappyHourEvent(input: {{
+		accountNumber: "{account_id}"
+		eventCode: "{event_code}"
+	}}) {{
+    bookedEvent {{
+		  eventId
+    }}
 	}}
 }}'''
 
@@ -1224,10 +1237,11 @@ class OctopusEnergyApiClient:
                                                  ev["rewardPerKwhInOctoPoints"],
                                                  list(map(lambda gsp: f"{gsp['regionId']}", ev["targetRegion"]))
                                                  if "targetRegion" in ev and ev["targetRegion"] is not None
-                                                 else None)
+                                                 else None,
+                                                 ev["capacityStatus"])
             if ev["eventType"] in power_down_event_types:
               available_power_down_events.append(saving_session_event)
-            elif ev["eventType"] in power_up_event_types:
+            elif ev["eventType"] in power_up_event_types and saving_session_event.availability is not None:
               available_power_up_events.append(saving_session_event)
 
           for ev in response_body["data"]["savingSessions"]["account"]["joinedEvents"]:
@@ -1236,6 +1250,7 @@ class OctopusEnergyApiClient:
                                                  as_utc(parse_datetime(ev["startAt"])),
                                                  as_utc(parse_datetime(ev["endAt"])),
                                                  ev["rewardGivenInOctoPoints"],
+                                                 None,
                                                  None)
             if ev["eventType"] in power_down_event_types:
               joined_power_down_events.append(saving_session_event)
@@ -1248,7 +1263,8 @@ class OctopusEnergyApiClient:
                                         joined_power_up_events,
                                         f"{response_body["data"]["savingSessions"]["account"]["signedUpMeterPoint"]["regionId"]}"
                                         if "signedUpMeterPoint" in response_body["data"]["savingSessions"]["account"] and response_body["data"]["savingSessions"]["account"]["signedUpMeterPoint"] is not None and "regionId" in response_body["data"]["savingSessions"]["account"]["signedUpMeterPoint"]
-                                        else None)
+                                        else None,
+                                        int(response_body["data"]["savingSessions"]["account"]["tokenBalance"]))
         else:
           _LOGGER.error("Failed to retrieve saving sessions")
     except TimeoutError:
@@ -1314,6 +1330,28 @@ class OctopusEnergyApiClient:
       raise TimeoutException()
 
     return None
+
+  async def async_redeem_weekend_happy_hour(self, account_id: str, event_code: str) -> JoinSavingSessionResponse:
+    """Redeem a weekend happy hour"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "redeem-weekend-happy-hour"
+      client = await self._create_client_session()
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = { "query": backend_redeem_weekend_happy_hour_mutation.format(account_id=account_id, event_code=event_code) }
+      headers = { "Authorization": self._graphql_token, integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as join_response:
+        try:
+          await self.__async_read_response__(join_response, url)
+          return JoinSavingSessionResponse(True, [])
+        except RequestException as e:
+          _LOGGER.info(e)
+          return JoinSavingSessionResponse(False, e.errors)
+    
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
   
   async def async_join_octoplus_saving_session(self, account_id: str, event_code: str) -> JoinSavingSessionResponse:
     """Join a saving session"""

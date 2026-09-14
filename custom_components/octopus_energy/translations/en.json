@@ -214,7 +214,8 @@
       "not_supported": "Configuration for target rates is not supported at the moment.",
       "reconfigure_not_supported": "Reconfiguration is not supported.",
       "account_not_found": "Account information is not found",
-      "reconfigure_successful": "Reconfiguration successful"
+      "reconfigure_successful": "Reconfiguration successful",
+      "already_configured": "Configuration already exists for this account."
     }
   },
   "exceptions": {

@@ -10,10 +10,10 @@ from ..const import (
   REGEX_ENTITY_NAME
 )
 
-def build_cost_tracker_unique_id(account_id: str, target_entity_id: str) -> str:
-  return f"octopus_energy_ct_{account_id}_{target_entity_id}"
+def build_cost_tracker_unique_id(account_id: str, target_entity_id: str, target_mpan: str) -> str:
+  return f"octopus_energy_ct_{account_id}_{target_entity_id}_{target_mpan}"
 
-async def async_migrate_cost_tracker_config(version: int, data: {}, get_entries):
+async def async_migrate_cost_tracker_config(version: int, data: {}, config_entry):
   new_data = {**data}
 
   return new_data

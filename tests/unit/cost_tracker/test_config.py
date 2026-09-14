@@ -7,6 +7,7 @@ def test_build_cost_tracker_unique_id_uses_account_and_target():
   result = build_cost_tracker_unique_id(
     "A-TEST",
     "sensor.kitchen_heating_energy",
+    "MPAN-TEST",
   )
 
-  assert result == "octopus_energy_ct_A-TEST_sensor.kitchen_heating_energy"
+  assert result == "octopus_energy_ct_A-TEST_sensor.kitchen_heating_energy_MPAN-TEST"
