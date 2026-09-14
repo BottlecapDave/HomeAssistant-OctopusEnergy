@@ -1073,6 +1073,24 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#automatically-join-weekend-happy-hour-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automatically join weekend happy hour events
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automatically-join-weekend-happy-hour-events-by-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automatically join weekend happy hour events by rate
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#alert-when-current-consumption-is-approaching-power-down-baseline" class="md-nav__link">
     <span class="md-ellipsis">
       Alert when current consumption is approaching power down baseline
@@ -1491,6 +1509,24 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#automatically-join-weekend-happy-hour-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automatically join weekend happy hour events
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#automatically-join-weekend-happy-hour-events-by-rate" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automatically join weekend happy hour events by rate
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#alert-when-current-consumption-is-approaching-power-down-baseline" class="md-nav__link">
     <span class="md-ellipsis">
       Alert when current consumption is approaching power down baseline
@@ -1649,6 +1685,16 @@
 <p class="admonition-title">Info</p>
 <p>This will only trigger when the redeemable points go from under the threshold to over. If it's already over the threshold, then the automation will not trigger. This is by <a href="https://www.home-assistant.io/docs/automation/trigger/#numeric-state-trigger">design of Home Assistant</a>.</p>
 <p>You can manually run the automation if the redeemable points is over the threshold to get it in a state where automatic redemption will happen in the future.</p>
+</div>
+<h3 id="automatically-join-weekend-happy-hour-events">Automatically join weekend happy hour events<a class="headerlink" href="#automatically-join-weekend-happy-hour-events" title="Permanent link">#</a></h3>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_join_weekend_happy_hour_event.yaml">Install blueprint</a> | <a href="octopus_energy_octoplus_join_weekend_happy_hour_event.yaml">Source</a></p>
+<p>This blueprint will trigger when a weekend happy hour event has been discovered, and join either the earliest or latest available event (configurable) that isn't full.</p>
+<h3 id="automatically-join-weekend-happy-hour-events-by-rate">Automatically join weekend happy hour events by rate<a class="headerlink" href="#automatically-join-weekend-happy-hour-events-by-rate" title="Permanent link">#</a></h3>
+<p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_octoplus_join_weekend_happy_hour_event_by_rate.yaml">Install blueprint</a> | <a href="octopus_energy_octoplus_join_weekend_happy_hour_event_by_rate.yaml">Source</a></p>
+<p>This blueprint works in the same way as the <a href="#automatically-join-weekend-happy-hour-events">automatically join weekend happy hour events</a> blueprint, but also takes into account current and next day electricity rates (combined together). It will join the available, non full event with the lowest or highest average rate across its duration (configurable), using the earliest/latest setting as a tie breaker when more than one event shares the best rate.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>This blueprint requires the electricity current day and next day rates event entities. Next day rates are only populated once they have been published (usually mid afternoon); before then, only current day rates will be used.</p>
 </div>
 <h3 id="alert-when-current-consumption-is-approaching-power-down-baseline">Alert when current consumption is approaching power down baseline<a class="headerlink" href="#alert-when-current-consumption-is-approaching-power-down-baseline" title="Permanent link">#</a></h3>
 <p><a href="https://my.home-assistant.io/redirect/blueprint_import/?blueprint_url=https%3A%2F%2Fgithub.com%2FBottlecapDave%2FHomeAssistant-OctopusEnergy%2Fblob%2Fmain%2F_docs%2Fblueprints%2Foctopus_energy_power_down_baseline_alert.yaml">Install blueprint</a> | <a href="octopus_energy_power_down_baseline_alert.yaml">Source</a></p>

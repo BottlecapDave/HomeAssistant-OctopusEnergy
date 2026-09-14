@@ -761,6 +761,30 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#octopus_energyjoin_octoplus_weekend_happy_hour_event" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.join_octoplus_weekend_happy_hour_event
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="octopus_energy.join_octoplus_weekend_happy_hour_event">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#octopus_energyredeem_octoplus_points_into_account_credit" class="md-nav__link">
     <span class="md-ellipsis">
       octopus_energy.redeem_octoplus_points_into_account_credit
@@ -771,7 +795,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_1" class="md-nav__link">
+  <a href="#automation-example_2" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -810,7 +834,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_2" class="md-nav__link">
+  <a href="#automation-example_3" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -849,7 +873,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_3" class="md-nav__link">
+  <a href="#automation-example_4" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -966,7 +990,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_4" class="md-nav__link">
+  <a href="#automation-example_5" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -1560,6 +1584,30 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#octopus_energyjoin_octoplus_weekend_happy_hour_event" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.join_octoplus_weekend_happy_hour_event
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="octopus_energy.join_octoplus_weekend_happy_hour_event">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#automation-example_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      Automation Example
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#octopus_energyredeem_octoplus_points_into_account_credit" class="md-nav__link">
     <span class="md-ellipsis">
       octopus_energy.redeem_octoplus_points_into_account_credit
@@ -1570,7 +1618,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_1" class="md-nav__link">
+  <a href="#automation-example_2" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -1609,7 +1657,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_2" class="md-nav__link">
+  <a href="#automation-example_3" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -1648,7 +1696,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_3" class="md-nav__link">
+  <a href="#automation-example_4" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -1765,7 +1813,7 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#automation-example_4" class="md-nav__link">
+  <a href="#automation-example_5" class="md-nav__link">
     <span class="md-ellipsis">
       Automation Example
     </span>
@@ -1901,6 +1949,32 @@
 </tbody>
 </table>
 <p>This service supports an optional response. If the event is joined successfully, calling the service with <code>response_variable</code> (or <code>return_response: true</code> when using <code>hass.services.async_call</code>) will return <code>{"success": true}</code>. If the event cannot be joined (e.g. it no longer exists), the service call will fail and raise an error containing the reason, allowing the failure to be trapped in automations/scripts.</p>
+<h3 id="octopus_energyjoin_octoplus_weekend_happy_hour_event">octopus_energy.join_octoplus_weekend_happy_hour_event<a class="headerlink" href="#octopus_energyjoin_octoplus_weekend_happy_hour_event" title="Permanent link">#</a></h3>
+<p>Service for joining a new power up weekend happy hour session event. When used, it may take a couple of minutes for the other sensors to refresh the changes.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Optional</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>target.entity_id</code></td>
+<td><code>no</code></td>
+<td>The name of the target sensor whose configuration is to be updated. This should always point at the <a href="../entities/octoplus/#power-down-events">power up events</a> entity.</td>
+</tr>
+<tr>
+<td><code>data.event_code</code></td>
+<td><code>no</code></td>
+<td>The code of the event to join</td>
+</tr>
+</tbody>
+</table>
+<p>This service supports an optional response. If the event is joined successfully, calling the service with <code>response_variable</code> (or <code>return_response: true</code> when using <code>hass.services.async_call</code>) will return <code>{"success": true}</code>. If the event cannot be joined (e.g. it no longer exists), the service call will fail and raise an error containing the reason, allowing the failure to be trapped in automations/scripts.</p>
+<h4 id="automation-example_1">Automation Example<a class="headerlink" href="#automation-example_1" title="Permanent link">#</a></h4>
+<p>For an automation example, please refer to the available <a href="../blueprints/#automatically-join-weekend-happy-hour-events">blueprint</a>.</p>
 <h3 id="octopus_energyredeem_octoplus_points_into_account_credit">octopus_energy.redeem_octoplus_points_into_account_credit<a class="headerlink" href="#octopus_energyredeem_octoplus_points_into_account_credit" title="Permanent link">#</a></h3>
 <p>Allows you to redeem a certain number of of Octoplus points and convert them into account credit.</p>
 <div class="admonition info">
@@ -1928,7 +2002,7 @@
 </tr>
 </tbody>
 </table>
-<h4 id="automation-example_1">Automation Example<a class="headerlink" href="#automation-example_1" title="Permanent link">#</a></h4>
+<h4 id="automation-example_2">Automation Example<a class="headerlink" href="#automation-example_2" title="Permanent link">#</a></h4>
 <p>For automation examples, please refer to the available <a href="../blueprints/#automatically-redeem-octoplus-points-for-account-credit">blueprints</a>.</p>
 <h2 id="wheel-of-fortune">Wheel of fortune<a class="headerlink" href="#wheel-of-fortune" title="Permanent link">#</a></h2>
 <h3 id="octopus_energyspin_wheel_of_fortune">octopus_energy.spin_wheel_of_fortune<a class="headerlink" href="#octopus_energyspin_wheel_of_fortune" title="Permanent link">#</a></h3>
@@ -1949,7 +2023,7 @@
 </tr>
 </tbody>
 </table>
-<h4 id="automation-example_2">Automation Example<a class="headerlink" href="#automation-example_2" title="Permanent link">#</a></h4>
+<h4 id="automation-example_3">Automation Example<a class="headerlink" href="#automation-example_3" title="Permanent link">#</a></h4>
 <p>For automation examples, please refer to the available <a href="../blueprints/#wheel-of-fortune">blueprints</a>.</p>
 <h2 id="cost-trackers">Cost Trackers<a class="headerlink" href="#cost-trackers" title="Permanent link">#</a></h2>
 <p>The following services are available if you have set up at least one <a href="../setup/cost_tracker/">cost tracker</a>.</p>
@@ -1976,7 +2050,7 @@
 </tr>
 </tbody>
 </table>
-<h4 id="automation-example_3">Automation Example<a class="headerlink" href="#automation-example_3" title="Permanent link">#</a></h4>
+<h4 id="automation-example_4">Automation Example<a class="headerlink" href="#automation-example_4" title="Permanent link">#</a></h4>
 <p>For automation examples, please refer to the available <a href="../blueprints/#cost-tracker">blueprints</a>.</p>
 <h3 id="octopus_energyreset_cost_tracker">octopus_energy.reset_cost_tracker<a class="headerlink" href="#octopus_energyreset_cost_tracker" title="Permanent link">#</a></h3>
 <p>Resets a given <a href="../setup/cost_tracker/">cost tracker</a> sensor back to zero before it's normal reset time.</p>
@@ -2234,7 +2308,7 @@
 </tr>
 </tbody>
 </table>
-<h4 id="automation-example_4">Automation Example<a class="headerlink" href="#automation-example_4" title="Permanent link">#</a></h4>
+<h4 id="automation-example_5">Automation Example<a class="headerlink" href="#automation-example_5" title="Permanent link">#</a></h4>
 <p>For an automation example, please refer to the available <a href="../blueprints/#manual-intelligent-dispatch-refreshes">blueprint</a>.</p>
 <h3 id="octopus_energyget_point_in_time_intelligent_dispatch_history">octopus_energy.get_point_in_time_intelligent_dispatch_history<a class="headerlink" href="#octopus_energyget_point_in_time_intelligent_dispatch_history" title="Permanent link">#</a></h3>
 <p>Retrieve the intelligent dispatch history which was active for a given point in time based on up to the last 48 hours of intelligent dispatches that have been captured locally. This can be used to determine why <a href="../entities/intelligent/#is-dispatching">is dispatching</a> or <a href="../entities/electricity/#off-peak">off peak</a> might have turned on during a certain time period.</p>
