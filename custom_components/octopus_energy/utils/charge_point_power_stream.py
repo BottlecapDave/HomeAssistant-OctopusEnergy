@@ -1,5 +1,7 @@
 import json
 
+from ..api_client.charge_point import ChargePointPowerReading
+
 # The multipart boundary used by the charge point live power stream. A fixed
 # literal, never guaranteed to land on a chunk edge.
 multipart_boundary = "--graphql"
@@ -8,10 +10,10 @@ def parse_charge_point_power_stream_chunk(buffer: str, chunk: bytes) -> tuple[st
   """Feed one more chunk of bytes from the live power multipart stream into the parser.
 
   Returns a tuple of (new_buffer, readings) where readings is a list of
-  parsed values - each either a dict (a real reading, e.g. {"value": ..,
-  "unit": ..}) or None (the stream explicitly reported no reading for that
-  update). Empty `{}` heartbeat payloads and partial/malformed chunks are
-  swallowed and contribute nothing to the returned readings list.
+  parsed values - each either a ChargePointPowerReading (a real reading) or
+  None (the stream explicitly reported no reading for that update). Empty
+  `{}` heartbeat payloads and partial/malformed chunks are swallowed and
+  contribute nothing to the returned readings list.
 
   This is a pure function so the buffering/boundary/JSON-extraction logic
   can be unit tested without a real (or mocked) HTTP connection.
@@ -48,13 +50,13 @@ def parse_charge_point_power_stream_chunk(buffer: str, chunk: bytes) -> tuple[st
     if not payload_data:
       continue  # {} heartbeat
 
-    reading = None
+    raw_reading = None
     if ("payload" in payload_data
         and payload_data["payload"] is not None
         and "data" in payload_data["payload"]
         and payload_data["payload"]["data"] is not None):
-      reading = payload_data["payload"]["data"].get("electricChargerPowerReadings")
+      raw_reading = payload_data["payload"]["data"].get("electricChargerPowerReadings")
 
-    readings.append(reading)
+    readings.append(ChargePointPowerReading.model_validate(raw_reading) if raw_reading is not None else None)
 
   return buffer, readings

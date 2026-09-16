@@ -1,4 +1,5 @@
 from custom_components.octopus_energy.utils.charge_point_power_stream import parse_charge_point_power_stream_chunk
+from custom_components.octopus_energy.api_client.charge_point import ChargePointPowerReading
 
 def make_part(body: str) -> str:
   return f'Content-Type: application/json\n\n{body}\n'
@@ -12,7 +13,7 @@ def test_when_single_complete_reading_chunk_then_reading_parsed():
   buffer, readings = parse_charge_point_power_stream_chunk("", chunk)
 
   # Assert
-  assert readings == [{"value": 3.2, "unit": "KILOWATT"}]
+  assert readings == [ChargePointPowerReading(value=3.2, unit="KILOWATT")]
 
 def test_when_heartbeat_chunk_then_no_reading_returned():
   # Arrange
@@ -49,7 +50,7 @@ def test_when_chunk_split_across_reads_then_reading_only_parsed_once_boundary_ar
 
   # Assert
   assert readings_after_first == []
-  assert readings_after_second == [{"value": 1.5, "unit": "KILOWATT"}]
+  assert readings_after_second == [ChargePointPowerReading(value=1.5, unit="KILOWATT")]
 
 def test_when_multiple_readings_in_one_chunk_then_all_parsed_in_order():
   # Arrange
@@ -66,7 +67,7 @@ def test_when_multiple_readings_in_one_chunk_then_all_parsed_in_order():
   buffer, readings = parse_charge_point_power_stream_chunk("", chunk)
 
   # Assert
-  assert readings == [{"value": 1.0, "unit": "KILOWATT"}, {"value": 2.0, "unit": "KILOWATT"}]
+  assert readings == [ChargePointPowerReading(value=1.0, unit="KILOWATT"), ChargePointPowerReading(value=2.0, unit="KILOWATT")]
 
 def test_when_closing_boundary_marker_then_no_error_and_nothing_parsed():
   # Arrange - "--graphql--" ends up as a bare "--" once already split on "--graphql"
@@ -97,4 +98,4 @@ def test_when_crlf_line_endings_then_still_parsed_correctly():
   buffer, readings = parse_charge_point_power_stream_chunk("", chunk)
 
   # Assert
-  assert readings == [{"value": 4.4, "unit": "KILOWATT"}]
+  assert readings == [ChargePointPowerReading(value=4.4, unit="KILOWATT")]

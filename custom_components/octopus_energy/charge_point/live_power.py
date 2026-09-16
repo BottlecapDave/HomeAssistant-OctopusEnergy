@@ -120,8 +120,8 @@ class OctopusEnergyChargePointLivePower(CoordinatorEntity, BaseOctopusEnergyChar
           async for reading in self._client.async_stream_charge_point_power(self._account_id, self._charge_point_id):
             reconnect_delay = initial_reconnect_delay_seconds
 
-            if reading is not None and "value" in reading:
-              self._state = float(reading["value"])
+            if reading is not None:
+              self._state = reading.value
             else:
               # Stream reported no reading (e.g. charging just stopped) - 0kW
               # is the accurate value here, not unknown.

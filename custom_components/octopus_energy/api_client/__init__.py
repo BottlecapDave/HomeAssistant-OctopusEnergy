@@ -1652,9 +1652,9 @@ class OctopusEnergyApiClient:
     a different, unrelated mechanism to the `deferSpec=20220824` used
     elsewhere in this client for `@defer`/`@stream` on regular queries.
 
-    Yields a dict `{"value": float, "unit": str}` for each reading, or
-    `None` when the stream reports no reading for that update (e.g.
-    charging just stopped). Swallows `{}` heartbeat chunks internally.
+    Yields a ChargePointPowerReading for each reading, or `None` when the
+    stream reports no reading for that update (e.g. charging just
+    stopped). Swallows `{}` heartbeat chunks internally.
     """
     await self.async_refresh_token()
 

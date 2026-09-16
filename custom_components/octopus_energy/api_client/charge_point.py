@@ -46,3 +46,8 @@ class ChargePointScheduleSetting(BaseModel):
 class ChargePointDaySchedule(BaseModel):
   day: Optional[str] = None
   chargePointScheduleSettings: list[ChargePointScheduleSetting] = []
+
+
+class ChargePointPowerReading(BaseModel):
+  value: float
+  unit: Optional[str] = None
