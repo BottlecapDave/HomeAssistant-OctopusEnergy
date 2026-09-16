@@ -27,11 +27,11 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyChargePointConnected(CoordinatorEntity, BaseOctopusEnergyChargePointSensor, BinarySensorEntity, RestoreEntity):
   """Sensor for displaying if a charge point is connected."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, charge_point_id: str, charge_point: OnboardedChargePoint):
+  def __init__(self, hass: HomeAssistant, coordinator, account_id: str, charge_point_id: str, charge_point: OnboardedChargePoint):
     """Init sensor."""
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
-    BaseOctopusEnergyChargePointSensor.__init__(self, hass, charge_point_id, charge_point, "binary_sensor")
+    BaseOctopusEnergyChargePointSensor.__init__(self, hass, account_id, charge_point_id, charge_point, "binary_sensor")
 
     self._state = None
     self._last_updated = None

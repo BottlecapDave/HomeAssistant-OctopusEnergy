@@ -140,7 +140,7 @@ def setup_charge_point_sensors(hass: HomeAssistant, account_id: str, charge_poin
   # same value (matches the IOG precedent: e.g. the smart_charge switch has
   # no matching binary_sensor either). Connected has no switch counterpart
   # (nothing to control - it's just a status flag), so it stays here.
-  entities.append(OctopusEnergyChargePointConnected(hass, coordinator, charge_point_id, charge_point))
+  entities.append(OctopusEnergyChargePointConnected(hass, coordinator, account_id, charge_point_id, charge_point))
 
   return entities
 

@@ -3,6 +3,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity import generate_entity_id, DeviceInfo
 
 from ..const import (
+  DATA_INTELLIGENT_DEVICES,
   DOMAIN,
 )
 from ..api_client.charge_point import OnboardedChargePoint
@@ -10,7 +11,7 @@ from ..api_client.charge_point import OnboardedChargePoint
 class BaseOctopusEnergyChargePointSensor:
   _unrecorded_attributes = frozenset({"data_last_retrieved"})
 
-  def __init__(self, hass: HomeAssistant, charge_point_id: str, charge_point: OnboardedChargePoint, entity_domain = "sensor"):
+  def __init__(self, hass: HomeAssistant, account_id: str, charge_point_id: str, charge_point: OnboardedChargePoint, entity_domain = "sensor"):
     """Init sensor"""
     self._charge_point = charge_point
     self._charge_point_id = charge_point_id
@@ -38,19 +39,31 @@ class BaseOctopusEnergyChargePointSensor:
       else f"charge_point_{charge_point.serialNumber}"
     )
 
-    # manufacturer/model deliberately NOT set here - intelligent/base.py
-    # already supplies both (name=f"{make} {model} (...)", manufacturer,
-    # model) for this same device identifier, sourced from the real IOG
-    # device data. Home Assistant merges DeviceInfo field-by-field across
-    # every entity sharing an identifier, so this entity supplying its own,
-    # differently-sourced values for the same fields (this used to
-    # hardcode manufacturer="Octopus" regardless of the charger's actual
-    # make) caused them to flip/flop depending on entity setup order.
-    # sw_version/serial_number are safe to keep - IOG's DeviceInfo doesn't
-    # set either, so there's nothing to clash with.
-    self._attr_device_info = DeviceInfo(
-      identifiers={(DOMAIN, device_identifier)},
-      connections=set(),
-      sw_version=charge_point.firmwareVersion,
-      serial_number=charge_point.serialNumber,
+    # Only defer manufacturer/model to intelligent/base.py's DeviceInfo when
+    # an IOG-managed device with this exact identifier genuinely exists for
+    # this account - i.e. IOG really is managing this same physical Octopus
+    # charger, not a different one (e.g. a third-party charger set up under
+    # IOG separately). Without a confirmed match there's no other entity to
+    # supply these fields, and no clash risk either since a fresh
+    # (non-matching) identifier can't merge with anything else - so charge
+    # point supplies its own manufacturer/model rather than leaving the
+    # device unbranded.
+    intelligent_devices_result = hass.data.get(DOMAIN, {}).get(account_id, {}).get(DATA_INTELLIGENT_DEVICES)
+    intelligent_device_ids = (
+      { device.id for device in intelligent_devices_result.devices }
+      if intelligent_devices_result is not None else set()
     )
+    has_matching_intelligent_device = device_identifier in intelligent_device_ids
+
+    device_info_kwargs = {
+      "identifiers": {(DOMAIN, device_identifier)},
+      "connections": set(),
+      "sw_version": charge_point.firmwareVersion,
+      "serial_number": charge_point.serialNumber,
+    }
+
+    if not has_matching_intelligent_device:
+      device_info_kwargs["manufacturer"] = "Octopus"
+      device_info_kwargs["model"] = charge_point.model
+
+    self._attr_device_info = DeviceInfo(**device_info_kwargs)
