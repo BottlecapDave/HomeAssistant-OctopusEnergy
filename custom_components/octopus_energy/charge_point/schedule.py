@@ -1,5 +1,6 @@
 from datetime import timedelta
 import logging
+import random
 
 from homeassistant.const import (
     STATE_UNAVAILABLE,
@@ -10,13 +11,14 @@ from homeassistant.components.sensor import (
   RestoreSensor,
 )
 from homeassistant.helpers.event import async_track_point_in_time
-from homeassistant.util.dt import (now as dt_now)
+from homeassistant.util.dt import (now as dt_now, utcnow)
 
 from .base import (BaseOctopusEnergyChargePointSensor)
 from ..api_client import OctopusEnergyApiClient
 from ..api_client.charge_point import OnboardedChargePoint
 from ..const import REFRESH_RATE_IN_MINUTES_CHARGE_POINT
 from ..utils.charge_point_schedule import compute_next_schedule_transition
+from ..utils.requests import calculate_next_refresh
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -24,6 +26,13 @@ _LOGGER = logging.getLogger(__name__)
 # window is already open and forcing fresh polls right as the transition
 # actually happens, rather than starting to poll only after the fact.
 schedule_burst_lead_seconds = 5
+
+# Common schedule boundaries (e.g. popular off-peak start times) are likely
+# shared across many accounts, which would otherwise synchronise everyone's
+# burst-refresh trigger to the same clock second. A small random spread
+# avoids that - not modelled on an existing precedent in this codebase, so
+# treat the window itself as open to adjustment.
+schedule_burst_jitter_max_seconds = 20
 
 # No existing coordinator precedent covers this shape (a multi-period weekly
 # schedule, not a single target-time/SoC concept like IOG's), so this entity
@@ -49,6 +58,9 @@ class OctopusEnergyChargePointSchedule(BaseOctopusEnergyChargePointSensor, Resto
     self._state = None
     self._attributes = { "schedule": {} }
     self._cancel_next_transition_timer = None
+    self._last_evaluated = None
+    self._next_refresh = None
+    self._request_attempts = 1
 
   @property
   def unique_id(self):
@@ -75,32 +87,48 @@ class OctopusEnergyChargePointSchedule(BaseOctopusEnergyChargePointSensor, Resto
     return self._state
 
   async def async_update(self):
+    """Called on the entity's own poll interval - gated by backoff state so
+    a run of failures doesn't keep hammering Octopus's servers every
+    REFRESH_RATE_IN_MINUTES_CHARGE_POINT regardless of whether they're
+    responding, the same gating OctopusEnergyOctoplusPoints uses."""
+    now = utcnow()
+    if self._next_refresh is None or now >= self._next_refresh:
+      await self.async_refresh_schedule()
+
+  async def async_refresh_schedule(self):
     """Fetch the latest schedule for the charge point."""
+    now = utcnow()
     try:
       schedules = await self._client.async_get_charge_point_schedules(self._account_id, self._charge_point_id)
+
+      if schedules is not None:
+        schedule_by_day = {}
+        for day_schedule in schedules:
+          schedule_by_day[day_schedule.day] = [
+            { "start": setting.start, "end": setting.end, "action": setting.action }
+            for setting in day_schedule.chargePointScheduleSettings
+          ]
+
+        self._attributes["schedule"] = schedule_by_day
+
+        # Summarise as the number of scheduled periods across the week; a
+        # richer "next ON window" summary needs knowing which day is "today"
+        # in the charge point's own timezone, which isn't exposed by this query.
+        total_periods = sum(len(periods) for periods in schedule_by_day.values())
+        self._state = f"{total_periods} period{'s' if total_periods != 1 else ''}"
+
+        self._schedule_next_transition_timer(schedule_by_day)
+
+      self._last_evaluated = now
+      self._request_attempts = 1
     except Exception as e:
       _LOGGER.debug(f"Failed to retrieve schedule for charge point '{self._charge_point_id}': {e}")
-      return
+      self._request_attempts += 1
 
-    if schedules is None:
-      return
+      if self._last_evaluated is None:
+        self._last_evaluated = now
 
-    schedule_by_day = {}
-    for day_schedule in schedules:
-      schedule_by_day[day_schedule.day] = [
-        { "start": setting.start, "end": setting.end, "action": setting.action }
-        for setting in day_schedule.chargePointScheduleSettings
-      ]
-
-    self._attributes["schedule"] = schedule_by_day
-
-    # Summarise as the number of scheduled periods across the week; a
-    # richer "next ON window" summary needs knowing which day is "today"
-    # in the charge point's own timezone, which isn't exposed by this query.
-    total_periods = sum(len(periods) for periods in schedule_by_day.values())
-    self._state = f"{total_periods} period{'s' if total_periods != 1 else ''}"
-
-    self._schedule_next_transition_timer(schedule_by_day)
+    self._next_refresh = calculate_next_refresh(self._last_evaluated, self._request_attempts, REFRESH_RATE_IN_MINUTES_CHARGE_POINT)
 
   def _schedule_next_transition_timer(self, schedule_by_day: dict) -> None:
     """(Re)arm a timer for the next scheduled start/end boundary, so the
@@ -118,7 +146,8 @@ class OctopusEnergyChargePointSchedule(BaseOctopusEnergyChargePointSensor, Resto
     if next_transition is None:
       return
 
-    fire_at = next_transition - timedelta(seconds=schedule_burst_lead_seconds)
+    jitter_seconds = random.uniform(0, schedule_burst_jitter_max_seconds)
+    fire_at = next_transition - timedelta(seconds=schedule_burst_lead_seconds) + timedelta(seconds=jitter_seconds)
 
     @callback
     def _on_transition_time(_now) -> None:
