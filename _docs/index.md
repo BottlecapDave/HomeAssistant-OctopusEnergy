@@ -13,6 +13,7 @@ Below are the main features of the integration
 * [Saving sessions support](#octoplus)
 * [Wheel of fortune support](#wheel-of-fortune)
 * [Heat Pump support](#heat-pumps)
+* [Charge Point support](#charge-points)
 
 ## How to install
 
@@ -92,6 +93,10 @@ To support the wheel of fortune that is awarded every month to customers. [Full 
 ### Heat Pumps
 
 To support heat pumps connected to Octopus Energy, like the [Cosy 6](https://octopus.energy/cosy-heat-pump/). [Full list of heat pump entities](./entities/heat_pump.md).
+
+### Charge Points
+
+To support the [Octopus Charge](https://octopus.energy/octopus-charge/) home EV charger. [Full list of charge point entities](./entities/charge_point.md).
 
 ## Cost Tracker Sensors
 
