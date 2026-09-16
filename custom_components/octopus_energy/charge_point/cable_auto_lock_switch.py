@@ -33,7 +33,7 @@ class OctopusEnergyChargePointCableAutoLockSwitch(CoordinatorEntity, BaseOctopus
     """Init sensor."""
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
-    BaseOctopusEnergyChargePointSensor.__init__(self, hass, account_id, charge_point_id, charge_point, "switch")
+    BaseOctopusEnergyChargePointSensor.__init__(self, hass, charge_point_id, charge_point, "switch")
 
     self._state = False
     self._last_updated = None

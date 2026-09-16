@@ -762,9 +762,9 @@ def setup_charge_point_sensors(hass: HomeAssistant, account_id: str, charge_poin
   if coordinator is not None:
     entities.append(OctopusEnergyChargePointDataLastRetrieved(hass, coordinator, account_id, charge_point_id, charge_point))
 
-  entities.append(OctopusEnergyChargePointOperationalState(hass, coordinator, account_id, charge_point_id, charge_point))
-  entities.append(OctopusEnergyChargePointChargingMethod(hass, coordinator, account_id, charge_point_id, charge_point))
-  entities.append(OctopusEnergyChargePointBoostEndTime(hass, coordinator, account_id, charge_point_id, charge_point))
+  entities.append(OctopusEnergyChargePointOperationalState(hass, coordinator, charge_point_id, charge_point))
+  entities.append(OctopusEnergyChargePointChargingMethod(hass, coordinator, charge_point_id, charge_point))
+  entities.append(OctopusEnergyChargePointBoostEndTime(hass, coordinator, charge_point_id, charge_point))
   live_power_sensor = OctopusEnergyChargePointLivePower(hass, coordinator, client, account_id, charge_point_id, charge_point, is_mocked)
   entities.append(live_power_sensor)
   # Pass the live power sensor's own (slugified) entity_id directly, rather
@@ -772,7 +772,7 @@ def setup_charge_point_sensors(hass: HomeAssistant, account_id: str, charge_poin
   # charge_point_id - that id is a real hyphenated UUID, and a second,
   # unslugified reconstruction would never match the real entity_id
   # generate_entity_id() actually produced for it.
-  entities.append(OctopusEnergyChargePointEnergy(hass, account_id, charge_point_id, charge_point, live_power_sensor.entity_id))
+  entities.append(OctopusEnergyChargePointEnergy(hass, charge_point_id, charge_point, live_power_sensor.entity_id))
   entities.append(OctopusEnergyChargePointSchedule(hass, client, account_id, charge_point_id, charge_point, coordinator))
 
   return entities

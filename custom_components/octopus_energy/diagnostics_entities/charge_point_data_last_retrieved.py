@@ -9,7 +9,7 @@ class OctopusEnergyChargePointDataLastRetrieved(BaseOctopusEnergyChargePointSens
     """Init sensor."""
     self._account_id = account_id
     self._charge_point_id = charge_point_id
-    BaseOctopusEnergyChargePointSensor.__init__(self, hass, account_id, charge_point_id, charge_point)
+    BaseOctopusEnergyChargePointSensor.__init__(self, hass, charge_point_id, charge_point)
     OctopusEnergyBaseDataLastRetrieved.__init__(self, hass, coordinator)
 
   @property

@@ -26,11 +26,11 @@ _LOGGER = logging.getLogger(__name__)
 class OctopusEnergyChargePointBoostEndTime(CoordinatorEntity, BaseOctopusEnergyChargePointSensor, RestoreSensor):
   """Sensor for displaying when boost charging will end for a charge point, null when not boost-charging."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, account_id: str, charge_point_id: str, charge_point: OnboardedChargePoint):
+  def __init__(self, hass: HomeAssistant, coordinator, charge_point_id: str, charge_point: OnboardedChargePoint):
     """Init sensor."""
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
-    BaseOctopusEnergyChargePointSensor.__init__(self, hass, account_id, charge_point_id, charge_point)
+    BaseOctopusEnergyChargePointSensor.__init__(self, hass, charge_point_id, charge_point)
 
     self._state = None
     self._last_updated = None

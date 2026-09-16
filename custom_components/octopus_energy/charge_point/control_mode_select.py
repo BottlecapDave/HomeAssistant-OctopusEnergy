@@ -32,7 +32,7 @@ class OctopusEnergyChargePointControlModeSelect(CoordinatorEntity, BaseOctopusEn
     """Init sensor."""
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
-    BaseOctopusEnergyChargePointSensor.__init__(self, hass, account_id, charge_point_id, charge_point, "select")
+    BaseOctopusEnergyChargePointSensor.__init__(self, hass, charge_point_id, charge_point, "select")
 
     self._state = None
     self._last_updated = None
