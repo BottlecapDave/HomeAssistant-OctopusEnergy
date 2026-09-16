@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 
 class ChargePointOnboarding(BaseModel):
@@ -46,6 +46,14 @@ class ChargePointScheduleSetting(BaseModel):
 class ChargePointDaySchedule(BaseModel):
   day: Optional[str] = None
   chargePointScheduleSettings: list[ChargePointScheduleSetting] = []
+
+  @field_validator("chargePointScheduleSettings", mode="before")
+  @classmethod
+  def _default_empty_when_null(cls, value):
+    # The API may represent a day with no periods as an explicit null
+    # rather than omitting the field - treat both the same way the old
+    # dict-based code did (`.get(..., []) or []`).
+    return [] if value is None else value
 
 
 class ChargePointPowerReading(BaseModel):

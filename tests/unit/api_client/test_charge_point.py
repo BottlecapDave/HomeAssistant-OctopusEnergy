@@ -1,4 +1,4 @@
-from custom_components.octopus_energy.api_client.charge_point import OnboardedChargePoint
+from custom_components.octopus_energy.api_client.charge_point import OnboardedChargePoint, ChargePointDaySchedule
 
 def test_when_valid_dictionary_returned_then_it_can_be_parsed_into_charge_point_object():
   # Arrange
@@ -103,3 +103,25 @@ def test_when_optional_fields_missing_then_they_default_to_none():
   assert result.boostEndTime is None
   assert result.onboarding is None
   assert result.configuration is None
+
+def test_when_charge_point_day_schedule_settings_is_explicitly_null_then_defaults_to_empty_list():
+  # Arrange - the API may represent a day with no scheduled periods as an
+  # explicit null rather than omitting the field
+  data = { "day": "MONDAY", "chargePointScheduleSettings": None }
+
+  # Act
+  result = ChargePointDaySchedule.model_validate(data)
+
+  # Assert
+  assert result.day == "MONDAY"
+  assert result.chargePointScheduleSettings == []
+
+def test_when_charge_point_day_schedule_settings_is_missing_then_defaults_to_empty_list():
+  # Arrange
+  data = { "day": "MONDAY" }
+
+  # Act
+  result = ChargePointDaySchedule.model_validate(data)
+
+  # Assert
+  assert result.chargePointScheduleSettings == []
