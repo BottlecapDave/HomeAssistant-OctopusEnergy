@@ -279,6 +279,15 @@ intelligent_turn_off_smart_charge_mutation = '''mutation {{
   }}
 }}'''
 
+intelligent_set_charging_duration_capped_mutation = '''mutation {{
+  updateIsChargingDurationCapped(input: {{
+    deviceId: "{device_id}"
+    enabled: {enabled}
+  }}) {{
+    id
+  }}
+}}'''
+
 octoplus_points_query = '''query octoplus_points {
 	loyaltyPointLedgers {
 		balanceCarriedForward
@@ -2047,7 +2056,30 @@ class OctopusEnergyApiClient:
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
-  
+
+  async def async_set_intelligent_charging_duration_capped(
+      self, device_id: str, is_enabled: bool,
+    ):
+    """Enable or disable the charging duration cap for an intelligent device"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "set-intelligent-charging-duration-capped"
+      client = await self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": intelligent_set_charging_duration_capped_mutation.format(
+        device_id=device_id,
+        enabled=str(is_enabled).lower(),
+      ) }
+
+      headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_set_intelligent_charging_duration_capped: {response_body}')
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
   async def async_get_intelligent_devices(self, account_id: str) -> list[IntelligentDevice]:
     """Get the user's intelligent device"""
     await self.async_refresh_token()

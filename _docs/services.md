@@ -195,6 +195,15 @@ Sets the hush mode on a given heat pump.
 
 The following services are available if you are on an intelligent tariff.
 
+### octopus_energy.set_charging_duration_capped
+
+Enables or disables the charging duration cap for a given intelligent device.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The smart charge switch entity for the intelligent device you want to update (e.g. `switch.octopus_energy_{{DEVICE_ID}}_intelligent_smart_charge`). |
+| `data.is_enabled`              | `no`     | Determines if the charging duration cap is enabled or disabled. |
+
 ### octopus_energy.refresh_intelligent_dispatches
 
 Refreshes intelligent dispatches for a given account.
