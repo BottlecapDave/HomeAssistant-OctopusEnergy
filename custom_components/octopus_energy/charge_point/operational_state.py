@@ -43,6 +43,7 @@ class OctopusEnergyChargePointOperationalState(CoordinatorEntity, BaseOctopusEne
 
     self._state = None
     self._last_updated = None
+    self._last_unrecognized_operational_state = None
 
   @property
   def unique_id(self):
@@ -87,10 +88,19 @@ class OctopusEnergyChargePointOperationalState(CoordinatorEntity, BaseOctopusEne
     if (result is not None
         and result.data is not None
         and result.data.operationalState is not None):
-      _LOGGER.debug(f"Updating OctopusEnergyChargePointOperationalState for '{self._charge_point_id}'")
 
-      self._state = result.data.operationalState
-      self._last_updated = current
+      if result.data.operationalState in operational_state_options:
+        _LOGGER.debug(f"Updating OctopusEnergyChargePointOperationalState for '{self._charge_point_id}'")
+
+        self._state = result.data.operationalState
+        self._last_updated = current
+        self._last_unrecognized_operational_state = None
+      elif self._last_unrecognized_operational_state != result.data.operationalState:
+        # Assigning an unrecognized value to an ENUM sensor's state raises,
+        # so keep the last known-good state instead. Only warn once per
+        # distinct unrecognized value, not on every coordinator update.
+        _LOGGER.warning(f"Received unrecognized operational state '{result.data.operationalState}' for charge point '{self._charge_point_id}' - keeping previous state")
+        self._last_unrecognized_operational_state = result.data.operationalState
 
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
