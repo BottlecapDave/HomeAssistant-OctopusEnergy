@@ -38,11 +38,19 @@ class BaseOctopusEnergyChargePointSensor:
       else f"charge_point_{charge_point.serialNumber}"
     )
 
+    # manufacturer/model deliberately NOT set here - intelligent/base.py
+    # already supplies both (name=f"{make} {model} (...)", manufacturer,
+    # model) for this same device identifier, sourced from the real IOG
+    # device data. Home Assistant merges DeviceInfo field-by-field across
+    # every entity sharing an identifier, so this entity supplying its own,
+    # differently-sourced values for the same fields (this used to
+    # hardcode manufacturer="Octopus" regardless of the charger's actual
+    # make) caused them to flip/flop depending on entity setup order.
+    # sw_version/serial_number are safe to keep - IOG's DeviceInfo doesn't
+    # set either, so there's nothing to clash with.
     self._attr_device_info = DeviceInfo(
       identifiers={(DOMAIN, device_identifier)},
       connections=set(),
-      manufacturer="Octopus",
-      model=charge_point.model,
       sw_version=charge_point.firmwareVersion,
       serial_number=charge_point.serialNumber,
     )
