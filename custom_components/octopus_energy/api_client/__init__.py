@@ -1628,7 +1628,17 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
-  async def async_stream_charge_point_power(self, account_id: str, device_uuid: str, is_retry: bool = False):
+  async def async_stream_charge_point_power(self, account_id: str, device_uuid: str):
+    """Streams live power readings for a given charge point.
+
+    Public entry point - retries internally on a single 401/403 via
+    __async_stream_charge_point_power, so callers never need to know
+    about that retry mechanics.
+    """
+    async for reading in self.__async_stream_charge_point_power(account_id, device_uuid):
+      yield reading
+
+  async def __async_stream_charge_point_power(self, account_id: str, device_uuid: str, is_retry: bool = False):
     """Streams live power readings for a given charge point.
 
     Despite the schema naming this `electricChargerPowerReadings` under
@@ -1666,7 +1676,7 @@ class OctopusEnergyApiClient:
       if response.status in (401, 403):
         if not is_retry:
           await self.async_refresh_token()
-          async for reading in self.async_stream_charge_point_power(account_id, device_uuid, True):
+          async for reading in self.__async_stream_charge_point_power(account_id, device_uuid, True):
             yield reading
           return
         raise AuthenticationException("Authentication failed while streaming charge point power", [])
