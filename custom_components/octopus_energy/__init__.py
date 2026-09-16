@@ -496,16 +496,10 @@ async def async_setup_dependencies(hass, config, entry_id: str | None = None):
       charge_point_identities = []
 
     # Each charge point now carries the property it actually belongs to.
-    # Fallback to the account's first property only for a device missing
-    # from the pairing (e.g. an incomplete/older cache entry).
-    device_to_property_id = { identity.deviceUUID: identity.propertyId for identity in charge_point_identities }
-    fallback_property_id = account_info["property_ids"][0] if len(account_info["property_ids"]) > 0 else None
-
-    charge_point_ids = [identity.deviceUUID for identity in charge_point_identities]
-
-    hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_IDS] = charge_point_ids
-    for charge_point_id in charge_point_ids:
-      property_id = device_to_property_id.get(charge_point_id, fallback_property_id)
+    hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_IDS] = [identity.deviceUUID for identity in charge_point_identities]
+    for identity in charge_point_identities:
+      charge_point_id = identity.deviceUUID
+      property_id = identity.propertyId
       await async_setup_charge_point_coordinator(hass, account_id, property_id, charge_point_id, False)
 
       key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
