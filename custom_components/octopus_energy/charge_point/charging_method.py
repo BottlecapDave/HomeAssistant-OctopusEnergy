@@ -39,6 +39,7 @@ class OctopusEnergyChargePointChargingMethod(CoordinatorEntity, BaseOctopusEnerg
 
     self._state = None
     self._last_updated = None
+    self._last_unrecognized_charging_method = None
 
   @property
   def unique_id(self):
@@ -84,10 +85,19 @@ class OctopusEnergyChargePointChargingMethod(CoordinatorEntity, BaseOctopusEnerg
     if (result is not None
         and result.data is not None
         and result.data.chargingMethod is not None):
-      _LOGGER.debug(f"Updating OctopusEnergyChargePointChargingMethod for '{self._charge_point_id}'")
 
-      self._state = result.data.chargingMethod
-      self._last_updated = current
+      if result.data.chargingMethod in charging_method_options:
+        _LOGGER.debug(f"Updating OctopusEnergyChargePointChargingMethod for '{self._charge_point_id}'")
+
+        self._state = result.data.chargingMethod
+        self._last_updated = current
+        self._last_unrecognized_charging_method = None
+      elif self._last_unrecognized_charging_method != result.data.chargingMethod:
+        # Assigning an unrecognized value to an ENUM sensor's state raises,
+        # so keep the last known-good state instead. Only warn once per
+        # distinct unrecognized value, not on every coordinator update.
+        _LOGGER.warning(f"Received unrecognized charging method '{result.data.chargingMethod}' for charge point '{self._charge_point_id}' - keeping previous state")
+        self._last_unrecognized_charging_method = result.data.chargingMethod
 
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
