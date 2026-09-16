@@ -35,3 +35,14 @@ class OnboardedChargePoint(BaseModel):
   boostEndTime: Optional[str] = None
   onboarding: Optional[ChargePointOnboarding] = None
   configuration: Optional[ChargePointConfiguration] = None
+
+
+class ChargePointScheduleSetting(BaseModel):
+  start: Optional[str] = None
+  end: Optional[str] = None
+  action: Optional[str] = None
+
+
+class ChargePointDaySchedule(BaseModel):
+  day: Optional[str] = None
+  chargePointScheduleSettings: list[ChargePointScheduleSetting] = []

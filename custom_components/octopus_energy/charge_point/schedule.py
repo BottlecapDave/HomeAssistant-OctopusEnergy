@@ -87,11 +87,9 @@ class OctopusEnergyChargePointSchedule(BaseOctopusEnergyChargePointSensor, Resto
 
     schedule_by_day = {}
     for day_schedule in schedules:
-      day = day_schedule.get("day")
-      settings = day_schedule.get("chargePointScheduleSettings", []) or []
-      schedule_by_day[day] = [
-        { "start": setting.get("start"), "end": setting.get("end"), "action": setting.get("action") }
-        for setting in settings
+      schedule_by_day[day_schedule.day] = [
+        { "start": setting.start, "end": setting.end, "action": setting.action }
+        for setting in day_schedule.chargePointScheduleSettings
       ]
 
     self._attributes["schedule"] = schedule_by_day

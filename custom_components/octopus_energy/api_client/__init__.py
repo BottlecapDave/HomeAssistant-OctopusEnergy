@@ -22,7 +22,7 @@ from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSes
 from .wheel_of_fortune import WheelOfFortuneSpinsResponse
 from .free_electricity_sessions import FreeElectricitySession, FreeElectricitySessionsResponse
 from .heat_pump import HeatPumpResponse
-from .charge_point import OnboardedChargePoint
+from .charge_point import OnboardedChargePoint, ChargePointDaySchedule
 from ..utils.charge_point_power_stream import parse_charge_point_power_stream_chunk
 from .intelligent_device_settings import IntelligentDeviceSettingPreferenceSchedule, IntelligentDeviceSettings
 
@@ -1598,7 +1598,7 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
-  async def async_get_charge_point_schedules(self, account_id: str, device_uuid: str):
+  async def async_get_charge_point_schedules(self, account_id: str, device_uuid: str) -> list[ChargePointDaySchedule] | None:
     """Get the schedules for a given charge point"""
     await self.async_refresh_token()
 
@@ -1620,7 +1620,8 @@ class OctopusEnergyApiClient:
             and "data" in response
             and "chargePointSchedules" in response["data"]
             and response["data"]["chargePointSchedules"] is not None):
-          return response["data"]["chargePointSchedules"].get("schedules", [])
+          schedules = response["data"]["chargePointSchedules"].get("schedules", [])
+          return [ChargePointDaySchedule.model_validate(day_schedule) for day_schedule in schedules]
 
       return None
 
