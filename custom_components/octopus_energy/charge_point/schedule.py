@@ -14,7 +14,7 @@ from homeassistant.helpers.event import async_track_point_in_time
 from homeassistant.util.dt import (now as dt_now, utcnow)
 
 from .base import (BaseOctopusEnergyChargePointSensor)
-from ..api_client import OctopusEnergyApiClient
+from ..api_client import ApiException, OctopusEnergyApiClient
 from ..api_client.charge_point import OnboardedChargePoint
 from ..const import REFRESH_RATE_IN_MINUTES_CHARGE_POINT
 from ..utils.charge_point_schedule import compute_next_schedule_transition
@@ -122,6 +122,9 @@ class OctopusEnergyChargePointSchedule(BaseOctopusEnergyChargePointSensor, Resto
       self._last_evaluated = now
       self._request_attempts = 1
     except Exception as e:
+      if isinstance(e, ApiException) == False:
+        raise
+
       _LOGGER.debug(f"Failed to retrieve schedule for charge point '{self._charge_point_id}': {e}")
       self._request_attempts += 1
 
