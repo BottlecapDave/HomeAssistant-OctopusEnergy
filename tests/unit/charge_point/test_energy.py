@@ -1,6 +1,6 @@
 import pytest
 
-from custom_components.octopus_energy.charge_point.energy import integrate_energy_kwh
+from custom_components.octopus_energy.utils.charge_point_energy import integrate_energy_kwh
 
 @pytest.mark.asyncio
 async def test_when_charging_at_constant_power_then_energy_accumulates():

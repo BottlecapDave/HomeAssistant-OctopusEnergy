@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from custom_components.octopus_energy.charge_point.schedule import compute_next_schedule_transition
+from custom_components.octopus_energy.utils.charge_point_schedule import compute_next_schedule_transition
 
 @pytest.mark.asyncio
 async def test_when_a_period_starts_later_today_then_that_is_the_next_transition():
