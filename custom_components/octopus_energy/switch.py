@@ -107,16 +107,14 @@ def get_charge_point_switch_entities(hass, account_id: str, client, account_debu
 
   is_mocked = account_debug_override.mock_charge_point if account_debug_override is not None else False
   if is_mocked:
-    charge_point_id = get_mock_charge_point_id()
+    charge_point_ids = [get_mock_charge_point_id()]
+  else:
+    charge_point_ids = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_IDS] if DATA_CHARGE_POINT_IDS in hass.data[DOMAIN][account_id] else []
+
+  for charge_point_id in charge_point_ids:
     key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
     coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
     entities.extend(setup_charge_point_switches(hass, coordinator, client, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, is_mocked, entity_ids_to_migrate))
-  else:
-    charge_point_ids = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_IDS] if DATA_CHARGE_POINT_IDS in hass.data[DOMAIN][account_id] else []
-    for charge_point_id in charge_point_ids:
-      key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
-      coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
-      entities.extend(setup_charge_point_switches(hass, coordinator, client, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, is_mocked, entity_ids_to_migrate))
 
   return entities
 

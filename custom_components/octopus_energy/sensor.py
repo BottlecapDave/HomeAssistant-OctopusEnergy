@@ -616,16 +616,14 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   client = hass.data[DOMAIN][account_id][DATA_CLIENT]
   mock_charge_point = account_debug_override.mock_charge_point if account_debug_override is not None else False
   if mock_charge_point:
-    charge_point_id = get_mock_charge_point_id()
+    charge_point_ids = [get_mock_charge_point_id()]
+  else:
+    charge_point_ids = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_IDS] if DATA_CHARGE_POINT_IDS in hass.data[DOMAIN][account_id] else []
+
+  for charge_point_id in charge_point_ids:
     key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
     coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
     entities.extend(setup_charge_point_sensors(hass, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, coordinator, client, mock_charge_point))
-  else:
-    charge_point_ids = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_IDS] if DATA_CHARGE_POINT_IDS in hass.data[DOMAIN][account_id] else []
-    for charge_point_id in charge_point_ids:
-      key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
-      coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
-      entities.extend(setup_charge_point_sensors(hass, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, coordinator, client, mock_charge_point))
 
   # Migrate entity ids that might have changed
   # for item in entity_ids_to_migrate:
