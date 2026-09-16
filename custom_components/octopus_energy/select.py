@@ -1,7 +1,6 @@
 import logging
 
 from .utils.debug_overrides import async_get_account_debug_override
-from .utils.entity_migration import async_migrate_unique_ids
 from .intelligent.target_time_select import OctopusEnergyIntelligentTargetTimeSelect
 from .api_client import OctopusEnergyApiClient
 from .api_client.charge_point import OnboardedChargePoint
@@ -67,16 +66,6 @@ async def async_setup_intelligent_sensors(hass, config, async_add_entities):
     key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
     coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
     entities.extend(setup_charge_point_selects(hass, coordinator, client, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, is_mocked))
-
-  # One-off migration for the redundant "_select" suffix removed from unique_id;
-  # remove this call once deployed (see PR #1854 review).
-  async_migrate_unique_ids(hass, "select", [
-    {
-      "old": f"octopus_energy_charge_point_{charge_point_id}_control_mode_select",
-      "new": f"octopus_energy_charge_point_{charge_point_id}_control_mode"
-    }
-    for charge_point_id in charge_point_ids
-  ])
 
   async_add_entities(entities)
 

@@ -6,7 +6,6 @@ from homeassistant.helpers import entity_platform
 import homeassistant.helpers.config_validation as cv
 
 from .utils.debug_overrides import async_get_account_debug_override
-from .utils.entity_migration import async_migrate_unique_ids
 from .intelligent.smart_charge import OctopusEnergyIntelligentSmartCharge
 from .intelligent.bump_charge import OctopusEnergyIntelligentBumpCharge
 from .intelligent import get_intelligent_features
@@ -70,12 +69,7 @@ async def async_setup_intelligent_sensors(hass, config, async_add_entities):
     if intelligent_features.smart_charge_supported:
       entities.append(OctopusEnergyIntelligentBumpCharge(hass, dispatches_coordinator, client, intelligent_device, account_id, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False))
 
-  entity_ids_to_migrate = []
-  entities.extend(get_charge_point_switch_entities(hass, account_id, client, account_debug_override, entity_ids_to_migrate))
-
-  # One-off migration for the redundant "_switch" suffix removed from unique_id;
-  # remove this call once deployed (see PR #1854 review).
-  async_migrate_unique_ids(hass, "switch", entity_ids_to_migrate)
+  entities.extend(get_charge_point_switch_entities(hass, account_id, client, account_debug_override))
 
   if len(entities) > 0:
     platform = entity_platform.async_get_current_platform()
@@ -95,7 +89,7 @@ async def async_setup_intelligent_sensors(hass, config, async_add_entities):
 
   async_add_entities(entities)
 
-def get_charge_point_switch_entities(hass, account_id: str, client, account_debug_override, entity_ids_to_migrate):
+def get_charge_point_switch_entities(hass, account_id: str, client, account_debug_override):
   entities = []
 
   is_mocked = account_debug_override.mock_charge_point if account_debug_override is not None else False
@@ -107,11 +101,11 @@ def get_charge_point_switch_entities(hass, account_id: str, client, account_debu
   for charge_point_id in charge_point_ids:
     key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
     coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
-    entities.extend(setup_charge_point_switches(hass, coordinator, client, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, is_mocked, entity_ids_to_migrate))
+    entities.extend(setup_charge_point_switches(hass, coordinator, client, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, is_mocked))
 
   return entities
 
-def setup_charge_point_switches(hass, coordinator, client, account_id: str, charge_point_id: str, charge_point: OnboardedChargePoint, is_mocked: bool, entity_ids_to_migrate):
+def setup_charge_point_switches(hass, coordinator, client, account_id: str, charge_point_id: str, charge_point: OnboardedChargePoint, is_mocked: bool):
   entities = []
 
   if charge_point is None:
@@ -122,17 +116,7 @@ def setup_charge_point_switches(hass, coordinator, client, account_id: str, char
   entities.append(OctopusEnergyChargePointAwayModeSwitch(hass, coordinator, client, account_id, charge_point_id, charge_point, is_mocked))
   entities.append(OctopusEnergyChargePointBoostSwitch(hass, coordinator, client, account_id, charge_point_id, charge_point, is_mocked))
 
-  for suffix in ("eco_mode", "random_delay", "away_mode", "boost"):
-    entity_ids_to_migrate.append({
-      "old": f"octopus_energy_charge_point_{charge_point_id}_{suffix}_switch",
-      "new": f"octopus_energy_charge_point_{charge_point_id}_{suffix}"
-    })
-
   if charge_point.configuration is not None and charge_point.configuration.isChargeCableAutoLockAvailable:
     entities.append(OctopusEnergyChargePointCableAutoLockSwitch(hass, coordinator, client, account_id, charge_point_id, charge_point, is_mocked))
-    entity_ids_to_migrate.append({
-      "old": f"octopus_energy_charge_point_{charge_point_id}_cable_auto_lock_switch",
-      "new": f"octopus_energy_charge_point_{charge_point_id}_cable_auto_lock"
-    })
 
   return entities

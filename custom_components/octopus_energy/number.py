@@ -1,7 +1,6 @@
 import logging
 
 from .utils.debug_overrides import async_get_account_debug_override
-from .utils.entity_migration import async_migrate_unique_ids
 
 from .intelligent import get_intelligent_features
 from .intelligent.charge_target import OctopusEnergyIntelligentChargeTarget
@@ -72,16 +71,6 @@ async def async_setup_intelligent_sensors(hass, config):
     key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
     coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
     entities.extend(setup_charge_point_numbers(hass, coordinator, client, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, is_mocked))
-
-  # One-off migration for the redundant "_number" suffix removed from unique_id;
-  # remove this call once deployed (see PR #1854 review).
-  async_migrate_unique_ids(hass, "number", [
-    {
-      "old": f"octopus_energy_charge_point_{charge_point_id}_led_brightness_number",
-      "new": f"octopus_energy_charge_point_{charge_point_id}_led_brightness"
-    }
-    for charge_point_id in charge_point_ids
-  ])
 
   return entities
 
