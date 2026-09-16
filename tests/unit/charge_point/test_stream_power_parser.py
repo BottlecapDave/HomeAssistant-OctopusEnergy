@@ -36,6 +36,18 @@ def test_when_reading_is_null_then_none_returned_for_that_update():
   # Assert
   assert readings == [None]
 
+def test_when_reading_present_but_missing_value_then_none_returned_without_crashing():
+  # Arrange - present but malformed/partial reading, distinct from an
+  # explicit null - the stream shouldn't crash on this, just skip it
+  reading_body = '{"payload":{"data":{"electricChargerPowerReadings":{"unit":"KILOWATT"}}}}'
+  chunk = ("--graphql\n" + make_part(reading_body) + "--graphql\n").encode("utf-8")
+
+  # Act
+  buffer, readings = parse_charge_point_power_stream_chunk("", chunk)
+
+  # Assert
+  assert readings == [None]
+
 def test_when_chunk_split_across_reads_then_reading_only_parsed_once_boundary_arrives():
   # Arrange
   reading_body = '{"payload":{"data":{"electricChargerPowerReadings":{"value":1.5,"unit":"KILOWATT"}}}}'

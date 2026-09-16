@@ -1,5 +1,7 @@
 import json
 
+from pydantic import ValidationError
+
 from ..api_client.charge_point import ChargePointPowerReading
 
 # The multipart boundary used by the charge point live power stream. A fixed
@@ -57,6 +59,15 @@ def parse_charge_point_power_stream_chunk(buffer: str, chunk: bytes) -> tuple[st
         and payload_data["payload"]["data"] is not None):
       raw_reading = payload_data["payload"]["data"].get("electricChargerPowerReadings")
 
-    readings.append(ChargePointPowerReading.model_validate(raw_reading) if raw_reading is not None else None)
+    reading = None
+    if raw_reading is not None:
+      try:
+        reading = ChargePointPowerReading.model_validate(raw_reading)
+      except ValidationError:
+        # A reading present but missing/malformed fields (e.g. no "value")
+        # - treat like "no reading" rather than crashing the whole stream.
+        pass
+
+    readings.append(reading)
 
   return buffer, readings
