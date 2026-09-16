@@ -2,10 +2,11 @@ import logging
 
 import voluptuous as vol
 
-from homeassistant.helpers import entity_platform, entity_registry as er
+from homeassistant.helpers import entity_platform
 import homeassistant.helpers.config_validation as cv
 
 from .utils.debug_overrides import async_get_account_debug_override
+from .utils.entity_migration import async_migrate_unique_ids
 from .intelligent.smart_charge import OctopusEnergyIntelligentSmartCharge
 from .intelligent.bump_charge import OctopusEnergyIntelligentBumpCharge
 from .intelligent import get_intelligent_features
@@ -69,20 +70,12 @@ async def async_setup_intelligent_sensors(hass, config, async_add_entities):
     if intelligent_features.smart_charge_supported:
       entities.append(OctopusEnergyIntelligentBumpCharge(hass, dispatches_coordinator, client, intelligent_device, account_id, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False))
 
-  registry = er.async_get(hass)
   entity_ids_to_migrate = []
   entities.extend(get_charge_point_switch_entities(hass, account_id, client, account_debug_override, entity_ids_to_migrate))
 
   # One-off migration for the redundant "_switch" suffix removed from unique_id;
-  # remove this block once deployed (see PR #1854 review).
-  for item in entity_ids_to_migrate:
-    entity_id = registry.async_get_entity_id("switch", DOMAIN, item["old"])
-    if entity_id is not None:
-      try:
-        _LOGGER.info(f'Migrating entity id and unique id for {item["old"]} to {item["new"]}')
-        registry.async_update_entity(entity_id, new_entity_id=f'switch.{item["new"]}'.lower(), new_unique_id=item["new"])
-      except Exception as e:
-        _LOGGER.warning(f'Failed to migrate entity id and unique id for {item["old"]} to {item["new"]} - {e}')
+  # remove this call once deployed (see PR #1854 review).
+  async_migrate_unique_ids(hass, "switch", entity_ids_to_migrate)
 
   if len(entities) > 0:
     platform = entity_platform.async_get_current_platform()

@@ -1,8 +1,7 @@
 import logging
 
-from homeassistant.helpers import entity_registry as er
-
 from .utils.debug_overrides import async_get_account_debug_override
+from .utils.entity_migration import async_migrate_unique_ids
 
 from .intelligent import get_intelligent_features
 from .intelligent.charge_target import OctopusEnergyIntelligentChargeTarget
@@ -75,17 +74,14 @@ async def async_setup_intelligent_sensors(hass, config):
     entities.extend(setup_charge_point_numbers(hass, coordinator, client, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, is_mocked))
 
   # One-off migration for the redundant "_number" suffix removed from unique_id;
-  # remove this block once deployed (see PR #1854 review).
-  registry = er.async_get(hass)
-  for charge_point_id in charge_point_ids:
-    old_unique_id = f"octopus_energy_charge_point_{charge_point_id}_led_brightness_number"
-    new_unique_id = f"octopus_energy_charge_point_{charge_point_id}_led_brightness"
-    entity_id = registry.async_get_entity_id("number", DOMAIN, old_unique_id)
-    if entity_id is not None:
-      try:
-        registry.async_update_entity(entity_id, new_entity_id=f'number.{new_unique_id}'.lower(), new_unique_id=new_unique_id)
-      except Exception as e:
-        _LOGGER.warning(f'Failed to migrate entity id and unique id for {old_unique_id} to {new_unique_id} - {e}')
+  # remove this call once deployed (see PR #1854 review).
+  async_migrate_unique_ids(hass, "number", [
+    {
+      "old": f"octopus_energy_charge_point_{charge_point_id}_led_brightness_number",
+      "new": f"octopus_energy_charge_point_{charge_point_id}_led_brightness"
+    }
+    for charge_point_id in charge_point_ids
+  ])
 
   return entities
 
