@@ -22,7 +22,7 @@ from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSes
 from .wheel_of_fortune import WheelOfFortuneSpinsResponse
 from .free_electricity_sessions import FreeElectricitySession, FreeElectricitySessionsResponse
 from .heat_pump import HeatPumpResponse
-from .charge_point import OnboardedChargePoint, ChargePointDaySchedule
+from .charge_point import OnboardedChargePoint, ChargePointDaySchedule, ChargePointIdentity
 from ..utils.charge_point_power_stream import parse_charge_point_power_stream_chunk
 from .intelligent_device_settings import IntelligentDeviceSettingPreferenceSchedule, IntelligentDeviceSettings
 
@@ -1347,8 +1347,8 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
-  async def async_get_charge_point_ids(self, account_id: str, property_ids: list[str]):
-    """Get the user's charge points"""
+  async def async_get_charge_point_ids(self, account_id: str, property_ids: list[str]) -> list[ChargePointIdentity]:
+    """Get the user's charge points, paired with the property they belong to"""
     await self.async_refresh_token()
 
     try:
@@ -1356,7 +1356,7 @@ class OctopusEnergyApiClient:
       client = await self._create_client_session()
       url = f'{self._backend_base_url}/v1/graphql/'
 
-      charge_points = []
+      charge_points: list[ChargePointIdentity] = []
       for (property_id) in property_ids:
         payload = { "query": backend_charge_points_at_location_query.format(account_id=account_id, property_id=property_id) }
         headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
@@ -1369,12 +1369,10 @@ class OctopusEnergyApiClient:
               and response["data"]["chargePointsAtLocation"] is not None
               and response["data"]["chargePointsAtLocation"]["chargePoints"] is not None):
 
-            charge_points.extend(list(
-              map(
-                lambda charge_point: charge_point["deviceUUID"],
-                response["data"]["chargePointsAtLocation"]["chargePoints"]
-              )
-            ))
+            charge_points.extend([
+              ChargePointIdentity(deviceUUID=charge_point["deviceUUID"], propertyId=property_id)
+              for charge_point in response["data"]["chargePointsAtLocation"]["chargePoints"]
+            ])
 
       return charge_points
 

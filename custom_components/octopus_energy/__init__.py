@@ -484,24 +484,28 @@ async def async_setup_dependencies(hass, config, entry_id: str | None = None):
       _LOGGER.warning(f"Failed to retrieve mocked charge point information for {account_id} during startup. Loading from cache.")
       hass.data[DOMAIN][account_id][key] = ChargePointCoordinatorResult(now, 1, charge_point_id, await async_load_cached_charge_point(hass, account_id, charge_point_id))
   elif "property_ids" in account_info:
-    charge_point_ids = []
+    charge_point_identities = []
     try:
-      charge_point_ids = await client.async_get_charge_point_ids(account_id, account_info["property_ids"])
-      await async_save_cached_charge_point_ids(hass, account_id, charge_point_ids)
+      charge_point_identities = await client.async_get_charge_point_ids(account_id, account_info["property_ids"])
+      await async_save_cached_charge_point_ids(hass, account_id, charge_point_identities)
     except:
       _LOGGER.warning(f"Failed to retrieve charge point information for {account_id} during startup. Loading from cache.")
-      charge_point_ids = await async_load_cached_charge_point_ids(hass, account_id)
+      charge_point_identities = await async_load_cached_charge_point_ids(hass, account_id)
 
-    if charge_point_ids is None:
-      charge_point_ids = []
+    if charge_point_identities is None:
+      charge_point_identities = []
 
-    # Charge points are looked up per property, but not tracked against which
-    # property they belong to; assume the account's first property, matching
-    # the common single-property case (mirrors heat pump's simpler by-euid lookup).
-    property_id = account_info["property_ids"][0] if len(account_info["property_ids"]) > 0 else None
+    # Each charge point now carries the property it actually belongs to.
+    # Fallback to the account's first property only for a device missing
+    # from the pairing (e.g. an incomplete/older cache entry).
+    device_to_property_id = { identity.deviceUUID: identity.propertyId for identity in charge_point_identities }
+    fallback_property_id = account_info["property_ids"][0] if len(account_info["property_ids"]) > 0 else None
+
+    charge_point_ids = [identity.deviceUUID for identity in charge_point_identities]
 
     hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_IDS] = charge_point_ids
     for charge_point_id in charge_point_ids:
+      property_id = device_to_property_id.get(charge_point_id, fallback_property_id)
       await async_setup_charge_point_coordinator(hass, account_id, property_id, charge_point_id, False)
 
       key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)

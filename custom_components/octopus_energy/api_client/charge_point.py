@@ -51,3 +51,8 @@ class ChargePointDaySchedule(BaseModel):
 class ChargePointPowerReading(BaseModel):
   value: float
   unit: Optional[str] = None
+
+
+class ChargePointIdentity(BaseModel):
+  deviceUUID: str
+  propertyId: str
