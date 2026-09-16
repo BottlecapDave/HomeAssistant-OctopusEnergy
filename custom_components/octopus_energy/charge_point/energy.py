@@ -54,6 +54,11 @@ class OctopusEnergyChargePointEnergy(BaseOctopusEnergyChargePointSensor, Restore
   Starts from 0 when first added - there's no way to know the charger's
   actual historical lifetime total from the API, so this only reflects
   consumption from when this sensor was first created onward.
+
+  The running integration only lives in memory: a HA restart mid-charge
+  resumes from the last-saved (pre-restart) total rather than the true
+  total at restart time, silently losing whatever was drawn during the
+  gap. There's no live_power history to replay this from after a restart.
   """
 
   def __init__(self, hass: HomeAssistant, charge_point_id: str, charge_point: OnboardedChargePoint, live_power_entity_id: str):

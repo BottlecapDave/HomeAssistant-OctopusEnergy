@@ -34,7 +34,7 @@ This represents how charging is currently being controlled. The possible values 
 
 ## Control Mode
 
-`select.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_control_mode_select`
+`select.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_control_mode`
 
 This represents, and can be used to change, whether the charger is being controlled automatically or manually. The possible values are
 
@@ -43,7 +43,7 @@ This represents, and can be used to change, whether the charger is being control
 
 ## LED Brightness
 
-`number.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_led_brightness_number`
+`number.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_led_brightness`
 
 This represents, and can be used to change, the brightness of the charger's status LED, as a percentage between 0 and 100.
 
@@ -81,11 +81,27 @@ This represents the charger's cumulative energy consumption, suitable for adding
 
     This starts from 0 when the sensor is first created - there's no way to know your charger's actual historical lifetime total from the API, so it only reflects consumption from that point onward, not your charger's full lifetime usage.
 
+!!! warning
+
+    The running total is only kept in memory while charging - it does not survive a Home Assistant restart mid-session. If HA restarts while the charger is actively drawing power, the total resets to its last-saved value and resumes accumulating from there, silently missing whatever energy was drawn during the gap.
+
 ## Schedule
 
 `sensor.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_schedule`
 
 This represents a summary of the charger's configured weekly charging schedule. The full schedule (every day and period) is available in the sensor's attributes.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `schedule` | `dict` | The full weekly schedule, keyed by day name (`MONDAY`-`SUNDAY`). Each day maps to a list of scheduled periods (see below). Days with no scheduled periods are omitted. |
+
+Each scheduled period item will include the following attributes
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `start` | `string` | The period's start time, as `HH:MM` |
+| `end` | `string` | The period's end time, as `HH:MM` |
+| `action` | `string` | The scheduled action for the period (e.g. `ON`) |
 
 !!! note
 
@@ -97,7 +113,7 @@ This represents a summary of the charger's configured weekly charging schedule. 
 
 ## Random Delay
 
-`switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_random_delay_switch`
+`switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_random_delay`
 
 This represents, and can be used to turn on or off, random delay - a small random delay before charging starts to help smooth demand across the grid.
 
@@ -109,19 +125,19 @@ This determines if the charger is currently connected to the internet.
 
 ## Eco Mode
 
-`switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_eco_mode_switch`
+`switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_eco_mode`
 
 This represents, and can be used to turn on or off, eco mode.
 
 ## Away Mode
 
-`switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_away_mode_switch`
+`switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_away_mode`
 
 This represents, and can be used to turn on or off, away mode.
 
 ## Cable Auto Lock
 
-`switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_cable_auto_lock_switch`
+`switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_cable_auto_lock`
 
 This represents, and can be used to turn on or off, the charge cable auto lock.
 
@@ -131,7 +147,7 @@ This represents, and can be used to turn on or off, the charge cable auto lock.
 
 ## Boost
 
-`switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_boost_switch`
+`switch.octopus_energy_charge_point_{{CHARGE_POINT_ID}}_boost`
 
 This can be used to start or stop a boost charge. Turning this on starts a boost charge for a fixed 1 hour duration; see the [boost end time](#boost-end-time) sensor for exactly when it'll finish.
 
