@@ -514,6 +514,15 @@ Each item within `baselines` consists of the following attributes
 
     You can use the [data_last_retrieved sensor](./diagnostics.md#free-electricity-sessions-data-last-retrieved) to determine when the underlying data was last retrieved from the OE servers.
 
+## Octoplus Weekend Happy Hours
+
+`sensor.octopus_energy_{{ACCOUNT_ID}}_weekend_happy_hours`
+
+Determines the current number of weekend happy hours available for use. This sensor will only be available if you have enrolled on the octoplus programme. 
+
+!!! note
+    This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor.
+
 ## Services
 
 There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services.md#octoplus).

@@ -4,6 +4,7 @@
         "refresh_previous_consumption_data": "mdi:refresh",
         "join_octoplus_saving_session_event": "mdi:leaf",
         "join_octoplus_power_down_session_event": "mdi:leaf",
+        "join_octoplus_weekend_happy_hour_event": "mdi:calendar",
         "spin_wheel_of_fortune": "mdi:star-circle",
         "update_cost_tracker": "mdi:invoice-edit",
         "reset_cost_tracker": "mdi:refresh",

@@ -44,6 +44,7 @@ from .cost_tracker.cost_tracker_month import OctopusEnergyCostTrackerMonthSensor
 from .octoplus.free_electricity_session_baseline import OctopusEnergyFreeElectricitySessionBaseline
 from .octoplus.power_up_baseline import OctopusEnergyPowerUpBaseline
 from .octoplus.power_down_baseline import OctopusEnergyPowerDownBaseline
+from .octoplus.weekend_happy_hours import OctopusEnergyOctoplusWeekendHappyHours
 from .diagnostics_entities.account_data_last_retrieved import OctopusEnergyAccountDataLastRetrieved
 from .diagnostics_entities.electricity_current_consumption_home_pro_data_last_retrieved import OctopusEnergyElectricityCurrentConsumptionHomeProDataLastRetrieved
 from .diagnostics_entities.gas_current_consumption_data_last_retrieved import OctopusEnergyGasCurrentConsumptionDataLastRetrieved
@@ -359,6 +360,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
 
   if octoplus_enrolled:
     entities.append(OctopusEnergyOctoplusPoints(hass, client, account_id))
+    entities.append(OctopusEnergyOctoplusWeekendHappyHours(hass, power_up_down_coordinator, account_id))
 
     if legacy_saving_sessions_free_electricity_present:
       entities.append(OctopusEnergyFreeElectricitySessionsDataLastRetrieved(hass, power_up_down_coordinator, account_id))
@@ -785,8 +787,6 @@ async def async_setup_cost_sensors(hass: HomeAssistant, entry, config, async_add
 
   mpan = config[CONFIG_COST_TRACKER_MPAN]
 
-  registry = er.async_get(hass)
-
   now = utcnow()
   for point in account_info["electricity_meter_points"]:
     tariff = get_active_tariff(now, point["agreements"])
@@ -813,12 +813,11 @@ async def async_setup_cost_sensors(hass: HomeAssistant, entry, config, async_add
             device_entry = device_registry.async_get(device_id)
 
           sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, entry, config, device_entry)
-          sensor_entity_id = registry.async_get_entity_id("sensor", DOMAIN, sensor.unique_id)
 
           entities = [
             sensor,
-            OctopusEnergyCostTrackerWeekSensor(hass, entry, config, device_entry, sensor_entity_id if sensor_entity_id is not None else sensor.entity_id),
-            OctopusEnergyCostTrackerMonthSensor(hass, entry, config, device_entry, sensor_entity_id if sensor_entity_id is not None else sensor.entity_id),
+            OctopusEnergyCostTrackerWeekSensor(hass, entry, config, device_entry, sensor.unique_id),
+            OctopusEnergyCostTrackerMonthSensor(hass, entry, config, device_entry, sensor.unique_id),
           ]
           
           debug_override = await async_get_meter_debug_override(hass, mpan, serial_number)
@@ -828,11 +827,10 @@ async def async_setup_cost_sensors(hass: HomeAssistant, entry, config, async_add
               peak_type = get_peak_type(total_unique_rates, unique_rate_index)
               if peak_type is not None:
                 peak_sensor = OctopusEnergyCostTrackerSensor(hass, coordinator, entry, config, device_entry, peak_type)
-                peak_sensor_entity_id = registry.async_get_entity_id("sensor", DOMAIN, peak_sensor.unique_id)
                 
                 entities.append(peak_sensor)
-                entities.append(OctopusEnergyCostTrackerWeekSensor(hass, entry, config, device_entry, peak_sensor_entity_id if peak_sensor_entity_id is not None else f"sensor.{peak_sensor.unique_id}", peak_type))
-                entities.append(OctopusEnergyCostTrackerMonthSensor(hass, entry, config, device_entry, peak_sensor_entity_id if peak_sensor_entity_id is not None else f"sensor.{peak_sensor.unique_id}", peak_type))
+                entities.append(OctopusEnergyCostTrackerWeekSensor(hass, entry, config, device_entry, peak_sensor.unique_id, peak_type))
+                entities.append(OctopusEnergyCostTrackerMonthSensor(hass, entry, config, device_entry, peak_sensor.unique_id, peak_type))
 
           async_add_entities(entities)
           break

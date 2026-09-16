@@ -45,6 +45,20 @@ join_octoplus_power_down_session_event:
       selector:
         text:
 
+join_octoplus_weekend_happy_hour_event:
+  name: Join Octoplus weekend happy hour event
+  description: Joins a given Octoplus weekend happy hour event.
+  target:
+    entity:
+      integration: octopus_energy
+      domain: event
+  fields:
+    event_code:
+      name: Event code
+      description: The code of the event that is to be joined.
+      selector:
+        text:
+
 spin_wheel_of_fortune:
   name: Spin wheel of fortune
   description: Spins the wheel of fortune for a given energy type
