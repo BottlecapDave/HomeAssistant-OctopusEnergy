@@ -41,7 +41,7 @@ class OctopusEnergyChargePointEcoModeSwitch(CoordinatorEntity, BaseOctopusEnergy
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_charge_point_{self._charge_point_id}_eco_mode_switch"
+    return f"octopus_energy_charge_point_{self._charge_point_id}_eco_mode"
 
   @property
   def name(self):

@@ -1,5 +1,7 @@
 import logging
 
+from homeassistant.helpers import entity_registry as er
+
 from .utils.debug_overrides import async_get_account_debug_override
 from .intelligent.target_time_select import OctopusEnergyIntelligentTargetTimeSelect
 from .api_client import OctopusEnergyApiClient
@@ -58,16 +60,27 @@ async def async_setup_intelligent_sensors(hass, config, async_add_entities):
 
   is_mocked = account_debug_override.mock_charge_point if account_debug_override is not None else False
   if is_mocked:
-    charge_point_id = get_mock_charge_point_id()
+    charge_point_ids = [get_mock_charge_point_id()]
+  else:
+    charge_point_ids = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_IDS] if DATA_CHARGE_POINT_IDS in hass.data[DOMAIN][account_id] else []
+
+  for charge_point_id in charge_point_ids:
     key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
     coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
     entities.extend(setup_charge_point_selects(hass, coordinator, client, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, is_mocked))
-  else:
-    charge_point_ids = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_IDS] if DATA_CHARGE_POINT_IDS in hass.data[DOMAIN][account_id] else []
-    for charge_point_id in charge_point_ids:
-      key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
-      coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
-      entities.extend(setup_charge_point_selects(hass, coordinator, client, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, is_mocked))
+
+  # One-off migration for the redundant "_select" suffix removed from unique_id;
+  # remove this block once deployed (see PR #1854 review).
+  registry = er.async_get(hass)
+  for charge_point_id in charge_point_ids:
+    old_unique_id = f"octopus_energy_charge_point_{charge_point_id}_control_mode_select"
+    new_unique_id = f"octopus_energy_charge_point_{charge_point_id}_control_mode"
+    entity_id = registry.async_get_entity_id("select", DOMAIN, old_unique_id)
+    if entity_id is not None:
+      try:
+        registry.async_update_entity(entity_id, new_entity_id=f'select.{new_unique_id}'.lower(), new_unique_id=new_unique_id)
+      except Exception as e:
+        _LOGGER.warning(f'Failed to migrate entity id and unique id for {old_unique_id} to {new_unique_id} - {e}')
 
   async_add_entities(entities)
 

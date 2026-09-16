@@ -46,7 +46,7 @@ class OctopusEnergyChargePointLedBrightnessNumber(CoordinatorEntity, RestoreNumb
   @property
   def unique_id(self):
     """The id of the sensor."""
-    return f"octopus_energy_charge_point_{self._charge_point_id}_led_brightness_number"
+    return f"octopus_energy_charge_point_{self._charge_point_id}_led_brightness"
 
   @property
   def name(self):

@@ -1,5 +1,7 @@
 import logging
 
+from homeassistant.helpers import entity_registry as er
+
 from .utils.debug_overrides import async_get_account_debug_override
 
 from .intelligent import get_intelligent_features
@@ -63,16 +65,27 @@ async def async_setup_intelligent_sensors(hass, config):
 
   is_mocked = account_debug_override.mock_charge_point if account_debug_override is not None else False
   if is_mocked:
-    charge_point_id = get_mock_charge_point_id()
+    charge_point_ids = [get_mock_charge_point_id()]
+  else:
+    charge_point_ids = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_IDS] if DATA_CHARGE_POINT_IDS in hass.data[DOMAIN][account_id] else []
+
+  for charge_point_id in charge_point_ids:
     key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
     coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
     entities.extend(setup_charge_point_numbers(hass, coordinator, client, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, is_mocked))
-  else:
-    charge_point_ids = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_IDS] if DATA_CHARGE_POINT_IDS in hass.data[DOMAIN][account_id] else []
-    for charge_point_id in charge_point_ids:
-      key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
-      coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
-      entities.extend(setup_charge_point_numbers(hass, coordinator, client, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, is_mocked))
+
+  # One-off migration for the redundant "_number" suffix removed from unique_id;
+  # remove this block once deployed (see PR #1854 review).
+  registry = er.async_get(hass)
+  for charge_point_id in charge_point_ids:
+    old_unique_id = f"octopus_energy_charge_point_{charge_point_id}_led_brightness_number"
+    new_unique_id = f"octopus_energy_charge_point_{charge_point_id}_led_brightness"
+    entity_id = registry.async_get_entity_id("number", DOMAIN, old_unique_id)
+    if entity_id is not None:
+      try:
+        registry.async_update_entity(entity_id, new_entity_id=f'number.{new_unique_id}'.lower(), new_unique_id=new_unique_id)
+      except Exception as e:
+        _LOGGER.warning(f'Failed to migrate entity id and unique id for {old_unique_id} to {new_unique_id} - {e}')
 
   return entities
 
