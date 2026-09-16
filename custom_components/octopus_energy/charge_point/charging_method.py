@@ -31,11 +31,11 @@ charging_method_options = [
 class OctopusEnergyChargePointChargingMethod(CoordinatorEntity, BaseOctopusEnergyChargePointSensor, RestoreSensor):
   """Sensor for displaying the charging method of a charge point."""
 
-  def __init__(self, hass: HomeAssistant, coordinator, charge_point_id: str, charge_point: OnboardedChargePoint):
+  def __init__(self, hass: HomeAssistant, coordinator, account_id: str, charge_point_id: str, charge_point: OnboardedChargePoint):
     """Init sensor."""
     # Pass coordinator to base class
     CoordinatorEntity.__init__(self, coordinator)
-    BaseOctopusEnergyChargePointSensor.__init__(self, hass, charge_point_id, charge_point)
+    BaseOctopusEnergyChargePointSensor.__init__(self, hass, account_id, charge_point_id, charge_point)
 
     self._state = None
     self._last_updated = None

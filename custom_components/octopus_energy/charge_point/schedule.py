@@ -46,7 +46,7 @@ class OctopusEnergyChargePointSchedule(BaseOctopusEnergyChargePointSensor, Resto
 
   def __init__(self, hass: HomeAssistant, client: OctopusEnergyApiClient, account_id: str, charge_point_id: str, charge_point: OnboardedChargePoint, coordinator):
     """Init sensor."""
-    BaseOctopusEnergyChargePointSensor.__init__(self, hass, charge_point_id, charge_point)
+    BaseOctopusEnergyChargePointSensor.__init__(self, hass, account_id, charge_point_id, charge_point)
 
     self._client = client
     self._account_id = account_id

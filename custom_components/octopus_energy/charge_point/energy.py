@@ -43,9 +43,9 @@ class OctopusEnergyChargePointEnergy(BaseOctopusEnergyChargePointSensor, Restore
   gap. There's no live_power history to replay this from after a restart.
   """
 
-  def __init__(self, hass: HomeAssistant, charge_point_id: str, charge_point: OnboardedChargePoint, live_power_entity_id: str):
+  def __init__(self, hass: HomeAssistant, account_id: str, charge_point_id: str, charge_point: OnboardedChargePoint, live_power_entity_id: str):
     """Init sensor."""
-    BaseOctopusEnergyChargePointSensor.__init__(self, hass, charge_point_id, charge_point)
+    BaseOctopusEnergyChargePointSensor.__init__(self, hass, account_id, charge_point_id, charge_point)
 
     self._state = None
     self._last_reading_at: datetime | None = None
