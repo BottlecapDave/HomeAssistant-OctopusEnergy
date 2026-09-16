@@ -106,6 +106,7 @@ class ChargePointDataUpdateCoordinator(DataUpdateCoordinator):
     self.__normal_interval = timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS)
     self.__burst_task: asyncio.Task | None = None
     self.__force_next_refresh = False
+    self.__last_burst_started_at: datetime | None = None
 
     super().__init__(
       hass,
@@ -151,7 +152,20 @@ class ChargePointDataUpdateCoordinator(DataUpdateCoordinator):
     """(Re)start a short burst of frequent, forced polling. Cancels and
     restarts if one is already running, so overlapping triggers (e.g.
     boost turned on then off again within the window) just extend it
-    rather than running two bursts in parallel."""
+    rather than running two bursts in parallel.
+
+    No-ops if a burst was already (re)started within the last
+    interval_seconds - this is the one place every trigger (boost on/off,
+    boost service, scheduled transitions) funnels through, so it also
+    guards against e.g. rapidly toggling boost being used to sustain
+    forced frequent polling indefinitely.
+    """
+    now = utcnow()
+    if (self.__last_burst_started_at is not None
+        and (now - self.__last_burst_started_at).total_seconds() < interval_seconds):
+      return
+
+    self.__last_burst_started_at = now
     if self.__burst_task is not None and not self.__burst_task.done():
       self.__burst_task.cancel()
     self.__burst_task = self.hass.async_create_task(self.__async_run_burst(interval_seconds, duration_seconds))
@@ -166,6 +180,15 @@ class ChargePointDataUpdateCoordinator(DataUpdateCoordinator):
         # Octopus's side yet, so an immediate poll can catch the charger
         # still in its pre-change state and read as an instant revert.
         await asyncio.sleep(interval_seconds)
+
+        # Already backed off after repeated failures - don't force through
+        # that backoff just because a burst is active. Let the normal
+        # next_refresh-gated path decide instead, same as every other
+        # coordinator refresh, rather than continuing to hammer a server
+        # that's already failing.
+        if self.data is not None and self.data.request_attempts > 1:
+          break
+
         self.__force_next_refresh = True
         await self.async_request_refresh()
     finally:
