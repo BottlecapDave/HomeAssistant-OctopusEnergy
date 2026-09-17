@@ -249,6 +249,23 @@ Retrieve the intelligent dispatch history which was active for a given point in 
 
 For removing all external statistics that are associated with meters that don't have an active tariff. This is useful if you've been using the integration and obtained new smart meters.
 
+### octopus_energy.run_graphql_query
+
+Runs an arbitrary graphql query/mutation against a given account. This is intended to be used for debugging purposes only, and is not intended to be relied upon within automations/scripts.
+
+!!! warning
+
+    This service can only be called once every minute.
+
+| Attribute       | Optional | Description                                                                 |
+| --------------- | -------- | ---------------------------------------------------------------------------- |
+| `data.account_id` | `no`   | The id of the account the query should be run against.                       |
+| `data.query`      | `no`   | The graphql query/mutation to run.                                           |
+| `data.variables`  | `yes`  | The variables to supply alongside the query/mutation.                        |
+| `data.target`     | `yes`  | Which graphql endpoint to target - `octopus` or `kraken`. |
+
+This service returns the raw response (including any `errors`) from the graphql endpoint, so it can be inspected when reporting/diagnosing issues.
+
 ### octopus_energy.refresh_previous_consumption_data
 
 For refreshing the consumption/cost information for a given previous consumption entity. This is useful when you've just installed the integration and want old data brought in or a previous consumption sensor fails to import (e.g. data becomes available outside of the configured offset). The service will raise a notification when the refreshing starts and finishes.

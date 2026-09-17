@@ -1069,8 +1069,39 @@ class OctopusEnergyApiClient:
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
-    
+
     return None
+
+  async def async_run_graphql_query(self, query: str, variables: dict | None = None, target: str = "octopus"):
+    """Runs an arbitrary graphql query/mutation. This is intended to be used for debugging purposes only.
+
+    `target` determines which graphql endpoint the query is sent to - "octopus" for the standard api, or "kraken" for the backend api.
+    """
+    await self.async_refresh_token()
+
+    if target == "octopus":
+      base_url = self._backend_base_url
+    elif target == "kraken":
+      base_url = self._base_url
+    else:
+      raise ValueError(f"Unknown target '{target}' - expected 'octopus' or 'kraken'")
+
+    try:
+      client = await self._create_client_session()
+      url = f'{base_url}/v1/graphql/'
+
+      payload = { "query": query }
+      if variables is not None:
+        payload["variables"] = variables
+
+      headers = { "Authorization": f"{self._graphql_token}" }
+      async with client.post(url, json=payload, headers=headers) as response:
+        # Errors are surfaced to the caller as part of the response, rather than raised, so they can be inspected for debugging purposes
+        return await self.__async_read_response__(response, url, ignore_errors=True)
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
 
   async def async_get_heat_pump_ids(self, account_id: str, property_ids: list[str]):
     """Get the user's heat pump ids"""

@@ -1,10 +1,14 @@
 import logging
 from datetime import datetime, timedelta
 
-from homeassistant.exceptions import ConfigEntryNotReady
+import voluptuous as vol
+import homeassistant.helpers.config_validation as cv
+
+from homeassistant.core import SupportsResponse
+from homeassistant.exceptions import ConfigEntryNotReady, ServiceValidationError
 from homeassistant.helpers import device_registry as dr
 from homeassistant.components.recorder import get_instance
-from homeassistant.util.dt import (utcnow)
+from homeassistant.util.dt import (utcnow, as_local)
 from homeassistant.const import (
     EVENT_HOMEASSISTANT_STOP
 )
@@ -103,6 +107,8 @@ from .api_client import ApiException, AuthenticationException, OctopusEnergyApiC
 _LOGGER = logging.getLogger(__name__)
 
 SCAN_INTERVAL = timedelta(minutes=1)
+
+RUN_GRAPHQL_QUERY_MINIMUM_INTERVAL = timedelta(minutes=1)
 
 async def async_remove_config_entry_device(
   hass, config_entry, device_entry
@@ -526,6 +532,38 @@ def setup(hass, config):
       _LOGGER.debug(f'Removing the following external statistics: {external_statistic_ids_to_remove}')
 
   hass.services.register(DOMAIN, "purge_invalid_external_statistic_ids", purge_invalid_external_statistic_ids)
+
+  last_graphql_query_at: datetime | None = None
+
+  async def run_graphql_query(call):
+    """Handle the service call."""
+    nonlocal last_graphql_query_at
+
+    current = utcnow()
+    if last_graphql_query_at is not None and (last_graphql_query_at + RUN_GRAPHQL_QUERY_MINIMUM_INTERVAL) > current:
+      raise ServiceValidationError(f"This service can only be called once every minute. Please try again after {as_local((last_graphql_query_at + RUN_GRAPHQL_QUERY_MINIMUM_INTERVAL)).isoformat()}")
+
+    account_id = call.data[CONFIG_ACCOUNT_ID]
+    if DOMAIN not in hass.data or account_id not in hass.data[DOMAIN] or DATA_CLIENT not in hass.data[DOMAIN][account_id]:
+      raise ServiceValidationError(f"Could not find an account with the id '{account_id}'")
+
+    last_graphql_query_at = current
+
+    client = hass.data[DOMAIN][account_id][DATA_CLIENT]
+    return await client.async_run_graphql_query(call.data["query"], call.data.get("variables"), call.data["target"])
+
+  hass.services.register(
+    DOMAIN,
+    "run_graphql_query",
+    run_graphql_query,
+    schema=vol.Schema({
+      vol.Required(CONFIG_ACCOUNT_ID): cv.string,
+      vol.Required("query"): cv.string,
+      vol.Optional("variables"): dict,
+      vol.Optional("target", default="octopus"): vol.In(["octopus", "kraken"]),
+    }),
+    supports_response=SupportsResponse.ONLY
+  )
 
   # Return boolean to indicate that initialization was successful.
   return True
