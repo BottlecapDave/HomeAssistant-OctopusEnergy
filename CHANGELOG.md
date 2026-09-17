@@ -1,3 +1,20 @@
+# [19.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v19.0.1...v19.1.0) (2026-09-14)
+
+
+### Bug Fixes
+
+* Fixed issue where new state classes or device classes were not persisted for certain sensors (15 minutes dev time) ([cb8a3ba](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cb8a3ba8586fc7612906dc95d61e1c07f6e11e66))
+* Fixed issue with cost trackers where the same sensor was tracked usng different mpans (30 minutes dev time) ([f9cabc3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f9cabc3461ea8b66d21b96686352ee56bf2c409f))
+* use async_get_device_by_identifier with fallback to resolve Core 2027.8 deprecation ([9495843](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9495843c13e138780305cadb8ddfb061f67dbe7c))
+* use async_get_device_by_identifier with fallback to resolve Core 2027.8 deprecation (Thanks @IvanAlekseev) ([6b13104](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6b1310421112f739a4803a485e9b5e07646bf608))
+* Use update listener for config entry reloads ([e00c275](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e00c2751acdfba50bdb939f60f47d7de31b7c8f8))
+* Use update listener for config entry reloads (Thanks [@h](https://github.com/h)Coureau) ([1480143](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/148014300db948ca65aca548f3bba5ca4e11816a)), closes [#1843](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1843)
+
+
+### Features
+
+* Added sensor to indicate number of weekend happy hour sessions are available and service for joining weekend happy hour sessions (4 hours dev time) ([45a0201](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/45a020151d3d74709c1745c705f5ff031e5f71c5))
+
 ## [19.0.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v19.0.0...v19.0.1) (2026-08-23)
 
 
