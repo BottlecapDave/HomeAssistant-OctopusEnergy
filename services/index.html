@@ -980,6 +980,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#octopus_energyset_charging_duration_capped" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.set_charging_duration_capped
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#octopus_energyrefresh_intelligent_dispatches" class="md-nav__link">
     <span class="md-ellipsis">
       octopus_energy.refresh_intelligent_dispatches
@@ -1031,6 +1040,15 @@
   <a href="#octopus_energypurge_invalid_external_statistic_ids" class="md-nav__link">
     <span class="md-ellipsis">
       octopus_energy.purge_invalid_external_statistic_ids
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#octopus_energyrun_graphql_query" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.run_graphql_query
     </span>
   </a>
   
@@ -1803,6 +1821,15 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#octopus_energyset_charging_duration_capped" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.set_charging_duration_capped
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#octopus_energyrefresh_intelligent_dispatches" class="md-nav__link">
     <span class="md-ellipsis">
       octopus_energy.refresh_intelligent_dispatches
@@ -1854,6 +1881,15 @@
   <a href="#octopus_energypurge_invalid_external_statistic_ids" class="md-nav__link">
     <span class="md-ellipsis">
       octopus_energy.purge_invalid_external_statistic_ids
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#octopus_energyrun_graphql_query" class="md-nav__link">
+    <span class="md-ellipsis">
+      octopus_energy.run_graphql_query
     </span>
   </a>
   
@@ -2282,6 +2318,29 @@
 </table>
 <h2 id="intelligent">Intelligent<a class="headerlink" href="#intelligent" title="Permanent link">#</a></h2>
 <p>The following services are available if you are on an intelligent tariff.</p>
+<h3 id="octopus_energyset_charging_duration_capped">octopus_energy.set_charging_duration_capped<a class="headerlink" href="#octopus_energyset_charging_duration_capped" title="Permanent link">#</a></h3>
+<p>Enables or disables the charging duration cap for a given intelligent device.</p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Optional</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>target.entity_id</code></td>
+<td><code>no</code></td>
+<td>The smart charge switch entity for the intelligent device you want to update (e.g. <code>switch.octopus_energy_{{DEVICE_ID}}_intelligent_smart_charge</code>).</td>
+</tr>
+<tr>
+<td><code>data.is_enabled</code></td>
+<td><code>no</code></td>
+<td>Determines if the charging duration cap is enabled or disabled.</td>
+</tr>
+</tbody>
+</table>
 <h3 id="octopus_energyrefresh_intelligent_dispatches">octopus_energy.refresh_intelligent_dispatches<a class="headerlink" href="#octopus_energyrefresh_intelligent_dispatches" title="Permanent link">#</a></h3>
 <p>Refreshes intelligent dispatches for a given account.</p>
 <div class="admonition info">
@@ -2344,6 +2403,44 @@
 <h2 id="miscellaneous">Miscellaneous<a class="headerlink" href="#miscellaneous" title="Permanent link">#</a></h2>
 <h3 id="octopus_energypurge_invalid_external_statistic_ids">octopus_energy.purge_invalid_external_statistic_ids<a class="headerlink" href="#octopus_energypurge_invalid_external_statistic_ids" title="Permanent link">#</a></h3>
 <p>For removing all external statistics that are associated with meters that don't have an active tariff. This is useful if you've been using the integration and obtained new smart meters.</p>
+<h3 id="octopus_energyrun_graphql_query">octopus_energy.run_graphql_query<a class="headerlink" href="#octopus_energyrun_graphql_query" title="Permanent link">#</a></h3>
+<p>Runs an arbitrary graphql query/mutation against a given account. This is intended to be used for debugging purposes only, and is not intended to be relied upon within automations/scripts.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>This service can only be called once every minute.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Optional</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data.account_id</code></td>
+<td><code>no</code></td>
+<td>The id of the account the query should be run against.</td>
+</tr>
+<tr>
+<td><code>data.query</code></td>
+<td><code>no</code></td>
+<td>The graphql query/mutation to run.</td>
+</tr>
+<tr>
+<td><code>data.variables</code></td>
+<td><code>yes</code></td>
+<td>The variables to supply alongside the query/mutation.</td>
+</tr>
+<tr>
+<td><code>data.target</code></td>
+<td><code>yes</code></td>
+<td>Which graphql endpoint to target - <code>octopus</code> or <code>kraken</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>This service returns the raw response (including any <code>errors</code>) from the graphql endpoint, so it can be inspected when reporting/diagnosing issues.</p>
 <h3 id="octopus_energyrefresh_previous_consumption_data">octopus_energy.refresh_previous_consumption_data<a class="headerlink" href="#octopus_energyrefresh_previous_consumption_data" title="Permanent link">#</a></h3>
 <p>For refreshing the consumption/cost information for a given previous consumption entity. This is useful when you've just installed the integration and want old data brought in or a previous consumption sensor fails to import (e.g. data becomes available outside of the configured offset). The service will raise a notification when the refreshing starts and finishes.</p>
 <p>This service is only available for the following sensors</p>
