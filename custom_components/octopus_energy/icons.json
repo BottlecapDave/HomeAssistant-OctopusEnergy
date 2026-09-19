@@ -16,6 +16,8 @@
         "set_heat_pump_flow_temp_config": "mdi:heat-pump",
         "set_heat_pump_hush_mode": "mdi:heat-pump",
         "refresh_intelligent_dispatches": "mdi:refresh",
-        "get_point_in_time_intelligent_dispatch_history": "mdi:history"
+        "get_point_in_time_intelligent_dispatch_history": "mdi:history",
+        "set_charging_duration_capped": "mdi:ev-plug-type1",
+        "clear_all_cache_files": "mdi:notification-clear-all"
     }
 }

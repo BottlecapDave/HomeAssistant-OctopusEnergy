@@ -249,6 +249,10 @@ Retrieve the intelligent dispatch history which was active for a given point in 
 
 For removing all external statistics that are associated with meters that don't have an active tariff. This is useful if you've been using the integration and obtained new smart meters.
 
+### octopus_energy.clear_all_cache_files
+
+Removes all cache files that the integration has stored on disk (e.g. account, tariff and intelligent device caches), forcing the affected data to be reloaded from the API. This is useful if you suspect cached data has become stale or corrupted.
+
 ### octopus_energy.run_graphql_query
 
 Runs an arbitrary graphql query/mutation against a given account. This is intended to be used for debugging purposes only, and is not intended to be relied upon within automations/scripts.
