@@ -90,7 +90,7 @@ trigger:
 condition:
 - condition: template
   value_template: >-
-    {{ (states(weekend_happy_hours_entity) | int(0)) > 1 or ((state_attr(power_up_events_entity, 'available_events') | default([], true)) | length > 1) }}
+    {{ (states(weekend_happy_hours_entity) | int(0)) > 1 and ((state_attr(power_up_events_entity, 'available_events') | default([], true)) | length > 1) }}
 - condition: template
   value_template: >-
     {{ ((state_attr(electricity_rates_current_day_entity, 'rates') | default([], true)) + (state_attr(electricity_rates_next_day_entity, 'rates') | default([], true))) | length > 0 }}
