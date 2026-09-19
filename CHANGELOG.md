@@ -1,3 +1,21 @@
+# [19.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v19.1.0...v19.2.0) (2026-09-19)
+
+
+### Bug Fixes
+
+* back off token retrieval after server errors ([4321836](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/432183684bd205e12cf20c2e7d1ed49c7d82bd67))
+* back off token retrieval after server errors (Thanks [@alekc](https://github.com/alekc)) ([52df8de](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/52df8de635cee7deb3f8e8e238f40d7cd6e416bc))
+* Fixed issue when dispatch result isn't available when calculating rates (15 minutes dev time) ([0dc79c5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0dc79c54fdd9f26cd28084aa8513f426ee501b78))
+* Increase heat pump refresh rate to every two minutes to try and overcome rate limiting ([4a12b4f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4a12b4f2b91d2fc6baad54aac9290e2bf17ab096))
+* Restricted cost tracker discovery to not pick up calorie based sensors (10 minutes dev time) ([d24cf18](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d24cf18d7f6c0d604e27e8ba8b7b9e075bc432a9))
+* Updated power up/down calendar to join together adjacent events (15 minutes dev time) ([ff334e9](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/ff334e9101792f3011413d612d425b59eabd77b9))
+
+
+### Features
+
+* Added service for executing ad-hoc graphql queries (15 minutes dev time) ([0fccec8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0fccec8c73284510d59de900971fbbd706664c52))
+* Added service to turn on/off charging cap for a given device (15 minutes dev time) ([088f2d7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/088f2d7fc03f9ee23551a701f5c84392295d58c4))
+
 # [19.1.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v19.0.1...v19.1.0) (2026-09-14)
 
 
