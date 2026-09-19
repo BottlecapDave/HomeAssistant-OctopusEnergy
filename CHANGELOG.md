@@ -1,3 +1,10 @@
+## [19.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v19.2.0...v19.2.1) (2026-09-19)
+
+
+### Bug Fixes
+
+* Added guard against no dispatches in dispatching sensor (5 minutes dev time) ([5a051b7](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/5a051b75b6e37715634762f6ba0b5665d044040b))
+
 # [19.2.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v19.1.0...v19.2.0) (2026-09-19)
 
 
