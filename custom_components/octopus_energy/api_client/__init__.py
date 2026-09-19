@@ -26,6 +26,12 @@ from .intelligent_device_settings import IntelligentDeviceSettingPreferenceSched
 
 _LOGGER = logging.getLogger(__name__)
 
+# Octopus rate limit token retrieval per account. A failed attempt does not
+# update our token expiry, so without a cooldown every subsequent request
+# attempts to retrieve a new token, which keeps the rate limit tripped.
+MINIMUM_TOKEN_RETRIEVAL_COOLDOWN_IN_MINUTES = 1
+MAXIMUM_TOKEN_RETRIEVAL_COOLDOWN_IN_MINUTES = 30
+
 api_token_query = '''mutation {{
 	obtainKrakenToken(input: {{ APIKey: "{api_key}" }}) {{
 		token
@@ -758,6 +764,15 @@ def process_graphql_response(data: Any, url: str, request_context: str, ignore_e
   
   return data
 
+def calculate_token_retrieval_cooldown(failure_count: int) -> timedelta:
+  """Calculates how long to wait before attempting to retrieve a new token, based on
+  the number of consecutive failures we've had while attempting to retrieve one"""
+  if (failure_count < 1):
+    return timedelta(minutes=0)
+
+  minutes = MINIMUM_TOKEN_RETRIEVAL_COOLDOWN_IN_MINUTES * (2 ** (failure_count - 1))
+  return timedelta(minutes=min(minutes, MAXIMUM_TOKEN_RETRIEVAL_COOLDOWN_IN_MINUTES))
+
 class OctopusEnergyApiClient:
 
   def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None, timeout_in_seconds = 20, favour_direct_debit_rates = True):
@@ -785,7 +800,9 @@ class OctopusEnergyApiClient:
 
     self._session = None
     self._is_api_key_invalid = False
-    
+    self._token_retrieval_failures = 0
+    self._token_retrieval_cooldown_until = None
+
     # Use asyncio locks for async methods
     self._session_lock = asyncio.Lock()
     self._refresh_token_lock = asyncio.Lock()
@@ -821,6 +838,11 @@ class OctopusEnergyApiClient:
       if (self._graphql_expiration is not None and (self._graphql_expiration - timedelta(minutes=5)) > now()):
         return
 
+      if (self._token_retrieval_cooldown_until is not None and self._token_retrieval_cooldown_until > now()):
+        msg = f"Token retrieval is in cooldown until {self._token_retrieval_cooldown_until} after {self._token_retrieval_failures} consecutive failure(s) - skipping refresh"
+        _LOGGER.debug(msg)
+        raise ServerException(msg)
+
       if (self._graphql_refresh_expiration is not None and self._graphql_refresh_expiration < now()):
         _LOGGER.debug("Refresh token expired - clearing")
         self._graphql_refresh_token = None
@@ -849,6 +871,14 @@ class OctopusEnergyApiClient:
       except TimeoutError:
         _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
         raise TimeoutException()
+      except ServerException:
+        self._token_retrieval_failures += 1
+        self._token_retrieval_cooldown_until = now() + calculate_token_retrieval_cooldown(self._token_retrieval_failures)
+        _LOGGER.debug(f"Failed to retrieve auth token {self._token_retrieval_failures} time(s) in a row - not attempting again until {self._token_retrieval_cooldown_until}")
+        raise
+
+      self._token_retrieval_failures = 0
+      self._token_retrieval_cooldown_until = None
 
   async def __async_fetch_token(self):
     client = await self._create_client_session()
