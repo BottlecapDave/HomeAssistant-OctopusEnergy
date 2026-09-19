@@ -13,6 +13,16 @@ def get_total_consumption(consumption: list | None):
 
   return total_consumption
 
+def get_latest_consumption_item(consumption: list | None, value_key: str):
+  if consumption is None:
+    return None
+
+  matching_consumption = [item for item in consumption if item.get(value_key) is not None]
+  if len(matching_consumption) == 0:
+    return None
+
+  return max(matching_consumption, key=lambda item: (item["end"].timestamp(), item["end"].fold))
+
 def get_current_consumption_delta(current_datetime: datetime, current_total_consumption: float, previous_updated: datetime, previous_total_consumption: float):
   if (previous_total_consumption is None or previous_updated is None):
     return None
@@ -42,7 +52,7 @@ def calculate_current_consumption(
   consumption_data = consumption_result.data if consumption_result is not None else None
   total_consumption = last_total_consumption
 
-  if (consumption_data is not None):
+  if (consumption_data is not None and len(consumption_data) > 0):
 
     # We should only calculate the delta if our underlying data has updated since we last updated 
     if last_update is None or consumption_result.last_evaluated > last_update:

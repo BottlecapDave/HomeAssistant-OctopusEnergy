@@ -255,6 +255,10 @@
       "title": "Octopus Mini not valid for {type} meter",
       "description": "Octopus Mini has been configured for account \"{account_id}\", but it's not available for {type} meter {mpan_mprn}/{serial_number}. If this is expected, you can ignore this notice, otherwise click \"Learn More\" with instructions on what to do next."
     },
+    "home_mini_data_stale": {
+      "title": "Home Mini consumption data has stopped updating",
+      "description": "No up-to-date Home Mini consumption data has been available for account \"{account_id}\" and meter {meter_details} for at least 30 minutes. Check the live usage feed and click \"Learn More\" for troubleshooting steps."
+    },
     "invalid_api_key": {
       "title": "Invalid API key for account \"{account_id}\"",
       "description": "The configured API key appears to be invalid for the configured account \"{account_id}\". Please reconfigure to fix this issue."

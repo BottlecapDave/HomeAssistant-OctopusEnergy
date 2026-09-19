@@ -207,3 +207,28 @@ async def test_when_called_on_new_date_and_consumption_data_is_updated_then_cons
   assert result.total_consumption == expected_consumption_total
   assert result.data_last_retrieved == last_retrieved
   assert result.last_evaluated == current_date
+
+def test_when_stale_data_is_hidden_then_existing_consumption_is_preserved():
+  current = datetime.strptime("2025-08-30T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z")
+  previous_update = current - timedelta(minutes=1)
+  consumption_result = CurrentConsumptionCoordinatorResult(
+    current,
+    1,
+    1,
+    [],
+    last_retrieved=previous_update,
+    status="stale",
+    last_good_data=[{ "consumption": 2.5 }],
+  )
+
+  result = calculate_current_consumption(
+    current,
+    consumption_result,
+    1.2,
+    previous_update,
+    2.5,
+  )
+
+  assert result.state == 1.2
+  assert result.total_consumption == 2.5
+  assert result.last_evaluated == previous_update
