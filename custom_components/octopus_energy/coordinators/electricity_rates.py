@@ -208,7 +208,7 @@ async def async_refresh_electricity_rates_data(
       
       rates_adjusted = False
       dispatch_result_items = dispatches_results.items()
-      rates_adjusted = next((dispatch_result for _, dispatch_result in dispatch_result_items if dispatch_result.last_evaluated > existing_rates_result.rates_last_adjusted), None) is not None
+      rates_adjusted = next((dispatch_result for _, dispatch_result in dispatch_result_items if dispatch_result is not None and dispatch_result.last_evaluated > existing_rates_result.rates_last_adjusted), None) is not None
       if rates_adjusted:
         new_rates = existing_rates_result.original_rates.copy()
         for key, dispatch_result in dispatches_results.items():

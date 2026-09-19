@@ -2,6 +2,42 @@ purge_invalid_external_statistic_ids:
   name: Purge invalid external statistics
   description: Removes external statistics for all meters that don't have an active tariff
 
+run_graphql_query:
+  name: Run graphql query
+  description: Runs an arbitrary graphql query/mutation against a given account. This is intended to be used for debugging purposes only and can only be called once every minute.
+  fields:
+    account_id:
+      name: Account id
+      description: The id of the account the query should be run against.
+      required: true
+      selector:
+        text:
+    query:
+      name: Query
+      description: The graphql query/mutation to run.
+      required: true
+      selector:
+        text:
+          multiline: true
+    variables:
+      name: Variables
+      description: The optional variables to supply alongside the query/mutation.
+      required: false
+      selector:
+        object:
+    target:
+      name: Target
+      description: The graphql endpoint the query should be run against.
+      required: false
+      default: octopus
+      selector:
+        select:
+          options:
+            - label: Octopus
+              value: octopus
+            - label: Kraken
+              value: kraken
+
 refresh_previous_consumption_data:
   name: Refresh previous consumption data
   description: Refreshes the previous consumption data for a given entity from a given date.
@@ -288,6 +324,21 @@ set_heat_pump_hush_mode:
     is_enabled:
       name: Is enabled
       description: Determines if the hush mode is enabled or disabled
+      required: true
+      selector:
+        boolean:
+
+set_charging_duration_capped:
+  name: Set charging duration capped
+  description: Enables or disables the charging duration cap for an intelligent device
+  target:
+    entity:
+      integration: octopus_energy
+      domain: switch
+  fields:
+    is_enabled:
+      name: Is enabled
+      description: Determines if the charging duration cap is enabled or disabled
       required: true
       selector:
         boolean:

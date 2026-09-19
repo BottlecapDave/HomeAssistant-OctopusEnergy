@@ -107,6 +107,22 @@ class OctopusEnergyIntelligentSmartCharge(CoordinatorEntity, SwitchEntity, Octop
     self._last_updated = utcnow()
     self.async_write_ha_state()
 
+  @callback
+  async def async_set_charging_duration_capped(self, is_enabled: bool):
+    """Enable or disable the charging duration cap."""
+    try:
+      await self._client.async_set_intelligent_charging_duration_capped(
+        self._device.id,
+        is_enabled
+      )
+    except Exception as e:
+      if self._is_mocked:
+        _LOGGER.warning(f'Suppress async_set_charging_duration_capped error due to mocking mode: {e}')
+      else:
+        raise
+
+    self.async_write_ha_state()
+
   async def async_added_to_hass(self):
     """Call when entity about to be added to hass."""
     # If not None, we got an initial value.

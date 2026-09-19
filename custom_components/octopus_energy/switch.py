@@ -1,5 +1,10 @@
 import logging
 
+import voluptuous as vol
+
+from homeassistant.helpers import entity_platform
+import homeassistant.helpers.config_validation as cv
+
 from .utils.debug_overrides import async_get_account_debug_override
 from .intelligent.smart_charge import OctopusEnergyIntelligentSmartCharge
 from .intelligent.bump_charge import OctopusEnergyIntelligentBumpCharge
@@ -53,5 +58,20 @@ async def async_setup_intelligent_sensors(hass, config, async_add_entities):
 
     if intelligent_features.smart_charge_supported:
       entities.append(OctopusEnergyIntelligentBumpCharge(hass, dispatches_coordinator, client, intelligent_device, account_id, account_debug_override.mock_intelligent_controls if account_debug_override is not None else False))
+
+  if len(entities) > 0:
+    platform = entity_platform.async_get_current_platform()
+    platform.async_register_entity_service(
+      "set_charging_duration_capped",
+      vol.All(
+        cv.make_entity_service_schema(
+          {
+            vol.Required("is_enabled"): cv.boolean,
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
+      ),
+      "async_set_charging_duration_capped"
+    )
 
   async_add_entities(entities)
