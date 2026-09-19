@@ -3,8 +3,7 @@
 
 ### Bug Fixes
 
-* back off token retrieval after server errors ([4321836](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/432183684bd205e12cf20c2e7d1ed49c7d82bd67))
-* back off token retrieval after server errors (Thanks [@alekc](https://github.com/alekc)) ([52df8de](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/52df8de635cee7deb3f8e8e238f40d7cd6e416bc))
+* Back off token retrieval after server errors (Thanks [@alekc](https://github.com/alekc)) ([52df8de](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/52df8de635cee7deb3f8e8e238f40d7cd6e416bc))
 * Fixed issue when dispatch result isn't available when calculating rates (15 minutes dev time) ([0dc79c5](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/0dc79c54fdd9f26cd28084aa8513f426ee501b78))
 * Increase heat pump refresh rate to every two minutes to try and overcome rate limiting ([4a12b4f](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4a12b4f2b91d2fc6baad54aac9290e2bf17ab096))
 * Restricted cost tracker discovery to not pick up calorie based sensors (10 minutes dev time) ([d24cf18](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d24cf18d7f6c0d604e27e8ba8b7b9e075bc432a9))
@@ -23,10 +22,8 @@
 
 * Fixed issue where new state classes or device classes were not persisted for certain sensors (15 minutes dev time) ([cb8a3ba](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/cb8a3ba8586fc7612906dc95d61e1c07f6e11e66))
 * Fixed issue with cost trackers where the same sensor was tracked usng different mpans (30 minutes dev time) ([f9cabc3](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/f9cabc3461ea8b66d21b96686352ee56bf2c409f))
-* use async_get_device_by_identifier with fallback to resolve Core 2027.8 deprecation ([9495843](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/9495843c13e138780305cadb8ddfb061f67dbe7c))
 * use async_get_device_by_identifier with fallback to resolve Core 2027.8 deprecation (Thanks @IvanAlekseev) ([6b13104](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/6b1310421112f739a4803a485e9b5e07646bf608))
-* Use update listener for config entry reloads ([e00c275](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e00c2751acdfba50bdb939f60f47d7de31b7c8f8))
-* Use update listener for config entry reloads (Thanks [@h](https://github.com/h)Coureau) ([1480143](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/148014300db948ca65aca548f3bba5ca4e11816a)), closes [#1843](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1843)
+* Use update listener for config entry reloads (Thanks @hCoureau) ([1480143](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/148014300db948ca65aca548f3bba5ca4e11816a)), closes [#1843](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1843)
 
 
 ### Features
