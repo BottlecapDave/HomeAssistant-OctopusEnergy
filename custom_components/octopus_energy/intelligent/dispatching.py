@@ -106,9 +106,9 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
     
     started_dispatches = result.dispatches.started if result is not None and result.dispatches is not None else []
     self.__init_attributes__(
-      dispatches_to_dictionary_list(result.dispatches.planned, ignore_none=True) if result is not None else [],
-      dispatches_to_dictionary_list(result.dispatches.completed if result is not None and result.dispatches is not None else [], ignore_none=False) if result is not None else [],
-      simple_dispatches_to_dictionary_list(started_dispatches) if result is not None else [],
+      dispatches_to_dictionary_list(result.dispatches.planned, ignore_none=True) if result is not None and result.dispatches is not None else [],
+      dispatches_to_dictionary_list(result.dispatches.completed, ignore_none=False) if result is not None and result.dispatches is not None else [],
+      simple_dispatches_to_dictionary_list(started_dispatches),
     )
 
     applicable_dispatches = get_applicable_dispatch_periods(result.dispatches.planned if result is not None and result.dispatches is not None else [],
