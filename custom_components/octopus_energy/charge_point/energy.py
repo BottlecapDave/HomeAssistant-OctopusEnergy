@@ -2,13 +2,15 @@ import logging
 from datetime import datetime
 
 from homeassistant.const import (
+    Platform,
     UnitOfEnergy,
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
-from homeassistant.helpers.event import async_track_state_change_event
+from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.event import async_track_state_change_event, async_track_entity_registry_updated_event
 from homeassistant.util.dt import (utcnow)
 from homeassistant.components.sensor import (
     RestoreSensor,
@@ -18,6 +20,7 @@ from homeassistant.components.sensor import (
 
 from .base import BaseOctopusEnergyChargePointSensor
 from ..api_client.charge_point import OnboardedChargePoint
+from ..const import DOMAIN
 from ..utils.attributes import dict_to_typed_dict
 from ..utils.charge_point_energy import integrate_energy_kwh
 
@@ -43,16 +46,19 @@ class OctopusEnergyChargePointEnergy(BaseOctopusEnergyChargePointSensor, Restore
   gap. There's no live_power history to replay this from after a restart.
   """
 
-  def __init__(self, hass: HomeAssistant, account_id: str, charge_point_id: str, charge_point: OnboardedChargePoint, live_power_entity_id: str):
+  def __init__(self, hass: HomeAssistant, entry, account_id: str, charge_point_id: str, charge_point: OnboardedChargePoint, live_power_unique_id: str):
     """Init sensor."""
     BaseOctopusEnergyChargePointSensor.__init__(self, hass, account_id, charge_point_id, charge_point)
 
+    self._entry = entry
     self._state = None
     self._last_reading_at: datetime | None = None
     self._last_power_kw: float | None = None
-    # The live power sensor's own real entity_id, passed in by sensor.py
-    # rather than reconstructed here - see the comment at that call site.
-    self._live_power_entity_id = live_power_entity_id
+    # Resolved from the registry in async_added_to_hass (see there) rather
+    # than trusted from the live power sensor's own entity_id at setup time,
+    # so this stays correct if the user renames it.
+    self._live_power_unique_id = live_power_unique_id
+    self._live_power_entity_id = None
     self.entity_id = generate_entity_id("sensor.{}", self.unique_id, hass=hass)
 
   @property
@@ -136,8 +142,33 @@ class OctopusEnergyChargePointEnergy(BaseOctopusEnergyChargePointSensor, Restore
 
     _LOGGER.debug(f'Restored OctopusEnergyChargePointEnergy state: {self._state}')
 
+    registry = er.async_get(self.hass)
+    self._live_power_entity_id = registry.async_get_entity_id(Platform.SENSOR, DOMAIN, self._live_power_unique_id)
+    if self._live_power_entity_id is None:
+      _LOGGER.warning(f"Unable to find live power sensor with unique ID '{self._live_power_unique_id}'")
+      return
+
     self.async_on_remove(
       async_track_state_change_event(
         self.hass, [self._live_power_entity_id], self._async_update_from_power
       )
     )
+
+    # If the user renames the live power entity while running, our resolved
+    # entity_id above goes stale - reload the whole config entry to pick up
+    # the new one, the same way cost_tracker_week.py's tracked-entity
+    # handling does.
+    self.async_on_remove(
+      async_track_entity_registry_updated_event(
+        self.hass, [self._live_power_entity_id], self._async_update_tracked_entity
+      )
+    )
+
+  async def _async_update_tracked_entity(self, event) -> None:
+    data = event.data
+    if data["action"] != "update" or "entity_id" not in data["changes"]:
+      return
+
+    new_entity_id = data["entity_id"]
+    _LOGGER.debug(f"Live power entity for '{self.entity_id}' updated from '{self._live_power_entity_id}' to '{new_entity_id}'. Reloading...")
+    await self.hass.config_entries.async_reload(self._entry.entry_id)

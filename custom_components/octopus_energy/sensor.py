@@ -191,7 +191,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
   config = dict(entry.data)
 
   if config[CONFIG_KIND] == CONFIG_KIND_ACCOUNT:
-    await async_setup_default_sensors(hass, config, async_add_entities)
+    await async_setup_default_sensors(hass, entry, config, async_add_entities)
 
     platform = entity_platform.async_get_current_platform()
     platform.async_register_entity_service(
@@ -296,7 +296,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
   elif config[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:
     await async_setup_tariff_comparison_sensors(hass, entry, config, async_add_entities)
 
-async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_entities):
+async def async_setup_default_sensors(hass: HomeAssistant, entry, config, async_add_entities):
   account_id = config[CONFIG_ACCOUNT_ID]
   legacy_saving_sessions_free_electricity_present = config[CONFIG_MAIN_LEGACY_SAVING_SESSIONS_FREE_ELECTRICITY_PRESENT] if CONFIG_MAIN_LEGACY_SAVING_SESSIONS_FREE_ELECTRICITY_PRESENT in config else False
   
@@ -623,7 +623,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   for charge_point_id in charge_point_ids:
     key = DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_KEY.format(charge_point_id)
     coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_POINT_CONFIGURATION_AND_STATUS_COORDINATOR.format(charge_point_id)]
-    entities.extend(setup_charge_point_sensors(hass, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, coordinator, client, mock_charge_point))
+    entities.extend(setup_charge_point_sensors(hass, entry, account_id, charge_point_id, hass.data[DOMAIN][account_id][key].data, coordinator, client, mock_charge_point))
 
   # Migrate entity ids that might have changed
   # for item in entity_ids_to_migrate:
@@ -752,7 +752,7 @@ def setup_heat_pump_sensors(hass: HomeAssistant, account_id: str, heat_pump_id: 
 
   return entities
 
-def setup_charge_point_sensors(hass: HomeAssistant, account_id: str, charge_point_id: str, charge_point: OnboardedChargePoint, coordinator, client: OctopusEnergyApiClient, is_mocked: bool):
+def setup_charge_point_sensors(hass: HomeAssistant, entry, account_id: str, charge_point_id: str, charge_point: OnboardedChargePoint, coordinator, client: OctopusEnergyApiClient, is_mocked: bool):
 
   entities = []
 
@@ -767,12 +767,11 @@ def setup_charge_point_sensors(hass: HomeAssistant, account_id: str, charge_poin
   entities.append(OctopusEnergyChargePointBoostEndTime(hass, coordinator, account_id, charge_point_id, charge_point))
   live_power_sensor = OctopusEnergyChargePointLivePower(hass, coordinator, client, account_id, charge_point_id, charge_point, is_mocked)
   entities.append(live_power_sensor)
-  # Pass the live power sensor's own (slugified) entity_id directly, rather
-  # than having the energy sensor reconstruct it independently from the raw
-  # charge_point_id - that id is a real hyphenated UUID, and a second,
-  # unslugified reconstruction would never match the real entity_id
-  # generate_entity_id() actually produced for it.
-  entities.append(OctopusEnergyChargePointEnergy(hass, account_id, charge_point_id, charge_point, live_power_sensor.entity_id))
+  # Pass the live power sensor's own unique_id (stable) rather than its
+  # entity_id (which the energy sensor resolves itself via the registry -
+  # see energy.py's async_added_to_hass - so it stays correct even if the
+  # user renames the live power entity).
+  entities.append(OctopusEnergyChargePointEnergy(hass, entry, account_id, charge_point_id, charge_point, live_power_sensor.unique_id))
   entities.append(OctopusEnergyChargePointSchedule(hass, client, account_id, charge_point_id, charge_point, coordinator))
 
   return entities
