@@ -31,6 +31,8 @@ If data cannot be refreshed for any reason (e.g. no internet or APIs are down), 
 
 Once a successful request is made, the refreshes will revert back to the redefined default intervals. You can find out information on when data was last retrieved via the available [diagnostic entities](./entities/diagnostics.md).
 
+Authentication is backed off separately. Every request needs a valid token, so if the integration fails to retrieve one due to a server error, it will wait before attempting to retrieve another, doubling the wait after each consecutive failure up to a maximum of 30 minutes. This is because token retrieval is rate limited per account, so retrying it on every request would keep that rate limit tripped.
+
 !!! note
     The retrieving of data does not effect the rate the entities states/attributes are evaluated.
 

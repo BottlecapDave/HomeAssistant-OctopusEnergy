@@ -86,6 +86,18 @@ async def async_setup_intelligent_sensors(hass, config, async_add_entities):
       ),
       "async_boost_charge_point"
     )
+    platform.async_register_entity_service(
+      "set_charging_duration_capped",
+      vol.All(
+        cv.make_entity_service_schema(
+          {
+            vol.Required("is_enabled"): cv.boolean,
+          },
+          extra=vol.ALLOW_EXTRA,
+        ),
+      ),
+      "async_set_charging_duration_capped"
+    )
 
   async_add_entities(entities)
 

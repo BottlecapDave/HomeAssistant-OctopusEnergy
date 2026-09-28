@@ -209,6 +209,15 @@ Allows you to boost charge for a set amount of time.
 
 The following services are available if you are on an intelligent tariff.
 
+### octopus_energy.set_charging_duration_capped
+
+Enables or disables the charging duration cap for a given intelligent device.
+
+| Attribute                | Optional | Description                                                                                                           |
+| ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
+| `target.entity_id`       | `no`     | The smart charge switch entity for the intelligent device you want to update (e.g. `switch.octopus_energy_{{DEVICE_ID}}_intelligent_smart_charge`). |
+| `data.is_enabled`              | `no`     | Determines if the charging duration cap is enabled or disabled. |
+
 ### octopus_energy.refresh_intelligent_dispatches
 
 Refreshes intelligent dispatches for a given account.
@@ -253,6 +262,27 @@ Retrieve the intelligent dispatch history which was active for a given point in 
 ### octopus_energy.purge_invalid_external_statistic_ids
 
 For removing all external statistics that are associated with meters that don't have an active tariff. This is useful if you've been using the integration and obtained new smart meters.
+
+### octopus_energy.clear_all_cache_files
+
+Removes all cache files that the integration has stored on disk (e.g. account, tariff and intelligent device caches), forcing the affected data to be reloaded from the API. This is useful if you suspect cached data has become stale or corrupted.
+
+### octopus_energy.run_graphql_query
+
+Runs an arbitrary graphql query/mutation against a given account. This is intended to be used for debugging purposes only, and is not intended to be relied upon within automations/scripts.
+
+!!! warning
+
+    This service can only be called once every minute.
+
+| Attribute       | Optional | Description                                                                 |
+| --------------- | -------- | ---------------------------------------------------------------------------- |
+| `data.account_id` | `no`   | The id of the account the query should be run against.                       |
+| `data.query`      | `no`   | The graphql query/mutation to run.                                           |
+| `data.variables`  | `yes`  | The variables to supply alongside the query/mutation.                        |
+| `data.target`     | `yes`  | Which graphql endpoint to target - `octopus` or `kraken`. |
+
+This service returns the raw response (including any `errors`) from the graphql endpoint, so it can be inspected when reporting/diagnosing issues.
 
 ### octopus_energy.refresh_previous_consumption_data
 

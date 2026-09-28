@@ -11,13 +11,14 @@ from homeassistant.config_entries import SOURCE_INTEGRATION_DISCOVERY
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import discovery_flow
 from homeassistant.const import (
-    EVENT_HOMEASSISTANT_STOP
+    EVENT_HOMEASSISTANT_STOP,
+    UnitOfEnergy
+)
+from homeassistant.components.sensor import (
+  SensorDeviceClass,
 )
 from homeassistant.helpers.event import async_track_time_interval
 
-from homeassistant.util.unit_conversion import (
-    EnergyConverter,
-)
 
 from .const import (
     CONFIG_COST_TRACKER_DISCOVERY_ACCOUNT_ID,
@@ -30,6 +31,15 @@ from .const import (
 )
 
 _LOGGER = logging.getLogger(__name__)
+
+_TARGET_UNIT_OF_MEASUREMENTS = [
+    UnitOfEnergy.MILLIWATT_HOUR,
+    UnitOfEnergy.WATT_HOUR,
+    UnitOfEnergy.KILO_WATT_HOUR,
+    UnitOfEnergy.MEGA_WATT_HOUR,
+    UnitOfEnergy.GIGA_WATT_HOUR,
+    UnitOfEnergy.TERA_WATT_HOUR,
+]
 
 class DiscoveryManager:
     """Device Discovery."""
@@ -72,7 +82,10 @@ class DiscoveryManager:
             if item[1].disabled_by is not None:
                 continue
 
-            if item[1].unit_of_measurement not in (EnergyConverter.VALID_UNITS):
+            if item[1].device_class is not SensorDeviceClass.ENERGY:
+                continue
+
+            if item[1].unit_of_measurement not in _TARGET_UNIT_OF_MEASUREMENTS:
                 continue
 
             config_exists = False

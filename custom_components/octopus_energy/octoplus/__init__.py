@@ -3,23 +3,51 @@ from datetime import datetime, timedelta
 from ..api_client.octoplus_session import BaseOctoplusSession
 from ..api_client.saving_sessions import SavingSession
 
+def _extend_event_end_through_contiguous_events(event: BaseOctoplusSession, sorted_events: list[BaseOctoplusSession]) -> BaseOctoplusSession:
+  merged_end = event.end
+  for other_event in sorted_events:
+    if other_event.start <= merged_end and other_event.end > merged_end:
+      merged_end = other_event.end
+
+  if merged_end > event.end:
+    event.end = merged_end
+    event.duration_in_minutes = (event.end - event.start).total_seconds() / 60
+
+  return event
+
 def current_octoplus_sessions_event(current_date: datetime, events: list[BaseOctoplusSession]) -> BaseOctoplusSession | None:
-  if events is not None:
-    for event in events:
-      if (event.start <= current_date and event.end >= current_date):
-        return event
-  
-  return None
+  if events is None:
+    return None
+
+  sorted_events = sorted(events, key=lambda event: event.start)
+
+  current_event = None
+  for event in sorted_events:
+    if event.start <= current_date and event.end >= current_date:
+      current_event = event
+      break
+
+  if current_event is None:
+    return None
+
+  return _extend_event_end_through_contiguous_events(current_event, sorted_events)
 
 def get_next_octoplus_sessions_event(current_date: datetime, events: list[BaseOctoplusSession]) -> BaseOctoplusSession | None:
+  if events is None:
+    return None
+
+  sorted_events = sorted(events, key=lambda event: event.start)
+
   next_event = None
+  for event in sorted_events:
+    if event.start > current_date:
+      next_event = event
+      break
 
-  if events is not None:
-    for event in events:
-      if event.start > current_date and (next_event == None or event.start < next_event.start):
-          next_event = event
+  if next_event is None:
+    return None
 
-  return next_event
+  return _extend_event_end_through_contiguous_events(next_event, sorted_events)
 
 class OctoplusSessionConsumptionDate:
   start: datetime
