@@ -965,3 +965,64 @@ async def test_when_existing_rates_is_old_and_rates_empty_then_rates_retrieved()
     assert len(actual_fired_events.keys()) == 4
     assert raise_rates_empty_called == True
     assert clear_rates_empty_called == False
+
+@pytest.mark.asyncio
+async def test_when_existing_rates_were_retrieved_on_a_previous_day_and_same_tariff_code_then_current_day_rates_retrieved_again():
+  expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
+  expected_current_day_start = current.replace(hour=0, minute=0, second=0, microsecond=0)
+  mock_api_called_count = 0
+  requested_period_from = None
+  requested_period_to = None
+  async def async_mocked_get_gas_rates(*args, **kwargs):
+    nonlocal mock_api_called_count, requested_period_from, requested_period_to
+
+    requested_client, requested_product_code, requested_tariff_code, requested_period_from, requested_period_to = args
+
+    mock_api_called_count += 1
+    return create_rate_data(requested_period_from, requested_period_to, [2], tariff_code)
+
+  def fire_event(name, metadata):
+    return None
+
+  account_info = get_account_info()
+  # Rates that were retrieved the day before, which already include (now stale) rates for the current day
+  existing_rates = GasRatesCoordinatorResult(
+    current - timedelta(days=1),
+    1,
+    create_rate_data(expected_period_to - timedelta(days=4), expected_period_to - timedelta(days=1), [1], tariff_code)
+  )
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_gas_rates=async_mocked_get_gas_rates):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_rates: GasRatesCoordinatorResult = await async_refresh_gas_rates_data(
+      current,
+      client,
+      account_info,
+      mprn,
+      serial_number,
+      existing_rates,
+      fire_event
+    )
+
+    assert retrieved_rates is not None
+    assert mock_api_called_count == 1
+    assert requested_period_from == expected_current_day_start
+    assert requested_period_to == expected_period_to
+    assert len(retrieved_rates.rates) == 48 * 3
+
+    for rate in retrieved_rates.rates:
+      assert rate["value_inc_vat"] == (1 if rate["start"] < expected_current_day_start else 2)
+
+    # Once we have the rates for the new day, we should go back to using what we have
+    next_retrieved_rates: GasRatesCoordinatorResult = await async_refresh_gas_rates_data(
+      current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES),
+      client,
+      account_info,
+      mprn,
+      serial_number,
+      retrieved_rates,
+      fire_event
+    )
+
+    assert mock_api_called_count == 1
+    assert next_retrieved_rates.rates == retrieved_rates.rates
