@@ -2263,15 +2263,19 @@ class OctopusEnergyApiClient:
 
         if (response_body is not None and 
             "data" in response_body and
+            response_body["data"] is not None and
             "spinWheelOfFortune" in response_body["data"] and
+            response_body["data"]["spinWheelOfFortune"] is not None and
             "prize" in response_body["data"]["spinWheelOfFortune"] and
-            "value" in response_body["data"]["spinWheelOfFortune"]["prize"]):
+            response_body["data"]["spinWheelOfFortune"]["prize"] is not None and
+            "value" in response_body["data"]["spinWheelOfFortune"]["prize"] and
+            response_body["data"]["spinWheelOfFortune"]["prize"]["value"] is not None):
           
           return int(response_body["data"]["spinWheelOfFortune"]["prize"]["value"])
         else:
           _LOGGER.error("Failed to spin wheel of fortune")
-      
-      return None
+          raise RequestException("Failed to spin wheel of fortune - no prize was returned", [])
+
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
