@@ -54,7 +54,7 @@ trigger:
 condition:
 - condition: template
   value_template: >-
-    {{ (states(weekend_happy_hours_entity) | int(0)) > 1 and ((state_attr(power_up_events_entity, 'available_events') | default([], true)) | length > 0) }}
+    {{ (states(weekend_happy_hours_entity) | int(0)) > 0 and ((state_attr(power_up_events_entity, 'available_events') | default([], true)) | length > 0) }}
 action:
 - variables:
     selected_event_code: >-
