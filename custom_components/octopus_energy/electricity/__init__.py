@@ -4,6 +4,14 @@ from ..utils.conversions import pence_to_pounds_pence, pence_to_pounds_pence_acc
 
 _LOGGER = logging.getLogger(__name__)
 
+class MissingElectricityRateError(Exception):
+  """Raised when consumption cannot be matched to an electricity rate."""
+
+  def __init__(self, start, end):
+    self.start = start
+    self.end = end
+    super().__init__(f"Failed to find rate for consumption between {start} and {end}")
+
 def __get_to(item):
     return (item["end"].timestamp(), item["end"].fold)
 
@@ -39,7 +47,7 @@ def calculate_electricity_consumption_and_cost(
         try:
           rate = next(r for r in rate_data if r["start"] == consumption_from and r["end"] == consumption_to)
         except StopIteration:
-          raise Exception(f"Failed to find rate for consumption between {consumption_from} and {consumption_to}")
+          raise MissingElectricityRateError(consumption_from, consumption_to)
 
         value = rate["value_inc_vat"]
 
