@@ -2,7 +2,7 @@ from unittest import mock
 import pytest
 
 from custom_components.octopus_energy.const import DATA_WHEEL_OF_FORTUNE_SPINS_FORCE_UPDATE, DOMAIN
-from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
+from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, RequestException
 from custom_components.octopus_energy.wheel_of_fortune.electricity_spins import OctopusEnergyWheelOfFortuneElectricitySpins
 from custom_components.octopus_energy.wheel_of_fortune.gas_spins import OctopusEnergyWheelOfFortuneGasSpins
 
@@ -39,3 +39,26 @@ async def test_when_wheel_is_spun_then_prize_is_returned_and_spins_are_refreshed
     assert requested_args == (client, account_id, expected_is_electricity)
     assert hass.data[DOMAIN][account_id][DATA_WHEEL_OF_FORTUNE_SPINS_FORCE_UPDATE] == True
     coordinator.async_refresh.assert_awaited_once()
+
+@pytest.mark.asyncio
+async def test_when_spin_fails_then_exception_is_raised_and_spins_are_not_refreshed():
+  # Arrange
+  async def async_mocked_spin_wheel_of_fortune(*args, **kwargs):
+    raise RequestException("foo", [])
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_spin_wheel_of_fortune=async_mocked_spin_wheel_of_fortune):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    coordinator = mock.Mock()
+    coordinator.async_refresh = mock.AsyncMock()
+    hass = mock.Mock()
+    hass.data = { DOMAIN: { account_id: {} } }
+    sensor = OctopusEnergyWheelOfFortuneElectricitySpins(hass, coordinator, client, account_id)
+    sensor.hass = hass
+
+    # Act
+    with pytest.raises(RequestException):
+      await sensor.async_spin_wheel()
+
+    # Assert
+    assert DATA_WHEEL_OF_FORTUNE_SPINS_FORCE_UPDATE not in hass.data[DOMAIN][account_id]
+    coordinator.async_refresh.assert_not_awaited()
