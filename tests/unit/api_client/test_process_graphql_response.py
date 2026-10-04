@@ -16,7 +16,7 @@ def test_when_process_graphql_response_called_with_no_errors_provided_then_data_
   data = {
     "hello": "world"
   }
-  url = "https://api.octopus.energy/graphql"
+  url = "https://api.oegb-kraken.energy/graphql"
   request_context = "Test Request"
   ignore_errors = False
   accepted_error_codes = []
@@ -46,7 +46,7 @@ def test_when_process_graphql_response_called_with_authentication_error_code_the
       }
     ]
   }
-  url = "https://api.octopus.energy/graphql"
+  url = "https://api.oegb-kraken.energy/graphql"
   request_context = "Test Request"
   ignore_errors = False
   accepted_error_codes = []
@@ -77,7 +77,7 @@ def test_when_process_graphql_response_called_with_unknown_error_code_then_reque
       }
     ]
   }
-  url = "https://api.octopus.energy/graphql"
+  url = "https://api.oegb-kraken.energy/graphql"
   request_context = "Test Request"
   ignore_errors = False
   accepted_error_codes = []
@@ -108,7 +108,7 @@ def test_when_process_graphql_response_called_with_ignore_errors_true_then_data_
       }
     ]
   }
-  url = "https://api.octopus.energy/graphql"
+  url = "https://api.oegb-kraken.energy/graphql"
   request_context = "Test Request"
   ignore_errors = True
   accepted_error_codes = []
@@ -138,7 +138,7 @@ def test_when_process_graphql_response_called_with_accepted_error_code_then_none
       }
     ]
   }
-  url = "https://api.octopus.energy/graphql"
+  url = "https://api.oegb-kraken.energy/graphql"
   request_context = "Test Request"
   ignore_errors = False
   accepted_error_codes = ["KT-CT-0001"]
@@ -177,7 +177,7 @@ def test_when_process_graphql_response_called_with_boost_charge_refusal_reasons_
       }
     ]
   }
-  url = "https://api.octopus.energy/graphql"
+  url = "https://api.oegb-kraken.energy/graphql"
   request_context = "Test Request"
   ignore_errors = False
   accepted_error_codes = []

@@ -10,7 +10,7 @@ const DOCS_DIR = join(__dirname, '../_docs');
 const SOURCE_DIR = join(__dirname, '../custom_components/octopus_energy');
 const PROMPTS_DIR = join(__dirname, 'prompts');
 
-const DEFAULT_GRAPHQL_ENDPOINT = 'https://api.octopus.energy/v1/graphql/';
+const DEFAULT_GRAPHQL_ENDPOINT = 'https://api.oegb-kraken.energy/v1/graphql/';
 const BACKEND_GRAPHQL_ENDPOINT = 'https://api.backend.octopus.energy/v1/graphql/';
 
 // Issue forms in .github/ISSUE_TEMPLATE apply exactly one of these, so they double as the issue

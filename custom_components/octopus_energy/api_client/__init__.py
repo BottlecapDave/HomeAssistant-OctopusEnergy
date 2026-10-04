@@ -780,7 +780,7 @@ class OctopusEnergyApiClient:
       raise Exception('API KEY is not set')
 
     self._api_key = api_key
-    self._base_url = 'https://api.octopus.energy'
+    self._base_url = 'https://api.oegb-kraken.energy'
     self._backend_base_url = 'https://api.backend.octopus.energy'
 
     self._graphql_token = None
