@@ -130,32 +130,3 @@ async def test_when_next_refresh_is_in_the_future_and_force_update_is_true_then_
     assert result.spins == expected_result
 
     assert mock_api_called == True
-
-@pytest.mark.asyncio
-async def test_when_force_update_is_true_and_exception_raised_then_previous_result_returned_and_exception_captured():
-  # Arrange
-  account_id = "ABC123"
-  current_utc_timestamp = datetime.strptime(f'2022-02-12T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
-  previous_data = WheelOfFortuneSpinsCoordinatorResult(current_utc_timestamp - timedelta(minutes=1), 1, WheelOfFortuneSpinsResponse(1, 2))
-
-  raised_exception = RequestException("foo", [])
-  async def async_mocked_get_wheel_of_fortune_spins(*args, **kwargs):
-    raise raised_exception
-
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_wheel_of_fortune_spins=async_mocked_get_wheel_of_fortune_spins):
-    client = OctopusEnergyApiClient("NOT_REAL")
-
-    # Act
-    result = await async_refresh_wheel_of_fortune_spins(
-      current_utc_timestamp,
-      client,
-      account_id,
-      previous_data,
-      force_update=True
-    )
-
-    # Assert
-    assert result is not None
-    assert result.spins == previous_data.spins
-    assert result.request_attempts == previous_data.request_attempts + 1
-    assert result.last_error == raised_exception

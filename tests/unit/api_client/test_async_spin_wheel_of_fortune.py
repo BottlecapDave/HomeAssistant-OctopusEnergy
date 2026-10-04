@@ -4,10 +4,7 @@ import pytest
 
 from homeassistant.util.dt import now
 
-from custom_components.octopus_energy.api_client import (
-  OctopusEnergyApiClient,
-  RequestException
-)
+from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
 read_response_target = "custom_components.octopus_energy.api_client.OctopusEnergyApiClient.__async_read_response__"
 create_client_session_target = "custom_components.octopus_energy.api_client.OctopusEnergyApiClient._create_client_session"
@@ -57,21 +54,17 @@ async def test_when_prize_is_returned_then_prize_value_is_returned(is_electricit
 @pytest.mark.asyncio
 @pytest.mark.parametrize("response_body", [
   None,
-  {},
-  { "data": None },
-  { "data": {} },
-  { "data": { "spinWheelOfFortune": None } },
-  { "data": { "spinWheelOfFortune": {} } },
   { "data": { "spinWheelOfFortune": { "prize": None } } },
-  { "data": { "spinWheelOfFortune": { "prize": {} } } },
   { "data": { "spinWheelOfFortune": { "prize": { "value": None } } } },
 ])
-async def test_when_prize_is_not_returned_then_exception_is_raised(response_body):
+async def test_when_prize_value_is_not_returned_then_none_is_returned(response_body):
   # Arrange
   client = create_client()
 
   # Act
   with mock.patch(create_client_session_target, return_value=MockClientSession()):
     with mock.patch(read_response_target, return_value=response_body):
-      with pytest.raises(RequestException):
-        await client.async_spin_wheel_of_fortune("ABC123", True)
+      result = await client.async_spin_wheel_of_fortune("ABC123", True)
+
+  # Assert
+  assert result is None

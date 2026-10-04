@@ -2247,7 +2247,7 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
   
-  async def async_spin_wheel_of_fortune(self, account_id: str, is_electricity: bool) -> int:
+  async def async_spin_wheel_of_fortune(self, account_id: str, is_electricity: bool) -> int | None:
     """Get the user's wheel of fortune spins"""
     await self.async_refresh_token()
 
@@ -2272,9 +2272,9 @@ class OctopusEnergyApiClient:
             response_body["data"]["spinWheelOfFortune"]["prize"]["value"] is not None):
           
           return int(response_body["data"]["spinWheelOfFortune"]["prize"]["value"])
-        else:
-          _LOGGER.error("Failed to spin wheel of fortune")
-          raise RequestException("Failed to spin wheel of fortune - no prize was returned", [])
+
+        # The prize value is optional, so the spin can be successful without one
+        return None
 
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
