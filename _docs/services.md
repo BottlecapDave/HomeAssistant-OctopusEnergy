@@ -77,9 +77,30 @@ This service allows the user to perform a spin on the [wheel of fortune](./entit
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
 | `target.entity_id`       | `no`     | The name of the wheel of fortune sensor that represents the type of spin to be made. This should always point at one of the [wheel of fortune sensors](./entities/wheel_of_fortune.md) entities. |
 
+Once the spin has completed, the [wheel of fortune sensors](./entities/wheel_of_fortune.md) are refreshed straight away. The service will fail if the spin could not be made.
+
+This service optionally returns the following [response data](https://www.home-assistant.io/docs/scripts/perform-actions/#use-templates-to-handle-response-data) for each targeted entity
+
+| Attribute                | Type      | Description                                                                                                           |
+| ------------------------ | --------- | --------------------------------------------------------------------------------------------------------------------- |
+| `prize_value`            | `integer` | The value of the prize that was won, as reported by Octopus Energy. This will be empty if the spin didn't win a prize with a value. The unit of the prize is not currently known by the integration, so depending on your account this could be Octoplus points or account credit in pence. |
+
 #### Automation Example
 
 For automation examples, please refer to the available [blueprints](./blueprints.md#wheel-of-fortune).
+
+The response data can be captured using `response_variable`. The response is keyed by the entity id of each targeted sensor.
+
+```yaml
+- action: octopus_energy.spin_wheel_of_fortune
+  target:
+    entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity
+  response_variable: spin_result
+- action: persistent_notification.create
+  data:
+    message: >
+      Wheel of fortune prize: {{ (spin_result.values() | first).prize_value }}
+```
 
 ## Cost Trackers
 
