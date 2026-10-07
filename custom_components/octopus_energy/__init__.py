@@ -37,6 +37,7 @@ from .utils import get_active_tariff, get_tariff_parts
 from .utils.debug_overrides import async_get_account_debug_override, async_get_meter_debug_override
 from .utils.error import api_exception_to_string
 from .storage.account import async_load_cached_account, async_save_cached_account
+from .storage.clear_cache import clear_cache_files
 from .storage.intelligent_device import async_load_cached_intelligent_devices, async_save_cached_intelligent_devices
 from .storage.intelligent_dispatches import async_load_cached_intelligent_dispatches
 from .storage.intelligent_dispatches_history import IntelligentDispatchesHistory, async_load_cached_intelligent_dispatches_history
@@ -532,6 +533,13 @@ def setup(hass, config):
       _LOGGER.debug(f'Removing the following external statistics: {external_statistic_ids_to_remove}')
 
   hass.services.register(DOMAIN, "purge_invalid_external_statistic_ids", purge_invalid_external_statistic_ids)
+
+  async def clear_all_cache_files(call):
+    """Handle the service call."""
+    cleared_files = await hass.async_add_executor_job(clear_cache_files, hass)
+    _LOGGER.debug(f"Cleared the following cache files: {cleared_files}")
+
+  hass.services.register(DOMAIN, "clear_all_cache_files", clear_all_cache_files)
 
   last_graphql_query_at: datetime | None = None
 

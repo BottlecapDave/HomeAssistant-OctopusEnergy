@@ -3,23 +3,26 @@ from datetime import datetime, timedelta
 from ..api_client.octoplus_session import BaseOctoplusSession
 from ..api_client.saving_sessions import SavingSession
 
-def _extend_event_end_through_contiguous_events(event: BaseOctoplusSession, sorted_events: list[BaseOctoplusSession]) -> BaseOctoplusSession:
-  merged_end = event.end
-  for other_event in sorted_events:
-    if other_event.start <= merged_end and other_event.end > merged_end:
-      merged_end = other_event.end
+def combine_events(sorted_events: list[BaseOctoplusSession]) -> list[BaseOctoplusSession]:
+  if not sorted_events:
+    return []
 
-  if merged_end > event.end:
-    event.end = merged_end
-    event.duration_in_minutes = (event.end - event.start).total_seconds() / 60
+  combined_events = [sorted_events[0]]
+  for event in sorted_events[1:]:
+    last_event = combined_events[-1]
+    if event.start <= last_event.end:
+      last_event.end = max(last_event.end, event.end)
+      last_event.duration_in_minutes = (last_event.end - last_event.start).total_seconds() / 60
+    else:
+      combined_events.append(event)
 
-  return event
+  return combined_events
 
 def current_octoplus_sessions_event(current_date: datetime, events: list[BaseOctoplusSession]) -> BaseOctoplusSession | None:
   if events is None:
     return None
 
-  sorted_events = sorted(events, key=lambda event: event.start)
+  sorted_events = combine_events(sorted(events, key=lambda event: event.start))
 
   current_event = None
   for event in sorted_events:
@@ -30,13 +33,13 @@ def current_octoplus_sessions_event(current_date: datetime, events: list[BaseOct
   if current_event is None:
     return None
 
-  return _extend_event_end_through_contiguous_events(current_event, sorted_events)
+  return current_event
 
 def get_next_octoplus_sessions_event(current_date: datetime, events: list[BaseOctoplusSession]) -> BaseOctoplusSession | None:
   if events is None:
     return None
 
-  sorted_events = sorted(events, key=lambda event: event.start)
+  sorted_events = combine_events(sorted(events, key=lambda event: event.start))
 
   next_event = None
   for event in sorted_events:
@@ -47,7 +50,7 @@ def get_next_octoplus_sessions_event(current_date: datetime, events: list[BaseOc
   if next_event is None:
     return None
 
-  return _extend_event_end_through_contiguous_events(next_event, sorted_events)
+  return next_event
 
 class OctoplusSessionConsumptionDate:
   start: datetime

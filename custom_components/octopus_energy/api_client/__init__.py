@@ -780,7 +780,7 @@ class OctopusEnergyApiClient:
       raise Exception('API KEY is not set')
 
     self._api_key = api_key
-    self._base_url = 'https://api.octopus.energy'
+    self._base_url = 'https://api.oegb-kraken.energy'
     self._backend_base_url = 'https://api.backend.octopus.energy'
 
     self._graphql_token = None
@@ -2247,7 +2247,7 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
   
-  async def async_spin_wheel_of_fortune(self, account_id: str, is_electricity: bool) -> int:
+  async def async_spin_wheel_of_fortune(self, account_id: str, is_electricity: bool) -> int | None:
     """Get the user's wheel of fortune spins"""
     await self.async_refresh_token()
 
@@ -2263,15 +2263,23 @@ class OctopusEnergyApiClient:
 
         if (response_body is not None and 
             "data" in response_body and
+            response_body["data"] is not None and
             "spinWheelOfFortune" in response_body["data"] and
-            "prize" in response_body["data"]["spinWheelOfFortune"] and
-            "value" in response_body["data"]["spinWheelOfFortune"]["prize"]):
+            response_body["data"]["spinWheelOfFortune"] is not None):
           
-          return int(response_body["data"]["spinWheelOfFortune"]["prize"]["value"])
+          spin = response_body["data"]["spinWheelOfFortune"]
+          if ("prize" in spin and
+              spin["prize"] is not None and
+              "value" in spin["prize"] and
+              spin["prize"]["value"] is not None):
+            return int(spin["prize"]["value"])
+
+          # The prize value is optional, so the spin can be successful without one
+          return None
         else:
           _LOGGER.error("Failed to spin wheel of fortune")
-      
-      return None
+          raise RequestException("Failed to spin wheel of fortune - no spin result was returned", [])
+
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()

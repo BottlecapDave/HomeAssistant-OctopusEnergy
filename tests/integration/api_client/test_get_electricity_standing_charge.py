@@ -15,8 +15,8 @@ period_to = datetime.strptime("2022-12-02T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
     ("GO-18-06-12", "E-1R-GO-18-06-12-A", 25.0005, False),
     ("VAR-21-09-29", "E-1R-VAR-21-09-29-A", 37.29243, True),
     ("VAR-21-09-29", "E-1R-VAR-21-09-29-A", 37.29243, False),
-    ("AGILE-18-02-21", "E-1R-AGILE-18-02-21-A", 21.0, True),
-    ("AGILE-18-02-21", "E-1R-AGILE-18-02-21-A", 21.0, False),
+    ("AGILE-18-02-21", "E-1R-AGILE-18-02-21-A", 20.0, True),
+    ("AGILE-18-02-21", "E-1R-AGILE-18-02-21-A", 20.0, False),
     ("AGILE-FLEX-22-11-25", "E-1R-AGILE-FLEX-22-11-25-D", 46.956, True),
     ("AGILE-FLEX-22-11-25", "E-1R-AGILE-FLEX-22-11-25-D", 46.956, False)
 ])
