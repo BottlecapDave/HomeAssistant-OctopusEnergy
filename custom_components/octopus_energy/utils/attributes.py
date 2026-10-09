@@ -3,7 +3,14 @@ from datetime import datetime
 
 from homeassistant.util.dt import (as_local)
 
-attribute_keys_to_skip = ['mpan', 'mprn']
+attribute_keys_to_skip = [
+  'mpan', 'mprn',
+  # Charge point identifiers that happen to be all-digit strings - must not
+  # be coerced to int below: simcard_identifier (ICCID, up to 20 digits) can
+  # exceed SQLite/recorder's 64-bit integer range entirely, and
+  # bluetooth_low_energy_pin would silently lose meaningful leading zeros.
+  'simcard_identifier', 'bluetooth_low_energy_pin',
+]
 default_keys_to_ignore = ['last_evaluated', 'data_last_retrieved', 'total_cost_without_standing_charge', 'state_class', 'device_class']
 
 def dict_to_typed_dict(data: dict, keys_to_ignore = []):
