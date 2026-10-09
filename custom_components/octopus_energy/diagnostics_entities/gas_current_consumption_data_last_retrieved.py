@@ -1,4 +1,4 @@
-from .base import OctopusEnergyBaseDataLastRetrieved
+from .base import OctopusEnergyBaseDataLastRetrieved, get_current_consumption_attributes
 from ..gas.base import OctopusEnergyGasSensor
 
 class OctopusEnergyGasCurrentConsumptionDataLastRetrieved(OctopusEnergyBaseDataLastRetrieved, OctopusEnergyGasSensor):
@@ -20,3 +20,6 @@ class OctopusEnergyGasCurrentConsumptionDataLastRetrieved(OctopusEnergyBaseDataL
   def name(self):
     """Name of the sensor."""
     return f"Current Consumption Data Last Retrieved Gas ({self._serial_number}/{self._mprn})"
+
+  def _get_additional_state_attributes(self, result):
+    return get_current_consumption_attributes(result)
