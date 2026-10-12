@@ -23,7 +23,7 @@ from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
 from ..utils.rate_information import get_peak_name, get_rate_index, get_unique_rates
 
-from . import calculate_electricity_consumption_and_cost
+from . import calculate_electricity_consumption_and_cost, MissingElectricityRateError
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -36,6 +36,7 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(MultiCoordinatorEnt
 
     self._state = None
     self._last_reset = None
+    self._missing_rate_error = None
     
     self._rates_coordinator = rates_coordinator
     self._standing_charge_coordinator = standing_charge_coordinator
@@ -101,7 +102,7 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(MultiCoordinatorEnt
 
   @property
   def native_value(self):
-    return self._state
+    return None if self._missing_rate_error is not None else self._state
   
   @callback
   def _handle_coordinator_update(self) -> None:
@@ -118,15 +119,28 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(MultiCoordinatorEnt
       unique_rate_index = get_rate_index(len(unique_rates), self._peak_type)
       target_rate = unique_rates[unique_rate_index] if unique_rate_index is not None else None
 
-    consumption_and_cost = calculate_electricity_consumption_and_cost(
-      consumption_data,
-      rate_data,
-      standing_charge if target_rate is None else 0,
-      None, # We want to recalculate
-      target_rate=target_rate
-    )
+    try:
+      consumption_and_cost = calculate_electricity_consumption_and_cost(
+        consumption_data,
+        rate_data,
+        standing_charge if target_rate is None else 0,
+        None, # We want to recalculate
+        target_rate=target_rate
+      )
+    except MissingElectricityRateError as error:
+      if self._missing_rate_error is None:
+        _LOGGER.warning(
+          "Unable to calculate current electricity consumption for '%s/%s': %s. The sensor will recover when complete rate data is available",
+          self._mpan,
+          self._serial_number,
+          error,
+        )
+      self._missing_rate_error = error
+      super()._handle_coordinator_update()
+      return
 
     if (consumption_and_cost is not None):
+      self._missing_rate_error = None
       _LOGGER.debug(f"Calculated previous electricity consumption for '{self._mpan}/{self._serial_number}'...")
 
       self._state = consumption_and_cost["total_consumption"]

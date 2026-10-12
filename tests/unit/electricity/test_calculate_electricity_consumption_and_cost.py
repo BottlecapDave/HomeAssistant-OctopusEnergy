@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from unit import (create_consumption_data, create_rate_data)
-from custom_components.octopus_energy.electricity import calculate_electricity_consumption_and_cost
+from custom_components.octopus_energy.electricity import calculate_electricity_consumption_and_cost, MissingElectricityRateError
 
 @pytest.mark.asyncio
 async def test_when_electricity_consumption_is_none_then_no_calculation_is_returned():
@@ -46,6 +46,29 @@ async def test_when_electricity_rates_is_none_then_no_calculation_is_returned():
 
   # Assert
   assert result is None
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("missing_rate_index", [0, 1, 2], ids=["first", "middle", "last"])
+async def test_when_electricity_rate_is_missing_then_exception_is_raised(missing_rate_index):
+  # Arrange
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-02-28T01:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  consumption_data = create_consumption_data(period_from, period_to)
+  rate_data = create_rate_data(period_from, period_to, [50])
+  missing_rate = rate_data.pop(missing_rate_index)
+
+  # Act/Assert
+  with pytest.raises(MissingElectricityRateError) as raised_exception:
+    calculate_electricity_consumption_and_cost(
+      consumption_data,
+      rate_data,
+      10.1,
+      None
+    )
+
+  assert str(raised_exception.value) == f"Failed to find rate for consumption between {missing_rate['start']} and {missing_rate['end']}"
+  assert raised_exception.value.start == missing_rate["start"]
+  assert raised_exception.value.end == missing_rate["end"]
 
 @pytest.mark.asyncio
 async def test_when_electricity_consumption_is_before_latest_date_then_no_calculation_is_returned():
@@ -347,4 +370,3 @@ async def test_electricity_consumption_with_website_data():
     
     assert "consumption" in item
     assert item["consumption"] == consumption_data[index]["consumption"]
-  
