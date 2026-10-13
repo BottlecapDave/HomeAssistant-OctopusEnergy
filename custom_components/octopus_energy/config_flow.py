@@ -194,7 +194,7 @@ class OctopusEnergyConfigFlow(ConfigFlow, domain=DOMAIN):
       vol.Required(CONFIG_ACCOUNT_ID): str,
       vol.Required(CONFIG_MAIN_API_KEY): str,
       vol.Required(CONFIG_MAIN_CALORIFIC_VALUE, default=DEFAULT_CALORIFIC_VALUE): cv.positive_float,
-      vol.Required(CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES): bool,
+      vol.Required(CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES, default=True): bool,
       vol.Required(CONFIG_MAIN_AUTO_DISCOVER_COST_TRACKERS): bool,
       vol.Required(CONFIG_MAIN_HOME_MINI_SETTINGS): section(
         vol.Schema(
