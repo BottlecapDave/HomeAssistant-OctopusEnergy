@@ -1,33 +1,70 @@
-from homeassistant.util.dt import as_utc, parse_datetime
+from __future__ import annotations
+
+from datetime import datetime
+
+from pydantic import BaseModel, ConfigDict, Field, computed_field
 
 
-class OctoplusScratchcardResponse:
-  def __init__(self, active_session: dict | None, scratchcard: dict | None):
-    self.has_active_session = active_session is not None
-    self.has_scratchcard = scratchcard is not None
-    session = active_session or {}
-    card = scratchcard or {}
-    offer = card.get("offer") or {}
-    prize = card.get("prize") or {}
-    self.starts_at = as_utc(parse_datetime(session["startsAt"])) if session.get("startsAt") is not None else None
-    self.ends_at = as_utc(parse_datetime(session["endsAt"])) if session.get("endsAt") is not None else None
-    self.session_external_reference = session.get("externalReference")
-    self.scratchcard_external_reference = card.get("externalReference")
-    self.scratchcard_status = card.get("status")
-    self.offer_slug = offer.get("slug")
-    self.feature_display_text = offer.get("featureDisplayText")
-    self.prize_type = prize.get("__typename")
+class OctoplusScratchcardSession(BaseModel):
+  startsAt: datetime | None = None
+  endsAt: datetime | None = None
+  externalReference: str | None = None
+
+
+class OctoplusScratchcardOffer(BaseModel):
+  slug: str | None = None
+  featureDisplayText: str | None = None
+
+
+class OctoplusScratchcardPrize(BaseModel):
+  typename: str | None = Field(default=None, alias="__typename")
+
+  model_config = ConfigDict(populate_by_name=True)
+
+
+class OctoplusScratchcard(BaseModel):
+  externalReference: str | None = None
+  status: str | None = None
+  offer: OctoplusScratchcardOffer | None = None
+  prize: OctoplusScratchcardPrize | None = None
+
+
+class OctoplusScratchcardResponse(BaseModel):
+  activeSession: OctoplusScratchcardSession | None = None
+  scratchcard: OctoplusScratchcard | None = None
+
+  @computed_field
+  @property
+  def has_active_session(self) -> bool:
+    return self.activeSession is not None
+
+  @computed_field
+  @property
+  def has_scratchcard(self) -> bool:
+    return self.scratchcard is not None
 
   def to_dict(self):
     return {
-      "starts_at": self.starts_at,
-      "ends_at": self.ends_at,
-      "session_external_reference": self.session_external_reference,
-      "scratchcard_external_reference": self.scratchcard_external_reference,
-      "scratchcard_status": self.scratchcard_status,
-      "offer_slug": self.offer_slug,
-      "feature_display_text": self.feature_display_text,
-      "prize_type": self.prize_type,
+      "starts_at": self.activeSession.startsAt if self.activeSession is not None else None,
+      "ends_at": self.activeSession.endsAt if self.activeSession is not None else None,
+      "session_external_reference": self.activeSession.externalReference if self.activeSession is not None else None,
+      "scratchcard_external_reference": self.scratchcard.externalReference if self.scratchcard is not None else None,
+      "scratchcard_status": self.scratchcard.status if self.scratchcard is not None else None,
+      "offer_slug": (
+        self.scratchcard.offer.slug
+        if self.scratchcard is not None and self.scratchcard.offer is not None
+        else None
+      ),
+      "feature_display_text": (
+        self.scratchcard.offer.featureDisplayText
+        if self.scratchcard is not None and self.scratchcard.offer is not None
+        else None
+      ),
+      "prize_type": (
+        self.scratchcard.prize.typename
+        if self.scratchcard is not None and self.scratchcard.prize is not None
+        else None
+      ),
     }
 
 
