@@ -14,7 +14,10 @@ from custom_components.octopus_energy.coordinators.octoplus_scratchcard import (
 @pytest.mark.asyncio
 async def test_refresh_returns_data_and_waits_until_next_refresh():
   current = now()
-  data = OctoplusScratchcardResponse({}, None)
+  data = OctoplusScratchcardResponse.model_validate({
+    "activeSession": {},
+    "scratchcard": None,
+  })
   client = AsyncMock()
   client.async_get_octoplus_scratchcard.return_value = data
 
@@ -28,7 +31,10 @@ async def test_refresh_returns_data_and_waits_until_next_refresh():
   assert cached_result is result
   assert client.async_get_octoplus_scratchcard.await_count == 1
 
-  new_data = OctoplusScratchcardResponse(None, None)
+  new_data = OctoplusScratchcardResponse.model_validate({
+    "activeSession": None,
+    "scratchcard": None,
+  })
   client.async_get_octoplus_scratchcard.return_value = new_data
   refreshed_result = await async_refresh_octoplus_scratchcard(result.next_refresh, client, "A-12345678", result)
   assert refreshed_result.data is new_data
@@ -39,7 +45,10 @@ async def test_refresh_returns_data_and_waits_until_next_refresh():
 @pytest.mark.parametrize("has_cached_data", [True, False])
 async def test_api_failure_preserves_cached_data_and_schedules_retry(has_cached_data):
   current = now()
-  data = OctoplusScratchcardResponse({}, None)
+  data = OctoplusScratchcardResponse.model_validate({
+    "activeSession": {},
+    "scratchcard": None,
+  })
   existing = OctoplusScratchcardCoordinatorResult(current, 1, data) if has_cached_data else None
   error = RequestException("Unavailable", [])
   client = AsyncMock()
