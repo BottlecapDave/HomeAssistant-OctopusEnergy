@@ -9,6 +9,7 @@ from custom_components.octopus_energy.const import (
   CONFIG_KIND,
   CONFIG_KIND_ACCOUNT,
   CONFIG_KIND_TARIFF_COMPARISON,
+  CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES,
   CONFIG_MAIN_API_KEY,
   CONFIG_TARIFF_COMPARISON_MPAN_MPRN,
   CONFIG_TARIFF_COMPARISON_NAME,
@@ -95,3 +96,12 @@ async def test_reconfigure_tariff_comparison_updates_without_explicit_reload():
     },
   )
   flow.async_update_reload_and_abort.assert_not_called()
+
+
+def test_account_schema_favours_direct_debit_rates_by_default():
+  # The integration treats a missing value as True, so a new account should start with it ticked
+  schema = OctopusEnergyConfigFlow().__setup_account_schema__()
+  key = next(key for key in schema.schema if key == CONFIG_MAIN_FAVOUR_DIRECT_DEBIT_RATES)
+
+  assert key.default() is True
+  assert schema.schema[key] is bool
