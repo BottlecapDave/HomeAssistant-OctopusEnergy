@@ -168,7 +168,7 @@ These sensors are for [Octopus Saving Sessions](https://octopus.energy/saving-se
 
 `calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_sessions`
 
-Read only [calendar](https://www.home-assistant.io/integrations/calendar) sensor to record saving sessions. Will be `on` when a saving session that the account has joined is active. Calendar events will be automatically added/removed by the integration when joined events are discovered.
+Read only [calendar](https://www.home-assistant.io/integrations/calendar) sensor to record saving sessions. Will be `on` when a saving session that the account has joined is active. Calendar events will be automatically added/removed by the integration when joined events are discovered. 
 
 Standard calendar attributes will indicate the current/next saving session.
 
@@ -552,3 +552,4 @@ Determines the current number of weekend happy hours available for use. This sen
 ## Services
 
 There are some services available relating to these entities that you might find useful. They can be found in the [services docs](../services.md#octoplus).
+
