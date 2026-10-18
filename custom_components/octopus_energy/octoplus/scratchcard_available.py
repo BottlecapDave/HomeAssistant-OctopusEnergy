@@ -30,7 +30,7 @@ class OctopusEnergyOctoplusScratchcardAvailable(CoordinatorEntity, OctopusEnergy
 
   @property
   def available(self):
-    return super().available and self.coordinator.data is not None and self.coordinator.data.data is not None
+    return super().available and self.coordinator.data is not None
 
   @property
   def is_on(self):
