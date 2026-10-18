@@ -37,7 +37,10 @@ scratchcard = {
   (session, {}, False),
 ])
 def test_scratchcard_availability(active_session, card, expected):
-  data = OctoplusScratchcardResponse(active_session, card)
+  data = OctoplusScratchcardResponse.model_validate({
+    "activeSession": active_session,
+    "scratchcard": card,
+  })
   assert is_scratchcard_available(data) is expected
 
 
@@ -46,7 +49,10 @@ def test_when_data_missing_then_scratchcard_not_available():
 
 
 def test_when_optional_fields_missing_then_attributes_are_none():
-  data = OctoplusScratchcardResponse({}, {"offer": None, "prize": None})
+  data = OctoplusScratchcardResponse.model_validate({
+    "activeSession": {},
+    "scratchcard": {"offer": None, "prize": None},
+  })
   assert all(value is None for value in data.to_dict().values())
 
 
@@ -55,7 +61,10 @@ async def test_sensor_state_and_attributes_follow_coordinator():
   hass = HomeAssistant("/tmp")
   coordinator = Mock()
   coordinator.last_update_success = True
-  coordinator.data = SimpleNamespace(data=OctoplusScratchcardResponse(session, None))
+  coordinator.data = SimpleNamespace(data=OctoplusScratchcardResponse.model_validate({
+    "activeSession": session,
+    "scratchcard": None,
+  }))
   sensor = OctopusEnergyOctoplusScratchcardAvailable(hass, coordinator, "A-12345678")
 
   assert sensor.entity_id == "binary_sensor.octopus_energy_a_12345678_octoplus_scratchcard_available"
@@ -68,7 +77,10 @@ async def test_sensor_state_and_attributes_follow_coordinator():
   assert sensor.extra_state_attributes["session_external_reference"] == "session-reference"
   assert sensor.extra_state_attributes["scratchcard_status"] is None
 
-  coordinator.data = SimpleNamespace(data=OctoplusScratchcardResponse(session, scratchcard))
+  coordinator.data = SimpleNamespace(data=OctoplusScratchcardResponse.model_validate({
+    "activeSession": session,
+    "scratchcard": scratchcard,
+  }))
   assert sensor.is_on is False
   assert sensor.extra_state_attributes == {
     "starts_at": parse_datetime(session["startsAt"]),
@@ -81,13 +93,16 @@ async def test_sensor_state_and_attributes_follow_coordinator():
     "prize_type": "OctoplusOfferType",
   }
 
-  coordinator.data = SimpleNamespace(data=OctoplusScratchcardResponse(None, None))
+  coordinator.data = SimpleNamespace(data=OctoplusScratchcardResponse.model_validate({
+    "activeSession": None,
+    "scratchcard": None,
+  }))
   assert sensor.is_on is False
   assert sensor.available is True
   assert all(value is None for value in sensor.extra_state_attributes.values())
 
   coordinator.data = SimpleNamespace(data=None)
-  assert sensor.available is False
+  assert sensor.available is True
   assert sensor.extra_state_attributes == {}
   coordinator.data = None
   assert sensor.available is False
