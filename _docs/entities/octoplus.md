@@ -50,7 +50,7 @@ These sensors are for [Octopus Saving Sessions](https://octopus.energy/saving-se
 
 `calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_power_down`
 
-Read only [calendar](https://www.home-assistant.io/integrations/calendar) sensor to record power down (saving) sessions. Will be `on` when a power down session that the account has joined is active. Calendar events will only indicate future joined events. 
+Read only [calendar](https://www.home-assistant.io/integrations/calendar) sensor to record power down (saving) sessions. Will be `on` when a power down session that the account has joined is active. Calendar events will be automatically added/removed by the integration when joined events are discovered.
 
 Standard calendar attributes will indicate the current/next power down session.
 
@@ -119,7 +119,7 @@ Each joined event item will include the following attributes
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_octoplus_power_down_baseline`
 
-This will indicate the baseline consumption that you need to be below for the current 30 minute period of the current power down session or the first 30 minute period of the next power down session. 
+This will indicate the baseline consumption that you need to be below for the current 30 minute period of the current power down session or the first 30 minute period of the next power down session.
 
 You can use the [current period consumption](./electricity.md#current-interval-accumulative-consumption) sensor (if available) to see how on track you are.
 
@@ -168,13 +168,13 @@ These sensors are for [Octopus Saving Sessions](https://octopus.energy/saving-se
 
 `calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_saving_sessions`
 
-Read only [calendar](https://www.home-assistant.io/integrations/calendar) sensor to record saving sessions. Will be `on` when a saving session that the account has joined is active. Calendar events will only indicate future joined events. 
+Read only [calendar](https://www.home-assistant.io/integrations/calendar) sensor to record saving sessions. Will be `on` when a saving session that the account has joined is active. Calendar events will be automatically added/removed by the integration when joined events are discovered.
 
 Standard calendar attributes will indicate the current/next saving session.
 
 !!! warning
 
-    These sensors are superceded by the sensors in the [Octopus Power Down](#octopus-power-down) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0006_saving_sessions_rename.md).
+    These sensors are superceded by the sensors in the [Octopus Power Down](#octopus-power-down) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information. They will not be available for new accounts that are setup to avoid confusion for new users.
 
 !!! warning
 
@@ -212,7 +212,7 @@ The state of this sensor states when the saving session events were last updated
 
 !!! warning
 
-    These sensors are superceded by the sensors in the [Octopus Power Down](#octopus-power-down) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0006_saving_sessions_rename.md).
+    These sensors are superceded by the sensors in the [Octopus Power Down](#octopus-power-down) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information. They will not be available for new accounts that are setup to avoid confusion for new users.
 
 !!! note
     This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor.
@@ -252,7 +252,7 @@ This will indicate the baseline consumption that you need to be below for the cu
 
 !!! warning
 
-    These sensors are superceded by the sensors in the [Octopus Power Down](#octopus-power-down) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0006_saving_sessions_rename.md).
+    These sensors are superceded by the sensors in the [Octopus Power Down](#octopus-power-down) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information. They will not be available for new accounts that are setup to avoid confusion for new users.
 
 You can use the [current period consumption](./electricity.md#current-interval-accumulative-consumption) sensor (if available) to see how on track you are.
 
@@ -301,13 +301,13 @@ Each item within `baselines` consists of the following attributes
 These sensors are for [Octopus Free Electricity](https://octopus.energy/free-electricity/), branded as "Power Up" sessions.
 
 !!! note
-    This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to these sensors. This is only applicable if you have signed up to [free electricity](https://octopus.energy/free-electricity/).
+    This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to these sensors. This is only applicable if you have signed up to [free electricity sessions](https://octopus.energy/free-electricity/). These sensors use public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi.
 
 ### Power Up Calendar
 
 `calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_power_up`
 
-Read only [calendar](https://www.home-assistant.io/integrations/calendar) sensor to record power up (free electricity) sessions. Will be `on` when a power up session is active. Calendar events will only indicate future joined events. 
+Read only [calendar](https://www.home-assistant.io/integrations/calendar) sensor to record power up (free electricity) sessions. Will be `on` when a power up session is active. Calendar events will be automatically added/removed by the integration when events are discovered.
 
 Standard calendar attributes will indicate the current/next power up session.
 
@@ -417,20 +417,20 @@ These sensors are for [Octopus Free Electricity](https://octopus.energy/free-ele
 
 `calendar.octopus_energy_{{ACCOUNT_ID}}_octoplus_free_electricity_session`
 
-Read only [calendar](https://www.home-assistant.io/integrations/calendar) sensor to record free electricity sessions. Will be `on` when a free electricity session is active. Calendar events will only indicate future joined events. 
+Read only [calendar](https://www.home-assistant.io/integrations/calendar) sensor to record free electricity sessions. Will be `on` when a free electricity session is active. Calendar events will be automatically added/removed by the integration when events are discovered.
 
 Standard calendar attributes will indicate the current/next saving session.
 
 !!! warning
 
-    These sensors are superceded by the sensors in the [Octopus Power Up](#octopus-power-up) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0005_free_electricity_rename.md).
+    These sensors are superceded by the sensors in the [Octopus Power Up](#octopus-power-up) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information. They will not be available for new accounts that are setup to avoid confusion for new users.
 
 !!! warning
 
     The sensor does not store past events indefinitely. Past events could be removed without notice.
 
 !!! note
-    This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to [free electricity](https://octopus.energy/free-electricity/).
+    This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to [free electricity sessions](https://octopus.energy/free-electricity/). This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi.
 
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
@@ -467,10 +467,10 @@ The state of this sensor states when the free electricity session events were la
 
 !!! warning
 
-    These sensors are superceded by the sensors in the [Octopus Power Up](#octopus-power-up) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0005_free_electricity_rename.md).
+    These sensors are superceded by the sensors in the [Octopus Power Up](#octopus-power-up) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information. They will not be available for new accounts that are setup to avoid confusion for new users.
 
 !!! note
-    This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to [free electricity](https://octopus.energy/free-electricity/).
+    This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to [free electricity sessions](https://octopus.energy/free-electricity/). This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi.
 
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
@@ -498,10 +498,10 @@ You can use the [current period consumption](./electricity.md#current-interval-a
 
 !!! warning
 
-    These sensors are superceded by the sensors in the [Octopus Power Up](#octopus-power-up) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0005_free_electricity_rename.md).
+    These sensors are superceded by the sensors in the [Octopus Power Up](#octopus-power-up) section above, and will be removed in **January 2027**. See [this ADR](../architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md) for more information. They will not be available for new accounts that are setup to avoid confusion for new users.
 
 !!! note
-    This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to [free electricity](https://octopus.energy/free-electricity/).
+    This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor. This is only applicable if you have signed up to [free electricity sessions](https://octopus.energy/free-electricity/). This sensor uses public information supplied by https://github.com/BottlecapDave/OctopusEnergyApi.
 
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
