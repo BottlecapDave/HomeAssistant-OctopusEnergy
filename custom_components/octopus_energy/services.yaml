@@ -2,6 +2,10 @@ purge_invalid_external_statistic_ids:
   name: Purge invalid external statistics
   description: Removes external statistics for all meters that don't have an active tariff
 
+clear_all_cache_files:
+  name: Clear all cache files
+  description: Removes all cached data files that the integration has stored on disk (e.g. account, tariff, and intelligent device caches). This will force the affected data to be reloaded from the API.
+
 run_graphql_query:
   name: Run graphql query
   description: Runs an arbitrary graphql query/mutation against a given account. This is intended to be used for debugging purposes only and can only be called once every minute.

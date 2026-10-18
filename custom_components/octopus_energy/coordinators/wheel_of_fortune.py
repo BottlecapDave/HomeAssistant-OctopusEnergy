@@ -11,6 +11,7 @@ from ..const import (
   DOMAIN,
   DATA_CLIENT,
   DATA_WHEEL_OF_FORTUNE_SPINS,
+  DATA_WHEEL_OF_FORTUNE_SPINS_FORCE_UPDATE,
   REFRESH_RATE_IN_MINUTES_OCTOPLUS_WHEEL_OF_FORTUNE,
 )
 
@@ -32,9 +33,10 @@ async def async_refresh_wheel_of_fortune_spins(
     current: datetime,
     client: OctopusEnergyApiClient,
     account_id: str,
-    existing_result: WheelOfFortuneSpinsCoordinatorResult
+    existing_result: WheelOfFortuneSpinsCoordinatorResult,
+    force_update: bool = False
 ) -> WheelOfFortuneSpinsCoordinatorResult:
-  if existing_result is None or current >= existing_result.next_refresh:
+  if existing_result is None or force_update or current >= existing_result.next_refresh:
     try:
       result = await client.async_get_wheel_of_fortune_spins(account_id)
 
@@ -68,11 +70,15 @@ async def async_setup_wheel_of_fortune_spins_coordinator(hass, account_id: str):
     current = now()
     client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
 
+    force_update = hass.data[DOMAIN][account_id][DATA_WHEEL_OF_FORTUNE_SPINS_FORCE_UPDATE] if DATA_WHEEL_OF_FORTUNE_SPINS_FORCE_UPDATE in hass.data[DOMAIN][account_id] else False
+    hass.data[DOMAIN][account_id][DATA_WHEEL_OF_FORTUNE_SPINS_FORCE_UPDATE] = False
+
     hass.data[DOMAIN][account_id][DATA_WHEEL_OF_FORTUNE_SPINS] = await async_refresh_wheel_of_fortune_spins(
       current,
       client,
       account_id,
-      hass.data[DOMAIN][account_id][DATA_WHEEL_OF_FORTUNE_SPINS] if DATA_WHEEL_OF_FORTUNE_SPINS in hass.data[DOMAIN][account_id] else None
+      hass.data[DOMAIN][account_id][DATA_WHEEL_OF_FORTUNE_SPINS] if DATA_WHEEL_OF_FORTUNE_SPINS in hass.data[DOMAIN][account_id] else None,
+      force_update
     )
 
     return hass.data[DOMAIN][account_id][DATA_WHEEL_OF_FORTUNE_SPINS]

@@ -14,7 +14,7 @@ import {
 
 // Queries/mutations without a `backend_` prefix talk to the standard Kraken API, `backend_`
 // prefixed ones talk to the Octopus Energy backend API - each is backed by its own schema.
-const DEFAULT_GRAPHQL_ENDPOINT = 'https://api.octopus.energy/v1/graphql/';
+const DEFAULT_GRAPHQL_ENDPOINT = 'https://api.oegb-kraken.energy/v1/graphql/';
 const BACKEND_GRAPHQL_ENDPOINT = 'https://api.backend.octopus.energy/v1/graphql/';
 
 const API_CLIENT_FILE_PATH = join(__dirname, '../custom_components/octopus_energy/api_client/__init__.py');

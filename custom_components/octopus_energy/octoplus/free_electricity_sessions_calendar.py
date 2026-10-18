@@ -15,6 +15,7 @@ from homeassistant.components.calendar import (
 from homeassistant.helpers.restore_state import RestoreEntity
 
 from . import (
+  combine_events,
   current_octoplus_sessions_event,
   get_next_octoplus_sessions_event
 )
@@ -116,4 +117,4 @@ class OctopusEnergyFreeElectricitySessionsCalendar(OctopusEnergyOctoplusSensor, 
             end=event.end,
           ))
 
-    return events
+    return combine_events(events)

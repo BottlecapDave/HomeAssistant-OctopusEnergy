@@ -71,3 +71,19 @@ async def test_when_events_is_none_then_none_returned():
   )
 
   assert result is None
+
+@pytest.mark.asyncio
+async def test_when_future_events_present_but_combined_with_current_event_then_none_returned():
+  events = [
+    SavingSession("1", "ABC", datetime.strptime("2022-12-04T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2022-12-04T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), 0),
+    SavingSession("2", "ABC", datetime.strptime("2022-12-04T18:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2022-12-04T19:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), 0)
+  ]
+
+  current_date = datetime.strptime("2022-12-04T17:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+
+  result = get_next_octoplus_sessions_event(
+    current_date,
+    events,
+  )
+
+  assert result is None
