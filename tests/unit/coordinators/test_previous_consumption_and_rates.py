@@ -11,7 +11,7 @@ from custom_components.octopus_energy.api_client import OctopusEnergyApiClient, 
 from custom_components.octopus_energy.api_client.intelligent_device import IntelligentDevice
 
 from custom_components.octopus_energy.api_client.intelligent_dispatches import IntelligentDispatches, SimpleIntelligentDispatchItem
-from custom_components.octopus_energy.const import EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, EVENT_GAS_PREVIOUS_CONSUMPTION_RATES
+from custom_components.octopus_energy.const import CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY, EVENT_ELECTRICITY_PREVIOUS_CONSUMPTION_RATES, EVENT_GAS_PREVIOUS_CONSUMPTION_RATES
 
 sensor_identifier = "ABC123"
 sensor_serial_number = "123456"
@@ -944,6 +944,80 @@ async def test_when_started_intelligent_dispatches_available_then_adjusted_reque
                          "mpan",
                          sensor_identifier)
     
+@pytest.mark.asyncio
+@pytest.mark.parametrize("enforce_intelligent_cap,expected_last_adjusted_end",[
+  (True, "2022-02-28T18:00:00Z"),
+  (False, "2022-02-28T19:30:00Z"),
+])
+async def test_when_started_dispatches_exceed_cap_then_cap_only_applied_when_enforced(enforce_intelligent_cap: bool, expected_last_adjusted_end: str):
+  # Arrange
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+
+  async def async_mocked_get_electricity_consumption(*args, **kwargs):
+    return create_consumption_data(period_from, period_to)
+  
+  expected_rates = (
+    create_rate_data(period_from, datetime.strptime("2022-02-28T05:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), [1]) +
+    create_rate_data(datetime.strptime("2022-02-28T05:30:00Z", "%Y-%m-%dT%H:%M:%S%z"), period_to, [2])
+  )
+  async def async_mocked_get_electricity_rates(*args, **kwargs):
+    return expected_rates
+  
+  async def async_mocked_get_electricity_standing_charge(*args, **kwargs):
+    return {
+      "value_inc_vat": 100.2
+    }
+  
+  def fire_event(name, metadata):
+    return None
+  
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_consumption=async_mocked_get_electricity_consumption, async_get_electricity_rates=async_mocked_get_electricity_rates, async_get_electricity_standing_charge=async_mocked_get_electricity_standing_charge):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    current_utc_timestamp = datetime.strptime(f'2022-02-12T00:00:00Z', "%Y-%m-%dT%H:%M:%S%z")
+    account_info = get_account_info(period_from, electricity_product_code="INTELLI-BB-VAR-23-03-01", electricity_tariff_code="E-1R-INTELLI-BB-VAR-23-03-01-C")
+
+    # 7.5 hours of dispatches within a single intelligent day (12:00 to 12:00), which exceeds the 6 hour cap
+    dispatch_start = datetime.strptime("2022-02-28T12:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    dispatch_end = datetime.strptime("2022-02-28T19:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+    intelligent_dispatches = IntelligentDispatches(
+      "SMART_CONTROL_IN_PROGRESS",
+      [],
+      [],
+      [
+        SimpleIntelligentDispatchItem(dispatch_start, dispatch_end)
+      ]
+    )
+
+    # Act
+    result = await async_fetch_consumption_and_rates(
+      None,
+      current_utc_timestamp,
+      account_info,
+      client,
+      sensor_identifier,
+      sensor_serial_number,
+      True,
+      True,
+      fire_event,
+      { "1": IntelligentDispatchesCoordinatorResult(current_utc_timestamp, 1, intelligent_dispatches, IntelligentDispatchesHistory([]), 0, current_utc_timestamp) },
+      None,
+      CONFIG_MAIN_INTELLIGENT_RATE_MODE_STARTED_DISPATCHES_ONLY,
+      enforce_intelligent_cap
+    )
+
+    # Assert
+    assert result is not None
+    assert len(result.rates) == len(expected_rates)
+
+    last_adjusted_end = datetime.strptime(expected_last_adjusted_end, "%Y-%m-%dT%H:%M:%S%z")
+    for index, rate in enumerate(result.rates):
+      if rate["start"] >= dispatch_start and rate["end"] <= last_adjusted_end:
+        assert rate["value_inc_vat"] == 1
+        assert rate["is_intelligent_adjusted"] == True
+      else:
+        assert rate == expected_rates[index]
+
 @pytest.mark.asyncio
 async def test_when_intelligent_tariff_and_intelligent_device_and_no_dispatches_available_then_previous_result_returned():
   # Arrange
