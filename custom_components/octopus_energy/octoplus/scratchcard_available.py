@@ -40,4 +40,21 @@ class OctopusEnergyOctoplusScratchcardAvailable(CoordinatorEntity, OctopusEnergy
   @property
   def extra_state_attributes(self):
     result = self.coordinator.data
-    return result.data.to_dict() if result is not None and result.data is not None else {}
+    if result is None or result.data is None:
+      return {}
+
+    data = result.data.model_dump()
+    session = data["activeSession"] or {}
+    scratchcard = data["scratchcard"] or {}
+    offer = scratchcard.get("offer") or {}
+    prize = scratchcard.get("prize") or {}
+    return {
+      "starts_at": session.get("startsAt"),
+      "ends_at": session.get("endsAt"),
+      "session_external_reference": session.get("externalReference"),
+      "scratchcard_external_reference": scratchcard.get("externalReference"),
+      "scratchcard_status": scratchcard.get("status"),
+      "offer_slug": offer.get("slug"),
+      "feature_display_text": offer.get("featureDisplayText"),
+      "prize_type": prize.get("typename"),
+    }

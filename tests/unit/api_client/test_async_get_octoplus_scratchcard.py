@@ -10,7 +10,30 @@ from custom_components.octopus_energy.api_client import (
   integration_context_header,
   octoplus_scratchcard_query,
 )
+from custom_components.octopus_energy.api_client.octoplus import OctoplusScratchcardResponse
 from custom_components.octopus_energy.octoplus import is_scratchcard_available
+
+
+def test_scratchcard_response_uses_base_model_serialization():
+  payload = {
+    "activeSession": {
+      "startsAt": "2026-09-27T23:00:00Z",
+      "endsAt": "2026-09-28T23:00:00Z",
+      "externalReference": "session-reference",
+    },
+    "scratchcard": {
+      "externalReference": "scratchcard-reference",
+      "status": "PRIZE_CLAIMED",
+      "offer": {"slug": "coffee", "featureDisplayText": "A free coffee"},
+      "prize": {"__typename": "OctoplusOfferType"},
+    },
+  }
+  data = OctoplusScratchcardResponse.model_validate(payload)
+  assert data.model_dump(mode="json", by_alias=True) == {
+    **payload,
+    "has_active_session": True,
+    "has_scratchcard": True,
+  }
 
 
 @pytest.mark.asyncio
