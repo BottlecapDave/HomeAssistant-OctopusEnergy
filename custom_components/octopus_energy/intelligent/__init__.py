@@ -2,7 +2,7 @@ import logging
 from datetime import (datetime, timedelta, time)
 import re
 
-from homeassistant.util.dt import (utcnow, parse_datetime)
+from homeassistant.util.dt import (utcnow, parse_datetime, as_local, as_utc)
 
 from ..utils import get_active_tariff
 
@@ -529,44 +529,36 @@ def get_applicable_intelligent_dispatch_history(history: IntelligentDispatchesHi
   return applicable_history_item
 
 def get_dispatch_hours_for_intelligent_day(current: datetime, dispatches: list[SimpleIntelligentDispatchItem], cap_to_current = False) -> float:
-  if (current.hour < 12):
-    start = (current - timedelta(days=1)).replace(hour=12, minute=0, second=0, microsecond=0)
+  # The cap period runs from noon to noon in local (UK) time. Rates arrive from the API in UTC, so the
+  # boundary must be worked out in local time, otherwise it lands at 13:00 during British Summer Time.
+  local_current = as_local(current)
+  if (local_current.hour < 12):
+    start = (local_current - timedelta(days=1)).replace(hour=12, minute=0, second=0, microsecond=0)
   else:
-    start = current.replace(hour=12, minute=0, second=0, microsecond=0)
+    start = local_current.replace(hour=12, minute=0, second=0, microsecond=0)
   end = start + timedelta(days=1)
 
   _LOGGER.debug(f"Calculating dispatch hours for intelligent day at {current} from {start} to {end}")
 
-  hours = 0
-  existing_dispatches = []
+  # Count each half hour slot touched by a dispatch once. Dispatches are clipped to the cap period, so time
+  # before noon is not counted against the new period (it has already been counted against the previous one),
+  # and dispatches that have not started yet by `current` contribute nothing.
+  slots = set()
   for dispatch in dispatches:
-    if is_dispatch_within_time_frame(dispatch, start, end) == False:
+    dispatch_start = as_utc(max(dispatch.start, start))
+    dispatch_end = as_utc(min(dispatch.end, end))
+    if cap_to_current:
+      dispatch_end = min(dispatch_end, as_utc(current))
+
+    if dispatch_end <= dispatch_start:
       continue
 
-    dispatch_exists = False
-    dispatch_end = dispatch.end
-    if cap_to_current:
-      dispatch_end = min(dispatch_end, current)
+    slot = round_down_to_nearest_half_hour(dispatch_start)
+    while slot < dispatch_end:
+      slots.add(slot)
+      slot = slot + timedelta(minutes=30)
 
-    for existing_dispatch in existing_dispatches:
-      # If the dispatch starts within the existing dispatch, extend the end
-      if (dispatch.start >= existing_dispatch.start and dispatch.start <= existing_dispatch.end):
-        existing_dispatch.end = min(dispatch_end, max(existing_dispatch.end, dispatch_end))
-        existing_dispatch.end = round_up_to_nearest_half_hour(existing_dispatch.end)
-        dispatch_exists = True
-      # If the dispatch ends within the existing dispatch, extend the start
-      if (dispatch_end <= existing_dispatch.end and dispatch_end >= existing_dispatch.start):
-        existing_dispatch.start = min(existing_dispatch.start, dispatch.start)
-        existing_dispatch.start = round_down_to_nearest_half_hour(existing_dispatch.start)
-        dispatch_exists = True
-
-    if dispatch_exists == False:
-      existing_dispatches.append(SimpleIntelligentDispatchItem(round_down_to_nearest_half_hour(dispatch.start), round_up_to_nearest_half_hour(dispatch_end)))
-
-  for dispatch in existing_dispatches:
-    hours += (dispatch.end - dispatch.start).total_seconds() / 3600
-
-  return hours
+  return len(slots) * 0.5
 
 def is_within_intelligent_cap(current: datetime, dispatches: list[SimpleIntelligentDispatchItem]) -> bool:
   hours = get_dispatch_hours_for_intelligent_day(current, dispatches, True)
