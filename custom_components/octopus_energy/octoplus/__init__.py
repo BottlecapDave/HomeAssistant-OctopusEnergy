@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from ..api_client.octoplus import OctoplusScratchcardResponse
+from ..api_client.scratchcard import OctoplusScratchcardResponse
 from ..api_client.octoplus_session import BaseOctoplusSession
 from ..api_client.saving_sessions import SavingSession
 

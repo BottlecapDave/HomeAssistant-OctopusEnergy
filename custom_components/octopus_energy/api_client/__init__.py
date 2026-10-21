@@ -16,7 +16,8 @@ from ..utils import (
 )
 
 from .intelligent_device import IntelligentDevice
-from .octoplus import OctoplusScratchcardResponse, RedeemOctoplusPointsResponse
+from .octoplus import RedeemOctoplusPointsResponse
+from .scratchcard import OctoplusScratchcardResponse
 from .intelligent_dispatches import DecimalReading, IntelligentDispatchItem, IntelligentDispatches
 from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSessionsResponse
 from .wheel_of_fortune import WheelOfFortuneSpinsResponse

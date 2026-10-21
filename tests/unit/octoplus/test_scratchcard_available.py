@@ -5,7 +5,7 @@ import pytest
 from homeassistant.core import HomeAssistant
 from homeassistant.util.dt import parse_datetime
 
-from custom_components.octopus_energy.api_client.octoplus import OctoplusScratchcardResponse
+from custom_components.octopus_energy.api_client.scratchcard import OctoplusScratchcardResponse
 from custom_components.octopus_energy.binary_sensor import async_setup_entry
 from custom_components.octopus_energy.const import CONFIG_ACCOUNT_ID, CONFIG_KIND, CONFIG_KIND_ACCOUNT, DATA_ACCOUNT, DOMAIN
 from custom_components.octopus_energy.octoplus import is_scratchcard_available

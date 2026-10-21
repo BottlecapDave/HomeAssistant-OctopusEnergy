@@ -5,7 +5,7 @@ from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from homeassistant.util.dt import now
 
 from ..api_client import ApiException, OctopusEnergyApiClient
-from ..api_client.octoplus import OctoplusScratchcardResponse
+from ..api_client.scratchcard import OctoplusScratchcardResponse
 from ..const import (
   COORDINATOR_REFRESH_IN_SECONDS,
   DATA_CLIENT,

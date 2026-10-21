@@ -4,7 +4,7 @@ import pytest
 from homeassistant.util.dt import now
 
 from custom_components.octopus_energy.api_client import RequestException
-from custom_components.octopus_energy.api_client.octoplus import OctoplusScratchcardResponse
+from custom_components.octopus_energy.api_client.scratchcard import OctoplusScratchcardResponse
 from custom_components.octopus_energy.coordinators.octoplus_scratchcard import (
   OctoplusScratchcardCoordinatorResult,
   async_refresh_octoplus_scratchcard,

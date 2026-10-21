@@ -10,7 +10,13 @@ from custom_components.octopus_energy.api_client import (
   integration_context_header,
   octoplus_scratchcard_query,
 )
-from custom_components.octopus_energy.api_client.octoplus import OctoplusScratchcardResponse
+from custom_components.octopus_energy.api_client.scratchcard import (
+  OctoplusScratchcard,
+  OctoplusScratchcardOffer,
+  OctoplusScratchcardPrize,
+  OctoplusScratchcardResponse,
+  OctoplusScratchcardSession,
+)
 from custom_components.octopus_energy.octoplus import is_scratchcard_available
 
 
@@ -29,6 +35,10 @@ def test_scratchcard_response_uses_base_model_serialization():
     },
   }
   data = OctoplusScratchcardResponse.model_validate(payload)
+  assert isinstance(data.activeSession, OctoplusScratchcardSession)
+  assert isinstance(data.scratchcard, OctoplusScratchcard)
+  assert isinstance(data.scratchcard.offer, OctoplusScratchcardOffer)
+  assert isinstance(data.scratchcard.prize, OctoplusScratchcardPrize)
   assert data.model_dump(mode="json", by_alias=True) == {
     **payload,
     "has_active_session": True,
