@@ -43,30 +43,6 @@ class OctoplusScratchcardResponse(BaseModel):
   def has_scratchcard(self) -> bool:
     return self.scratchcard is not None
 
-  def to_dict(self):
-    return {
-      "starts_at": self.activeSession.startsAt if self.activeSession is not None else None,
-      "ends_at": self.activeSession.endsAt if self.activeSession is not None else None,
-      "session_external_reference": self.activeSession.externalReference if self.activeSession is not None else None,
-      "scratchcard_external_reference": self.scratchcard.externalReference if self.scratchcard is not None else None,
-      "scratchcard_status": self.scratchcard.status if self.scratchcard is not None else None,
-      "offer_slug": (
-        self.scratchcard.offer.slug
-        if self.scratchcard is not None and self.scratchcard.offer is not None
-        else None
-      ),
-      "feature_display_text": (
-        self.scratchcard.offer.featureDisplayText
-        if self.scratchcard is not None and self.scratchcard.offer is not None
-        else None
-      ),
-      "prize_type": (
-        self.scratchcard.prize.typename
-        if self.scratchcard is not None and self.scratchcard.prize is not None
-        else None
-      ),
-    }
-
 
 class RedeemOctoplusPointsResponse:
   is_successful: bool

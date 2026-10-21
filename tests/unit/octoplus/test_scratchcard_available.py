@@ -48,12 +48,30 @@ def test_when_data_missing_then_scratchcard_not_available():
   assert is_scratchcard_available(None) is False
 
 
-def test_when_optional_fields_missing_then_attributes_are_none():
+@pytest.mark.asyncio
+@pytest.mark.parametrize("active_session,card", [
+  (None, None),
+  ({}, {}),
+  ({}, {"offer": None, "prize": None}),
+  ({}, {"offer": {}, "prize": {}}),
+])
+async def test_when_optional_fields_missing_then_attributes_are_none(active_session, card):
   data = OctoplusScratchcardResponse.model_validate({
-    "activeSession": {},
-    "scratchcard": {"offer": None, "prize": None},
+    "activeSession": active_session,
+    "scratchcard": card,
   })
-  assert all(value is None for value in data.to_dict().values())
+  coordinator = Mock(data=SimpleNamespace(data=data))
+  sensor = OctopusEnergyOctoplusScratchcardAvailable(HomeAssistant("/tmp"), coordinator, "A-12345678")
+  assert sensor.extra_state_attributes == {
+    "starts_at": None,
+    "ends_at": None,
+    "session_external_reference": None,
+    "scratchcard_external_reference": None,
+    "scratchcard_status": None,
+    "offer_slug": None,
+    "feature_display_text": None,
+    "prize_type": None,
+  }
 
 
 @pytest.mark.asyncio
