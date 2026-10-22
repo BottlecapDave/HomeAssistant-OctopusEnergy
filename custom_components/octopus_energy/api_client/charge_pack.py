@@ -65,11 +65,16 @@ def _decimal(value) -> float | None:
   except (TypeError, ValueError):
     return None
 
+def _negate(value: float | None) -> float | None:
+  return -value if value else value  # (0 stays 0, not -0)
+
 class ChargePackTelemetry:
-  """The battery's live readings, as Octopus sends them (SmartFlexInverter.telemetry). Seen on
-  a SigenStor: battery power positive while discharging (the state of charge fell), grid power
-  positive while exporting (it matched site.exportInKw). Site consumption can be negative when
-  something else on the inverter (e.g. a DC car charger discharging the car) feeds the home."""
+  """The battery's live readings (SmartFlexInverter.telemetry). Seen on a SigenStor: battery
+  power positive while discharging (the state of charge fell). Octopus sends grid power positive
+  while exporting (it matched site.exportInKw): it's turned round here, so grid_power_kw is
+  positive while importing and negative while exporting, like the meter's current demand and as
+  Home Assistant's energy dashboard expects. Site consumption can be negative when something else
+  on the inverter (e.g. a DC car charger discharging the car) feeds the home."""
 
   def __init__(self, battery_state_of_charge: float | None = None, battery_power_kw: float | None = None,
                battery_connection_status: str | None = None, inverter_power_kw: float | None = None,
@@ -102,7 +107,7 @@ class ChargePackTelemetry:
       _decimal(part("inverter").get("powerInKw")),
       part("inverter").get("connectionStatus"),
       _decimal(part("solar").get("powerInKw")),
-      _decimal(part("grid").get("powerInKw")),
+      _negate(_decimal(part("grid").get("powerInKw"))),  # Octopus: + exporting; here: + importing
       _decimal(part("site").get("consumptionInKw")),
       _decimal(part("site").get("exportInKw")),
       _decimal(solar_details.get("peakSolarPowerInKw")),

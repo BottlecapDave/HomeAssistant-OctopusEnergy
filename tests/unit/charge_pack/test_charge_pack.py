@@ -111,7 +111,7 @@ def test_telemetry_from_the_api():
   assert telemetry.battery_power_kw == 4.504 and telemetry.battery_connection_status == "ONLINE"
   assert telemetry.inverter_power_kw == 6.01 and telemetry.inverter_connection_status == "ONLINE"
   assert telemetry.solar_power_kw == 1.528 and telemetry.peak_solar_power_kw == 0
-  assert telemetry.grid_power_kw == 5.775
+  assert telemetry.grid_power_kw == -5.775  # exporting: negative, like the meter's current demand
   assert telemetry.site_consumption_kw == 0.257 and telemetry.site_export_kw == 5.775
 
 def test_telemetry_missing_or_partial():
