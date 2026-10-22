@@ -2,6 +2,8 @@
 
 If your account has a home battery that Octopus controls (a Charge Pack, through SmartFlex), it's found automatically: any device on your account with the device type `INVERTERS` (e.g. a Sigenergy SigenStor shown as `INVERTERS · SMARTFLEX_CONNECT`). Each one gets its own device, named after it with `(Charge Pack)`, e.g. `Sigenergy SigenStor EC 12.0 SP (Charge Pack)`, with the calendars and sensors below. Its make and model come from Octopus (e.g. Sigenergy, SigenStor EC 12.0 SP).
 
+The calendars and the state sensor are named `Charge Pack Charge`, `Charge Pack Discharge` and `Charge Pack State`; the activity and the readings are named after the battery, e.g. `Sigenergy SigenStor EC 12.0 SP Solar Power`. The calendars end with the account number, e.g. `Charge Pack Charge (A-12345678)`; the sensors end with the battery's device ID, as the intelligent device's entities do, e.g. `Charge Pack State (00000000-0011-4000-8020-000000000000)` and `Sigenergy SigenStor EC 12.0 SP Solar Power (00000000-0011-4000-8020-000000000000)`.
+
 Octopus's plan is read every 3 minutes. Octopus only lists the charges and discharges that haven't ended, and changes its plan often, so each calendar shows the plan as it is now, plus the ones that have started (as Octopus last listed them), kept for 30 days. One Octopus takes off the plan before it starts didn't happen, so it isn't kept.
 
 ## Charge Pack Charge

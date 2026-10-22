@@ -43,6 +43,10 @@ class _ChargePackSensorBase(CoordinatorEntity, OctopusEnergyChargePackSensor, Re
   def native_value(self):
     return self._state
 
+  def _device_name(self) -> str:
+    """The battery's name, e.g. "Sigenergy SigenStor EC 12.0 SP" (its readings are named after it)."""
+    return self._device.name or "Charge Pack"
+
   def _result(self) -> ChargePackDispatchesCoordinatorResult | None:
     return self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
 
@@ -66,7 +70,7 @@ class OctopusEnergyChargePackState(_ChargePackSensorBase):
 
   @property
   def name(self):
-    return f"Charge Pack State ({self._account_id})"
+    return f"Charge Pack State ({self._device.id})"
 
   @property
   def icon(self):
@@ -98,7 +102,7 @@ class OctopusEnergyChargePackActivity(_ChargePackSensorBase):
 
   @property
   def name(self):
-    return f"Charge Pack Activity ({self._account_id})"
+    return f"{self._device_name()} Activity ({self._device.id})"
 
   @property
   def device_class(self):
@@ -154,7 +158,7 @@ class OctopusEnergyChargePackTelemetrySensor(_ChargePackSensorBase):
 
   @property
   def name(self):
-    return f"Charge Pack {self._label} ({self._account_id})"
+    return f"{self._device_name()} {self._label} ({self._device.id})"
 
   @property
   def device_class(self):
