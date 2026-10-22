@@ -32,11 +32,9 @@ Octopus's state for the battery, as its API reports it, e.g. `SMART_CONTROL_CAPA
 |-----------|-------|
 | `status` | The device's status with Octopus, e.g. `LIVE` |
 | `is_suspended` | `true` if Octopus's smart control of the battery is suspended |
+| `battery_connection_status` / `inverter_connection_status` | e.g. `ONLINE` |
 | `data_last_retrieved` | When the data was last read from Octopus |
 
-!!! note
-
-    Octopus doesn't publish the battery's state of charge or power for these devices.
 
 ## Charge Pack Activity
 
@@ -50,3 +48,21 @@ What Octopus has the battery doing now, from its plan: `charging`, `discharging`
 | `energy_kwh` | Its energy, either way |
 | `minutes_left` | Until it ends |
 | `data_last_retrieved` | When the plan was last read from Octopus |
+
+## Battery and inverter readings
+
+The battery's live readings, as Octopus gets them from the inverter (its `telemetry`), read with the plan every 3 minutes. The values are passed on as Octopus sends them.
+
+| Entity | Notes |
+|--------|-------|
+| `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_battery_state_of_charge` | The battery's state of charge (%) |
+| `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_battery_power` | The battery's power (kW): positive while discharging. Attribute `connection_status` |
+| `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_solar_power` | The solar panels' power (kW). Attribute `peak_solar_power_kw` |
+| `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_grid_power` | The grid's power (kW): positive while exporting |
+| `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_inverter_power` | The inverter's power (kW), battery and solar together. Attribute `connection_status` |
+| `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_home_consumption` | What the home is using (kW). It can be negative when something else on the inverter (e.g. a DC car charger discharging the car) is feeding the home |
+| `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_export_power` | What's being exported (kW) |
+
+!!! note
+
+    The signs above are as seen on a Sigenergy SigenStor: battery power was positive while its state of charge fell, and grid power matched the export. Other inverters may report them differently.

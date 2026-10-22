@@ -79,7 +79,7 @@ from .heat_pump.live_heat_output import OctopusEnergyHeatPumpLiveHeatOutput
 from .heat_pump.live_power_input import OctopusEnergyHeatPumpLivePowerInput
 from .api_client.intelligent_device import IntelligentDevice
 from .intelligent.current_state import OctopusEnergyIntelligentCurrentState
-from .charge_pack.sensors import OctopusEnergyChargePackActivity, OctopusEnergyChargePackState
+from .charge_pack.sensors import TELEMETRY_SENSORS as CHARGE_PACK_TELEMETRY_SENSORS, OctopusEnergyChargePackActivity, OctopusEnergyChargePackState, OctopusEnergyChargePackTelemetrySensor
 from .intelligent.state_of_charge import OctopusEnergyIntelligentStateOfCharge
 from .intelligent import get_intelligent_features
 from .intelligent.charge_cap_hours import OctopusEnergyIntelligentChargeCapHours
@@ -620,6 +620,8 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
     if charge_pack_coordinator is not None:
       entities.append(OctopusEnergyChargePackState(hass, charge_pack_coordinator, account_id, charge_pack_device))
       entities.append(OctopusEnergyChargePackActivity(hass, charge_pack_coordinator, account_id, charge_pack_device))
+      for definition in CHARGE_PACK_TELEMETRY_SENSORS:
+        entities.append(OctopusEnergyChargePackTelemetrySensor(hass, charge_pack_coordinator, account_id, charge_pack_device, definition))
 
   async_add_entities(entities)
 

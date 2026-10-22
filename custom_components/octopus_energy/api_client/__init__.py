@@ -16,7 +16,7 @@ from ..utils import (
 )
 
 from .intelligent_device import IntelligentDevice
-from .charge_pack import ChargePackDevice, ChargePackDispatch, ChargePackDispatches, ChargePackStatus
+from .charge_pack import ChargePackDevice, ChargePackDispatch, ChargePackDispatches, ChargePackStatus, ChargePackTelemetry
 from .octoplus import RedeemOctoplusPointsResponse
 from .intelligent_dispatches import DecimalReading, IntelligentDispatchItem, IntelligentDispatches
 from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSessionsResponse
@@ -235,6 +235,18 @@ charge_pack_dispatches_query = '''query {{
       current
       currentState
       isSuspended
+    }}
+    ... on SmartFlexInverter {{
+      telemetry {{
+        inverter {{ connectionStatus powerInKw }}
+        battery {{ connectionStatus powerInKw stateOfCharge }}
+        solar {{ powerInKw }}
+        grid {{ powerInKw }}
+        site {{ consumptionInKw exportInKw }}
+      }}
+      details {{
+        solar {{ peakSolarPowerInKw }}
+      }}
     }}
   }}
   flexPlannedDispatches(deviceId: "{device_id}") {{
@@ -2310,12 +2322,16 @@ class OctopusEnergyApiClient:
         dispatches.sort(key=lambda x: x.start)
 
         status = None
+        telemetry = None
         if (response_body is not None and "data" in response_body and response_body["data"] is not None):
           for device in response_body["data"].get("devices") or []:
-            if device.get("id") == device_id and isinstance(device.get("status"), dict):
+            if device.get("id") != device_id:
+              continue
+            if isinstance(device.get("status"), dict):
               status = ChargePackStatus(device["status"].get("current"), device["status"].get("currentState"), device["status"].get("isSuspended"))
+            telemetry = ChargePackTelemetry.from_api(device)
 
-        return ChargePackDispatches(dispatches, status)
+        return ChargePackDispatches(dispatches, status, telemetry)
 
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')

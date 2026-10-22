@@ -13,7 +13,9 @@ from homeassistant.helpers.update_coordinator import (
 from homeassistant.components.sensor import (
   RestoreSensor,
   SensorDeviceClass,
+  SensorStateClass,
 )
+from homeassistant.const import PERCENTAGE, UnitOfPower
 
 from . import current_activity
 from .base import OctopusEnergyChargePackSensor
@@ -76,9 +78,12 @@ class OctopusEnergyChargePackState(_ChargePackSensorBase):
     status = result.status if result is not None else None
     if status is not None:
       self._state = status.current_state
+      telemetry = result.telemetry
       self._attributes = {
         "status": status.current,
         "is_suspended": status.is_suspended,
+        "battery_connection_status": telemetry.battery_connection_status if telemetry is not None else None,
+        "inverter_connection_status": telemetry.inverter_connection_status if telemetry is not None else None,
         "data_last_retrieved": result.last_retrieved,
       }
     self._attributes = dict_to_typed_dict(self._attributes)
@@ -122,5 +127,63 @@ class OctopusEnergyChargePackActivity(_ChargePackSensorBase):
         "minutes_left": int((dispatch.end - current).total_seconds() // 60) if dispatch else None,
         "data_last_retrieved": result.last_retrieved,
       }
+    self._attributes = dict_to_typed_dict(self._attributes)
+    super()._handle_coordinator_update()
+
+# The battery's telemetry: (key, ChargePackTelemetry attribute, name, unit, device class, icon)
+TELEMETRY_SENSORS = [
+  ("battery_state_of_charge", "battery_state_of_charge", "Battery State Of Charge", PERCENTAGE, SensorDeviceClass.BATTERY, None),
+  ("battery_power", "battery_power_kw", "Battery Power", UnitOfPower.KILO_WATT, SensorDeviceClass.POWER, "mdi:home-battery"),
+  ("solar_power", "solar_power_kw", "Solar Power", UnitOfPower.KILO_WATT, SensorDeviceClass.POWER, "mdi:solar-power"),
+  ("grid_power", "grid_power_kw", "Grid Power", UnitOfPower.KILO_WATT, SensorDeviceClass.POWER, "mdi:transmission-tower"),
+  ("inverter_power", "inverter_power_kw", "Inverter Power", UnitOfPower.KILO_WATT, SensorDeviceClass.POWER, "mdi:flash"),
+  ("home_consumption", "site_consumption_kw", "Home Consumption", UnitOfPower.KILO_WATT, SensorDeviceClass.POWER, "mdi:home-lightning-bolt"),
+  ("export_power", "site_export_kw", "Export Power", UnitOfPower.KILO_WATT, SensorDeviceClass.POWER, "mdi:transmission-tower-export"),
+]
+
+class OctopusEnergyChargePackTelemetrySensor(_ChargePackSensorBase):
+  """One of the battery's live readings from Octopus (see TELEMETRY_SENSORS), read with the plan."""
+
+  def __init__(self, hass: HomeAssistant, coordinator, account_id: str, device: ChargePackDevice, definition: tuple):
+    self._key, self._field, self._label, self._unit, self._device_class, self._icon = definition
+    _ChargePackSensorBase.__init__(self, hass, coordinator, account_id, device)
+
+  @property
+  def unique_id(self):
+    return f"octopus_energy_{self._account_id}_{self._device.id}_charge_pack_{self._key}"
+
+  @property
+  def name(self):
+    return f"Charge Pack {self._label} ({self._account_id})"
+
+  @property
+  def device_class(self):
+    return self._device_class
+
+  @property
+  def state_class(self):
+    return SensorStateClass.MEASUREMENT
+
+  @property
+  def native_unit_of_measurement(self):
+    return self._unit
+
+  @property
+  def icon(self):
+    return self._icon
+
+  @callback
+  def _handle_coordinator_update(self) -> None:
+    result = self._result()
+    telemetry = result.telemetry if result is not None else None
+    if telemetry is not None:
+      self._state = getattr(telemetry, self._field)
+      self._attributes = {"data_last_retrieved": result.last_retrieved}
+      if self._key == "battery_power":
+        self._attributes["connection_status"] = telemetry.battery_connection_status
+      elif self._key == "inverter_power":
+        self._attributes["connection_status"] = telemetry.inverter_connection_status
+      elif self._key == "solar_power":
+        self._attributes["peak_solar_power_kw"] = telemetry.peak_solar_power_kw
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()

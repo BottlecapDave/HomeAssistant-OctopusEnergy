@@ -59,12 +59,62 @@ class ChargePackStatus:
     return (isinstance(other, ChargePackStatus) and self.current == other.current
             and self.current_state == other.current_state and self.is_suspended == other.is_suspended)
 
-class ChargePackDispatches:
-  """One read: the planned dispatches and the battery's status (None if it wasn't returned)."""
+def _decimal(value) -> float | None:
+  try:
+    return float(value) if value is not None else None
+  except (TypeError, ValueError):
+    return None
 
-  def __init__(self, planned: list, status: ChargePackStatus | None):
+class ChargePackTelemetry:
+  """The battery's live readings, as Octopus sends them (SmartFlexInverter.telemetry). Seen on
+  a SigenStor: battery power positive while discharging (the state of charge fell), grid power
+  positive while exporting (it matched site.exportInKw). Site consumption can be negative when
+  something else on the inverter (e.g. a DC car charger discharging the car) feeds the home."""
+
+  def __init__(self, battery_state_of_charge: float | None = None, battery_power_kw: float | None = None,
+               battery_connection_status: str | None = None, inverter_power_kw: float | None = None,
+               inverter_connection_status: str | None = None, solar_power_kw: float | None = None,
+               grid_power_kw: float | None = None, site_consumption_kw: float | None = None,
+               site_export_kw: float | None = None, peak_solar_power_kw: float | None = None):
+    self.battery_state_of_charge = battery_state_of_charge
+    self.battery_power_kw = battery_power_kw
+    self.battery_connection_status = battery_connection_status
+    self.inverter_power_kw = inverter_power_kw
+    self.inverter_connection_status = inverter_connection_status
+    self.solar_power_kw = solar_power_kw
+    self.grid_power_kw = grid_power_kw
+    self.site_consumption_kw = site_consumption_kw
+    self.site_export_kw = site_export_kw
+    self.peak_solar_power_kw = peak_solar_power_kw
+
+  def from_api(device: dict):
+    """From a devices(...) item with `telemetry { ... } details { ... }`; None if it has no telemetry."""
+    telemetry = device.get("telemetry") if isinstance(device, dict) else None
+    if not isinstance(telemetry, dict):
+      return None
+    part = lambda key: telemetry.get(key) if isinstance(telemetry.get(key), dict) else {}
+    details = device.get("details") if isinstance(device.get("details"), dict) else {}
+    solar_details = details.get("solar") if isinstance(details.get("solar"), dict) else {}
+    return ChargePackTelemetry(
+      _decimal(part("battery").get("stateOfCharge")),
+      _decimal(part("battery").get("powerInKw")),
+      part("battery").get("connectionStatus"),
+      _decimal(part("inverter").get("powerInKw")),
+      part("inverter").get("connectionStatus"),
+      _decimal(part("solar").get("powerInKw")),
+      _decimal(part("grid").get("powerInKw")),
+      _decimal(part("site").get("consumptionInKw")),
+      _decimal(part("site").get("exportInKw")),
+      _decimal(solar_details.get("peakSolarPowerInKw")),
+    )
+
+class ChargePackDispatches:
+  """One read: the planned dispatches, the battery's status and its telemetry (None if not returned)."""
+
+  def __init__(self, planned: list, status: ChargePackStatus | None, telemetry: ChargePackTelemetry | None = None):
     self.planned = planned
     self.status = status
+    self.telemetry = telemetry
 
 class ChargePackDispatch:
   """A planned charge or discharge. Octopus gives a charge a negative

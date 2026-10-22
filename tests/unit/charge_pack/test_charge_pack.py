@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-from custom_components.octopus_energy.api_client.charge_pack import ChargePackDevice, ChargePackDispatch
+from custom_components.octopus_energy.api_client.charge_pack import ChargePackDevice, ChargePackDispatch, ChargePackTelemetry
 from custom_components.octopus_energy.charge_pack import calendar_dispatches, current_activity, current_or_next_dispatch, update_history
 
 def _at(text: str) -> datetime:
@@ -90,3 +90,31 @@ def test_current_activity():
   assert current_activity(planned, _at("2026-10-22T03:30:00Z")) == ("idle", idle)
   assert current_activity(planned, _at("2026-10-22T18:59:00Z")) == ("discharging", discharge)
   assert current_activity(planned, _at("2026-10-22T19:00:00Z")) == ("none", None)
+
+def test_telemetry_from_the_api():
+  # As Octopus sent it for a SigenStor during a discharge
+  device = {
+    "id": "00000000-0011-4000-8020-000000006cc9",
+    "telemetry": {
+      "inverter": {"connectionStatus": "ONLINE", "powerInKw": "6.01"},
+      "battery": {"connectionStatus": "ONLINE", "powerInKw": "4.504", "stateOfCharge": "43.900"},
+      "solar": {"powerInKw": "1.528"},
+      "grid": {"powerInKw": "5.775"},
+      "site": {"consumptionInKw": "0.257", "exportInKw": "5.775"},
+    },
+    "details": {"solar": {"peakSolarPowerInKw": "0"}},
+  }
+
+  telemetry = ChargePackTelemetry.from_api(device)
+
+  assert telemetry.battery_state_of_charge == 43.9
+  assert telemetry.battery_power_kw == 4.504 and telemetry.battery_connection_status == "ONLINE"
+  assert telemetry.inverter_power_kw == 6.01 and telemetry.inverter_connection_status == "ONLINE"
+  assert telemetry.solar_power_kw == 1.528 and telemetry.peak_solar_power_kw == 0
+  assert telemetry.grid_power_kw == 5.775
+  assert telemetry.site_consumption_kw == 0.257 and telemetry.site_export_kw == 5.775
+
+def test_telemetry_missing_or_partial():
+  assert ChargePackTelemetry.from_api({"id": "x"}) is None
+  telemetry = ChargePackTelemetry.from_api({"id": "x", "telemetry": {"battery": {"stateOfCharge": None}, "solar": None}})
+  assert telemetry.battery_state_of_charge is None and telemetry.solar_power_kw is None
