@@ -9,13 +9,14 @@ from datetime import (datetime, timedelta, time, timezone)
 
 from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime, parse_date)
 
-from ..const import INTEGRATION_VERSION, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS
+from ..const import CHARGE_PACK_DEVICE_TYPES, INTEGRATION_VERSION, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS
 
 from ..utils import (
   is_day_night_tariff,
 )
 
 from .intelligent_device import IntelligentDevice
+from .charge_pack import ChargePackDevice, ChargePackDispatch
 from .octoplus import RedeemOctoplusPointsResponse
 from .intelligent_dispatches import DecimalReading, IntelligentDispatchItem, IntelligentDispatches
 from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSessionsResponse
@@ -209,6 +210,27 @@ intelligent_device_query = '''query {{
 			model
 		}}
 	}}
+}}'''
+
+charge_pack_devices_query = '''query {{
+  devices(accountNumber: "{account_id}") {{
+    id
+    name
+    provider
+    deviceType
+    status {{
+      current
+    }}
+  }}
+}}'''
+
+charge_pack_dispatches_query = '''query {{
+  flexPlannedDispatches(deviceId: "{device_id}") {{
+    start
+    end
+    type
+    energyAddedKwh
+  }}
 }}'''
 
 intelligent_settings_query = '''query {{
@@ -2215,6 +2237,70 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
   
+  async def async_get_charge_pack_devices(self, account_id: str) -> list[ChargePackDevice]:
+    """Get the user's home batteries that Octopus controls (Charge Pack): devices of a CHARGE_PACK_DEVICE_TYPES type"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "get-charge-pack-devices"
+      client = await self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": charge_pack_devices_query.format(account_id=account_id) }
+      headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_get_charge_pack_devices: {response_body}')
+
+        result = []
+        if (response_body is not None and "data" in response_body and response_body["data"] is not None
+            and response_body["data"].get("devices") is not None):
+          for device in response_body["data"]["devices"]:
+            if device.get("deviceType") not in CHARGE_PACK_DEVICE_TYPES:
+              continue
+
+            status = device["status"]["current"] if isinstance(device.get("status"), dict) else None
+            result.append(ChargePackDevice(device["id"], device.get("name"), device.get("provider"), device["deviceType"], status))
+
+        return result
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_get_charge_pack_dispatches(self, device_id: str) -> list[ChargePackDispatch]:
+    """Get the planned charges and discharges of a home battery Octopus controls (Charge Pack)"""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "charge-pack-dispatches"
+      client = await self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+      payload = { "query": charge_pack_dispatches_query.format(device_id=device_id) }
+      headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        _LOGGER.debug(f'async_get_charge_pack_dispatches: {response_body}')
+
+        dispatches = []
+        if (response_body is not None and "data" in response_body and response_body["data"] is not None):
+          for item in response_body["data"].get("flexPlannedDispatches") or []:
+            start, end = parse_datetime(item["start"]) if item.get("start") else None, parse_datetime(item["end"]) if item.get("end") else None
+            if start is None or end is None:
+              continue
+            dispatches.append(ChargePackDispatch(
+              as_utc(start),
+              as_utc(end),
+              float(item["energyAddedKwh"]) if item.get("energyAddedKwh") is not None else None,
+              item.get("type")
+            ))
+
+        dispatches.sort(key=lambda x: x.start)
+        return dispatches
+
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
   async def async_get_wheel_of_fortune_spins(self, account_id: str) -> WheelOfFortuneSpinsResponse:
     """Get the user's wheel of fortune spins"""
     await self.async_refresh_token()
