@@ -58,13 +58,17 @@ The battery's live readings, as Octopus gets them from the inverter (its `teleme
 | Entity | Notes |
 |--------|-------|
 | `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_battery_state_of_charge` | The battery's state of charge (%) |
-| `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_battery_power` | The battery's power (kW): positive while discharging. Attribute `connection_status` |
+| `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_battery_power` | The battery's power (kW): positive while discharging, negative while charging. Attribute `connection_status` |
 | `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_solar_power` | The solar panels' power (kW). Attribute `peak_solar_power_kw` |
 | `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_grid_power` | The grid's power (kW): positive while importing, negative while exporting, like the meter's current demand (Octopus sends it the other way round) |
-| `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_inverter_power` | The inverter's power (kW), battery and solar together. Attribute `connection_status` |
+| `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_inverter_power` | The inverter's power (kW): positive while it's putting power out, negative while it's taking power in (e.g. charging the battery from the grid). Attribute `connection_status` |
 | `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_home_consumption` | What the home is using (kW). It can be negative when something else on the inverter (e.g. a DC car charger discharging the car) is feeding the home |
-| `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_export_power` | What's being exported (kW), always positive |
+| `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_export_power` | What's being exported (kW): positive, and 0 while importing |
 
 !!! note
 
-    The signs above are as seen on a Sigenergy SigenStor: battery power was positive while its state of charge fell, and Octopus's grid power matched the export. Other inverters may report them differently.
+    The signs above are as seen on a Sigenergy SigenStor, both discharging and charging from the grid. Other inverters may report them differently.
+
+!!! info
+
+    These readings come from Octopus, which gets them from the inverter's own cloud, so they can be a few minutes behind the battery, the same as in the Octopus app. Octopus doesn't say when each reading was taken. For up-to-the-second readings, use a local integration for your inverter.
