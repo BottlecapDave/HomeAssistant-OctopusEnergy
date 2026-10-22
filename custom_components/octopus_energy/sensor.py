@@ -79,6 +79,7 @@ from .heat_pump.live_heat_output import OctopusEnergyHeatPumpLiveHeatOutput
 from .heat_pump.live_power_input import OctopusEnergyHeatPumpLivePowerInput
 from .api_client.intelligent_device import IntelligentDevice
 from .intelligent.current_state import OctopusEnergyIntelligentCurrentState
+from .charge_pack.sensors import OctopusEnergyChargePackActivity, OctopusEnergyChargePackState
 from .intelligent.state_of_charge import OctopusEnergyIntelligentStateOfCharge
 from .intelligent import get_intelligent_features
 from .intelligent.charge_cap_hours import OctopusEnergyIntelligentChargeCapHours
@@ -135,6 +136,8 @@ from .const import (
   DATA_INTELLIGENT_SETTINGS_COORDINATOR,
   DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY,
   DATA_POWER_UP_DOWN_COORDINATOR,
+  DATA_CHARGE_PACK_DEVICES,
+  DATA_CHARGE_PACK_COORDINATOR,
   DEFAULT_CALORIFIC_VALUE,
   DOMAIN,
   
@@ -610,6 +613,13 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   #       registry.async_update_entity(entity_id, new_entity_id=f'sensor.{item["new"]}'.lower(), new_unique_id=item["new"])
   #     except Exception as e:
   #       _LOGGER.warning(f'Failed to migrate entity id and unique id for {item["old"]} to {item["new"]} - {e}')
+
+  # Charge Pack: each home battery Octopus controls, its state and what Octopus has it doing now
+  for charge_pack_device in hass.data[DOMAIN][account_id].get(DATA_CHARGE_PACK_DEVICES) or []:
+    charge_pack_coordinator = hass.data[DOMAIN][account_id].get(DATA_CHARGE_PACK_COORDINATOR.format(charge_pack_device.id))
+    if charge_pack_coordinator is not None:
+      entities.append(OctopusEnergyChargePackState(hass, charge_pack_coordinator, account_id, charge_pack_device))
+      entities.append(OctopusEnergyChargePackActivity(hass, charge_pack_coordinator, account_id, charge_pack_device))
 
   async_add_entities(entities)
 

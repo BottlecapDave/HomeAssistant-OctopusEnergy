@@ -42,5 +42,15 @@ def current_or_next_dispatch(dispatches: list[ChargePackDispatch], current: date
     return running[0]
   return min(upcoming, key=lambda d: d.start) if upcoming else None
 
+ACTIVITY = {"charge": "charging", "discharge": "discharging", "idle": "idle"}
+
+def current_activity(planned: list[ChargePackDispatch], current: datetime) -> tuple[str, ChargePackDispatch | None]:
+  """What Octopus has the battery doing now: ("charging" | "discharging" | "idle", the
+  dispatch running now), or ("none", None) when no dispatch is running."""
+  for d in planned or []:
+    if d.start <= current < d.end:
+      return ACTIVITY[d.kind], d
+  return "none", None
+
 def kind_to_friendly_string(kind: str) -> str:
   return "Charge" if kind == "charge" else "Discharge"

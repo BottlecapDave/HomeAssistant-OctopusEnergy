@@ -16,7 +16,7 @@ from ..const import (
 )
 
 from ..api_client import ApiException, OctopusEnergyApiClient
-from ..api_client.charge_pack import ChargePackDispatch
+from ..api_client.charge_pack import ChargePackDispatch, ChargePackStatus
 from ..charge_pack import update_history
 from ..storage.charge_pack import async_save_cached_charge_pack_history
 from . import BaseCoordinatorResult
@@ -26,16 +26,20 @@ _LOGGER = logging.getLogger(__name__)
 class ChargePackDispatchesCoordinatorResult(BaseCoordinatorResult):
   planned: list[ChargePackDispatch]
   history: list[ChargePackDispatch]
+  status: ChargePackStatus | None
 
   def __init__(self, last_evaluated: datetime, request_attempts: int, planned: list[ChargePackDispatch],
-               history: list[ChargePackDispatch], last_retrieved: datetime | None = None, last_error: Exception | None = None):
+               history: list[ChargePackDispatch], last_retrieved: datetime | None = None, last_error: Exception | None = None,
+               status: ChargePackStatus | None = None):
     super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_CHARGE_PACK, last_retrieved, last_error)
     self.planned = planned
     self.history = history
+    self.status = status
 
 async def async_refresh_charge_pack_dispatches(
   current: datetime,
   client: OctopusEnergyApiClient,
+  account_id: str,
   device_id: str,
   existing_result: ChargePackDispatchesCoordinatorResult,
   async_save_history = None
@@ -45,18 +49,21 @@ async def async_refresh_charge_pack_dispatches(
   history = existing_result.history if existing_result is not None else []
   if existing_result is None or current >= existing_result.next_refresh:
     try:
-      planned = await client.async_get_charge_pack_dispatches(device_id)
-      new_history = update_history(history, planned, current)
+      read = await client.async_get_charge_pack_dispatches(account_id, device_id)
+      new_history = update_history(history, read.planned, current)
       if new_history != history and async_save_history is not None:
         await async_save_history(new_history)
-      return ChargePackDispatchesCoordinatorResult(current, 1, planned, new_history)
+      # (the status is kept if Octopus didn't send it this time)
+      status = read.status if read.status is not None else (existing_result.status if existing_result is not None else None)
+      return ChargePackDispatchesCoordinatorResult(current, 1, read.planned, new_history, status=status)
     except Exception as e:
       if isinstance(e, ApiException) == False:
         raise
 
       if existing_result is not None:
         result = ChargePackDispatchesCoordinatorResult(existing_result.last_evaluated, existing_result.request_attempts + 1,
-                                                       existing_result.planned, history, existing_result.last_retrieved, last_error=e)
+                                                       existing_result.planned, history, existing_result.last_retrieved, last_error=e,
+                                                       status=existing_result.status)
         if result.request_attempts == 2:
           _LOGGER.warning(f'Failed to retrieve the charge pack dispatches for {device_id} - using cached data. See diagnostics sensor for more information.')
         return result
@@ -92,6 +99,7 @@ async def async_setup_charge_pack_coordinator(hass, account_id: str, device_id: 
     hass.data[DOMAIN][account_id][key] = await async_refresh_charge_pack_dispatches(
       current,
       client,
+      account_id,
       device_id,
       hass.data[DOMAIN][account_id][key] if key in hass.data[DOMAIN][account_id] else None,
       async_save_history

@@ -16,7 +16,7 @@ from ..utils import (
 )
 
 from .intelligent_device import IntelligentDevice
-from .charge_pack import ChargePackDevice, ChargePackDispatch
+from .charge_pack import ChargePackDevice, ChargePackDispatch, ChargePackDispatches, ChargePackStatus
 from .octoplus import RedeemOctoplusPointsResponse
 from .intelligent_dispatches import DecimalReading, IntelligentDispatchItem, IntelligentDispatches
 from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSessionsResponse
@@ -221,10 +221,22 @@ charge_pack_devices_query = '''query {{
     status {{
       current
     }}
+    ... on SmartFlexInverter {{
+      make
+      model
+    }}
   }}
 }}'''
 
 charge_pack_dispatches_query = '''query {{
+  devices(accountNumber: "{account_id}", deviceId: "{device_id}") {{
+    id
+    status {{
+      current
+      currentState
+      isSuspended
+    }}
+  }}
   flexPlannedDispatches(deviceId: "{device_id}") {{
     start
     end
@@ -2259,7 +2271,8 @@ class OctopusEnergyApiClient:
               continue
 
             status = device["status"]["current"] if isinstance(device.get("status"), dict) else None
-            result.append(ChargePackDevice(device["id"], device.get("name"), device.get("provider"), device["deviceType"], status))
+            result.append(ChargePackDevice(device["id"], device.get("name"), device.get("provider"), device["deviceType"], status,
+                                           device.get("make"), device.get("model")))
 
         return result
 
@@ -2267,15 +2280,15 @@ class OctopusEnergyApiClient:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
 
-  async def async_get_charge_pack_dispatches(self, device_id: str) -> list[ChargePackDispatch]:
-    """Get the planned charges and discharges of a home battery Octopus controls (Charge Pack)"""
+  async def async_get_charge_pack_dispatches(self, account_id: str, device_id: str) -> ChargePackDispatches:
+    """Get the planned charges and discharges of a home battery Octopus controls (Charge Pack), and its status"""
     await self.async_refresh_token()
 
     try:
       request_context = "charge-pack-dispatches"
       client = await self._create_client_session()
       url = f'{self._base_url}/v1/graphql/'
-      payload = { "query": charge_pack_dispatches_query.format(device_id=device_id) }
+      payload = { "query": charge_pack_dispatches_query.format(account_id=account_id, device_id=device_id) }
       headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
@@ -2295,7 +2308,14 @@ class OctopusEnergyApiClient:
             ))
 
         dispatches.sort(key=lambda x: x.start)
-        return dispatches
+
+        status = None
+        if (response_body is not None and "data" in response_body and response_body["data"] is not None):
+          for device in response_body["data"].get("devices") or []:
+            if device.get("id") == device_id and isinstance(device.get("status"), dict):
+              status = ChargePackStatus(device["status"].get("current"), device["status"].get("currentState"), device["status"].get("isSuspended"))
+
+        return ChargePackDispatches(dispatches, status)
 
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')

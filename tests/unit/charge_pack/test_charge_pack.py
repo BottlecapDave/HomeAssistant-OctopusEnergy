@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from custom_components.octopus_energy.api_client.charge_pack import ChargePackDevice, ChargePackDispatch
-from custom_components.octopus_energy.charge_pack import calendar_dispatches, current_or_next_dispatch, update_history
+from custom_components.octopus_energy.charge_pack import calendar_dispatches, current_activity, current_or_next_dispatch, update_history
 
 def _at(text: str) -> datetime:
   return datetime.strptime(text, "%Y-%m-%dT%H:%M:%S%z")
@@ -73,3 +73,20 @@ def test_device_make_and_model_from_its_name():
   assert device.make == "Sigenergy"
   assert device.model == "SigenStor EC 12.0 SP"
   assert ChargePackDevice.from_dict(device.to_dict()).to_dict() == device.to_dict()
+
+def test_device_make_and_model_from_the_api_win():
+  device = ChargePackDevice("abc", "Sigenergy SigenStor EC 12.0 SP", "SMARTFLEX_CONNECT", "INVERTERS", "LIVE", "Sigenergy", "SigenStor EC 12.0")
+
+  assert device.model == "SigenStor EC 12.0"
+  assert ChargePackDevice.from_dict(device.to_dict()).model == "SigenStor EC 12.0"
+
+def test_current_activity():
+  charge = _dispatch("2026-10-22T01:00:00Z", "2026-10-22T03:00:00Z", -4.5)
+  idle = _dispatch("2026-10-22T03:00:00Z", "2026-10-22T04:00:00Z", 0)
+  discharge = _dispatch("2026-10-22T16:00:00Z", "2026-10-22T19:00:00Z", 6)
+  planned = [charge, idle, discharge]
+
+  assert current_activity(planned, _at("2026-10-22T02:00:00Z")) == ("charging", charge)
+  assert current_activity(planned, _at("2026-10-22T03:30:00Z")) == ("idle", idle)
+  assert current_activity(planned, _at("2026-10-22T18:59:00Z")) == ("discharging", discharge)
+  assert current_activity(planned, _at("2026-10-22T19:00:00Z")) == ("none", None)
