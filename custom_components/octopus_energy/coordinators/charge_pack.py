@@ -17,7 +17,7 @@ from ..const import (
 
 from ..api_client import ApiException, OctopusEnergyApiClient
 from ..api_client.charge_pack import ChargePackDispatch, ChargePackStatus, ChargePackTelemetry
-from ..charge_pack import update_history
+from ..charge_pack import mock_charge_pack_dispatches, update_history
 from ..storage.charge_pack import async_save_cached_charge_pack_history
 from . import BaseCoordinatorResult
 
@@ -44,14 +44,15 @@ async def async_refresh_charge_pack_dispatches(
   account_id: str,
   device_id: str,
   existing_result: ChargePackDispatchesCoordinatorResult,
-  async_save_history = None
+  async_save_history = None,
+  mock: bool = False
 ) -> ChargePackDispatchesCoordinatorResult:
   """The plan, read every REFRESH_RATE_IN_MINUTES_CHARGE_PACK minutes, and the
   history of the dispatches that started (saved when it changes)."""
   history = existing_result.history if existing_result is not None else []
   if existing_result is None or current >= existing_result.next_refresh:
     try:
-      read = await client.async_get_charge_pack_dispatches(account_id, device_id)
+      read = mock_charge_pack_dispatches(current) if mock else await client.async_get_charge_pack_dispatches(account_id, device_id)
       new_history = update_history(history, read.planned, current)
       if new_history != history and async_save_history is not None:
         await async_save_history(new_history)
@@ -89,7 +90,7 @@ async def async_refresh_charge_pack_dispatches(
     existing_result.history = new_history
   return existing_result
 
-async def async_setup_charge_pack_coordinator(hass, account_id: str, device_id: str):
+async def async_setup_charge_pack_coordinator(hass, account_id: str, device_id: str, mock: bool = False):
   key = DATA_CHARGE_PACK_DISPATCHES.format(device_id)
 
   async def async_save_history(history):
@@ -105,7 +106,8 @@ async def async_setup_charge_pack_coordinator(hass, account_id: str, device_id: 
       account_id,
       device_id,
       hass.data[DOMAIN][account_id][key] if key in hass.data[DOMAIN][account_id] else None,
-      async_save_history
+      async_save_history,
+      mock
     )
     return hass.data[DOMAIN][account_id][key]
 

@@ -54,3 +54,29 @@ def current_activity(planned: list[ChargePackDispatch], current: datetime) -> tu
 
 def kind_to_friendly_string(kind: str) -> str:
   return "Charge" if kind == "charge" else "Discharge"
+
+# --- Mock data (account debug override "mock_charge_pack"), for testing without a battery ---
+
+def get_mock_charge_pack_device():
+  from ..api_client.charge_pack import ChargePackDevice
+  return ChargePackDevice("00000000-0000-4000-8000-000000000001", "Sigenergy SigenStor EC 12.0 SP", "SMARTFLEX_CONNECT",
+                          "INVERTERS", "LIVE", "Sigenergy", "SigenStor EC 12.0 SP")
+
+def mock_charge_pack_dispatches(current: datetime):
+  """A plan around now (a charge running now, an idle gap, a discharge later and a charge
+  overnight), the status, and readings that follow the charge (as Octopus sends them)."""
+  from ..api_client.charge_pack import ChargePackDispatch, ChargePackDispatches, ChargePackStatus, ChargePackTelemetry
+  half_hour = current.replace(minute=0 if current.minute < 30 else 30, second=0, microsecond=0)
+  at = lambda minutes: half_hour + timedelta(minutes=minutes)
+  planned = [
+    ChargePackDispatch(at(-30), at(60), -3.3, "SMART"),
+    ChargePackDispatch(at(60), at(180), 0.0, "SMART"),
+    ChargePackDispatch(at(180), at(240), 4.4, "SMART"),
+    ChargePackDispatch(at(600), at(720), -6.6, "SMART"),
+  ]
+  soc = 40 + (current.minute % 30)  # (moves, so the sensors visibly update)
+  telemetry = ChargePackTelemetry(
+    battery_state_of_charge=float(soc), battery_power_kw=-4.4, battery_connection_status="ONLINE",
+    inverter_power_kw=-3.7, inverter_connection_status="ONLINE", solar_power_kw=0.7,
+    grid_power_kw=4.6, site_consumption_kw=5.3, site_export_kw=0.0, peak_solar_power_kw=0.0)
+  return ChargePackDispatches(planned, ChargePackStatus("LIVE", "SMART_CONTROL_CAPABLE", False), telemetry)

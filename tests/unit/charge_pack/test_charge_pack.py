@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 
 from custom_components.octopus_energy.api_client.charge_pack import ChargePackDevice, ChargePackDispatch, ChargePackTelemetry
-from custom_components.octopus_energy.charge_pack import calendar_dispatches, current_activity, current_or_next_dispatch, update_history
+from custom_components.octopus_energy.charge_pack import calendar_dispatches, current_activity, current_or_next_dispatch, get_mock_charge_pack_device, mock_charge_pack_dispatches, update_history
 
 def _at(text: str) -> datetime:
   return datetime.strptime(text, "%Y-%m-%dT%H:%M:%S%z")
@@ -118,3 +118,15 @@ def test_telemetry_missing_or_partial():
   assert ChargePackTelemetry.from_api({"id": "x"}) is None
   telemetry = ChargePackTelemetry.from_api({"id": "x", "telemetry": {"battery": {"stateOfCharge": None}, "solar": None}})
   assert telemetry.battery_state_of_charge is None and telemetry.solar_power_kw is None
+
+def test_mock_charge_pack():
+  # (the account debug override mock_charge_pack: a battery and a plan to test with)
+  device = get_mock_charge_pack_device()
+  assert device.device_type == "INVERTERS" and device.make == "Sigenergy"
+
+  now = _at("2026-10-22T14:10:00Z")
+  read = mock_charge_pack_dispatches(now)
+  assert current_activity(read.planned, now)[0] == "charging"
+  assert [d.kind for d in read.planned] == ["charge", "idle", "discharge", "charge"]
+  assert read.status.current_state == "SMART_CONTROL_CAPABLE"
+  assert read.telemetry.battery_power_kw < 0 and read.telemetry.grid_power_kw > 0  # charging from the grid

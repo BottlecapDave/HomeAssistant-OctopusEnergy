@@ -45,6 +45,7 @@ from .api_client.intelligent_dispatches import IntelligentDispatches
 from .discovery import DiscoveryManager
 from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult, async_setup_intelligent_devices_coordinator
 from .coordinators.charge_pack import ChargePackDispatchesCoordinatorResult, async_setup_charge_pack_coordinator
+from .charge_pack import get_mock_charge_pack_device
 from .storage.charge_pack import async_load_cached_charge_pack_devices, async_load_cached_charge_pack_history, async_save_cached_charge_pack_devices
 
 from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configuration
@@ -403,7 +404,7 @@ async def async_setup_dependencies(hass, config, entry_id: str | None = None):
           break
 
   await async_register_intelligent_devices(hass, config, now, account_id, should_mock_intelligent_data)
-  await async_register_charge_pack_devices(hass, now, account_id)
+  await async_register_charge_pack_devices(hass, now, account_id, account_debug_override.mock_charge_pack if account_debug_override is not None else False)
 
   for point in account_info["electricity_meter_points"]:
     # We only care about points that have active agreements
@@ -581,20 +582,25 @@ def setup(hass, config):
   # Return boolean to indicate that initialization was successful.
   return True
 
-async def async_register_charge_pack_devices(hass, now: datetime, account_id: str):
+async def async_register_charge_pack_devices(hass, now: datetime, account_id: str, should_mock_charge_pack: bool = False):
   """Home batteries Octopus controls (Charge Pack, e.g. a SmartFlex device of type INVERTERS):
-  each gets a device with calendars of its planned charges and discharges."""
+  each gets a device with calendars of its planned charges and discharges, and sensors.
+  should_mock_charge_pack: the account debug override mock_charge_pack (a mock battery and plan)."""
   client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
   devices = None
-  try:
-    devices = await client.async_get_charge_pack_devices(account_id)
-    await async_save_cached_charge_pack_devices(hass, account_id, devices)
-  except Exception as e:
-    if isinstance(e, ApiException) == False:
-      raise
-    devices = await async_load_cached_charge_pack_devices(hass, account_id)
-    if len(devices) > 0:
-      _LOGGER.warning(f"Using cached charge pack device information for {account_id} during startup. This data will be updated automatically when available.")
+  if should_mock_charge_pack:
+    _LOGGER.info("Mocking a charge pack device")
+    devices = [get_mock_charge_pack_device()]
+  else:
+    try:
+      devices = await client.async_get_charge_pack_devices(account_id)
+      await async_save_cached_charge_pack_devices(hass, account_id, devices)
+    except Exception as e:
+      if isinstance(e, ApiException) == False:
+        raise
+      devices = await async_load_cached_charge_pack_devices(hass, account_id)
+      if len(devices) > 0:
+        _LOGGER.warning(f"Using cached charge pack device information for {account_id} during startup. This data will be updated automatically when available.")
 
   hass.data[DOMAIN][account_id][DATA_CHARGE_PACK_DEVICES] = devices or []
   for device in devices or []:
@@ -604,7 +610,7 @@ async def async_register_charge_pack_devices(hass, now: datetime, account_id: st
     hass.data[DOMAIN][account_id][DATA_CHARGE_PACK_DISPATCHES.format(device.id)] = ChargePackDispatchesCoordinatorResult(
       now - timedelta(hours=1), 1, [], history
     )
-    await async_setup_charge_pack_coordinator(hass, account_id, device.id)
+    await async_setup_charge_pack_coordinator(hass, account_id, device.id, should_mock_charge_pack)
 
 async def async_register_intelligent_devices(hass, config: dict, now: datetime, account_id: str, should_mock_intelligent_data: bool):
   intelligent_manual_service_enabled = True
