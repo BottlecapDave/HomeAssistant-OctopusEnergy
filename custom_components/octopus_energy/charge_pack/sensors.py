@@ -85,7 +85,7 @@ class OctopusEnergyChargePackState(_ChargePackSensorBase):
         "is_suspended": status.is_suspended,
         "battery_connection_status": telemetry.battery_connection_status if telemetry is not None else None,
         "inverter_connection_status": telemetry.inverter_connection_status if telemetry is not None else None,
-        "data_last_retrieved": result.last_retrieved,
+        "data_last_retrieved": result.status_retrieved,
       }
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
@@ -138,7 +138,7 @@ TELEMETRY_SENSORS = [
   ("solar_power", "solar_power_kw", "Solar Power", UnitOfPower.KILO_WATT, SensorDeviceClass.POWER, "mdi:solar-power"),
   ("grid_power", "grid_power_kw", "Grid Power", UnitOfPower.KILO_WATT, SensorDeviceClass.POWER, "mdi:transmission-tower"),
   ("inverter_power", "inverter_power_kw", "Inverter Power", UnitOfPower.KILO_WATT, SensorDeviceClass.POWER, "mdi:flash"),
-  ("home_consumption", "site_consumption_kw", "Home Consumption", UnitOfPower.KILO_WATT, SensorDeviceClass.POWER, "mdi:home-lightning-bolt"),
+  ("site_consumption", "site_consumption_kw", "Site Consumption", UnitOfPower.KILO_WATT, SensorDeviceClass.POWER, "mdi:home-lightning-bolt"),
   ("export_power", "site_export_kw", "Export Power", UnitOfPower.KILO_WATT, SensorDeviceClass.POWER, "mdi:transmission-tower-export"),
 ]
 
@@ -179,7 +179,7 @@ class OctopusEnergyChargePackTelemetrySensor(_ChargePackSensorBase):
     telemetry = result.telemetry if result is not None else None
     if telemetry is not None:
       self._state = getattr(telemetry, self._field)
-      self._attributes = {"data_last_retrieved": result.last_retrieved}
+      self._attributes = {"data_last_retrieved": result.telemetry_retrieved}
       if self._key == "battery_power":
         self._attributes["connection_status"] = telemetry.battery_connection_status
       elif self._key == "inverter_power":

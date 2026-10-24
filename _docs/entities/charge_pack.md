@@ -8,7 +8,7 @@ If your account has a home battery that Octopus controls through SmartFlex (e.g.
 
 The calendars end with the account number, e.g. `Charge Pack Charge (A-12345678)`; the sensors end with the battery's device ID, as the intelligent device's entities do, e.g. `Charge Pack State (00000000-0011-4000-8020-000000000000)` and `Sigenergy SigenStor EC 12.0 SP Solar Power (00000000-0011-4000-8020-000000000000)`.
 
-Octopus's plan, the battery's status and its readings are read together every 3 minutes.
+Octopus's plan, the battery's status and its readings are read together every 3 minutes. If Octopus can't send the status and readings, the plan is read on its own, and the status and readings keep their last values (their `data_last_retrieved` shows how old they are).
 
 ## Charge Pack Charge
 
@@ -52,7 +52,7 @@ Octopus's state for the battery, as its API reports it, e.g. `SMART_CONTROL_CAPA
 | `is_suspended` | `boolean` | `true` if Octopus's smart control of the battery is suspended |
 | `battery_connection_status` | `string` | The battery's connection, e.g. `ONLINE` |
 | `inverter_connection_status` | `string` | The inverter's connection, e.g. `ONLINE` |
-| `data_last_retrieved` | `datetime` | When the data was last read from Octopus |
+| `data_last_retrieved` | `datetime` | When the status was last received from Octopus |
 
 ## Activity
 
@@ -79,14 +79,14 @@ The battery's live readings, as Octopus gets them from the inverter (its `teleme
 | `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_solar_power` | kW | The solar panels' power |
 | `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_grid_power` | kW | The grid's power: positive while importing, negative while exporting |
 | `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_inverter_power` | kW | The inverter's power: positive while it's putting power out, negative while it's taking power in (e.g. charging the battery from the grid) |
-| `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_home_consumption` | kW | What the home is using. It can be negative when something else on the inverter (e.g. a DC car charger discharging the car) is feeding the home |
+| `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_site_consumption` | kW | What the site is using, as Octopus works it out: the solar and grid import, plus the battery while it's discharging. So it includes the battery while it's charging, and isn't the home's own use. It can be negative when something else on the inverter (e.g. a DC car charger discharging the car) is feeding the home |
 | `sensor.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_export_power` | kW | What's being exported: positive, and 0 while importing |
 
 Each has these attributes:
 
 | Attribute | Type | Description |
 |-----------|------|-------------|
-| `data_last_retrieved` | `datetime` | When the readings were last read from Octopus |
+| `data_last_retrieved` | `datetime` | When the readings were last received from Octopus |
 | `connection_status` | `string` | Battery Power and Inverter Power only: the battery's or the inverter's connection, e.g. `ONLINE` |
 | `peak_solar_power_kw` | `float` | Solar Power only: the solar panels' peak power, as set with Octopus |
 

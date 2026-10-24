@@ -257,6 +257,15 @@ charge_pack_dispatches_query = '''query {{
   }}
 }}'''
 
+charge_pack_plan_query = '''query {{
+  flexPlannedDispatches(deviceId: "{device_id}") {{
+    start
+    end
+    type
+    energyAddedKwh
+  }}
+}}'''
+
 intelligent_settings_query = '''query {{
   devices(accountNumber: "{account_id}", deviceId: "{device_id}") {{
 		id
@@ -2295,36 +2304,48 @@ class OctopusEnergyApiClient:
     await self.async_refresh_token()
 
     try:
-      request_context = "charge-pack-dispatches"
-      client = await self._create_client_session()
-      url = f'{self._base_url}/v1/graphql/'
-      payload = { "query": charge_pack_dispatches_query.format(account_id=account_id, device_id=device_id) }
-      headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
-      async with client.post(url, json=payload, headers=headers) as response:
-        response_body = await self.__async_read_response__(response, url)
-        _LOGGER.debug(f'async_get_charge_pack_dispatches: {response_body}')
+      try:
+        response_body = await self._async_charge_pack_request(
+          charge_pack_dispatches_query.format(account_id=account_id, device_id=device_id), "charge-pack-dispatches")
+      except AuthenticationException:
+        raise
+      except RequestException as e:
+        # A problem with the status or readings shouldn't cost us the plan
+        _LOGGER.warning(f"Failed to retrieve the status and readings of charge pack {device_id}, so retrieving its plan only - {e}")
+        response_body = await self._async_charge_pack_request(charge_pack_plan_query.format(device_id=device_id), "charge-pack-plan")
 
-        dispatches, status, telemetry = [], None, None
-        if (response_body is not None and "data" in response_body and response_body["data"] is not None):
-          for item in response_body["data"]["flexPlannedDispatches"] or []:
-            dispatches.append(ChargePackDispatch(
-              as_utc(parse_datetime(item["start"])),
-              as_utc(parse_datetime(item["end"])),
-              float(item["energyAddedKwh"]) if item["energyAddedKwh"] is not None else None,
-              item["type"]
-            ))
-          dispatches.sort(key=lambda x: x.start)
+      dispatches, status, telemetry = [], None, None
+      if (response_body is not None and "data" in response_body and response_body["data"] is not None):
+        for item in response_body["data"]["flexPlannedDispatches"] or []:
+          dispatches.append(ChargePackDispatch(
+            as_utc(parse_datetime(item["start"])),
+            as_utc(parse_datetime(item["end"])),
+            float(item["energyAddedKwh"]) if item["energyAddedKwh"] is not None else None,
+            item["type"]
+          ))
+        dispatches.sort(key=lambda x: x.start)
 
-          for device in response_body["data"]["devices"] or []:
-            if device["id"] == device_id:
-              status = ChargePackStatus(device["status"]["current"], device["status"]["currentState"], device["status"]["isSuspended"])
-              telemetry = ChargePackTelemetry.from_api(device)
+        # Not in a plan-only response
+        for device in response_body["data"].get("devices") or []:
+          if device["id"] == device_id:
+            status = ChargePackStatus(device["status"]["current"], device["status"]["currentState"], device["status"]["isSuspended"])
+            telemetry = ChargePackTelemetry.from_api(device)
 
-        return ChargePackDispatches(dispatches, status, telemetry)
+      return ChargePackDispatches(dispatches, status, telemetry)
 
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()
+
+  async def _async_charge_pack_request(self, query: str, request_context: str):
+    client = await self._create_client_session()
+    url = f'{self._base_url}/v1/graphql/'
+    payload = { "query": query }
+    headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
+    async with client.post(url, json=payload, headers=headers) as response:
+      response_body = await self.__async_read_response__(response, url)
+      _LOGGER.debug(f'{request_context}: {response_body}')
+      return response_body
 
   async def async_get_wheel_of_fortune_spins(self, account_id: str) -> WheelOfFortuneSpinsResponse:
     """Get the user's wheel of fortune spins"""

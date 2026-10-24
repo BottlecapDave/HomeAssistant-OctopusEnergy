@@ -27,16 +27,22 @@ class ChargePackDispatchesCoordinatorResult(BaseCoordinatorResult):
   planned: list[ChargePackDispatch]
   history: list[ChargePackDispatch]
   status: ChargePackStatus | None
+  status_retrieved: datetime | None
   telemetry: ChargePackTelemetry | None
+  telemetry_retrieved: datetime | None
 
   def __init__(self, last_evaluated: datetime, request_attempts: int, planned: list[ChargePackDispatch],
                history: list[ChargePackDispatch], last_retrieved: datetime | None = None, last_error: Exception | None = None,
-               status: ChargePackStatus | None = None, telemetry: ChargePackTelemetry | None = None):
+               status: ChargePackStatus | None = None, status_retrieved: datetime | None = None,
+               telemetry: ChargePackTelemetry | None = None, telemetry_retrieved: datetime | None = None):
     super().__init__(last_evaluated, request_attempts, REFRESH_RATE_IN_MINUTES_CHARGE_PACK, last_retrieved, last_error)
     self.planned = planned
     self.history = history
+    # The status and readings can be older than the plan, when Octopus didn't send them
     self.status = status
+    self.status_retrieved = status_retrieved
     self.telemetry = telemetry
+    self.telemetry_retrieved = telemetry_retrieved
 
 async def async_refresh_charge_pack_dispatches(
   current: datetime,
@@ -56,10 +62,20 @@ async def async_refresh_charge_pack_dispatches(
       new_history = update_history(history, read.planned, current)
       if new_history != history:
         await async_save_history(new_history)
-      # (the status is kept if Octopus didn't send it this time)
-      status = read.status if read.status is not None else (existing_result.status if existing_result is not None else None)
-      telemetry = read.telemetry if read.telemetry is not None else (existing_result.telemetry if existing_result is not None else None)
-      return ChargePackDispatchesCoordinatorResult(current, 1, read.planned, new_history, status=status, telemetry=telemetry)
+      # The last status and readings are kept, with when they were retrieved, if Octopus didn't send them this time
+      if read.status is not None:
+        status, status_retrieved = read.status, current
+      else:
+        status = existing_result.status if existing_result is not None else None
+        status_retrieved = existing_result.status_retrieved if existing_result is not None else None
+      if read.telemetry is not None:
+        telemetry, telemetry_retrieved = read.telemetry, current
+      else:
+        telemetry = existing_result.telemetry if existing_result is not None else None
+        telemetry_retrieved = existing_result.telemetry_retrieved if existing_result is not None else None
+      return ChargePackDispatchesCoordinatorResult(current, 1, read.planned, new_history,
+                                                   status=status, status_retrieved=status_retrieved,
+                                                   telemetry=telemetry, telemetry_retrieved=telemetry_retrieved)
     except Exception as e:
       if isinstance(e, ApiException) == False:
         raise
@@ -67,7 +83,8 @@ async def async_refresh_charge_pack_dispatches(
       if existing_result is not None:
         result = ChargePackDispatchesCoordinatorResult(existing_result.last_evaluated, existing_result.request_attempts + 1,
                                                        existing_result.planned, history, existing_result.last_retrieved, last_error=e,
-                                                       status=existing_result.status, telemetry=existing_result.telemetry)
+                                                       status=existing_result.status, status_retrieved=existing_result.status_retrieved,
+                                                       telemetry=existing_result.telemetry, telemetry_retrieved=existing_result.telemetry_retrieved)
         if result.request_attempts == 2:
           _LOGGER.warning(f'Failed to retrieve the charge pack dispatches for {device_id} - using cached data. See diagnostics sensor for more information.')
         return result
