@@ -34,10 +34,11 @@ async def async_get_meter_debug_override(hass, mpan_mprn: str, serial_number: st
 
 class AccountDebugOverride():
 
-  def __init__(self, mock_intelligent_controls: bool, mock_saving_session_baseline: bool, mock_heat_pump: bool):
+  def __init__(self, mock_intelligent_controls: bool, mock_saving_session_baseline: bool, mock_heat_pump: bool, mock_charge_point: bool = False):
     self.mock_intelligent_controls = mock_intelligent_controls
     self.mock_power_down_baseline = mock_saving_session_baseline
     self.mock_heat_pump = mock_heat_pump
+    self.mock_charge_point = mock_charge_point
 
 async def async_get_account_debug_override(hass, account_id: str) -> AccountDebugOverride | None:
   storage_key = STORAGE_ACCOUNT_DEBUG_OVERRIDE_NAME.format(account_id)
@@ -50,6 +51,7 @@ async def async_get_account_debug_override(hass, account_id: str) -> AccountDebu
         data["mock_intelligent_controls"] == True if "mock_intelligent_controls" in data else False,
         data["mock_power_down_baseline"] == True if "mock_power_down_baseline" in data else False,
         data["mock_heat_pump"] == True if "mock_heat_pump" in data else False,
+        data["mock_charge_point"] == True if "mock_charge_point" in data else False,
       )
 
       _LOGGER.info(f"Debug overrides discovered {account_id} - {debug}")
