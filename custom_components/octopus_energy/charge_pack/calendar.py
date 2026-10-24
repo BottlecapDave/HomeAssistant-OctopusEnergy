@@ -31,6 +31,7 @@ class OctopusEnergyChargePackCalendar(CoordinatorEntity, OctopusEnergyChargePack
     self._kind = kind
     self._event = None
     self._dispatches: list[ChargePackDispatch] = []
+    self._attributes = {}
 
     self.entity_id = generate_entity_id("calendar.{}", self.unique_id, hass=hass)
 
@@ -67,12 +68,12 @@ class OctopusEnergyChargePackCalendar(CoordinatorEntity, OctopusEnergyChargePack
       summary=f"{kind_to_friendly_string(self._kind)} {dispatch.kwh:.2f} kWh",
       start=dispatch.start,
       end=dispatch.end,
-      description=f"Planned by Octopus Energy for {self._device.name or 'your home battery'}" + (f" ({dispatch.type})" if dispatch.type else ""),
+      description=f"Planned by Octopus Energy for {self._device.display_name}" + (f" ({dispatch.type})" if dispatch.type else ""),
     )
 
   @callback
   def _handle_coordinator_update(self) -> None:
-    result: ChargePackDispatchesCoordinatorResult = self.coordinator.data if self.coordinator is not None else None
+    result: ChargePackDispatchesCoordinatorResult = self.coordinator.data
     self._dispatches = calendar_dispatches(result.history, result.planned, self._kind) if result is not None else []
     found = current_or_next_dispatch(self._dispatches, utcnow())
     self._event = self._to_event(found) if found is not None else None
@@ -81,7 +82,7 @@ class OctopusEnergyChargePackCalendar(CoordinatorEntity, OctopusEnergyChargePack
 
   @property
   def extra_state_attributes(self):
-    return getattr(self, "_attributes", {})
+    return self._attributes
 
   async def async_get_events(self, hass, start_date: datetime, end_date: datetime) -> list[CalendarEvent]:
     """The events in a time frame."""

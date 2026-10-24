@@ -2276,15 +2276,13 @@ class OctopusEnergyApiClient:
         _LOGGER.debug(f'async_get_charge_pack_devices: {response_body}')
 
         result = []
-        if (response_body is not None and "data" in response_body and response_body["data"] is not None
-            and response_body["data"].get("devices") is not None):
+        if (response_body is not None and "data" in response_body and "devices" in response_body["data"]):
           for device in response_body["data"]["devices"]:
-            if device.get("deviceType") not in CHARGE_PACK_DEVICE_TYPES:
+            if device["deviceType"] not in CHARGE_PACK_DEVICE_TYPES:
               continue
 
-            status = device["status"]["current"] if isinstance(device.get("status"), dict) else None
-            result.append(ChargePackDevice(device["id"], device.get("name"), device.get("provider"), device["deviceType"], status,
-                                           device.get("make"), device.get("model")))
+            result.append(ChargePackDevice(device["id"], device["name"], device["provider"], device["deviceType"],
+                                           device["status"]["current"], device.get("make"), device.get("model")))
 
         return result
 
@@ -2306,30 +2304,21 @@ class OctopusEnergyApiClient:
         response_body = await self.__async_read_response__(response, url)
         _LOGGER.debug(f'async_get_charge_pack_dispatches: {response_body}')
 
-        dispatches = []
+        dispatches, status, telemetry = [], None, None
         if (response_body is not None and "data" in response_body and response_body["data"] is not None):
-          for item in response_body["data"].get("flexPlannedDispatches") or []:
-            start, end = parse_datetime(item["start"]) if item.get("start") else None, parse_datetime(item["end"]) if item.get("end") else None
-            if start is None or end is None:
-              continue
+          for item in response_body["data"]["flexPlannedDispatches"] or []:
             dispatches.append(ChargePackDispatch(
-              as_utc(start),
-              as_utc(end),
-              float(item["energyAddedKwh"]) if item.get("energyAddedKwh") is not None else None,
-              item.get("type")
+              as_utc(parse_datetime(item["start"])),
+              as_utc(parse_datetime(item["end"])),
+              float(item["energyAddedKwh"]) if item["energyAddedKwh"] is not None else None,
+              item["type"]
             ))
+          dispatches.sort(key=lambda x: x.start)
 
-        dispatches.sort(key=lambda x: x.start)
-
-        status = None
-        telemetry = None
-        if (response_body is not None and "data" in response_body and response_body["data"] is not None):
-          for device in response_body["data"].get("devices") or []:
-            if device.get("id") != device_id:
-              continue
-            if isinstance(device.get("status"), dict):
-              status = ChargePackStatus(device["status"].get("current"), device["status"].get("currentState"), device["status"].get("isSuspended"))
-            telemetry = ChargePackTelemetry.from_api(device)
+          for device in response_body["data"]["devices"] or []:
+            if device["id"] == device_id:
+              status = ChargePackStatus(device["status"]["current"], device["status"]["currentState"], device["status"]["isSuspended"])
+              telemetry = ChargePackTelemetry.from_api(device)
 
         return ChargePackDispatches(dispatches, status, telemetry)
 

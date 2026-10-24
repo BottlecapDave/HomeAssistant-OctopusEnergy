@@ -58,11 +58,10 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
     entities.append(OctopusEnergyPowerUpCalendar(hass, power_up_down_coordinator, account_id))
 
   # Charge Pack: the planned charges and discharges of each home battery Octopus controls
-  for device in hass.data[DOMAIN][account_id].get(DATA_CHARGE_PACK_DEVICES) or []:
-    coordinator = hass.data[DOMAIN][account_id].get(DATA_CHARGE_PACK_COORDINATOR.format(device.id))
-    if coordinator is not None:
-      for kind in CHARGE_PACK_KINDS:
-        entities.append(OctopusEnergyChargePackCalendar(hass, coordinator, account_id, device, kind))
+  for device in hass.data[DOMAIN][account_id][DATA_CHARGE_PACK_DEVICES]:
+    coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_PACK_COORDINATOR.format(device.id)]
+    for kind in CHARGE_PACK_KINDS:
+      entities.append(OctopusEnergyChargePackCalendar(hass, coordinator, account_id, device, kind))
 
   if len(entities) > 0:
     async_add_entities(entities)

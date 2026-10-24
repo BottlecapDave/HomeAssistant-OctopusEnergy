@@ -17,7 +17,7 @@ class OctopusEnergyChargePackSensor:
       identifiers={
         (DOMAIN, f"charge_pack_{device.id}")
       },
-      name=f"{device.name or 'Home battery'} (Charge Pack)",
+      name=f"{device.display_name} (Charge Pack)",
       connections=set(),
       manufacturer=device.make,
       model=device.model

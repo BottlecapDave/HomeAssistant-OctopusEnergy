@@ -582,12 +582,11 @@ def setup(hass, config):
   # Return boolean to indicate that initialization was successful.
   return True
 
-async def async_register_charge_pack_devices(hass, now: datetime, account_id: str, should_mock_charge_pack: bool = False):
+async def async_register_charge_pack_devices(hass, now: datetime, account_id: str, should_mock_charge_pack: bool):
   """Home batteries Octopus controls (Charge Pack, e.g. a SmartFlex device of type INVERTERS):
   each gets a device with calendars of its planned charges and discharges, and sensors.
   should_mock_charge_pack: the account debug override mock_charge_pack (a mock battery and plan)."""
   client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
-  devices = None
   if should_mock_charge_pack:
     _LOGGER.info("Mocking a charge pack device")
     devices = [get_mock_charge_pack_device()]
@@ -602,8 +601,8 @@ async def async_register_charge_pack_devices(hass, now: datetime, account_id: st
       if len(devices) > 0:
         _LOGGER.warning(f"Using cached charge pack device information for {account_id} during startup. This data will be updated automatically when available.")
 
-  hass.data[DOMAIN][account_id][DATA_CHARGE_PACK_DEVICES] = devices or []
-  for device in devices or []:
+  hass.data[DOMAIN][account_id][DATA_CHARGE_PACK_DEVICES] = devices
+  for device in devices:
     _LOGGER.info(f"Found a charge pack device for {account_id}: {device.name} ({device.device_type}, {device.provider}, {device.status})")
     history = await async_load_cached_charge_pack_history(hass, device.id)
     # Read the plan straight away (an hour ago: due), keeping the history

@@ -1,8 +1,10 @@
 import logging
 
 from homeassistant.const import (
+  PERCENTAGE,
   STATE_UNAVAILABLE,
   STATE_UNKNOWN,
+  UnitOfPower,
 )
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import generate_entity_id
@@ -15,7 +17,6 @@ from homeassistant.components.sensor import (
   SensorDeviceClass,
   SensorStateClass,
 )
-from homeassistant.const import PERCENTAGE, UnitOfPower
 
 from . import current_activity
 from .base import OctopusEnergyChargePackSensor
@@ -43,12 +44,8 @@ class _ChargePackSensorBase(CoordinatorEntity, OctopusEnergyChargePackSensor, Re
   def native_value(self):
     return self._state
 
-  def _device_name(self) -> str:
-    """The battery's name, e.g. "Sigenergy SigenStor EC 12.0 SP" (its readings are named after it)."""
-    return self._device.name or "Charge Pack"
-
   def _result(self) -> ChargePackDispatchesCoordinatorResult | None:
-    return self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
+    return self.coordinator.data
 
   async def async_added_to_hass(self):
     """Restore the last state (until the first read), then show the coordinator's data if it has any."""
@@ -102,7 +99,7 @@ class OctopusEnergyChargePackActivity(_ChargePackSensorBase):
 
   @property
   def name(self):
-    return f"{self._device_name()} Activity ({self._device.id})"
+    return f"{self._device.display_name} Activity ({self._device.id})"
 
   @property
   def device_class(self):
@@ -158,7 +155,7 @@ class OctopusEnergyChargePackTelemetrySensor(_ChargePackSensorBase):
 
   @property
   def name(self):
-    return f"{self._device_name()} {self._label} ({self._device.id})"
+    return f"{self._device.display_name} {self._label} ({self._device.id})"
 
   @property
   def device_class(self):

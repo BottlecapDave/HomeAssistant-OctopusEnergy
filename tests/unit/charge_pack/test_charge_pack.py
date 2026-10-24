@@ -67,18 +67,12 @@ def test_dispatch_kind_and_round_trip():
   assert _dispatch("2026-10-22T01:00:00Z", "2026-10-22T03:00:00Z", 0).kind == "idle"
   assert ChargePackDispatch.from_dict(charge.to_dict()) == charge
 
-def test_device_make_and_model_from_its_name():
-  device = ChargePackDevice("abc", "Sigenergy SigenStor EC 12.0 SP", "SMARTFLEX_CONNECT", "INVERTERS", "LIVE")
+def test_device_round_trip():
+  device = ChargePackDevice("abc", "Sigenergy SigenStor EC 12.0 SP", "SMARTFLEX_CONNECT", "INVERTERS", "LIVE", "Sigenergy", "SigenStor EC 12.0 SP")
 
-  assert device.make == "Sigenergy"
-  assert device.model == "SigenStor EC 12.0 SP"
+  assert (device.make, device.model, device.display_name) == ("Sigenergy", "SigenStor EC 12.0 SP", "Sigenergy SigenStor EC 12.0 SP")
   assert ChargePackDevice.from_dict(device.to_dict()).to_dict() == device.to_dict()
-
-def test_device_make_and_model_from_the_api_win():
-  device = ChargePackDevice("abc", "Sigenergy SigenStor EC 12.0 SP", "SMARTFLEX_CONNECT", "INVERTERS", "LIVE", "Sigenergy", "SigenStor EC 12.0")
-
-  assert device.model == "SigenStor EC 12.0"
-  assert ChargePackDevice.from_dict(device.to_dict()).model == "SigenStor EC 12.0"
+  assert ChargePackDevice("abc", None, None, "INVERTERS", None, None, None).display_name == "Home battery"
 
 def test_current_activity():
   charge = _dispatch("2026-10-22T01:00:00Z", "2026-10-22T03:00:00Z", -4.5)

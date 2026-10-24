@@ -28,7 +28,7 @@ async def async_load_cached_charge_pack_history(hass, device_id: str) -> list[Ch
   try:
     data = await store.async_load()
     if data is not None:
-      return [ChargePackDispatch.from_dict(item) for item in data.get("history") or []]
+      return [ChargePackDispatch.from_dict(item) for item in data["history"]]
   except:
     _LOGGER.warning(f"Failed to load the charge pack history for {device_id}")
   return []

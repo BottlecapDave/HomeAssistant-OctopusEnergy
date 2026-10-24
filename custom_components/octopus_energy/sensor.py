@@ -615,13 +615,12 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   #       _LOGGER.warning(f'Failed to migrate entity id and unique id for {item["old"]} to {item["new"]} - {e}')
 
   # Charge Pack: each home battery Octopus controls, its state and what Octopus has it doing now
-  for charge_pack_device in hass.data[DOMAIN][account_id].get(DATA_CHARGE_PACK_DEVICES) or []:
-    charge_pack_coordinator = hass.data[DOMAIN][account_id].get(DATA_CHARGE_PACK_COORDINATOR.format(charge_pack_device.id))
-    if charge_pack_coordinator is not None:
-      entities.append(OctopusEnergyChargePackState(hass, charge_pack_coordinator, account_id, charge_pack_device))
-      entities.append(OctopusEnergyChargePackActivity(hass, charge_pack_coordinator, account_id, charge_pack_device))
-      for definition in CHARGE_PACK_TELEMETRY_SENSORS:
-        entities.append(OctopusEnergyChargePackTelemetrySensor(hass, charge_pack_coordinator, account_id, charge_pack_device, definition))
+  for charge_pack_device in hass.data[DOMAIN][account_id][DATA_CHARGE_PACK_DEVICES]:
+    charge_pack_coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_PACK_COORDINATOR.format(charge_pack_device.id)]
+    entities.append(OctopusEnergyChargePackState(hass, charge_pack_coordinator, account_id, charge_pack_device))
+    entities.append(OctopusEnergyChargePackActivity(hass, charge_pack_coordinator, account_id, charge_pack_device))
+    for definition in CHARGE_PACK_TELEMETRY_SENSORS:
+      entities.append(OctopusEnergyChargePackTelemetrySensor(hass, charge_pack_coordinator, account_id, charge_pack_device, definition))
 
   async_add_entities(entities)
 

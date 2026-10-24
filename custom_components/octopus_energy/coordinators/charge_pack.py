@@ -44,8 +44,8 @@ async def async_refresh_charge_pack_dispatches(
   account_id: str,
   device_id: str,
   existing_result: ChargePackDispatchesCoordinatorResult,
-  async_save_history = None,
-  mock: bool = False
+  async_save_history,
+  mock: bool
 ) -> ChargePackDispatchesCoordinatorResult:
   """The plan, read every REFRESH_RATE_IN_MINUTES_CHARGE_PACK minutes, and the
   history of the dispatches that started (saved when it changes)."""
@@ -54,7 +54,7 @@ async def async_refresh_charge_pack_dispatches(
     try:
       read = mock_charge_pack_dispatches(current) if mock else await client.async_get_charge_pack_dispatches(account_id, device_id)
       new_history = update_history(history, read.planned, current)
-      if new_history != history and async_save_history is not None:
+      if new_history != history:
         await async_save_history(new_history)
       # (the status is kept if Octopus didn't send it this time)
       status = read.status if read.status is not None else (existing_result.status if existing_result is not None else None)
@@ -85,12 +85,11 @@ async def async_refresh_charge_pack_dispatches(
   # Between reads: a planned dispatch that's started since joins the history
   new_history = update_history(history, existing_result.planned, current)
   if new_history != history:
-    if async_save_history is not None:
-      await async_save_history(new_history)
+    await async_save_history(new_history)
     existing_result.history = new_history
   return existing_result
 
-async def async_setup_charge_pack_coordinator(hass, account_id: str, device_id: str, mock: bool = False):
+async def async_setup_charge_pack_coordinator(hass, account_id: str, device_id: str, mock: bool):
   key = DATA_CHARGE_PACK_DISPATCHES.format(device_id)
 
   async def async_save_history(history):
