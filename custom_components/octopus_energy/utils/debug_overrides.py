@@ -34,7 +34,7 @@ async def async_get_meter_debug_override(hass, mpan_mprn: str, serial_number: st
 
 class AccountDebugOverride():
 
-  def __init__(self, mock_intelligent_controls: bool, mock_saving_session_baseline: bool, mock_heat_pump: bool, mock_charge_pack: bool = False):
+  def __init__(self, mock_intelligent_controls: bool, mock_saving_session_baseline: bool, mock_heat_pump: bool, mock_charge_pack: bool):
     self.mock_intelligent_controls = mock_intelligent_controls
     self.mock_power_down_baseline = mock_saving_session_baseline
     self.mock_heat_pump = mock_heat_pump
