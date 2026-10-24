@@ -19,6 +19,7 @@ from .octoplus.saving_sessions_events import OctopusEnergyOctoplusSavingSessionE
 from .octoplus.free_electricity_sessions_events import OctopusEnergyOctoplusFreeElectricitySessionEvents
 from .octoplus.power_up_events import OctopusEnergyOctoplusPowerUpEvents
 from .octoplus.power_down_events import OctopusEnergyOctoplusPowerDownEvents
+from .octoplus.event_services import create_octoplus_event_service_handler
 from .electricity.rates_previous_consumption_override import OctopusEnergyElectricityPreviousConsumptionOverrideRates
 from .gas.rates_previous_consumption_override import OctopusEnergyGasPreviousConsumptionOverrideRates
 
@@ -58,7 +59,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         extra=vol.ALLOW_EXTRA,
       ),
     ),
-    "async_join_saving_session_event",
+    create_octoplus_event_service_handler("async_join_saving_session_event", "octoplus_power_down_events"),
     supports_response=SupportsResponse.OPTIONAL,
   )
   platform.async_register_entity_service(
@@ -71,7 +72,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         extra=vol.ALLOW_EXTRA,
       ),
     ),
-    "async_join_saving_session_event",
+    create_octoplus_event_service_handler("async_join_saving_session_event", "octoplus_power_down_events"),
     supports_response=SupportsResponse.OPTIONAL,
   )
 
@@ -85,7 +86,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         extra=vol.ALLOW_EXTRA,
       ),
     ),
-    "async_join_weekend_happy_hour_event",
+    create_octoplus_event_service_handler("async_join_weekend_happy_hour_event", "octoplus_power_up_events"),
     supports_response=SupportsResponse.OPTIONAL,
   )
 

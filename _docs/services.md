@@ -40,9 +40,12 @@ This service supports an optional response. If the event is joined successfully,
 
 Service for joining a new power up weekend happy hour session event. When used, it may take a couple of minutes for the other sensors to refresh the changes.
 
+!!! info
+    The [power up events](./entities/octoplus.md#power-up-session-events) entity is disabled by default, so it will need enabling before this service can be used. Targeting any other entity will raise an error naming the entity to use.
+
 | Attribute                | Optional | Description                                                                                                           |
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
-| `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated. This should always point at the [power up events](./entities/octoplus.md#power-down-events) entity. |
+| `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated. This should always point at the [power up events](./entities/octoplus.md#power-up-session-events) entity. |
 | `data.event_code`      | `no`    | The code of the event to join |
 
 This service supports an optional response. If the event is joined successfully, calling the service with `response_variable` (or `return_response: true` when using `hass.services.async_call`) will return `{"success": true}`. If the event cannot be joined (e.g. it no longer exists), the service call will fail and raise an error containing the reason, allowing the failure to be trapped in automations/scripts.
