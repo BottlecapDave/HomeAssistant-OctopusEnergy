@@ -6,11 +6,11 @@ If your account has a home battery that Octopus controls through SmartFlex (e.g.
 
     If your battery is added to your account after you have installed the integration, you will need to reload the integration or restart your Home Assistant instance.
 
-The calendars end with the account number, e.g. `Charge Pack Charge (A-12345678)`; the sensors end with the battery's device ID, as the intelligent device's entities do, named after the battery, e.g. `Sigenergy SigenStor EC 12.0 SP State (00000000-0011-4000-8020-000000000000)` and `Sigenergy SigenStor EC 12.0 SP Solar Power (00000000-0011-4000-8020-000000000000)`.
+The entities are named after the battery. The calendars end with the account number, e.g. `Sigenergy SigenStor EC 12.0 SP Charge (A-12345678)`; the sensors end with the battery's device ID, as the intelligent device's entities do, e.g. `Sigenergy SigenStor EC 12.0 SP State (00000000-0011-4000-8020-000000000000)` and `Sigenergy SigenStor EC 12.0 SP Solar Power (00000000-0011-4000-8020-000000000000)`.
 
 Octopus's plan, the battery's status and its readings are read together every 3 minutes. If Octopus can't send the status and readings, the plan is read on its own, and the status and readings keep their last values (their `data_last_retrieved` shows how old they are).
 
-## Charge Pack Charge
+## Charge
 
 `calendar.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_charge`
 
@@ -34,7 +34,7 @@ Octopus only lists the charges and discharges that haven't ended, and changes it
 
 Each event has the summary (e.g. `Charge 4.50 kWh`), start, end and the description above.
 
-## Charge Pack Discharge
+## Discharge
 
 `calendar.octopus_energy_{{ACCOUNT_ID}}_{{DEVICE_ID}}_charge_pack_discharge`
 

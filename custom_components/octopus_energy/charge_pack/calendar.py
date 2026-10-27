@@ -43,7 +43,7 @@ class OctopusEnergyChargePackCalendar(CoordinatorEntity, OctopusEnergyChargePack
   @property
   def name(self):
     """Name of the sensor."""
-    return f"Charge Pack {kind_to_friendly_string(self._kind)} ({self._account_id})"
+    return f"{self._device.display_name} {kind_to_friendly_string(self._kind)} ({self._account_id})"
 
   @property
   def icon(self):
