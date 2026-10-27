@@ -67,7 +67,7 @@ class OctopusEnergyChargePackState(_ChargePackSensorBase):
 
   @property
   def name(self):
-    return f"Charge Pack State ({self._device.id})"
+    return f"{self._device.display_name} State ({self._device.id})"
 
   @property
   def icon(self):
