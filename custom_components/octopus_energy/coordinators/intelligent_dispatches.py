@@ -31,7 +31,7 @@ from ..storage.intelligent_dispatches import async_save_cached_intelligent_dispa
 from ..intelligent import clean_intelligent_dispatch_history, clean_previous_dispatches, has_dispatches_changed, has_intelligent_tariff, mock_intelligent_dispatches
 from ..coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
 from ..storage.intelligent_dispatches_history import IntelligentDispatchesHistory, async_save_cached_intelligent_dispatches_history
-from ..utils.datetime import round_down_to_nearest_half_hour
+from ..utils.datetime import round_down_to_nearest_half_hour, round_up_to_nearest_half_hour
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -108,6 +108,38 @@ def merge_started_dispatches(current: datetime,
             break
           elif (started_dispatch.end == start):
             started_dispatch.end = end
+            is_extended = True
+            break
+
+        if is_extended == False:
+          new_started_dispatches.append(SimpleIntelligentDispatchItem(start, end))
+
+  return new_started_dispatches
+
+def merge_started_actual_dispatches(current: datetime,
+                                    current_state: str,
+                                    started_dispatches: list[SimpleIntelligentDispatchItem],
+                                    planned_dispatches: list[IntelligentDispatchItem]):
+  new_started_dispatches = clean_previous_dispatches(current, started_dispatches)
+  new_started_dispatches = list(map(lambda item: SimpleIntelligentDispatchItem(item.start, item.end), new_started_dispatches))
+
+  if current_state == "SMART_CONTROL_IN_PROGRESS":
+    for planned_dispatch in planned_dispatches:
+      if planned_dispatch.start <= current and planned_dispatch.end >= current:
+        # Skip any bump charges
+        if (planned_dispatch.source.lower() in INTELLIGENT_SOURCE_BUMP_CHARGE_OPTIONS if planned_dispatch.source is not None else False):
+          continue
+
+        # Capture the actual dispatch start, and end at either the dispatch end or the end of the current 30 minute period,
+        # whichever is first, so that dispatch hours reflect the real duration
+        is_extended = False
+        start = planned_dispatch.start
+        end = min(planned_dispatch.end, round_up_to_nearest_half_hour(current))
+        for started_dispatch in new_started_dispatches:
+          # If the started dispatch overlaps or touches the current dispatch, extend it
+          if (started_dispatch.start <= end and started_dispatch.end >= start):
+            started_dispatch.start = min(started_dispatch.start, start)
+            started_dispatch.end = max(started_dispatch.end, end)
             is_extended = True
             break
 
@@ -274,6 +306,13 @@ async def async_refresh_intelligent_dispatches(
                                                          if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and existing_intelligent_dispatches_result.dispatches.started is not None
                                                          else [],
                                                          result.dispatches.planned)
+
+    result.dispatches.started_actual = merge_started_actual_dispatches(current,
+                                                                       result.dispatches.current_state,
+                                                                       existing_intelligent_dispatches_result.dispatches.started_actual
+                                                                       if existing_intelligent_dispatches_result is not None and existing_intelligent_dispatches_result.dispatches is not None and existing_intelligent_dispatches_result.dispatches.started_actual is not None
+                                                                       else [],
+                                                                       result.dispatches.planned)
 
     if (existing_intelligent_dispatches_result is None or
         existing_intelligent_dispatches_result.dispatches is None or
