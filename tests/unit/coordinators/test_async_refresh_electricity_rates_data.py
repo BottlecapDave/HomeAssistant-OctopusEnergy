@@ -2511,3 +2511,140 @@ async def test_when_existing_rates_is_old_but_no_rates_returned_then_rates_retri
     assert len(actual_fired_events.keys()) == 4
     assert raise_rates_empty_called == True
     assert clear_rates_empty_called == False
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("current,existing_rates_end,expected_requested_period_from", [
+  # Existing rates include the current day
+  (current, datetime.strptime("2023-07-15T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2023-07-14T00:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
+  # Existing rates end before the current day, so we shouldn't leave a gap
+  (current, datetime.strptime("2023-07-13T20:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2023-07-13T20:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
+  # Day after the clocks go back/forward, where the previous day wasn't 24 hours long
+  (datetime(2024, 10, 28, 0, 10, tzinfo=ZoneInfo(key='Europe/London')), datetime.strptime("2024-10-29T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2024-10-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+  (datetime(2024, 4, 1, 0, 10, tzinfo=ZoneInfo(key='Europe/London')), datetime.strptime("2024-04-01T23:00:00Z", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2024-03-31T23:00:00Z", "%Y-%m-%dT%H:%M:%S%z")),
+])
+async def test_when_existing_rates_were_retrieved_on_a_previous_day_and_same_tariff_then_current_day_rates_retrieved_again(current: datetime, existing_rates_end: datetime, expected_requested_period_from: datetime):
+  expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
+  mock_api_called_count = 0
+  requested_period_from = None
+  requested_period_to = None
+  async def async_mocked_get_electricity_rates(*args, **kwargs):
+    nonlocal mock_api_called_count, requested_period_from, requested_period_to
+
+    requested_client, requested_product_code, requested_tariff_code, is_smart_meter, requested_period_from, requested_period_to = args
+
+    mock_api_called_count += 1
+    return create_rate_data(requested_period_from, requested_period_to, [2], default_tariff_code)
+
+  def fire_event(name, metadata):
+    return None
+
+  account_info = get_account_info()
+  # Rates that were retrieved the day before, which might include (now stale) rates for the current day
+  existing_rates = ElectricityRatesCoordinatorResult(
+    current - timedelta(days=1),
+    1,
+    create_rate_data(existing_rates_end - timedelta(days=3), existing_rates_end, [1], default_tariff_code)
+  )
+  dispatches_result = { "1": IntelligentDispatchesCoordinatorResult(dispatches_last_retrieved, 1, IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], []), IntelligentDispatchesHistory([]), 1, dispatches_last_retrieved) }
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_rates=async_mocked_get_electricity_rates):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_rates: ElectricityRatesCoordinatorResult = await async_refresh_electricity_rates_data(
+      current,
+      client,
+      account_info,
+      mpan,
+      serial_number,
+      True,
+      False,
+      existing_rates,
+      dispatches_result,
+      fire_event
+    )
+
+    assert retrieved_rates is not None
+    assert mock_api_called_count == 1
+    assert requested_period_from == expected_requested_period_from
+    assert requested_period_to == expected_period_to
+
+    # What we already had is kept up to the point we requested from, with no gaps
+    current_period_from = retrieved_rates.rates[0]["start"]
+    for rate in retrieved_rates.rates:
+      assert rate["start"] == current_period_from
+      current_period_from = current_period_from + timedelta(minutes=30)
+      assert rate["value_inc_vat"] == (1 if rate["start"] < expected_requested_period_from else 2)
+
+    assert retrieved_rates.rates[-1]["end"] == expected_period_to
+
+    # Once we have the rates for the new day, we should go back to using what we have
+    next_retrieved_rates: ElectricityRatesCoordinatorResult = await async_refresh_electricity_rates_data(
+      current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES),
+      client,
+      account_info,
+      mpan,
+      serial_number,
+      True,
+      False,
+      retrieved_rates,
+      dispatches_result,
+      fire_event
+    )
+
+    assert mock_api_called_count == 1
+    assert next_retrieved_rates.rates == retrieved_rates.rates
+
+@pytest.mark.asyncio
+async def test_when_next_day_rates_are_not_available_then_current_day_rates_only_retrieved_again_on_first_request_of_the_day():
+  expected_period_to = (current + timedelta(days=2)).replace(hour=0, minute=0, second=0, microsecond=0)
+  expected_current_day_start = current.replace(hour=0, minute=0, second=0, microsecond=0)
+  # e.g. agile, where the rates for the next day are not available until later in the day
+  available_rates_end = expected_current_day_start + timedelta(hours=23)
+  requested_periods = []
+  async def async_mocked_get_electricity_rates(*args, **kwargs):
+    requested_client, requested_product_code, requested_tariff_code, is_smart_meter, requested_period_from, requested_period_to = args
+    requested_periods.append((requested_period_from, requested_period_to))
+    return create_rate_data(requested_period_from, available_rates_end, [2], default_tariff_code) if requested_period_from < available_rates_end else []
+
+  def fire_event(name, metadata):
+    return None
+
+  account_info = get_account_info()
+  existing_rates = ElectricityRatesCoordinatorResult(
+    expected_current_day_start - timedelta(minutes=15),
+    1,
+    create_rate_data(expected_current_day_start - timedelta(days=2), available_rates_end, [1], default_tariff_code)
+  )
+  dispatches_result = { "1": IntelligentDispatchesCoordinatorResult(dispatches_last_retrieved, 1, IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [], []), IntelligentDispatchesHistory([]), 1, dispatches_last_retrieved) }
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_electricity_rates=async_mocked_get_electricity_rates):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_rates: ElectricityRatesCoordinatorResult = await async_refresh_electricity_rates_data(
+      current,
+      client,
+      account_info,
+      mpan,
+      serial_number,
+      True,
+      False,
+      existing_rates,
+      dispatches_result,
+      fire_event
+    )
+
+    assert requested_periods == [(expected_current_day_start, expected_period_to)]
+
+    # We're still missing rates, but we've now retrieved rates today so only the missing rates should be requested
+    await async_refresh_electricity_rates_data(
+      current + timedelta(minutes=REFRESH_RATE_IN_MINUTES_RATES),
+      client,
+      account_info,
+      mpan,
+      serial_number,
+      True,
+      False,
+      retrieved_rates,
+      dispatches_result,
+      fire_event
+    )
+
+    assert requested_periods == [(expected_current_day_start, expected_period_to), (available_rates_end, expected_period_to)]

@@ -106,6 +106,14 @@ async def async_refresh_electricity_rates_data(
         if is_new_tariff == False:
           adjusted_period_from = existing_rates_result.original_rates[-1]["end"]
 
+          # Rates are retrieved ahead of time, and can change after we've cached them without the tariff code changing
+          # (e.g. a price change that's published after we've retrieved the rates). Therefore if we're about to request
+          # missing rates and we haven't retrieved any rates yet today, we request the rates for the current day again
+          # as part of the same request.
+          current_day_start = as_utc(current.replace(hour=0, minute=0, second=0, microsecond=0))
+          if adjusted_period_from < period_to and existing_rates_result.last_retrieved < current_day_start:
+            adjusted_period_from = min(adjusted_period_from, current_day_start)
+
       last_retrieved = None
       if adjusted_period_from < period_to:
         try:
