@@ -3,7 +3,7 @@ import voluptuous as vol
 import logging
 
 from homeassistant.util.dt import (utcnow, now)
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, SupportsResponse
 from homeassistant.helpers import entity_platform, issue_registry as ir, entity_registry as er, device_registry as dr
 import homeassistant.helpers.config_validation as cv
 
@@ -204,7 +204,7 @@ async def async_setup_entry(hass, entry, async_add_entities):
         ),
       ),
       "async_spin_wheel",
-      # supports_response=SupportsResponse.OPTIONAL
+      supports_response=SupportsResponse.OPTIONAL
     )
 
     account_id = config[CONFIG_ACCOUNT_ID]

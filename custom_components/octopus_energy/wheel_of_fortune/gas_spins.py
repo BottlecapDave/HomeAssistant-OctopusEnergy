@@ -15,6 +15,7 @@ from homeassistant.components.sensor import (
   SensorStateClass
 )
 
+from ..const import DATA_WHEEL_OF_FORTUNE_SPINS_FORCE_UPDATE, DOMAIN
 from ..coordinators.wheel_of_fortune import WheelOfFortuneSpinsCoordinatorResult
 from ..api_client import OctopusEnergyApiClient
 from ..utils.attributes import dict_to_typed_dict
@@ -93,6 +94,15 @@ class OctopusEnergyWheelOfFortuneGasSpins(CoordinatorEntity, RestoreSensor):
     """Spin the wheel of fortune"""
 
     result = await self._client.async_spin_wheel_of_fortune(self._account_id, False)
+
+    # Our remaining spins will have changed, so don't wait for the next scheduled refresh
+    self.hass.data[DOMAIN][self._account_id][DATA_WHEEL_OF_FORTUNE_SPINS_FORCE_UPDATE] = True
+    try:
+      await self.coordinator.async_refresh()
+    except Exception as e:
+      # The spin has been made, so we don't want to lose the prize because the refresh failed
+      _LOGGER.warning(f'Failed to refresh wheel of fortune spins after spinning: {e}')
+
     return {
-      "amount_won_in_pence": result
+      "prize_value": result
     }

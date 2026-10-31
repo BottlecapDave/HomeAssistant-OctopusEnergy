@@ -40,9 +40,12 @@ This service supports an optional response. If the event is joined successfully,
 
 Service for joining a new power up weekend happy hour session event. When used, it may take a couple of minutes for the other sensors to refresh the changes.
 
+!!! info
+    The [power up events](./entities/octoplus.md#power-up-session-events) entity is disabled by default, so it will need enabling before this service can be used. Targeting any other entity will raise an error naming the entity to use.
+
 | Attribute                | Optional | Description                                                                                                           |
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
-| `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated. This should always point at the [power up events](./entities/octoplus.md#power-down-events) entity. |
+| `target.entity_id`       | `no`     | The name of the target sensor whose configuration is to be updated. This should always point at the [power up events](./entities/octoplus.md#power-up-session-events) entity. |
 | `data.event_code`      | `no`    | The code of the event to join |
 
 This service supports an optional response. If the event is joined successfully, calling the service with `response_variable` (or `return_response: true` when using `hass.services.async_call`) will return `{"success": true}`. If the event cannot be joined (e.g. it no longer exists), the service call will fail and raise an error containing the reason, allowing the failure to be trapped in automations/scripts.
@@ -77,9 +80,30 @@ This service allows the user to perform a spin on the [wheel of fortune](./entit
 | ------------------------ | -------- | --------------------------------------------------------------------------------------------------------------------- |
 | `target.entity_id`       | `no`     | The name of the wheel of fortune sensor that represents the type of spin to be made. This should always point at one of the [wheel of fortune sensors](./entities/wheel_of_fortune.md) entities. |
 
+Once the spin has completed, the [wheel of fortune sensors](./entities/wheel_of_fortune.md) are refreshed straight away. The service will fail if the spin could not be made.
+
+This service optionally returns the following [response data](https://www.home-assistant.io/docs/scripts/perform-actions/#use-templates-to-handle-response-data) for each targeted entity
+
+| Attribute                | Type      | Description                                                                                                           |
+| ------------------------ | --------- | --------------------------------------------------------------------------------------------------------------------- |
+| `prize_value`            | `integer` | The value of the prize that was won, as reported by Octopus Energy. This will be empty if the spin didn't win a prize with a value. The unit of the prize is not currently known by the integration, so depending on your account this could be Octoplus points or account credit in pence. |
+
 #### Automation Example
 
 For automation examples, please refer to the available [blueprints](./blueprints.md#wheel-of-fortune).
+
+The response data can be captured using `response_variable`. The response is keyed by the entity id of each targeted sensor.
+
+```yaml
+- action: octopus_energy.spin_wheel_of_fortune
+  target:
+    entity_id: sensor.octopus_energy_{{ACCOUNT_ID}}_wheel_of_fortune_spins_electricity
+  response_variable: spin_result
+- action: persistent_notification.create
+  data:
+    message: >
+      Wheel of fortune prize: {{ (spin_result.values() | first).prize_value }}
+```
 
 ## Cost Trackers
 
@@ -248,6 +272,10 @@ Retrieve the intelligent dispatch history which was active for a given point in 
 ### octopus_energy.purge_invalid_external_statistic_ids
 
 For removing all external statistics that are associated with meters that don't have an active tariff. This is useful if you've been using the integration and obtained new smart meters.
+
+### octopus_energy.clear_all_cache_files
+
+Removes all cache files that the integration has stored on disk (e.g. account, tariff and intelligent device caches), forcing the affected data to be reloaded from the API. This is useful if you suspect cached data has become stale or corrupted.
 
 ### octopus_energy.run_graphql_query
 
