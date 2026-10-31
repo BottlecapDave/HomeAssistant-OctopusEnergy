@@ -101,6 +101,10 @@ from .api_client import OctopusEnergyApiClient
 from .utils.tariff_cache import async_get_cached_tariff_total_unique_rates, async_save_cached_tariff_total_unique_rates
 from .utils.rate_information import get_peak_type, get_unique_rates, has_peak_rates
 
+from .account import has_active_tariff
+from .account.balance import OctopusEnergyAccountBalance
+from .diagnostics_entities.account_balance_data_last_retrieved import OctopusEnergyAccountBalanceDataLastRetrieved
+from .coordinators.account_balance import async_setup_account_balance_coordinator
 from .octoplus.points import OctopusEnergyOctoplusPoints
 from .octoplus.saving_session_baseline import OctopusEnergySavingSessionBaseline
 
@@ -358,6 +362,11 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   account_debug_override = await async_get_account_debug_override(hass, account_id)
 
   now = utcnow()
+
+  if has_active_tariff(now, account_info):
+    account_balance_coordinator = await async_setup_account_balance_coordinator(hass, account_id)
+    entities.append(OctopusEnergyAccountBalance(hass, account_balance_coordinator, account_id))
+    entities.append(OctopusEnergyAccountBalanceDataLastRetrieved(hass, account_balance_coordinator, account_id))
 
   if len(account_info["electricity_meter_points"]) > 0:
     electricity_price_cap = None
