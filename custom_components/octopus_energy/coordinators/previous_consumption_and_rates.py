@@ -248,8 +248,8 @@ async def async_fetch_consumption_and_rates(
   fire_event: Callable[[str, "dict[str, Any]"], None],
   dispatches_results: dict[str, IntelligentDispatchesCoordinatorResult] = None,
   tariff_override: Tariff = None,
-  intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES
-
+  intelligent_rate_mode: str = CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
+  enforce_intelligent_cap: bool = False
 ):
   """Fetch the previous consumption and rates"""
 
@@ -314,7 +314,7 @@ async def async_fetch_consumption_and_rates(
                                                     item.dispatches.started,
                                                     item.dispatches.started_actual,
                                                     intelligent_rate_mode,
-                                                    enforce_cap=True)
+                                                    enforce_cap=enforce_intelligent_cap)
             
                 _LOGGER.debug(f"Rates adjusted: {rate_data}; device id: {key} dispatches: {item.dispatches.to_dict()}")
         else:
@@ -433,7 +433,8 @@ async def async_create_previous_consumption_and_rates_coordinator(
     is_electricity: bool,
     is_smart_meter: bool,
     intelligent_rate_mode: str,
-    tariff_override: Tariff = None):
+    tariff_override: Tariff = None,
+    enforce_intelligent_cap: bool = False):
   """Create reading coordinator"""
   previous_consumption_data_key = f'{identifier}_{serial_number}_previous_consumption_and_rates'
 
@@ -483,7 +484,8 @@ async def async_create_previous_consumption_and_rates_coordinator(
       hass.bus.async_fire,
       dispatches,
       tariff_override,
-      intelligent_rate_mode
+      intelligent_rate_mode,
+      enforce_intelligent_cap
     )
 
     if (result is not None):
