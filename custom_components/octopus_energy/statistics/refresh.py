@@ -9,7 +9,7 @@ from homeassistant.const import (
   UnitOfVolume
 )
 
-from homeassistant.util.dt import (now, parse_datetime)
+from homeassistant.util.dt import (now, parse_datetime, as_local, as_utc)
 
 from ..api_client import OctopusEnergyApiClient
 from ..const import DATA_ACCOUNT, DOMAIN, REGEX_DATE
@@ -46,12 +46,13 @@ async def async_refresh_previous_electricity_consumption_data(
     message=f"Consumption data from {start_date} for electricity meter {serial_number}/{mpan} has started"
   )
 
-  period_from = parse_datetime(f'{trimmed_date}T00:00:00Z')
+  # Service dates refer to local calendar days; supplier requests use UTC.
+  period_from = as_utc(parse_datetime(f'{trimmed_date}T00:00:00').replace(tzinfo=now().tzinfo))
 
   previous_consumption_result = None
   previous_cost_result= None
   while period_from < now():
-    period_to = period_from + timedelta(days=1)
+    period_to = as_utc(as_local(period_from) + timedelta(days=1))
 
     tariff = get_electricity_meter_tariff(period_from, account_info, mpan, serial_number)
     if tariff is None:
@@ -132,12 +133,13 @@ async def async_refresh_previous_gas_consumption_data(
     message=f"Consumption data from {start_date} for gas meter {serial_number}/{mprn} has started"
   )
   
-  period_from = parse_datetime(f'{trimmed_date}T00:00:00Z')
+  # Service dates refer to local calendar days; supplier requests use UTC.
+  period_from = as_utc(parse_datetime(f'{trimmed_date}T00:00:00').replace(tzinfo=now().tzinfo))
   previous_m3_consumption_result = None
   previous_kwh_consumption_result = None
   previous_cost_result = None
   while period_from < now():
-    period_to = period_from + timedelta(days=1)
+    period_to = as_utc(as_local(period_from) + timedelta(days=1))
 
     tariff = get_gas_meter_tariff(period_from, account_info, mprn, serial_number)
     if tariff is None:

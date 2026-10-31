@@ -3,7 +3,7 @@ import logging
 from typing import Awaitable, Callable, Any
 import asyncio
 
-from homeassistant.util.dt import (utcnow, as_local)
+from homeassistant.util.dt import (utcnow, as_local, as_utc)
 from homeassistant.helpers.update_coordinator import (
   DataUpdateCoordinator
 )
@@ -210,6 +210,25 @@ async def async_enhance_with_historic_consumption(
     data.latest_consumption_timestamp
   )
 
+def is_complete_day(consumptions):
+  if not consumptions:
+    return False
+
+  local_start = as_local(consumptions[0]["start"]).replace(hour=0, minute=0, second=0, microsecond=0)
+  period_from = as_utc(local_start)
+  period_to = as_utc(local_start + timedelta(days=1))
+  half_hour = timedelta(minutes=30)
+
+  # Local clock-change days contain 46 or 50 half-hours, rather than 48.
+  if len(consumptions) != (period_to - period_from) / half_hour:
+    return False
+
+  return all(
+    as_utc(item["start"]) == period_from + index * half_hour
+    and as_utc(item["end"]) == period_from + (index + 1) * half_hour
+    for index, item in enumerate(consumptions)
+  )
+
 def get_latest_day(consumption_data: list | None):
   if consumption_data is None or len(consumption_data) < 1:
     return None
@@ -222,7 +241,7 @@ def get_latest_day(consumption_data: list | None):
     if (previous_local_start is not None and
         (previous_local_start.day != local_start.day or previous_local_start.month != local_start.month or previous_local_start.year != local_start.year)):
       
-      if len(current_reduced_consumption_data) == 48:
+      if is_complete_day(current_reduced_consumption_data):
         latest_reduced_consumption_data = current_reduced_consumption_data
 
       current_reduced_consumption_data = []
@@ -230,7 +249,7 @@ def get_latest_day(consumption_data: list | None):
     previous_local_start = local_start
     current_reduced_consumption_data.append(consumption)
 
-  if len(current_reduced_consumption_data) == 48:
+  if is_complete_day(current_reduced_consumption_data):
     latest_reduced_consumption_data = current_reduced_consumption_data
 
   _LOGGER.debug(f"Latest day: {latest_reduced_consumption_data[-1]['end'] if latest_reduced_consumption_data is not None and len(latest_reduced_consumption_data) > 0 else None}")
@@ -265,7 +284,8 @@ async def async_fetch_consumption_and_rates(
     
     try:
       if (is_electricity == True):
-        captured_consumption_data = await client.async_get_electricity_consumption(identifier, serial_number, page_size=52)
+        # Retain a full previous day even when the latest local day is partial.
+        captured_consumption_data = await client.async_get_electricity_consumption(identifier, serial_number, page_size=100)
         latest_consumption_timestamp = captured_consumption_data[-1]["end"] if captured_consumption_data is not None and len(captured_consumption_data) > 0 else latest_consumption_timestamp
         consumption_data = get_latest_day(captured_consumption_data)
 
@@ -320,7 +340,7 @@ async def async_fetch_consumption_and_rates(
         else:
           _LOGGER.debug(f"No previous consumption data retrieved for electricity {identifier}/{serial_number} - start: {captured_consumption_data[0]["start"] if captured_consumption_data is not None and len(captured_consumption_data) > 0 else ''}; end: {captured_consumption_data[-1]["end"] if captured_consumption_data is not None and len(captured_consumption_data) > 0 else ''}; total: {len(captured_consumption_data) if captured_consumption_data is not None else 0}")
       else:
-        captured_consumption_data = await client.async_get_gas_consumption(identifier, serial_number, page_size=52)
+        captured_consumption_data = await client.async_get_gas_consumption(identifier, serial_number, page_size=100)
         latest_consumption_timestamp = captured_consumption_data[-1]["end"] if captured_consumption_data is not None and len(captured_consumption_data) > 0 else latest_consumption_timestamp
         consumption_data = get_latest_day(captured_consumption_data)
 
