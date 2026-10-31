@@ -44,6 +44,9 @@ from .storage.intelligent_dispatches_history import IntelligentDispatchesHistory
 from .api_client.intelligent_dispatches import IntelligentDispatches
 from .discovery import DiscoveryManager
 from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult, async_setup_intelligent_devices_coordinator
+from .coordinators.charge_pack import ChargePackDispatchesCoordinatorResult, async_setup_charge_pack_coordinator
+from .charge_pack import get_mock_charge_pack_device
+from .storage.charge_pack import async_load_cached_charge_pack_devices, async_load_cached_charge_pack_history, async_save_cached_charge_pack_devices
 
 from .heat_pump import get_mock_heat_pump_id, mock_heat_pump_status_and_configuration
 from .storage.heat_pump import async_load_cached_heat_pump, async_save_cached_heat_pump
@@ -80,6 +83,8 @@ from .const import (
   DATA_HOME_PRO_CLIENT,
   DATA_INTELLIGENT_DEVICES,
   DATA_INTELLIGENT_DISPATCHES,
+  DATA_CHARGE_PACK_DEVICES,
+  DATA_CHARGE_PACK_DISPATCHES,
   DATA_PREVIOUS_CONSUMPTION_COORDINATOR_KEY,
   DOMAIN,
 
@@ -399,6 +404,7 @@ async def async_setup_dependencies(hass, config, entry_id: str | None = None):
           break
 
   await async_register_intelligent_devices(hass, config, now, account_id, should_mock_intelligent_data)
+  await async_register_charge_pack_devices(hass, now, account_id, entry_id, account_debug_override.mock_charge_pack if account_debug_override is not None else False)
 
   for point in account_info["electricity_meter_points"]:
     # We only care about points that have active agreements
@@ -575,6 +581,51 @@ def setup(hass, config):
 
   # Return boolean to indicate that initialization was successful.
   return True
+
+async def async_register_charge_pack_devices(hass, now: datetime, account_id: str, entry_id: str | None, should_mock_charge_pack: bool):
+  """Home batteries Octopus controls (Charge Pack, e.g. a SmartFlex device of type INVERTERS):
+  each gets a device with calendars of its planned charges and discharges, and sensors.
+  should_mock_charge_pack: the account debug override mock_charge_pack (a mock battery and plan)."""
+  client: OctopusEnergyApiClient = hass.data[DOMAIN][account_id][DATA_CLIENT]
+  if should_mock_charge_pack:
+    _LOGGER.info("Mocking a charge pack device")
+    devices = [get_mock_charge_pack_device()]
+  else:
+    try:
+      devices = await client.async_get_charge_pack_devices(account_id)
+      await async_save_cached_charge_pack_devices(hass, account_id, devices)
+      _async_remove_old_charge_pack_devices(hass, entry_id, devices)
+    except Exception as e:
+      if isinstance(e, ApiException) == False:
+        raise
+      devices = await async_load_cached_charge_pack_devices(hass, account_id)
+      if len(devices) > 0:
+        _LOGGER.warning(f"Using cached charge pack device information for {account_id} during startup. This data will be updated automatically when available.")
+
+  hass.data[DOMAIN][account_id][DATA_CHARGE_PACK_DEVICES] = devices
+  for device in devices:
+    _LOGGER.debug(f"Found a charge pack device for {account_id}: {device.name} ({device.device_type}, {device.provider}, {device.status})")
+    history = await async_load_cached_charge_pack_history(hass, device.id)
+    # Read the plan straight away (an hour ago: due), keeping the history
+    hass.data[DOMAIN][account_id][DATA_CHARGE_PACK_DISPATCHES.format(device.id)] = ChargePackDispatchesCoordinatorResult(
+      now - timedelta(hours=1), 1, [], history
+    )
+    await async_setup_charge_pack_coordinator(hass, account_id, device.id, should_mock_charge_pack)
+
+def _async_remove_old_charge_pack_devices(hass, entry_id: str | None, devices: list):
+  """Remove the charge pack devices (and so their entities) that are no longer on the account. Only
+  called with the devices Octopus has just sent, not the cached or mock ones."""
+  if entry_id is None:
+    return
+
+  device_registry = dr.async_get(hass)
+  current = set(f"charge_pack_{device.id}" for device in devices)
+  for registered in dr.async_entries_for_config_entry(device_registry, entry_id):
+    for domain, identifier in registered.identifiers:
+      if domain == DOMAIN and identifier.startswith("charge_pack_") and identifier not in current:
+        _LOGGER.debug(f"Removed charge pack device {identifier} as it's no longer on the account")
+        device_registry.async_remove_device(registered.id)
+        break
 
 async def async_register_intelligent_devices(hass, config: dict, now: datetime, account_id: str, should_mock_intelligent_data: bool):
   intelligent_manual_service_enabled = True

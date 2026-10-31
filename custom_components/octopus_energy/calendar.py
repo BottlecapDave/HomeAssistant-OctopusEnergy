@@ -11,13 +11,17 @@ from .const import (
   DOMAIN,
 
   DATA_POWER_UP_DOWN_COORDINATOR,
-  DATA_ACCOUNT
+  DATA_ACCOUNT,
+  DATA_CHARGE_PACK_DEVICES,
+  DATA_CHARGE_PACK_COORDINATOR,
 )
 
 from .octoplus.free_electricity_sessions_calendar import OctopusEnergyFreeElectricitySessionsCalendar
 from .octoplus.saving_sessions_calendar import OctopusEnergySavingSessionsCalendar
 from .octoplus.power_up_calendar import OctopusEnergyPowerUpCalendar
 from .octoplus.power_down_calendar import OctopusEnergyPowerDownCalendar
+from .charge_pack.calendar import OctopusEnergyChargePackCalendar
+from .charge_pack import KINDS as CHARGE_PACK_KINDS
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -52,6 +56,12 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
     if legacy_saving_sessions_free_electricity_present:
       entities.append(OctopusEnergyFreeElectricitySessionsCalendar(hass, power_up_down_coordinator, account_id))
     entities.append(OctopusEnergyPowerUpCalendar(hass, power_up_down_coordinator, account_id))
+
+  # Charge Pack: the planned charges and discharges of each home battery Octopus controls
+  for device in hass.data[DOMAIN][account_id][DATA_CHARGE_PACK_DEVICES]:
+    coordinator = hass.data[DOMAIN][account_id][DATA_CHARGE_PACK_COORDINATOR.format(device.id)]
+    for kind in CHARGE_PACK_KINDS:
+      entities.append(OctopusEnergyChargePackCalendar(hass, coordinator, account_id, device, kind))
 
   if len(entities) > 0:
     async_add_entities(entities)
