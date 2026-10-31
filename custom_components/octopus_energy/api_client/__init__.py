@@ -17,6 +17,7 @@ from ..utils import (
 
 from .intelligent_device import IntelligentDevice
 from .octoplus import RedeemOctoplusPointsResponse
+from .scratchcard import OctoplusScratchcardResponse
 from .intelligent_dispatches import DecimalReading, IntelligentDispatchItem, IntelligentDispatches
 from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSessionsResponse
 from .wheel_of_fortune import WheelOfFortuneSpinsResponse
@@ -297,6 +298,27 @@ intelligent_set_charging_duration_capped_mutation = '''mutation {{
 octoplus_points_query = '''query octoplus_points {
 	loyaltyPointLedgers {
 		balanceCarriedForward
+  }
+}'''
+
+octoplus_scratchcard_query = '''query getActiveScratchcardDataV1($accountNumber: String!) {
+  octoplusActiveScratchcardData(accountNumber: $accountNumber) {
+    activeSession {
+      startsAt
+      endsAt
+      externalReference
+    }
+    scratchcard {
+      externalReference
+      status
+      offer {
+        slug
+        featureDisplayText
+      }
+      prize {
+        __typename
+      }
+    }
   }
 }'''
 
@@ -1375,6 +1397,30 @@ class OctopusEnergyApiClient:
       raise TimeoutException()
 
     return None
+
+  async def async_get_octoplus_scratchcard(self, account_id: str) -> OctoplusScratchcardResponse:
+    """Get the account's active Octoplus scratchcard data."""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "octoplus-scratchcard"
+      client = await self._create_client_session()
+      url = f'{self._backend_base_url}/v1/graphql/'
+      payload = {
+        "query": octoplus_scratchcard_query,
+        "variables": {"accountNumber": account_id},
+      }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        data = response_body.get("data") if response_body is not None else None
+        scratchcard_data = data.get("octoplusActiveScratchcardData") if data is not None else None
+        if scratchcard_data is not None and "activeSession" in scratchcard_data and "scratchcard" in scratchcard_data:
+          return OctoplusScratchcardResponse.model_validate(scratchcard_data)
+        raise RequestException("Failed to retrieve Octoplus scratchcard data", [])
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
 
   async def async_get_octoplus_points(self):
     """Get the user's octoplus points"""
