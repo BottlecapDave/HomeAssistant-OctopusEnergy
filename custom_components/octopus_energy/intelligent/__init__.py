@@ -497,6 +497,10 @@ def device_type_to_friendly_string(device_type: str) -> str:
     return "Electric Vehicle"
   else:
     return device_type
+
+def is_charge_target_state_of_charge(device_type: str) -> bool:
+  """Vehicles treat the charge target as a target state of charge; chargers treat it as a percentage to add."""
+  return device_type != INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS
   
 def has_dispatch_items_changed(existing_dispatches: list[SimpleIntelligentDispatchItem], new_dispatches: list[SimpleIntelligentDispatchItem]):
   if len(existing_dispatches) != len(new_dispatches):
