@@ -6,6 +6,7 @@ from homeassistant.const import (
     EntityCategory,
 )
 from homeassistant.core import callback
+from homeassistant.util.dt import now
 
 from homeassistant.components.sensor import (
   RestoreSensor,
@@ -23,9 +24,28 @@ from ..utils.error import exception_to_string
 
 _LOGGER = logging.getLogger(__name__)
 
+def get_current_consumption_attributes(result):
+  """Return attributes that distinguish request health from telemetry freshness."""
+  latest_reading_age = None
+  if result is not None and result.latest_reading is not None:
+    latest_reading_age = max(0, round((now() - result.latest_reading).total_seconds() / 60, 1))
+
+  return {
+    "status": result.status if result is not None else None,
+    "latest_reading": result.latest_reading if result is not None else None,
+    "latest_reading_age_in_minutes": latest_reading_age,
+    "first_missing_at": result.first_missing_at if result is not None else None,
+  }
+
 class OctopusEnergyBaseDataLastRetrieved(CoordinatorEntity, RestoreSensor):
   """Base sensor for data last retrieved."""
-  _unrecorded_attributes = frozenset({ "attempts", "next_refresh" })
+  _unrecorded_attributes = frozenset({
+    "attempts",
+    "first_missing_at",
+    "latest_reading_age_in_minutes",
+    "latest_reading",
+    "next_refresh",
+  })
 
   def __init__(self, hass, coordinator):
     """Init sensor."""
@@ -66,6 +86,9 @@ class OctopusEnergyBaseDataLastRetrieved(CoordinatorEntity, RestoreSensor):
   @property
   def native_value(self):
     return self._state
+
+  def _get_additional_state_attributes(self, result: BaseCoordinatorResult | None):
+    return {}
   
   @callback
   def _handle_coordinator_update(self) -> None:
@@ -77,6 +100,7 @@ class OctopusEnergyBaseDataLastRetrieved(CoordinatorEntity, RestoreSensor):
       "next_refresh": result.next_refresh if result is not None else None,
       "last_error": exception_to_string(result.last_error) if result is not None else None,
     }
+    self._attributes.update(self._get_additional_state_attributes(result))
     super()._handle_coordinator_update()
 
   async def async_added_to_hass(self):

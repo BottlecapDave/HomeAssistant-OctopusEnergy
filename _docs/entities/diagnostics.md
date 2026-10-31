@@ -21,7 +21,7 @@ This sensor states when account data was last retrieved.
 
 `sensor.octopus_energy_electricity_{{METER_SERIAL_NUMBER}}_{{MPAN_NUMBER}}_current_consumption_data_last_retrieved` or `sensor.octopus_energy_gas_{{METER_SERIAL_NUMBER}}_{{MPRN_NUMBER}}_current_consumption_data_last_retrieved`
 
-This sensor states when the home mini current consumption data was last retrieved.
+This sensor states when the integration last received new Home Mini current consumption data. Its attributes distinguish a successful API request from telemetry that has stopped updating.
 
 !!! note
     This is [disabled by default](../faq.md#there-are-entities-that-are-disabled-why-are-they-disabled-and-how-do-i-enable-them). 
@@ -31,6 +31,10 @@ This sensor states when the home mini current consumption data was last retrieve
 | `attempts` | `integer` | The number of attempts that have been made to retrieve the data |
 | `next_refresh` | `datetime` | The timestamp of when the data will next be attempted to be retrieved |
 | `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
+| `status` | `string` | The telemetry status: `fresh`, `unchanged`, `empty`, `stale`, or `error` |
+| `latest_reading` | `datetime` | The timestamp of the newest Home Mini reading |
+| `latest_reading_age_in_minutes` | `float` | The age of the newest Home Mini reading in minutes |
+| `first_missing_at` | `datetime` | The timestamp when an uninterrupted run of empty responses started |
 
 ## Current Consumption Home Pro Data Last Retrieved
 

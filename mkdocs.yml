@@ -25,6 +25,7 @@ nav:
   - Repairs:
     - ./repairs/account_not_found.md
     - ./repairs/octopus_mini_not_valid.md
+    - ./repairs/home_mini_data_stale.md
     - ./repairs/unknown_product.md
     - ./repairs/cost_override_obsolete.md
     - ./repairs/unknown_intelligent_provider.md

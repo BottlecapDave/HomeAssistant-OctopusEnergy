@@ -24,6 +24,7 @@ from homeassistant.util.dt import (now)
 from ..coordinators.current_consumption import CurrentConsumptionCoordinatorResult
 from .base import (OctopusEnergyElectricitySensor)
 from ..utils.attributes import dict_to_typed_dict
+from ..utils.consumption import get_latest_consumption_item
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -93,19 +94,19 @@ class OctopusEnergyCurrentTotalElectricityExport(CoordinatorEntity, OctopusEnerg
     consumption_result: CurrentConsumptionCoordinatorResult = self.coordinator.data if self.coordinator is not None and self.coordinator.data is not None else None
     consumption_data = consumption_result.data if consumption_result is not None else None
 
-    if (consumption_data is not None and len(consumption_data) > 0):
+    latest_consumption = get_latest_consumption_item(consumption_data, "total_export")
+    if latest_consumption is not None:
       _LOGGER.debug(f"Calculated total electricity export for '{self._mpan}/{self._serial_number}'...")
 
-      if consumption_data[-1]["total_export"] is not None:
-        self._state = consumption_data[-1]["total_export"] if consumption_data[-1]["total_export"] is not None and consumption_data[-1]["total_export"] != 0 else None
-        self._last_reset = current
+      self._state = latest_consumption["total_export"] if latest_consumption["total_export"] != 0 else None
+      self._last_reset = current
 
-        self._attributes = {
-          "mpan": self._mpan,
-          "serial_number": self._serial_number,
-          "is_export": self._is_export,
-          "is_smart_meter": self._is_smart_meter,
-        }
+      self._attributes = {
+        "mpan": self._mpan,
+        "serial_number": self._serial_number,
+        "is_export": self._is_export,
+        "is_smart_meter": self._is_smart_meter,
+      }
 
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
