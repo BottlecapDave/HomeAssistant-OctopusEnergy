@@ -49,6 +49,8 @@ HA_TO_OE_STATE = {
     STATE_OFF: "OFF",
 }
 
+_NATIVE_TEMPERATURES = hasattr(WaterHeaterEntity, "native_current_temperature")
+
 class OctopusEnergyHeatPumpWaterHeater(CoordinatorEntity, BaseOctopusEnergyHeatPumpSensor, WaterHeaterEntity):
   """Sensor for interacting with a heat pump water heater zone."""
 
@@ -60,7 +62,14 @@ class OctopusEnergyHeatPumpWaterHeater(CoordinatorEntity, BaseOctopusEnergyHeatP
 
   _attr_operation_list = [STATE_ELECTRIC, STATE_OFF, STATE_HEAT_PUMP, STATE_HIGH_DEMAND]
   _attr_current_operation = None
-  _attr_temperature_unit = UnitOfTemperature.CELSIUS
+  # Home Assistant 2026.11 renamed the temperature unit and values to native_*
+  # (the old names stop working in 2027.11)
+  if _NATIVE_TEMPERATURES:
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
+  else:
+    _attr_temperature_unit = UnitOfTemperature.CELSIUS
+  _current_temperature: float | None = None
+  _target_temperature: float | None = None
   _attr_precision = PRECISION_HALVES
 
   def __init__(self, hass: HomeAssistant, coordinator, client: OctopusEnergyApiClient, account_id: str, heat_pump_id: str, heat_pump: HeatPump, zone: ConfigurationZone, is_mocked: bool):
@@ -80,6 +89,20 @@ class OctopusEnergyHeatPumpWaterHeater(CoordinatorEntity, BaseOctopusEnergyHeatP
 
     self._state = None
     self._last_updated = None
+
+  @property
+  def native_current_temperature(self) -> float | None:
+    """Return the current temperature."""
+    return self._current_temperature
+
+  @property
+  def native_target_temperature(self) -> float | None:
+    """Return the target temperature."""
+    return self._target_temperature
+
+  if not _NATIVE_TEMPERATURES:
+    current_temperature = native_current_temperature
+    target_temperature = native_target_temperature
 
   @property
   def unique_id(self):
@@ -113,15 +136,15 @@ class OctopusEnergyHeatPumpWaterHeater(CoordinatorEntity, BaseOctopusEnergyHeatP
           else:
             raise Exception(f"Unexpected heat pump mode detected: {zone.telemetry.mode}")
 
-          self._attr_target_temperature = None
+          self._target_temperature = None
           if zone.telemetry.setpointInCelsius is not None and zone.telemetry.setpointInCelsius > 0:
-            self._attr_target_temperature = zone.telemetry.setpointInCelsius
+            self._target_temperature = zone.telemetry.setpointInCelsius
 
           if result.data.heatPumpControllerStatus.sensors and self._zone.configuration.primarySensor:
             sensors: List[Sensor] = result.data.heatPumpControllerStatus.sensors
             for sensor in sensors:
               if sensor.code == self._zone.configuration.primarySensor and sensor.telemetry is not None:
-                self._attr_current_temperature = sensor.telemetry.temperatureInCelsius
+                self._current_temperature = sensor.telemetry.temperatureInCelsius
                 self._attr_current_humidity = sensor.telemetry.humidityPercentage
 
           if result.data.heatPumpControllerConfiguration is not None and result.data.heatPumpControllerConfiguration.zones:
@@ -148,7 +171,7 @@ class OctopusEnergyHeatPumpWaterHeater(CoordinatorEntity, BaseOctopusEnergyHeatP
           self._heat_pump_id,
           self._zone.configuration.code,
           self._end_timestamp,
-          self._attr_target_temperature if self._attr_target_temperature is not None else DEFAULT_BOOST_TEMPERATURE_WATER
+          self._target_temperature if self._target_temperature is not None else DEFAULT_BOOST_TEMPERATURE_WATER
         )
       else:
         zone_mode = self.get_zone_mode()
@@ -191,12 +214,12 @@ class OctopusEnergyHeatPumpWaterHeater(CoordinatorEntity, BaseOctopusEnergyHeatP
     """Set new target temperature."""
 
     try:
-      self._attr_target_temperature = kwargs[ATTR_TEMPERATURE]
+      self._target_temperature = kwargs[ATTR_TEMPERATURE]
       if OE_TO_HA_STATE["BOOST"] == self._attr_current_operation:
-        await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, self._end_timestamp, self._attr_target_temperature)
+        await self._client.async_boost_heat_pump_zone(self._account_id, self._heat_pump_id, self._zone.configuration.code, self._end_timestamp, self._target_temperature)
       else:
         zone_mode = self.get_zone_mode()
-        await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, zone_mode, self._attr_target_temperature)
+        await self._client.async_set_heat_pump_zone_mode(self._account_id, self._heat_pump_id, self._zone.configuration.code, zone_mode, self._target_temperature)
     except Exception as e:
       if self._is_mocked:
         _LOGGER.warning(f'Suppress async_set_temperature error due to mocking mode: {e}')
@@ -224,7 +247,7 @@ class OctopusEnergyHeatPumpWaterHeater(CoordinatorEntity, BaseOctopusEnergyHeatP
     self._end_timestamp += timedelta(hours=hours, minutes=minutes)
     self._attr_current_operation = OE_TO_HA_STATE["BOOST"]
 
-    boost_temperature = target_temperature if target_temperature is not None else self._attr_target_temperature
+    boost_temperature = target_temperature if target_temperature is not None else self._target_temperature
     if boost_temperature is None:
       boost_temperature = DEFAULT_BOOST_TEMPERATURE_WATER
 
