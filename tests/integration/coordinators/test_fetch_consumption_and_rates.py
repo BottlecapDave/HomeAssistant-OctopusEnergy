@@ -8,6 +8,26 @@ from integration import (create_consumption_data, create_rate_data, get_test_con
 from custom_components.octopus_energy.coordinators.previous_consumption_and_rates import PreviousConsumptionCoordinatorResult, async_fetch_consumption_and_rates
 from custom_components.octopus_energy.api_client import OctopusEnergyApiClient
 
+def assert_consumption_is_for_recent_day(consumption):
+  # Make sure our data is returned in 30 minute increments and should be for one of the last few days (meter data can lag behind by several days)
+  max_days_behind = 5
+  days_behind = 1
+  period_from = now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=days_behind)
+  while consumption[0]["start"] != period_from and days_behind < max_days_behind:
+    days_behind += 1
+    period_from = period_from - timedelta(days=1)
+
+  expected_valid_from = period_from
+  for item in consumption:
+    expected_valid_to = expected_valid_from + timedelta(minutes=30)
+
+    assert "start" in item
+    assert item["start"] == expected_valid_from
+    assert "end" in item
+    assert item["end"] == expected_valid_to
+
+    expected_valid_from = expected_valid_to
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("previous_data_available",[
   (True),
@@ -72,21 +92,7 @@ async def test_when_next_refresh_is_in_the_past_and_electricity_sensor_then_requ
   
   assert len(result.consumption) == 48
 
-  # Make sure our data is returned in 30 minute increments and should be either for yesterday or the day before (unless something is wrong the meter)
-  period_from = now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
-  if result.consumption[0]["start"] != period_from:
-    period_from = period_from - timedelta(days=1)
-
-  expected_valid_from = period_from
-  for item in result.consumption:
-    expected_valid_to = expected_valid_from + timedelta(minutes=30)
-
-    assert "start" in item
-    assert item["start"] == expected_valid_from
-    assert "end" in item
-    assert item["end"] == expected_valid_to
-
-    expected_valid_from = expected_valid_to
+  assert_consumption_is_for_recent_day(result.consumption)
 
   assert len(result.rates) == 48
   assert result.rates[0]["tariff_code"] is not None
@@ -158,21 +164,7 @@ async def test_when_next_refresh_is_in_the_past_and_gas_sensor_then_requested_da
   assert result.consumption is not None
   assert len(result.consumption) == 48
 
-  # Make sure our data is returned in 30 minute increments and should be either for yesterday or the day before (unless something is wrong the meter)
-  period_from = now().replace(hour=0, minute=0, second=0, microsecond=0) - timedelta(days=1)
-  if result.consumption[0]["start"] != period_from:
-    period_from = period_from - timedelta(days=1)
-
-  expected_valid_from = period_from
-  for item in result.consumption:
-    expected_valid_to = expected_valid_from + timedelta(minutes=30)
-
-    assert "start" in item
-    assert item["start"] == expected_valid_from
-    assert "end" in item
-    assert item["end"] == expected_valid_to
-
-    expected_valid_from = expected_valid_to
+  assert_consumption_is_for_recent_day(result.consumption)
 
   assert len(result.rates) == 48
   assert result.rates[0]["tariff_code"] is not None
