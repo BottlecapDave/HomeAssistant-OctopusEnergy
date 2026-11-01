@@ -59,9 +59,12 @@ action:
 - variables:
     selected_event_code: >-
       {% set available_events = state_attr(power_up_events_entity, 'available_events') | default([], true) %}
-      {% set ns = namespace(candidates=[]) %}
+      {% set ns = namespace(candidates=[], booked_days=[]) %}
+      {% for event in state_attr(power_up_events_entity, 'events') | default([], true) %}
+        {% set ns.booked_days = ns.booked_days + [event.start.date()] %}
+      {% endfor %}
       {% for event in available_events %}
-        {% if (event.availability | default('', true) | lower) != 'full' %}
+        {% if (event.availability | default('', true) | lower) != 'full' and event.start.date() not in ns.booked_days %}
           {% set ns.candidates = ns.candidates + [event] %}
         {% endif %}
       {% endfor %}
