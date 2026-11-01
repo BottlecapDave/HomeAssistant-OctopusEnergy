@@ -64,7 +64,7 @@ action:
         {% set ns.booked_days = ns.booked_days + [event.start.date()] %}
       {% endfor %}
       {% for event in available_events %}
-        {% if (event.availability | default('', true) | lower) != 'full' and event.start.date() not in ns.booked_days %}
+        {% if (event.availability | default('', true) | lower) != 'full' and ns.booked_days | select('eq', event.start.date()) | list | count < 2 %}
           {% set ns.candidates = ns.candidates + [event] %}
         {% endif %}
       {% endfor %}
