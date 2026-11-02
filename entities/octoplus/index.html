@@ -533,6 +533,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#octoplus-scratchcard-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      Octoplus Scratchcard Available
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#octopus-power-down" class="md-nav__link">
     <span class="md-ellipsis">
       Octopus Power Down
@@ -1474,6 +1483,15 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#octoplus-scratchcard-available" class="md-nav__link">
+    <span class="md-ellipsis">
+      Octoplus Scratchcard Available
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#octopus-power-down" class="md-nav__link">
     <span class="md-ellipsis">
       Octopus Power Down
@@ -1767,6 +1785,67 @@
 </tr>
 </tbody>
 </table>
+<h2 id="octoplus-scratchcard-available">Octoplus Scratchcard Available<a class="headerlink" href="#octoplus-scratchcard-available" title="Permanent link">#</a></h2>
+<p><code>binary_sensor.octopus_energy_{{ACCOUNT_ID}}_octoplus_scratchcard_available</code></p>
+<p>Indicates whether the weekly Octoplus scratchcard is available to scratch. It is <code>on</code> when Octopus reports an active session with no scratchcard, and <code>off</code> when there is no active session or the scratchcard has already been scratched.</p>
+<p>The <a href="https://octopus.energy/press/more-news-press-releases/scratch-sip-win-octopus-launches-new-scratchcard-with-even-more-prizes-up-for-grabs/">Octoplus Monday Scratchcard</a> is available every Monday, and must be scratched before midnight. Scratchcards are chance-based, so even when one is available, it is not guaranteed to reveal a winning prize.</p>
+<p>Data is refreshed every 60 minutes. The sensor is unavailable until data has been successfully retrieved; if a later request fails, the last successful data is retained while retrying.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This will only be available if you have enrolled into Octoplus. Once enrolled, reload the integration to gain access to this sensor.</p>
+</div>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>starts_at</code></td>
+<td><code>datetime</code></td>
+<td>The active session's start time</td>
+</tr>
+<tr>
+<td><code>ends_at</code></td>
+<td><code>datetime</code></td>
+<td>The active session's end time</td>
+</tr>
+<tr>
+<td><code>session_external_reference</code></td>
+<td><code>string</code></td>
+<td>The active session's external reference</td>
+</tr>
+<tr>
+<td><code>scratchcard_external_reference</code></td>
+<td><code>string</code></td>
+<td>The scratchcard's external reference</td>
+</tr>
+<tr>
+<td><code>scratchcard_status</code></td>
+<td><code>string</code></td>
+<td>The scratchcard's status, such as <code>PRIZE_CLAIMED</code></td>
+</tr>
+<tr>
+<td><code>offer_slug</code></td>
+<td><code>string</code></td>
+<td>The scratchcard offer's slug</td>
+</tr>
+<tr>
+<td><code>feature_display_text</code></td>
+<td><code>string</code></td>
+<td>The scratchcard offer's display text</td>
+</tr>
+<tr>
+<td><code>prize_type</code></td>
+<td><code>string</code></td>
+<td>The GraphQL type of the scratchcard prize</td>
+</tr>
+</tbody>
+</table>
+<p>Attributes are <code>null</code> when the corresponding data is not present.</p>
 <h2 id="octopus-power-down">Octopus Power Down<a class="headerlink" href="#octopus-power-down" title="Permanent link">#</a></h2>
 <p>These sensors are for <a href="https://octopus.energy/saving-sessions/">Octopus Saving Sessions</a>, branded as "Power Down" sessions.</p>
 <h3 id="power-down-calendar">Power Down Calendar<a class="headerlink" href="#power-down-calendar" title="Permanent link">#</a></h3>
@@ -2759,11 +2838,11 @@
   <span class="md-source-file__fact">
     <span class="md-icon" title="Contributors">
       
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 4a4 4 0 0 1 4 4 4 4 0 0 1-4 4 4 4 0 0 1-4-4 4 4 0 0 1 4-4m0 10c4.42 0 8 1.79 8 4v2H4v-2c0-2.21 3.58-4 8-4"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 5.5A3.5 3.5 0 0 1 15.5 9a3.5 3.5 0 0 1-3.5 3.5A3.5 3.5 0 0 1 8.5 9 3.5 3.5 0 0 1 12 5.5M5 8c.56 0 1.08.15 1.53.42-.15 1.43.27 2.85 1.13 3.96C7.16 13.34 6.16 14 5 14a3 3 0 0 1-3-3 3 3 0 0 1 3-3m14 0a3 3 0 0 1 3 3 3 3 0 0 1-3 3c-1.16 0-2.16-.66-2.66-1.62a5.54 5.54 0 0 0 1.13-3.96c.45-.27.97-.42 1.53-.42M5.5 18.25c0-2.07 2.91-3.75 6.5-3.75s6.5 1.68 6.5 3.75V20h-13zM0 20v-1.5c0-1.39 1.89-2.56 4.45-2.9-.59.68-.95 1.62-.95 2.65V20zm24 0h-3.5v-1.75c0-1.03-.36-1.97-.95-2.65 2.56.34 4.45 1.51 4.45 2.9z"/></svg>
       
     </span>
     <nav>
-      BottlecapDave
+      BottlecapDave, Leon Armston
     </nav>
   </span>
 
