@@ -10,6 +10,7 @@ nav:
     - ./setup/tariff_comparison.md
     - ./setup/energy_dashboard.md
   - Entities:
+    - Account: ./entities/account.md
     - Electricity: ./entities/electricity.md
     - Gas: ./entities/gas.md
     - Octoplus: ./entities/octoplus.md

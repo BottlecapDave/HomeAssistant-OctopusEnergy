@@ -16,6 +16,7 @@ Based on a request from [Octopus Energy](https://forum.octopus.energy/t/pending-
 | Power Down sessions | 15 | Inactive for most of the year and new sessions have enough warning to allow a bit of lag. |
 | Power Down target | 30 | Not relevant most of the time and intensive due to retrieving consumption data |
 | Wheel of fortune | 60 | Doesn't change that frequently, and not fundamental for a smart home (other than knowledge) so no need to request too often. |
+| Account balance | 60 | Doesn't change that frequently, and not fundamental for a smart home (other than knowledge) so no need to request too often. |
 | Power Up sessions | 90 | Data is provided by my own [private API](https://github.com/BottlecapDave/OctopusEnergyApi) and there is usually at least half a day notice before the sessions which is why this is refreshed slightly less than saving sessions. |
 | Heat Pump state | 1 | Data is updated frequently and doesn't seem to cause any issues around rate limits. This might change in the future. |
 

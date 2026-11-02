@@ -9,7 +9,7 @@ from datetime import (datetime, timedelta, time, timezone)
 
 from homeassistant.util.dt import (as_utc, now, as_local, parse_datetime, parse_date)
 
-from ..const import INTEGRATION_VERSION, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS
+from ..const import ACCOUNT_BALANCE_TRANSACTIONS_TO_RETRIEVE, INTEGRATION_VERSION, INTELLIGENT_DEVICE_KIND_ELECTRIC_VEHICLE_CHARGERS
 
 from ..utils import (
   is_day_night_tariff,
@@ -18,6 +18,7 @@ from ..utils import (
 from .intelligent_device import IntelligentDevice
 from .octoplus import RedeemOctoplusPointsResponse
 from .scratchcard import OctoplusScratchcardResponse
+from .account_balance import AccountBalanceResponse
 from .intelligent_dispatches import DecimalReading, IntelligentDispatchItem, IntelligentDispatches
 from .saving_sessions import JoinSavingSessionResponse, SavingSession, SavingSessionsResponse
 from .wheel_of_fortune import WheelOfFortuneSpinsResponse
@@ -317,6 +318,33 @@ octoplus_scratchcard_query = '''query getActiveScratchcardDataV1($accountNumber:
       }
       prize {
         __typename
+      }
+    }
+  }
+}'''
+
+account_balance_query = '''query getAccountBalance($accountNumber: String!, $transactionsToRetrieve: Int!) {
+  account(accountNumber: $accountNumber) {
+    balance(includeAllLedgers: true)
+    transactions(first: $transactionsToRetrieve, orderBy: POSTED_DATE_DESC, includeAllLedgers: true) {
+      edges {
+        node {
+          __typename
+          id
+          postedDate
+          title
+          amount
+          balanceCarriedForward
+          ... on Charge {
+            isExport
+            consumption {
+              startDate
+              endDate
+              quantity
+              unit
+            }
+          }
+        }
       }
     }
   }
@@ -1418,6 +1446,30 @@ class OctopusEnergyApiClient:
         if scratchcard_data is not None and "activeSession" in scratchcard_data and "scratchcard" in scratchcard_data:
           return OctoplusScratchcardResponse.model_validate(scratchcard_data)
         raise RequestException("Failed to retrieve Octoplus scratchcard data", [])
+    except TimeoutError:
+      _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
+      raise TimeoutException()
+
+  async def async_get_account_balance(self, account_id: str) -> AccountBalanceResponse:
+    """Get the account's balance in pence (positive is in credit, negative is in debit)."""
+    await self.async_refresh_token()
+
+    try:
+      request_context = "account-balance"
+      client = await self._create_client_session()
+      url = f'{self._base_url}/v1/graphql/'
+      payload = {
+        "query": account_balance_query,
+        "variables": {"accountNumber": account_id, "transactionsToRetrieve": ACCOUNT_BALANCE_TRANSACTIONS_TO_RETRIEVE},
+      }
+      headers = { "Authorization": f"{self._graphql_token}", integration_context_header: request_context }
+      async with client.post(url, json=payload, headers=headers) as response:
+        response_body = await self.__async_read_response__(response, url)
+        data = response_body.get("data") if response_body is not None else None
+        account_data = data.get("account") if data is not None else None
+        if account_data is not None and "balance" in account_data:
+          return AccountBalanceResponse.model_validate(account_data)
+        raise RequestException("Failed to retrieve account balance", [])
     except TimeoutError:
       _LOGGER.warning(f'Failed to connect. Timeout of {self._timeout} exceeded.')
       raise TimeoutException()

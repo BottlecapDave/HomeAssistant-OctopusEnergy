@@ -7,6 +7,8 @@ from homeassistant.util.dt import (utcnow)
 from homeassistant.helpers import config_validation as cv, entity_platform
 
 from .utils import get_active_tariff
+from .account import has_active_tariff
+from .account.balance_events import OctopusEnergyAccountBalanceEvents
 from .electricity.rates_previous_day import OctopusEnergyElectricityPreviousDayRates
 from .electricity.rates_current_day import OctopusEnergyElectricityCurrentDayRates
 from .electricity.rates_next_day import OctopusEnergyElectricityNextDayRates
@@ -117,6 +119,9 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
       entities.append(OctopusEnergyOctoplusFreeElectricitySessionEvents(hass, account_id))
 
     entities.append(OctopusEnergyOctoplusPowerUpEvents(hass, client, account_id))
+
+  if has_active_tariff(now, account_info):
+    entities.append(OctopusEnergyAccountBalanceEvents(hass, account_id))
 
   if len(account_info["electricity_meter_points"]) > 0:
     for point in account_info["electricity_meter_points"]:

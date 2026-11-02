@@ -429,6 +429,15 @@
           }
         }
       },
+      "account_balance": {
+        "state_attributes": {
+          "event_type": {
+            "state": {
+              "octopus_energy_account_balance": "Account balance"
+            }
+          }
+        }
+      },
       "power_down_sessions": {
         "state_attributes": {
           "event_type": {
