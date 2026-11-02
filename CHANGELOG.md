@@ -1,3 +1,29 @@
+# [19.3.0](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v19.2.1...v19.3.0) (2026-11-02)
+
+
+### Bug Fixes
+
+* Default "favour direct debit rates" to on when adding an account (Thanks [@cristianchiriac](https://github.com/cristianchiriac)) ([fb6c839](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/fb6c839f740d2d3c641737602757e8bc160ce12a))
+* Fixed event entities failing to load on Home Assistant 2026.11 ([111d309](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/111d309389e5dabe827135152502bacff4d73128))
+* Fixed event entities failing to load on Home Assistant 2026.11 (Thanks [@isaacrushworth2002](https://github.com/isaacrushworth2002)) ([e287b58](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/e287b58d3d07479d06a8c2e6a9b04c98ecc8264f)), closes [#1930](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/issues/1930) [home-assistant/core#186808](https://github.com/home-assistant/core/issues/186808)
+* Fixed power up calendar incorrectly showing two events when two events are combined ([baa0238](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/baa023818ccda43e4bc0fe85d3aeaac920354815))
+* Heat pump zone and water heater use the native temperature attributes on Home Assistant 2026.11 (Thanks [@cmatte](https://github.com/cmatte)) ([890ecd8](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/890ecd815b67f09bea87147a71e24b728f61937c))
+* Octoplus join services now explain which entity to target (Thanks @Thenewmanator15) ([425ed12](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/425ed12db6f1c65e9857ef5754cf2e5b43416e9c))
+* redact intelligent device IDs in diagnostics ([4ef7366](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/4ef736638ea2838a8a96458d9df9d0ce597b74c3))
+* redact intelligent device IDs in diagnostics (Thanks [@dajiaohuang](https://github.com/dajiaohuang)) ([c9b4280](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/c9b4280867696b984da6f2735726ba0791327347))
+* Sum half hourly costs without rounding when building cost statistics ([df6de89](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/df6de89074dfb793c60dcea3fd24718c59c6c269))
+* Sum half hourly costs without rounding when building cost statistics (Thanks [@wildsurfer](https://github.com/wildsurfer)) ([7f9a955](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/7f9a955ea056c705b6cec6994846594242bd3935))
+* Updated api endpoint for OE (5 minutes dev time) ([60b8a54](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/60b8a54a26bf4f365411f1fe7e4f0cb4ffbb60ee))
+* Updated intelligent charge cap hours to be more accurate ([57dc786](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/57dc78633eb139fd8bb154ea5190f80875320a31))
+
+
+### Features
+
+* Add Octoplus scratchcard available sensor (Thanks @LeonArmston) ([2a0c461](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/2a0c461c250a3b9032ef55034e609050fbf7816f))
+* Added local brand assets ([35fc7fa](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/35fc7faa880397058f67d136ef0f197982fb4718))
+* Added service to clear all cache files (15 minutes dev time) ([d273672](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/d273672c11b36a3e8d6953e8a8a31d73b328b511))
+* Spin wheel of fortune service now returns the prize and updates remaining spins straight away (Thanks [@con-ant](https://github.com/con-ant)) ([83f7359](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/commit/83f73597fd740e7e9d4643db0d790dd62476229a))
+
 ## [19.2.1](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/compare/v19.2.0...v19.2.1) (2026-09-19)
 
 
