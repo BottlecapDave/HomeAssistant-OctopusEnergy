@@ -184,3 +184,35 @@ def test_when_dispatch_time_changed_the_true_returned(
 
   # Assert
   assert result is True
+def test_when_started_actual_dispatch_time_changed_then_true_returned():
+  # Arrange
+  existing_dispatches = IntelligentDispatches(
+    current_state="STATE_1",
+    completed=[],
+    planned=[],
+    started=[],
+    started_actual=[
+      SimpleIntelligentDispatchItem(
+        start=datetime.fromisoformat("2025-09-14T12:05:00+01:00"),
+        end=datetime.fromisoformat("2025-09-14T12:20:00+01:00")
+      )
+    ]
+  )
+  new_dispatches = IntelligentDispatches(
+    current_state="STATE_1",
+    completed=[],
+    planned=[],
+    started=[],
+    started_actual=[
+      SimpleIntelligentDispatchItem(
+        start=datetime.fromisoformat("2025-09-14T12:05:00+01:00"),
+        end=datetime.fromisoformat("2025-09-14T12:25:00+01:00")
+      )
+    ]
+  )
+
+  # Act
+  result = has_dispatches_changed(existing_dispatches, new_dispatches)
+
+  # Assert
+  assert result is True

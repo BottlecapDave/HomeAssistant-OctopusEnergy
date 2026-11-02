@@ -1150,6 +1150,121 @@ async def test_when_retrieved_planned_dispatch_started_and_not_in_boosting_mode_
     assert save_dispatches_history_history.history[0].dispatches == retrieved_dispatches.dispatches
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize("existing_started_dispatches,expected_start,expected_end",[
+  ([], current.replace(second=0, microsecond=0) + timedelta(minutes=5), current.replace(second=0, microsecond=0) + timedelta(minutes=20)),
+  # Existing started dispatch within the current period that ended earlier than the planned dispatch
+  ([SimpleIntelligentDispatchItem(current.replace(second=0, microsecond=0) + timedelta(minutes=5), current.replace(second=0, microsecond=0) + timedelta(minutes=10))],
+   current.replace(second=0, microsecond=0) + timedelta(minutes=5), current.replace(second=0, microsecond=0) + timedelta(minutes=20)),
+  # Existing started dispatch that touches the start of the planned dispatch
+  ([SimpleIntelligentDispatchItem(current.replace(second=0, microsecond=0) - timedelta(minutes=15), current.replace(second=0, microsecond=0) + timedelta(minutes=5))],
+   current.replace(second=0, microsecond=0) - timedelta(minutes=15), current.replace(second=0, microsecond=0) + timedelta(minutes=20)),
+])
+async def test_when_retrieved_planned_dispatch_started_and_not_aligned_to_period_then_actual_started_dispatch_times_captured(existing_started_dispatches: list, expected_start: datetime, expected_end: datetime):
+  # current is just after 10:30, so dispatch runs from 10:35 to 10:50
+  dispatch_start = current.replace(second=0, microsecond=0) + timedelta(minutes=5)
+  dispatch_end = current.replace(second=0, microsecond=0) + timedelta(minutes=20)
+  expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [
+    IntelligentDispatchItem(
+      dispatch_start,
+      dispatch_end,
+      1.1,
+      None,
+      "home"
+    )
+  ], [])
+  async def async_mock_get_intelligent_dispatches(*args, **kwargs):
+    return expected_dispatches
+
+  async def async_save_dispatches(*args, **kwargs):
+    pass
+
+  async def async_save_dispatches_history(*args, **kwargs):
+    pass
+
+  account_info = get_account_info()
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), IntelligentDispatchesHistory([]), 1, last_retrieved)
+  existing_dispatches.dispatches.started_actual = existing_started_dispatches
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_dispatches: IntelligentDispatchesCoordinatorResult = await async_refresh_intelligent_dispatches(
+      dispatch_start + timedelta(minutes=1),
+      client,
+      account_info,
+      intelligent_device,
+      existing_dispatches,
+      False,
+      False,
+      True,
+      async_save_dispatches,
+      async_save_dispatches_history
+    )
+
+    assert retrieved_dispatches is not None
+    assert len(retrieved_dispatches.dispatches.started_actual) == 1
+    assert retrieved_dispatches.dispatches.started_actual[0].start == expected_start
+    assert retrieved_dispatches.dispatches.started_actual[0].end == expected_end
+
+    # Started dispatches should remain rounded to the 30 minute period
+    assert len(retrieved_dispatches.dispatches.started) == 1
+    assert retrieved_dispatches.dispatches.started[0].start == current.replace(second=0, microsecond=0)
+    assert retrieved_dispatches.dispatches.started[0].end == current.replace(second=0, microsecond=0) + timedelta(minutes=30)
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("evaluation_time,expected_end",[
+  # Just after the half hour, so the end is the end of the current period
+  (current.replace(second=0, microsecond=0) + timedelta(seconds=1), current.replace(second=0, microsecond=0) + timedelta(minutes=30)),
+  # Exactly on the half hour, so the end is the start of the current period
+  (current.replace(second=0, microsecond=0), current.replace(second=0, microsecond=0)),
+  # Within the last period of the dispatch, so the end is the dispatch end
+  (current.replace(second=0, microsecond=0) + timedelta(minutes=31), current.replace(second=0, microsecond=0) + timedelta(minutes=50)),
+])
+async def test_when_retrieved_planned_dispatch_started_before_current_period_then_actual_start_captured_and_end_capped_to_current_period(evaluation_time: datetime, expected_end: datetime):
+  # Dispatch runs from 10:10 to 11:20
+  dispatch_start = current.replace(second=0, microsecond=0) - timedelta(minutes=20)
+  dispatch_end = current.replace(second=0, microsecond=0) + timedelta(minutes=50)
+  expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [
+    IntelligentDispatchItem(
+      dispatch_start,
+      dispatch_end,
+      1.1,
+      None,
+      "home"
+    )
+  ], [])
+  async def async_mock_get_intelligent_dispatches(*args, **kwargs):
+    return expected_dispatches
+
+  async def async_save_dispatches(*args, **kwargs):
+    pass
+
+  async def async_save_dispatches_history(*args, **kwargs):
+    pass
+
+  account_info = get_account_info()
+  existing_dispatches = IntelligentDispatchesCoordinatorResult(last_retrieved - timedelta(days=60), 1, mock_intelligent_dispatches(), IntelligentDispatchesHistory([]), 1, last_retrieved)
+
+  with mock.patch.multiple(OctopusEnergyApiClient, async_get_intelligent_dispatches=async_mock_get_intelligent_dispatches):
+    client = OctopusEnergyApiClient("NOT_REAL")
+    retrieved_dispatches: IntelligentDispatchesCoordinatorResult = await async_refresh_intelligent_dispatches(
+      evaluation_time,
+      client,
+      account_info,
+      intelligent_device,
+      existing_dispatches,
+      False,
+      False,
+      True,
+      async_save_dispatches,
+      async_save_dispatches_history
+    )
+
+    assert retrieved_dispatches is not None
+    assert len(retrieved_dispatches.dispatches.started_actual) == 1
+    assert retrieved_dispatches.dispatches.started_actual[0].start == dispatch_start
+    assert retrieved_dispatches.dispatches.started_actual[0].end == expected_end
+
+@pytest.mark.asyncio
 async def test_when_retrieved_planned_dispatch_started_and_existing_started_dispatch_exists_in_previous_period_then_existing_started_dispatch_extended():
   expected_dispatches = IntelligentDispatches("SMART_CONTROL_IN_PROGRESS", [
     IntelligentDispatchItem(

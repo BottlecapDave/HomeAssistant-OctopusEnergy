@@ -1,9 +1,10 @@
 import pytest
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from unit import (create_consumption_data, create_rate_data)
 
 from custom_components.octopus_energy.statistics import build_cost_statistics
+from custom_components.octopus_energy.utils.conversions import consumption_cost_in_pence
 
 @pytest.mark.asyncio
 async def test_when_target_rate_specified_then_statistics_restructed():
@@ -98,3 +99,48 @@ async def test_when_target_rate_not_specified_then_statistics_not_restricted():
 
       assert "state" in item
       assert item["state"] == expected_state
+
+@pytest.mark.asyncio
+async def test_when_half_hourly_costs_are_fractions_of_pennies_then_sum_is_not_skewed_by_rounding():
+  # Arrange
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-03-01T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  current = datetime.strptime("2022-02-28T00:00:01Z", "%Y-%m-%dT%H:%M:%S%z")
+
+  # Realistic low overnight consumption where each half hour costs a fraction of a penny.
+  # Rounding each half hour to the nearest penny before summing skews the total
+  # (e.g. 48 slots of 0.028 kWh at 26.4159p/kWh sum to £0.48 instead of £0.38).
+  consumptions = []
+  current_valid_from = period_from
+  while current_valid_from < period_to:
+    current_valid_to = current_valid_from + timedelta(minutes=30)
+    consumptions.append({
+      "start": current_valid_from,
+      "end": current_valid_to,
+      "consumption": 0.028
+    })
+    current_valid_from = current_valid_to
+
+  rates = create_rate_data(period_from, period_to, [26.4159])
+  consumption_key = 'consumption'
+  latest_total_sum = 0
+
+  # Act
+  result = build_cost_statistics(
+    current,
+    consumptions,
+    rates,
+    consumption_key,
+    latest_total_sum
+  )
+
+  # Assert
+  assert result is not None
+
+  expected_total = sum(
+    consumption_cost_in_pence(consumptions[index]["consumption"], rates[index]["value_inc_vat"])
+    for index in range(len(consumptions))
+  ) / 100
+
+  assert result[-1]["sum"] == pytest.approx(expected_total)
+  assert result[-1]["state"] == pytest.approx(expected_total)

@@ -53,7 +53,7 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
     self._intelligent_rate_mode = intelligent_rate_mode
     self._manually_refresh_dispatches = manually_refresh_dispatches
     self._minimum_dispatch_duration_in_minutes = minimum_dispatch_duration_in_minutes
-    self.__init_attributes__([], [], [])
+    self.__init_attributes__([], [], [], [])
 
     self.entity_id = generate_entity_id("binary_sensor.{}", self.unique_id, hass=hass)
 
@@ -81,11 +81,12 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
   def is_on(self):
     return self._state
   
-  def __init_attributes__(self, planned_dispatches, completed_dispatches, started_dispatches):
+  def __init_attributes__(self, planned_dispatches, completed_dispatches, started_dispatches, started_actual_dispatches):
     self._attributes = {
       "planned_dispatches": planned_dispatches,
       "completed_dispatches": completed_dispatches,
       "started_dispatches": started_dispatches,
+      "started_actual_dispatches": started_actual_dispatches,
       "provider": self._device.provider,
       "vehicle_battery_size_in_kwh": self._device.vehicleBatterySizeInKwh,
       "charge_point_power_in_kw": self._device.chargePointPowerInKw,
@@ -109,6 +110,7 @@ class OctopusEnergyIntelligentDispatching(MultiCoordinatorEntity, BinarySensorEn
       dispatches_to_dictionary_list(result.dispatches.planned, ignore_none=True) if result is not None and result.dispatches is not None else [],
       dispatches_to_dictionary_list(result.dispatches.completed, ignore_none=False) if result is not None and result.dispatches is not None else [],
       simple_dispatches_to_dictionary_list(started_dispatches),
+      simple_dispatches_to_dictionary_list(result.dispatches.started_actual if result is not None and result.dispatches is not None else []),
     )
 
     applicable_dispatches = get_applicable_dispatch_periods(result.dispatches.planned if result is not None and result.dispatches is not None else [],

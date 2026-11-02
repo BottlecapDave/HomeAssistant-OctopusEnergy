@@ -5,7 +5,6 @@ from homeassistant.exceptions import ServiceValidationError
 
 from homeassistant.components.event import (
     EventEntity,
-    EventExtraStoredData,
 )
 from homeassistant.helpers.restore_state import RestoreEntity
 from homeassistant.helpers.entity import generate_entity_id
@@ -55,10 +54,8 @@ class OctopusEnergyOctoplusSavingSessionEvents(OctopusEnergyOctoplusSensor, Even
 
   async def async_get_last_event_data(self):
     data = await super().async_get_last_event_data()
-    return EventExtraStoredData.from_dict({
-      "last_event_type": data.last_event_type,
-      "last_event_attributes": dict_to_typed_dict(data.last_event_attributes),
-    })
+    data.last_event_attributes = dict_to_typed_dict(data.last_event_attributes)
+    return data
 
   @callback
   def _async_handle_event(self, event) -> None:

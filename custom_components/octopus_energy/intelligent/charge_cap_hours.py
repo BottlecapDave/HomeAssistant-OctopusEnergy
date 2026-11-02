@@ -76,7 +76,7 @@ class OctopusEnergyIntelligentChargeCapHours(CoordinatorEntity, OctopusEnergyInt
       _LOGGER.debug(f"Updating OctopusEnergyIntelligentChargeCapHours for '{self._device.id}'")
 
       applicable_dispatches = []
-      applicable_dispatches.extend(result.dispatches.started)
+      applicable_dispatches.extend(result.dispatches.started_actual)
       applicable_dispatches.extend(result.dispatches.completed)
 
       self._state = get_dispatch_hours_for_intelligent_day(current, applicable_dispatches, True)

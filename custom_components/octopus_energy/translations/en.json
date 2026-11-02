@@ -222,6 +222,9 @@
     "cost_tracker_invalid_date": {
       "message": "Date must be between {min_date} and {max_date}"
     },
+    "octoplus_event_service_unsupported_entity": {
+      "message": "{service} can't be used with {entity_id}. Target {expected_entity_id} instead. If that entity isn't available, it may be disabled, in which case enable it from the Octopus Energy integration's entities."
+    },
     "octoplus_points_no_points": {
       "message": "The minimum number of redeemable points is not available"
     },

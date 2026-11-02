@@ -312,6 +312,7 @@ async def async_fetch_consumption_and_rates(
                 rate_data = adjust_intelligent_rates(rate_data,
                                                     item.dispatches.planned,
                                                     item.dispatches.started,
+                                                    item.dispatches.started_actual,
                                                     intelligent_rate_mode,
                                                     enforce_cap=True)
             

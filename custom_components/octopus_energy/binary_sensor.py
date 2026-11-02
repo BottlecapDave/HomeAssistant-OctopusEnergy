@@ -9,6 +9,8 @@ import homeassistant.helpers.config_validation as cv
 
 from .electricity.off_peak import OctopusEnergyElectricityOffPeak
 from .intelligent.dispatching import OctopusEnergyIntelligentDispatching
+from .coordinators.octoplus_scratchcard import async_setup_octoplus_scratchcard_coordinator
+from .octoplus.scratchcard_available import OctopusEnergyOctoplusScratchcardAvailable
 from .utils import get_active_tariff
 from .api_client.intelligent_device import IntelligentDevice
 from .coordinators.intelligent_device import IntelligentDeviceCoordinatorResult
@@ -75,6 +77,11 @@ async def async_setup_main_sensors(hass, entry, async_add_entities):
           entities.append(OctopusEnergyElectricityOffPeak(hass, electricity_rate_coordinator, meter, point))
 
   entities.extend(get_intelligent_entities(hass, account_id, config))
+
+  if account_info is not None and account_info["octoplus_enrolled"] == True:
+    coordinator = await async_setup_octoplus_scratchcard_coordinator(hass, account_id)
+    await coordinator.async_refresh()
+    entities.append(OctopusEnergyOctoplusScratchcardAvailable(hass, coordinator, account_id))
 
   account_debug_override = await async_get_account_debug_override(hass, account_id)
   mock_heat_pump = account_debug_override.mock_heat_pump if account_debug_override is not None else False

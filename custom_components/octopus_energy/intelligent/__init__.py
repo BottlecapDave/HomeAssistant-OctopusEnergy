@@ -12,7 +12,6 @@ from ..storage.intelligent_dispatches_history import IntelligentDispatchesHistor
 from ..api_client.intelligent_dispatches import IntelligentDispatchItem, IntelligentDispatches, SimpleIntelligentDispatchItem
 from ..api_client.intelligent_device import IntelligentDevice
 from ..api_client.intelligent_device_settings import IntelligentDeviceSettings
-from ..utils.datetime import round_down_to_nearest_half_hour, round_up_to_nearest_half_hour
 
 mock_intelligent_data_key = "MOCK_INTELLIGENT_DATA"
 
@@ -296,6 +295,7 @@ def is_dispatch_within_time_frame(dispatch: SimpleIntelligentDispatchItem, start
 def adjust_intelligent_rates(rates,
                              planned_dispatches: list[IntelligentDispatchItem],
                              started_dispatches: list[SimpleIntelligentDispatchItem],
+                             started_actual_dispatches: list[SimpleIntelligentDispatchItem],
                              mode: str,
                              minimum_dispatch_duration_in_minutes: int = 0,
                              enforce_cap: bool = False):
@@ -306,6 +306,9 @@ def adjust_intelligent_rates(rates,
   adjusted_rates = []
 
   applicable_dispatches = get_applicable_dispatch_periods(planned_dispatches, started_dispatches, mode, minimum_dispatch_duration_in_minutes)
+
+  # The cap is based on actual dispatch durations, so use the actual started dispatch times
+  cap_dispatches = get_applicable_dispatch_periods(planned_dispatches, started_actual_dispatches, mode, minimum_dispatch_duration_in_minutes)
 
   for rate in rates:
     if rate["value_inc_vat"] == off_peak_rate["value_inc_vat"]:
@@ -320,7 +323,7 @@ def adjust_intelligent_rates(rates,
     )
 
     if (applicable_dispatch is not None):
-      if enforce_cap and is_within_intelligent_cap(rate["end"], applicable_dispatches) == False:
+      if enforce_cap and is_within_intelligent_cap(rate["end"], cap_dispatches) == False:
         _LOGGER.debug(f"Skipping adjusting rate at {rate['start']} from {rate['value_inc_vat']} to {off_peak_rate['value_inc_vat']} due to exceeding dispatch cap for the day")
         adjusted_rates.append(rate)
       else:
@@ -512,7 +515,8 @@ def has_dispatches_changed(existing_dispatches: IntelligentDispatches, new_dispa
     existing_dispatches.current_state != new_dispatches.current_state or
     has_dispatch_items_changed(existing_dispatches.completed, new_dispatches.completed) or
     has_dispatch_items_changed(existing_dispatches.planned, new_dispatches.planned) or
-    has_dispatch_items_changed(existing_dispatches.started, new_dispatches.started)
+    has_dispatch_items_changed(existing_dispatches.started, new_dispatches.started) or
+    has_dispatch_items_changed(existing_dispatches.started_actual, new_dispatches.started_actual)
   )
 
 def get_applicable_intelligent_dispatch_history(history: IntelligentDispatchesHistory, time: datetime) -> IntelligentDispatchesHistoryItem  | None:
@@ -537,34 +541,31 @@ def get_dispatch_hours_for_intelligent_day(current: datetime, dispatches: list[S
 
   _LOGGER.debug(f"Calculating dispatch hours for intelligent day at {current} from {start} to {end}")
 
+  if cap_to_current:
+    end = min(end, current)
+
+  # Clip dispatches to the intelligent day so time outside of the day isn't counted
+  periods = sorted(
+    (max(dispatch.start, start), min(dispatch.end, end))
+    for dispatch in dispatches
+    if dispatch.start < end and dispatch.end > start
+  )
+
   hours = 0
-  existing_dispatches = []
-  for dispatch in dispatches:
-    if is_dispatch_within_time_frame(dispatch, start, end) == False:
-      continue
+  merged_start = None
+  merged_end = None
+  for period_start, period_end in periods:
+    # If the period doesn't overlap the merged period, count the merged period and start a new one
+    if merged_end is None or period_start > merged_end:
+      if merged_end is not None:
+        hours += (merged_end - merged_start).total_seconds() / 3600
+      merged_start = period_start
+      merged_end = period_end
+    else:
+      merged_end = max(merged_end, period_end)
 
-    dispatch_exists = False
-    dispatch_end = dispatch.end
-    if cap_to_current:
-      dispatch_end = min(dispatch_end, current)
-
-    for existing_dispatch in existing_dispatches:
-      # If the dispatch starts within the existing dispatch, extend the end
-      if (dispatch.start >= existing_dispatch.start and dispatch.start <= existing_dispatch.end):
-        existing_dispatch.end = min(dispatch_end, max(existing_dispatch.end, dispatch_end))
-        existing_dispatch.end = round_up_to_nearest_half_hour(existing_dispatch.end)
-        dispatch_exists = True
-      # If the dispatch ends within the existing dispatch, extend the start
-      if (dispatch_end <= existing_dispatch.end and dispatch_end >= existing_dispatch.start):
-        existing_dispatch.start = min(existing_dispatch.start, dispatch.start)
-        existing_dispatch.start = round_down_to_nearest_half_hour(existing_dispatch.start)
-        dispatch_exists = True
-
-    if dispatch_exists == False:
-      existing_dispatches.append(SimpleIntelligentDispatchItem(round_down_to_nearest_half_hour(dispatch.start), round_up_to_nearest_half_hour(dispatch_end)))
-
-  for dispatch in existing_dispatches:
-    hours += (dispatch.end - dispatch.start).total_seconds() / 3600
+  if merged_end is not None:
+    hours += (merged_end - merged_start).total_seconds() / 3600
 
   return hours
 
