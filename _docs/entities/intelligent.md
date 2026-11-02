@@ -156,6 +156,17 @@ This sensor is used to turn on/off intelligent smart charging for a **single** i
 
 This sensor is used to see and set the charge target for your future intelligent charges for a **single** intelligent device.
 
+What the charge target means depends on the type of intelligent device:
+
+* **Electric Vehicle**: the target state of charge for the vehicle's battery, e.g. `80` charges the vehicle to 80%.
+* **Electric Vehicle Charger**: the percentage of the vehicle's battery to add, e.g. `80` adds 80% to whatever charge the vehicle already has. As the value isn't a battery level, the entity has no `battery` device class for chargers.
+
+The type is shown in the name of the Home Assistant device (e.g. `<make> <model> (Electric Vehicle Charger)`) and is available to automations through the `device_type` attribute.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `device_type` | `string` | The type of the intelligent device. `ELECTRIC_VEHICLES` for a vehicle, or `ELECTRIC_VEHICLE_CHARGERS` for a charger. This is determined from how Octopus Energy represents the device (`SmartFlexVehicle` or `SmartFlexChargePoint`), as Octopus Energy's own device type reports `ELECTRIC_VEHICLES` for both. |
+
 !!! info
 
     This entity is not available for the following intelligent providers

@@ -15,6 +15,7 @@ from homeassistant.components.number import RestoreNumber, NumberDeviceClass, Nu
 from homeassistant.util.dt import (utcnow)
 
 from .base import OctopusEnergyIntelligentSensor
+from . import is_charge_target_state_of_charge
 from ..api_client import OctopusEnergyApiClient
 from ..coordinators.intelligent_settings import IntelligentCoordinatorResult
 from ..utils.attributes import dict_to_typed_dict
@@ -34,7 +35,7 @@ class OctopusEnergyIntelligentChargeTarget(CoordinatorEntity, RestoreNumber, Oct
     self._last_updated = None
     self._client = client
     self._account_id = account_id
-    self._attributes = {}
+    self._attributes = { "device_type": self._device.device_type }
     self._is_mocked = is_mocked
     self.entity_id = generate_entity_id("number.{}", self.unique_id, hass=hass)
 
@@ -61,7 +62,8 @@ class OctopusEnergyIntelligentChargeTarget(CoordinatorEntity, RestoreNumber, Oct
   @property
   def device_class(self):
     """The type of sensor"""
-    return NumberDeviceClass.BATTERY
+    # Chargers add this percentage rather than charging to it, so it isn't a battery level
+    return NumberDeviceClass.BATTERY if is_charge_target_state_of_charge(self._device.device_type) else None
   
   @property
   def native_unit_of_measurement(self):
@@ -120,6 +122,7 @@ class OctopusEnergyIntelligentChargeTarget(CoordinatorEntity, RestoreNumber, Oct
       ):
       
       self._attributes = dict_to_typed_dict(last_state.attributes, ["min", "max", "step", "mode"])
+      self._attributes["device_type"] = self._device.device_type
       if last_state.state not in (STATE_UNAVAILABLE, STATE_UNKNOWN):
         self._state = last_number_data.native_value
           
