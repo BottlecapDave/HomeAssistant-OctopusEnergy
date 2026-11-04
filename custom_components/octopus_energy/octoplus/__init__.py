@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 
+from ..api_client.scratchcard import OctoplusScratchcardResponse
 from ..api_client.octoplus_session import BaseOctoplusSession
 from ..api_client.saving_sessions import SavingSession
 
@@ -186,3 +187,7 @@ def get_octoplus_session_target(current: datetime, octoplus_session: BaseOctoplu
   current_target = targets[current_octoplus_session_period_index]
 
   return OctoplusSessionBaselinesResult(current_target, sum(map(lambda target: target.baseline, targets)), targets)
+
+
+def is_scratchcard_available(data: OctoplusScratchcardResponse | None) -> bool:
+  return data is not None and data.has_active_session and not data.has_scratchcard

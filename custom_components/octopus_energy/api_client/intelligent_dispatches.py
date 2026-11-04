@@ -87,6 +87,8 @@ class IntelligentDispatches:
 
   # Bit of a smell this being on the API client object as it's never returned from the API
   started: list[SimpleIntelligentDispatchItem]
+  # The actual times of started dispatches, as opposed to the rounded 30 minute periods within started
+  started_actual: list[SimpleIntelligentDispatchItem]
   state_of_charge: DecimalReading | None
 
   def __init__(
@@ -95,12 +97,14 @@ class IntelligentDispatches:
     planned: list[IntelligentDispatchItem],
     completed: list[IntelligentDispatchItem],
     started: list[SimpleIntelligentDispatchItem] = [],
-    state_of_charge: DecimalReading | None = None
+    state_of_charge: DecimalReading | None = None,
+    started_actual: list[SimpleIntelligentDispatchItem] | None = None
   ):
     self.current_state = current_state
     self.planned = planned
     self.completed = completed
     self.started = started
+    self.started_actual = started_actual if started_actual is not None else []
     self.state_of_charge = state_of_charge
 
   def to_dict(self):
@@ -109,6 +113,7 @@ class IntelligentDispatches:
       "planned": list(map(lambda x: x.to_dict(True), self.planned)) if self.planned is not None else [],
       "completed": list(map(lambda x: x.to_dict(False), self.completed)) if self.completed is not None else [],
       "started": list(map(lambda x: x.to_dict(), self.started)) if self.started is not None else [],
+      "started_actual": list(map(lambda x: x.to_dict(), self.started_actual)) if self.started_actual is not None else [],
       "state_of_charge": self.state_of_charge.model_dump() if self.state_of_charge is not None else None,
     }
 
@@ -123,4 +128,5 @@ class IntelligentDispatches:
       list(map(lambda x: IntelligentDispatchItem.from_dict(x), data["completed"])),
       list(map(lambda x: SimpleIntelligentDispatchItem.from_dict(x), data["started"] if "started" in data else [])),
       state_of_charge=state_of_charge,
+      started_actual=list(map(lambda x: SimpleIntelligentDispatchItem.from_dict(x), data["started_actual"] if "started_actual" in data and data["started_actual"] is not None else [])),
     )

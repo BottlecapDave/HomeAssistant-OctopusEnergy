@@ -140,6 +140,7 @@ async def async_refresh_electricity_rates_data(
               new_rates = adjust_intelligent_rates(new_rates,
                                                    dispatch_result.dispatches.planned,
                                                    dispatch_result.dispatches.started,
+                                                   dispatch_result.dispatches.started_actual,
                                                    intelligent_rate_mode,
                                                    minimum_dispatch_duration_in_minutes,
                                                    enforce_intelligent_cap)
@@ -216,6 +217,7 @@ async def async_refresh_electricity_rates_data(
             new_rates = adjust_intelligent_rates(new_rates,
                                                 dispatch_result.dispatches.planned,
                                                 dispatch_result.dispatches.started,
+                                                dispatch_result.dispatches.started_actual,
                                                 intelligent_rate_mode,
                                                 minimum_dispatch_duration_in_minutes,
                                                 enforce_intelligent_cap)

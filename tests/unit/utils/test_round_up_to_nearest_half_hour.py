@@ -15,6 +15,8 @@ from custom_components.octopus_energy.utils.datetime import round_up_to_nearest_
   (datetime.strptime("2023-07-14T10:15:30+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2023-07-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
   (datetime.strptime("2023-07-14T10:29:59+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2023-07-14T10:30:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
   # Within the second half of the hour - rounds up to the next hour
+  (datetime.strptime("2023-07-14T10:30:01+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2023-07-14T11:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
+  (datetime.strptime("2023-07-14T10:30:00.500000+01:00", "%Y-%m-%dT%H:%M:%S.%f%z"), datetime.strptime("2023-07-14T11:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
   (datetime.strptime("2023-07-14T10:31:00+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2023-07-14T11:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
   (datetime.strptime("2023-07-14T10:45:15+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2023-07-14T11:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
   (datetime.strptime("2023-07-14T10:59:59+01:00", "%Y-%m-%dT%H:%M:%S%z"), datetime.strptime("2023-07-14T11:00:00+01:00", "%Y-%m-%dT%H:%M:%S%z")),
