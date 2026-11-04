@@ -2328,7 +2328,8 @@ class OctopusEnergyApiClient:
       headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
       async with client.post(url, json=payload, headers=headers) as response:
         response_body = await self.__async_read_response__(response, url)
-        _LOGGER.debug(f'async_get_charge_pack_devices: {response_body}')
+        # Only the status - the body holds device IDs and details of the account
+        _LOGGER.debug(f'{request_context}: HTTP {response.status}')
 
         result = []
         if (response_body is not None and "data" in response_body and "devices" in response_body["data"]):
@@ -2357,7 +2358,7 @@ class OctopusEnergyApiClient:
         raise
       except RequestException as e:
         # A problem with the status or readings shouldn't cost us the plan
-        _LOGGER.warning(f"Failed to retrieve the status and readings of charge pack {device_id}, so retrieving its plan only - {e}")
+        _LOGGER.warning(f"Failed to retrieve the status and readings of a charge pack, so retrieving its plan only - {e}")
         response_body = await self._async_charge_pack_request(charge_pack_plan_query.format(device_id=device_id), "charge-pack-plan")
 
       dispatches, status, telemetry = [], None, None
@@ -2390,7 +2391,8 @@ class OctopusEnergyApiClient:
     headers = { "Authorization": f"JWT {self._graphql_token}", integration_context_header: request_context }
     async with client.post(url, json=payload, headers=headers) as response:
       response_body = await self.__async_read_response__(response, url)
-      _LOGGER.debug(f'{request_context}: {response_body}')
+      # Only the status - the body holds device IDs, battery readings and dispatches
+      _LOGGER.debug(f'{request_context}: HTTP {response.status}')
       return response_body
 
   async def async_get_wheel_of_fortune_spins(self, account_id: str) -> WheelOfFortuneSpinsResponse:
