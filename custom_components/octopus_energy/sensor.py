@@ -117,6 +117,7 @@ from .const import (
   CONFIG_KIND_COST_TRACKER,
   CONFIG_KIND_TARIFF_COMPARISON,
   CONFIG_MAIN_HOME_MINI_SETTINGS,
+  CONFIG_MAIN_INTELLIGENT_ENFORCE_CAP,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE,
   CONFIG_MAIN_INTELLIGENT_RATE_MODE_PLANNED_AND_STARTED_DISPATCHES,
   CONFIG_MAIN_INTELLIGENT_SETTINGS,
@@ -400,7 +401,10 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
             True,
             meter["is_smart_meter"],
             intelligent_rate_mode,
-            debug_override.tariff if debug_override is not None else None
+            debug_override.tariff if debug_override is not None else None,
+            (config[CONFIG_MAIN_INTELLIGENT_SETTINGS][CONFIG_MAIN_INTELLIGENT_ENFORCE_CAP]
+             if CONFIG_MAIN_INTELLIGENT_SETTINGS in config and CONFIG_MAIN_INTELLIGENT_ENFORCE_CAP in config[CONFIG_MAIN_INTELLIGENT_SETTINGS]
+             else False)
           )
           entities.append(OctopusEnergyPreviousAccumulativeElectricityConsumption(hass, client, previous_consumption_coordinator, account_id, meter, point))
           entities.append(OctopusEnergyPreviousAccumulativeElectricityCost(hass, previous_consumption_coordinator, meter, point))
