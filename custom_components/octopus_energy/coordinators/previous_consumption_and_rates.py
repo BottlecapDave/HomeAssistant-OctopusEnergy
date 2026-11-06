@@ -78,15 +78,17 @@ def contains_consumption(consumptions: list, current_consumption):
 def extract_missing_consumption_periods(target_consumption_dates: list[OctoplusSessionConsumptionDate], consumptions: list):
   new_target_consumption_dates = []
   for consumption_date in target_consumption_dates:
+    # Local clock-change days contain 46 or 50 half-hours, rather than 48.
+    expected_consumption_count = (as_utc(consumption_date.end) - as_utc(consumption_date.start)) / timedelta(minutes=30)
     consumption_count = 0
     for consumption in consumptions:
       if consumption["start"] >= consumption_date.start and consumption["start"] <= consumption_date.end and consumption["end"] >= consumption_date.start and consumption["end"] <= consumption_date.end:
         consumption_count += 1
 
-      if consumption_count >= 48:
+      if consumption_count >= expected_consumption_count:
         break
 
-    if consumption_count < 48:
+    if consumption_count < expected_consumption_count:
       new_target_consumption_dates.append(consumption_date)
 
   return new_target_consumption_dates
