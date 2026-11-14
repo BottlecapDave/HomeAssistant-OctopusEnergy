@@ -11,8 +11,8 @@
     "triage-new-issue": "ts-node .build/triageNewIssue.ts",
     "test-unit": "python -m pytest tests/unit",
     "test-integration": "python -m pytest tests/integration",
-    "docs-serve": "python -m mkdocs serve",
-    "docs-build": "python -m mkdocs build --strict"
+    "docs-serve": "zensical serve",
+    "docs-build": "zensical build --clean --strict"
   },
   "repository": {
     "type": "git",

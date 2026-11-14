@@ -11,7 +11,6 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   HUSKY: 0
 
 jobs:
@@ -19,44 +18,41 @@ jobs:
     if: ${{ (github.repository_owner == 'BottlecapDave' && (github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main')) == false }}
     name: Build docs
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 0
           sparse-checkout: |
             _docs
       - name: asdf_install
         uses: asdf-vm/actions/install@v4
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
-      - uses: actions/cache@v5
-        with:
-          key: mkdocs-material-${{ env.cache_id }}
-          path: .cache
-          restore-keys: |
-            mkdocs-material-
       - run: pip install -r requirements.txt
-      - run: mkdocs build --strict
+      - run: zensical build --clean --strict
 
   deploy_docs:
     if: ${{ github.repository_owner == 'BottlecapDave' && (github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main') }}
     name: Deploy docs
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      - uses: actions/configure-pages@v6
       - uses: actions/checkout@v6
         with:
-          fetch-depth: 0
           sparse-checkout: |
             _docs
       - name: asdf_install
         uses: asdf-vm/actions/install@v4
-      - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
-      - uses: actions/cache@v5
-        with:
-          key: mkdocs-material-${{ env.cache_id }}
-          path: .cache
-          restore-keys: |
-            mkdocs-material-
       - run: pip install -r requirements.txt
-      - run: mkdocs gh-deploy --strict --force
+      - run: zensical build --clean --strict
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+      - uses: actions/deploy-pages@v5
+        id: deployment
