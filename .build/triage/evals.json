@@ -1,0 +1,161 @@
+[
+  {
+    "issue": 1938,
+    "notes": "Report about Target Timeframes (another integration) - old pipeline diagnosed files from the other repo",
+    "expected_outcomes": ["wrong_repo"]
+  },
+  {
+    "issue": 1916,
+    "notes": "Startup without internet. Integration already raises ConfigEntryNotReady in __init__.py; old pipeline called it a GraphQL field and repeated the reporter's suggestion",
+    "expected_outcomes": ["already_supported", "needs_info", "implementation_notes"],
+    "expected_files": ["custom_components/octopus_energy/__init__.py"]
+  },
+  {
+    "issue": 1919,
+    "notes": "Rate sensors unavailable during outage even though rates are known - old pipeline restated the FAQ",
+    "expected_outcomes": ["root_cause", "needs_info"],
+    "expected_files": ["custom_components/octopus_energy/electricity/current_rate.py", "custom_components/octopus_energy/coordinators/electricity_rates.py"]
+  },
+  {
+    "issue": 1954,
+    "notes": "Home Mini gas readings stop until restart - logs were truncated away by the old pipeline",
+    "expected_outcomes": ["needs_info", "root_cause"],
+    "expected_files": ["custom_components/octopus_energy/coordinators/current_consumption.py"]
+  },
+  {
+    "issue": 1947,
+    "notes": "Rates use old tariff code after switching tariff - old pipeline invented docs text",
+    "expected_outcomes": ["root_cause", "needs_info"],
+    "expected_files": ["custom_components/octopus_energy/coordinators/electricity_rates.py"]
+  },
+  {
+    "issue": 1910,
+    "notes": "Standing charge did not update after VAT change until restart",
+    "expected_outcomes": ["root_cause", "needs_info"],
+    "expected_files": ["custom_components/octopus_energy/coordinators/electricity_standing_charges.py"]
+  },
+  {
+    "issue": 1930,
+    "notes": "Reported on 19.2.1, fixed by v19.3.0 'Fixed event entities failing to load on Home Assistant 2026.11'",
+    "expected_outcomes": ["fixed_in_newer_version"]
+  },
+  {
+    "issue": 1943,
+    "notes": "Setup failures on 19.2.1 after upgrading - same HA 2026.11 event entity failure as #1930, fixed by v19.3.0",
+    "expected_outcomes": ["fixed_in_newer_version", "duplicate"]
+  },
+  {
+    "issue": 1907,
+    "notes": "HA log warning on 17.1.1; maintainer: two major versions behind, fixed since",
+    "expected_outcomes": ["fixed_in_newer_version"]
+  },
+  {
+    "issue": 1838,
+    "notes": "Generic title; only the log line ('Unique id of config entry ... already in use') links it to #1834",
+    "expected_outcomes": ["duplicate", "fixed_in_newer_version"]
+  },
+  {
+    "issue": 1835,
+    "notes": "Free electricity session shown as Power Down - duplicate of #1820",
+    "expected_outcomes": ["duplicate"]
+  },
+  {
+    "issue": 1829,
+    "notes": "Weekend happy hour showing in power down/saving session events - duplicate of #1820",
+    "expected_outcomes": ["duplicate"]
+  },
+  {
+    "issue": 1819,
+    "notes": "join power down fails with 'Saving Sessions event not found' - closed as duplicate of #1820",
+    "expected_outcomes": ["duplicate"]
+  },
+  {
+    "issue": 1861,
+    "notes": "Charge cap hours over-reported - maintainer closed as duplicate of #1814",
+    "expected_outcomes": ["duplicate"]
+  },
+  {
+    "issue": 1822,
+    "notes": "Power Up calendar/event missing - disabled by default as documented. needs_info is fine if its first question is to look for the disabled entities",
+    "expected_outcomes": ["docs_answer", "needs_info"]
+  },
+  {
+    "issue": 1807,
+    "notes": "Wrong Home Mini consumption in energy dashboard - set up with current instead of accumulative consumption, per the energy dashboard guide",
+    "expected_outcomes": ["docs_answer", "needs_info"]
+  },
+  {
+    "issue": 1816,
+    "notes": "Home Mini accumulative consumption stuck - FAQ 'Sensors relating to my Home Mini have stopped updating'; fixed by restarting the Home Mini",
+    "expected_outcomes": ["docs_answer", "needs_info"]
+  },
+  {
+    "issue": 1924,
+    "notes": "Feature: know when free electricity is on - Power Up calendar exists but is disabled by default",
+    "expected_outcomes": ["already_supported"]
+  },
+  {
+    "issue": 1872,
+    "notes": "French Linky integration (sensor.linky_*, euros, 'Version 4.1.6') - not this integration; changelog match must be skipped",
+    "expected_outcomes": ["wrong_repo"]
+  },
+  {
+    "issue": 1813,
+    "notes": "Automation editor in the HA UI sends values while editing - maintainer: a Home Assistant issue",
+    "expected_outcomes": ["wrong_repo", "needs_info"]
+  },
+  {
+    "issue": 1870,
+    "notes": "Current rate wrong on IOG; maintainer asked about latest version, dispatches and integration logs (template sensors in a later comment are out of scope)",
+    "expected_outcomes": ["needs_info"]
+  },
+  {
+    "issue": 1871,
+    "notes": "Cost tracker discovery offers calorie sensors - discovery accepts any convertible unit; fixed in v19.2.0",
+    "expected_outcomes": ["fixed_in_newer_version", "root_cause"],
+    "expected_files": ["custom_components/octopus_energy/config_flow.py"]
+  },
+  {
+    "issue": 1858,
+    "notes": "AttributeError when dispatch result is None (electricity_rates.py) - fixed in v19.2.x",
+    "expected_outcomes": ["fixed_in_newer_version", "root_cause"],
+    "expected_files": ["custom_components/octopus_energy/coordinators/electricity_rates.py"]
+  },
+  {
+    "issue": 1830,
+    "notes": "Standing charge sensors still state_class total after v19.0.0 - fixed in a later release",
+    "expected_outcomes": ["fixed_in_newer_version", "root_cause"]
+  },
+  {
+    "issue": 1867,
+    "notes": "New cost trackers not accumulating - reporter had picked the wrong (non total_increasing) sensor; maintainer asked for the tracked sensor's attributes",
+    "expected_outcomes": ["needs_info", "docs_answer"]
+  },
+  {
+    "issue": 1903,
+    "notes": "Power Down calendar keeps returning unavailable, 'difficult to repeat' - went stale",
+    "expected_outcomes": ["needs_info"]
+  },
+  {
+    "issue": 1845,
+    "notes": "Feature: service to select a Weekend Happy Hour slot - implemented later",
+    "expected_outcomes": ["implementation_notes", "already_supported"]
+  },
+  {
+    "issue": 1889,
+    "notes": "Feature: Octoplus scratchcard availability binary sensor - reporter gave the GraphQL fields",
+    "expected_outcomes": ["implementation_notes", "already_supported"]
+  },
+  {
+    "issue": 1878,
+    "notes": "Join Weekend Happy Hour blueprint trigger uses 'or' instead of 'and' - blueprint already fixed at HEAD; check a blueprint file is retrieved"
+  },
+  {
+    "issue": 1837,
+    "notes": "Heat pump API rate limits - Octopus-side (IP blocking); nothing verifiable in code, expect assign"
+  },
+  {
+    "issue": 1894,
+    "notes": "Feature: gas flow rate - Home Mini doesn't provide the data; expect assign or needs_info"
+  }
+]

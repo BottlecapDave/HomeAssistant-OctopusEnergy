@@ -9,6 +9,8 @@
     "release": "semantic-release",
     "check-graphql-deprecations": "ts-node .build/checkGraphqlDeprecations.ts",
     "triage-new-issue": "ts-node .build/triageNewIssue.ts",
+    "triage-feedback": "ts-node .build/triage/feedback.ts",
+    "triage-eval": "ts-node .build/triage/eval.ts",
     "test-unit": "python -m pytest tests/unit",
     "test-integration": "python -m pytest tests/integration",
     "docs-serve": "zensical serve",
