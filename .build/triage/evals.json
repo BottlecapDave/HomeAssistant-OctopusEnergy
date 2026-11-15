@@ -1,8 +1,8 @@
 [
   {
     "issue": 1938,
-    "notes": "Report about Target Timeframes (another integration) - old pipeline diagnosed files from the other repo",
-    "expected_outcomes": ["wrong_repo"]
+    "notes": "Target Timeframes picked a dearer slot. Its rates come from this integration, so wrong_repo (with the 'check the rates first' hand-off) or needs_info comparing this integration's rates with the Octopus app are both right; diagnosing Target Timeframes' own code is not",
+    "expected_outcomes": ["wrong_repo", "needs_info"]
   },
   {
     "issue": 1916,

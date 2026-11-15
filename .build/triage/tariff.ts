@@ -33,6 +33,23 @@ export function parseTariffCodes(text: string): Array<{ code: string; energy: 'E
   return found.filter((t, i) => found.findIndex((o) => o.code === t.code) === i).slice(0, MAX_TARIFFS);
 }
 
+/**
+ * Tariff codes from agreements in attached diagnostics that were active at `at` - diagnostics list
+ * past agreements too, and an expired tariff would wrongly look like "no rates" (same rule as the
+ * integration's get_active_tariff). For when the form field just says "see above" (#1948).
+ */
+export function activeTariffsFromDiagnostics(text: string, at: string | undefined): string[] {
+  const when = at ? new Date(at).getTime() : Date.now();
+  const agreement = /"start"\s*:\s*"([^"]+)"\s*,\s*"end"\s*:\s*(null|"[^"]*")\s*,\s*"tariff_code"\s*:\s*"([^"]+)"/g;
+  return Array.from((text ?? '').matchAll(agreement))
+    .filter((m) => {
+      const start = Date.parse(m[1]);
+      const end = m[2] === 'null' ? null : Date.parse(m[2].replace(/"/g, ''));
+      return !Number.isNaN(start) && start <= when && (end === null || Number.isNaN(end) || end >= when);
+    })
+    .map((m) => m[3]);
+}
+
 /** Checks each tariff: does the product exist, and are unit rates published around `at`? */
 export async function checkTariffs(tariffField: string, at: string | undefined): Promise<TariffCheck> {
   const result: TariffCheck = { facts: [], problems: [], gates: [] };

@@ -106,6 +106,8 @@ export function buildAnalysisComment(analysis: Analysis, ctx: CommentContext, ex
         : "This doesn't look like it relates to this integration (Octopus Energy for UK Octopus Energy accounts), so it may need raising elsewhere.",
       '',
     );
+    // Fixed wording, not model text: the hand-off check must always be there for data consumers.
+    if (sibling?.dataFromHere) parts.push(sibling.dataFromHere.check, '');
   }
   parts.push(sanitizeModelText(analysis.reporter_message) || DEFAULT_REPORTER_MESSAGE[outcome] || '');
   const questions = [

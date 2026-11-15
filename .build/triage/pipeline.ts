@@ -24,7 +24,7 @@ import {
   FilterResult,
   Outcome,
 } from './schemas';
-import { checkTariffs, TariffCheck } from './tariff';
+import { activeTariffsFromDiagnostics, checkTariffs, TariffCheck } from './tariff';
 import { CONTENT_TAG, heuristicTamperDetected, sanitizeUntrustedText, tokenize } from './text';
 import { graphqlQueryProblem, quoteInText, validateDocLinks, validateEvidence, validateGraphqlFields } from './validate';
 import {
@@ -126,8 +126,11 @@ interface PreparedIssue {
 
 async function prepareIssue(issue: GithubIssue): Promise<PreparedIssue> {
   const parsed = parseIssueForm(issue.body);
-  const isBug = issue.labels.includes(BUG_LABEL);
-  const isFeature = issue.labels.includes(ENHANCEMENT_LABEL);
+  // Labels win (the maintainer may relabel); with neither label, fall back to which form was used,
+  // so a bug report that lost its label isn't analysed as a docs question (#1956).
+  const unlabelled = !issue.labels.includes(BUG_LABEL) && !issue.labels.includes(ENHANCEMENT_LABEL);
+  const isBug = issue.labels.includes(BUG_LABEL) || (unlabelled && /^###\s+Describe the bug\s*$/im.test(issue.body ?? ''));
+  const isFeature = issue.labels.includes(ENHANCEMENT_LABEL) || (unlabelled && /^###\s+(Describe the feature|Provider name)\s*$/im.test(issue.body ?? ''));
 
   // Attachments are only read for bug reports whose consent explicitly covers logs.
   const attachments = isBug && hasLogConsent(issue.body) ? await fetchAttachmentLogs(issue.body) : [];
@@ -426,6 +429,12 @@ async function buildAnalysisPrompt(
       ? `- Other custom integrations appearing in the logs (a hint only - logs routinely include other integrations): ${prepared.signals.otherDomains.join(', ')}`
       : '',
     `- Known separate integrations for "wrong_repo" (use these exact domains): ${Object.keys(KNOWN_SIBLING_INTEGRATIONS).join(', ')}. Otherwise use the other integration's domain if the reporter's text shows it, "home_assistant" for Home Assistant itself, "user_configuration" for the reporter's own templates/automations, or "unknown".`,
+    ...Object.entries(KNOWN_SIBLING_INTEGRATIONS)
+      .filter(([, sibling]) => sibling.dataFromHere)
+      .map(
+        ([domain, sibling]) =>
+          `- ${sibling.name} ("${domain}") is powered by this integration: ${sibling.dataFromHere!.what}. A problem there can be caused by wrong, missing or stale data from this integration. Only choose "wrong_repo" for it when the reporter's evidence shows the data it received was correct and the problem is in how ${sibling.name} uses it (its selection logic or configuration). If the data looks wrong or stale, diagnose it here as this integration's problem. If you can't tell, choose "needs_info" and ask the reporter to compare this integration's data for that period with the Octopus app. Octopus publishing the right rates does not show this integration passed them on correctly.`,
+      ),
   ].filter(Boolean);
   parts.push('', '# Notes', ...notes, '', '# Issue', prepared.issueBlock);
 
@@ -573,7 +582,9 @@ async function runTriage(issue: GithubIssue, ctx: TriageContext, costs: CostTrac
 
   const latest = currentVersion();
   // Deterministic: is the reported tariff in Octopus's public API, with rates around the report date?
-  const tariff = prepared.isBug ? await checkTariffs(prepared.tariffText, prepared.issue.createdAt) : { facts: [], problems: [], gates: [] };
+  // Form field first; then tariffs active at the time in any attached diagnostics.
+  const tariffSources = [prepared.tariffText, ...activeTariffsFromDiagnostics(prepared.rawForTamperCheck.join('\n'), prepared.issue.createdAt)].join('\n');
+  const tariff = prepared.isBug ? await checkTariffs(tariffSources, prepared.issue.createdAt) : { facts: [], problems: [], gates: [] };
   gates.push(...tariff.gates);
   if (tariff.facts.length) gates.push(`tariff: ${tariff.problems.length ? tariff.problems.join(', ') : 'rates published'}`);
   const facts = [
@@ -581,14 +592,13 @@ async function runTriage(issue: GithubIssue, ctx: TriageContext, costs: CostTrac
     ...tariff.facts,
     prepared.reportedVersion && `- Reporter's integration version: v${prepared.displayVersion}${prepared.reportedPrerelease ? ' (a pre-release)' : ''}`,
     '- Code under "Relevant code" is quoted verbatim from the source at the linked lines, so whatever those quoted lines directly show is verified.',
-    '- A final checklist item asking the reporter to confirm on the latest release is added automatically when they are behind - do not count it against the draft.',
   ]
     .filter(Boolean)
     .join('\n');
 
   // Every comment must get past the critic before it is posted.
-  const post = async (outcome: Outcome, comment: string, reason: string, extra: Partial<TriageResult> = {}, linkedIssue?: string): Promise<TriageResult> => {
-    const critic = await runCritic(ctx, costs, prepared, outcome, facts, comment, gates, linkedIssue);
+  const post = async (outcome: Outcome, comment: string, reason: string, extra: Partial<TriageResult> = {}, linkedIssue?: string, extraFacts: string[] = []): Promise<TriageResult> => {
+    const critic = await runCritic(ctx, costs, prepared, outcome, [facts, ...extraFacts].filter(Boolean).join('\n'), comment, gates, linkedIssue);
     return critic.score >= CRITIC_MIN_SCORE
       ? result('comment', outcome, reason, { ...extra, comment, critic, labels: [`${LABELS.outcomePrefix}${outcome}`, LABELS.awaitingFeedback] })
       : result('assign', outcome, `critic score ${critic.score} below ${CRITIC_MIN_SCORE}`, { ...extra, critic, draft: comment });
@@ -643,5 +653,10 @@ async function runTriage(issue: GithubIssue, ctx: TriageContext, costs: CostTrac
           : `Can you confirm this still happens on the latest release (v${latest})? You're currently on v${prepared.displayVersion}.`,
       ]
     : [];
-  return post(analysis.outcome, buildAnalysisComment(analysis, ctx.commentContext, extraQuestions), `${analysis.outcome} passed all gates`, extra);
+  // Only tell the critic about the automatic question when it's actually there (#1814: an always-on
+  // fact made it "see" a duplicate update request that didn't exist).
+  const autoQuestionFact = extraQuestions.length
+    ? ['- The last checklist item (asking the reporter to confirm on the latest release) was added automatically because they are behind - do not count it against the draft.']
+    : [];
+  return post(analysis.outcome, buildAnalysisComment(analysis, ctx.commentContext, extraQuestions), `${analysis.outcome} passed all gates`, extra, undefined, autoQuestionFact);
 }

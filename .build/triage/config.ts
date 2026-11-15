@@ -23,10 +23,20 @@ export const DEFAULT_FILTER_MODEL = 'anthropic/claude-haiku-5.5';
 
 export const INTEGRATION_DOMAIN = 'octopus_energy';
 
-// Other integrations that reporters commonly confuse with this one. A wrong-repo comment is only
-// ever posted for an integration listed here, so the bot never guesses where an issue belongs.
-export const KNOWN_SIBLING_INTEGRATIONS: Record<string, { name: string; repo: string }> = {
-  target_timeframes: { name: 'Target Timeframes', repo: 'BottlecapDave/HomeAssistant-TargetTimeframes' },
+// Other integrations that reporters commonly confuse with this one; a wrong-repo comment links to
+// these (any other target gets a generic "doesn't look like this integration" reply).
+// `dataFromHere` is set when the sibling consumes this integration's data: then a bad result there
+// may really be bad data from here, so the reply asks the reporter to check that first.
+export const KNOWN_SIBLING_INTEGRATIONS: Record<string, { name: string; repo: string; dataFromHere?: { what: string; check: string } }> = {
+  target_timeframes: {
+    name: 'Target Timeframes',
+    repo: 'BottlecapDave/HomeAssistant-TargetTimeframes',
+    dataFromHere: {
+      what: 'its rates come from this integration (the current/next day rates event entities)',
+      check:
+        "Target Timeframes gets its rates from this integration, so first check that the `rates` attribute of this integration's current day rates event entity (Developer tools > States) matches the Octopus app for that period. If the rates match, please raise it there. If they don't, reply here instead, as the problem is then with the rates this integration supplies.",
+    },
+  },
 };
 
 export const BUG_LABEL = 'bug';
