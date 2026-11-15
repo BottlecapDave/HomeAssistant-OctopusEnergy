@@ -59,7 +59,7 @@ For intelligent tariffs, this sensor will turn on when you're within the standar
 
 Depending on your [account configuration](./setup/account.md#intelligent-rates-mode), what is determined as an active dispatching period will change. If you have configured to accept [planned or started dispatches](./setup/account.md#planned-and-started-dispatches-will-turn-into-off-peak-rates), then the sensor will turn on when you're are within an active planned or started dispatch period. If you have configured to accept [only started dispatches](./setup/account.md#only-started-dispatches-will-turn-into-off-peak-rates), then the sensor will turn on when you're are within an active started dispatch period, but not planned dispatch.
 
-This above does not apply and will not come on outside of the standard off peak hours for the following intelligent providers
+The above does not apply, and the sensor will not come on outside of the standard off peak hours, if your intelligent device uses one of the following providers (the make of charger or car that Octopus Energy controls, e.g. an Ohme charger)
 
 * OHME
 
@@ -217,7 +217,7 @@ Octopus Energy only provide basic rate information for all tariffs (e.g. off pea
 
 Unfortunately, planned dispatches are not available for certain providers. In these scenarios, rate information cannot be manually adjusted and therefore cost sensors will be incorrect in these scenarios. See the [dispatching sensor](./entities/intelligent.md#is-dispatching) for information on which intelligent providers this applies to.
 
-If the cost sensors are out and you are not on an effected intelligent providers, then please raise an issue.
+If the cost sensors are out and your intelligent device doesn't use one of the affected providers, then please raise an issue.
 
 ## I'm having issues with a sensor. Is there any way I can see the attributes for a certain point in time?
 
