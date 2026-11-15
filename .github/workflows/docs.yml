@@ -5,6 +5,7 @@ on:
     paths:
       - 'mkdocs.yml'
       - '_docs/**'
+      - '.build/docs/**'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -23,12 +24,16 @@ jobs:
     steps:
       - uses: actions/checkout@v6
         with:
+          # Full history is needed to work out the contributors for each page
+          fetch-depth: 0
           sparse-checkout: |
             _docs
+            .build/docs
       - name: asdf_install
         uses: asdf-vm/actions/install@v4
       - run: pip install -r requirements.txt
       - run: zensical build --clean --strict
+      - run: python .build/docs/add_contributors.py
 
   deploy_docs:
     if: ${{ github.repository_owner == 'BottlecapDave' && (github.event_name == 'workflow_dispatch' || github.ref == 'refs/heads/main') }}
@@ -45,12 +50,16 @@ jobs:
       - uses: actions/configure-pages@v6
       - uses: actions/checkout@v6
         with:
+          # Full history is needed to work out the contributors for each page
+          fetch-depth: 0
           sparse-checkout: |
             _docs
+            .build/docs
       - name: asdf_install
         uses: asdf-vm/actions/install@v4
       - run: pip install -r requirements.txt
       - run: zensical build --clean --strict
+      - run: python .build/docs/add_contributors.py
       - uses: actions/upload-pages-artifact@v5
         with:
           path: site

@@ -14,7 +14,7 @@
     "test-unit": "python -m pytest tests/unit",
     "test-integration": "python -m pytest tests/integration",
     "docs-serve": "zensical serve",
-    "docs-build": "zensical build --clean --strict"
+    "docs-build": "zensical build --clean --strict && python .build/docs/add_contributors.py"
   },
   "repository": {
     "type": "git",
