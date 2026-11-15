@@ -3,7 +3,7 @@ import { BUG_LABEL, ENHANCEMENT_LABEL, INTEGRATION_DOMAIN, KNOWN_SIBLING_INTEGRA
 import { DocSection, DocsIndex, normalizeDocUrl, renderDocSections } from './docs';
 import { GithubClient, GithubIssueSummary } from './github';
 import { buildSchemaContext, featureNeedsSchema } from './graphql';
-import { GithubIssue, hasAiTriageConsent, hasLogConsent, isBotAuthor, isGenericTitle, parseIssueForm, parseReportedVersion } from './issue';
+import { distinctiveTerms, GithubIssue, hasAiTriageConsent, hasLogConsent, isBotAuthor, isGenericTitle, parseIssueForm, parseReportedVersion } from './issue';
 import { callJson, CostTracker, LlmConfig, loadPrompt } from './llm';
 import { extractDiagnostics, extractSignals, fetchAttachmentLogs, firstLogMessage, reduceLogs, redactSecrets } from './logs';
 import { CodeChunk, CodeIndex, renderChunks } from './retrieval';
@@ -289,7 +289,7 @@ async function checkDuplicate(
   costs: CostTracker,
   prepared: PreparedIssue,
   gates: string[],
-): Promise<{ duplicate: { number: number; title: string; state: string; why: string; excerpt: string } | null; related: { number: number; title: string; state: string } | null }> {
+): Promise<{ duplicate: { number: number; title: string; state: string; why: string; excerpt: string } | null; related: { number: number; title: string; state: string; excerpt: string } | null }> {
   // Titles are often generic ("Error after updating") while the logs or an action name carry the
   // real signal, so candidates come from up to three searches, merged in order.
   const searchTerms = (text: string) => Array.from(new Set(tokenize(text).filter((t) => t !== INTEGRATION_DOMAIN && !/^v\d/.test(t)))).slice(0, 5);
@@ -298,6 +298,8 @@ async function checkDuplicate(
     { name: 'title', terms: searchTerms(prepared.issue.title) },
     { name: 'log message', terms: prepared.logMessage ? searchTerms(prepared.logMessage) : [] },
     { name: 'actions/exceptions', terms: [...actionNames, ...prepared.signals.exceptionTypes].slice(0, 5) },
+    // A generic title gives nothing to search on, so the description's most frequent words stand in.
+    { name: 'description', terms: isGenericTitle(prepared.issue.title) ? distinctiveTerms(parseIssueForm(prepared.issue.body).get('description'), 5) : [] },
   ].filter((search) => search.terms.length);
   if (!searches.length) {
     return { duplicate: null, related: null };
@@ -357,7 +359,10 @@ async function checkDuplicate(
       match && result.confidence >= DUPLICATE_MIN_CONFIDENCE
         ? { number: match.number, title: match.title, state: stateThen(match), why: result.why, excerpt: `#${match.number} [${stateThen(match)}] ${match.title}\n${redactSecrets((match.body ?? '').slice(0, 1500))}` }
         : null,
-    related: match && result.confidence >= RELATED_MIN_CONFIDENCE ? { number: match.number, title: match.title, state: stateThen(match) } : null,
+    related:
+      match && result.confidence >= RELATED_MIN_CONFIDENCE
+        ? { number: match.number, title: match.title, state: stateThen(match), excerpt: `#${match.number} [${stateThen(match)}] ${match.title}\n${redactSecrets((match.body ?? '').slice(0, 1500))}` }
+        : null,
   };
 }
 
@@ -373,7 +378,8 @@ function graphqlKnownFields(code: CodeIndex, schemaFields: Set<string>): Set<str
   return known;
 }
 
-const MAX_TITLE_CHARS = 80;
+// The prompt asks for at most 80; a little over is still a good title (#1949's was rejected at ~85).
+const MAX_TITLE_CHARS = 100;
 
 /**
  * The model's suggested title, but only for a title the offline check also finds generic (so
@@ -704,5 +710,8 @@ async function runTriage(issue: GithubIssue, ctx: TriageContext, costs: CostTrac
   const autoQuestionFact = extraQuestions.length
     ? ['- The last checklist item (asking the reporter to confirm on the latest release) was added automatically because they are behind - do not count it against the draft.']
     : [];
-  return post(analysis.outcome, buildAnalysisComment(analysis, ctx.commentContext, extraQuestions), `${analysis.outcome} passed all gates`, extra, undefined, autoQuestionFact, linkedDocs);
+  const comment = buildAnalysisComment(analysis, ctx.commentContext, extraQuestions);
+  // If the reply points at the possibly-related issue, the critic needs to see it too (#1948 -> #1904).
+  const mentionsRelated = related && new RegExp(`#${related.number}\\b`).test(comment);
+  return post(analysis.outcome, comment, `${analysis.outcome} passed all gates`, extra, mentionsRelated ? related.excerpt : undefined, autoQuestionFact, linkedDocs);
 }

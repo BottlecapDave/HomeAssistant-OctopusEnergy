@@ -203,3 +203,23 @@ export function isGenericTitle(title: string): boolean {
   );
   return distinctive.size < 2;
 }
+
+/**
+ * The most frequent distinctive words in a text (generic words, numbers and identifiers dropped;
+ * "dispatch"/"dispatches" counted once). Used to search for duplicates when the title is too generic
+ * to search on (#1949 "Despatch sensor not working" found #1893 only via its description).
+ */
+export function distinctiveTerms(text: string, count: number): string[] {
+  const frequency = new Map<string, number>();
+  for (const token of tokenize(text ?? '')) {
+    if (GENERIC_TITLE_WORDS.has(token) || token.includes('_') || /^v?\d/.test(token)) continue;
+    frequency.set(token, (frequency.get(token) ?? 0) + 1);
+  }
+  const chosen: string[] = [];
+  for (const [term] of Array.from(frequency).sort((a, b) => b[1] - a[1])) {
+    if (chosen.some((other) => other.startsWith(term) || term.startsWith(other))) continue;
+    chosen.push(term);
+    if (chosen.length === count) break;
+  }
+  return chosen;
+}
