@@ -1,6 +1,6 @@
 import { buildAnalysisComment, buildDuplicateComment, buildFixedInNewerVersionComment, CommentContext } from './comments';
 import { BUG_LABEL, ENHANCEMENT_LABEL, INTEGRATION_DOMAIN, KNOWN_SIBLING_INTEGRATIONS, LABELS } from './config';
-import { DocSection, DocsIndex, renderDocSections } from './docs';
+import { DocSection, DocsIndex, normalizeDocUrl, renderDocSections } from './docs';
 import { GithubClient, GithubIssueSummary } from './github';
 import { buildSchemaContext, featureNeedsSchema } from './graphql';
 import { GithubIssue, hasAiTriageConsent, hasLogConsent, isBotAuthor, isGenericTitle, parseIssueForm, parseReportedVersion } from './issue';
@@ -60,6 +60,9 @@ const MIN_CONFIDENCE: Record<string, number> = {
   wrong_repo: 0.8,
 };
 const DUPLICATE_MIN_CONFIDENCE = 0.85;
+// Below the duplicate bar but likely the same thing: passed to the analysis as "possibly related" so a
+// reply can point at it rather than dead-end (#1948 -> #1904 at 0.8).
+const RELATED_MIN_CONFIDENCE = 0.6;
 const CHANGELOG_MIN_CONFIDENCE = 0.75;
 const CRITIC_MIN_SCORE = 4;
 // Asking a reporter to run a GraphQL query is only worth it when the model has a specific hypothesis.
@@ -134,8 +137,20 @@ async function prepareIssue(issue: GithubIssue): Promise<PreparedIssue> {
 
   // Attachments are only read for bug reports whose consent explicitly covers logs.
   const attachments = isBug && hasLogConsent(issue.body) ? await fetchAttachmentLogs(issue.body) : [];
-  const diagnostics = extractDiagnostics(parsed.get('logs'), BUDGET.diagnostics);
-  const rawLogs = [diagnostics.rest, ...attachments.map((a) => `--- attachment: ${a.name} ---\n${a.text}`)].join('\n').trim();
+  // Diagnostics may be pasted into the logs field or attached as the downloaded .json (#1948). An
+  // attached file gets the same condensing as a pasted one rather than going through the log reducer.
+  const fromLogsField = extractDiagnostics(parsed.get('logs'), BUDGET.diagnostics);
+  let diagnostics = fromLogsField;
+  const attachmentLogs: string[] = [];
+  for (const attachment of attachments) {
+    const fromAttachment = extractDiagnostics(attachment.text, BUDGET.diagnostics);
+    if (fromAttachment.diagnostics && !diagnostics.diagnostics) {
+      diagnostics = { ...fromAttachment, rest: fromLogsField.rest };
+    } else if (!fromAttachment.diagnostics) {
+      attachmentLogs.push(`--- attachment: ${attachment.name} ---\n${attachment.text}`);
+    }
+  }
+  const rawLogs = [diagnostics.rest, ...attachmentLogs].join('\n').trim();
   const reducedLogs = reduceLogs(rawLogs, BUDGET.logs);
 
   const ownSections = parsed.sections
@@ -195,6 +210,7 @@ async function runCritic(
   comment: string,
   gates: string[],
   linkedIssue?: string,
+  linkedDocs: DocSection[] = [],
 ): Promise<CriticResult> {
   const critic = await callJson<CriticResult>(
     ctx.llm,
@@ -212,6 +228,7 @@ async function runCritic(
       '"""',
       // Another reporter's text, so it stays inside the untrusted block like the issue itself.
       ...(linkedIssue ? ['', 'The existing issue the draft links to (its state as of when the new issue was opened, title and start of body):', untrustedBlock(linkedIssue)] : []),
+      ...(linkedDocs.length ? ['', 'Full text of the documentation sections the draft links to (from this project, verified):', renderDocSections(linkedDocs)] : []),
     ].join('\n'),
     CRITIC_SCHEMA,
   );
@@ -272,7 +289,7 @@ async function checkDuplicate(
   costs: CostTracker,
   prepared: PreparedIssue,
   gates: string[],
-): Promise<{ number: number; title: string; state: string; why: string; excerpt: string } | null> {
+): Promise<{ duplicate: { number: number; title: string; state: string; why: string; excerpt: string } | null; related: { number: number; title: string; state: string } | null }> {
   // Titles are often generic ("Error after updating") while the logs or an action name carry the
   // real signal, so candidates come from up to three searches, merged in order.
   const searchTerms = (text: string) => Array.from(new Set(tokenize(text).filter((t) => t !== INTEGRATION_DOMAIN && !/^v\d/.test(t)))).slice(0, 5);
@@ -283,7 +300,7 @@ async function checkDuplicate(
     { name: 'actions/exceptions', terms: [...actionNames, ...prepared.signals.exceptionTypes].slice(0, 5) },
   ].filter((search) => search.terms.length);
   if (!searches.length) {
-    return null;
+    return { duplicate: null, related: null };
   }
   // Only earlier issues can be the original (also keeps evals on old issues honest). Full timestamp,
   // not just the date: double submissions and outage reports arrive minutes apart (#1773 -> #1774).
@@ -308,7 +325,7 @@ async function checkDuplicate(
   gates.push(`duplicate: ${candidates.length} candidate(s) from ${searches.map((s) => `${s.name} [${s.terms.join(', ')}]`).join('; ')}`);
   if (!candidates.length) {
     gates.push('duplicate: no candidates');
-    return null;
+    return { duplicate: null, related: null };
   }
 
   // State as it was when the new issue was opened: replaying an old issue (evals) must not see an
@@ -335,9 +352,13 @@ async function checkDuplicate(
 
   const match = candidates.find((c) => c.number === result.duplicate_of);
   gates.push(`duplicate: ${result.duplicate_of ? `#${result.duplicate_of}` : 'no match'}, confidence ${result.confidence}${match || !result.duplicate_of ? '' : ' (not a candidate - ignored)'}`);
-  return match && result.confidence >= DUPLICATE_MIN_CONFIDENCE
-    ? { number: match.number, title: match.title, state: stateThen(match), why: result.why, excerpt: `#${match.number} [${stateThen(match)}] ${match.title}\n${redactSecrets((match.body ?? '').slice(0, 1500))}` }
-    : null;
+  return {
+    duplicate:
+      match && result.confidence >= DUPLICATE_MIN_CONFIDENCE
+        ? { number: match.number, title: match.title, state: stateThen(match), why: result.why, excerpt: `#${match.number} [${stateThen(match)}] ${match.title}\n${redactSecrets((match.body ?? '').slice(0, 1500))}` }
+        : null,
+    related: match && result.confidence >= RELATED_MIN_CONFIDENCE ? { number: match.number, title: match.title, state: stateThen(match) } : null,
+  };
 }
 
 /** Field names a reporter query may use: identifiers in the integration's own API client, plus schema fields. */
@@ -395,6 +416,7 @@ async function buildAnalysisPrompt(
   latest: string | null,
   gates: string[],
   tariffFacts: string[] = [],
+  related: { number: number; title: string; state: string } | null = null,
 ): Promise<{ prompt: string; validFields: Set<string> }> {
   const parts = ['# Source excerpts (function-level, with line numbers)', renderChunks(chunks) || '(none matched)', '', '# Documentation sections', renderDocSections(docSections) || '(none matched)'];
 
@@ -409,6 +431,9 @@ async function buildAnalysisPrompt(
   }
 
   const notes = [
+    related
+      ? `- Possibly related existing issue (the duplicate check thought it likely, but not certain enough to call it a duplicate): #${related.number} (${related.state}) "${related.title.replace(/["\n`]/g, ' ').slice(0, 120)}". If your answer concerns the same problem, you may point the reporter to it (e.g. "this may be the same as #${related.number}, which you can follow").`
+      : '',
     ...(tariffFacts.length
       ? [
           '- Octopus Energy public API check of the reported tariff, run by the triage bot (verified - you may state these facts; if they show an unknown product or no rates, the problem is on Octopus Energy\'s side and any repair documentation shown says what the reporter should do):',
@@ -441,7 +466,15 @@ async function buildAnalysisPrompt(
   return { prompt: parts.join('\n'), validFields };
 }
 
-async function runAnalysis(ctx: TriageContext, costs: CostTracker, prepared: PreparedIssue, latest: string | null, gates: string[], tariff: TariffCheck): Promise<Analysis> {
+async function runAnalysis(
+  ctx: TriageContext,
+  costs: CostTracker,
+  prepared: PreparedIssue,
+  latest: string | null,
+  gates: string[],
+  tariff: TariffCheck,
+  related: { number: number; title: string; state: string } | null = null,
+): Promise<{ analysis: Analysis; linkedDocs: DocSection[] }> {
   const code = getCode();
   const chunks = code.select(prepared.retrievalQuery, prepared.signals, BUDGET.code);
   const docSections = getDocs().select(prepared.retrievalQuery, BUDGET.docs);
@@ -467,7 +500,7 @@ async function runAnalysis(ctx: TriageContext, costs: CostTracker, prepared: Pre
   const kind = prepared.isBug ? 'bug' : prepared.isFeature ? 'feature' : 'docs';
   const promptFile = { bug: 'bug-diagnosis.txt', feature: 'feature-analysis.txt', docs: 'docs-answer.txt' }[kind];
   const outcomes: string[] = { bug: BUG_OUTCOMES, feature: FEATURE_OUTCOMES, docs: DOCS_OUTCOMES }[kind];
-  const { prompt, validFields } = await buildAnalysisPrompt(prepared, kind, chunks, docSections, latest, gates, tariff.facts);
+  const { prompt, validFields } = await buildAnalysisPrompt(prepared, kind, chunks, docSections, latest, gates, tariff.facts, related);
 
   const raw = await callJson<Analysis>(
     ctx.llm,
@@ -533,7 +566,10 @@ async function runAnalysis(ctx: TriageContext, costs: CostTracker, prepared: Pre
     analysis.outcome = 'none';
   }
 
-  return analysis;
+  // The full sections behind the verified doc links, so the critic can check claims about what the
+  // docs say (it otherwise only sees the quoted sentence - #1948, #1949).
+  const linkedUrls = new Set(analysis.doc_links.map((link) => normalizeDocUrl(link.url)));
+  return { analysis, linkedDocs: docSections.filter((section) => linkedUrls.has(normalizeDocUrl(section.url))) };
 }
 
 export async function triageIssue(issue: GithubIssue, ctx: TriageContext): Promise<TriageResult> {
@@ -597,8 +633,16 @@ async function runTriage(issue: GithubIssue, ctx: TriageContext, costs: CostTrac
     .join('\n');
 
   // Every comment must get past the critic before it is posted.
-  const post = async (outcome: Outcome, comment: string, reason: string, extra: Partial<TriageResult> = {}, linkedIssue?: string, extraFacts: string[] = []): Promise<TriageResult> => {
-    const critic = await runCritic(ctx, costs, prepared, outcome, [facts, ...extraFacts].filter(Boolean).join('\n'), comment, gates, linkedIssue);
+  const post = async (
+    outcome: Outcome,
+    comment: string,
+    reason: string,
+    extra: Partial<TriageResult> = {},
+    linkedIssue?: string,
+    extraFacts: string[] = [],
+    linkedDocs: DocSection[] = [],
+  ): Promise<TriageResult> => {
+    const critic = await runCritic(ctx, costs, prepared, outcome, [facts, ...extraFacts].filter(Boolean).join('\n'), comment, gates, linkedIssue, linkedDocs);
     return critic.score >= CRITIC_MIN_SCORE
       ? result('comment', outcome, reason, { ...extra, comment, critic, labels: [`${LABELS.outcomePrefix}${outcome}`, LABELS.awaitingFeedback] })
       : result('assign', outcome, `critic score ${critic.score} below ${CRITIC_MIN_SCORE}`, { ...extra, critic, draft: comment });
@@ -621,14 +665,16 @@ async function runTriage(issue: GithubIssue, ctx: TriageContext, costs: CostTrac
   }
 
   // 2. Duplicate of an existing issue?
-  const duplicate = await checkDuplicate(ctx, costs, prepared, gates);
+  const { duplicate, related } = await checkDuplicate(ctx, costs, prepared, gates);
   if (duplicate) {
     const posted = await post('duplicate', buildDuplicateComment(duplicate, duplicate.why, ctx.commentContext), `duplicate of #${duplicate.number}`, {}, duplicate.excerpt);
     if (posted.action === 'comment') return posted;
   }
 
+  if (related && !duplicate) gates.push(`duplicate: #${related.number} passed to the analysis as possibly related`);
+
   // 3. Analysis (bug diagnosis / feature analysis / docs answer).
-  const analysis = await runAnalysis(ctx, costs, prepared, latest, gates, tariff);
+  const { analysis, linkedDocs } = await runAnalysis(ctx, costs, prepared, latest, gates, tariff, related);
   const extra = { analysis, evidenceFiles: analysis.evidence.map((e) => e.file), newTitle: retitle(prepared.issue.title, analysis.suggested_title, gates) };
 
   if (analysis.outcome === 'none') {
@@ -658,5 +704,5 @@ async function runTriage(issue: GithubIssue, ctx: TriageContext, costs: CostTrac
   const autoQuestionFact = extraQuestions.length
     ? ['- The last checklist item (asking the reporter to confirm on the latest release) was added automatically because they are behind - do not count it against the draft.']
     : [];
-  return post(analysis.outcome, buildAnalysisComment(analysis, ctx.commentContext, extraQuestions), `${analysis.outcome} passed all gates`, extra, undefined, autoQuestionFact);
+  return post(analysis.outcome, buildAnalysisComment(analysis, ctx.commentContext, extraQuestions), `${analysis.outcome} passed all gates`, extra, undefined, autoQuestionFact, linkedDocs);
 }

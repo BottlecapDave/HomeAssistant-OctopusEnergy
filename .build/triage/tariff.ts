@@ -83,7 +83,9 @@ export async function checkTariffs(tariffField: string, at: string | undefined):
         result.problems.push('no_rates');
         result.facts.push(`- Octopus Energy's public API returned no unit rates for tariff ${tariff.code} between ${from} and ${to} (around when the issue was opened).`);
       } else {
-        result.facts.push(`- Octopus Energy's public API returned ${count} unit rate(s) for tariff ${tariff.code} between ${from} and ${to}, so its rates were published.`);
+        result.facts.push(
+          `- Octopus Energy's public API returned ${count} unit rate(s) for tariff ${tariff.code} between ${from} and ${to}, so Octopus published its rates. This says nothing about whether this integration processed or passed them on correctly.`,
+        );
       }
     } catch (error) {
       result.gates.push(`tariff: check for ${tariff.code} failed (${(error as Error).message})`);

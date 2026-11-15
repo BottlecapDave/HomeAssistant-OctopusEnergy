@@ -292,8 +292,16 @@ function isAllowedRedirectHost(url: URL): boolean {
  * (or without a declared size) are skipped, and the content is only ever treated as text.
  */
 export async function fetchAttachmentLogs(body: string): Promise<Array<{ name: string; text: string }>> {
-  const urls = Array.from(new Set(body.match(ATTACHMENT_URL) ?? []))
-    .filter((url) => /\.(log|txt)$/i.test(new URL(url).pathname))
+  // The same file is often linked twice with differently-encoded names (e.g. the link text and its
+  // URL), so dedupe by GitHub's file id rather than the URL string.
+  const byFileId = new Map<string, string>();
+  for (const url of body.match(ATTACHMENT_URL) ?? []) {
+    const id = url.match(/\/files\/(\d+)\//)?.[1] ?? url;
+    if (!byFileId.has(id)) byFileId.set(id, url);
+  }
+  const urls = Array.from(byFileId.values())
+    // .json: the FAQ asks reporters to attach the diagnostics download, which is a JSON file.
+    .filter((url) => /\.(log|txt|json)$/i.test(new URL(url).pathname))
     .slice(0, MAX_ATTACHMENTS);
 
   const results: Array<{ name: string; text: string }> = [];
@@ -318,7 +326,10 @@ export async function fetchAttachmentLogs(body: string): Promise<Array<{ name: s
         console.warn(`Skipping attachment ${url}: size ${size || 'unknown'} exceeds limit`);
         continue;
       }
-      results.push({ name: decodeURIComponent(new URL(url).pathname.split('/').pop() ?? 'attachment'), text: await response.text() });
+      const text = await response.text();
+      // Reporters sometimes upload the same file twice (#1948).
+      if (results.some((existing) => existing.text === text)) continue;
+      results.push({ name: decodeURIComponent(new URL(url).pathname.split('/').pop() ?? 'attachment'), text });
     } catch (error) {
       console.warn(`Skipping attachment ${url}: ${(error as Error).message}`);
     }
