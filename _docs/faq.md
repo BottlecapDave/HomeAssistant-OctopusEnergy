@@ -59,7 +59,7 @@ For intelligent tariffs, this sensor will turn on when you're within the standar
 
 Depending on your [account configuration](./setup/account.md#intelligent-rates-mode), what is determined as an active dispatching period will change. If you have configured to accept [planned or started dispatches](./setup/account.md#planned-and-started-dispatches-will-turn-into-off-peak-rates), then the sensor will turn on when you're are within an active planned or started dispatch period. If you have configured to accept [only started dispatches](./setup/account.md#only-started-dispatches-will-turn-into-off-peak-rates), then the sensor will turn on when you're are within an active started dispatch period, but not planned dispatch.
 
-This above does not apply and will not come on outside of the standard off peak hours for the following intelligent providers
+The above does not apply, and the sensor will not come on outside of the standard off peak hours, if your intelligent device uses one of the following providers (the make of charger or car that Octopus Energy controls, e.g. an Ohme charger)
 
 * OHME
 
@@ -217,7 +217,7 @@ Octopus Energy only provide basic rate information for all tariffs (e.g. off pea
 
 Unfortunately, planned dispatches are not available for certain providers. In these scenarios, rate information cannot be manually adjusted and therefore cost sensors will be incorrect in these scenarios. See the [dispatching sensor](./entities/intelligent.md#is-dispatching) for information on which intelligent providers this applies to.
 
-If the cost sensors are out and you are not on an effected intelligent providers, then please raise an issue.
+If the cost sensors are out and your intelligent device doesn't use one of the affected providers, then please raise an issue.
 
 ## I'm having issues with a sensor. Is there any way I can see the attributes for a certain point in time?
 
@@ -253,11 +253,13 @@ There are no plans to change this. If you are wanting to drive automations, it i
 
 ## Do you support older versions of the integration?
 
-Due to time constraints, I will only ever support the latest version of the integration. If you have an issue with an older version of the integration, my initial answer will always be to update to the latest version. This might be different to what HACS is reporting if you are not on the minimum supported Home Assistant version (which is highlighted in each release's changelog). 
+Due to time constraints, I will only ever support the latest version of the integration. If you have an issue with an older version of the integration, my initial answer will always be to update to the latest version. This might be different to what the Marketplace (or HACS) is reporting if you are not on the minimum supported Home Assistant version (which is highlighted in each release's changelog). 
 
 ## How do I know when there's an update available?
 
-If you've installed via HACS, and you are on version 2 or above, then updates will be surfaced in the normal update location within Home Assistant. If you are on a version below 2, then you can keep an eye on `sensor.hacs` to see the number of pending updates. This could be used with an automation or highlighted on your dashboard. This will include any HACS integration update, not just this one.
+If you've installed via the Marketplace (Home Assistant 2026.11 and above), then updates will be surfaced alongside Home Assistant's own updates under [Settings > Updates](https://my.home-assistant.io/redirect/updates/). The Marketplace checks for new versions every 6 hours. Once an update is installed, a repair will let you know when Home Assistant needs restarting.
+
+If you've installed via HACS (Home Assistant 2026.10 and below), and you are on HACS version 2 or above, then updates will be surfaced in the normal update location within Home Assistant. If you are on a HACS version below 2, then you can keep an eye on `sensor.hacs` to see the number of pending updates. This could be used with an automation or highlighted on your dashboard. This will include any HACS integration update, not just this one.
 
 If you've installed the integration manually, then you should keep an eye on the [GitHub releases](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases). You could even subscribe to the [RSS feed](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases.atom).
 
@@ -265,17 +267,24 @@ If you've installed the integration manually, then you should keep an eye on the
 
 If you install the integration manually, it's just a case of getting the source of the [beta release](https://github.com/BottlecapDave/HomeAssistant-OctopusEnergy/releases), replacing the old installation with the new one and restarting Home Assistant.
 
-If you install the integration via HACS, then you will need to
+If you install the integration via the Marketplace (Home Assistant 2026.11 and above), you can either
+
+* Follow every beta release by [opening the integration in the Marketplace](https://my.home-assistant.io/redirect/marketplace_repository/?owner=BottlecapDave&repository=homeassistant-octopusenergy&category=integration) and turning on its `Pre-release` switch. This is disabled by default, so you may need to enable the `Pre-release` entity first. Beta releases will then be offered as normal updates under [Settings > Updates](https://my.home-assistant.io/redirect/updates/).
+* Install a specific beta by [opening the integration in the Marketplace](https://my.home-assistant.io/redirect/marketplace_repository/?owner=BottlecapDave&repository=homeassistant-octopusenergy&category=integration), clicking the three dots, selecting `Install another version` and choosing your target pre-release version.
+
+Once installed, you'll need to restart Home Assistant for the new version to take effect. To go back to a stable release, turn the `Pre-release` switch off and install the latest stable version.
+
+If you install the integration via HACS (Home Assistant 2026.10 and below), then you will need to
 
 * Go to [HACS](https://my.home-assistant.io/redirect/hacs_repository/?owner=BottlecapDave&repository=homeassistant-octopusenergy&category=integration), click on the three dots and then click redownload
 
 ![Redownload screen in HACS](./assets/beta-hacs-redownload.png)
 
-* If you are on version 2 or above, then click on `Need a different version?` and select the `Release` box and then select your target `pre-release` version
+* If you are on HACS version 2 or above, then click on `Need a different version?` and select the `Release` box and then select your target `pre-release` version
 
 ![Beta toggle in HACS](./assets/beta-hacs-pre-release.png)
 
-If you are on a version below 2, then toggle on `Show beta versions` and select the target beta. Once selected, click `Download`.
+If you are on a HACS version below 2, then toggle on `Show beta versions` and select the target beta. Once selected, click `Download`.
 
 ![Beta toggle in HACS](./assets/beta-hacs-beta-toggle.png)
 

@@ -1,0 +1,36 @@
+name: Triage feedback
+
+# GitHub doesn't trigger workflows on reactions, so reactions to AI triage comments are polled.
+# 👍 from the reporter/maintainer closes reporter-resolvable issues; 👎 assigns the maintainer.
+on:
+  schedule:
+    # Twice a day (08:00 and 18:00 UTC)
+    - cron: "0 8,18 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  feedback:
+    if: ${{ github.repository_owner == 'BottlecapDave' }}
+    name: Process triage feedback
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .tool-versions
+      - name: Install dependencies
+        run: npm ci
+      - name: Process feedback
+        run: npm run triage-feedback
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

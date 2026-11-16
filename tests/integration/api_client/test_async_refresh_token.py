@@ -27,6 +27,10 @@ async def test_when_token_is_expired_then_token_is_refreshed_raised():
     assert account is not None
     assert octoplus is not None
 
+    # Kraken JWTs only contain second-resolution claims (iat/exp) and no unique id, so a token issued
+    # within the same second as the previous one is byte-for-byte identical. Wait so the new token differs.
+    await asyncio.sleep(1.1)
+
     # Make our api key invalid and test refreshing the token works
     client._graphql_expiration = utcnow() - timedelta(seconds=1)
     client._graphql_refresh_expiration = utcnow() - timedelta(seconds=1)

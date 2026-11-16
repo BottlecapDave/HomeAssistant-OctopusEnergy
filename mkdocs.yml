@@ -5,47 +5,43 @@ docs_dir: _docs
 nav:
   - Home: index.md
   - Setup:
-    - ./setup/account.md
-    - ./setup/cost_tracker.md
-    - ./setup/tariff_comparison.md
-    - ./setup/energy_dashboard.md
+    - setup/account.md
+    - setup/cost_tracker.md
+    - setup/tariff_comparison.md
+    - setup/energy_dashboard.md
   - Entities:
-    - Electricity: ./entities/electricity.md
-    - Gas: ./entities/gas.md
-    - Octoplus: ./entities/octoplus.md
-    - Intelligent: ./entities/intelligent.md
-    - Wheel Of Fortune: ./entities/wheel_of_fortune.md
-    - Home Pro: ./entities/home_pro.md
-    - Heat Pump: ./entities/heat_pump.md
-    - Charge Pack: ./entities/charge_pack.md
-    - Diagnostics: ./entities/diagnostics.md
+    - Electricity: entities/electricity.md
+    - Gas: entities/gas.md
+    - Octoplus: entities/octoplus.md
+    - Intelligent: entities/intelligent.md
+    - Wheel Of Fortune: entities/wheel_of_fortune.md
+    - Home Pro: entities/home_pro.md
+    - Heat Pump: entities/heat_pump.md
+    - Charge Pack: entities/charge_pack.md
+    - Diagnostics: entities/diagnostics.md
   - Migrations:
-    - ./migrations/target_timeframes.md
+    - migrations/target_timeframes.md
   - services.md
   - events.md
   - Repairs:
-    - ./repairs/account_not_found.md
-    - ./repairs/octopus_mini_not_valid.md
-    - ./repairs/unknown_product.md
-    - ./repairs/cost_override_obsolete.md
-    - ./repairs/unknown_intelligent_provider.md
-    - ./repairs/no_active_tariff.md
-    - ./repairs/meter_removed.md
-    - ./repairs/tariff_rates_empty.md
+    - repairs/account_not_found.md
+    - repairs/octopus_mini_not_valid.md
+    - repairs/unknown_product.md
+    - repairs/cost_override_obsolete.md
+    - repairs/unknown_intelligent_provider.md
+    - repairs/no_active_tariff.md
+    - repairs/meter_removed.md
+    - repairs/tariff_rates_empty.md
   - Community: community.md
   - blueprints.md
   - Architecture Decision Records:
-    - ./architecture_decision_records/0001_target_rates_removal.md
-    - ./architecture_decision_records/0002_intelligent_is_dispatching_behaviour_changes.md
-    - ./architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events.md
-    - ./architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md
+    - architecture_decision_records/0001_target_rates_removal.md
+    - architecture_decision_records/0002_intelligent_is_dispatching_behaviour_changes.md
+    - architecture_decision_records/0003_move_to_calendar_entities_for_octoplus_events.md
+    - architecture_decision_records/0004_rename_saving_sessions_free_electricity_sessions.md
   - faq.md
   - sponsorship.md
   - Other Integrations: https://bottlecapdave.github.io/HomeAssistant-Integrations
-
-# extra:
-#   version:
-#     provider: mike
 
 markdown_extensions:
   - admonition
@@ -57,8 +53,6 @@ markdown_extensions:
 
 plugins:
   - search
-  - git-authors:
-      show_email_address: false
 
 theme:
   name: material

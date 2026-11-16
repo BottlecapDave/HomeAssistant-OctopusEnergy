@@ -2549,7 +2549,7 @@ class OctopusEnergyApiClient:
           self._graphql_token = None
           self._graphql_expiration = None
           self._graphql_refresh_token = None
-          self._graphql_refresh_token_expiration = None
+          self._graphql_refresh_expiration = None
           _LOGGER.warning(msg)
           raise AuthenticationException(msg, [])
       elif response.status not in [404]:

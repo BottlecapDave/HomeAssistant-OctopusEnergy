@@ -1,8 +1,6 @@
 name: Unknown intelligent provider
 description: You have been notified of an unknown intelligent provider within HA and want to help resolve the issue.
 labels: ["enhancement"]
-assignees:
-  - BottlecapDave
 body:
   - type: input
     id: provider
@@ -51,8 +49,8 @@ body:
     attributes:
       label: AI Triage
       description: >-
-        This repository uses an AI assistant to help triage new issues (for example, suggesting relevant GraphQL
-        API endpoints that could implement the feature). This is optional - if you don't consent, your issue is
+        This repository uses an AI assistant to help triage new issues (for example, checking
+        whether the provider is already supported in a newer version). This is optional - if you don't consent,
         your issue is still triaged by the maintainer as normal, just without the automated help.
       options:
         - label: I consent to this issue, including any text I provide, being processed by an AI assistant for automated triage

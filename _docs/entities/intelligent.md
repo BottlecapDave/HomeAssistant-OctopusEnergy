@@ -22,11 +22,11 @@ Depending on your [account configuration](../setup/account.md#intelligent-rates-
 
 !!! warning
 
-    This sensor is only partially supported for the following intelligent providers
+    This sensor is only partially supported for the following intelligent providers (the make of charger or car that Octopus Energy controls for you, e.g. an Ohme charger - not your energy supplier)
 
     * OHME
 
-    If you are supplied by one of the above providers, this sensor will never turn on. 
+    If your intelligent device uses one of the above providers, this sensor will never turn on. 
 
 !!! info
 
