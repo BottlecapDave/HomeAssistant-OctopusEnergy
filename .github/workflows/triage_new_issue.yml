@@ -13,7 +13,7 @@ jobs:
     if: ${{ github.repository_owner == 'BottlecapDave' }}
     name: Triage issue
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
       contents: read
       issues: write
@@ -28,4 +28,7 @@ jobs:
         run: npm run triage-new-issue
         env:
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY_AI_TRIAGE }}
+          # Optional repo variables to override the defaults in .build/triage/config.ts
+          OPENROUTER_ANALYSIS_MODEL: ${{ vars.TRIAGE_ANALYSIS_MODEL }}
+          OPENROUTER_FILTER_MODEL: ${{ vars.TRIAGE_FILTER_MODEL }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -18,14 +18,27 @@ Below are the main features of the integration
 
 There are multiple ways of installing the integration. Once you've installed the integration, you'll need to [setup your account](#how-to-setup) before you can use the integration.
 
-### HACS
+### Marketplace (Home Assistant 2026.11 and above)
+
+[![Open your Home Assistant instance and open this repository in the Marketplace.](https://my.home-assistant.io/badges/marketplace_repository.svg)](https://my.home-assistant.io/redirect/marketplace_repository/?owner=BottlecapDave&repository=homeassistant-octopusenergy&category=integration)
+
+From Home Assistant 2026.11, HACS is built into Home Assistant as the Marketplace, found under `Settings` > `Marketplace`. This integration is available in the Marketplace catalog. To install:
+
+* [Open the integration](https://my.home-assistant.io/redirect/marketplace_repository/?owner=BottlecapDave&repository=homeassistant-octopusenergy&category=integration) in the Marketplace, or search for `Octopus Energy` under `Settings` > `Marketplace`
+* If this is your first time using the Marketplace, read the notice and accept it
+* Click `Install`, which takes you straight into the [account setup](#how-to-setup)
+
+If you previously installed the integration via HACS, Home Assistant moves it into the Marketplace automatically when you upgrade to 2026.11, so you don't need to reinstall.
+
+### HACS (Home Assistant 2026.10 and below)
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg?style=for-the-badge)](https://github.com/hacs/integration)
 
-This integration can be installed directly via HACS. To install:
+If you're on a version of Home Assistant before 2026.11, this integration can be installed directly via HACS. To install:
 
 * [Add the repository](https://my.home-assistant.io/redirect/hacs_repository/?owner=BottlecapDave&repository=homeassistant-octopusenergy&category=integration) to your HACS installation
 * Click `Download`
+* Restart Home Assistant
 
 ### Manual
 

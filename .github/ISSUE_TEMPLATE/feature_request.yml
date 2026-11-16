@@ -1,8 +1,6 @@
 name: Feature Request
 description: Request a new feature to help improve the integration
 labels: ["enhancement"]
-assignees:
-  - BottlecapDave
 body:
   - type: textarea
     id: description
@@ -39,7 +37,7 @@ body:
       label: AI Triage
       description: >-
         This repository uses an AI assistant to help triage new issues (for example, suggesting relevant GraphQL
-        API endpoints that could implement the feature). This is optional - if you don't consent, your issue is
+        API endpoints that could implement the feature). This is optional - if you don't consent,
         your issue is still triaged by the maintainer as normal, just without the automated help.
       options:
         - label: I consent to this issue, including any text I provide, being processed by an AI assistant for automated triage

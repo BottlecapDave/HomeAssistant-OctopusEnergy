@@ -1,0 +1,15 @@
+## Output
+Respond with ONLY a JSON object with exactly these fields (use "" / [] / 0 when a field does not apply):
+- "outcome": one of {{OUTCOMES}}.
+- "reporter_message": 1-3 sentences for the reporter in plain English (see rule 10): what this means for them and what, if anything, they should do next. Shown first, publicly.
+- "summary": up to 3 sentences of NEW technical information for the maintainer (see rule 1). Shown in a collapsed section.
+- "new_findings": short list of additional new facts you established, each one sentence.
+- "evidence": [{"file", "start_line", "end_line", "quote", "why"}] - see rule 3. "why" says what the quoted code shows.
+- "suggested_fix": concrete change (what to change, where, and why) or "".
+- "questions_for_reporter": [{"ask", "why", "graphql_query"}] - see rules 7 and 8. Required for "needs_info". "graphql_query" is "" unless the question asks the reporter to run a query.
+- "doc_links": [{"url", "quote"}] - see rule 3.
+- "issue_quote": for "wrong_repo" only: the exact words from the reporter's own text (title, description, entity ids or version field - NOT logs) that show the problem is not with this integration. Otherwise "".
+- "other_integration": for "wrong_repo" only: the other integration's domain (e.g. "target_timeframes"), "home_assistant", "user_configuration" or "unknown" - see the notes. Otherwise "".
+- "graphql_fields": for "implementation_notes" only: exact field names from the schema summary (e.g. "account" or "account.properties"). Otherwise [].
+- "suggested_title": if the issue's title is too vague to tell what it is about from the issue list (e.g. "Bug report", "Integration broken", "Error after updating"), a short, specific English title naming the affected feature or entity and the symptom as the reporter describes it, e.g. "Cost tracker unique ID already in use after upgrading to v19.0.1". At most 80 characters; describe the symptom, never your diagnosis; no account numbers, meter serials, MPANs/MPRNs, names or links. Otherwise "".
+- "confidence": a number from 0 to 1 using the rubric.
