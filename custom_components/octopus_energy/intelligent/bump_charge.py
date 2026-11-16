@@ -1,6 +1,7 @@
 import logging
 
 from homeassistant.const import (
+    STATE_ON,
     STATE_UNAVAILABLE,
     STATE_UNKNOWN,
 )
@@ -115,7 +116,7 @@ class OctopusEnergyIntelligentBumpCharge(CoordinatorEntity, SwitchEntity, Octopu
     state = await self.async_get_last_state()
 
     if state is not None:
-      self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state
+      self._state = None if state.state in (STATE_UNAVAILABLE, STATE_UNKNOWN) else state.state == STATE_ON
       self._attributes = dict_to_typed_dict(state.attributes)
     
     if (self._state is None):
