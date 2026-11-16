@@ -86,10 +86,10 @@ async def async_refresh_charge_pack_dispatches(
                                                        status=existing_result.status, status_retrieved=existing_result.status_retrieved,
                                                        telemetry=existing_result.telemetry, telemetry_retrieved=existing_result.telemetry_retrieved)
         if result.request_attempts == 2:
-          _LOGGER.warning(f'Failed to retrieve the charge pack dispatches for {device_id} - using cached data. See diagnostics sensor for more information.')
+          _LOGGER.warning('Failed to retrieve the charge pack dispatches - using cached data. See diagnostics sensor for more information.')
         return result
 
-      _LOGGER.warning(f'Failed to retrieve the charge pack dispatches for {device_id}. See diagnostics sensor for more information.')
+      _LOGGER.warning('Failed to retrieve the charge pack dispatches. See diagnostics sensor for more information.')
       return ChargePackDispatchesCoordinatorResult(
         # We want to force into our fallback mode
         current - timedelta(minutes=REFRESH_RATE_IN_MINUTES_CHARGE_PACK),

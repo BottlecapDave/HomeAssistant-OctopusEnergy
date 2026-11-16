@@ -30,7 +30,7 @@ async def async_load_cached_charge_pack_history(hass, device_id: str) -> list[Ch
     if data is not None:
       return [ChargePackDispatch.from_dict(item) for item in data["history"]]
   except:
-    _LOGGER.warning(f"Failed to load the charge pack history for {device_id}")
+    _LOGGER.warning("Failed to load the charge pack history")
   return []
 
 async def async_save_cached_charge_pack_history(hass, device_id: str, history: list[ChargePackDispatch]):

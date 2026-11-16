@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+import logging
 import pytest
 import mock
 
@@ -182,6 +183,27 @@ async def test_when_request_fails_and_no_existing_result_then_empty_result_retur
   assert result.history == []
   assert result.status is None
   assert result.telemetry is None
+
+@pytest.mark.asyncio
+async def test_when_request_fails_then_the_warning_does_not_name_the_device(caplog):
+  caplog.set_level(logging.WARNING)
+  existing_result = ChargePackDispatchesCoordinatorResult(last_retrieved, 1, [get_dispatch(60, 120)], [])
+
+  await refresh(RequestException("foo", []), existing_result)
+
+  assert "Failed to retrieve the charge pack dispatches - using cached data" in caplog.text
+  assert device_id not in caplog.text
+  assert account_id not in caplog.text
+
+@pytest.mark.asyncio
+async def test_when_request_fails_and_no_existing_result_then_the_warning_does_not_name_the_device(caplog):
+  caplog.set_level(logging.WARNING)
+
+  await refresh(RequestException("foo", []), None)
+
+  assert "Failed to retrieve the charge pack dispatches." in caplog.text
+  assert device_id not in caplog.text
+  assert account_id not in caplog.text
 
 @pytest.mark.asyncio
 async def test_when_unexpected_error_then_it_is_raised():
