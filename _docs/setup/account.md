@@ -95,6 +95,8 @@ With newer intelligent tariffs, a [6 hour cap](https://octopus.energy/blog/intel
 
 With this setting enabled, any rates where planned charges are scheduled but exceed the day's 6 hour cap won't be automatically adjusted to off peak rates. If you are driving automations from the "off peak" sensor or rate information and you're on one of these tariffs, it is advised to turn this setting on
 
+This setting also applies to the rates used by the previous consumption cost sensors.
+
 !!! warning
 
     This is an artificial restriction imposed by the integration and is separate from the restriction setting within the OE app. You can have this enabled in the integration but disabled within the app and vice versa.
