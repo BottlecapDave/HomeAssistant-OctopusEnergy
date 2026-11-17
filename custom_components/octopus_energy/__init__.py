@@ -2,7 +2,11 @@ import logging
 from datetime import datetime, timedelta
 
 import voluptuous as vol
+import aiohttp
 import homeassistant.helpers.config_validation as cv
+from homeassistant.helpers.aiohttp_client import async_create_clientsession
+from .api_client import user_agent_value
+from .const import INTEGRATION_VERSION
 
 from homeassistant.core import SupportsResponse
 from homeassistant.exceptions import ConfigEntryNotReady, ServiceValidationError
@@ -311,7 +315,17 @@ async def async_setup_dependencies(hass, config, entry_id: str | None = None):
 
   # Close any existing clients, as our new client may have changed
   await _async_close_client(hass, account_id)
-  client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap, favour_direct_debit_rates=favour_direct_debit_rates)
+  # Use a Home Assistant managed session rather than a private one. HA configures
+  # and looks after the DNS resolver and connector; a private aiohttp session
+  # inside HA was observed to wedge for days (every request hanging until the
+  # timeout, on both API hosts, until the entry was reloaded).
+  session = async_create_clientsession(
+    hass,
+    headers={ "user-agent": f'{user_agent_value}/{INTEGRATION_VERSION}' },
+    skip_auto_headers=['User-Agent'],
+    timeout=aiohttp.ClientTimeout(total=60, sock_connect=20, sock_read=20),
+  )
+  client = OctopusEnergyApiClient(config[CONFIG_MAIN_API_KEY], electricity_price_cap, gas_price_cap, favour_direct_debit_rates=favour_direct_debit_rates, session=session)
   hass.data[DOMAIN][account_id][DATA_CLIENT] = client
 
   if (CONFIG_MAIN_HOME_PRO_SETTINGS in config and
