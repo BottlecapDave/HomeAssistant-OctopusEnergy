@@ -797,7 +797,7 @@ def calculate_token_retrieval_cooldown(failure_count: int) -> timedelta:
 
 class OctopusEnergyApiClient:
 
-  def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None, timeout_in_seconds = 20, favour_direct_debit_rates = True):
+  def __init__(self, api_key, electricity_price_cap = None, gas_price_cap = None, timeout_in_seconds = 20, favour_direct_debit_rates = True, session: aiohttp.ClientSession | None = None):
     if (api_key is None):
       raise Exception('API KEY is not set')
 
@@ -817,10 +817,16 @@ class OctopusEnergyApiClient:
     self._gas_price_cap = gas_price_cap
     self._favour_direct_debit_rates = favour_direct_debit_rates
 
-    self._timeout = aiohttp.ClientTimeout(total=None, sock_connect=timeout_in_seconds, sock_read=timeout_in_seconds)
+    # total bounds everything a request can wait on (DNS, pool, connect, read); the
+    # per-phase limits keep a single stalled phase from eating the whole budget.
+    self._timeout = aiohttp.ClientTimeout(total=max(60, timeout_in_seconds * 3), sock_connect=timeout_in_seconds, sock_read=timeout_in_seconds)
     self._default_headers = { "user-agent": f'{user_agent_value}/{INTEGRATION_VERSION}' }
 
-    self._session = None
+    # A session supplied by the caller (Home Assistant's managed session) is
+    # preferred: HA owns its resolver and connector and keeps them healthy. A
+    # private session is only created when none is given (config flow, tests).
+    self._session = session
+    self._owns_session = session is None
     self._is_api_key_invalid = False
     self._token_retrieval_failures = 0
     self._token_retrieval_cooldown_until = None
@@ -832,7 +838,7 @@ class OctopusEnergyApiClient:
 
   async def async_close(self):
     async with self._session_lock:
-      if self._session is not None:
+      if self._session is not None and self._owns_session:
         await self._session.close()
 
   async def _create_client_session(self):
@@ -843,7 +849,7 @@ class OctopusEnergyApiClient:
       if self._session is not None:
         return self._session
       
-      self._session = aiohttp.ClientSession(headers=self._default_headers, skip_auto_headers=['User-Agent'])
+      self._session = aiohttp.ClientSession(headers=self._default_headers, skip_auto_headers=['User-Agent'], timeout=self._timeout)
       return self._session
 
   async def async_refresh_token(self):
