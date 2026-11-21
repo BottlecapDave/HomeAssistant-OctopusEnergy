@@ -217,3 +217,13 @@ async def test_when_api_returns_out_of_period_telemetry_then_it_is_filtered():
   )
 
   assert [item["demand"] for item in result] == [200]
+
+
+def test_when_clocks_go_back_then_both_readings_for_the_repeated_hour_are_kept():
+  result = normalize_smart_meter_telemetry_response(telemetry_response([
+    {"readAt": "2026-10-25T01:00:00+01:00", "consumptionDelta": "100"},
+    {"readAt": "2026-10-25T01:00:00+00:00", "consumptionDelta": "200"},
+  ]))
+
+  assert [item["consumption"] for item in result] == [0.1, 0.2]
+  assert result[0]["start"] != result[1]["start"]

@@ -30,8 +30,9 @@ class CurrentConsumptionCoordinatorResult(BaseCoordinatorResult):
   def __init__(self, last_evaluated: datetime, request_attempts: int, refresh_rate_in_minutes: float, data: list, last_error: Exception | None = None, last_retrieved: datetime | None | object = _LAST_RETRIEVED_UNSET, latest_reading: datetime | None = None, first_missing_at: datetime | None = None, status: str = "fresh", last_good_data: list | None = None):
     actual_last_retrieved = last_evaluated if last_retrieved is _LAST_RETRIEVED_UNSET else last_retrieved
     super().__init__(last_evaluated, request_attempts, refresh_rate_in_minutes, actual_last_retrieved, last_error)
-    # BaseCoordinatorResult uses last_evaluated as a default. For Home Mini data,
-    # no timestamp is more truthful until a usable telemetry response arrives.
+    # BaseCoordinatorResult treats a last_retrieved of None as "use last_evaluated". For the Home Mini,
+    # we evaluate (i.e. call the API) even when no telemetry comes back, so last_retrieved must be able to stay
+    # None (or keep the time of the last usable telemetry) rather than moving forward on every empty response.
     self.last_retrieved = actual_last_retrieved
     self.data = data
     self.latest_reading = latest_reading
@@ -196,26 +197,20 @@ async def async_create_current_consumption_coordinator(hass, account_id: str, cl
   coordinator_key = DATA_CURRENT_CONSUMPTION_COORDINATOR_KEY.format(device_id)
   meter_details = f"{meter_type} ({meter_point}/{serial_number})"
 
-  if coordinator_key in hass.data[DOMAIN][account_id]:
-    existing_coordinator = hass.data[DOMAIN][account_id][coordinator_key]
-    existing_coordinator.home_mini_refresh_rate_in_minutes = min(existing_coordinator.home_mini_refresh_rate_in_minutes, refresh_rate_in_minutes)
-    existing_coordinator.home_mini_meter_details.add(meter_details)
-    return existing_coordinator
-
+  # Reset data as we might have new information
   hass.data[DOMAIN][account_id][key] = None
 
   async def async_update_data():
     """Fetch data from API endpoint."""
     current: datetime = now()
     previous_consumption = hass.data[DOMAIN][account_id][key] if key in hass.data[DOMAIN][account_id] else None
-    effective_refresh_rate = coordinator.home_mini_refresh_rate_in_minutes
     hass.data[DOMAIN][account_id][key] = await async_get_live_consumption(
       current,
       client,
       device_id,
       previous_consumption,
-      effective_refresh_rate,
-      lambda: raise_home_mini_data_stale(hass, account_id, device_id, ", ".join(sorted(coordinator.home_mini_meter_details))),
+      refresh_rate_in_minutes,
+      lambda: raise_home_mini_data_stale(hass, account_id, device_id, meter_details),
       lambda: clear_home_mini_data_stale(hass, device_id),
     )
     
@@ -229,8 +224,7 @@ async def async_create_current_consumption_coordinator(hass, account_id: str, cl
     update_interval=timedelta(seconds=COORDINATOR_REFRESH_IN_SECONDS),
     always_update=True
   )
-  coordinator.home_mini_refresh_rate_in_minutes = refresh_rate_in_minutes
-  coordinator.home_mini_meter_details = {meter_details}
 
+  # Tracked so any outstanding stale data repairs can be cleared when the account is unloaded
   hass.data[DOMAIN][account_id][coordinator_key] = coordinator
   return coordinator

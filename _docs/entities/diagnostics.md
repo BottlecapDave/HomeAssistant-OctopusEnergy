@@ -33,7 +33,6 @@ This sensor states when the integration last received new Home Mini current cons
 | `last_error` | `string` | The error that was raised to cause the last retrieval attempt to fail |
 | `status` | `string` | The telemetry status: `fresh`, `unchanged`, `empty`, `stale`, or `error` |
 | `latest_reading` | `datetime` | The timestamp of the newest Home Mini reading |
-| `latest_reading_age_in_minutes` | `float` | The age of the newest Home Mini reading in minutes |
 | `first_missing_at` | `datetime` | The timestamp when an uninterrupted run of empty responses started |
 
 ## Current Consumption Home Pro Data Last Retrieved
