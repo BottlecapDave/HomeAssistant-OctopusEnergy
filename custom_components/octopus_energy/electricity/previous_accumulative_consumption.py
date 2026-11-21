@@ -23,6 +23,7 @@ from homeassistant.util.dt import (utcnow)
 
 from . import (
   calculate_electricity_consumption_and_cost,
+  raise_if_rates_missing,
 )
 
 from .base import (OctopusEnergyElectricitySensor)
@@ -145,6 +146,8 @@ class OctopusEnergyPreviousAccumulativeElectricityConsumption(CoordinatorEntity,
       self._last_reset,
       target_rate=target_rate
     )
+
+    raise_if_rates_missing(consumption_and_cost)
 
     if (consumption_and_cost is not None):
       _LOGGER.debug(f"Calculated previous electricity consumption for '{self._mpan}/{self._serial_number}' ({self.unique_id})...")

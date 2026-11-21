@@ -47,18 +47,28 @@ def create_entity(entity_class):
   return entity, rates_coordinator
 
 
-@pytest.mark.parametrize("entity_class", [
-  OctopusEnergyCurrentAccumulativeElectricityConsumption,
-  OctopusEnergyCurrentAccumulativeElectricityCost,
-])
-def test_when_rate_is_missing_then_repeated_updates_are_suppressed_and_complete_rates_recover(entity_class, caplog):
+def test_when_rate_is_missing_then_consumption_continues_to_be_reported():
   # Arrange
-  entity, rates_coordinator = create_entity(entity_class)
+  entity, rates_coordinator = create_entity(OctopusEnergyCurrentAccumulativeElectricityConsumption)
   entity._handle_coordinator_update()
-  previous_value = entity.native_value
-  previous_state = entity._state
-  previous_last_reset = entity._last_reset
-  previous_attributes = entity._attributes
+  expected_consumption = entity.native_value
+
+  rates_coordinator.data.rates.pop(1)
+
+  # Act
+  entity._handle_coordinator_update()
+
+  # Assert
+  assert expected_consumption is not None
+  assert entity.native_value == expected_consumption
+  assert "error" not in entity._attributes
+
+
+def test_when_rate_is_missing_then_cost_is_none_with_error_and_recovers(caplog):
+  # Arrange
+  entity, rates_coordinator = create_entity(OctopusEnergyCurrentAccumulativeElectricityCost)
+  entity._handle_coordinator_update()
+  expected_cost = entity.native_value
 
   missing_rate = rates_coordinator.data.rates.pop(1)
 
@@ -69,27 +79,14 @@ def test_when_rate_is_missing_then_repeated_updates_are_suppressed_and_complete_
 
   # Assert
   assert entity.native_value is None
-  assert entity._state == previous_state
-  assert entity._last_reset == previous_last_reset
-  assert entity._attributes == previous_attributes
-  warning_records = [record for record in caplog.records if record.levelno == logging.WARNING]
-  assert len(warning_records) == 1
-  assert str(missing_rate["start"]) in caplog.text
-  assert str(missing_rate["end"]) in caplog.text
+  assert str(missing_rate["start"]) in entity._attributes["error"]
+  assert [record for record in caplog.records if record.levelno >= logging.WARNING] == []
 
   rates_coordinator.data.rates.insert(1, missing_rate)
   entity._handle_coordinator_update()
 
-  assert entity.native_value == previous_value
-  assert entity._missing_rate_error is None
-  assert entity.async_write_ha_state.call_count == 5
-
-  rates_coordinator.data.rates.pop(1)
-  with caplog.at_level(logging.WARNING):
-    entity._handle_coordinator_update()
-
-  warning_records = [record for record in caplog.records if record.levelno == logging.WARNING]
-  assert len(warning_records) == 2
+  assert entity.native_value == expected_cost
+  assert "error" not in entity._attributes
 
 
 @pytest.mark.parametrize("entity_class, entity_module", [

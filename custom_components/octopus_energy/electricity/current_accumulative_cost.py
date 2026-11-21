@@ -17,7 +17,6 @@ from homeassistant.util.dt import (now)
 
 from . import (
   calculate_electricity_consumption_and_cost,
-  MissingElectricityRateError,
 )
 
 from ..coordinators import MultiCoordinatorEntity
@@ -39,7 +38,6 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
 
     self._state = None
     self._last_reset = None
-    self._missing_rate_error = None
     self._rates_coordinator = rates_coordinator
     self._standing_charge_coordinator = standing_charge_coordinator
     self._peak_type = peak_type
@@ -104,7 +102,7 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
 
   @property
   def native_value(self):
-    return None if self._missing_rate_error is not None else self._state
+    return self._state
   
   @callback
   def _handle_coordinator_update(self) -> None:
@@ -121,28 +119,15 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
       unique_rate_index = get_rate_index(len(unique_rates), self._peak_type)
       target_rate = unique_rates[unique_rate_index] if unique_rate_index is not None else None
 
-    try:
-      consumption_and_cost = calculate_electricity_consumption_and_cost(
-        consumption_data,
-        rate_data,
-        standing_charge if target_rate is None else 0,
-        None, # We want to always recalculate
-        target_rate=target_rate
-      )
-    except MissingElectricityRateError as error:
-      if self._missing_rate_error is None:
-        _LOGGER.warning(
-          "Unable to calculate current electricity cost for '%s/%s': %s. The sensor will recover when complete rate data is available",
-          self._mpan,
-          self._serial_number,
-          error,
-        )
-      self._missing_rate_error = error
-      super()._handle_coordinator_update()
-      return
+    consumption_and_cost = calculate_electricity_consumption_and_cost(
+      consumption_data,
+      rate_data,
+      standing_charge if target_rate is None else 0,
+      None, # We want to always recalculate
+      target_rate=target_rate
+    )
 
     if (consumption_and_cost is not None):
-      self._missing_rate_error = None
       _LOGGER.debug(f"Calculated current electricity consumption cost for '{self._mpan}/{self._serial_number}'...")
       self._last_reset = consumption_and_cost["last_reset"]
       self._state = consumption_and_cost["total_cost"]
@@ -167,6 +152,10 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
       if target_rate is None:
         self._attributes["standing_charge"] = consumption_and_cost["standing_charge"]
         self._attributes["total_without_standing_charge"] = consumption_and_cost["total_cost_without_standing_charge"]
+
+      if consumption_and_cost["error"] is not None:
+        _LOGGER.debug(f"Unable to calculate current electricity cost for '{self._mpan}/{self._serial_number}': {consumption_and_cost['error']}")
+        self._attributes["error"] = consumption_and_cost["error"]
 
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
