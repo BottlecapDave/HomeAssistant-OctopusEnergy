@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 import pytest
 
 from unit import (create_consumption_data, create_rate_data)
-from custom_components.octopus_energy.electricity import calculate_electricity_consumption_and_cost
+from custom_components.octopus_energy.electricity import calculate_electricity_consumption_and_cost, raise_if_rates_missing
 
 @pytest.mark.asyncio
 async def test_when_electricity_consumption_is_none_then_no_calculation_is_returned():
@@ -46,6 +46,66 @@ async def test_when_electricity_rates_is_none_then_no_calculation_is_returned():
 
   # Assert
   assert result is None
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("missing_rate_index", [0, 1, 2], ids=["first", "middle", "last"])
+async def test_when_electricity_rate_is_missing_then_consumption_is_calculated_and_cost_is_none(missing_rate_index):
+  # Arrange
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-02-28T01:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  consumption_data = create_consumption_data(period_from, period_to)
+  rate_data = create_rate_data(period_from, period_to, [50])
+  missing_rate = rate_data.pop(missing_rate_index)
+
+  # Act
+  result = calculate_electricity_consumption_and_cost(
+    consumption_data,
+    rate_data,
+    10.1,
+    None
+  )
+
+  # Assert
+  assert result is not None
+  assert result["total_consumption"] == sum(item["consumption"] for item in consumption_data)
+  assert result["total_cost"] is None
+  assert result["total_cost_without_standing_charge"] is None
+  assert result["missing_rates"] == [{ "start": missing_rate["start"], "end": missing_rate["end"] }]
+  assert result["error"] is not None
+  assert str(missing_rate["start"]) in result["error"]
+
+  assert len(result["charges"]) == len(consumption_data)
+  missing_charge = next(charge for charge in result["charges"] if charge["start"] == missing_rate["start"])
+  assert missing_charge["consumption"] == consumption_data[missing_rate_index]["consumption"]
+  assert missing_charge["rate"] is None
+  assert missing_charge["cost"] is None
+
+  with pytest.raises(Exception, match="Failed to find rates"):
+    raise_if_rates_missing(result)
+
+@pytest.mark.asyncio
+async def test_when_electricity_rate_is_missing_and_target_rate_is_set_then_consumption_is_none():
+  # Arrange
+  period_from = datetime.strptime("2022-02-28T00:00:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  period_to = datetime.strptime("2022-02-28T01:30:00Z", "%Y-%m-%dT%H:%M:%S%z")
+  consumption_data = create_consumption_data(period_from, period_to)
+  rate_data = create_rate_data(period_from, period_to, [50])
+  rate_data.pop(1)
+
+  # Act
+  result = calculate_electricity_consumption_and_cost(
+    consumption_data,
+    rate_data,
+    0,
+    None,
+    target_rate=50
+  )
+
+  # Assert
+  assert result is not None
+  assert result["total_consumption"] is None
+  assert result["total_cost"] is None
+  assert result["error"] is not None
 
 @pytest.mark.asyncio
 async def test_when_electricity_consumption_is_before_latest_date_then_no_calculation_is_returned():

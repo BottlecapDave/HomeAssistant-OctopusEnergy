@@ -153,6 +153,10 @@ class OctopusEnergyCurrentAccumulativeElectricityCost(MultiCoordinatorEntity, Oc
         self._attributes["standing_charge"] = consumption_and_cost["standing_charge"]
         self._attributes["total_without_standing_charge"] = consumption_and_cost["total_cost_without_standing_charge"]
 
+      if consumption_and_cost["error"] is not None:
+        _LOGGER.debug(f"Unable to calculate current electricity cost for '{self._mpan}/{self._serial_number}': {consumption_and_cost['error']}")
+        self._attributes["error"] = consumption_and_cost["error"]
+
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 

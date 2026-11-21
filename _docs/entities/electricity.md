@@ -534,6 +534,7 @@ The total cost for the current day, including the standing charge.
 | `total_without_standing_charge` | `float` | The total cost of the current day excluding the standing charge. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `total` | `float` | The total cost for the current day. This is in pounds and pence (e.g. 1.01 = £1.01) |
 | `charges` | `array` | Collection of consumption periods and costs for the current day broken down into 30 minute periods. |
+| `error` | `string` | Only present when the cost couldn't be calculated because rate information is missing for one or more consumption periods. When present, the state and cost totals are unknown, while the consumption sensor continues to report consumption |
 
 Each charge item has the following attributes
 

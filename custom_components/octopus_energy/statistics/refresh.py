@@ -15,7 +15,7 @@ from ..api_client import OctopusEnergyApiClient
 from ..const import DATA_ACCOUNT, DOMAIN, REGEX_DATE
 from .consumption import async_import_external_statistics_from_consumption, get_electricity_consumption_statistic_name, get_electricity_consumption_statistic_unique_id, get_gas_consumption_statistic_name, get_gas_consumption_statistic_unique_id
 from .cost import async_import_external_statistics_from_cost, get_electricity_cost_statistic_name, get_electricity_cost_statistic_unique_id, get_gas_cost_statistic_name, get_gas_cost_statistic_unique_id
-from ..electricity import calculate_electricity_consumption_and_cost
+from ..electricity import calculate_electricity_consumption_and_cost, raise_if_rates_missing
 from ..gas import calculate_gas_consumption_and_cost
 from ..coordinators import get_electricity_meter_tariff, get_gas_meter_tariff
 
@@ -72,6 +72,8 @@ async def async_refresh_previous_electricity_consumption_data(
       None
     )
   
+    raise_if_rates_missing(consumption_and_cost)
+
     if consumption_and_cost is not None:
       previous_consumption_result = await async_import_external_statistics_from_consumption(
         period_from,

@@ -20,6 +20,7 @@ from homeassistant.util.dt import (utcnow)
 
 from . import (
   calculate_electricity_consumption_and_cost,
+  raise_if_rates_missing,
 )
 
 from .base import (OctopusEnergyElectricitySensor)
@@ -150,6 +151,8 @@ class OctopusEnergyPreviousAccumulativeElectricityCostOverride(CoordinatorEntity
           self._standing_charge["value_inc_vat"] if self._standing_charge is not None else None,
           None
         )
+
+        raise_if_rates_missing(consumption_and_cost)
 
         if (consumption_and_cost is not None):
           _LOGGER.debug(f"Calculated previous electricity consumption cost override for '{self._mpan}/{self._serial_number}'...")

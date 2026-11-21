@@ -145,6 +145,10 @@ class OctopusEnergyCurrentAccumulativeElectricityConsumption(MultiCoordinatorEnt
         }, consumption_and_cost["charges"]))
       }
 
+      if consumption_and_cost["total_consumption"] is None:
+        # Peak consumption can't be attributed without the rates, so report the reason
+        self._attributes["error"] = consumption_and_cost["error"]
+
     self._attributes = dict_to_typed_dict(self._attributes)
     super()._handle_coordinator_update()
 
