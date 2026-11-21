@@ -199,14 +199,6 @@ async def async_validate_main_config(data, account_ids = []):
   if (CONFIG_MAIN_API_KEY not in errors and account_info is None):
     errors[CONFIG_MAIN_API_KEY] = "account_not_found"
 
-  if account_info is not None:
-    if (supplies_to_monitor == CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY and
-        len(account_info.get("electricity_meter_points", [])) < 1):
-      errors[CONFIG_MAIN_SUPPLIES_TO_MONITOR] = "selected_supply_not_found"
-    elif (supplies_to_monitor == CONFIG_MAIN_SUPPLIES_TO_MONITOR_GAS and
-          len(account_info.get("gas_meter_points", [])) < 1):
-      errors[CONFIG_MAIN_SUPPLIES_TO_MONITOR] = "selected_supply_not_found"
-
   if (CONFIG_MAIN_HOME_MINI_SETTINGS in data and 
       CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION in data[CONFIG_MAIN_HOME_MINI_SETTINGS] and
       data[CONFIG_MAIN_HOME_MINI_SETTINGS][CONFIG_MAIN_SUPPORTS_LIVE_CONSUMPTION] == True):

@@ -99,32 +99,6 @@ async def test_when_supplies_to_monitor_is_invalid_then_error_returned(supplies_
   assert errors[CONFIG_MAIN_SUPPLIES_TO_MONITOR] == "invalid_supplies_to_monitor"
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize(
-  "supplies_to_monitor,account_info",
-  [
-    (CONFIG_MAIN_SUPPLIES_TO_MONITOR_ELECTRICITY, {"electricity_meter_points": []}),
-    (CONFIG_MAIN_SUPPLIES_TO_MONITOR_GAS, {"electricity_meter_points": [], "gas_meter_points": []}),
-  ],
-)
-async def test_when_selected_supply_is_not_on_account_then_error_returned(supplies_to_monitor, account_info):
-  # Arrange
-  data = {
-    CONFIG_MAIN_API_KEY: "test-api-key",
-    CONFIG_ACCOUNT_ID: "A-123",
-    CONFIG_MAIN_SUPPLIES_TO_MONITOR: supplies_to_monitor,
-  }
-
-  async def async_mocked_get_account(*args, **kwargs):
-    return account_info
-
-  # Act
-  with mock.patch.multiple(OctopusEnergyApiClient, async_get_account=async_mocked_get_account):
-    errors = await async_validate_main_config(data)
-
-  # Assert
-  assert errors[CONFIG_MAIN_SUPPLIES_TO_MONITOR] == "selected_supply_not_found"
-
-@pytest.mark.asyncio
 async def test_when_data_is_valid_then_no_errors_returned():
   # Arrange
   data = {

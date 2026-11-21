@@ -207,7 +207,6 @@
       "invalid_mpan": "Meter not found in account with an active tariff",
       "duplicate_account": "Account has already been configured",
       "invalid_supplies_to_monitor": "Select which supplies should be monitored",
-      "selected_supply_not_found": "The selected supply was not found on this account",
       "incompatible_child_entries": "An existing cost tracker or tariff comparison uses a supply you are trying to disable. Remove or reconfigure it first.",
       "invalid_week_day": "Week reset day must be between 0 and 6 (inclusive)",
       "invalid_month_day": "Month reset day must be between 1 and 28 (inclusive)",
