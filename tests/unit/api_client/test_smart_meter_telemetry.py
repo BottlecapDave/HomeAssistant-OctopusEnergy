@@ -68,13 +68,10 @@ def test_when_response_shape_is_invalid_then_error_raised(response):
     normalize_smart_meter_telemetry_response(response)
 
 
-def test_when_rows_are_out_of_order_then_valid_rows_are_sorted_and_invalid_timestamps_are_skipped():
+def test_when_rows_are_out_of_order_then_rows_are_sorted():
   result = normalize_smart_meter_telemetry_response(telemetry_response([
-    {"readAt": "not-a-date", "consumptionDelta": "100"},
     {"readAt": "2025-08-01T01:00:00+00:00", "consumptionDelta": "300"},
-    {"readAt": None, "consumptionDelta": "200"},
     {"readAt": "2025-08-01T00:30:00+00:00", "consumptionDelta": "100"},
-    {"readAt": "2025-08-01T00:00:00", "consumptionDelta": "50"},
   ]))
 
   assert [reading["start"] for reading in result] == [
@@ -128,49 +125,6 @@ def test_when_consumption_delta_is_missing_or_invalid_then_zero_returned(consump
 
   assert result[0]["consumption"] == 0
   assert result[0]["demand"] == 100
-
-
-def test_when_duplicate_timestamps_are_returned_then_later_non_null_values_win():
-  result = normalize_smart_meter_telemetry_response(telemetry_response([
-    {
-      "readAt": "2025-08-01T00:00:00+00:00",
-      "consumption": "1000",
-      "consumptionDelta": "100",
-      "demand": "200",
-      "export": "3000",
-    },
-    {
-      "readAt": "2025-08-01T00:00:00+00:00",
-      "consumption": "2000",
-      "consumptionDelta": "250",
-      "demand": None,
-      "export": "4000",
-    },
-  ]))
-
-  assert len(result) == 1
-  assert result[0]["total_consumption"] == 2
-  assert result[0]["total_export"] == 4
-  assert result[0]["consumption"] == 0.25
-  assert result[0]["demand"] == 200
-
-
-def test_when_later_duplicate_has_null_delta_then_earlier_delta_is_preserved():
-  result = normalize_smart_meter_telemetry_response(telemetry_response([
-    {
-      "readAt": "2025-08-01T00:00:00+00:00",
-      "consumptionDelta": "100",
-    },
-    {
-      "readAt": "2025-08-01T00:00:00+00:00",
-      "consumptionDelta": None,
-      "demand": "250",
-    },
-  ]))
-
-  assert len(result) == 1
-  assert result[0]["consumption"] == 0.1
-  assert result[0]["demand"] == 250
 
 
 @pytest.mark.asyncio

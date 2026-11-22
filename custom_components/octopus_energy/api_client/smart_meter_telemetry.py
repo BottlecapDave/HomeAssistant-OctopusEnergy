@@ -39,43 +39,19 @@ def normalize_smart_meter_telemetry_response(response_body: Any) -> list[dict]:
   if isinstance(telemetry, list) == False:
     raise SmartMeterTelemetryResponseError("Smart meter telemetry must be a list or null")
 
-  readings_by_start = {}
+  readings = []
   for item in telemetry:
-    if isinstance(item, dict) == False:
-      continue
-
-    read_at = parse_datetime(item.get("readAt")) if isinstance(item.get("readAt"), str) else None
-    if read_at is None or read_at.tzinfo is None or read_at.utcoffset() is None:
-      continue
-
-    total_consumption = _parse_optional_number(item.get("consumption"), 1000)
-    total_export = _parse_optional_number(item.get("export"), 1000)
+    read_at = parse_datetime(item["readAt"])
     consumption_delta = _parse_optional_number(item.get("consumptionDelta"), 1000)
-    demand = _parse_optional_number(item.get("demand"))
-    reading = {
-      "total_consumption": total_consumption,
-      "total_export": total_export,
+    readings.append({
+      "total_consumption": _parse_optional_number(item.get("consumption"), 1000),
+      "total_export": _parse_optional_number(item.get("export"), 1000),
       # The API can omit the delta from a row which still contains useful live
       # demand data. Preserve the existing zero fallback for those rows.
       "consumption": consumption_delta if consumption_delta is not None else 0,
-      "demand": demand,
+      "demand": _parse_optional_number(item.get("demand")),
       "start": read_at,
       "end": read_at + timedelta(minutes=30),
-    }
+    })
 
-    existing_reading = readings_by_start.get(read_at)
-    if existing_reading is None:
-      readings_by_start[read_at] = reading
-      continue
-
-    later_values = {
-      "total_consumption": total_consumption,
-      "total_export": total_export,
-      "consumption": consumption_delta,
-      "demand": demand,
-    }
-    for key, value in later_values.items():
-      if value is not None:
-        existing_reading[key] = value
-
-  return sorted(readings_by_start.values(), key=lambda reading: reading["start"])
+  return sorted(readings, key=lambda reading: reading["start"])
