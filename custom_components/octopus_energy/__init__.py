@@ -22,6 +22,7 @@ from homeassistant.helpers.helper_integration import (
 
 from .api_client_home_pro import OctopusEnergyHomeProApiClient
 from .coordinators.account import AccountCoordinatorResult, async_setup_account_info_coordinator
+from .coordinators.current_consumption import clear_home_mini_data_stale_issues
 from .coordinators.intelligent_dispatches import IntelligentDispatchesCoordinatorResult, async_setup_intelligent_dispatches_coordinator
 from .coordinators.intelligent_settings import async_setup_intelligent_settings_coordinator
 from .coordinators.electricity_rates import async_setup_electricity_rates_coordinator
@@ -499,6 +500,7 @@ async def async_unload_entry(hass, entry):
       if unload_ok:
         account_id = entry.data[CONFIG_ACCOUNT_ID]
         await _async_close_client(hass, account_id)
+        clear_home_mini_data_stale_issues(hass, hass.data[DOMAIN][account_id])
         hass.data[DOMAIN].pop(account_id)
 
     elif entry.data[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:

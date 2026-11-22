@@ -1,7 +1,7 @@
-from .base import OctopusEnergyBaseDataLastRetrieved
+from .current_consumption_data_last_retrieved_base import OctopusEnergyBaseCurrentConsumptionDataLastRetrieved
 from ..gas.base import OctopusEnergyGasSensor
 
-class OctopusEnergyGasCurrentConsumptionDataLastRetrieved(OctopusEnergyBaseDataLastRetrieved, OctopusEnergyGasSensor):
+class OctopusEnergyGasCurrentConsumptionDataLastRetrieved(OctopusEnergyBaseCurrentConsumptionDataLastRetrieved, OctopusEnergyGasSensor):
   """Sensor for displaying the last time the current consumption data was last retrieved."""
 
   def __init__(self, hass, coordinator, meter, point):
@@ -9,7 +9,7 @@ class OctopusEnergyGasCurrentConsumptionDataLastRetrieved(OctopusEnergyBaseDataL
     self._mprn = point["mprn"]
     self._serial_number = meter["serial_number"]
     OctopusEnergyGasSensor.__init__(self, hass, meter, point)
-    OctopusEnergyBaseDataLastRetrieved.__init__(self, hass, coordinator)
+    OctopusEnergyBaseCurrentConsumptionDataLastRetrieved.__init__(self, hass, coordinator)
 
   @property
   def unique_id(self):
