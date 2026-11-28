@@ -81,7 +81,7 @@ async def async_refresh_devices(
       # Check if devices have been removed
       for current_device in current_intelligent_devices:
         # Delete legacy issues
-        ir.async_delete_issue(hass, DOMAIN, REPAIR_INTELLIGENT_DEVICE_CHANGED.format(device.id))
+        ir.async_delete_issue(hass, DOMAIN, REPAIR_INTELLIGENT_DEVICE_CHANGED.format(current_device.id))
         device_present = False
         for device in devices:
           if device.id == current_device.id:
@@ -92,14 +92,14 @@ async def async_refresh_devices(
           ir.async_create_issue(
             hass,
             DOMAIN,
-            safe_repair_key(REPAIR_INTELLIGENT_DEVICE_REMOVED, device.id),
+            safe_repair_key(REPAIR_INTELLIGENT_DEVICE_REMOVED, current_device.id),
             is_fixable=False,
             severity=ir.IssueSeverity.WARNING,
             translation_key="intelligent_device_removed",
             translation_placeholders={ "account_id": account_id },
           )
         else:
-          ir.async_delete_issue(hass, DOMAIN, safe_repair_key(REPAIR_INTELLIGENT_DEVICE_REMOVED, device.id))
+          ir.async_delete_issue(hass, DOMAIN, safe_repair_key(REPAIR_INTELLIGENT_DEVICE_REMOVED, current_device.id))
 
       return IntelligentDeviceCoordinatorResult(current, 1, devices)
     except Exception as e:
