@@ -403,6 +403,56 @@ Each event item will include the following attributes
         Free electricity session events updated. The latest event is at {{ trigger.event.data.events[-1]["start"] }}
 ```
 
+## Account
+
+### Account Balance
+
+`octopus_energy_account_balance`
+
+This is fired when the account balance is retrieved. The balance is only retrieved while the [account balance sensor](./entities/account.md#account-balance) or its [data last retrieved sensor](./entities/diagnostics.md#account-balance-data-last-retrieved) is enabled, so this event will not be fired otherwise.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `account_id` | `string` | The id of the account the balance is for |
+| `balance` | `float` | The balance of the account in pounds. Positive is in credit, negative is in debit |
+| `last_transaction_date` | `date` | The date the latest transaction was posted. The balance includes all transactions posted up to the end of that day. `null` if the account has no transactions |
+| `transactions` | `array` | The most recent transactions on the account (up to 10), newest first. Includes bills, payments, refunds and credits |
+
+Each transaction item will include the following attributes. Any of them, other than `type`, can be `null` if Octopus Energy does not provide a value.
+
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `id` | `string` | The id of the transaction |
+| `type` | `string` | The type of the transaction. This will be one of `charge`, `payment`, `refund` or `credit` |
+| `posted_date` | `date` | The date the transaction was posted |
+| `title` | `string` | The title of the transaction, if available |
+| `amount` | `float` | The amount of the transaction in pounds, as reported by Octopus Energy. The sign depends on the type of transaction; for example, export earnings appear as negative charges. Use `balance_after` to see the effect on the balance |
+| `balance_after` | `float` | The balance Octopus Energy reports after this transaction was applied, in pounds. Positive is in credit |
+| `is_export` | `boolean` | Whether the charge is for export. `null` unless the transaction is a charge |
+| `consumption_start` | `date` | The first day of the consumption the charge covers (inclusive). `null` unless the transaction is a charge |
+| `consumption_end` | `date` | The last day of the consumption the charge covers (inclusive). `null` unless the transaction is a charge |
+| `consumption_quantity` | `float` | The amount of energy consumed. `null` unless the transaction is a charge |
+| `consumption_unit` | `string` | The unit of the consumption. `null` unless the transaction is a charge |
+
+#### Automation Example
+
+```yaml
+- trigger:
+  - platform: event
+    event_type: octopus_energy_account_balance
+  condition:
+  - condition: template
+    value_template: "{{ trigger.event.data.balance < 0 }}"
+  action:
+  - service: persistent_notification.create
+    data:
+      title: "Account In Debit"
+      message: >
+        Account {{ trigger.event.data.account_id }} is in debit by £{{ trigger.event.data.balance | abs }}
+```
+
+To get the latest charge, you can use `{{ trigger.event.data.transactions | selectattr("type", "eq", "charge") | first }}`.
+
 ## Tariff Comparisons
 
 ### Electricity Previous Consumption Tariff Comparison Rates
