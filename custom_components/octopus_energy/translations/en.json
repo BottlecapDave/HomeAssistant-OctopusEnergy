@@ -117,7 +117,7 @@
           "auto_discover_cost_trackers": "Automatically discover sensors suitable for cost trackers"
         },
         "data_description": {
-          "api_key": "You API key can be found at {octopus_energy_api_access_url}",
+          "api_key": "Your API key can be found at {octopus_energy_api_access_url}",
           "calorific_value": "This can be found on your gas statement and can change from time to time"
         },
         "sections": {
