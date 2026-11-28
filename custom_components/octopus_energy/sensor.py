@@ -284,6 +284,17 @@ async def async_setup_entry(hass, entry, async_add_entities):
   elif config[CONFIG_KIND] == CONFIG_KIND_TARIFF_COMPARISON:
     await async_setup_tariff_comparison_sensors(hass, entry, config, async_add_entities)
 
+def setup_wheel_of_fortune_sensors(hass: HomeAssistant, coordinator, client, account_id: str, account_info):
+  """Create the Wheel of Fortune spin sensors for the supplies present on the account"""
+  entities = []
+  if account_info is None or len(account_info["electricity_meter_points"]) > 0:
+    entities.append(OctopusEnergyWheelOfFortuneElectricitySpins(hass, coordinator, client, account_id))
+
+  if account_info is None or len(account_info["gas_meter_points"]) > 0:
+    entities.append(OctopusEnergyWheelOfFortuneGasSpins(hass, coordinator, client, account_id))
+
+  return entities
+
 async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_entities):
   account_id = config[CONFIG_ACCOUNT_ID]
   legacy_saving_sessions_free_electricity_present = config[CONFIG_MAIN_LEGACY_SAVING_SESSIONS_FREE_ELECTRICITY_PRESENT] if CONFIG_MAIN_LEGACY_SAVING_SESSIONS_FREE_ELECTRICITY_PRESENT in config else False
@@ -300,8 +311,7 @@ async def async_setup_default_sensors(hass: HomeAssistant, config, async_add_ent
   
   entities = [
     OctopusEnergyAccountDataLastRetrieved(hass, hass.data[DOMAIN][account_id][DATA_ACCOUNT_COORDINATOR], account_id),
-    OctopusEnergyWheelOfFortuneElectricitySpins(hass, wheel_of_fortune_coordinator, client, account_id),
-    OctopusEnergyWheelOfFortuneGasSpins(hass, wheel_of_fortune_coordinator, client, account_id),
+    *setup_wheel_of_fortune_sensors(hass, wheel_of_fortune_coordinator, client, account_id, account_info),
     OctopusEnergyPowerDownDataLastRetrieved(hass, power_up_down_coordinator, account_id),
     OctopusEnergyWheelOfFortuneDataLastRetrieved(hass, wheel_of_fortune_coordinator, account_id)
   ]
